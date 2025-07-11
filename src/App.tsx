@@ -124,6 +124,42 @@ const App = () => (
                   </Layout>
                 </ProtectedRoute>
               } />
+              <Route path="/affiliate" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PlaceholderPage
+                      title="Affiliazione"
+                      description="Guadagna con il programma affiliati" 
+                      icon={<Handshake className="h-6 w-6 text-white" />}
+                      features={["Link affiliazione", "Commissioni", "Statistiche guadagni", "Materiali promozionali"]}
+                    />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/tutorial" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PlaceholderPage
+                      title="Tutorial"
+                      description="Impara ad usare PetVoice"
+                      icon={<GraduationCap className="h-6 w-6 text-white" />}
+                      features={["Video guide", "Documentazione", "FAQ", "Best practices"]}
+                    />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/support" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <PlaceholderPage
+                      title="Supporto"
+                      description="Ottieni aiuto quando ne hai bisogno"
+                      icon={<HeadphonesIcon className="h-6 w-6 text-white" />}
+                      features={["Chat live", "Ticket support", "Knowledge base", "Contatti diretti"]}
+                    />
+                  </Layout>
+                </ProtectedRoute>
+              } />
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <Layout>
