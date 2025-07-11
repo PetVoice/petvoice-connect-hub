@@ -27,6 +27,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { AddPetDialog } from '@/components/AddPetDialog';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -44,6 +45,7 @@ const Header: React.FC = () => {
     return localStorage.getItem('petvoice-selected-pet') || '';
   });
   const [loadingPets, setLoadingPets] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   // Carica i pets dell'utente
   useEffect(() => {
@@ -79,64 +81,73 @@ const Header: React.FC = () => {
     };
 
     loadPets();
-  }, [user, selectedPet]);
+  }, [user]);
 
-  // Ascolta eventi personalizzati per aggiornare i pets
+  // Sottoscrizione realtime per aggiornamenti automatici dei pets
   useEffect(() => {
-    const handlePetsUpdate = () => {
-      // Ricarica i pets quando riceve l'evento
-      if (user) {
-        const loadPets = async () => {
-          try {
-            const { data: petsData, error } = await supabase
-              .from('pets')
-              .select('id, name, type, avatar_url')
-              .eq('user_id', user.id)
-              .eq('is_active', true)
-              .order('name');
+    if (!user) return;
 
-            if (!error && petsData) {
-              setPets(petsData);
-              
-              // Se il pet selezionato non esiste più, seleziona il primo disponibile
-              const currentSelectedPet = localStorage.getItem('petvoice-selected-pet');
-              if (currentSelectedPet) {
-                const stillExists = petsData.find(pet => pet.id === currentSelectedPet);
-                if (!stillExists && petsData.length > 0) {
+    const channel = supabase
+      .channel('pets-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pets',
+          filter: `user_id=eq.${user.id}`
+        },
+        async (payload) => {
+          console.log('Pet change detected:', payload);
+          
+          // Ricarica i pets
+          const { data: petsData, error } = await supabase
+            .from('pets')
+            .select('id, name, type, avatar_url')
+            .eq('user_id', user.id)
+            .eq('is_active', true)
+            .order('name');
+
+          if (!error && petsData) {
+            setPets(petsData);
+            
+            // Auto-seleziona il nuovo pet se è stato appena aggiunto
+            if (payload.eventType === 'INSERT' && payload.new) {
+              if (!selectedPet || pets.length === 0) {
+                setSelectedPet(payload.new.id);
+                localStorage.setItem('petvoice-selected-pet', payload.new.id);
+              }
+            }
+            
+            // Se il pet selezionato è stato eliminato, seleziona il primo disponibile
+            if (payload.eventType === 'UPDATE' && payload.new?.is_active === false) {
+              if (selectedPet === payload.new.id) {
+                if (petsData.length > 0) {
                   setSelectedPet(petsData[0].id);
                   localStorage.setItem('petvoice-selected-pet', petsData[0].id);
-                } else if (!stillExists) {
+                } else {
                   setSelectedPet('');
                   localStorage.removeItem('petvoice-selected-pet');
                 }
-              } else if (!currentSelectedPet && petsData.length > 0) {
-                // Se non c'è nessun pet selezionato ma ci sono pet disponibili, seleziona il primo
-                setSelectedPet(petsData[0].id);
-                localStorage.setItem('petvoice-selected-pet', petsData[0].id);
               }
             }
-          } catch (error) {
-            console.error('Error reloading pets:', error);
           }
-        };
-        loadPets();
-      }
-    };
+        }
+      )
+      .subscribe();
 
-    // Ascolta eventi personalizzati
-    window.addEventListener('pets-updated', handlePetsUpdate);
-    
     return () => {
-      window.removeEventListener('pets-updated', handlePetsUpdate);
+      supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, selectedPet, pets.length]);
+
 
   const currentPet = pets.find(pet => pet.id === selectedPet);
 
   // Funzione per gestire il cambio/aggiunta pet
   const handlePetChange = (value: string) => {
     if (value === 'add-pet') {
-      navigate('/pets?add=true');
+      setShowAddDialog(true);
     } else {
       setSelectedPet(value);
       localStorage.setItem('petvoice-selected-pet', value);
@@ -311,6 +322,12 @@ const Header: React.FC = () => {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Dialog per aggiungere pet */}
+      <AddPetDialog 
+        open={showAddDialog} 
+        onOpenChange={setShowAddDialog}
+      />
     </header>
   );
 };

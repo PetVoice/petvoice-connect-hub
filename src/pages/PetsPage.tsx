@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { 
   Plus, 
   Edit, 
@@ -90,6 +91,7 @@ const PetsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
+  const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -138,6 +140,28 @@ const PetsPage: React.FC = () => {
       setShowForm(true);
       window.history.replaceState({}, '', window.location.pathname);
     }
+
+    // Sottoscrizione realtime per aggiornamenti automatici
+    const channel = supabase
+      .channel('pets-changes-page')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pets',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('Pet change detected in page:', payload);
+          fetchPets(); // Ricarica la lista
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
@@ -236,8 +260,6 @@ const PetsPage: React.FC = () => {
 
       resetForm();
       fetchPets();
-      // Notifica l'header dell'aggiornamento
-      window.dispatchEvent(new CustomEvent('pets-updated'));
     } catch (error) {
       console.error('Error saving pet:', error);
       toast({
@@ -281,8 +303,6 @@ const PetsPage: React.FC = () => {
   };
 
   const handleDelete = async (petId: string) => {
-    if (!window.confirm('Sei sicuro di voler eliminare questo pet?')) return;
-
     try {
       const { error } = await supabase
         .from('pets')
@@ -296,21 +316,8 @@ const PetsPage: React.FC = () => {
         description: "Pet eliminato con successo!",
       });
 
-      // Se il pet eliminato era quello selezionato, aggiorna il localStorage
-      const selectedPetId = localStorage.getItem('petvoice-selected-pet');
-      if (selectedPetId === petId) {
-        // Rimuovi il pet selezionato o seleziona il primo disponibile
-        const remainingPets = pets.filter(p => p.id !== petId);
-        if (remainingPets.length > 0) {
-          localStorage.setItem('petvoice-selected-pet', remainingPets[0].id);
-        } else {
-          localStorage.removeItem('petvoice-selected-pet');
-        }
-      }
-
       fetchPets();
-      // Notifica l'header dell'aggiornamento
-      window.dispatchEvent(new CustomEvent('pets-updated'));
+      setDeletingPet(null);
     } catch (error) {
       console.error('Error deleting pet:', error);
       toast({
@@ -663,7 +670,7 @@ const PetsPage: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(pet.id)}
+                      onClick={() => setDeletingPet(pet)}
                       className="flex-1 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -676,6 +683,18 @@ const PetsPage: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Dialog di conferma eliminazione */}
+      <ConfirmDialog
+        open={deletingPet !== null}
+        onOpenChange={(open) => !open && setDeletingPet(null)}
+        title="Elimina Pet"
+        description={`Sei sicuro di voler eliminare ${deletingPet?.name}? Questa azione non può essere annullata.`}
+        confirmText="Elimina"
+        cancelText="Annulla"
+        variant="destructive"
+        onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
+      />
     </div>
   );
 };
