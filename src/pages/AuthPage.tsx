@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Monitor } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,7 @@ const AuthPage: React.FC = () => {
   const [checkingEmail, setCheckingEmail] = useState(false);
   
   const { user, signIn, signUp, resetPassword } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -206,6 +208,36 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 gradient-hero relative overflow-hidden">
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4 z-20">
+        <div className="flex items-center gap-1 p-1 bg-card/80 backdrop-blur-md rounded-lg border border-azure/20">
+          <Button
+            variant={theme === 'light' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTheme('light')}
+            className={`h-8 w-8 p-0 ${theme === 'light' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
+          >
+            <Sun className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={theme === 'dark' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTheme('dark')}
+            className={`h-8 w-8 p-0 ${theme === 'dark' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
+          >
+            <Moon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={theme === 'system' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTheme('system')}
+            className={`h-8 w-8 p-0 ${theme === 'system' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
+          >
+            <Monitor className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-azure/10 rounded-full blur-3xl animate-float" />
