@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Heart, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,7 +24,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { supabase } from '@/integrations/supabase/client';
+import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { AddPetDialog } from '@/components/AddPetDialog';
@@ -32,125 +32,23 @@ import { AddPetDialog } from '@/components/AddPetDialog';
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { pets, selectedPetId, setSelectedPetId, loading: loadingPets } = usePets();
   const navigate = useNavigate();
   const [language, setLanguage] = useState('it');
   const [unreadNotifications, setUnreadNotifications] = useState(() => {
     const saved = localStorage.getItem('petvoice-unread-notifications');
     return saved ? parseInt(saved, 10) : 3;
   });
-
-  // State per i pets
-  const [pets, setPets] = useState<any[]>([]);
-  const [selectedPet, setSelectedPet] = useState<string>(() => {
-    return localStorage.getItem('petvoice-selected-pet') || '';
-  });
-  const [loadingPets, setLoadingPets] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
-  // Carica i pets dell'utente
-  useEffect(() => {
-    const loadPets = async () => {
-      if (!user) return;
-      
-      setLoadingPets(true);
-      try {
-        const { data: petsData, error } = await supabase
-          .from('pets')
-          .select('id, name, type, avatar_url')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .order('name');
-
-        if (error) {
-          console.error('Error loading pets:', error);
-          return;
-        }
-
-        setPets(petsData || []);
-        
-        if (!selectedPet && petsData && petsData.length > 0) {
-          const firstPetId = petsData[0].id;
-          setSelectedPet(firstPetId);
-          localStorage.setItem('petvoice-selected-pet', firstPetId);
-        }
-      } catch (error) {
-        console.error('Error loading pets:', error);
-      } finally {
-        setLoadingPets(false);
-      }
-    };
-
-    loadPets();
-  }, [user]);
-
-  // Sottoscrizione realtime per aggiornamenti automatici dei pets
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('pets-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pets',
-          filter: `user_id=eq.${user.id}`
-        },
-        async (payload) => {
-          console.log('Pet change detected:', payload);
-          
-          // Ricarica i pets
-          const { data: petsData, error } = await supabase
-            .from('pets')
-            .select('id, name, type, avatar_url')
-            .eq('user_id', user.id)
-            .eq('is_active', true)
-            .order('name');
-
-          if (!error && petsData) {
-            setPets(petsData);
-            
-            // Auto-seleziona il nuovo pet se è stato appena aggiunto
-            if (payload.eventType === 'INSERT' && payload.new) {
-              if (!selectedPet || pets.length === 0) {
-                setSelectedPet(payload.new.id);
-                localStorage.setItem('petvoice-selected-pet', payload.new.id);
-              }
-            }
-            
-            // Se il pet selezionato è stato eliminato, seleziona il primo disponibile
-            if (payload.eventType === 'UPDATE' && payload.new?.is_active === false) {
-              if (selectedPet === payload.new.id) {
-                if (petsData.length > 0) {
-                  setSelectedPet(petsData[0].id);
-                  localStorage.setItem('petvoice-selected-pet', petsData[0].id);
-                } else {
-                  setSelectedPet('');
-                  localStorage.removeItem('petvoice-selected-pet');
-                }
-              }
-            }
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, selectedPet, pets.length]);
-
-
-  const currentPet = pets.find(pet => pet.id === selectedPet);
+  const currentPet = pets.find(pet => pet.id === selectedPetId);
 
   // Funzione per gestire il cambio/aggiunta pet
   const handlePetChange = (value: string) => {
     if (value === 'add-pet') {
       setShowAddDialog(true);
     } else {
-      setSelectedPet(value);
-      localStorage.setItem('petvoice-selected-pet', value);
+      setSelectedPetId(value);
     }
   };
 
@@ -186,7 +84,7 @@ const Header: React.FC = () => {
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
           {/* Pet Selector */}
-          <Select value={selectedPet} onValueChange={handlePetChange}>
+          <Select value={selectedPetId} onValueChange={handlePetChange}>
             <SelectTrigger className="w-16 h-9">
               <div className="flex items-center justify-center">
                 {loadingPets ? (

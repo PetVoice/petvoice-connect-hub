@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -86,9 +87,8 @@ const getPetEmoji = (type: string) => {
 
 const PetsPage: React.FC = () => {
   const { user } = useAuth();
+  const { pets, loading, updatePet, deletePet, refreshPets } = usePets();
   const navigate = useNavigate();
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -111,58 +111,14 @@ const PetsPage: React.FC = () => {
     year: ''
   });
 
-  const fetchPets = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('pets')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPets(data || []);
-    } catch (error) {
-      console.error('Error fetching pets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    fetchPets();
-    
     const params = new URLSearchParams(window.location.search);
     if (params.get('add') === 'true') {
       setShowForm(true);
       window.history.replaceState({}, '', window.location.pathname);
     }
-
-    // Sottoscrizione realtime per aggiornamenti automatici
-    const channel = supabase
-      .channel('pets-changes-page')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pets',
-          filter: `user_id=eq.${user?.id}`
-        },
-        (payload) => {
-          console.log('Pet change detected in page:', payload);
-          fetchPets(); // Ricarica la lista
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+  }, []);
 
   const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
     if (!birthDate.day || !birthDate.month || !birthDate.year) return null;
@@ -180,7 +136,7 @@ const PetsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !editingPet) return;
 
     if (!formData.name || !formData.type) {
       toast({
@@ -191,18 +147,13 @@ const PetsPage: React.FC = () => {
       return;
     }
 
-    
     try {
       const age = calculateAge(birthDate);
       const birth_date = (birthDate.year && birthDate.month && birthDate.day) 
         ? `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}` 
         : null;
 
-      // Non usiamo più avatar automatici delle razze - l'utente può caricare la sua foto
-      const avatar_url = null;
-
       const petData = {
-        user_id: user.id,
         name: formData.name,
         type: formData.type,
         breed: formData.breed || null,
@@ -215,60 +166,12 @@ const PetsPage: React.FC = () => {
         favorite_activities: formData.favorite_activities || null,
         health_conditions: formData.health_conditions || null,
         personality_traits: formData.personality_traits || null,
-        avatar_url: avatar_url
       };
 
-      if (editingPet) {
-        const { error } = await supabase
-          .from('pets')
-          .update(petData)
-          .eq('id', editingPet.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Pet aggiornato con successo!",
-        });
-      } else {
-        const { error } = await supabase
-          .from('pets')
-          .insert([petData]);
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Pet aggiunto con successo!",
-        });
-
-        // Se è il primo pet aggiunto, selezionalo automaticamente
-        if (pets.length === 0) {
-          const { data: newPets } = await supabase
-            .from('pets')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('is_active', true)
-            .order('created_at', { ascending: false })
-            .limit(1);
-          
-          if (newPets && newPets.length > 0) {
-            localStorage.setItem('petvoice-selected-pet', newPets[0].id);
-          }
-        }
-      }
-
+      await updatePet(editingPet.id, petData);
       resetForm();
-      fetchPets();
     } catch (error) {
-      console.error('Error saving pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante il salvataggio del pet",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+      console.error('Error updating pet:', error);
     }
   };
 
@@ -304,27 +207,10 @@ const PetsPage: React.FC = () => {
 
   const handleDelete = async (petId: string) => {
     try {
-      const { error } = await supabase
-        .from('pets')
-        .update({ is_active: false })
-        .eq('id', petId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Successo",
-        description: "Pet eliminato con successo!",
-      });
-
-      fetchPets();
+      await deletePet(petId);
       setDeletingPet(null);
     } catch (error) {
       console.error('Error deleting pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante l'eliminazione del pet",
-        variant: "destructive",
-      });
     }
   };
 

@@ -8,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 
 interface AddPetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPetAdded?: () => void;
 }
 
 const dogBreeds = [
@@ -46,8 +46,9 @@ const catBreeds = [
   'Tonkinese', 'Turkish Van'
 ];
 
-export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange, onPetAdded }) => {
+export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }) => {
   const { user } = useAuth();
+  const { addPet } = usePets();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -129,7 +130,6 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange, 
         : null;
 
       const petData = {
-        user_id: user.id,
         name: formData.name,
         type: formData.type,
         breed: formData.breed || null,
@@ -145,27 +145,14 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange, 
         avatar_url: null
       };
 
-      const { error } = await supabase
-        .from('pets')
-        .insert([petData]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Successo",
-        description: "Pet aggiunto con successo!",
-      });
-
-      resetForm();
-      onOpenChange(false);
-      onPetAdded?.();
+      const result = await addPet(petData);
+      
+      if (result) {
+        resetForm();
+        onOpenChange(false);
+      }
     } catch (error) {
-      console.error('Error saving pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante il salvataggio del pet",
-        variant: "destructive",
-      });
+      console.error('Error in handleSubmit:', error);
     } finally {
       setLoading(false);
     }
