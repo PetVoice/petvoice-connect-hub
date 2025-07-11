@@ -109,18 +109,6 @@ const PetsPage: React.FC = () => {
     year: ''
   });
 
-  useEffect(() => {
-    fetchPets();
-    
-    // Check if we should open the form immediately (from Dashboard)
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('add') === 'true') {
-      setShowForm(true);
-      // Remove the parameter from URL
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, [user]);
-
   const fetchPets = async () => {
     if (!user) return;
     
@@ -141,6 +129,16 @@ const PetsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPets();
+    
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('add') === 'true') {
+      setShowForm(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [user]);
 
   const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
     if (!birthDate.day || !birthDate.month || !birthDate.year) return null;
@@ -169,7 +167,7 @@ const PetsPage: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    
     try {
       const age = calculateAge(birthDate);
       const birth_date = (birthDate.year && birthDate.month && birthDate.day) 
@@ -238,6 +236,8 @@ const PetsPage: React.FC = () => {
 
       resetForm();
       fetchPets();
+      // Notifica l'header dell'aggiornamento
+      window.dispatchEvent(new CustomEvent('pets-updated'));
     } catch (error) {
       console.error('Error saving pet:', error);
       toast({
@@ -309,6 +309,8 @@ const PetsPage: React.FC = () => {
       }
 
       fetchPets();
+      // Notifica l'header dell'aggiornamento
+      window.dispatchEvent(new CustomEvent('pets-updated'));
     } catch (error) {
       console.error('Error deleting pet:', error);
       toast({
