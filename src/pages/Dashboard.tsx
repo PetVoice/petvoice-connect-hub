@@ -60,8 +60,17 @@ const Dashboard: React.FC = () => {
         
         if (petsData) {
           setPets(petsData);
-          if (petsData.length > 0) {
+          
+          // Controlla se c'è un pet selezionato nel localStorage
+          const selectedPetId = localStorage.getItem('petvoice-selected-pet');
+          const selectedPet = selectedPetId ? petsData.find(pet => pet.id === selectedPetId) : null;
+          
+          if (selectedPet) {
+            setActivePet(selectedPet);
+          } else if (petsData.length > 0) {
             setActivePet(petsData[0]);
+            // Salva il primo pet come selezionato se non ce n'è uno
+            localStorage.setItem('petvoice-selected-pet', petsData[0].id);
           }
         }
       } catch (error) {
@@ -73,6 +82,30 @@ const Dashboard: React.FC = () => {
 
     fetchData();
   }, [user]);
+
+  // Ascolta i cambiamenti del pet selezionato dal localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const selectedPetId = localStorage.getItem('petvoice-selected-pet');
+      if (selectedPetId && pets.length > 0) {
+        const selectedPet = pets.find(pet => pet.id === selectedPetId);
+        if (selectedPet && selectedPet.id !== activePet?.id) {
+          setActivePet(selectedPet);
+        }
+      }
+    };
+
+    // Ascolta i cambiamenti del localStorage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Controlla anche manualmente ogni secondo (per cambiamenti nella stessa tab)
+    const interval = setInterval(handleStorageChange, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [pets, activePet]);
 
   const getUserName = () => {
     if (userProfile?.display_name) {
