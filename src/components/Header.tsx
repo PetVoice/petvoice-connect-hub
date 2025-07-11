@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Plus } from 'lucide-react';
+import { Bell, Moon, Sun, LogOut, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,33 +24,16 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { usePets } from '@/contexts/PetContext';
-import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { AddPetDialog } from '@/components/AddPetDialog';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { pets, selectedPetId, setSelectedPetId, loading: loadingPets } = usePets();
-  const navigate = useNavigate();
   const [language, setLanguage] = useState('it');
   const [unreadNotifications, setUnreadNotifications] = useState(() => {
     const saved = localStorage.getItem('petvoice-unread-notifications');
     return saved ? parseInt(saved, 10) : 3;
   });
-  const [showAddDialog, setShowAddDialog] = useState(false);
-
-  const currentPet = pets.find(pet => pet.id === selectedPetId);
-
-  // Funzione per gestire il cambio/aggiunta pet
-  const handlePetChange = (value: string) => {
-    if (value === 'add-pet') {
-      setShowAddDialog(true);
-    } else {
-      setSelectedPetId(value);
-    }
-  };
 
   const markNotificationsAsRead = () => {
     setUnreadNotifications(0);
@@ -60,17 +43,6 @@ const Header: React.FC = () => {
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-  };
-
-  const getPetEmoji = (type: string) => {
-    const lowerType = type?.toLowerCase() || '';
-    if (lowerType.includes('cane') || lowerType.includes('dog')) return '🐕';
-    if (lowerType.includes('gatto') || lowerType.includes('cat')) return '🐱';
-    if (lowerType.includes('coniglio') || lowerType.includes('rabbit')) return '🐰';
-    if (lowerType.includes('uccello') || lowerType.includes('bird')) return '🐦';
-    if (lowerType.includes('pesce') || lowerType.includes('fish')) return '🐠';
-    if (lowerType.includes('criceto') || lowerType.includes('hamster')) return '🐹';
-    return '🐾';
   };
 
   return (
@@ -83,40 +55,6 @@ const Header: React.FC = () => {
 
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
-          {/* Pet Selector */}
-          <Select value={selectedPetId} onValueChange={handlePetChange}>
-            <SelectTrigger className="w-16 h-9">
-              <div className="flex items-center justify-center">
-                {loadingPets ? (
-                  <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
-                ) : currentPet ? (
-                  <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
-                ) : (
-                  <Plus className="h-4 w-4 text-coral" />
-                )}
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              {pets.length > 0 && (
-                pets.map((pet) => (
-                  <SelectItem key={pet.id} value={pet.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{getPetEmoji(pet.type)}</span>
-                      <span className="text-sm font-medium">{pet.name}</span>
-                    </div>
-                  </SelectItem>
-                ))
-              )}
-              
-              {/* Opzione Aggiungi Pet */}
-              <SelectItem value="add-pet">
-                <div className="flex items-center gap-2 text-coral">
-                  <Plus className="h-4 w-4" />
-                  <span className="text-sm font-medium">Aggiungi Pet</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
 
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
@@ -220,12 +158,6 @@ const Header: React.FC = () => {
           </DropdownMenu>
         </div>
       </div>
-
-      {/* Dialog per aggiungere pet */}
-      <AddPetDialog 
-        open={showAddDialog} 
-        onOpenChange={setShowAddDialog}
-      />
     </header>
   );
 };
