@@ -325,10 +325,10 @@ const Dashboard: React.FC = () => {
   ];
 
   const quickActions = [
-    { title: 'Nuova Analisi', description: 'Analizza le emozioni del tuo pet', icon: Microscope, path: '/analysis', color: 'gradient-coral' },
-    { title: 'Aggiungi Diario', description: 'Registra le attività di oggi', icon: BookOpen, path: '/diary', color: 'gradient-teal' },
-    { title: 'Controlla Benessere', description: 'Monitora la salute emotiva', icon: Heart, path: '/wellness', color: 'gradient-sky' },
-    { title: 'Vedi Statistiche', description: 'Analizza i progressi', icon: BarChart3, path: '/stats', color: 'gradient-hero' },
+    { title: 'Nuova Analisi', description: 'Analizza le emozioni del tuo pet', icon: Microscope, path: '/analysis', color: 'bg-primary' },
+    { title: 'Aggiungi Diario', description: 'Registra le attività di oggi', icon: BookOpen, path: '/diary', color: 'bg-primary' },
+    { title: 'Controlla Benessere', description: 'Monitora la salute emotiva', icon: Heart, path: '/wellness', color: 'bg-primary' },
+    { title: 'Vedi Statistiche', description: 'Analizza i progressi', icon: BarChart3, path: '/stats', color: 'bg-primary' },
   ];
 
   if (loading) {
@@ -488,7 +488,7 @@ const Dashboard: React.FC = () => {
                   <action.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div className="text-center">
-                  <p className="font-medium">{action.title}</p>
+                  <p className="font-medium text-foreground">{action.title}</p>
                   <p className="text-xs text-muted-foreground">{action.description}</p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
