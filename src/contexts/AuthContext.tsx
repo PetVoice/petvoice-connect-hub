@@ -8,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, displayName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
 }
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         toast({
           title: "Accesso effettuato",
-          description: "Benvenuto in PetVoice!",
+          description: `Benvenuto in PetVoice${user?.user_metadata?.display_name ? `, ${user.user_metadata.display_name}` : ''}!`,
         });
       }
       
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, displayName: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -86,14 +86,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: redirectUrl,
+          data: {
+            display_name: displayName
+          }
         }
       });
       
       if (error) {
+        let errorMessage = error.message;
+        if (error.message.includes('already registered')) {
+          errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
+        } else if (error.message.includes('User already registered')) {
+          errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
+        }
+        
         toast({
           title: "Errore di registrazione",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } else {

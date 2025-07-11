@@ -11,6 +11,7 @@ import { ArrowRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -46,13 +47,14 @@ const AuthPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, displayName);
     
     setLoading(false);
     
     if (!error) {
       setEmail('');
       setPassword('');
+      setDisplayName('');
     }
   };
 
@@ -209,6 +211,21 @@ const AuthPage: React.FC = () => {
               
               <TabsContent value="register" className="space-y-4">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reg-name">Nome</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-name"
+                        type="text"
+                        placeholder="Il tuo nome"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        className="pl-3"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="reg-email">Email</Label>
                     <div className="relative">

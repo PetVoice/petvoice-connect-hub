@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,34 +14,81 @@ import {
   BarChart3,
   ArrowRight,
   Clock,
-  Star
+  Star,
+  Plus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Pet {
+  id: string;
+  name: string;
+  type: string;
+  breed: string | null;
+  avatar_url: string | null;
+}
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [activePet, setActivePet] = useState<Pet | null>(null);
+  const [userProfile, setUserProfile] = useState<{ display_name: string | null } | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Demo data
-  const activePet = {
-    name: 'Luna',
-    type: 'Cane',
-    breed: 'Golden Retriever',
-    wellnessScore: 85,
-    avatar: '🐕'
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+
+      try {
+        // Fetch user profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', user.id)
+          .single();
+        
+        setUserProfile(profile);
+
+        // Fetch user's pets
+        const { data: petsData } = await supabase
+          .from('pets')
+          .select('id, name, type, breed, avatar_url')
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+        
+        if (petsData) {
+          setPets(petsData);
+          if (petsData.length > 0) {
+            setActivePet(petsData[0]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  const getUserName = () => {
+    if (userProfile?.display_name) {
+      return userProfile.display_name;
+    }
+    if (user?.user_metadata?.display_name) {
+      return user.user_metadata.display_name;
+    }
+    return 'Caro utente';
   };
 
   const quickStats = [
-    { title: 'Analisi Oggi', value: '3', icon: Microscope, color: 'text-coral' },
-    { title: 'Score Benessere', value: '85%', icon: Heart, color: 'text-teal' },
-    { title: 'Giorni Consecutivi', value: '12', icon: Calendar, color: 'text-sky' },
-    { title: 'Miglioramento', value: '+15%', icon: TrendingUp, color: 'text-success' },
-  ];
-
-  const recentActivities = [
-    { time: '2 ore fa', activity: 'Analisi vocale completata', emotion: 'Felice', confidence: 92 },
-    { time: '5 ore fa', activity: 'Diario aggiornato', emotion: 'Calmo', confidence: 88 },
-    { time: '1 giorno fa', activity: 'Controllo benessere', emotion: 'Energico', confidence: 85 },
-    { time: '2 giorni fa', activity: 'Sessione di gioco', emotion: 'Giocoso', confidence: 90 },
+    { title: 'Analisi Oggi', value: '0', icon: Microscope, color: 'text-coral' },
+    { title: 'Score Benessere', value: activePet ? '85%' : '-', icon: Heart, color: 'text-teal' },
+    { title: 'Giorni Consecutivi', value: '0', icon: Calendar, color: 'text-sky' },
+    { title: 'Miglioramento', value: '-', icon: TrendingUp, color: 'text-success' },
   ];
 
   const quickActions = [
@@ -51,14 +98,27 @@ const Dashboard: React.FC = () => {
     { title: 'Vedi Statistiche', description: 'Analizza i progressi', icon: BarChart3, path: '/stats', color: 'gradient-hero' },
   ];
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coral mx-auto"></div>
+            <p className="mt-4 text-muted-foreground">Caricamento...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Ciao! 👋</h1>
+          <h1 className="text-3xl font-bold">Ciao {getUserName()}! 👋</h1>
           <p className="text-muted-foreground">
-            Ecco come sta {activePet.name} oggi
+            {activePet ? `Ecco come sta ${activePet.name} oggi` : 'Aggiungi il tuo primo pet per iniziare'}
           </p>
         </div>
         <div className="text-right">
@@ -73,46 +133,75 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Active Pet Card */}
-      <Card className="petvoice-card">
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full gradient-coral flex items-center justify-center text-2xl">
-              {activePet.avatar}
+      {/* Active Pet Card o No Pet Message */}
+      {activePet ? (
+        <Card className="petvoice-card">
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full gradient-coral flex items-center justify-center text-2xl">
+                {activePet.avatar_url ? (
+                  <img 
+                    src={activePet.avatar_url} 
+                    alt={activePet.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  activePet.type === 'Cane' ? '🐕' : '🐱'
+                )}
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl">{activePet.name}</CardTitle>
+                <CardDescription>{activePet.type} {activePet.breed && `• ${activePet.breed}`}</CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate('/pets')}
+              >
+                <PawPrint className="h-4 w-4 mr-2" />
+                Gestisci Pet
+              </Button>
             </div>
-            <div className="flex-1">
-              <CardTitle className="text-xl">{activePet.name}</CardTitle>
-              <CardDescription>{activePet.type} • {activePet.breed}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Score Benessere</span>
+                <span className="text-lg font-bold text-teal">85%</span>
+              </div>
+              <Progress value={85} className="h-2" />
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="bg-teal/10 text-teal">
+                  <Heart className="h-3 w-3 mr-1" />
+                  Ottimo
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  Inizia ad analizzare le emozioni per vedere i progressi
+                </span>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="petvoice-card border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-20 h-20 rounded-full gradient-coral flex items-center justify-center mb-4">
+              <PawPrint className="h-10 w-10 text-white" />
+            </div>
+            <CardTitle className="text-xl mb-2">Nessun Pet Registrato</CardTitle>
+            <CardDescription className="mb-6 max-w-md">
+              Aggiungi il tuo primo pet per iniziare ad analizzare le sue emozioni e monitorare il suo benessere.
+            </CardDescription>
             <Button 
-              variant="outline" 
-              size="sm" 
               onClick={() => navigate('/pets')}
+              className="petvoice-button"
             >
-              <PawPrint className="h-4 w-4 mr-2" />
-              Gestisci Pet
+              <Plus className="h-4 w-4 mr-2" />
+              Aggiungi il tuo primo Pet
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Score Benessere</span>
-              <span className="text-lg font-bold text-teal">{activePet.wellnessScore}%</span>
-            </div>
-            <Progress value={activePet.wellnessScore} className="h-2" />
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-teal/10 text-teal">
-                <Heart className="h-3 w-3 mr-1" />
-                Ottimo
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                +5% rispetto alla settimana scorsa
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -138,7 +227,7 @@ const Dashboard: React.FC = () => {
         <CardHeader>
           <CardTitle>Azioni Rapide</CardTitle>
           <CardDescription>
-            Cosa vuoi fare oggi con {activePet.name}?
+            {activePet ? `Cosa vuoi fare oggi con ${activePet.name}?` : 'Cosa vuoi fare oggi?'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -174,25 +263,11 @@ const Dashboard: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 rounded-lg border">
-                  <div className="w-2 h-2 rounded-full bg-coral"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.activity}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-muted-foreground">{activity.time}</span>
-                      <Badge variant="outline" className="text-xs">
-                        {activity.emotion}
-                      </Badge>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                        <span className="text-xs">{activity.confidence}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8">
+              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground">
+                {activePet ? 'Nessuna attività registrata ancora' : 'Aggiungi un pet per vedere le attività'}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -205,35 +280,11 @@ const Dashboard: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm">Felicità</span>
-                  <span className="text-sm font-medium">85%</span>
-                </div>
-                <Progress value={85} className="h-2" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm">Energia</span>
-                  <span className="text-sm font-medium">78%</span>
-                </div>
-                <Progress value={78} className="h-2" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm">Calma</span>
-                  <span className="text-sm font-medium">92%</span>
-                </div>
-                <Progress value={92} className="h-2" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm">Socievolezza</span>
-                  <span className="text-sm font-medium">71%</span>
-                </div>
-                <Progress value={71} className="h-2" />
-              </div>
+            <div className="text-center py-8">
+              <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground">
+                {activePet ? 'Inizia le analisi per vedere le tendenze' : 'Aggiungi un pet per vedere le statistiche'}
+              </p>
             </div>
           </CardContent>
         </Card>
