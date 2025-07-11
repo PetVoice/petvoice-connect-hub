@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -74,40 +74,64 @@ const AuthPage: React.FC = () => {
 
   if (resetMode) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
-        <Card className="w-full max-w-md shadow-soft">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Reimposta Password</CardTitle>
-            <CardDescription>
+      <div className="min-h-screen flex items-center justify-center p-4 gradient-hero relative overflow-hidden">
+        {/* Floating elements */}
+        <div className="absolute top-20 left-10 w-16 h-16 bg-azure/10 rounded-full float" />
+        <div className="absolute top-40 right-20 w-12 h-12 bg-azure/20 rounded-full float-delayed" />
+        <div className="absolute bottom-32 left-20 w-20 h-20 bg-azure/5 rounded-full float" />
+        
+        <Card className="w-full max-w-md shadow-popup animate-scale-in relative bg-card/95 backdrop-blur-sm border-azure/20">
+          <CardHeader className="text-center space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full gradient-azure flex items-center justify-center animate-glow">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              Reimposta Password
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
               Inserisci la tua email per ricevere il link di reset
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="reset-email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <div className="space-y-2 animate-slide-up">
+                <Label htmlFor="reset-email" className="text-sm font-medium">Email</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
                   <Input
                     id="reset-email"
                     type="email"
                     placeholder="la-tua-email@esempio.com"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 petvoice-input transition-all duration-300 focus:scale-[1.02]"
                     required
                   />
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Button type="submit" className="w-full petvoice-button" disabled={loading}>
-                  {loading ? 'Invio...' : 'Invia Link Reset'}
+              <div className="space-y-3 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                <Button 
+                  type="submit" 
+                  className="w-full petvoice-button h-12 font-medium text-lg" 
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Invio...
+                    </div>
+                  ) : (
+                    <>
+                      Invia Link Reset
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </>
+                  )}
                 </Button>
                 <Button 
                   type="button" 
                   variant="ghost" 
-                  className="w-full" 
+                  className="w-full hover:bg-azure/10 transition-colors" 
                   onClick={() => setResetMode(false)}
                 >
                   Torna al Login
@@ -121,67 +145,104 @@ const AuthPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 gradient-hero">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl gradient-coral flex items-center justify-center mx-auto mb-4 shadow-soft">
-            <span className="text-white font-bold text-2xl">🐾</span>
+    <div className="min-h-screen flex items-center justify-center p-4 gradient-hero relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-azure/10 rounded-full blur-3xl animate-float" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-azure/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-azure/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }} />
+      </div>
+
+      {/* Floating decorative elements */}
+      <div className="absolute top-20 left-10 w-3 h-3 bg-azure rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+      <div className="absolute top-40 right-20 w-2 h-2 bg-azure-light rounded-full animate-bounce" style={{ animationDelay: '1s' }} />
+      <div className="absolute bottom-32 left-20 w-4 h-4 bg-azure/60 rounded-full animate-bounce" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-20 right-10 w-2 h-2 bg-azure-glow rounded-full animate-bounce" style={{ animationDelay: '0.5s' }} />
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo Section */}
+        <div className="text-center mb-8 animate-bounce-in">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow">
+              <span className="text-white font-bold text-3xl">🐾</span>
+            </div>
+            <div className="absolute -inset-2 bg-azure/20 rounded-3xl blur-lg -z-10 animate-pulse" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">PetVoice</h1>
-          <p className="text-white/80">Analizza le emozioni del tuo pet</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-azure-light to-white bg-clip-text text-transparent mb-3 animate-slide-in-left">
+            PetVoice
+          </h1>
+          <p className="text-white/90 text-lg animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+            Analizza le emozioni del tuo pet
+          </p>
+          <div className="flex justify-center mt-4 gap-3">
+            <Heart className="w-5 h-5 text-azure-light animate-bounce" style={{ animationDelay: '0s' }} />
+            <Sparkles className="w-5 h-5 text-white animate-bounce" style={{ animationDelay: '0.3s' }} />
+            <Star className="w-5 h-5 text-azure-glow animate-bounce" style={{ animationDelay: '0.6s' }} />
+          </div>
         </div>
 
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Benvenuto</CardTitle>
-            <CardDescription className="text-center">
-              Accedi o registrati per iniziare
+        <Card className="shadow-popup animate-scale-in bg-card/95 backdrop-blur-md border-azure/20">
+          <CardHeader className="text-center space-y-4">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              Benvenuto
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-base">
+              Accedi o registrati per iniziare il viaggio
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Accedi</TabsTrigger>
-                <TabsTrigger value="register">Registrati</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/50 backdrop-blur-sm">
+                <TabsTrigger 
+                  value="login"
+                  className="data-[state=active]:bg-azure data-[state=active]:text-white transition-all duration-300"
+                >
+                  Accedi
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="register"
+                  className="data-[state=active]:bg-azure data-[state=active]:text-white transition-all duration-300"
+                >
+                  Registrati
+                </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="login" className="space-y-4">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <TabsContent value="login" className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="space-y-2 animate-slide-up">
+                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
                       <Input
                         id="email"
                         type="email"
                         placeholder="la-tua-email@esempio.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
                       <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="La tua password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-9 pr-9"
+                        className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-1 top-1 h-7 w-7"
+                        className="absolute right-1 top-1 h-10 w-10 hover:bg-azure/10 transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -193,66 +254,83 @@ const AuthPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full petvoice-button" disabled={loading}>
-                    {loading ? 'Accesso...' : 'Accedi'}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                    <Button 
+                      type="submit" 
+                      className="w-full petvoice-button h-12 font-medium text-lg group" 
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Accesso...
+                        </div>
+                      ) : (
+                        <>
+                          Accedi
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                   
-                  <Button 
-                    type="button" 
-                    variant="link" 
-                    className="w-full text-sm"
-                    onClick={() => setResetMode(true)}
-                  >
-                    Password dimenticata?
-                  </Button>
+                  <div className="text-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="text-sm text-azure hover:text-azure-dark transition-colors"
+                      onClick={() => setResetMode(true)}
+                    >
+                      Password dimenticata?
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
               
-              <TabsContent value="register" className="space-y-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-name">Nome</Label>
-                    <div className="relative">
+              <TabsContent value="register" className="space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-5">
+                  <div className="space-y-2 animate-slide-up">
+                    <Label htmlFor="reg-name" className="text-sm font-medium">Nome</Label>
+                    <div className="relative group">
                       <Input
                         id="reg-name"
                         type="text"
                         placeholder="Il tuo nome"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        className="pl-3"
+                        className="petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+                    <Label htmlFor="reg-email" className="text-sm font-medium">Email</Label>
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
                       <Input
                         id="reg-email"
                         type="email"
                         placeholder="la-tua-email@esempio.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                    <Label htmlFor="reg-password" className="text-sm font-medium">Password</Label>
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
                       <Input
                         id="reg-password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Scegli una password sicura"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-9 pr-9"
+                        className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                         minLength={6}
                       />
@@ -260,7 +338,7 @@ const AuthPage: React.FC = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-1 top-1 h-7 w-7"
+                        className="absolute right-1 top-1 h-10 w-10 hover:bg-azure/10 transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -270,15 +348,30 @@ const AuthPage: React.FC = () => {
                         )}
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground pl-1">
                       Minimo 6 caratteri
                     </p>
                   </div>
                   
-                  <Button type="submit" className="w-full petvoice-button" disabled={loading}>
-                    {loading ? 'Registrazione...' : 'Registrati'}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+                    <Button 
+                      type="submit" 
+                      className="w-full petvoice-button h-12 font-medium text-lg group" 
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Registrazione...
+                        </div>
+                      ) : (
+                        <>
+                          Registrati
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
             </Tabs>

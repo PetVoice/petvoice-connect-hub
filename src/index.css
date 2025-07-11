@@ -8,40 +8,37 @@
 
 @layer base {
   :root {
-    /* PetVoice Brand Colors */
-    --coral: 0 58% 70%;           /* #FF6B6B */
-    --coral-light: 0 58% 85%;     /* Lighter coral */
-    --coral-dark: 0 58% 55%;      /* Darker coral */
+    /* PetVoice New Blue System */
+    --azure: 206 100% 65%;           /* #3BAAFF - Main Azure */
+    --azure-light: 206 100% 85%;     /* Light Azure */
+    --azure-dark: 206 100% 45%;      /* Dark Azure */
+    --azure-glow: 206 100% 75%;      /* Glow Azure */
     
-    --teal: 174 52% 59%;          /* #4ECDC4 */
-    --teal-light: 174 52% 75%;    /* Lighter teal */
-    --teal-dark: 174 52% 45%;     /* Darker teal */
-    
-    --sky: 200 69% 61%;           /* #45B7D1 */
-    --sky-light: 200 69% 80%;     /* Lighter sky */
-    --sky-dark: 200 69% 45%;      /* Darker sky */
+    --navy: 220 39% 11%;             /* #131A2B - Navy for dark theme */
+    --navy-light: 220 39% 20%;       /* Light Navy */
+    --navy-dark: 220 39% 8%;         /* Darker Navy */
 
-    /* Semantic Colors */
-    --background: 0 0% 100%;
-    --foreground: 224 15% 25%;
+    /* Light Theme Colors */
+    --background: 0 0% 100%;          /* Pure white */
+    --foreground: 220 39% 11%;        /* Navy text */
 
     --card: 0 0% 100%;
-    --card-foreground: 224 15% 25%;
+    --card-foreground: 220 39% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 224 15% 25%;
+    --popover-foreground: 220 39% 11%;
 
-    --primary: var(--coral);
-    --primary-foreground: 0 0% 98%;
+    --primary: var(--azure);
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 9% 46%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 220 39% 11%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 220 20% 50%;
 
-    --accent: var(--teal);
-    --accent-foreground: 0 0% 98%;
+    --accent: var(--azure-light);
+    --accent-foreground: 220 39% 11%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -52,25 +49,27 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: var(--coral);
+    --border: 210 20% 90%;
+    --input: 210 20% 95%;
+    --ring: var(--azure);
 
-    /* Gradients */
-    --gradient-coral: linear-gradient(135deg, hsl(var(--coral)), hsl(var(--coral-light)));
-    --gradient-teal: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--teal-light)));
-    --gradient-sky: linear-gradient(135deg, hsl(var(--sky)), hsl(var(--sky-light)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--coral)), hsl(var(--teal)), hsl(var(--sky)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(220 14% 98%));
+    /* Gradients - Light Theme */
+    --gradient-azure: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-light)));
+    --gradient-azure-white: linear-gradient(135deg, hsl(var(--azure)), hsl(0 0% 100%));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-light)), hsl(0 0% 100%));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(210 20% 98%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 20% 98%));
 
     /* Shadows */
-    --shadow-soft: 0 4px 6px -1px hsl(var(--coral) / 0.1), 0 2px 4px -1px hsl(var(--coral) / 0.06);
-    --shadow-medium: 0 10px 15px -3px hsl(var(--coral) / 0.1), 0 4px 6px -4px hsl(var(--coral) / 0.1);
-    --shadow-glow: 0 0 0 1px hsl(var(--coral) / 0.2), 0 0 20px hsl(var(--coral) / 0.3);
+    --shadow-soft: 0 4px 6px -1px hsl(var(--azure) / 0.1), 0 2px 4px -1px hsl(var(--azure) / 0.05);
+    --shadow-medium: 0 10px 15px -3px hsl(var(--azure) / 0.15), 0 4px 6px -4px hsl(var(--azure) / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(var(--azure) / 0.2), 0 0 30px hsl(var(--azure-glow) / 0.4);
+    --shadow-popup: 0 0 60px hsl(var(--azure-glow) / 0.3);
 
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
     --radius: 0.75rem;
 
@@ -92,27 +91,27 @@
   }
 
   .dark {
-    /* PetVoice Dark Mode Colors */
-    --background: 224 15% 8%;
-    --foreground: 0 0% 98%;
+    /* Dark Theme - Azure & Navy */
+    --background: var(--navy);
+    --foreground: 0 0% 95%;
 
-    --card: 224 15% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: var(--navy-light);
+    --card-foreground: 0 0% 95%;
 
-    --popover: 224 15% 10%;
-    --popover-foreground: 0 0% 98%;
+    --popover: var(--navy-light);
+    --popover-foreground: 0 0% 95%;
 
-    --primary: var(--coral);
-    --primary-foreground: 0 0% 98%;
+    --primary: var(--azure);
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 224 15% 15%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: var(--navy-light);
+    --secondary-foreground: 0 0% 80%;
 
-    --muted: 224 15% 15%;
-    --muted-foreground: 0 0% 70%;
+    --muted: var(--navy-light);
+    --muted-foreground: 0 0% 65%;
 
-    --accent: var(--teal);
-    --accent-foreground: 0 0% 98%;
+    --accent: var(--azure-light);
+    --accent-foreground: var(--navy);
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -123,18 +122,25 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
 
-    --border: 224 15% 20%;
-    --input: 224 15% 20%;
-    --ring: var(--coral);
+    --border: var(--navy-light);
+    --input: var(--navy-light);
+    --ring: var(--azure);
 
-    --sidebar-background: 224 15% 8%;
+    /* Gradients - Dark Theme */
+    --gradient-azure: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-dark)));
+    --gradient-azure-navy: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--navy)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-dark)), hsl(var(--navy)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--navy)), hsl(var(--navy-light)));
+    --gradient-card: linear-gradient(135deg, hsl(var(--navy-light)), hsl(var(--navy)));
+
+    --sidebar-background: var(--navy);
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: var(--coral);
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 224 15% 15%;
+    --sidebar-primary: var(--azure);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--navy-light);
     --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 224 15% 20%;
-    --sidebar-ring: var(--coral);
+    --sidebar-border: var(--navy-light);
+    --sidebar-ring: var(--azure);
   }
 }
 
@@ -150,21 +156,25 @@
 }
 
 @layer components {
-  /* PetVoice Custom Components */
-  .gradient-coral {
-    background: var(--gradient-coral);
+  /* PetVoice Azure System Components */
+  .gradient-azure {
+    background: var(--gradient-azure);
   }
   
-  .gradient-teal {
-    background: var(--gradient-teal);
+  .gradient-azure-white {
+    background: var(--gradient-azure-white);
   }
   
-  .gradient-sky {
-    background: var(--gradient-sky);
+  .gradient-azure-navy {
+    background: var(--gradient-azure-navy);
   }
   
   .gradient-hero {
     background: var(--gradient-hero);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
   }
   
   .shadow-soft {
@@ -175,6 +185,10 @@
     box-shadow: var(--shadow-glow);
   }
   
+  .shadow-popup {
+    box-shadow: var(--shadow-popup);
+  }
+  
   .transition-smooth {
     transition: var(--transition-smooth);
   }
@@ -183,11 +197,59 @@
     transition: var(--transition-bounce);
   }
   
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+  
   .petvoice-card {
     @apply bg-card text-card-foreground shadow-soft rounded-xl p-6 border transition-smooth hover:shadow-glow;
   }
   
   .petvoice-button {
-    @apply transition-smooth hover:scale-105 active:scale-95;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+  }
+  
+  .petvoice-input {
+    @apply bg-input border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-smooth;
+  }
+  
+  .petvoice-popup {
+    @apply shadow-popup backdrop-blur-sm;
+  }
+  
+  /* Floating animations */
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .float-delayed {
+    animation: float 3s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  /* Pulse glow effect */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes pulse-glow {
+    from { box-shadow: var(--shadow-soft); }
+    to { box-shadow: var(--shadow-glow); }
+  }
+  
+  /* Shimmer effect */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, hsl(var(--azure) / 0.1), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 }
