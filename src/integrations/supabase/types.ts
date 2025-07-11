@@ -329,7 +329,7 @@ export type Database = {
     }
     Functions: {
       delete_user_account: {
-        Args: { user_id_to_delete: string }
+        Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
       }
     }
