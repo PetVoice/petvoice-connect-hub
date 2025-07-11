@@ -193,7 +193,7 @@ const Dashboard: React.FC = () => {
               Aggiungi il tuo primo pet per iniziare ad analizzare le sue emozioni e monitorare il suo benessere.
             </CardDescription>
             <Button 
-              onClick={() => navigate('/pets')}
+              onClick={() => navigate('/pets?add=true')}
               className="petvoice-button"
             >
               <Plus className="h-4 w-4 mr-2" />
