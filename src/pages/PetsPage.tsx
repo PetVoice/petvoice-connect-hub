@@ -269,13 +269,9 @@ const PetsPage: React.FC = () => {
             Gestisci le informazioni dei tuoi amici a quattro zampe
           </p>
         </div>
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogTrigger asChild>
-            <Button className="petvoice-button">
-              <Plus className="h-4 w-4 mr-2" />
-              Aggiungi Pet
-            </Button>
-          </DialogTrigger>
+      </div>
+      
+      <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogContent className="max-w-2xl max-h-[90vh]">
             <div className="max-h-[80vh] overflow-y-auto px-1">
               <DialogHeader>
@@ -476,7 +472,6 @@ const PetsPage: React.FC = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
 
       {pets.length === 0 ? (
         <Card className="petvoice-card border-dashed">
