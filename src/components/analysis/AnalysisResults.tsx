@@ -39,7 +39,7 @@ interface AnalysisData {
   behavioral_insights: string;
   recommendations: string[];
   triggers: string[];
-  analysis_duration: string;
+  analysis_duration: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -231,7 +231,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Durata analisi:</span>
-                <span>{selectedAnalysis.analysis_duration}</span>
+                <span>{String(selectedAnalysis.analysis_duration)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Data:</span>

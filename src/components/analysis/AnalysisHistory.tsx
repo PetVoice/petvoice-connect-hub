@@ -36,7 +36,7 @@ interface AnalysisData {
   behavioral_insights: string;
   recommendations: string[];
   triggers: string[];
-  analysis_duration: string;
+  analysis_duration: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -275,7 +275,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                         <span>{format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}</span>
                         <span>{formatFileSize(analysis.file_size)}</span>
-                        <span>{analysis.analysis_duration}</span>
+                        <span>{String(analysis.analysis_duration)}</span>
                       </div>
                     </div>
 

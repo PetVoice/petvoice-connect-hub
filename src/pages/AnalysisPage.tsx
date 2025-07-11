@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
+import type { DateRange } from 'react-day-picker';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -60,7 +61,7 @@ interface AnalysisData {
   behavioral_insights: string;
   recommendations: string[];
   triggers: string[];
-  analysis_duration: string;
+  analysis_duration: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -73,7 +74,7 @@ interface ProcessingState {
 }
 
 const AnalysisPage: React.FC = () => {
-  const { activePet } = usePets();
+  const { selectedPet } = usePets();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('upload');
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
@@ -89,15 +90,15 @@ const AnalysisPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [emotionFilter, setEmotionFilter] = useState('all');
   const [confidenceFilter, setConfidenceFilter] = useState('all');
-  const [dateRange, setDateRange] = useState<{from?: Date; to?: Date} | undefined>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
 
   // Load analyses
   useEffect(() => {
-    if (activePet) {
+    if (selectedPet) {
       loadAnalyses();
     }
-  }, [activePet]);
+  }, [selectedPet]);
 
   // Apply filters
   useEffect(() => {
@@ -105,14 +106,14 @@ const AnalysisPage: React.FC = () => {
   }, [analyses, searchTerm, emotionFilter, confidenceFilter, dateRange]);
 
   const loadAnalyses = async () => {
-    if (!activePet) return;
+    if (!selectedPet) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('pet_analyses')
         .select('*')
-        .eq('pet_id', activePet.id)
+        .eq('pet_id', selectedPet.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -167,7 +168,7 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleFileUpload = async (files: FileList) => {
-    if (!activePet) {
+    if (!selectedPet) {
       toast({
         title: "Errore",
         description: "Seleziona un pet prima di iniziare l'analisi",
@@ -224,7 +225,7 @@ const AnalysisPage: React.FC = () => {
     const fileName = `${Date.now()}_${file.name}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('pet-media')
-      .upload(`analyses/${activePet!.id}/${fileName}`, file);
+      .upload(`analyses/${selectedPet!.id}/${fileName}`, file);
 
     if (uploadError) throw uploadError;
 
@@ -251,7 +252,7 @@ const AnalysisPage: React.FC = () => {
       .from('pet_analyses')
       .insert({
         user_id: (await supabase.auth.getUser()).data.user!.id,
-        pet_id: activePet!.id,
+        pet_id: selectedPet!.id,
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
@@ -342,7 +343,7 @@ const AnalysisPage: React.FC = () => {
     }, 2000);
   };
 
-  if (!activePet) {
+  if (!selectedPet) {
     return (
       <div className="container mx-auto p-6 max-w-4xl">
         <Card className="text-center p-8">
@@ -365,7 +366,7 @@ const AnalysisPage: React.FC = () => {
             Analisi Emotiva
           </h1>
           <p className="text-muted-foreground mt-1">
-            Analizza le emozioni di {activePet.name} con l'intelligenza artificiale
+            Analizza le emozioni di {selectedPet.name} con l'intelligenza artificiale
           </p>
         </div>
         <div className="flex gap-2">
@@ -414,7 +415,7 @@ const AnalysisPage: React.FC = () => {
           {analyses.length > 0 ? (
             <AnalysisResults 
               analyses={analyses.slice(0, 3)} 
-              petName={activePet.name}
+              petName={selectedPet.name}
             />
           ) : (
             <Card className="text-center p-8">
@@ -496,7 +497,7 @@ const AnalysisPage: React.FC = () => {
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start">
                         <CalendarIcon className="h-4 w-4 mr-2" />
-                        {dateRange.from ? (
+                        {dateRange?.from ? (
                           dateRange.to ? (
                             `${format(dateRange.from, "dd/MM/yy", { locale: it })} - ${format(dateRange.to, "dd/MM/yy", { locale: it })}`
                           ) : (
@@ -513,14 +514,13 @@ const AnalysisPage: React.FC = () => {
                         selected={dateRange}
                         onSelect={setDateRange}
                         numberOfMonths={2}
-                        locale={it}
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
               </div>
 
-              {(searchTerm || emotionFilter !== 'all' || confidenceFilter !== 'all' || dateRange.from) && (
+              {(searchTerm || emotionFilter !== 'all' || confidenceFilter !== 'all' || dateRange?.from) && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     {filteredAnalyses.length} di {analyses.length} analisi
@@ -532,7 +532,7 @@ const AnalysisPage: React.FC = () => {
                       setSearchTerm('');
                       setEmotionFilter('all');
                       setConfidenceFilter('all');
-                      setDateRange({});
+                      setDateRange(undefined);
                     }}
                   >
                     Cancella filtri
@@ -547,7 +547,7 @@ const AnalysisPage: React.FC = () => {
             loading={loading}
             selectedAnalyses={selectedAnalyses}
             onSelectionChange={setSelectedAnalyses}
-            petName={activePet.name}
+            petName={selectedPet.name}
           />
         </TabsContent>
       </Tabs>
