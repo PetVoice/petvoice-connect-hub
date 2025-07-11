@@ -363,7 +363,7 @@ const AnalysisPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             Analisi Emotiva
           </h1>
           <p className="text-muted-foreground mt-1">
