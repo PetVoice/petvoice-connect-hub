@@ -104,7 +104,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     const dataArray = new Uint8Array(bufferLength);
 
     const updateLevels = () => {
-      if (!analyserRef.current || !recordingState.isRecording) return;
+      if (!analyserRef.current) return;
 
       analyserRef.current.getByteFrequencyData(dataArray);
       
@@ -120,7 +120,10 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       }
       
       setAudioLevels(levels);
-      animationFrameRef.current = requestAnimationFrame(updateLevels);
+      
+      if (recordingState.isRecording) {
+        animationFrameRef.current = requestAnimationFrame(updateLevels);
+      }
     };
 
     updateLevels();
@@ -196,22 +199,38 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && recordingState.isRecording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
-      
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      
-      streamRef.current?.getTracks().forEach(track => track.stop());
-      audioContextRef.current?.close();
-      
-      setAudioLevels(new Array(20).fill(0));
     }
+    
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    setAudioLevels(new Array(20).fill(0));
+    
+    // Force state update to ensure UI reflects stopped recording
+    setRecordingState(prev => ({
+      ...prev,
+      isRecording: false,
+      isPaused: false
+    }));
   };
 
   const playRecording = () => {
