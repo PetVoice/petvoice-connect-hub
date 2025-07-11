@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
+import AnalysisPage from "@/pages/AnalysisPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import ResetPassword from "@/pages/ResetPassword";
@@ -47,12 +48,7 @@ const App = () => (
               <Route path="/analysis" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Analisi Emotiva"
-                      description="Analizza le emozioni del tuo pet"
-                      icon={<Microscope className="h-6 w-6 text-white" />}
-                      features={["Upload audio/video", "Analisi in tempo reale", "Report dettagliati", "Storico analisi"]}
-                    />
+                    <AnalysisPage />
                   </Layout>
                 </ProtectedRoute>
               } />
