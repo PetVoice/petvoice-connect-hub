@@ -331,12 +331,17 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         {/* Recording Controls */}
         <div className="text-center space-y-4">
           <div className="relative w-32 h-32 mx-auto">
+            {/* Recording indicator ring */}
+            {recordingState.isRecording && (
+              <div className="absolute inset-0 border-4 border-red-500 rounded-full animate-ping opacity-75 pointer-events-none" />
+            )}
+            
             {/* Microphone Button */}
             <Button
               onClick={recordingState.isRecording ? stopRecording : startRecording}
               disabled={permission === 'denied'}
               className={cn(
-                "w-32 h-32 rounded-full text-white transition-all duration-200",
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
                   : "gradient-coral hover:scale-105 shadow-lg"
@@ -348,11 +353,6 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 <Mic className="h-8 w-8" />
               )}
             </Button>
-
-            {/* Recording indicator ring */}
-            {recordingState.isRecording && (
-              <div className="absolute inset-0 border-4 border-red-500 rounded-full animate-ping opacity-75" />
-            )}
           </div>
 
           <div className="space-y-2">
