@@ -136,7 +136,12 @@ const Header: React.FC = () => {
   // Funzione per gestire il cambio/aggiunta pet
   const handlePetChange = (value: string) => {
     if (value === 'add-pet') {
-      navigate('/pets?add=true');
+      // Se siamo già sulla pagina pets, forza il refresh con il parametro add=true
+      if (window.location.pathname === '/pets') {
+        window.location.href = '/pets?add=true';
+      } else {
+        navigate('/pets?add=true');
+      }
     } else {
       setSelectedPet(value);
       localStorage.setItem('petvoice-selected-pet', value);

@@ -218,8 +218,9 @@ const PetsPage: React.FC = () => {
           description: "Pet aggiunto con successo!",
         });
 
-        // Se è il primo pet aggiunto, selezionalo automaticamente
-        if (pets.length === 0) {
+        // Se non c'è un pet selezionato, seleziona automaticamente il nuovo pet
+        const currentSelectedPet = localStorage.getItem('petvoice-selected-pet');
+        if (!currentSelectedPet || pets.length === 0) {
           const { data: newPets } = await supabase
             .from('pets')
             .select('id')
