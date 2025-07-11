@@ -31,6 +31,7 @@ const Header: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState('it');
   const [notifications] = useState(3); // Demo notifications
+  const [unreadNotifications, setUnreadNotifications] = useState(3); // Notifiche non lette
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -82,14 +83,15 @@ const Header: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 relative"
+                onClick={() => setUnreadNotifications(0)} // Marca come lette
               >
                 <Bell className="h-4 w-4" />
-                {notifications > 0 && (
+                {unreadNotifications > 0 && (
                   <Badge 
                     variant="destructive" 
                     className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                   >
-                    {notifications}
+                    {unreadNotifications}
                   </Badge>
                 )}
               </Button>

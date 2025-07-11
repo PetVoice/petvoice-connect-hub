@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
+import ResetPassword from "@/pages/ResetPassword";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/" element={
                 <ProtectedRoute>
                   <Layout>
