@@ -65,13 +65,30 @@ const AppSidebar: React.FC = () => {
 
   const getNavClassName = (path: string) => {
     return isActive(path) 
-      ? "bg-coral/10 text-coral border-r-2 border-coral font-medium" 
-      : "hover:bg-accent/50 text-muted-foreground hover:text-foreground";
+      ? "bg-azure/20 text-azure border-r-2 border-azure font-medium shadow-glow" 
+      : "hover:bg-azure/10 text-muted-foreground hover:text-foreground hover:shadow-glow transition-all duration-300";
   };
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="gap-0">
+        {/* Logo and Title */}
+        <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed ? "justify-center" : ""}`}>
+          <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow">
+            <span className="text-white font-bold text-sm">🐾</span>
+          </div>
+          {!isCollapsed && (
+            <div>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+                PetVoice
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                Dashboard
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel className={isCollapsed ? "hidden" : "block"}>

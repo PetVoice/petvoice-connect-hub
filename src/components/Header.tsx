@@ -28,7 +28,8 @@ const Header: React.FC = () => {
   const [notifications] = useState(3); // Demo notifications
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
   };
 
   return (
@@ -39,11 +40,11 @@ const Header: React.FC = () => {
           <SidebarTrigger />
           
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-coral flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow">
               <span className="text-white font-bold text-sm">🐾</span>
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-xl font-bold gradient-hero bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
                 PetVoice
               </h1>
               <p className="text-xs text-muted-foreground">

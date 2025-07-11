@@ -47,10 +47,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
         : 'light';
 
       root.classList.add(systemTheme);
-      return;
+    } else {
+      root.classList.add(theme);
     }
-
-    root.classList.add(theme);
   }, [theme]);
 
   const value = {

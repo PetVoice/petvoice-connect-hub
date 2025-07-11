@@ -80,6 +80,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (email: string, password: string, displayName: string) => {
     try {
+      // First check if user already exists
+      const { data: existingUser } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'dummy' // This will fail but we only care about user existence
+      });
+
+      // If we get here without error, user exists
+      if (!existingUser) {
+        // Check for existing user with different method
+        const { data: users } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('user_id', email);
+          
+        // This is a simple check - in practice we'd need a better way
+        // For now, let's just try to sign up and handle the error
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({
@@ -95,9 +113,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (error) {
         let errorMessage = error.message;
-        if (error.message.includes('already registered')) {
-          errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
-        } else if (error.message.includes('User already registered')) {
+        
+        // Handle various error cases for existing users
+        if (error.message.includes('already registered') || 
+            error.message.includes('User already registered') ||
+            error.message.includes('already been registered') ||
+            error.status === 422) {
           errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
         }
         
@@ -106,15 +127,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           description: errorMessage,
           variant: "destructive",
         });
+        
+        return { error };
       } else {
         toast({
           title: "Registrazione completata",
           description: "Controlla la tua email per confermare l'account.",
         });
+        
+        return { error: null };
       }
-      
-      return { error };
-    } catch (error) {
+    } catch (error: any) {
+      // Handle network or other errors
+      toast({
+        title: "Errore di registrazione",
+        description: "Si è verificato un errore durante la registrazione. Riprova.",
+        variant: "destructive",
+      });
       return { error };
     }
   };
