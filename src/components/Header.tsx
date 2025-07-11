@@ -31,7 +31,24 @@ const Header: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState('it');
   const [notifications] = useState(3); // Demo notifications
-  const [unreadNotifications, setUnreadNotifications] = useState(3); // Notifiche non lette
+  const [unreadNotifications, setUnreadNotifications] = useState(() => {
+    // Ripristina lo stato dalle notifiche salvate in localStorage
+    const saved = localStorage.getItem('petvoice-unread-notifications');
+    return saved ? parseInt(saved, 10) : 3; // Default 3 se non ci sono dati salvati
+  });
+
+  // Funzione per marcare le notifiche come lette
+  const markNotificationsAsRead = () => {
+    setUnreadNotifications(0);
+    localStorage.setItem('petvoice-unread-notifications', '0');
+  };
+
+  // Funzione per aggiungere nuove notifiche (da usare quando implementeremo notifiche reali)
+  const addNewNotification = () => {
+    const newCount = unreadNotifications + 1;
+    setUnreadNotifications(newCount);
+    localStorage.setItem('petvoice-unread-notifications', newCount.toString());
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -83,7 +100,7 @@ const Header: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 relative"
-                onClick={() => setUnreadNotifications(0)} // Marca come lette
+                onClick={markNotificationsAsRead} // Usa la funzione che salva in localStorage
               >
                 <Bell className="h-4 w-4" />
                 {unreadNotifications > 0 && (
