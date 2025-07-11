@@ -460,18 +460,19 @@ const PetsPage: React.FC = () => {
               Aggiungi Pet
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingPet ? 'Modifica Pet' : 'Aggiungi Nuovo Pet'}
-              </DialogTitle>
-              <DialogDescription>
-                {editingPet 
-                  ? 'Modifica le informazioni del tuo pet'
-                  : 'Inserisci tutte le informazioni del tuo nuovo pet'
-                }
-              </DialogDescription>
-            </DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[90vh]">
+            <div className="max-h-[80vh] overflow-y-auto px-1">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingPet ? 'Modifica Pet' : 'Aggiungi Nuovo Pet'}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingPet 
+                    ? 'Modifica le informazioni del tuo pet'
+                    : 'Inserisci tutte le informazioni del tuo nuovo pet'
+                  }
+                </DialogDescription>
+              </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -495,14 +496,10 @@ const PetsPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona il tipo" />
                     </SelectTrigger>
-                    <SelectContent 
-                      className="select-content-no-scroll"
-                      onWheel={(e) => e.stopPropagation()}
-                      onPointerMove={(e) => e.stopPropagation()}
-                    >
-                      <SelectItem value="Cane">Cane</SelectItem>
-                      <SelectItem value="Gatto">Gatto</SelectItem>
-                    </SelectContent>
+                     <SelectContent>
+                       <SelectItem value="Cane">Cane</SelectItem>
+                       <SelectItem value="Gatto">Gatto</SelectItem>
+                     </SelectContent>
                   </Select>
                 </div>
 
@@ -516,15 +513,11 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona la razza" />
                       </SelectTrigger>
-                      <SelectContent 
-                        className="select-content-no-scroll"
-                        onWheel={(e) => e.stopPropagation()}
-                        onPointerMove={(e) => e.stopPropagation()}
-                      >
-                        {getAvailableBreeds().map((breed) => (
-                          <SelectItem key={breed} value={breed}>{breed}</SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent>
+                         {getAvailableBreeds().map((breed) => (
+                           <SelectItem key={breed} value={breed}>{breed}</SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
                   </div>
                 )}
@@ -550,47 +543,35 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Giorno" />
                       </SelectTrigger>
-                      <SelectContent 
-                        className="select-content-no-scroll"
-                        onWheel={(e) => e.stopPropagation()}
-                        onPointerMove={(e) => e.stopPropagation()}
-                      >
-                        {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
-                          <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent>
+                         {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
+                           <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
 
                     <Select value={birthDate.month} onValueChange={(value) => setBirthDate({...birthDate, month: value})}>
                       <SelectTrigger>
                         <SelectValue placeholder="Mese" />
                       </SelectTrigger>
-                      <SelectContent 
-                        className="select-content-no-scroll"
-                        onWheel={(e) => e.stopPropagation()}
-                        onPointerMove={(e) => e.stopPropagation()}
-                      >
-                        {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
-                          <SelectItem key={month} value={month.toString()}>
-                            {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent>
+                         {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
+                           <SelectItem key={month} value={month.toString()}>
+                             {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
+                           </SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
 
                     <Select value={birthDate.year} onValueChange={(value) => setBirthDate({...birthDate, year: value})}>
                       <SelectTrigger>
                         <SelectValue placeholder="Anno" />
                       </SelectTrigger>
-                      <SelectContent 
-                        className="select-content-no-scroll"
-                        onWheel={(e) => e.stopPropagation()}
-                        onPointerMove={(e) => e.stopPropagation()}
-                      >
-                        {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
-                          <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                        ))}
-                      </SelectContent>
+                       <SelectContent>
+                         {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
+                           <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                         ))}
+                       </SelectContent>
                     </Select>
                   </div>
                   {birthDate.day && birthDate.month && birthDate.year && (
@@ -676,6 +657,7 @@ const PetsPage: React.FC = () => {
                 </Button>
               </div>
             </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
