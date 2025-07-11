@@ -133,31 +133,38 @@ const Header: React.FC = () => {
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
           {/* Pet Selector */}
-          {pets.length > 0 && (
-            <Select value={selectedPet} onValueChange={handlePetChange}>
-              <SelectTrigger className="w-16 h-9">
-                <div className="flex items-center justify-center">
-                  {loadingPets ? (
-                    <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
-                  ) : currentPet ? (
-                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
-                  ) : (
-                    <Heart className="h-4 w-4" />
-                  )}
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {pets.map((pet) => (
+          <Select value={selectedPet} onValueChange={handlePetChange}>
+            <SelectTrigger className="w-16 h-9">
+              <div className="flex items-center justify-center">
+                {loadingPets ? (
+                  <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                ) : currentPet ? (
+                  <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                ) : (
+                  <Heart className="h-4 w-4" />
+                )}
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {pets.length > 0 ? (
+                pets.map((pet) => (
                   <SelectItem key={pet.id} value={pet.id}>
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{getPetEmoji(pet.type)}</span>
                       <span className="text-sm font-medium">{pet.name}</span>
                     </div>
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+                ))
+              ) : (
+                <SelectItem value="no-pets" disabled>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Heart className="h-4 w-4" />
+                    <span className="text-sm">Nessun pet</span>
+                  </div>
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
 
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
