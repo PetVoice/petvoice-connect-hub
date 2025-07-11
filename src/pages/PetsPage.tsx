@@ -87,6 +87,9 @@ const breedAvatars: { [key: string]: string } = {
   'Boxer': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
   'Chihuahua': 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=300&h=300&fit=crop',
   'Border Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+  'American Pit Bull Terrier': 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=300&h=300&fit=crop',
+  'German Shepherd': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
+  'Dachshund': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
   
   // Gatti  
   'Persiano': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
@@ -404,7 +407,7 @@ const PetsPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona il tipo" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent onWheel={(e) => e.stopPropagation()}>
                       <SelectItem value="Cane">Cane</SelectItem>
                       <SelectItem value="Gatto">Gatto</SelectItem>
                     </SelectContent>

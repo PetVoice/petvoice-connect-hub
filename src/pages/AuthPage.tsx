@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
@@ -16,6 +17,8 @@ const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMode, setResetMode] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [checkingEmail, setCheckingEmail] = useState(false);
   
   const { user, signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +48,11 @@ const AuthPage: React.FC = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (emailError) {
+      return; // Non procedere se c'è un errore email
+    }
+    
     setLoading(true);
     
     const { error } = await signUp(email, password, displayName);
@@ -56,6 +64,44 @@ const AuthPage: React.FC = () => {
       setPassword('');
       setDisplayName('');
     }
+  };
+
+  const checkEmailExists = async (emailToCheck: string) => {
+    if (!emailToCheck || !emailToCheck.includes('@')) {
+      setEmailError('');
+      return;
+    }
+
+    setCheckingEmail(true);
+    try {
+      // Prova a fare login con una password dummy per verificare se l'email esiste
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailToCheck,
+        password: 'dummy_password_check_123'
+      });
+
+      // Se l'errore è "Invalid login credentials", l'email non esiste
+      // Se l'errore è diverso o non c'è errore, l'email potrebbe esistere
+      if (error && error.message.includes('Invalid login credentials')) {
+        setEmailError('');
+      } else {
+        setEmailError('Email già registrata');
+      }
+    } catch (error) {
+      setEmailError('');
+    } finally {
+      setCheckingEmail(false);
+    }
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    // Debounce la verifica email
+    const timer = setTimeout(() => {
+      checkEmailExists(value);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -313,11 +359,21 @@ const AuthPage: React.FC = () => {
                         type="email"
                         placeholder="la-tua-email@esempio.com"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
+                        onChange={(e) => handleEmailChange(e.target.value)}
+                        className={`pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02] ${
+                          emailError ? 'border-red-500 focus:border-red-500' : ''
+                        }`}
                         required
                       />
+                      {checkingEmail && (
+                        <div className="absolute right-3 top-3">
+                          <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                        </div>
+                      )}
                     </div>
+                    {emailError && (
+                      <p className="text-xs text-red-500 pl-1">{emailError}</p>
+                    )}
                   </div>
                   
                   <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
@@ -357,7 +413,7 @@ const AuthPage: React.FC = () => {
                     <Button 
                       type="submit" 
                       className="w-full petvoice-button h-12 font-medium text-lg group" 
-                      disabled={loading}
+                      disabled={loading || !!emailError || checkingEmail}
                     >
                       {loading ? (
                         <div className="flex items-center gap-2">
