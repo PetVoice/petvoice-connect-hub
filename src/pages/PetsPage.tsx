@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../styles/dropdown.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,37 +72,125 @@ const catBreeds = [
   'Tonkinese', 'Turkish Van'
 ];
 
-// Avatar mapping for breeds
+// Avatar mapping for breeds - TUTTE LE RAZZE
 const breedAvatars: { [key: string]: string } = {
-  // Cani
-  'Labrador Retriever': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
-  'Golden Retriever': 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300&h=300&fit=crop',
-  'Pastore Tedesco': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
-  'Bulldog Francese': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
-  'Bulldog': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=300&fit=crop',
-  'Beagle': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
-  'Poodle': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
-  'Rottweiler': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
-  'Yorkshire Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
-  'Siberian Husky': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
-  'Boxer': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
-  'Chihuahua': 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=300&h=300&fit=crop',
-  'Border Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+  // Cani - TUTTE LE RAZZE
+  'Affenpinscher': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'Afghan Hound': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Airedale Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Alaskan Malamute': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'American Bulldog': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=300&fit=crop',
+  'American Cocker Spaniel': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
   'American Pit Bull Terrier': 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=300&h=300&fit=crop',
-  'German Shepherd': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
+  'American Staffordshire Terrier': 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=300&h=300&fit=crop',
+  'Basenji': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Basset Hound': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Beagle': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Bearded Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+  'Bernese Mountain Dog': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Bichon Frise': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Bloodhound': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Border Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+  'Border Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Boston Terrier': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'Boxer': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Brittany': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Bulldog': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=300&fit=crop',
+  'Bulldog Francese': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'Bull Terrier': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=300&fit=crop',
+  'Cairn Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Cane Corso': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Cavalier King Charles Spaniel': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Chihuahua': 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=300&h=300&fit=crop',
+  'Chinese Crested': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Chow Chow': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Cocker Spaniel': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
   'Dachshund': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
-  
-  // Gatti  
-  'Persiano': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
-  'Maine Coon': 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop',
-  'Siamese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
-  'Ragdoll': 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=300&h=300&fit=crop',
-  'British Shorthair': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Dalmatian': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Doberman': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'English Setter': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'English Springer Spaniel': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Fox Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'French Bulldog': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'German Shepherd': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
+  'German Shorthaired Pointer': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Golden Retriever': 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300&h=300&fit=crop',
+  'Great Dane': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Greyhound': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Havanese': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Irish Setter': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Irish Wolfhound': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Jack Russell Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Japanese Spitz': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Labrador Retriever': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Lagotto Romagnolo': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Maltese': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Mastiff': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Newfoundland': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Pastore Tedesco': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
+  'Pomeranian': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Poodle': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Pug': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'Rottweiler': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Saint Bernard': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Samoyed': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Schnauzer': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Scottish Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Shar Pei': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Shih Tzu': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Siberian Husky': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Staffordshire Bull Terrier': 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=300&h=300&fit=crop',
+  'Weimaraner': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'West Highland White Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Whippet': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Yorkshire Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+
+  // Gatti - TUTTE LE RAZZE  
+  'Abissino': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'American Curl': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'American Shorthair': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Angora Turco': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
+  'Balinese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
   'Bengala': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Birmano': 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=300&h=300&fit=crop',
+  'Bombay': 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=300&h=300&fit=crop',
+  'British Longhair': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'British Shorthair': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Burmese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
+  'California Spangled': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Certosino': 'https://images.unsplash.com/photo-1596854273338-cbf078db0dc8?w=300&h=300&fit=crop',
+  'Cornish Rex': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Devon Rex': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Egyptian Mau': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Europeo': 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=300&h=300&fit=crop',
+  'Exotic Shorthair': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
+  'Himalayan': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
+  'Japanese Bobtail': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Korat': 'https://images.unsplash.com/photo-1596854273338-cbf078db0dc8?w=300&h=300&fit=crop',
+  'LaPerm': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Maine Coon': 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop',
+  'Manx': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Munchkin': 'https://images.unsplash.com/photo-1574231164645-d6f0e8553590?w=300&h=300&fit=crop',
+  'Nebelung': 'https://images.unsplash.com/photo-1596854273338-cbf078db0dc8?w=300&h=300&fit=crop',
+  'Norwegian Forest Cat': 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop',
+  'Ocicat': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Oriental': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
+  'Persiano': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
+  'Peterbald': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Pixie-bob': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Ragdoll': 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=300&h=300&fit=crop',
   'Russian Blue': 'https://images.unsplash.com/photo-1596854273338-cbf078db0dc8?w=300&h=300&fit=crop',
-  'Sphynx': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Savannah': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
   'Scottish Fold': 'https://images.unsplash.com/photo-1574231164645-d6f0e8553590?w=300&h=300&fit=crop',
-  'Europeo': 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=300&h=300&fit=crop'
+  'Selkirk Rex': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Siamese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
+  'Siberian': 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop',
+  'Singapura': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Somali': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Sphynx': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Tonkinese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
+  'Turkish Van': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop'
 };
 
 const PetsPage: React.FC = () => {
@@ -407,7 +496,11 @@ const PetsPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleziona il tipo" />
                     </SelectTrigger>
-                    <SelectContent onWheel={(e) => e.stopPropagation()}>
+                    <SelectContent 
+                      className="select-content-no-scroll"
+                      onWheel={(e) => e.stopPropagation()}
+                      onPointerMove={(e) => e.stopPropagation()}
+                    >
                       <SelectItem value="Cane">Cane</SelectItem>
                       <SelectItem value="Gatto">Gatto</SelectItem>
                     </SelectContent>
@@ -424,7 +517,11 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona la razza" />
                       </SelectTrigger>
-                      <SelectContent onWheel={(e) => e.stopPropagation()}>
+                      <SelectContent 
+                        className="select-content-no-scroll"
+                        onWheel={(e) => e.stopPropagation()}
+                        onPointerMove={(e) => e.stopPropagation()}
+                      >
                         {getAvailableBreeds().map((breed) => (
                           <SelectItem key={breed} value={breed}>{breed}</SelectItem>
                         ))}
@@ -454,7 +551,11 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Giorno" />
                       </SelectTrigger>
-                      <SelectContent onWheel={(e) => e.stopPropagation()}>
+                      <SelectContent 
+                        className="select-content-no-scroll"
+                        onWheel={(e) => e.stopPropagation()}
+                        onPointerMove={(e) => e.stopPropagation()}
+                      >
                         {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
                           <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
                         ))}
@@ -465,7 +566,11 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Mese" />
                       </SelectTrigger>
-                      <SelectContent onWheel={(e) => e.stopPropagation()}>
+                      <SelectContent 
+                        className="select-content-no-scroll"
+                        onWheel={(e) => e.stopPropagation()}
+                        onPointerMove={(e) => e.stopPropagation()}
+                      >
                         {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
                           <SelectItem key={month} value={month.toString()}>
                             {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
@@ -478,7 +583,11 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Anno" />
                       </SelectTrigger>
-                      <SelectContent onWheel={(e) => e.stopPropagation()}>
+                      <SelectContent 
+                        className="select-content-no-scroll"
+                        onWheel={(e) => e.stopPropagation()}
+                        onPointerMove={(e) => e.stopPropagation()}
+                      >
                         {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
                           <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                         ))}

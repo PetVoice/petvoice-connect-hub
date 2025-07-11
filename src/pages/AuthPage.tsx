@@ -74,20 +74,39 @@ const AuthPage: React.FC = () => {
 
     setCheckingEmail(true);
     try {
-      // Prova a fare login con una password dummy per verificare se l'email esiste
-      const { error } = await supabase.auth.signInWithPassword({
-        email: emailToCheck,
-        password: 'dummy_password_check_123'
+      // Controlla direttamente nella tabella profiles se l'email è già associata a un utente
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .limit(1);
+
+      if (error) {
+        console.error('Error checking profiles:', error);
+        setEmailError('');
+        return;
+      }
+
+      // Se ci sono profili, proviamo a verificare se l'email esiste
+      // Utilizziamo l'API di Supabase per tentare un reset password
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(emailToCheck, {
+        redirectTo: `${window.location.origin}/fake-redirect`
       });
 
-      // Se l'errore è "Invalid login credentials", l'email non esiste
-      // Se l'errore è diverso o non c'è errore, l'email potrebbe esistere
-      if (error && error.message.includes('Invalid login credentials')) {
-        setEmailError('');
+      // Se l'errore è "Email not confirmed", l'email esiste ma non è confermata
+      // Se l'errore è "User not found", l'email non esiste
+      // Se non c'è errore, l'email esiste ed è confermata
+      if (resetError) {
+        if (resetError.message.includes('User not found') || 
+            resetError.message.includes('Unable to validate email address')) {
+          setEmailError('');
+        } else {
+          setEmailError('Email già registrata');
+        }
       } else {
         setEmailError('Email già registrata');
       }
     } catch (error) {
+      console.error('Unexpected error:', error);
       setEmailError('');
     } finally {
       setCheckingEmail(false);
