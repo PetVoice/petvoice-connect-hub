@@ -107,6 +107,18 @@ const Dashboard: React.FC = () => {
     };
   }, [pets, activePet]);
 
+  // Funzione per ottenere l'emoji del tipo di pet
+  const getPetEmoji = (type: string) => {
+    const lowerType = type?.toLowerCase() || '';
+    if (lowerType.includes('cane') || lowerType.includes('dog')) return '🐕';
+    if (lowerType.includes('gatto') || lowerType.includes('cat')) return '🐱';
+    if (lowerType.includes('coniglio') || lowerType.includes('rabbit')) return '🐰';
+    if (lowerType.includes('uccello') || lowerType.includes('bird')) return '🐦';
+    if (lowerType.includes('pesce') || lowerType.includes('fish')) return '🐠';
+    if (lowerType.includes('criceto') || lowerType.includes('hamster')) return '🐹';
+    return '🐾'; // Default
+  };
+
   const getUserName = () => {
     if (userProfile?.display_name) {
       return userProfile.display_name;
@@ -179,7 +191,7 @@ const Dashboard: React.FC = () => {
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  activePet.type === 'Cane' ? '🐕' : '🐱'
+                  getPetEmoji(activePet.type)
                 )}
               </div>
               <div className="flex-1">
