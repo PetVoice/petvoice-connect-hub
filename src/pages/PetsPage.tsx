@@ -276,7 +276,7 @@ const PetsPage: React.FC = () => {
               Aggiungi Pet
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh]">
+          <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
             <div className="max-h-[80vh] overflow-y-auto px-1">
               <DialogHeader>
                 <DialogTitle>

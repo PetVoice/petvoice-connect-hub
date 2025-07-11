@@ -165,7 +165,7 @@ const Header: React.FC = () => {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
+            <PopoverContent className="w-80 p-0 shadow-elegant" align="end">
               <div className="p-4 border-b">
                 <h4 className="font-semibold">Notifiche</h4>
               </div>

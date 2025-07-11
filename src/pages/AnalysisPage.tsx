@@ -509,7 +509,7 @@ const AnalysisPage: React.FC = () => {
                         )}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 shadow-elegant" align="start">
                       <Calendar
                         mode="range"
                         selected={dateRange}
