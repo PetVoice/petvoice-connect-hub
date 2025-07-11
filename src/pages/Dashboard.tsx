@@ -485,7 +485,7 @@ const Dashboard: React.FC = () => {
                 onClick={() => navigate(action.path)}
               >
                 <div className={`w-12 h-12 rounded-xl ${action.color} flex items-center justify-center`}>
-                  <action.icon className="h-6 w-6 text-white" />
+                  <action.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div className="text-center">
                   <p className="font-medium">{action.title}</p>
