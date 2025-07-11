@@ -111,29 +111,104 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const addToDiary = (analysis: AnalysisData) => {
-    // Navigate to diary with pre-filled data
-    console.log('Adding to diary:', analysis);
+    // Create diary entry with analysis data
+    const diaryData = {
+      title: `Analisi emotiva - ${analysis.primary_emotion}`,
+      content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni: ${analysis.recommendations.join(', ')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
+      mood_score: analysis.primary_emotion === 'felice' ? 8 : analysis.primary_emotion === 'calmo' ? 7 : analysis.primary_emotion === 'triste' ? 3 : 5,
+      behavioral_tags: [analysis.primary_emotion, ...Object.keys(analysis.secondary_emotions)],
+      entry_date: format(new Date(), 'yyyy-MM-dd')
+    };
+    console.log('Aggiungendo al diario:', diaryData);
+    // TODO: Navigate to diary page with pre-filled data
   };
 
   const scheduleFollowUp = (analysis: AnalysisData) => {
-    // Navigate to calendar with suggested follow-up
-    console.log('Scheduling follow-up:', analysis);
+    // Calculate suggested follow-up date (7 days from now)
+    const followUpDate = new Date();
+    followUpDate.setDate(followUpDate.getDate() + 7);
+    
+    const followUpData = {
+      title: `Follow-up analisi ${petName}`,
+      description: `Controllo comportamentale dopo analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}. Emozione rilevata: ${analysis.primary_emotion}`,
+      date: followUpDate,
+      type: 'behavioral_check',
+      relatedAnalysis: analysis.id
+    };
+    console.log('Programmando follow-up:', followUpData);
+    // TODO: Navigate to calendar with event creation
   };
 
-  const shareAnalysis = (analysis: AnalysisData) => {
-    // Share functionality
-    if (navigator.share) {
-      navigator.share({
-        title: `Analisi Emotiva - ${petName}`,
-        text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)`,
-        url: window.location.href
-      });
+  const shareAnalysis = async (analysis: AnalysisData) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Analisi Emotiva - ${petName}`,
+          text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)`,
+          url: window.location.href
+        });
+      } else {
+        // Fallback: copy to clipboard
+        const shareText = `Analisi Emotiva - ${petName}\n${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n${window.location.href}`;
+        await navigator.clipboard.writeText(shareText);
+        console.log('Link copiato negli appunti');
+      }
+    } catch (error) {
+      console.log('Condivisione non supportata o annullata');
     }
   };
 
   const downloadReport = (analysis: AnalysisData) => {
-    // Generate and download PDF report
-    console.log('Downloading report:', analysis);
+    // Create a comprehensive text report
+    const reportContent = `
+REPORT ANALISI EMOTIVA - ${petName.toUpperCase()}
+===============================================
+
+Data Analisi: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}
+File Analizzato: ${analysis.file_name}
+Dimensione File: ${formatFileSize(analysis.file_size)}
+Durata Analisi: ${String(analysis.analysis_duration)}
+
+RISULTATI PRIMARI
+==================
+Emozione Principale: ${analysis.primary_emotion.toUpperCase()}
+Livello di Confidenza: ${analysis.primary_confidence}% (${getConfidenceLabel(analysis.primary_confidence)})
+
+EMOZIONI SECONDARIE
+===================
+${Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => 
+  `${emotion}: ${confidence}%`
+).join('\n')}
+
+ANALISI COMPORTAMENTALE
+=======================
+${analysis.behavioral_insights}
+
+RACCOMANDAZIONI
+===============
+${analysis.recommendations.map((rec, i) => `${i + 1}. ${rec}`).join('\n')}
+
+TRIGGER IDENTIFICATI
+====================
+${analysis.triggers.map((trigger, i) => `${i + 1}. ${trigger}`).join('\n')}
+
+---
+Report generato automaticamente da PetCare AI
+${new Date().toLocaleString('it-IT')}
+    `.trim();
+
+    // Create and download the file
+    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log('Report scaricato:', `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`);
   };
 
   if (!selectedAnalysis) return null;
