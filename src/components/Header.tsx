@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bell, Globe, Moon, Sun, LogOut, Settings, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { supabase } from '@/integrations/supabase/client';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const Header: React.FC = () => {
@@ -36,6 +37,60 @@ const Header: React.FC = () => {
     const saved = localStorage.getItem('petvoice-unread-notifications');
     return saved ? parseInt(saved, 10) : 3; // Default 3 se non ci sono dati salvati
   });
+
+  // State per i pets
+  const [pets, setPets] = useState<any[]>([]);
+  const [selectedPet, setSelectedPet] = useState<string>(() => {
+    // Ripristina il pet selezionato da localStorage
+    return localStorage.getItem('petvoice-selected-pet') || '';
+  });
+  const [loadingPets, setLoadingPets] = useState(false);
+
+  // Carica i pets dell'utente
+  useEffect(() => {
+    const loadPets = async () => {
+      if (!user) return;
+      
+      setLoadingPets(true);
+      try {
+        const { data: petsData, error } = await supabase
+          .from('pets')
+          .select('id, name, type, avatar_url')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('name');
+
+        if (error) {
+          console.error('Error loading pets:', error);
+          return;
+        }
+
+        setPets(petsData || []);
+        
+        // Se non c'è un pet selezionato ma ci sono pets, seleziona il primo
+        if (!selectedPet && petsData && petsData.length > 0) {
+          const firstPetId = petsData[0].id;
+          setSelectedPet(firstPetId);
+          localStorage.setItem('petvoice-selected-pet', firstPetId);
+        }
+      } catch (error) {
+        console.error('Error loading pets:', error);
+      } finally {
+        setLoadingPets(false);
+      }
+    };
+
+    loadPets();
+  }, [user, selectedPet]);
+
+  // Trova il pet attualmente selezionato
+  const currentPet = pets.find(pet => pet.id === selectedPet);
+
+  // Funzione per cambiare pet selezionato
+  const handlePetChange = (petId: string) => {
+    setSelectedPet(petId);
+    localStorage.setItem('petvoice-selected-pet', petId);
+  };
 
   // Funzione per marcare le notifiche come lette
   const markNotificationsAsRead = () => {
@@ -55,6 +110,18 @@ const Header: React.FC = () => {
     setTheme(newTheme);
   };
 
+  // Funzione per ottenere l'emoji del tipo di pet
+  const getPetEmoji = (type: string) => {
+    const lowerType = type?.toLowerCase() || '';
+    if (lowerType.includes('cane') || lowerType.includes('dog')) return '🐕';
+    if (lowerType.includes('gatto') || lowerType.includes('cat')) return '🐱';
+    if (lowerType.includes('coniglio') || lowerType.includes('rabbit')) return '🐰';
+    if (lowerType.includes('uccello') || lowerType.includes('bird')) return '🐦';
+    if (lowerType.includes('pesce') || lowerType.includes('fish')) return '🐠';
+    if (lowerType.includes('criceto') || lowerType.includes('hamster')) return '🐹';
+    return '🐾'; // Default
+  };
+
   return (
     <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex h-full items-center justify-between px-4">
@@ -65,6 +132,33 @@ const Header: React.FC = () => {
 
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
+          {/* Pet Selector */}
+          {pets.length > 0 && (
+            <Select value={selectedPet} onValueChange={handlePetChange}>
+              <SelectTrigger className="w-16 h-9">
+                <div className="flex items-center justify-center">
+                  {loadingPets ? (
+                    <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                  ) : currentPet ? (
+                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                  ) : (
+                    <Heart className="h-4 w-4" />
+                  )}
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {pets.map((pet) => (
+                  <SelectItem key={pet.id} value={pet.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getPetEmoji(pet.type)}</span>
+                      <span className="text-sm font-medium">{pet.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
             <SelectTrigger className="w-12 h-9">
