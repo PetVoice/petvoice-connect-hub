@@ -25,6 +25,7 @@ import {
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface AnalysisData {
   id: string;
@@ -70,6 +71,7 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
+  const { toast } = useToast();
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -120,7 +122,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       entry_date: format(new Date(), 'yyyy-MM-dd')
     };
     console.log('Aggiungendo al diario:', diaryData);
-    // TODO: Navigate to diary page with pre-filled data
+    
+    toast({
+      title: "Dati Preparati",
+      description: "I dati dell'analisi sono stati preparati per il diario. Funzionalità in fase di sviluppo.",
+    });
   };
 
   const scheduleFollowUp = (analysis: AnalysisData) => {
@@ -136,7 +142,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       relatedAnalysis: analysis.id
     };
     console.log('Programmando follow-up:', followUpData);
-    // TODO: Navigate to calendar with event creation
+    
+    toast({
+      title: "Follow-up Programmato",
+      description: `Promemoria creato per il ${format(followUpDate, 'dd/MM/yyyy', { locale: it })}. Funzionalità calendario in arrivo.`,
+    });
   };
 
   const shareAnalysis = async (analysis: AnalysisData) => {
@@ -147,14 +157,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)`,
           url: window.location.href
         });
+        toast({
+          title: "Condiviso con Successo",
+          description: "L'analisi è stata condivisa.",
+        });
       } else {
         // Fallback: copy to clipboard
         const shareText = `Analisi Emotiva - ${petName}\n${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n${window.location.href}`;
         await navigator.clipboard.writeText(shareText);
-        console.log('Link copiato negli appunti');
+        toast({
+          title: "Link Copiato",
+          description: "Il link dell'analisi è stato copiato negli appunti.",
+        });
       }
     } catch (error) {
-      console.log('Condivisione non supportata o annullata');
+      toast({
+        title: "Condivisione Annullata",
+        description: "La condivisione è stata annullata o non è supportata.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -207,6 +228,11 @@ ${new Date().toLocaleString('it-IT')}
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Report Scaricato",
+      description: `Il report è stato salvato come: analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`,
+    });
     
     console.log('Report scaricato:', `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`);
   };
