@@ -188,13 +188,19 @@ export type Database = {
       pets: {
         Row: {
           age: number | null
+          allergies: string | null
           avatar_url: string | null
+          birth_date: string | null
           breed: string | null
           created_at: string
           description: string | null
+          favorite_activities: string | null
+          fears: string | null
+          health_conditions: string | null
           id: string
           is_active: boolean | null
           name: string
+          personality_traits: string | null
           type: string
           updated_at: string
           user_id: string
@@ -202,13 +208,19 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          allergies?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           breed?: string | null
           created_at?: string
           description?: string | null
+          favorite_activities?: string | null
+          fears?: string | null
+          health_conditions?: string | null
           id?: string
           is_active?: boolean | null
           name: string
+          personality_traits?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -216,13 +228,19 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          allergies?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           breed?: string | null
           created_at?: string
           description?: string | null
+          favorite_activities?: string | null
+          fears?: string | null
+          health_conditions?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
+          personality_traits?: string | null
           type?: string
           updated_at?: string
           user_id?: string
