@@ -223,9 +223,10 @@ const AnalysisPage: React.FC = () => {
     }));
 
     const fileName = `${Date.now()}_${file.name}`;
+    const userID = (await supabase.auth.getUser()).data.user!.id;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('pet-media')
-      .upload(`analyses/${selectedPet!.id}/${fileName}`, file);
+      .upload(`${userID}/analyses/${selectedPet!.id}/${fileName}`, file);
 
     if (uploadError) throw uploadError;
 
