@@ -179,7 +179,7 @@ const Header: React.FC = () => {
                 ) : currentPet ? (
                   <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
                 ) : (
-                  <Heart className="h-4 w-4" />
+                  <Plus className="h-4 w-4 text-coral" />
                 )}
               </div>
             </SelectTrigger>
@@ -202,15 +202,6 @@ const Header: React.FC = () => {
                   <span className="text-sm font-medium">Aggiungi Pet</span>
                 </div>
               </SelectItem>
-              
-              {pets.length === 0 && (
-                <SelectItem value="no-pets" disabled>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Heart className="h-4 w-4" />
-                    <span className="text-sm">Nessun pet</span>
-                  </div>
-                </SelectItem>
-              )}
             </SelectContent>
           </Select>
 
