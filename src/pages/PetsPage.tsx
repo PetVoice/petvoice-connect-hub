@@ -87,7 +87,7 @@ const getPetEmoji = (type: string) => {
 
 const PetsPage: React.FC = () => {
   const { user } = useAuth();
-  const { pets, loading, updatePet, deletePet, refreshPets } = usePets();
+  const { pets, loading, updatePet, deletePet, addPet } = usePets();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
@@ -115,7 +115,9 @@ const PetsPage: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('add') === 'true') {
+      // Apri automaticamente il popup quando viene navigato con ?add=true
       setShowForm(true);
+      // Pulisci l'URL senza ricaricare la pagina
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -136,7 +138,7 @@ const PetsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !editingPet) return;
+    if (!user) return;
 
     if (!formData.name || !formData.type) {
       toast({
@@ -168,10 +170,16 @@ const PetsPage: React.FC = () => {
         personality_traits: formData.personality_traits || null,
       };
 
-      await updatePet(editingPet.id, petData);
+      if (editingPet) {
+        await updatePet(editingPet.id, petData);
+      } else {
+        // Aggiunta nuovo pet tramite context - il context gestisce automaticamente la selezione
+        await addPet(petData);
+      }
+      
       resetForm();
     } catch (error) {
-      console.error('Error updating pet:', error);
+      console.error('Error saving pet:', error);
     }
   };
 
