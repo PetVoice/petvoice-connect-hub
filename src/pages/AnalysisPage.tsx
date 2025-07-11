@@ -308,7 +308,7 @@ const AnalysisPage: React.FC = () => {
       behavioral_insights: insights[Math.floor(Math.random() * insights.length)],
       recommendations: recommendations.slice(0, Math.floor(Math.random() * 3) + 2),
       triggers: triggers.slice(0, Math.floor(Math.random() * 2) + 1),
-      analysis_duration: `${Math.floor(Math.random() * 5) + 2} secondi`
+      analysis_duration: `${Math.floor(Math.random() * 5) + 2} seconds`
     };
   };
 
