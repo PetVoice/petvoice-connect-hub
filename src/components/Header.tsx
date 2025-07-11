@@ -10,6 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,16 +49,15 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-2">
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-20 h-9">
-              <div className="flex items-center gap-1">
-                <Globe className="h-4 w-4" />
-                <SelectValue />
+            <SelectTrigger className="w-12 h-9">
+              <div className="flex items-center justify-center">
+                {language === 'it' ? '🇮🇹' : language === 'en' ? '🇬🇧' : '🇪🇸'}
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="it">🇮🇹 IT</SelectItem>
-              <SelectItem value="en">🇬🇧 EN</SelectItem>
-              <SelectItem value="es">🇪🇸 ES</SelectItem>
+              <SelectItem value="it">🇮🇹 Italiano</SelectItem>
+              <SelectItem value="en">🇬🇧 English</SelectItem>
+              <SelectItem value="es">🇪🇸 Español</SelectItem>
             </SelectContent>
           </Select>
 
@@ -72,21 +76,47 @@ const Header: React.FC = () => {
           </Button>
 
           {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 relative"
-          >
-            <Bell className="h-4 w-4" />
-            {notifications > 0 && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 relative"
               >
-                {notifications}
-              </Badge>
-            )}
-          </Button>
+                <Bell className="h-4 w-4" />
+                {notifications > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                  >
+                    {notifications}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <div className="p-4 border-b">
+                <h4 className="font-semibold">Notifiche</h4>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                <div className="p-4 border-b">
+                  <div className="text-sm font-medium">Nuovo diario aggiunto</div>
+                  <div className="text-xs text-muted-foreground mt-1">Il tuo pet ha una nuova voce nel diario</div>
+                  <div className="text-xs text-muted-foreground mt-1">2 ore fa</div>
+                </div>
+                <div className="p-4 border-b">
+                  <div className="text-sm font-medium">Analisi completata</div>
+                  <div className="text-xs text-muted-foreground mt-1">L'analisi comportamentale è pronta</div>
+                  <div className="text-xs text-muted-foreground mt-1">1 giorno fa</div>
+                </div>
+                <div className="p-4">
+                  <div className="text-sm font-medium">Promemoria wellness</div>
+                  <div className="text-xs text-muted-foreground mt-1">È ora di aggiornare il punteggio benessere</div>
+                  <div className="text-xs text-muted-foreground mt-1">3 giorni fa</div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* User Menu */}
           <DropdownMenu>
