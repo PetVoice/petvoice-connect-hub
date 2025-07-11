@@ -155,12 +155,12 @@ const AnalysisPage: React.FC = () => {
     // Date filter
     if (dateRange?.from) {
       filtered = filtered.filter(analysis => 
-        new Date(analysis.created_at) >= dateRange.from!
+        new Date(analysis.created_at) >= dateRange!.from!
       );
     }
     if (dateRange?.to) {
       filtered = filtered.filter(analysis => 
-        new Date(analysis.created_at) <= dateRange.to!
+        new Date(analysis.created_at) <= dateRange!.to!
       );
     }
 
@@ -498,10 +498,10 @@ const AnalysisPage: React.FC = () => {
                       <Button variant="outline" className="w-full justify-start">
                         <CalendarIcon className="h-4 w-4 mr-2" />
                         {dateRange?.from ? (
-                          dateRange.to ? (
-                            `${format(dateRange.from, "dd/MM/yy", { locale: it })} - ${format(dateRange.to, "dd/MM/yy", { locale: it })}`
+                          dateRange?.to ? (
+                            `${format(dateRange!.from, "dd/MM/yy", { locale: it })} - ${format(dateRange!.to, "dd/MM/yy", { locale: it })}`
                           ) : (
-                            format(dateRange.from, "dd/MM/yy", { locale: it })
+                            format(dateRange!.from, "dd/MM/yy", { locale: it })
                           )
                         ) : (
                           "Seleziona periodo"
