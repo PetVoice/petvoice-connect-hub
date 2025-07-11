@@ -60,8 +60,17 @@ const Dashboard: React.FC = () => {
         
         if (petsData) {
           setPets(petsData);
-          if (petsData.length > 0) {
+          
+          // Controlla se c'è un pet selezionato nel localStorage
+          const selectedPetId = localStorage.getItem('petvoice-selected-pet');
+          const selectedPet = selectedPetId ? petsData.find(pet => pet.id === selectedPetId) : null;
+          
+          if (selectedPet) {
+            setActivePet(selectedPet);
+          } else if (petsData.length > 0) {
             setActivePet(petsData[0]);
+            // Salva il primo pet come selezionato se non ce n'è uno
+            localStorage.setItem('petvoice-selected-pet', petsData[0].id);
           }
         }
       } catch (error) {
@@ -73,6 +82,42 @@ const Dashboard: React.FC = () => {
 
     fetchData();
   }, [user]);
+
+  // Ascolta i cambiamenti del pet selezionato dal localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const selectedPetId = localStorage.getItem('petvoice-selected-pet');
+      if (selectedPetId && pets.length > 0) {
+        const selectedPet = pets.find(pet => pet.id === selectedPetId);
+        if (selectedPet && selectedPet.id !== activePet?.id) {
+          setActivePet(selectedPet);
+        }
+      }
+    };
+
+    // Ascolta i cambiamenti del localStorage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Controlla anche manualmente ogni secondo (per cambiamenti nella stessa tab)
+    const interval = setInterval(handleStorageChange, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [pets, activePet]);
+
+  // Funzione per ottenere l'emoji del tipo di pet
+  const getPetEmoji = (type: string) => {
+    const lowerType = type?.toLowerCase() || '';
+    if (lowerType.includes('cane') || lowerType.includes('dog')) return '🐕';
+    if (lowerType.includes('gatto') || lowerType.includes('cat')) return '🐱';
+    if (lowerType.includes('coniglio') || lowerType.includes('rabbit')) return '🐰';
+    if (lowerType.includes('uccello') || lowerType.includes('bird')) return '🐦';
+    if (lowerType.includes('pesce') || lowerType.includes('fish')) return '🐠';
+    if (lowerType.includes('criceto') || lowerType.includes('hamster')) return '🐹';
+    return '🐾'; // Default
+  };
 
   const getUserName = () => {
     if (userProfile?.display_name) {
@@ -146,7 +191,7 @@ const Dashboard: React.FC = () => {
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  activePet.type === 'Cane' ? '🐕' : '🐱'
+                  getPetEmoji(activePet.type)
                 )}
               </div>
               <div className="flex-1">

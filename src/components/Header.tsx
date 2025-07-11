@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Heart } from 'lucide-react';
+import { Bell, Globe, Moon, Sun, LogOut, Settings, User, Heart, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -25,23 +25,22 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
   const [language, setLanguage] = useState('it');
-  const [notifications] = useState(3); // Demo notifications
   const [unreadNotifications, setUnreadNotifications] = useState(() => {
-    // Ripristina lo stato dalle notifiche salvate in localStorage
     const saved = localStorage.getItem('petvoice-unread-notifications');
-    return saved ? parseInt(saved, 10) : 3; // Default 3 se non ci sono dati salvati
+    return saved ? parseInt(saved, 10) : 3;
   });
 
   // State per i pets
   const [pets, setPets] = useState<any[]>([]);
   const [selectedPet, setSelectedPet] = useState<string>(() => {
-    // Ripristina il pet selezionato da localStorage
     return localStorage.getItem('petvoice-selected-pet') || '';
   });
   const [loadingPets, setLoadingPets] = useState(false);
@@ -67,7 +66,6 @@ const Header: React.FC = () => {
 
         setPets(petsData || []);
         
-        // Se non c'è un pet selezionato ma ci sono pets, seleziona il primo
         if (!selectedPet && petsData && petsData.length > 0) {
           const firstPetId = petsData[0].id;
           setSelectedPet(firstPetId);
@@ -83,26 +81,71 @@ const Header: React.FC = () => {
     loadPets();
   }, [user, selectedPet]);
 
-  // Trova il pet attualmente selezionato
+  // Ascolta eventi personalizzati per aggiornare i pets
+  useEffect(() => {
+    const handlePetsUpdate = () => {
+      // Ricarica i pets quando riceve l'evento
+      if (user) {
+        const loadPets = async () => {
+          try {
+            const { data: petsData, error } = await supabase
+              .from('pets')
+              .select('id, name, type, avatar_url')
+              .eq('user_id', user.id)
+              .eq('is_active', true)
+              .order('name');
+
+            if (!error && petsData) {
+              setPets(petsData);
+              
+              // Se il pet selezionato non esiste più, seleziona il primo disponibile
+              const currentSelectedPet = localStorage.getItem('petvoice-selected-pet');
+              if (currentSelectedPet) {
+                const stillExists = petsData.find(pet => pet.id === currentSelectedPet);
+                if (!stillExists && petsData.length > 0) {
+                  setSelectedPet(petsData[0].id);
+                  localStorage.setItem('petvoice-selected-pet', petsData[0].id);
+                } else if (!stillExists) {
+                  setSelectedPet('');
+                  localStorage.removeItem('petvoice-selected-pet');
+                }
+              } else if (!currentSelectedPet && petsData.length > 0) {
+                // Se non c'è nessun pet selezionato ma ci sono pet disponibili, seleziona il primo
+                setSelectedPet(petsData[0].id);
+                localStorage.setItem('petvoice-selected-pet', petsData[0].id);
+              }
+            }
+          } catch (error) {
+            console.error('Error reloading pets:', error);
+          }
+        };
+        loadPets();
+      }
+    };
+
+    // Ascolta eventi personalizzati
+    window.addEventListener('pets-updated', handlePetsUpdate);
+    
+    return () => {
+      window.removeEventListener('pets-updated', handlePetsUpdate);
+    };
+  }, [user]);
+
   const currentPet = pets.find(pet => pet.id === selectedPet);
 
-  // Funzione per cambiare pet selezionato
-  const handlePetChange = (petId: string) => {
-    setSelectedPet(petId);
-    localStorage.setItem('petvoice-selected-pet', petId);
+  // Funzione per gestire il cambio/aggiunta pet
+  const handlePetChange = (value: string) => {
+    if (value === 'add-pet') {
+      navigate('/pets?add=true');
+    } else {
+      setSelectedPet(value);
+      localStorage.setItem('petvoice-selected-pet', value);
+    }
   };
 
-  // Funzione per marcare le notifiche come lette
   const markNotificationsAsRead = () => {
     setUnreadNotifications(0);
     localStorage.setItem('petvoice-unread-notifications', '0');
-  };
-
-  // Funzione per aggiungere nuove notifiche (da usare quando implementeremo notifiche reali)
-  const addNewNotification = () => {
-    const newCount = unreadNotifications + 1;
-    setUnreadNotifications(newCount);
-    localStorage.setItem('petvoice-unread-notifications', newCount.toString());
   };
 
   const toggleTheme = () => {
@@ -110,7 +153,6 @@ const Header: React.FC = () => {
     setTheme(newTheme);
   };
 
-  // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
     const lowerType = type?.toLowerCase() || '';
     if (lowerType.includes('cane') || lowerType.includes('dog')) return '🐕';
@@ -119,7 +161,7 @@ const Header: React.FC = () => {
     if (lowerType.includes('uccello') || lowerType.includes('bird')) return '🐦';
     if (lowerType.includes('pesce') || lowerType.includes('fish')) return '🐠';
     if (lowerType.includes('criceto') || lowerType.includes('hamster')) return '🐹';
-    return '🐾'; // Default
+    return '🐾';
   };
 
   return (
@@ -133,31 +175,39 @@ const Header: React.FC = () => {
         {/* Right side - Controls */}
         <div className="flex items-center gap-2">
           {/* Pet Selector */}
-          {pets.length > 0 && (
-            <Select value={selectedPet} onValueChange={handlePetChange}>
-              <SelectTrigger className="w-16 h-9">
-                <div className="flex items-center justify-center">
-                  {loadingPets ? (
-                    <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
-                  ) : currentPet ? (
-                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
-                  ) : (
-                    <Heart className="h-4 w-4" />
-                  )}
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {pets.map((pet) => (
+          <Select value={selectedPet} onValueChange={handlePetChange}>
+            <SelectTrigger className="w-16 h-9">
+              <div className="flex items-center justify-center">
+                {loadingPets ? (
+                  <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                ) : currentPet ? (
+                  <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                ) : (
+                  <Plus className="h-4 w-4 text-coral" />
+                )}
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {pets.length > 0 && (
+                pets.map((pet) => (
                   <SelectItem key={pet.id} value={pet.id}>
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{getPetEmoji(pet.type)}</span>
                       <span className="text-sm font-medium">{pet.name}</span>
                     </div>
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+                ))
+              )}
+              
+              {/* Opzione Aggiungi Pet */}
+              <SelectItem value="add-pet">
+                <div className="flex items-center gap-2 text-coral">
+                  <Plus className="h-4 w-4" />
+                  <span className="text-sm font-medium">Aggiungi Pet</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
@@ -194,7 +244,7 @@ const Header: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 relative"
-                onClick={markNotificationsAsRead} // Usa la funzione che salva in localStorage
+                onClick={markNotificationsAsRead}
               >
                 <Bell className="h-4 w-4" />
                 {unreadNotifications > 0 && (
