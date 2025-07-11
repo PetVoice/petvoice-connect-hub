@@ -136,17 +136,15 @@ const Header: React.FC = () => {
           {pets.length > 0 && (
             <Select value={selectedPet} onValueChange={handlePetChange}>
               <SelectTrigger className="w-16 h-9">
-                <SelectValue asChild>
-                  <div className="flex items-center justify-center">
-                    {loadingPets ? (
-                      <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
-                    ) : currentPet ? (
-                      <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
-                    ) : (
-                      <Heart className="h-4 w-4" />
-                    )}
-                  </div>
-                </SelectValue>
+                <div className="flex items-center justify-center">
+                  {loadingPets ? (
+                    <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                  ) : currentPet ? (
+                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                  ) : (
+                    <Heart className="h-4 w-4" />
+                  )}
+                </div>
               </SelectTrigger>
               <SelectContent>
                 {pets.map((pet) => (
@@ -164,11 +162,9 @@ const Header: React.FC = () => {
           {/* Language Selector */}
           <Select value={language} onValueChange={setLanguage}>
             <SelectTrigger className="w-12 h-9">
-              <SelectValue asChild>
-                <div className="flex items-center justify-center">
-                  {language === 'it' ? '🇮🇹' : language === 'en' ? '🇬🇧' : '🇪🇸'}
-                </div>
-              </SelectValue>
+              <div className="flex items-center justify-center">
+                {language === 'it' ? '🇮🇹' : language === 'en' ? '🇬🇧' : '🇪🇸'}
+              </div>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="it">🇮🇹 Italiano</SelectItem>
