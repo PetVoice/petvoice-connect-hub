@@ -11,8 +11,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Monitor } from 'lucide-react';
 
 const AuthPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,7 @@ const AuthPage: React.FC = () => {
   const [resetMode, setResetMode] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [checkingEmail, setCheckingEmail] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
   
   const { user, signIn, signUp, resetPassword } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -39,7 +42,7 @@ const AuthPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(loginEmail, loginPassword);
     
     if (!error) {
       navigate('/');
@@ -57,13 +60,13 @@ const AuthPage: React.FC = () => {
     
     setLoading(true);
     
-    const { error } = await signUp(email, password, displayName);
+    const { error } = await signUp(registerEmail, registerPassword, displayName);
     
     setLoading(false);
     
     if (!error) {
-      setEmail('');
-      setPassword('');
+      setRegisterEmail('');
+      setRegisterPassword('');
       setDisplayName('');
     }
   };
@@ -110,14 +113,19 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-    // Debounce la verifica email
-    const timer = setTimeout(() => {
-      checkEmailExists(value);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+  const handleEmailChange = (value: string, isRegister: boolean = false) => {
+    if (isRegister) {
+      setRegisterEmail(value);
+      // Solo controlla email se è nella scheda registrazione
+      if (activeTab === 'register') {
+        const timer = setTimeout(() => {
+          checkEmailExists(value);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      setLoginEmail(value);
+    }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -132,6 +140,13 @@ const AuthPage: React.FC = () => {
       setResetMode(false);
       setResetEmail('');
     }
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    // Reset errori quando cambi tab
+    setEmailError('');
+    setCheckingEmail(false);
   };
 
   if (resetMode) {
@@ -283,7 +298,7 @@ const AuthPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6 bg-secondary/50 backdrop-blur-sm">
                 <TabsTrigger 
                   value="login"
@@ -309,8 +324,8 @@ const AuthPage: React.FC = () => {
                         id="email"
                         type="email"
                         placeholder="la-tua-email@esempio.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={loginEmail}
+                        onChange={(e) => handleEmailChange(e.target.value, false)}
                         className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
@@ -325,8 +340,8 @@ const AuthPage: React.FC = () => {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="La tua password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
                         className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                       />
@@ -404,8 +419,8 @@ const AuthPage: React.FC = () => {
                         id="reg-email"
                         type="email"
                         placeholder="la-tua-email@esempio.com"
-                        value={email}
-                        onChange={(e) => handleEmailChange(e.target.value)}
+                        value={registerEmail}
+                        onChange={(e) => handleEmailChange(e.target.value, true)}
                         className={`pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02] ${
                           emailError ? 'border-red-500 focus:border-red-500' : ''
                         }`}
@@ -430,8 +445,8 @@ const AuthPage: React.FC = () => {
                         id="reg-password"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Scegli una password sicura"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
                         className="pl-9 pr-12 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
                         required
                         minLength={6}
