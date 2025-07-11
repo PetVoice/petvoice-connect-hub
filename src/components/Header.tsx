@@ -109,6 +109,10 @@ const Header: React.FC = () => {
                   setSelectedPet('');
                   localStorage.removeItem('petvoice-selected-pet');
                 }
+              } else if (!currentSelectedPet && petsData.length > 0) {
+                // Se non c'è nessun pet selezionato ma ci sono pet disponibili, seleziona il primo
+                setSelectedPet(petsData[0].id);
+                localStorage.setItem('petvoice-selected-pet', petsData[0].id);
               }
             }
           } catch (error) {
