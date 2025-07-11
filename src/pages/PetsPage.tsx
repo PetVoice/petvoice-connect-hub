@@ -42,16 +42,64 @@ interface Pet {
 }
 
 const dogBreeds = [
-  'Labrador Retriever', 'Golden Retriever', 'Pastore Tedesco', 'Bulldog Francese',
-  'Bulldog', 'Beagle', 'Poodle', 'Rottweiler', 'Yorkshire Terrier', 'Dachshund',
-  'Siberian Husky', 'Boxer', 'Great Dane', 'Chihuahua', 'Border Collie'
+  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
+  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
+  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
+  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
+  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman',
+  'English Setter', 'English Springer Spaniel', 'Fox Terrier', 'French Bulldog',
+  'German Shepherd', 'German Shorthaired Pointer', 'Golden Retriever', 'Great Dane',
+  'Greyhound', 'Havanese', 'Irish Setter', 'Irish Wolfhound', 'Jack Russell Terrier',
+  'Japanese Spitz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltese', 'Mastiff',
+  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
+  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
+  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
+  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
 ];
 
 const catBreeds = [
-  'Persiano', 'Maine Coon', 'Siamese', 'Ragdoll', 'British Shorthair',
-  'Abissino', 'Bengala', 'Russian Blue', 'Sphynx', 'Scottish Fold',
-  'Norwegian Forest', 'Birmano', 'American Shorthair', 'Europeo', 'Certosino'
+  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
+  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
+  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
+  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
+  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
+  'Pixie-bob', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
+  'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura', 'Somali', 'Sphynx',
+  'Tonkinese', 'Turkish Van'
 ];
+
+// Avatar mapping for breeds
+const breedAvatars: { [key: string]: string } = {
+  // Cani
+  'Labrador Retriever': 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=300&fit=crop',
+  'Golden Retriever': 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=300&h=300&fit=crop',
+  'Pastore Tedesco': 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=300&h=300&fit=crop',
+  'Bulldog Francese': 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=300&h=300&fit=crop',
+  'Bulldog': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=300&fit=crop',
+  'Beagle': 'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=300&h=300&fit=crop',
+  'Poodle': 'https://images.unsplash.com/photo-1616190264687-b7ebf7aa2eb4?w=300&h=300&fit=crop',
+  'Rottweiler': 'https://images.unsplash.com/photo-1567752881298-894bb81f9379?w=300&h=300&fit=crop',
+  'Yorkshire Terrier': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Siberian Husky': 'https://images.unsplash.com/photo-1605568427561-40dd23c2acea?w=300&h=300&fit=crop',
+  'Boxer': 'https://images.unsplash.com/photo-1551717743-49959800b1f6?w=300&h=300&fit=crop',
+  'Chihuahua': 'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?w=300&h=300&fit=crop',
+  'Border Collie': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+  
+  // Gatti  
+  'Persiano': 'https://images.unsplash.com/photo-1513245543132-31f507417b26?w=300&h=300&fit=crop',
+  'Maine Coon': 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=300&h=300&fit=crop',
+  'Siamese': 'https://images.unsplash.com/photo-1561948955-570b270e7c36?w=300&h=300&fit=crop',
+  'Ragdoll': 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=300&h=300&fit=crop',
+  'British Shorthair': 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=300&h=300&fit=crop',
+  'Bengala': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=300&h=300&fit=crop',
+  'Russian Blue': 'https://images.unsplash.com/photo-1596854273338-cbf078db0dc8?w=300&h=300&fit=crop',
+  'Sphynx': 'https://images.unsplash.com/photo-1572964547716-24607b7f1ed5?w=300&h=300&fit=crop',
+  'Scottish Fold': 'https://images.unsplash.com/photo-1574231164645-d6f0e8553590?w=300&h=300&fit=crop',
+  'Europeo': 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=300&h=300&fit=crop'
+};
 
 const PetsPage: React.FC = () => {
   const { user } = useAuth();
@@ -146,6 +194,11 @@ const PetsPage: React.FC = () => {
         ? `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}` 
         : null;
 
+      // Get avatar based on breed
+      const avatar_url = formData.breed && breedAvatars[formData.breed] 
+        ? breedAvatars[formData.breed] 
+        : null;
+
       const petData = {
         user_id: user.id,
         name: formData.name,
@@ -160,6 +213,7 @@ const PetsPage: React.FC = () => {
         favorite_activities: formData.favorite_activities || null,
         health_conditions: formData.health_conditions || null,
         personality_traits: formData.personality_traits || null,
+        avatar_url: avatar_url
       };
 
       if (editingPet) {
@@ -367,7 +421,7 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona la razza" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent onWheel={(e) => e.stopPropagation()}>
                         {getAvailableBreeds().map((breed) => (
                           <SelectItem key={breed} value={breed}>{breed}</SelectItem>
                         ))}
@@ -386,6 +440,7 @@ const PetsPage: React.FC = () => {
                     value={formData.weight}
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
                     placeholder="Es. 5.2"
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
 
@@ -396,7 +451,7 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Giorno" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent onWheel={(e) => e.stopPropagation()}>
                         {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
                           <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
                         ))}
@@ -407,7 +462,7 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Mese" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent onWheel={(e) => e.stopPropagation()}>
                         {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
                           <SelectItem key={month} value={month.toString()}>
                             {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
@@ -420,7 +475,7 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Anno" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent onWheel={(e) => e.stopPropagation()}>
                         {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
                           <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
                         ))}
