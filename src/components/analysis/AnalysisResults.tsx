@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
+import jsPDF from 'jspdf';
 
 interface AnalysisData {
   id: string;
@@ -182,90 +183,152 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
   const shareAnalysis = async (analysis: AnalysisData) => {
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: `Analisi Emotiva - ${petName}`,
-          text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)`,
-          url: window.location.href
-        });
+      const shareData = {
+        title: `Analisi Emotiva - ${petName}`,
+        text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni: ${analysis.recommendations.slice(0, 2).join(', ')}`,
+        url: window.location.href
+      };
+
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
         toast({
           title: "Condiviso con Successo",
           description: "L'analisi è stata condivisa.",
         });
       } else {
-        // Fallback: copy to clipboard
-        const shareText = `Analisi Emotiva - ${petName}\n${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n${window.location.href}`;
+        // Fallback: copy to clipboard with enhanced content
+        const shareText = `🐾 ${shareData.title}\n\n${shareData.text}\n\n🔗 Link: ${shareData.url}`;
         await navigator.clipboard.writeText(shareText);
         toast({
-          title: "Link Copiato",
-          description: "Il link dell'analisi è stato copiato negli appunti.",
+          title: "Testo Copiato",
+          description: "I dettagli dell'analisi sono stati copiati negli appunti. Incollali dove vuoi condividerli!",
         });
       }
     } catch (error) {
-      toast({
-        title: "Condivisione Annullata",
-        description: "La condivisione è stata annullata o non è supportata.",
-        variant: "destructive"
-      });
+      // Fallback finale: aprire dialog condivisione manuale
+      const shareText = `🐾 Analisi Emotiva - ${petName}\n\n${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nVuoi condividere questi risultati?`;
+      
+      if (confirm(shareText)) {
+        try {
+          await navigator.clipboard.writeText(`${petName}: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza) - ${window.location.href}`);
+          toast({
+            title: "Copiato negli Appunti",
+            description: "Puoi ora incollare il link dove preferisci condividerlo",
+          });
+        } catch {
+          toast({
+            title: "Condivisione Manuale",
+            description: "Copia questo link per condividere: " + window.location.href,
+          });
+        }
+      }
     }
   };
 
   const downloadReport = (analysis: AnalysisData) => {
-    // Create a comprehensive text report
-    const reportContent = `
-REPORT ANALISI EMOTIVA - ${petName.toUpperCase()}
-===============================================
+    try {
+      const pdf = new jsPDF();
+      
+      // Set font
+      pdf.setFont('helvetica', 'normal');
+      
+      let yPosition = 20;
+      const lineHeight = 7;
+      const pageWidth = pdf.internal.pageSize.width;
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
+      
+      // Helper function to add text with word wrap
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        if (text.length > 60) {
+          const lines = pdf.splitTextToSize(text, contentWidth);
+          lines.forEach((line: string) => {
+            if (yPosition > 270) {
+              pdf.addPage();
+              yPosition = 20;
+            }
+            pdf.text(line, margin, yPosition);
+            yPosition += lineHeight;
+          });
+        } else {
+          if (yPosition > 270) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          pdf.text(text, margin, yPosition);
+          yPosition += lineHeight;
+        }
+        yPosition += 3; // Extra spacing
+      };
 
-Data Analisi: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}
-File Analizzato: ${analysis.file_name}
-Dimensione File: ${formatFileSize(analysis.file_size)}
-Durata Analisi: ${String(analysis.analysis_duration)}
+      // Title
+      addText(`REPORT ANALISI EMOTIVA - ${petName.toUpperCase()}`, 16, true);
+      yPosition += 5;
+      
+      // Header info
+      addText(`Data Analisi: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 10);
+      addText(`File Analizzato: ${analysis.file_name}`, 10);
+      addText(`Dimensione File: ${formatFileSize(analysis.file_size)}`, 10);
+      addText(`Durata Analisi: ${String(analysis.analysis_duration)}`, 10);
+      yPosition += 10;
 
-RISULTATI PRIMARI
-==================
-Emozione Principale: ${analysis.primary_emotion.toUpperCase()}
-Livello di Confidenza: ${analysis.primary_confidence}% (${getConfidenceLabel(analysis.primary_confidence)})
+      // Primary results
+      addText('RISULTATI PRIMARI', 14, true);
+      addText(`Emozione Principale: ${analysis.primary_emotion.toUpperCase()}`, 12);
+      addText(`Livello di Confidenza: ${analysis.primary_confidence}% (${getConfidenceLabel(analysis.primary_confidence)})`, 12);
+      yPosition += 10;
 
-EMOZIONI SECONDARIE
-===================
-${Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => 
-  `${emotion}: ${confidence}%`
-).join('\n')}
+      // Secondary emotions
+      addText('EMOZIONI SECONDARIE', 14, true);
+      Object.entries(analysis.secondary_emotions).forEach(([emotion, confidence]) => {
+        addText(`${emotion}: ${confidence}%`, 10);
+      });
+      yPosition += 10;
 
-ANALISI COMPORTAMENTALE
-=======================
-${analysis.behavioral_insights}
+      // Behavioral insights
+      addText('ANALISI COMPORTAMENTALE', 14, true);
+      addText(analysis.behavioral_insights, 10);
+      yPosition += 10;
 
-RACCOMANDAZIONI
-===============
-${analysis.recommendations.map((rec, i) => `${i + 1}. ${rec}`).join('\n')}
+      // Recommendations
+      addText('RACCOMANDAZIONI', 14, true);
+      analysis.recommendations.forEach((recommendation, index) => {
+        addText(`${index + 1}. ${recommendation}`, 10);
+      });
+      yPosition += 10;
 
-TRIGGER IDENTIFICATI
-====================
-${analysis.triggers.map((trigger, i) => `${i + 1}. ${trigger}`).join('\n')}
+      // Triggers
+      if (analysis.triggers && analysis.triggers.length > 0) {
+        addText('TRIGGER IDENTIFICATI', 14, true);
+        analysis.triggers.forEach((trigger, index) => {
+          addText(`• ${trigger}`, 10);
+        });
+        yPosition += 10;
+      }
 
----
-Report generato automaticamente da PetCare AI
-${new Date().toLocaleString('it-IT')}
-    `.trim();
+      // Footer
+      addText(`Report generato il ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: it })}`, 8);
+      addText('PetVoice - Analisi Emotiva Avanzata', 8);
 
-    // Create and download the file
-    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Report Scaricato",
-      description: `Il report è stato salvato come: analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`,
-    });
-    
-    console.log('Report scaricato:', `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyy-MM-dd_HH-mm')}.txt`);
+      // Save the PDF
+      const fileName = `analisi-emotiva-${petName}-${format(new Date(analysis.created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
+      pdf.save(fileName);
+      
+      toast({
+        title: "Report PDF Scaricato",
+        description: `Il report PDF è stato salvato come ${fileName}`,
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile generare il report PDF",
+        variant: "destructive"
+      });
+    }
   };
 
   if (!selectedAnalysis) return null;

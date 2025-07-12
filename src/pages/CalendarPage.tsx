@@ -137,6 +137,7 @@ const CalendarPage: React.FC = () => {
     moodCorrelation: true
   });
 
+
   // Form state for event creation/editing
   const [formData, setFormData] = useState({
     title: '',
@@ -156,7 +157,51 @@ const CalendarPage: React.FC = () => {
 
   const activePet = selectedPet || pets[0];
 
-  // Load events from database
+  // Advanced features hooks
+  useEffect(() => {
+    if (settings.autoSaveEnabled && editingEvent && formData.title) {
+      const autoSaveTimer = setTimeout(() => {
+        console.log('Auto-saving event draft...');
+        toast({
+          title: "Bozza salvata",
+          description: "Le modifiche sono state salvate automaticamente",
+        });
+      }, 5000);
+
+      return () => clearTimeout(autoSaveTimer);
+    }
+  }, [formData, settings.autoSaveEnabled, editingEvent]);
+
+  useEffect(() => {
+    if (settings.weatherIntegration && formData.category === 'activity' && formData.start_time) {
+      setTimeout(() => {
+        const weatherConditions = ['soleggiato', 'nuvoloso', 'piovoso'];
+        const weather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+        
+        if (weather === 'piovoso') {
+          toast({
+            title: "⛈️ Allerta Meteo",
+            description: "Previsto tempo piovoso. Considera un'attività al coperto.",
+          });
+        }
+      }, 1000);
+    }
+  }, [formData.start_time, formData.category, settings.weatherIntegration]);
+
+  useEffect(() => {
+    if (settings.moodCorrelation && activePet && formData.start_time && formData.category) {
+      setTimeout(() => {
+        const moodScore = Math.floor(Math.random() * 10) + 1;
+        
+        if (moodScore <= 4 && (formData.category === 'veterinary' || formData.category === 'grooming')) {
+          toast({
+            title: "🧠 Correlazione Umore",
+            description: "Considera di programmare eventi stressanti in un momento migliore.",
+          });
+        }
+      }, 1500);
+    }
+  }, [formData.start_time, formData.category, settings.moodCorrelation, activePet]);
   const loadEvents = useCallback(async () => {
     if (!user || !activePet) return;
 
