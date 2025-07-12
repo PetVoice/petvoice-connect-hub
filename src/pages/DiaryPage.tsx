@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,6 +83,7 @@ const DiaryPage: React.FC = () => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [viewingEntry, setViewingEntry] = useState<DiaryEntry | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -459,19 +460,36 @@ const DiaryPage: React.FC = () => {
     try {
       // Create and play audio element
       const audio = new Audio(voiceNoteUrl);
-      audio.play().then(() => {
-        toast({
-          title: "Riproduzione avviata",
-          description: "Riproduzione della nota vocale in corso"
-        });
-      }).catch((error) => {
-        console.error('Error playing audio:', error);
+      
+      // Add error handling for audio loading
+      audio.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
         toast({
           title: "Errore",
-          description: "Impossibile riprodurre la nota vocale",
+          description: "File audio non trovato o danneggiato",
           variant: "destructive"
         });
       });
+      
+      audio.addEventListener('canplay', () => {
+        audio.play().then(() => {
+          toast({
+            title: "Riproduzione avviata",
+            description: "Riproduzione della nota vocale in corso"
+          });
+        }).catch((error) => {
+          console.error('Error playing audio:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile riprodurre la nota vocale",
+            variant: "destructive"
+          });
+        });
+      });
+      
+      // Load the audio
+      audio.load();
+      
     } catch (error) {
       console.error('Error playing voice note:', error);
       toast({
@@ -1097,7 +1115,129 @@ const DiaryPage: React.FC = () => {
                 src={selectedPhoto}
                 alt="Foto ingrandita"
                 className="max-w-full max-h-[70vh] object-contain rounded"
+                onError={(e) => {
+                  console.error('Image failed to load:', selectedPhoto);
+                  toast({
+                    title: "Errore",
+                    description: "Impossibile caricare l'immagine",
+                    variant: "destructive"
+                  });
+                }}
               />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Entry Detail Modal */}
+      {viewingEntry && (
+        <Dialog open={!!viewingEntry} onOpenChange={() => setViewingEntry(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
+            <div className="max-h-[80vh] overflow-y-auto px-1">
+              <DialogHeader>
+                <DialogTitle className="text-xl">
+                  {viewingEntry.title || 'Senza titolo'}
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  {format(parseISO(viewingEntry.entry_date), 'dd MMMM yyyy', { locale: it })}
+                </p>
+              </DialogHeader>
+              
+              <div className="space-y-6 mt-6">
+                {/* Mood Score */}
+                {viewingEntry.mood_score && (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-6 rounded-full ${getMoodColor(viewingEntry.mood_score)}`} />
+                      <span className="font-medium">Umore: {viewingEntry.mood_score}/10</span>
+                      <span className="text-sm text-muted-foreground">
+                        ({MOOD_LABELS[viewingEntry.mood_score as keyof typeof MOOD_LABELS]})
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                {viewingEntry.content && (
+                  <div>
+                    <h4 className="font-medium mb-2">Contenuto</h4>
+                    <p className="text-foreground whitespace-pre-wrap">{viewingEntry.content}</p>
+                  </div>
+                )}
+
+                {/* Tags */}
+                {viewingEntry.behavioral_tags && viewingEntry.behavioral_tags.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-2">Tag Comportamentali</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {viewingEntry.behavioral_tags.map(tag => (
+                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Weather & Temperature */}
+                {(viewingEntry.weather_condition || viewingEntry.temperature) && (
+                  <div>
+                    <h4 className="font-medium mb-2">Condizioni</h4>
+                    <div className="flex gap-4 text-sm">
+                      {viewingEntry.weather_condition && (
+                        <span>🌤️ {viewingEntry.weather_condition}</span>
+                      )}
+                      {viewingEntry.temperature && (
+                        <span>🌡️ {viewingEntry.temperature}°C</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Photos */}
+                {viewingEntry.photo_urls && viewingEntry.photo_urls.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-2">Foto ({viewingEntry.photo_urls.length})</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {viewingEntry.photo_urls.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Foto ${index + 1}`}
+                          className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setSelectedPhoto(url)}
+                          onError={(e) => {
+                            console.error('Image failed to load:', url);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice Note */}
+                {viewingEntry.voice_note_url && (
+                  <div>
+                    <h4 className="font-medium mb-2">Nota Vocale</h4>
+                    <div className="flex items-center gap-2 p-3 bg-muted rounded">
+                      <Mic className="h-4 w-4" />
+                      <span className="text-sm">Nota vocale registrata</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => playVoiceNote(viewingEntry.voice_note_url!)}
+                      >
+                        <Play className="h-3 w-3 mr-2" />
+                        Riproduci
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Metadata */}
+                <div className="text-xs text-muted-foreground pt-4 border-t">
+                  <p>Creato: {format(parseISO(viewingEntry.created_at), 'dd/MM/yyyy HH:mm')}</p>
+                  <p>Modificato: {format(parseISO(viewingEntry.updated_at), 'dd/MM/yyyy HH:mm')}</p>
+                </div>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
