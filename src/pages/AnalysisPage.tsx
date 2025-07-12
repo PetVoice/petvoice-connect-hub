@@ -33,9 +33,9 @@ import {
   BarChart3,
   FileText,
   Trash2,
-  Share2,
-  Eye
+  Share2
 } from 'lucide-react';
+
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
@@ -959,7 +959,7 @@ const AnalysisPage: React.FC = () => {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
+              <FileText className="h-5 w-5" />
               Dettagli Analisi Emotiva
             </DialogTitle>
             <DialogDescription>
