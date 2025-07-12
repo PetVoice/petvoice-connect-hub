@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,6 +80,9 @@ const DiaryPage: React.FC = () => {
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -380,20 +383,59 @@ const DiaryPage: React.FC = () => {
       // Start recording
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        // Basic recording implementation - would need MediaRecorder API
+        const recorder = new MediaRecorder(stream);
+        
+        setMediaRecorder(recorder);
+        setAudioChunks([]);
+        
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            setAudioChunks(prev => [...prev, event.data]);
+          }
+        };
+        
+        recorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          
+          // Upload to Supabase storage
+          if (selectedPet) {
+            const fileName = `${selectedPet.user_id}/${selectedPet.id}/voice-${Date.now()}.webm`;
+            
+            try {
+              const { error: uploadError } = await supabase.storage
+                .from('pet-media')
+                .upload(fileName, audioBlob);
+                
+              if (uploadError) throw uploadError;
+              
+              const { data: { publicUrl } } = supabase.storage
+                .from('pet-media')
+                .getPublicUrl(fileName);
+              
+              setFormData(prev => ({
+                ...prev,
+                voice_note_url: publicUrl
+              }));
+              
+              toast({ title: "Registrazione salvata!" });
+            } catch (error) {
+              console.error('Error uploading voice note:', error);
+              toast({
+                title: "Errore",
+                description: "Impossibile salvare la registrazione",
+                variant: "destructive"
+              });
+            }
+          }
+          
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+        };
+        
+        recorder.start();
         setIsRecording(true);
         toast({ title: "Registrazione avviata" });
         
-        // For now, just simulate recording
-        setTimeout(() => {
-          setIsRecording(false);
-          // Add a placeholder voice note URL
-          setFormData(prev => ({
-            ...prev,
-            voice_note_url: `voice-note-${Date.now()}.webm`
-          }));
-          toast({ title: "Registrazione completata" });
-        }, 3000);
       } catch (error) {
         console.error('Error accessing microphone:', error);
         toast({
@@ -404,23 +446,18 @@ const DiaryPage: React.FC = () => {
       }
     } else {
       // Stop recording
-      setIsRecording(false);
-      toast({ title: "Registrazione interrotta" });
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        setIsRecording(false);
+        setMediaRecorder(null);
+        toast({ title: "Registrazione completata" });
+      }
     }
   };
 
   const playVoiceNote = (voiceNoteUrl: string) => {
     try {
-      // Check if it's a placeholder URL (starts with 'voice-note-' and ends with timestamp)
-      if (voiceNoteUrl.startsWith('voice-note-') && voiceNoteUrl.endsWith('.webm')) {
-        toast({
-          title: "Nota vocale simulata",
-          description: "Questa è una registrazione di prova. Le future registrazioni saranno riproducibili."
-        });
-        return;
-      }
-      
-      // For real audio files, create and play audio element
+      // Create and play audio element
       const audio = new Audio(voiceNoteUrl);
       audio.play().then(() => {
         toast({
@@ -691,17 +728,19 @@ const DiaryPage: React.FC = () => {
                     {formData.photo_urls.length > 0 && (
                       <div className="grid grid-cols-3 gap-2">
                         {formData.photo_urls.map((url, index) => (
-                          <div key={index} className="relative group">
+                          <div key={index} className="relative group cursor-pointer">
                             <img
                               src={url}
                               alt={`Foto ${index + 1}`}
-                              className="w-full h-24 object-cover rounded"
+                              className="w-full h-24 object-cover rounded hover:opacity-80 transition-opacity"
+                              onClick={() => setSelectedPhoto(url)}
                             />
                             <Button
                               variant="destructive"
                               size="sm"
-                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => {
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setFormData(prev => ({
                                   ...prev,
                                   photo_urls: prev.photo_urls.filter((_, i) => i !== index)
@@ -710,6 +749,19 @@ const DiaryPage: React.FC = () => {
                             >
                               <X className="h-3 w-3" />
                             </Button>
+                            <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPhoto(url);
+                                }}
+                              >
+                                <ZoomIn className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -926,7 +978,17 @@ const DiaryPage: React.FC = () => {
                       <span>🌡️ {entry.temperature}°C</span>
                     )}
                     {entry.photo_urls && entry.photo_urls.length > 0 && (
-                      <span>📸 {entry.photo_urls.length} foto</span>
+                      <div className="flex items-center gap-2">
+                        <span>📸 {entry.photo_urls.length} foto</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedPhoto(entry.photo_urls![0])}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                     {entry.voice_note_url && (
                       <div className="flex items-center gap-2">
@@ -1022,6 +1084,24 @@ const DiaryPage: React.FC = () => {
         onConfirm={confirmDelete}
         variant="destructive"
       />
+
+      {/* Photo Modal */}
+      {selectedPhoto && (
+        <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
+            <DialogHeader>
+              <DialogTitle>Anteprima Foto</DialogTitle>
+            </DialogHeader>
+            <div className="flex justify-center">
+              <img
+                src={selectedPhoto}
+                alt="Foto ingrandita"
+                className="max-w-full max-h-[70vh] object-contain rounded"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
