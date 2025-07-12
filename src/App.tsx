@@ -13,6 +13,7 @@ import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
+import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import ResetPassword from "@/pages/ResetPassword";
@@ -71,12 +72,7 @@ const App = () => (
               <Route path="/wellness" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Benessere"
-                      description="Monitora la salute emotiva del tuo pet"
-                      icon={<Heart className="h-6 w-6 text-white" />}
-                      features={["Score benessere", "Trend emotivi", "Raccomandazioni", "Alert salute"]}
-                    />
+                    <WellnessPage />
                   </Layout>
                 </ProtectedRoute>
               } />

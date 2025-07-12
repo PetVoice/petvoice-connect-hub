@@ -161,6 +161,51 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_contacts: {
+        Row: {
+          address: string | null
+          contact_type: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          notes: string | null
+          phone: string
+          relationship: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          contact_type?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          notes?: string | null
+          phone: string
+          relationship?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          contact_type?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          relationship?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_notifications: {
         Row: {
           created_at: string
@@ -227,6 +272,208 @@ export type Database = {
         }
         Relationships: []
       }
+      health_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_read: boolean | null
+          is_resolved: boolean | null
+          pet_id: string
+          resolved_at: string | null
+          severity: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          pet_id: string
+          resolved_at?: string | null
+          severity?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          pet_id?: string
+          resolved_at?: string | null
+          severity?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metric_type: string
+          notes: string | null
+          pet_id: string
+          recorded_at: string
+          unit: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_type: string
+          notes?: string | null
+          pet_id: string
+          recorded_at: string
+          unit?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_type?: string
+          notes?: string | null
+          pet_id?: string
+          recorded_at?: string
+          unit?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      medical_records: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string | null
+          document_url: string | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          pet_id: string
+          record_date: string
+          record_type: string
+          title: string
+          updated_at: string
+          user_id: string
+          veterinarian_id: string | null
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          pet_id: string
+          record_date: string
+          record_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+          veterinarian_id?: string | null
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          document_url?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          pet_id?: string
+          record_date?: string
+          record_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          veterinarian_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_medical_records_veterinarian"
+            columns: ["veterinarian_id"]
+            isOneToOne: false
+            referencedRelation: "veterinarians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medications: {
+        Row: {
+          administration_method: string | null
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          name: string
+          notes: string | null
+          pet_id: string
+          prescribing_vet: string | null
+          reminder_enabled: boolean | null
+          side_effects: string | null
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          administration_method?: string | null
+          created_at?: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          notes?: string | null
+          pet_id: string
+          prescribing_vet?: string | null
+          reminder_enabled?: boolean | null
+          side_effects?: string | null
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          administration_method?: string | null
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          notes?: string | null
+          pet_id?: string
+          prescribing_vet?: string | null
+          reminder_enabled?: boolean | null
+          side_effects?: string | null
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_medications_prescribing_vet"
+            columns: ["prescribing_vet"]
+            isOneToOne: false
+            referencedRelation: "veterinarians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pet_analyses: {
         Row: {
           analysis_duration: unknown | null
@@ -279,6 +526,60 @@ export type Database = {
           secondary_emotions?: Json | null
           storage_path?: string
           triggers?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pet_insurance: {
+        Row: {
+          contact_info: Json | null
+          coverage_details: Json | null
+          created_at: string
+          deductible: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          pet_id: string
+          policy_number: string
+          policy_type: string | null
+          premium_amount: number | null
+          provider_name: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_info?: Json | null
+          coverage_details?: Json | null
+          created_at?: string
+          deductible?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          pet_id: string
+          policy_number: string
+          policy_type?: string | null
+          premium_amount?: number | null
+          provider_name: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_info?: Json | null
+          coverage_details?: Json | null
+          created_at?: string
+          deductible?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          pet_id?: string
+          policy_number?: string
+          policy_type?: string | null
+          premium_amount?: number | null
+          provider_name?: string
+          start_date?: string
           updated_at?: string
           user_id?: string
         }
@@ -452,6 +753,101 @@ export type Database = {
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      symptoms: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          id: string
+          observed_at: string
+          pet_id: string
+          related_medication_id: string | null
+          resolved_at: string | null
+          severity: number
+          symptom_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          observed_at: string
+          pet_id: string
+          related_medication_id?: string | null
+          resolved_at?: string | null
+          severity: number
+          symptom_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          observed_at?: string
+          pet_id?: string
+          related_medication_id?: string | null
+          resolved_at?: string | null
+          severity?: number
+          symptom_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_symptoms_related_medication"
+            columns: ["related_medication_id"]
+            isOneToOne: false
+            referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      veterinarians: {
+        Row: {
+          address: string | null
+          clinic_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          phone: string | null
+          specialization: string | null
+          updated_at: string
+          user_id: string
+          vet_type: string | null
+        }
+        Insert: {
+          address?: string | null
+          clinic_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          phone?: string | null
+          specialization?: string | null
+          updated_at?: string
+          user_id: string
+          vet_type?: string | null
+        }
+        Update: {
+          address?: string | null
+          clinic_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          phone?: string | null
+          specialization?: string | null
+          updated_at?: string
+          user_id?: string
+          vet_type?: string | null
         }
         Relationships: []
       }
