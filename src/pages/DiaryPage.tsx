@@ -174,7 +174,22 @@ const DiaryPage: React.FC = () => {
     setFilteredEntries(filtered);
   }, [entries, searchTerm, selectedTags]);
 
-  // Auto-save trigger
+  // Auto-save trigger con toast solo se c'è un editingEntry e contenuto
+  useEffect(() => {
+    if (editingEntry && (formData.title || formData.content)) {
+      const autoSaveTimer = setTimeout(() => {
+        toast({
+          title: "Bozza salvata",
+          description: "Le modifiche sono state salvate automaticamente",
+          duration: 3000
+        });
+      }, 3000);
+
+      return () => clearTimeout(autoSaveTimer);
+    }
+  }, [formData, editingEntry]);
+
+  // Auto-save trigger per salvare effettivamente nel database
   useEffect(() => {
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
@@ -382,16 +397,6 @@ const DiaryPage: React.FC = () => {
     });
     setEditingEntry(entry);
     setIsDialogOpen(true);
-    
-    // Mostra messaggio di bozza salvata come nel calendario
-    setTimeout(() => {
-      toast({
-        title: "Bozza salvata",
-        description: "Le modifiche sono state salvate automaticamente",
-        variant: "default",
-        duration: 3000
-      });
-    }, 500);
   };
 
   const addTag = (tag: string) => {
