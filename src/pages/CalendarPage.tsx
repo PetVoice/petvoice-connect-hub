@@ -499,9 +499,10 @@ const CalendarPage: React.FC = () => {
         
         <div className="flex items-center gap-2">
           <Button
-            variant={showLegend ? "default" : "outline"}
+            variant="outline"
             size="sm"
             onClick={() => setShowLegend(!showLegend)}
+            className={showLegend ? "bg-muted text-primary font-medium border-primary/20" : ""}
           >
             <Eye className="h-4 w-4 mr-2" />
             Legenda
