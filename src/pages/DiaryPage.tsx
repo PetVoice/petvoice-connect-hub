@@ -410,11 +410,39 @@ const DiaryPage: React.FC = () => {
   };
 
   const playVoiceNote = (voiceNoteUrl: string) => {
-    // For now, just show a toast since we're using placeholder URLs
-    toast({
-      title: "Riproduzione nota vocale",
-      description: "Funzionalità di riproduzione in sviluppo"
-    });
+    try {
+      // Check if it's a placeholder URL (starts with 'voice-note-' and ends with timestamp)
+      if (voiceNoteUrl.startsWith('voice-note-') && voiceNoteUrl.endsWith('.webm')) {
+        toast({
+          title: "Nota vocale simulata",
+          description: "Questa è una registrazione di prova. Le future registrazioni saranno riproducibili."
+        });
+        return;
+      }
+      
+      // For real audio files, create and play audio element
+      const audio = new Audio(voiceNoteUrl);
+      audio.play().then(() => {
+        toast({
+          title: "Riproduzione avviata",
+          description: "Riproduzione della nota vocale in corso"
+        });
+      }).catch((error) => {
+        console.error('Error playing audio:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile riprodurre la nota vocale",
+          variant: "destructive"
+        });
+      });
+    } catch (error) {
+      console.error('Error playing voice note:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile riprodurre la nota vocale",
+        variant: "destructive"
+      });
+    }
   };
 
   if (!selectedPet) {
