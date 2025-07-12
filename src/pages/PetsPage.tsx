@@ -272,7 +272,7 @@ const PetsPage: React.FC = () => {
         </div>
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
-            <Button variant="secondary">
+            <Button variant="outline">
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet
             </Button>
