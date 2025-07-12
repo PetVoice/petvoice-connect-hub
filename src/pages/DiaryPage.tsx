@@ -84,6 +84,7 @@ const DiaryPage: React.FC = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [viewingEntry, setViewingEntry] = useState<DiaryEntry | null>(null);
+  const [dayEntriesModal, setDayEntriesModal] = useState<{ open: boolean; date: Date; entries: DiaryEntry[] }>({ open: false, date: new Date(), entries: [] });
   
   // Form state
   const [formData, setFormData] = useState({
@@ -195,6 +196,12 @@ const DiaryPage: React.FC = () => {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  const getEntriesForDate = (date: Date) => {
+    return entries.filter(entry => 
+      isSameDay(parseISO(entry.entry_date), date)
+    );
+  };
 
   const getEntryForDate = (date: Date) => {
     return entries.find(entry => 
@@ -345,6 +352,21 @@ const DiaryPage: React.FC = () => {
     if (normalizedTag && !customTags.includes(normalizedTag)) {
       setCustomTags(prev => [...prev, normalizedTag]);
       addTag(normalizedTag);
+    }
+  };
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(day);
+    const dayEntries = getEntriesForDate(day);
+    
+    if (dayEntries.length === 0) {
+      // Nessuna voce per questo giorno, crea una nuova voce
+      setFormData(prev => ({ ...prev, entry_date: format(day, 'yyyy-MM-dd') }));
+      resetForm();
+      setIsDialogOpen(true);
+    } else {
+      // Mostra tutte le voci del giorno in un modal
+      setDayEntriesModal({ open: true, date: day, entries: dayEntries });
     }
   };
 
@@ -931,15 +953,17 @@ const DiaryPage: React.FC = () => {
                       ${isCurrentMonth ? 'bg-background hover:bg-muted/50' : 'bg-muted/20 text-muted-foreground'}
                       ${isToday ? 'ring-2 ring-primary' : ''}
                     `}
-                    onClick={() => {
-                      setSelectedDate(day);
-                      if (entry) openEditDialog(entry);
-                    }}
+                    onClick={() => handleDayClick(day)}
                   >
                     <div className="text-sm">{format(day, 'd')}</div>
                     {entry && (
                       <div className="absolute bottom-1 left-1 right-1">
                         <div className={`h-2 rounded-full ${getMoodColor(entry.mood_score)}`} />
+                        {getEntriesForDate(day).length > 1 && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                            {getEntriesForDate(day).length}
+                          </div>
+                        )}
                         {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
                           <div className="text-xs mt-1 truncate">
                             {entry.behavioral_tags.slice(0, 2).join(', ')}
@@ -1280,6 +1304,144 @@ const DiaryPage: React.FC = () => {
                   <p>Modificato: {format(parseISO(viewingEntry.updated_at), 'dd/MM/yyyy HH:mm')}</p>
                 </div>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Day Entries Modal */}
+      {dayEntriesModal.open && (
+        <Dialog open={dayEntriesModal.open} onOpenChange={(open) => setDayEntriesModal({ ...dayEntriesModal, open })}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Voci del {format(dayEntriesModal.date, 'dd MMMM yyyy', { locale: it })}
+              </DialogTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-sm text-muted-foreground">
+                  {dayEntriesModal.entries.length} {dayEntriesModal.entries.length === 1 ? 'voce trovata' : 'voci trovate'}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
+                    resetForm();
+                    setDayEntriesModal({ ...dayEntriesModal, open: false });
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi Nuova Voce
+                </Button>
+              </div>
+            </DialogHeader>
+            
+            <div className="space-y-4 mt-6">
+              {dayEntriesModal.entries.map((entry) => (
+                <Card 
+                  key={entry.id} 
+                  className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => setViewingEntry(entry)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{entry.title || 'Senza titolo'}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Creato alle {format(parseISO(entry.created_at), 'HH:mm')}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        {entry.mood_score && (
+                          <div className="flex items-center gap-2">
+                            <div className={`w-4 h-4 rounded-full ${getMoodColor(entry.mood_score)}`} />
+                            <span className="text-sm">{entry.mood_score}/10</span>
+                          </div>
+                        )}
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDayEntriesModal({ ...dayEntriesModal, open: false });
+                            openEditDialog(entry);
+                          }}
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(entry.id);
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {entry.content && (
+                      <p className="text-sm text-foreground mb-3 line-clamp-2">{entry.content}</p>
+                    )}
+                    
+                    {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {entry.behavioral_tags.slice(0, 4).map(tag => (
+                          <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
+                        {entry.behavioral_tags.length > 4 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{entry.behavioral_tags.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {entry.weather_condition && (
+                        <span>🌤️ {entry.weather_condition}</span>
+                      )}
+                      {entry.temperature && (
+                        <span>🌡️ {entry.temperature}°C</span>
+                      )}
+                      {entry.photo_urls && entry.photo_urls.length > 0 && (
+                        <span>📸 {entry.photo_urls.length}</span>
+                      )}
+                      {entry.voice_note_url && (
+                        <span>🎤</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              
+              {dayEntriesModal.entries.length === 0 && (
+                <div className="text-center py-8">
+                  <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Nessuna voce per questo giorno</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Inizia creando la prima voce per il {format(dayEntriesModal.date, 'dd MMMM yyyy', { locale: it })}
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
+                      resetForm();
+                      setDayEntriesModal({ ...dayEntriesModal, open: false });
+                      setIsDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crea Nuova Voce
+                  </Button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
