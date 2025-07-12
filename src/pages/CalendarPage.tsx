@@ -641,7 +641,7 @@ const CalendarPage: React.FC = () => {
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -649,7 +649,7 @@ const CalendarPage: React.FC = () => {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-6">
+          <div className="max-h-[70vh] overflow-y-auto px-1 space-y-6">
             {/* View Preferences */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Preferenze Visualizzazione</h3>
@@ -826,7 +826,7 @@ const CalendarPage: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
               Annulla
             </Button>
