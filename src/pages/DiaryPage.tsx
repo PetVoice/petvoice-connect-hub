@@ -1002,21 +1002,33 @@ const DiaryPage: React.FC = () => {
                     onClick={() => handleDayClick(day)}
                   >
                     <div className="text-sm">{format(day, 'd')}</div>
-                    {entry && (
-                      <div className="absolute bottom-1 left-1 right-1">
-                        <div className={`h-2 rounded-full ${getMoodColor(entry.mood_score)}`} />
-                        {getEntriesForDate(day).length > 1 && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
-                            {getEntriesForDate(day).length}
+                    {(() => {
+                      const dayEntries = getEntriesForDate(day);
+                      if (dayEntries.length === 0) return null;
+                      
+                      return (
+                        <div className="absolute bottom-1 left-1 right-1">
+                          <div className="space-y-0.5">
+                            {dayEntries.slice(0, 3).map((entry, index) => (
+                              <div 
+                                key={entry.id} 
+                                className={`h-1.5 rounded-full ${getMoodColor(entry.mood_score)}`} 
+                              />
+                            ))}
                           </div>
-                        )}
-                        {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
-                          <div className="text-xs mt-1 truncate">
-                            {entry.behavioral_tags.slice(0, 2).join(', ')}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          {dayEntries.length > 1 && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                              {dayEntries.length}
+                            </div>
+                          )}
+                          {dayEntries.length > 3 && (
+                            <div className="text-xs text-center text-muted-foreground">
+                              +{dayEntries.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}

@@ -658,16 +658,39 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div className="p-3 border rounded-lg">
-                  <p className="text-2xl font-bold text-green-600">+12%</p>
-                  <p className="text-sm text-muted-foreground">Miglioramento Stato d'Animo</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {(() => {
+                      const currentConfidence = selectedAnalysis.primary_confidence;
+                      const previousConfidence = analyses.length > 1 ? analyses[1].primary_confidence : currentConfidence;
+                      const improvement = ((currentConfidence - previousConfidence) / previousConfidence * 100).toFixed(1);
+                      return Number(improvement) > 0 ? `+${improvement}%` : `${improvement}%`;
+                    })()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Variazione Confidenza</p>
                 </div>
                 <div className="p-3 border rounded-lg">
-                  <p className="text-2xl font-bold text-blue-600">3.2</p>
-                  <p className="text-sm text-muted-foreground">Giorni Tra Episodi Simili</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {(() => {
+                      if (analyses.length < 2) return '0';
+                      const current = new Date(selectedAnalysis.created_at);
+                      const previous = new Date(analyses[1].created_at);
+                      const diffTime = Math.abs(current.getTime() - previous.getTime());
+                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                      return diffDays;
+                    })()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Giorni Dall'Ultima Analisi</p>
                 </div>
                 <div className="p-3 border rounded-lg">
-                  <p className="text-2xl font-bold text-purple-600">85%</p>
-                  <p className="text-sm text-muted-foreground">Consistenza Comportamentale</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {(() => {
+                      if (analyses.length < 2) return '100%';
+                      const similarEmotions = analyses.filter(a => a.primary_emotion === selectedAnalysis.primary_emotion).length;
+                      const consistency = (similarEmotions / analyses.length * 100).toFixed(0);
+                      return `${consistency}%`;
+                    })()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Consistenza Emotiva</p>
                 </div>
               </div>
             </div>
