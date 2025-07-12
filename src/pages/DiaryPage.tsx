@@ -634,7 +634,7 @@ const DiaryPage: React.FC = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} className="gradient-cosmic text-white">
+              <Button onClick={resetForm} variant="secondary">
                 <Plus className="h-4 w-4 mr-2" />
                 Nuova Voce
               </Button>
@@ -1403,6 +1403,7 @@ const DiaryPage: React.FC = () => {
                     </Button>
                   )}
                   <Button
+                    variant="secondary"
                     size="sm"
                     onClick={() => {
                       setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
@@ -1514,6 +1515,7 @@ const DiaryPage: React.FC = () => {
                     Inizia creando la prima voce per il {format(dayEntriesModal.date, 'dd MMMM yyyy', { locale: it })}
                   </p>
                   <Button
+                    variant="secondary"
                     onClick={() => {
                       setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       resetForm();
