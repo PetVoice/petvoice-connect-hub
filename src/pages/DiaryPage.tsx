@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn, ExternalLink } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn, ExternalLink, Settings, Grid3X3, List } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -118,6 +119,17 @@ const DiaryPage: React.FC = () => {
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [dateToDeleteAll, setDateToDeleteAll] = useState<Date | null>(null);
   const [showLegend, setShowLegend] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Settings state - Like Calendar
+  const [settings, setSettings] = useState({
+    defaultView: 'calendar' as 'calendar' | 'list' | 'gallery',
+    autoSaveEnabled: true,
+    showMoodInCalendar: true,
+    reminderEnabled: true,
+    exportFormat: 'pdf' as 'pdf' | 'csv',
+    privacyMode: false
+  });
   
   // Form state
   const [formData, setFormData] = useState({
@@ -626,47 +638,15 @@ const DiaryPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header - Identical to Calendar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold gradient-text">Diario di {selectedPet.name}</h1>
+          <h1 className="text-3xl font-bold">Diario {selectedPet.name}</h1>
           <p className="text-muted-foreground">Tieni traccia del comportamento e dell'umore quotidiano</p>
         </div>
         
-        <div className="flex flex-wrap gap-2">
-          {/* View Mode Selector - Like Calendar */}
-          <div className="flex rounded-lg overflow-hidden border">
-            <Button
-              variant={viewMode === 'calendar' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('calendar')}
-              className="rounded-none"
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Mese
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className="rounded-none"
-            >
-              <MessageSquare className="h-4 w-4 mr-1" />
-              Lista
-            </Button>
-            <Button
-              variant={viewMode === 'gallery' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('gallery')}
-              className="rounded-none"
-            >
-              <Eye className="h-4 w-4 mr-1" />
-              Galleria
-            </Button>
-          </div>
-          
-          {/* Legend Button - Like Calendar */}
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -956,26 +936,7 @@ const DiaryPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <Card className="shadow-elegant">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Cerca nelle voci del diario..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Legend - Like Calendar */}
+      {/* Legend - Identical to Calendar */}
       {showLegend && (
         <Card className="shadow-elegant">
           <CardContent className="p-4">
@@ -990,6 +951,69 @@ const DiaryPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Diary Controls - Identical to Calendar Controls */}
+      <Card className="shadow-elegant">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            {/* View Mode Selector */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'calendar' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+              >
+                <Grid3X3 className="h-4 w-4 mr-2" />
+                Mese
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4 mr-2" />
+                Lista
+              </Button>
+              <Button
+                variant={viewMode === 'gallery' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('gallery')}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Galleria
+              </Button>
+            </div>
+
+            {/* Navigation - Like Calendar */}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" onClick={() => {
+                setCurrentDate(addMonths(currentDate, -1));
+              }}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <h2 className="text-lg font-semibold min-w-[200px] text-center">
+                {viewMode === 'calendar' && format(currentDate, 'MMMM yyyy', { locale: it })}
+                {viewMode === 'list' && 'Vista Lista'}
+                {viewMode === 'gallery' && 'Vista Galleria'}
+              </h2>
+              
+              <Button variant="outline" size="sm" onClick={() => {
+                setCurrentDate(addMonths(currentDate, 1));
+              }}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Settings - Like Calendar */}
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Calendar View */}
       {viewMode === 'calendar' && (
@@ -1597,6 +1621,127 @@ const DiaryPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Settings Dialog - Identical to Calendar */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Impostazioni Diario
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="max-h-[70vh] overflow-y-auto px-1 space-y-6">
+            {/* View Preferences */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Preferenze Visualizzazione</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="default-view">Vista predefinita</Label>
+                  <Select 
+                    value={settings.defaultView} 
+                    onValueChange={(value: 'calendar' | 'list' | 'gallery') => 
+                      setSettings(prev => ({ ...prev, defaultView: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="calendar">Calendario</SelectItem>
+                      <SelectItem value="list">Lista</SelectItem>
+                      <SelectItem value="gallery">Galleria</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="export-format">Formato esportazione</Label>
+                  <Select 
+                    value={settings.exportFormat} 
+                    onValueChange={(value: 'pdf' | 'csv') => 
+                      setSettings(prev => ({ ...prev, exportFormat: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pdf">PDF</SelectItem>
+                      <SelectItem value="csv">CSV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="show-mood"
+                    checked={settings.showMoodInCalendar}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, showMoodInCalendar: checked }))
+                    }
+                  />
+                  <Label htmlFor="show-mood">Mostra umore nel calendario</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="auto-save"
+                    checked={settings.autoSaveEnabled}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, autoSaveEnabled: checked }))
+                    }
+                  />
+                  <Label htmlFor="auto-save">Auto-salvataggio attivo</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="reminders"
+                    checked={settings.reminderEnabled}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, reminderEnabled: checked }))
+                    }
+                  />
+                  <Label htmlFor="reminders">Promemoria giornalieri</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="privacy"
+                    checked={settings.privacyMode}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, privacyMode: checked }))
+                    }
+                  />
+                  <Label htmlFor="privacy">Modalità privacy</Label>
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Settings */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Impostazioni Avanzate</h3>
+              
+              <div className="space-y-3">
+                <Button variant="outline" className="w-full justify-start">
+                  <Download className="h-4 w-4 mr-2" />
+                  Esporta tutti i dati
+                </Button>
+                
+                <Button variant="outline" className="w-full justify-start">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importa backup
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
