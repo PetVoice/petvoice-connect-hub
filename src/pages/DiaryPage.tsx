@@ -1008,7 +1008,12 @@ const DiaryPage: React.FC = () => {
                       
                       return (
                         <div className="absolute bottom-1 left-1 right-1">
-                          <div className="space-y-0.5">
+                          {dayEntries.length > 1 && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                              {dayEntries.length}
+                            </div>
+                          )}
+                          <div className="space-y-1">
                             {dayEntries.slice(0, 3).map((entry, index) => (
                               <div 
                                 key={entry.id} 
@@ -1027,13 +1032,8 @@ const DiaryPage: React.FC = () => {
                               </div>
                             ))}
                           </div>
-                          {dayEntries.length > 1 && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
-                              {dayEntries.length}
-                            </div>
-                          )}
                           {dayEntries.length > 3 && (
-                            <div className="text-xs text-center text-muted-foreground mt-1">
+                            <div className="text-xs text-muted-foreground mt-1">
                               +{dayEntries.length - 3} altre
                             </div>
                           )}
