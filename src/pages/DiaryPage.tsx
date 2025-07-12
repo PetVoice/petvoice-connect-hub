@@ -227,6 +227,16 @@ const DiaryPage: React.FC = () => {
           .eq('id', editingEntry.id);
 
         if (error) throw error;
+        
+        // Aggiorna anche viewingEntry se è aperto
+        if (viewingEntry && viewingEntry.id === editingEntry.id) {
+          setViewingEntry({
+            ...viewingEntry,
+            ...entryData,
+            updated_at: new Date().toISOString()
+          });
+        }
+        
         toast({ title: "Voce aggiornata con successo!" });
       } else {
         const { error } = await supabase
@@ -1142,12 +1152,37 @@ const DiaryPage: React.FC = () => {
           <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
             <div className="max-h-[80vh] overflow-y-auto px-1">
               <DialogHeader>
-                <DialogTitle className="text-xl">
-                  {viewingEntry.title || 'Senza titolo'}
-                </DialogTitle>
-                <p className="text-sm text-muted-foreground">
-                  {format(parseISO(viewingEntry.entry_date), 'dd MMMM yyyy', { locale: it })}
-                </p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <DialogTitle className="text-xl">
+                      {viewingEntry.title || 'Senza titolo'}
+                    </DialogTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {format(parseISO(viewingEntry.entry_date), 'dd MMMM yyyy', { locale: it })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setViewingEntry(null);
+                        openEditDialog(viewingEntry);
+                      }}
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Modifica
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingEntry(null)}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Chiudi
+                    </Button>
+                  </div>
+                </div>
               </DialogHeader>
               
               <div className="space-y-6 mt-6">
