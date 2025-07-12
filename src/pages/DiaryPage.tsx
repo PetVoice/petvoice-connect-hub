@@ -247,14 +247,14 @@ const DiaryPage: React.FC = () => {
           });
         }
         
-        toast({ title: "Nota aggiornata con successo!" });
+        toast({ title: "Nota aggiornata con successo!", duration: 3000 });
       } else {
         const { error } = await supabase
           .from('diary_entries')
           .insert(entryData);
 
         if (error) throw error;
-        toast({ title: "Nuova voce salvata!" });
+        toast({ title: "Nuova voce salvata!", duration: 3000 });
       }
 
       setIsDialogOpen(false);
@@ -279,7 +279,7 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: "Voce eliminata" });
+      toast({ title: "Voce eliminata", duration: 3000 });
       
       // Aggiorna lo stato locale della modal del giorno se è aperta
       if (dayEntriesModal.open) {
@@ -312,7 +312,7 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: `${dayEntries.length} voci eliminate` });
+      toast({ title: `${dayEntries.length} voci eliminate`, duration: 3000 });
       
       // Aggiorna la modal locale per mostrare l'elenco vuoto
       setDayEntriesModal(prev => ({ ...prev, entries: [] }));
@@ -388,7 +388,8 @@ const DiaryPage: React.FC = () => {
       toast({
         title: "Bozza salvata",
         description: "Le modifiche sono state salvate automaticamente",
-        variant: "default"
+        variant: "default",
+        duration: 3000
       });
     }, 500);
   };
@@ -455,7 +456,7 @@ const DiaryPage: React.FC = () => {
         photo_urls: [...prev.photo_urls, ...uploadedUrls]
       }));
       
-      toast({ title: "Foto caricate con successo!" });
+      toast({ title: "Foto caricate con successo!", duration: 3000 });
     } catch (error) {
       console.error('Error uploading photos:', error);
       toast({
@@ -505,7 +506,7 @@ const DiaryPage: React.FC = () => {
                 voice_note_url: publicUrl
               }));
               
-              toast({ title: "Registrazione salvata!" });
+              toast({ title: "Registrazione salvata!", duration: 3000 });
             } catch (error) {
               console.error('Error uploading voice note:', error);
               toast({
@@ -522,7 +523,7 @@ const DiaryPage: React.FC = () => {
         
         recorder.start();
         setIsRecording(true);
-        toast({ title: "Registrazione avviata" });
+        toast({ title: "Registrazione avviata", duration: 3000 });
         
       } catch (error) {
         console.error('Error accessing microphone:', error);
@@ -538,7 +539,7 @@ const DiaryPage: React.FC = () => {
         mediaRecorder.stop();
         setIsRecording(false);
         setMediaRecorder(null);
-        toast({ title: "Registrazione completata" });
+        toast({ title: "Registrazione completata", duration: 3000 });
       }
     }
   };
