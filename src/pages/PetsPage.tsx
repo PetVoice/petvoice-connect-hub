@@ -313,6 +313,7 @@ const PetsPage: React.FC = () => {
                 <div>
                   <Label htmlFor="type">Tipo *</Label>
                   <Select 
+                    key={`type-${editingPet?.id || 'new'}-${formData.type}`}
                     value={formData.type} 
                     onValueChange={(value) => setFormData({...formData, type: value, breed: ''})}
                   >
@@ -330,6 +331,7 @@ const PetsPage: React.FC = () => {
                   <div>
                     <Label htmlFor="breed">Razza</Label>
                     <Select 
+                      key={`breed-${editingPet?.id || 'new'}-${formData.breed}`}
                       value={formData.breed} 
                       onValueChange={(value) => setFormData({...formData, breed: value})}
                     >
