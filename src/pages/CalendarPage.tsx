@@ -502,20 +502,9 @@ const CalendarPage: React.FC = () => {
       return isSameDay(eventDate, date);
     });
 
-    if (dayEvents.length === 0) {
-      // No events, open create form
-      resetForm();
-      setFormData(prev => ({
-        ...prev,
-        start_time: format(date, "yyyy-MM-dd'T'09:00"),
-        end_time: format(addHours(date, 1), "yyyy-MM-dd'T'10:00")
-      }));
-      setIsEventDialogOpen(true);
-    } else {
-      // Show events for that day
-      setSelectedDayEvents(dayEvents);
-      setIsDayEventsDialogOpen(true);
-    }
+    // Mostra sempre la modal del giorno, anche se vuota
+    setSelectedDayEvents(dayEvents);
+    setIsDayEventsDialogOpen(true);
   };
 
   const handleCreateNewEventForDay = () => {
@@ -1084,14 +1073,15 @@ const CalendarPage: React.FC = () => {
                             Modifica
                           </Button>
                           <Button
-                            variant="destructive"
+                            variant="outline"
                             size="sm"
                             onClick={() => {
                               setEventToDelete(event.id);
                               setShowDeleteConfirm(true);
                             }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
-                            Elimina
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>

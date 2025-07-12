@@ -411,15 +411,8 @@ const DiaryPage: React.FC = () => {
     setSelectedDate(day);
     const dayEntries = getEntriesForDate(day);
     
-    if (dayEntries.length === 0) {
-      // Nessuna voce per questo giorno, crea una nuova voce
-      setFormData(prev => ({ ...prev, entry_date: format(day, 'yyyy-MM-dd') }));
-      resetForm();
-      setIsDialogOpen(true);
-    } else {
-      // Mostra tutte le voci del giorno in un modal
-      setDayEntriesModal({ open: true, date: day, entries: dayEntries });
-    }
+    // Mostra sempre la modal del giorno, anche se vuota
+    setDayEntriesModal({ open: true, date: day, entries: dayEntries });
   };
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
