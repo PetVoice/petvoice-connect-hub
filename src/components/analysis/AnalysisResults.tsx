@@ -26,6 +26,8 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { usePets } from '@/contexts/PetContext';
 
 interface AnalysisData {
   id: string;
@@ -72,6 +74,7 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const { toast } = useToast();
+  const { selectedPet } = usePets();
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -112,21 +115,49 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return 'Bassa';
   };
 
-  const addToDiary = (analysis: AnalysisData) => {
-    // Create diary entry with analysis data
-    const diaryData = {
-      title: `Analisi emotiva - ${analysis.primary_emotion}`,
-      content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni: ${analysis.recommendations.join(', ')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
-      mood_score: analysis.primary_emotion === 'felice' ? 8 : analysis.primary_emotion === 'calmo' ? 7 : analysis.primary_emotion === 'triste' ? 3 : 5,
-      behavioral_tags: [analysis.primary_emotion, ...Object.keys(analysis.secondary_emotions)],
-      entry_date: format(new Date(), 'yyyy-MM-dd')
-    };
-    console.log('Aggiungendo al diario:', diaryData);
-    
-    toast({
-      title: "Dati Preparati",
-      description: "I dati dell'analisi sono stati preparati per il diario. Funzionalità in fase di sviluppo.",
-    });
+  const addToDiary = async (analysis: AnalysisData) => {
+    if (!selectedPet) {
+      toast({
+        title: "Errore",
+        description: "Nessun pet selezionato",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create diary entry with analysis data
+      const diaryData = {
+        title: `Analisi emotiva - ${analysis.primary_emotion}`,
+        content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
+        mood_score: analysis.primary_emotion === 'felice' ? 8 : 
+                   analysis.primary_emotion === 'calmo' ? 7 : 
+                   analysis.primary_emotion === 'triste' ? 3 : 
+                   analysis.primary_emotion === 'ansioso' ? 4 : 5,
+        behavioral_tags: [analysis.primary_emotion, ...Object.keys(analysis.secondary_emotions)],
+        entry_date: format(new Date(), 'yyyy-MM-dd'),
+        pet_id: selectedPet.id,
+        user_id: selectedPet.user_id
+      };
+
+      const { error } = await supabase
+        .from('diary_entries')
+        .insert(diaryData);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Successo!",
+        description: "Analisi aggiunta al diario con successo!",
+      });
+    } catch (error) {
+      console.error('Error adding to diary:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere l'analisi al diario",
+        variant: "destructive"
+      });
+    }
   };
 
   const scheduleFollowUp = (analysis: AnalysisData) => {

@@ -607,7 +607,12 @@ const CalendarPage: React.FC = () => {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => {
+                toast({
+                  title: "Impostazioni calendario",
+                  description: "Personalizza le tue preferenze per il calendario"
+                });
+              }}>
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
