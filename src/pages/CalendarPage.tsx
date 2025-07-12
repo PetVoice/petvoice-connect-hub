@@ -499,7 +499,7 @@ const CalendarPage: React.FC = () => {
         
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant={showLegend ? "default" : "outline"}
             size="sm"
             onClick={() => setShowLegend(!showLegend)}
           >
