@@ -629,7 +629,6 @@ const CalendarPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setShowLegend(!showLegend)}
-            className={showLegend ? "bg-muted text-primary font-medium border-primary/20" : ""}
           >
             <Eye className="h-4 w-4 mr-2" />
             Legenda
