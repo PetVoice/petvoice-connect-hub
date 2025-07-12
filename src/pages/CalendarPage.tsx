@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, DollarSign, Camera, FileText, Bell, Repeat, AlertTriangle, Filter, Download, Settings, Grid3X3, List, Eye } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, DollarSign, Camera, FileText, Bell, Repeat, AlertTriangle, Filter, Download, Settings, Grid3X3, List, Eye, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -126,6 +126,8 @@ const CalendarPage: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [dateToDeleteAll, setDateToDeleteAll] = useState<Date | null>(null);
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -394,12 +396,55 @@ const CalendarPage: React.FC = () => {
     }
   };
 
+  const deleteAllDayEvents = async (date: Date) => {
+    try {
+      const dayEvents = events.filter(event => {
+        const eventDate = parseISO(event.start_time);
+        return isSameDay(eventDate, date);
+      });
+      const eventIds = dayEvents.map(event => event.id);
+      
+      const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .in('id', eventIds);
+
+      if (error) throw error;
+      
+      toast({ title: `${dayEvents.length} eventi eliminati` });
+      
+      // Chiudi la modal e aggiorna gli eventi
+      setIsDayEventsDialogOpen(false);
+      loadEvents();
+    } catch (error) {
+      console.error('Error deleting all events:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare gli eventi",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDeleteConfirm = () => {
     if (eventToDelete) {
       deleteEvent(eventToDelete);
       setEventToDelete(null);
     }
     setShowDeleteConfirm(false);
+  };
+
+  const handleDeleteAllClick = (date: Date) => {
+    setDateToDeleteAll(date);
+    setShowDeleteAllConfirm(true);
+  };
+
+  const confirmDeleteAll = () => {
+    if (dateToDeleteAll) {
+      deleteAllDayEvents(dateToDeleteAll);
+      setDateToDeleteAll(null);
+    }
+    setShowDeleteAllConfirm(false);
   };
 
   // Reset form
@@ -947,99 +992,127 @@ const CalendarPage: React.FC = () => {
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-muted-foreground">
+              <span className="text-sm text-muted-foreground">
                 {selectedDayEvents.length} {selectedDayEvents.length === 1 ? 'evento trovato' : 'eventi trovati'}
-              </p>
-              <Button onClick={handleCreateNewEventForDay} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Nuovo Evento
-              </Button>
+              </span>
+              <div className="flex gap-2">
+                {selectedDayEvents.length > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => selectedDate && handleDeleteAllClick(selectedDate)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Elimina Tutti
+                  </Button>
+                )}
+                <Button onClick={handleCreateNewEventForDay} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nuovo Evento
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-4">
-              {selectedDayEvents.map((event) => (
-                <Card key={event.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge className={EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.color || 'bg-gray-500'}>
-                            {EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.icon || '📅'} {event.category}
-                          </Badge>
-                          <h3 className="font-semibold text-lg">{event.title}</h3>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {format(parseISO(event.start_time), 'HH:mm', { locale: it })}
-                            {event.end_time && ` - ${format(parseISO(event.end_time), 'HH:mm', { locale: it })}`}
-                          </span>
-                          {event.location && (
+              {selectedDayEvents.length > 0 ? (
+                selectedDayEvents.map((event) => (
+                  <Card key={event.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Badge className={EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.color || 'bg-gray-500'}>
+                              {EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.icon || '📅'} {event.category}
+                            </Badge>
+                            <h3 className="font-semibold text-lg">{event.title}</h3>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4" />
-                              {event.location}
+                              <Clock className="h-4 w-4" />
+                              {format(parseISO(event.start_time), 'HH:mm', { locale: it })}
+                              {event.end_time && ` - ${format(parseISO(event.end_time), 'HH:mm', { locale: it })}`}
                             </span>
+                            {event.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                {event.location}
+                              </span>
+                            )}
+                          </div>
+
+                          {event.description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {event.description}
+                            </p>
+                          )}
+
+                          {event.attendees && event.attendees.length > 0 && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Users className="h-4 w-4" />
+                              {event.attendees.length} partecipanti
+                            </div>
+                          )}
+
+                          {event.cost && (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <DollarSign className="h-4 w-4" />
+                              €{event.cost}
+                            </div>
                           )}
                         </div>
 
-                        {event.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            {event.description}
-                          </p>
-                        )}
-
-                        {event.attendees && event.attendees.length > 0 && (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
-                            {event.attendees.length} partecipanti
-                          </div>
-                        )}
-
-                        {event.cost && (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <DollarSign className="h-4 w-4" />
-                            €{event.cost}
-                          </div>
-                        )}
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setIsDayEventsDialogOpen(false);
+                              openEditDialog(event);
+                            }}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setIsDayEventsDialogOpen(false);
+                              openEditDialog(event);
+                            }}
+                          >
+                            Modifica
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setEventToDelete(event.id);
+                              setShowDeleteConfirm(true);
+                            }}
+                          >
+                            Elimina
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setIsDayEventsDialogOpen(false);
-                            openEditDialog(event);
-                          }}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setIsDayEventsDialogOpen(false);
-                            openEditDialog(event);
-                          }}
-                        >
-                          Modifica
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setEventToDelete(event.id);
-                            setShowDeleteConfirm(true);
-                          }}
-                        >
-                          Elimina
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                  <h3 className="text-lg font-semibold mb-2">Nessun Evento</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Inizia creando il primo evento per il {selectedDate && format(selectedDate, 'dd MMMM yyyy', { locale: it })}
+                  </p>
+                  <Button
+                    onClick={handleCreateNewEventForDay}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crea Nuovo Evento
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>
@@ -1063,6 +1136,29 @@ const CalendarPage: React.FC = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Confirmation Dialog */}
+      <AlertDialog open={showDeleteAllConfirm} onOpenChange={setShowDeleteAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione Tutti gli Eventi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare tutti gli eventi del {dateToDeleteAll && format(dateToDeleteAll, 'dd MMMM yyyy', { locale: it })}? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteAllConfirm(false)}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Elimina Tutti
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

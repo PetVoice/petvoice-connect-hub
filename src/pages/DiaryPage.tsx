@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -85,6 +86,8 @@ const DiaryPage: React.FC = () => {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [viewingEntry, setViewingEntry] = useState<DiaryEntry | null>(null);
   const [dayEntriesModal, setDayEntriesModal] = useState<{ open: boolean; date: Date; entries: DiaryEntry[] }>({ open: false, date: new Date(), entries: [] });
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [dateToDeleteAll, setDateToDeleteAll] = useState<Date | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -297,6 +300,33 @@ const DiaryPage: React.FC = () => {
     }
   };
 
+  const deleteAllDayEntries = async (date: Date) => {
+    try {
+      const dayEntries = entries.filter(entry => isSameDay(parseISO(entry.entry_date), date));
+      const entryIds = dayEntries.map(entry => entry.id);
+      
+      const { error } = await supabase
+        .from('diary_entries')
+        .delete()
+        .in('id', entryIds);
+
+      if (error) throw error;
+      
+      toast({ title: `${dayEntries.length} voci eliminate` });
+      
+      // Chiudi la modal e aggiorna gli entries
+      setDayEntriesModal({ ...dayEntriesModal, open: false });
+      loadEntries();
+    } catch (error) {
+      console.error('Error deleting all entries:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare le voci",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDeleteClick = (entryId: string) => {
     setEntryToDelete(entryId);
     setShowDeleteConfirm(true);
@@ -307,6 +337,19 @@ const DiaryPage: React.FC = () => {
       deleteEntry(entryToDelete);
       setEntryToDelete(null);
     }
+  };
+
+  const handleDeleteAllClick = (date: Date) => {
+    setDateToDeleteAll(date);
+    setShowDeleteAllConfirm(true);
+  };
+
+  const confirmDeleteAll = () => {
+    if (dateToDeleteAll) {
+      deleteAllDayEntries(dateToDeleteAll);
+      setDateToDeleteAll(null);
+    }
+    setShowDeleteAllConfirm(false);
   };
 
   const resetForm = () => {
@@ -1327,22 +1370,34 @@ const DiaryPage: React.FC = () => {
                 <Calendar className="h-5 w-5" />
                 Voci del {format(dayEntriesModal.date, 'dd MMMM yyyy', { locale: it })}
               </DialogTitle>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   {dayEntriesModal.entries.length} {dayEntriesModal.entries.length === 1 ? 'voce trovata' : 'voci trovate'}
                 </span>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
-                    resetForm();
-                    setDayEntriesModal({ ...dayEntriesModal, open: false });
-                    setIsDialogOpen(true);
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi Nuova Voce
-                </Button>
+                <div className="flex gap-2">
+                  {dayEntriesModal.entries.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteAllClick(dayEntriesModal.date)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Elimina Tutte
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
+                      resetForm();
+                      setDayEntriesModal({ ...dayEntriesModal, open: false });
+                      setIsDialogOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuova Voce
+                  </Button>
+                </div>
               </div>
             </DialogHeader>
             
@@ -1455,6 +1510,29 @@ const DiaryPage: React.FC = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete All Confirmation Dialog */}
+      <AlertDialog open={showDeleteAllConfirm} onOpenChange={setShowDeleteAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione Tutte le Voci</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare tutte le voci del {dateToDeleteAll && format(dateToDeleteAll, 'dd MMMM yyyy', { locale: it })}? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteAllConfirm(false)}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteAll}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Elimina Tutte
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
