@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn, ExternalLink, Settings, Grid3X3, List } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play, ZoomIn, ExternalLink, Settings, Grid3X3, List, Clock, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, startOfWeek } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 // Types
@@ -131,6 +131,17 @@ const DiaryPage: React.FC = () => {
     exportFormat: 'pdf' as 'pdf' | 'csv',
     privacyMode: false
   });
+
+  // Navigation for different view modes
+  const navigateDiary = (direction: 'prev' | 'next') => {
+    if (viewMode === 'month') {
+      setCurrentDate(direction === 'prev' ? subMonths(currentDate, 1) : addMonths(currentDate, 1));
+    } else if (viewMode === 'week') {
+      setCurrentDate(direction === 'prev' ? subWeeks(currentDate, 1) : addWeeks(currentDate, 1));
+    } else {
+      setCurrentDate(direction === 'prev' ? addDays(currentDate, -1) : addDays(currentDate, 1));
+    }
+  };
   
   // Form state
   const [formData, setFormData] = useState({
@@ -194,7 +205,7 @@ const DiaryPage: React.FC = () => {
     }
   }, [formData, editingEntry, selectedPet]);
 
-  // Filter entries
+  // Filter entries based on view mode and filters
   useEffect(() => {
     let filtered = entries;
 
@@ -225,8 +236,24 @@ const DiaryPage: React.FC = () => {
       );
     }
 
+    // Filter by date range based on view mode
+    if (viewMode !== 'month') {
+      const start = viewMode === 'week'
+        ? startOfWeek(currentDate)
+        : startOfDay(currentDate);
+
+      const end = viewMode === 'week'
+        ? endOfWeek(currentDate)
+        : endOfDay(currentDate);
+
+      filtered = filtered.filter(entry => {
+        const entryDate = parseISO(entry.entry_date);
+        return entryDate >= start && entryDate <= end;
+      });
+    }
+
     setFilteredEntries(filtered);
-  }, [entries, searchTerm, selectedTags, filterCategory]);
+  }, [entries, searchTerm, selectedTags, filterCategory, currentDate, viewMode]);
 
   // Auto-save trigger per salvare effettivamente nel database
   useEffect(() => {
@@ -998,9 +1025,7 @@ const DiaryPage: React.FC = () => {
 
             {/* Navigation - Like Calendar */}
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={() => {
-                setCurrentDate(addMonths(currentDate, -1));
-              }}>
+              <Button variant="outline" size="sm" onClick={() => navigateDiary('prev')}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               
@@ -1010,9 +1035,7 @@ const DiaryPage: React.FC = () => {
                 {viewMode === 'day' && format(currentDate, 'dd MMMM yyyy', { locale: it })}
               </h2>
               
-              <Button variant="outline" size="sm" onClick={() => {
-                setCurrentDate(addMonths(currentDate, 1));
-              }}>
+              <Button variant="outline" size="sm" onClick={() => navigateDiary('next')}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -1138,157 +1161,31 @@ const DiaryPage: React.FC = () => {
         </Card>
       )}
 
-      {/* List View */}
+      {/* Week View - Calendar Style */}
       {viewMode === 'week' && (
-        <div className="space-y-4">
-          {filteredEntries.map(entry => (
-            <Card 
-              key={entry.id} 
-              className="shadow-elegant cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => openEditDialog(entry)}
-            >
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold">{entry.title || 'Senza titolo'}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {format(parseISO(entry.entry_date), 'dd MMMM yyyy', { locale: it })}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    {entry.mood_score && (
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded-full ${getMoodColor(entry.mood_score)}`} />
-                        <span className="text-sm">{entry.mood_score}/10</span>
-                      </div>
-                    )}
-                    
-                    <Button variant="outline" size="sm" onClick={() => openEditDialog(entry)}>
-                      <Edit3 className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteClick(entry.id);
-                      }}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                {entry.content && (
-                  <p className="text-foreground mb-4 line-clamp-3">{entry.content}</p>
-                )}
-                
-                {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {entry.behavioral_tags.map(tag => (
-                      <Badge key={tag} variant="secondary">{tag}</Badge>
-                    ))}
-                  </div>
-                )}
-                
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    {entry.weather_condition && (
-                      <span>🌤️ {entry.weather_condition}</span>
-                    )}
-                    {entry.temperature && (
-                      <span>🌡️ {entry.temperature}°C</span>
-                    )}
-                    {entry.photo_urls && entry.photo_urls.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span>📸 {entry.photo_urls.length} foto</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedPhoto(entry.photo_urls![0]);
-                          }}
-                          className="h-6 w-6 p-0"
-                        >
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                    {entry.voice_note_url && (
-                      <span>🎤 Nota vocale</span>
-                    )}
-                  </div>
-                  
-                  <span>Modificato {format(parseISO(entry.updated_at), 'dd/MM/yyyy HH:mm')}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          
-          {filteredEntries.length === 0 && (
-            <Card className="shadow-elegant">
-              <CardContent className="p-12 text-center">
-                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nessuna voce trovata</h3>
-                <p className="text-muted-foreground">
-                  {searchTerm || selectedTags.length > 0 
-                    ? 'Prova a modificare i filtri di ricerca'
-                    : 'Inizia creando la prima voce del diario'
-                  }
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        <Card className="shadow-elegant">
+          <CardContent className="p-0">
+            <DiaryWeekView 
+              currentDate={currentDate}
+              entries={filteredEntries}
+              onDateClick={handleDayClick}
+              onEntryClick={openEditDialog}
+            />
+          </CardContent>
+        </Card>
       )}
 
-      {/* Gallery View */}
+      {/* Day View - Calendar Style */}
       {viewMode === 'day' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredEntries
-            .filter(entry => entry.photo_urls && entry.photo_urls.length > 0)
-            .map(entry => (
-              <Card key={entry.id} className="shadow-elegant overflow-hidden">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <Camera className="h-8 w-8 text-muted-foreground" />
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    {entry.photo_urls?.length} foto
-                  </span>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-2">{entry.title || 'Senza titolo'}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {format(parseISO(entry.entry_date), 'dd MMMM yyyy', { locale: it })}
-                  </p>
-                  {entry.behavioral_tags && (
-                    <div className="flex flex-wrap gap-1">
-                      {entry.behavioral_tags.slice(0, 3).map(tag => (
-                        <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          
-          {filteredEntries.filter(entry => entry.photo_urls && entry.photo_urls.length > 0).length === 0 && (
-            <div className="col-span-full">
-              <Card className="shadow-elegant">
-                <CardContent className="p-12 text-center">
-                  <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nessuna foto trovata</h3>
-                  <p className="text-muted-foreground">
-                    Le voci del diario con foto appariranno qui
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
+        <Card className="shadow-elegant">
+          <CardContent className="p-0">
+            <DiaryDayView 
+              currentDate={currentDate}
+              entries={filteredEntries}
+              onEntryClick={openEditDialog}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {/* Delete Confirmation Dialog */}
@@ -1783,6 +1680,197 @@ const DiaryPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+// Weekly diary view component - similar to Calendar WeekView
+const DiaryWeekView: React.FC<{
+  currentDate: Date;
+  entries: DiaryEntry[];
+  onDateClick: (date: Date) => void;
+  onEntryClick: (entry: DiaryEntry) => void;
+}> = ({ currentDate, entries, onDateClick, onEntryClick }) => {
+  const weekStart = startOfWeek(currentDate);
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+
+  const getEntriesForDay = (date: Date) => {
+    return entries.filter(entry => isSameDay(parseISO(entry.entry_date), date));
+  };
+
+  const getMoodColorForEntry = (entry: DiaryEntry) => {
+    if (!entry.mood_score) return 'bg-gray-500 text-white';
+    
+    const category = Object.entries(DIARY_CATEGORIES).find(([key, cat]) => 
+      entry.mood_score! >= cat.moodRange[0] && entry.mood_score! <= cat.moodRange[1]
+    );
+    
+    return category ? category[1].color : 'bg-gray-500 text-white';
+  };
+
+  return (
+    <div className="p-4">
+      {/* Week header */}
+      <div className="grid grid-cols-8 gap-2 mb-4">
+        <div className="text-center text-sm font-medium text-muted-foreground p-2">Ora</div>
+        {weekDays.map(day => (
+          <div key={day.toISOString()} className="text-center text-sm font-medium p-2">
+            <div>{format(day, 'EEE', { locale: it })}</div>
+            <div className="text-lg">{format(day, 'd')}</div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Day entries (showing entries as full-day items) */}
+      <div className="grid grid-cols-8 gap-2 mb-4">
+        <div className="text-sm text-muted-foreground p-2 text-center">Voci</div>
+        {weekDays.map(day => {
+          const dayEntries = getEntriesForDay(day);
+          return (
+            <div
+              key={`day-${day.toISOString()}`}
+              className="min-h-[120px] p-2 border rounded hover:bg-muted/50 cursor-pointer"
+              onClick={() => onDateClick(day)}
+            >
+              <div className="space-y-1">
+                {dayEntries.map(entry => (
+                  <div
+                    key={entry.id}
+                    className={`
+                      text-xs p-2 rounded cursor-pointer transition-colors
+                      ${getMoodColorForEntry(entry)}
+                    `}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEntryClick(entry);
+                    }}
+                  >
+                    <div className="truncate font-medium">
+                      {entry.title || 'Senza titolo'}
+                    </div>
+                    {entry.mood_score && (
+                      <div className="text-xs opacity-75">
+                        😊 {entry.mood_score}/10
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {dayEntries.length === 0 && (
+                  <div className="text-xs text-muted-foreground text-center py-4">
+                    Nessuna voce
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Daily diary view component - similar to Calendar DayView
+const DiaryDayView: React.FC<{
+  currentDate: Date;
+  entries: DiaryEntry[];
+  onEntryClick: (entry: DiaryEntry) => void;
+}> = ({ currentDate, entries, onEntryClick }) => {
+  const dayEntries = entries.filter(entry => isSameDay(parseISO(entry.entry_date), currentDate));
+
+  const getMoodColorForEntry = (entry: DiaryEntry) => {
+    if (!entry.mood_score) return 'bg-gray-500 text-white border-gray-500';
+    
+    const category = Object.entries(DIARY_CATEGORIES).find(([key, cat]) => 
+      entry.mood_score! >= cat.moodRange[0] && entry.mood_score! <= cat.moodRange[1]
+    );
+    
+    return category ? `${category[1].color} border-l-4` : 'bg-gray-500 text-white border-gray-500';
+  };
+
+  return (
+    <div className="p-4">
+      <div className="max-h-[700px] overflow-y-auto">
+        <div className="space-y-4">
+          <div className="text-center p-4 border-b">
+            <h3 className="text-lg font-semibold">
+              {format(currentDate, 'dd MMMM yyyy', { locale: it })}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {dayEntries.length} {dayEntries.length === 1 ? 'voce trovata' : 'voci trovate'}
+            </p>
+          </div>
+
+          {dayEntries.length > 0 ? (
+            <div className="space-y-4">
+              {dayEntries.map(entry => (
+                <div
+                  key={entry.id}
+                  className={`
+                    p-4 rounded-lg cursor-pointer transition-colors border-l-4
+                    ${getMoodColorForEntry(entry)}
+                  `}
+                  onClick={() => onEntryClick(entry)}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-medium text-lg">
+                      {entry.title || 'Senza titolo'}
+                    </h4>
+                    {entry.mood_score && (
+                      <div className="flex items-center gap-2 opacity-75">
+                        <span className="text-sm">😊 {entry.mood_score}/10</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {entry.content && (
+                    <p className="text-sm opacity-90 mb-3 line-clamp-3">
+                      {entry.content}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center gap-4 text-xs opacity-75">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {format(parseISO(entry.created_at), 'HH:mm')}
+                    </span>
+                    {entry.weather_condition && (
+                      <span>🌤️ {entry.weather_condition}</span>
+                    )}
+                    {entry.temperature && (
+                      <span>🌡️ {entry.temperature}°C</span>
+                    )}
+                    {entry.photo_urls && entry.photo_urls.length > 0 && (
+                      <span>📸 {entry.photo_urls.length}</span>
+                    )}
+                    {entry.voice_note_url && (
+                      <span>🎤 Nota vocale</span>
+                    )}
+                  </div>
+                  
+                  {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {entry.behavioral_tags.slice(0, 5).map(tag => (
+                        <span key={tag} className="text-xs bg-black/10 px-2 py-1 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nessuna voce per oggi</h3>
+              <p className="text-muted-foreground">
+                Inizia creando la prima voce del diario per questo giorno
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
