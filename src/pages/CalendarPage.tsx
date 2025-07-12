@@ -954,6 +954,9 @@ const CalendarPage: React.FC = () => {
               Annulla
             </Button>
             <Button onClick={() => {
+              // Apply settings immediately
+              setViewMode(settings.defaultView);
+              
               toast({
                 title: "Impostazioni salvate",
                 description: "Le tue preferenze sono state aggiornate con successo"

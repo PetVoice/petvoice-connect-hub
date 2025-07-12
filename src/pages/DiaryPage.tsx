@@ -1643,7 +1643,9 @@ const DiaryPage: React.FC = () => {
               Annulla
             </Button>
             <Button onClick={() => {
-              // Save settings logic here
+              // Apply settings immediately
+              setViewMode(settings.defaultView);
+              
               setIsSettingsOpen(false);
               toast({
                 title: "Impostazioni salvate",
