@@ -1,0 +1,844 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { usePets } from '@/contexts/PetContext';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
+import { it } from 'date-fns/locale';
+
+// Types
+interface DiaryEntry {
+  id: string;
+  title: string | null;
+  content: string | null;
+  entry_date: string;
+  mood_score: number | null;
+  behavioral_tags: string[] | null;
+  photo_urls: string[] | null;
+  voice_note_url: string | null;
+  weather_condition: string | null;
+  temperature: number | null;
+  pet_id: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Predefined tags with categories
+const PREDEFINED_TAGS = {
+  emotional: ['felice', 'triste', 'ansioso', 'calmo', 'energico', 'depresso', 'stressato', 'rilassato'],
+  behavioral: ['gioco', 'appetito', 'sonno', 'aggressivo', 'affettuoso', 'curioso', 'timido', 'sociale'],
+  health: ['malato', 'sano', 'dolorante', 'vivace', 'stanco', 'alert'],
+  environmental: ['temporale', 'caldo', 'freddo', 'rumoroso', 'silenzioso', 'casa', 'parco', 'visita-vet'],
+  training: ['training', 'obbedienza', 'trucchi', 'ricompensa', 'punizione', 'progresso']
+};
+
+const TAG_COLORS = {
+  emotional: 'bg-pink-500',
+  behavioral: 'bg-blue-500', 
+  health: 'bg-green-500',
+  environmental: 'bg-yellow-500',
+  training: 'bg-purple-500'
+};
+
+const MOOD_LABELS = {
+  1: 'Terribile',
+  2: 'Molto Male', 
+  3: 'Male',
+  4: 'Sotto la Media',
+  5: 'Neutrale',
+  6: 'Bene',
+  7: 'Molto Bene',
+  8: 'Ottimo',
+  9: 'Fantastico',
+  10: 'Perfetto'
+};
+
+const DiaryPage: React.FC = () => {
+  const { pets, selectedPet } = usePets();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<DiaryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'gallery'>('calendar');
+  const [isRecording, setIsRecording] = useState(false);
+  const [customTags, setCustomTags] = useState<string[]>([]);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    mood_score: 5,
+    behavioral_tags: [] as string[],
+    photo_urls: [] as string[],
+    voice_note_url: null as string | null,
+    weather_condition: '',
+    temperature: null as number | null,
+    entry_date: format(new Date(), 'yyyy-MM-dd')
+  });
+
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load entries
+  const loadEntries = useCallback(async () => {
+    if (!selectedPet) return;
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('entry_date', { ascending: false });
+
+      if (error) throw error;
+      setEntries(data || []);
+    } catch (error) {
+      console.error('Error loading entries:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare le voci del diario",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedPet]);
+
+  // Auto-save functionality
+  const autoSave = useCallback(async () => {
+    if (!selectedPet || !formData.title && !formData.content) return;
+
+    try {
+      if (editingEntry) {
+        const { error } = await supabase
+          .from('diary_entries')
+          .update({
+            ...formData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingEntry.id);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    }
+  }, [formData, editingEntry, selectedPet]);
+
+  // Filter entries
+  useEffect(() => {
+    let filtered = entries;
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(entry => 
+        entry.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.behavioral_tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Tag filter
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(entry =>
+        entry.behavioral_tags?.some(tag => selectedTags.includes(tag))
+      );
+    }
+
+    setFilteredEntries(filtered);
+  }, [entries, searchTerm, selectedTags]);
+
+  // Auto-save trigger
+  useEffect(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSave();
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [formData, autoSave]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
+
+  // Get calendar days
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  const getEntryForDate = (date: Date) => {
+    return entries.find(entry => 
+      isSameDay(parseISO(entry.entry_date), date)
+    );
+  };
+
+  const getMoodColor = (moodScore: number | null) => {
+    if (!moodScore) return 'bg-gray-300';
+    if (moodScore <= 3) return 'bg-red-500';
+    if (moodScore <= 5) return 'bg-yellow-500';
+    if (moodScore <= 7) return 'bg-blue-500';
+    return 'bg-green-500';
+  };
+
+  const saveEntry = async () => {
+    if (!selectedPet) return;
+
+    try {
+      const entryData = {
+        ...formData,
+        pet_id: selectedPet.id,
+        user_id: selectedPet.user_id
+      };
+
+      if (editingEntry) {
+        const { error } = await supabase
+          .from('diary_entries')
+          .update(entryData)
+          .eq('id', editingEntry.id);
+
+        if (error) throw error;
+        toast({ title: "Voce aggiornata con successo!" });
+      } else {
+        const { error } = await supabase
+          .from('diary_entries')
+          .insert(entryData);
+
+        if (error) throw error;
+        toast({ title: "Nuova voce salvata!" });
+      }
+
+      setIsDialogOpen(false);
+      resetForm();
+      loadEntries();
+    } catch (error) {
+      console.error('Error saving entry:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare la voce",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteEntry = async (entryId: string) => {
+    try {
+      const { error } = await supabase
+        .from('diary_entries')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) throw error;
+      
+      toast({ title: "Voce eliminata" });
+      loadEntries();
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la voce",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      content: '',
+      mood_score: 5,
+      behavioral_tags: [],
+      photo_urls: [],
+      voice_note_url: null,
+      weather_condition: '',
+      temperature: null,
+      entry_date: format(new Date(), 'yyyy-MM-dd')
+    });
+    setEditingEntry(null);
+  };
+
+  const openEditDialog = (entry: DiaryEntry) => {
+    setFormData({
+      title: entry.title || '',
+      content: entry.content || '',
+      mood_score: entry.mood_score || 5,
+      behavioral_tags: entry.behavioral_tags || [],
+      photo_urls: entry.photo_urls || [],
+      voice_note_url: entry.voice_note_url,
+      weather_condition: entry.weather_condition || '',
+      temperature: entry.temperature,
+      entry_date: entry.entry_date
+    });
+    setEditingEntry(entry);
+    setIsDialogOpen(true);
+  };
+
+  const addTag = (tag: string) => {
+    if (!formData.behavioral_tags.includes(tag)) {
+      setFormData(prev => ({
+        ...prev,
+        behavioral_tags: [...prev.behavioral_tags, tag]
+      }));
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData(prev => ({
+      ...prev,
+      behavioral_tags: prev.behavioral_tags.filter(t => t !== tag)
+    }));
+  };
+
+  const addCustomTag = (tag: string) => {
+    const normalizedTag = tag.toLowerCase().trim();
+    if (normalizedTag && !customTags.includes(normalizedTag)) {
+      setCustomTags(prev => [...prev, normalizedTag]);
+      addTag(normalizedTag);
+    }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !selectedPet) return;
+
+    // Implementation for photo upload to Supabase storage
+    // This would upload to the pet-media bucket
+    toast({
+      title: "Funzionalità in sviluppo",
+      description: "Upload foto sarà disponibile presto"
+    });
+  };
+
+  if (!selectedPet) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] text-center">
+        <BookOpen className="h-16 w-16 text-muted-foreground mb-4" />
+        <h2 className="text-2xl font-semibold mb-2">Seleziona un Pet</h2>
+        <p className="text-muted-foreground">Scegli un pet per iniziare a tenere il diario</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold gradient-text">Diario di {selectedPet.name}</h1>
+          <p className="text-muted-foreground">Tieni traccia del comportamento e dell'umore quotidiano</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <div className="flex rounded-lg overflow-hidden border">
+            <Button
+              variant={viewMode === 'calendar' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('calendar')}
+              className="rounded-none"
+            >
+              <Calendar className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="rounded-none"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'gallery' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('gallery')}
+              className="rounded-none"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm} className="gradient-cosmic text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Nuova Voce
+              </Button>
+            </DialogTrigger>
+            
+            <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
+              <div className="max-h-[80vh] overflow-y-auto px-1">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingEntry ? 'Modifica Voce' : 'Nuova Voce del Diario'}
+                  </DialogTitle>
+                </DialogHeader>
+                
+                <div className="space-y-6 mt-6">
+                  {/* Date and Mood */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="entry_date">Data</Label>
+                      <Input
+                        id="entry_date"
+                        type="date"
+                        value={formData.entry_date}
+                        onChange={(e) => setFormData(prev => ({ ...prev, entry_date: e.target.value }))}
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label>Umore (1-10): {formData.mood_score} - {MOOD_LABELS[formData.mood_score as keyof typeof MOOD_LABELS]}</Label>
+                      <Slider
+                        value={[formData.mood_score]}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, mood_score: value[0] }))}
+                        max={10}
+                        min={1}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                        <span>Terribile</span>
+                        <span>Perfetto</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Title */}
+                  <div>
+                    <Label htmlFor="title">Titolo</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Titolo della voce..."
+                    />
+                  </div>
+                  
+                  {/* Content */}
+                  <div>
+                    <Label htmlFor="content">Contenuto</Label>
+                    <Textarea
+                      id="content"
+                      value={formData.content}
+                      onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                      placeholder="Descrivi il comportamento, l'umore e le attività di oggi..."
+                      rows={6}
+                    />
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Auto-save attivo • Ultima modifica salvata automaticamente
+                    </div>
+                  </div>
+                  
+                  {/* Tags */}
+                  <div>
+                    <Label>Tag Comportamentali</Label>
+                    <div className="space-y-4 mt-2">
+                      {/* Selected tags */}
+                      {formData.behavioral_tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.behavioral_tags.map(tag => (
+                            <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                              {tag}
+                              <X
+                                className="h-3 w-3 cursor-pointer"
+                                onClick={() => removeTag(tag)}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Predefined tags */}
+                      {Object.entries(PREDEFINED_TAGS).map(([category, tags]) => (
+                        <div key={category}>
+                          <h4 className="text-sm font-medium mb-2 capitalize">{category}</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {tags.map(tag => (
+                              <Button
+                                key={tag}
+                                variant={formData.behavioral_tags.includes(tag) ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => addTag(tag)}
+                                className="text-xs"
+                              >
+                                {tag}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Custom tag input */}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Aggiungi tag personalizzato..."
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              addCustomTag(e.currentTarget.value);
+                              e.currentTarget.value = '';
+                            }
+                          }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const input = document.querySelector('input[placeholder*="personalizzato"]') as HTMLInputElement;
+                            if (input) {
+                              addCustomTag(input.value);
+                              input.value = '';
+                            }
+                          }}
+                        >
+                          <Tag className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Weather and Temperature */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="weather">Condizioni Meteo</Label>
+                      <Select value={formData.weather_condition} onValueChange={(value) => setFormData(prev => ({ ...prev, weather_condition: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona meteo" />
+                        </SelectTrigger>
+                        <SelectContent className="shadow-elegant">
+                          <SelectItem value="soleggiato">☀️ Soleggiato</SelectItem>
+                          <SelectItem value="nuvoloso">☁️ Nuvoloso</SelectItem>
+                          <SelectItem value="piovoso">🌧️ Piovoso</SelectItem>
+                          <SelectItem value="temporale">⛈️ Temporale</SelectItem>
+                          <SelectItem value="neve">❄️ Neve</SelectItem>
+                          <SelectItem value="vento">💨 Ventoso</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="temperature">Temperatura (°C)</Label>
+                      <Input
+                        id="temperature"
+                        type="number"
+                        value={formData.temperature || ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, temperature: e.target.value ? Number(e.target.value) : null }))}
+                        placeholder="es. 22"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Media Upload */}
+                  <div className="space-y-4">
+                    <Label>Media</Label>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => document.getElementById('photo-upload')?.click()}>
+                        <Camera className="h-4 w-4 mr-2" />
+                        Aggiungi Foto
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setIsRecording(!isRecording)}
+                        className={isRecording ? 'bg-red-500 text-white' : ''}
+                      >
+                        {isRecording ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+                        {isRecording ? 'Stop Recording' : 'Voice Note'}
+                      </Button>
+                    </div>
+                    
+                    <input
+                      id="photo-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                      Annulla
+                    </Button>
+                    <Button onClick={saveEntry} className="gradient-cosmic text-white">
+                      <Save className="h-4 w-4 mr-2" />
+                      {editingEntry ? 'Aggiorna' : 'Salva'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <Card className="shadow-elegant">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cerca nelle voci del diario..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtra per tag" />
+                </SelectTrigger>
+                <SelectContent className="shadow-elegant">
+                  {Array.from(new Set(entries.flatMap(e => e.behavioral_tags || []))).map(tag => (
+                    <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Esporta
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
+        <Card className="shadow-elegant">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                {format(currentDate, 'MMMM yyyy', { locale: it })}
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map(day => (
+                <div key={day} className="text-center text-sm font-medium text-muted-foreground p-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-7 gap-2">
+              {days.map(day => {
+                const entry = getEntryForDate(day);
+                const isToday = isSameDay(day, new Date());
+                const isCurrentMonth = isSameMonth(day, currentDate);
+                
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={`
+                      relative aspect-square p-2 border rounded-lg cursor-pointer transition-colors
+                      ${isCurrentMonth ? 'bg-background hover:bg-muted/50' : 'bg-muted/20 text-muted-foreground'}
+                      ${isToday ? 'ring-2 ring-primary' : ''}
+                    `}
+                    onClick={() => {
+                      setSelectedDate(day);
+                      if (entry) openEditDialog(entry);
+                    }}
+                  >
+                    <div className="text-sm">{format(day, 'd')}</div>
+                    {entry && (
+                      <div className="absolute bottom-1 left-1 right-1">
+                        <div className={`h-2 rounded-full ${getMoodColor(entry.mood_score)}`} />
+                        {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                          <div className="text-xs mt-1 truncate">
+                            {entry.behavioral_tags.slice(0, 2).join(', ')}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="space-y-4">
+          {filteredEntries.map(entry => (
+            <Card key={entry.id} className="shadow-elegant">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold">{entry.title || 'Senza titolo'}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {format(parseISO(entry.entry_date), 'dd MMMM yyyy', { locale: it })}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {entry.mood_score && (
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full ${getMoodColor(entry.mood_score)}`} />
+                        <span className="text-sm">{entry.mood_score}/10</span>
+                      </div>
+                    )}
+                    
+                    <Button variant="outline" size="sm" onClick={() => openEditDialog(entry)}>
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => deleteEntry(entry.id)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {entry.content && (
+                  <p className="text-foreground mb-4 line-clamp-3">{entry.content}</p>
+                )}
+                
+                {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {entry.behavioral_tags.map(tag => (
+                      <Badge key={tag} variant="secondary">{tag}</Badge>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <div className="flex items-center gap-4">
+                    {entry.weather_condition && (
+                      <span>🌤️ {entry.weather_condition}</span>
+                    )}
+                    {entry.temperature && (
+                      <span>🌡️ {entry.temperature}°C</span>
+                    )}
+                    {entry.photo_urls && entry.photo_urls.length > 0 && (
+                      <span>📸 {entry.photo_urls.length} foto</span>
+                    )}
+                    {entry.voice_note_url && (
+                      <span>🎤 Nota vocale</span>
+                    )}
+                  </div>
+                  
+                  <span>Modificato {format(parseISO(entry.updated_at), 'dd/MM/yyyy HH:mm')}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {filteredEntries.length === 0 && (
+            <Card className="shadow-elegant">
+              <CardContent className="p-12 text-center">
+                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Nessuna voce trovata</h3>
+                <p className="text-muted-foreground">
+                  {searchTerm || selectedTags.length > 0 
+                    ? 'Prova a modificare i filtri di ricerca'
+                    : 'Inizia creando la prima voce del diario'
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {/* Gallery View */}
+      {viewMode === 'gallery' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredEntries
+            .filter(entry => entry.photo_urls && entry.photo_urls.length > 0)
+            .map(entry => (
+              <Card key={entry.id} className="shadow-elegant overflow-hidden">
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  <Camera className="h-8 w-8 text-muted-foreground" />
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    {entry.photo_urls?.length} foto
+                  </span>
+                </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-2">{entry.title || 'Senza titolo'}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {format(parseISO(entry.entry_date), 'dd MMMM yyyy', { locale: it })}
+                  </p>
+                  {entry.behavioral_tags && (
+                    <div className="flex flex-wrap gap-1">
+                      {entry.behavioral_tags.slice(0, 3).map(tag => (
+                        <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          
+          {filteredEntries.filter(entry => entry.photo_urls && entry.photo_urls.length > 0).length === 0 && (
+            <div className="col-span-full">
+              <Card className="shadow-elegant">
+                <CardContent className="p-12 text-center">
+                  <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Nessuna foto trovata</h3>
+                  <p className="text-muted-foreground">
+                    Le voci del diario con foto appariranno qui
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DiaryPage;

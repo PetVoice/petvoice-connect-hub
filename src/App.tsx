@@ -11,6 +11,7 @@ import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
+import DiaryPage from "@/pages/DiaryPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import ResetPassword from "@/pages/ResetPassword";
@@ -55,12 +56,7 @@ const App = () => (
               <Route path="/diary" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Diario"
-                      description="Tieni traccia delle attività quotidiane"
-                      icon={<BookOpen className="h-6 w-6 text-white" />}
-                      features={["Voci giornaliere", "Foto e video", "Note comportamentali", "Mood tracking"]}
-                    />
+                    <DiaryPage />
                   </Layout>
                 </ProtectedRoute>
               } />
