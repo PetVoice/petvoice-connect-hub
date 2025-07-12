@@ -1048,7 +1048,7 @@ const DiaryPage: React.FC = () => {
                                 `}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setViewingEntry(entry);
+                                  openEditDialog(entry);
                                 }}
                               >
                                 <div className="truncate font-medium">
