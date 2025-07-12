@@ -15,7 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, startOfWeek } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 // Types
@@ -106,7 +106,8 @@ const DiaryPage: React.FC = () => {
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'gallery'>('calendar');
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [isRecording, setIsRecording] = useState(false);
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -123,7 +124,7 @@ const DiaryPage: React.FC = () => {
   
   // Settings state - Like Calendar
   const [settings, setSettings] = useState({
-    defaultView: 'calendar' as 'calendar' | 'list' | 'gallery',
+    defaultView: 'month' as 'month' | 'week' | 'day',
     autoSaveEnabled: true,
     showMoodInCalendar: true,
     reminderEnabled: true,
@@ -206,6 +207,17 @@ const DiaryPage: React.FC = () => {
       );
     }
 
+    // Category filter based on mood
+    if (filterCategory !== 'all') {
+      filtered = filtered.filter(entry => {
+        if (!entry.mood_score) return false;
+        const category = Object.entries(DIARY_CATEGORIES).find(([key, cat]) => 
+          entry.mood_score! >= cat.moodRange[0] && entry.mood_score! <= cat.moodRange[1]
+        );
+        return category && category[0] === filterCategory;
+      });
+    }
+
     // Tag filter
     if (selectedTags.length > 0) {
       filtered = filtered.filter(entry =>
@@ -214,7 +226,7 @@ const DiaryPage: React.FC = () => {
     }
 
     setFilteredEntries(filtered);
-  }, [entries, searchTerm, selectedTags]);
+  }, [entries, searchTerm, selectedTags, filterCategory]);
 
   // Auto-save trigger per salvare effettivamente nel database
   useEffect(() => {
@@ -959,28 +971,28 @@ const DiaryPage: React.FC = () => {
             {/* View Mode Selector */}
             <div className="flex items-center gap-2">
               <Button
-                variant={viewMode === 'calendar' ? 'default' : 'outline'}
+                variant={viewMode === 'month' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setViewMode('calendar')}
+                onClick={() => setViewMode('month')}
               >
                 <Grid3X3 className="h-4 w-4 mr-2" />
                 Mese
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
+                variant={viewMode === 'week' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setViewMode('list')}
+                onClick={() => setViewMode('week')}
               >
                 <List className="h-4 w-4 mr-2" />
-                Lista
+                Settimana
               </Button>
               <Button
-                variant={viewMode === 'gallery' ? 'default' : 'outline'}
+                variant={viewMode === 'day' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setViewMode('gallery')}
+                onClick={() => setViewMode('day')}
               >
-                <Eye className="h-4 w-4 mr-2" />
-                Galleria
+                <Calendar className="h-4 w-4 mr-2" />
+                Giorno
               </Button>
             </div>
 
@@ -993,9 +1005,9 @@ const DiaryPage: React.FC = () => {
               </Button>
               
               <h2 className="text-lg font-semibold min-w-[200px] text-center">
-                {viewMode === 'calendar' && format(currentDate, 'MMMM yyyy', { locale: it })}
-                {viewMode === 'list' && 'Vista Lista'}
-                {viewMode === 'gallery' && 'Vista Galleria'}
+                {viewMode === 'month' && format(currentDate, 'MMMM yyyy', { locale: it })}
+                {viewMode === 'week' && `Settimana del ${format(startOfWeek(currentDate), 'dd MMM', { locale: it })}`}
+                {viewMode === 'day' && format(currentDate, 'dd MMMM yyyy', { locale: it })}
               </h2>
               
               <Button variant="outline" size="sm" onClick={() => {
@@ -1005,8 +1017,20 @@ const DiaryPage: React.FC = () => {
               </Button>
             </div>
 
-            {/* Settings - Like Calendar */}
+            {/* Filters - Like Calendar */}
             <div className="flex items-center gap-2">
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le categorie</SelectItem>
+                  {Object.entries(DIARY_CATEGORIES).map(([key, category]) => (
+                    <SelectItem key={key} value={key}>{category.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
               <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
                 <Settings className="h-4 w-4" />
               </Button>
@@ -1016,7 +1040,7 @@ const DiaryPage: React.FC = () => {
       </Card>
 
       {/* Calendar View */}
-      {viewMode === 'calendar' && (
+      {viewMode === 'month' && (
         <Card className="shadow-elegant">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -1115,7 +1139,7 @@ const DiaryPage: React.FC = () => {
       )}
 
       {/* List View */}
-      {viewMode === 'list' && (
+      {viewMode === 'week' && (
         <div className="space-y-4">
           {filteredEntries.map(entry => (
             <Card 
@@ -1223,7 +1247,7 @@ const DiaryPage: React.FC = () => {
       )}
 
       {/* Gallery View */}
-      {viewMode === 'gallery' && (
+      {viewMode === 'day' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEntries
             .filter(entry => entry.photo_urls && entry.photo_urls.length > 0)
@@ -1642,7 +1666,7 @@ const DiaryPage: React.FC = () => {
                   <Label htmlFor="default-view">Vista predefinita</Label>
                   <Select 
                     value={settings.defaultView} 
-                    onValueChange={(value: 'calendar' | 'list' | 'gallery') => 
+                    onValueChange={(value: 'month' | 'week' | 'day') => 
                       setSettings(prev => ({ ...prev, defaultView: value }))
                     }
                   >
@@ -1650,9 +1674,9 @@ const DiaryPage: React.FC = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="calendar">Calendario</SelectItem>
-                      <SelectItem value="list">Lista</SelectItem>
-                      <SelectItem value="gallery">Galleria</SelectItem>
+                      <SelectItem value="month">Mese</SelectItem>
+                      <SelectItem value="week">Settimana</SelectItem>
+                      <SelectItem value="day">Giorno</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1739,6 +1763,23 @@ const DiaryPage: React.FC = () => {
                 </Button>
               </div>
             </div>
+          </div>
+          
+          {/* Footer with Buttons */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+              Annulla
+            </Button>
+            <Button onClick={() => {
+              // Save settings logic here
+              setIsSettingsOpen(false);
+              toast({
+                title: "Impostazioni salvate",
+                description: "Le tue preferenze sono state aggiornate",
+              });
+            }}>
+              Salva impostazioni
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
