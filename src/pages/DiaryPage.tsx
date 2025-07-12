@@ -174,15 +174,25 @@ const DiaryPage: React.FC = () => {
     setFilteredEntries(filtered);
   }, [entries, searchTerm, selectedTags]);
 
-  // Auto-save trigger con toast solo se c'è un editingEntry e contenuto
+  // Auto-save trigger con toast solo se c'è un editingEntry e contenuto E l'utente ha modificato qualcosa
   useEffect(() => {
     if (editingEntry && (formData.title || formData.content)) {
       const autoSaveTimer = setTimeout(() => {
-        toast({
-          title: "Bozza salvata",
-          description: "Le modifiche sono state salvate automaticamente",
-          duration: 3000
-        });
+        // Solo se c'è stata una modifica rispetto ai valori originali
+        const hasChanges = 
+          formData.title !== (editingEntry.title || '') ||
+          formData.content !== (editingEntry.content || '') ||
+          formData.mood_score !== (editingEntry.mood_score || 5) ||
+          JSON.stringify(formData.behavioral_tags) !== JSON.stringify(editingEntry.behavioral_tags || []) ||
+          formData.weather_condition !== (editingEntry.weather_condition || '') ||
+          formData.temperature !== editingEntry.temperature;
+          
+        if (hasChanges) {
+          toast({
+            title: "Bozza salvata",
+            description: "Le modifiche sono state salvate automaticamente"
+          });
+        }
       }, 3000);
 
       return () => clearTimeout(autoSaveTimer);
@@ -262,14 +272,14 @@ const DiaryPage: React.FC = () => {
           });
         }
         
-        toast({ title: "Nota aggiornata con successo!", duration: 3000 });
+        toast({ title: "Nota aggiornata con successo!" });
       } else {
         const { error } = await supabase
           .from('diary_entries')
           .insert(entryData);
 
         if (error) throw error;
-        toast({ title: "Nuova voce salvata!", duration: 3000 });
+        toast({ title: "Nuova voce salvata!" });
       }
 
       setIsDialogOpen(false);
@@ -294,7 +304,7 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: "Voce eliminata", duration: 3000 });
+      toast({ title: "Voce eliminata" });
       
       // Aggiorna lo stato locale della modal del giorno se è aperta
       if (dayEntriesModal.open) {
@@ -327,7 +337,7 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: `${dayEntries.length} voci eliminate`, duration: 3000 });
+      toast({ title: `${dayEntries.length} voci eliminate` });
       
       // Aggiorna la modal locale per mostrare l'elenco vuoto
       setDayEntriesModal(prev => ({ ...prev, entries: [] }));
@@ -461,7 +471,7 @@ const DiaryPage: React.FC = () => {
         photo_urls: [...prev.photo_urls, ...uploadedUrls]
       }));
       
-      toast({ title: "Foto caricate con successo!", duration: 3000 });
+      toast({ title: "Foto caricate con successo!" });
     } catch (error) {
       console.error('Error uploading photos:', error);
       toast({
@@ -511,7 +521,7 @@ const DiaryPage: React.FC = () => {
                 voice_note_url: publicUrl
               }));
               
-              toast({ title: "Registrazione salvata!", duration: 3000 });
+              toast({ title: "Registrazione salvata!" });
             } catch (error) {
               console.error('Error uploading voice note:', error);
               toast({
@@ -528,7 +538,7 @@ const DiaryPage: React.FC = () => {
         
         recorder.start();
         setIsRecording(true);
-        toast({ title: "Registrazione avviata", duration: 3000 });
+        toast({ title: "Registrazione avviata" });
         
       } catch (error) {
         console.error('Error accessing microphone:', error);
@@ -544,7 +554,7 @@ const DiaryPage: React.FC = () => {
         mediaRecorder.stop();
         setIsRecording(false);
         setMediaRecorder(null);
-        toast({ title: "Registrazione completata", duration: 3000 });
+        toast({ title: "Registrazione completata" });
       }
     }
   };
