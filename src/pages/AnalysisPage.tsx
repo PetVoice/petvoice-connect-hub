@@ -661,12 +661,34 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   };
 
   const handleAnalysisSchedule = async (analysis: AnalysisData) => {
-    // Reindirizza alla pagina calendario per pianificare manualmente
-    setActiveTab('calendar');
-    toast({
-      title: "Apertura calendario",
-      description: "Ti stiamo reindirizzando al calendario per pianificare l'evento",
-    });
+    try {
+      const followUpDate = new Date();
+      followUpDate.setDate(followUpDate.getDate() + 7);
+
+      const { error } = await supabase
+        .from('calendar_events')
+        .insert({
+          user_id: (await supabase.auth.getUser()).data.user!.id,
+          pet_id: selectedPet!.id,
+          title: `Follow-up analisi: ${analysis.primary_emotion}`,
+          description: `Controllo comportamentale basato sull'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy')}`,
+          start_time: followUpDate.toISOString(),
+          category: 'health'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Follow-up programmato",
+        description: `Promemoria creato per ${format(followUpDate, 'dd/MM/yyyy')}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: "Impossibile creare il promemoria",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAnalysisDelete = async (analysisId: string) => {
@@ -875,6 +897,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                         selected={dateRange}
                         onSelect={setDateRange}
                         numberOfMonths={2}
+                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
@@ -922,7 +945,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
 
       {/* Details Modal */}
       <Dialog open={detailsModal.open} onOpenChange={(open) => setDetailsModal({ open, analysis: null })}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
