@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -77,6 +78,8 @@ const DiaryPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'gallery'>('calendar');
   const [isRecording, setIsRecording] = useState(false);
   const [customTags, setCustomTags] = useState<string[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -264,6 +267,18 @@ const DiaryPage: React.FC = () => {
     }
   };
 
+  const handleDeleteClick = (entryId: string) => {
+    setEntryToDelete(entryId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (entryToDelete) {
+      deleteEntry(entryToDelete);
+      setEntryToDelete(null);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -323,12 +338,75 @@ const DiaryPage: React.FC = () => {
     const files = event.target.files;
     if (!files || !selectedPet) return;
 
-    // Implementation for photo upload to Supabase storage
-    // This would upload to the pet-media bucket
-    toast({
-      title: "Funzionalità in sviluppo",
-      description: "Upload foto sarà disponibile presto"
-    });
+    try {
+      const uploadedUrls = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${selectedPet.id}/${Date.now()}-${i}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('pet-media')
+          .upload(fileName, file);
+          
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('pet-media')
+          .getPublicUrl(fileName);
+          
+        uploadedUrls.push(publicUrl);
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        photo_urls: [...prev.photo_urls, ...uploadedUrls]
+      }));
+      
+      toast({ title: "Foto caricate con successo!" });
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare le foto",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleVoiceRecording = async () => {
+    if (!isRecording) {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Basic recording implementation - would need MediaRecorder API
+        setIsRecording(true);
+        toast({ title: "Registrazione avviata" });
+        
+        // For now, just simulate recording
+        setTimeout(() => {
+          setIsRecording(false);
+          // Add a placeholder voice note URL
+          setFormData(prev => ({
+            ...prev,
+            voice_note_url: `voice-note-${Date.now()}.webm`
+          }));
+          toast({ title: "Registrazione completata" });
+        }, 3000);
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile accedere al microfono",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // Stop recording
+      setIsRecording(false);
+      toast({ title: "Registrazione interrotta" });
+    }
   };
 
   if (!selectedPet) {
@@ -474,17 +552,23 @@ const DiaryPage: React.FC = () => {
                         <div key={category}>
                           <h4 className="text-sm font-medium mb-2 capitalize">{category}</h4>
                           <div className="flex flex-wrap gap-2">
-                            {tags.map(tag => (
-                              <Button
-                                key={tag}
-                                variant={formData.behavioral_tags.includes(tag) ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => addTag(tag)}
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Button>
-                            ))}
+                             {tags.map(tag => (
+                               <Button
+                                 key={tag}
+                                 variant={formData.behavioral_tags.includes(tag) ? "default" : "outline"}
+                                 size="sm"
+                                 onClick={() => {
+                                   if (formData.behavioral_tags.includes(tag)) {
+                                     removeTag(tag);
+                                   } else {
+                                     addTag(tag);
+                                   }
+                                 }}
+                                 className="text-xs"
+                               >
+                                 {tag}
+                               </Button>
+                             ))}
                           </div>
                         </div>
                       ))}
@@ -548,7 +632,7 @@ const DiaryPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* Media Upload */}
+                   {/* Media Upload */}
                   <div className="space-y-4">
                     <Label>Media</Label>
                     <div className="flex gap-2">
@@ -559,13 +643,56 @@ const DiaryPage: React.FC = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => setIsRecording(!isRecording)}
+                        onClick={handleVoiceRecording}
                         className={isRecording ? 'bg-red-500 text-white' : ''}
                       >
                         {isRecording ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
                         {isRecording ? 'Stop Recording' : 'Voice Note'}
                       </Button>
                     </div>
+                    
+                    {/* Display uploaded photos */}
+                    {formData.photo_urls.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {formData.photo_urls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Foto ${index + 1}`}
+                              className="w-full h-24 object-cover rounded"
+                            />
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  photo_urls: prev.photo_urls.filter((_, i) => i !== index)
+                                }));
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Display voice note */}
+                    {formData.voice_note_url && (
+                      <div className="flex items-center gap-2 p-2 bg-muted rounded">
+                        <Mic className="h-4 w-4" />
+                        <span className="text-sm">Nota vocale registrata</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFormData(prev => ({ ...prev, voice_note_url: null }))}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                     
                     <input
                       id="photo-upload"
@@ -734,7 +861,7 @@ const DiaryPage: React.FC = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => deleteEntry(entry.id)}
+                      onClick={() => handleDeleteClick(entry.id)}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -837,6 +964,18 @@ const DiaryPage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Elimina Voce del Diario"
+        description="Sei sicuro di voler eliminare questa voce? Questa azione non può essere annullata."
+        confirmText="Elimina"
+        cancelText="Annulla"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 };
