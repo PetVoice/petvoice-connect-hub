@@ -277,6 +277,15 @@ const DiaryPage: React.FC = () => {
       if (error) throw error;
       
       toast({ title: "Voce eliminata" });
+      
+      // Aggiorna lo stato locale della modal del giorno se è aperta
+      if (dayEntriesModal.open) {
+        setDayEntriesModal(prev => ({
+          ...prev,
+          entries: prev.entries.filter(entry => entry.id !== entryId)
+        }));
+      }
+      
       loadEntries();
     } catch (error) {
       console.error('Error deleting entry:', error);

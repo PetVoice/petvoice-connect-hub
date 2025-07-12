@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -123,6 +124,8 @@ const CalendarPage: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [showLegend, setShowLegend] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -374,6 +377,12 @@ const CalendarPage: React.FC = () => {
 
       if (error) throw error;
       toast({ title: "Evento eliminato con successo!" });
+      
+      // Aggiorna lo stato locale della modal del giorno se è aperta
+      if (isDayEventsDialogOpen) {
+        setSelectedDayEvents(prev => prev.filter(event => event.id !== eventId));
+      }
+      
       loadEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
@@ -383,6 +392,14 @@ const CalendarPage: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (eventToDelete) {
+      deleteEvent(eventToDelete);
+      setEventToDelete(null);
+    }
+    setShowDeleteConfirm(false);
   };
 
   // Reset form
@@ -1012,10 +1029,8 @@ const CalendarPage: React.FC = () => {
                           variant="destructive"
                           size="sm"
                           onClick={() => {
-                            if (window.confirm('Sei sicuro di voler eliminare questo evento?')) {
-                              deleteEvent(event.id);
-                              setSelectedDayEvents(prev => prev.filter(e => e.id !== event.id));
-                            }
+                            setEventToDelete(event.id);
+                            setShowDeleteConfirm(true);
                           }}
                         >
                           Elimina
@@ -1029,6 +1044,29 @@ const CalendarPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare questo evento? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowDeleteConfirm(false)}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Upcoming Events Summary */}
       <UpcomingEventsSummary events={events} activePet={activePet} />
