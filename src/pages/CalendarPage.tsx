@@ -163,31 +163,6 @@ const CalendarPage: React.FC = () => {
   const activePet = selectedPet || pets[0];
 
   // Advanced features hooks
-  // Auto-save con toast solo se c'è un editingEvent e contenuto E l'utente ha modificato qualcosa
-  useEffect(() => {
-    if (settings.autoSaveEnabled && editingEvent && formData.title) {
-      const autoSaveTimer = setTimeout(() => {
-        // Solo se c'è stata una modifica rispetto ai valori originali
-        const hasChanges = 
-          formData.title !== editingEvent.title ||
-          formData.description !== (editingEvent.description || '') ||
-          formData.location !== (editingEvent.location || '') ||
-          formData.category !== editingEvent.category ||
-          formData.notes !== (editingEvent.notes || '') ||
-          JSON.stringify(formData.attendees) !== JSON.stringify(editingEvent.attendees || []);
-          
-        if (hasChanges) {
-          toast({
-            title: "Bozza salvata",
-            description: "Le modifiche sono state salvate automaticamente"
-          });
-        }
-      }, 3000);
-
-      return () => clearTimeout(autoSaveTimer);
-    }
-  }, [formData, settings.autoSaveEnabled, editingEvent]);
-
   useEffect(() => {
     if (settings.weatherIntegration && formData.category === 'activity' && formData.start_time) {
       setTimeout(() => {

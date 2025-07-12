@@ -112,35 +112,6 @@ const PetsPage: React.FC = () => {
   });
 
 
-  
-  // Auto-save trigger con toast solo se c'è un editingPet e contenuto E l'utente ha modificato qualcosa
-  useEffect(() => {
-    if (editingPet && formData.name) {
-      const autoSaveTimer = setTimeout(() => {
-        // Solo se c'è stata una modifica rispetto ai valori originali
-        const hasChanges = 
-          formData.name !== editingPet.name ||
-          formData.type !== editingPet.type ||
-          formData.breed !== (editingPet.breed || '') ||
-          formData.description !== (editingPet.description || '') ||
-          formData.allergies !== (editingPet.allergies || '') ||
-          formData.fears !== (editingPet.fears || '') ||
-          formData.favorite_activities !== (editingPet.favorite_activities || '') ||
-          formData.health_conditions !== (editingPet.health_conditions || '') ||
-          formData.personality_traits !== (editingPet.personality_traits || '');
-          
-        if (hasChanges) {
-          toast({
-            title: "Bozza salvata",
-            description: "Le modifiche sono state salvate automaticamente"
-          });
-        }
-      }, 3000);
-
-      return () => clearTimeout(autoSaveTimer);
-    }
-  }, [formData, editingPet]);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('add') === 'true') {

@@ -174,31 +174,6 @@ const DiaryPage: React.FC = () => {
     setFilteredEntries(filtered);
   }, [entries, searchTerm, selectedTags]);
 
-  // Auto-save trigger con toast solo se c'è un editingEntry e contenuto E l'utente ha modificato qualcosa
-  useEffect(() => {
-    if (editingEntry && (formData.title || formData.content)) {
-      const autoSaveTimer = setTimeout(() => {
-        // Solo se c'è stata una modifica rispetto ai valori originali
-        const hasChanges = 
-          formData.title !== (editingEntry.title || '') ||
-          formData.content !== (editingEntry.content || '') ||
-          formData.mood_score !== (editingEntry.mood_score || 5) ||
-          JSON.stringify(formData.behavioral_tags) !== JSON.stringify(editingEntry.behavioral_tags || []) ||
-          formData.weather_condition !== (editingEntry.weather_condition || '') ||
-          formData.temperature !== editingEntry.temperature;
-          
-        if (hasChanges) {
-          toast({
-            title: "Bozza salvata",
-            description: "Le modifiche sono state salvate automaticamente"
-          });
-        }
-      }, 3000);
-
-      return () => clearTimeout(autoSaveTimer);
-    }
-  }, [formData, editingEntry]);
-
   // Auto-save trigger per salvare effettivamente nel database
   useEffect(() => {
     if (autoSaveTimeoutRef.current) {
