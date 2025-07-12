@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, Download, Mic, MicOff, Camera, Tag, Save, Trash2, Edit3, Heart, Brain, Activity, Moon, Sun, Cloud, Zap, MessageSquare, Upload, X, Eye, BookOpen, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -344,7 +344,7 @@ const DiaryPage: React.FC = () => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileExt = file.name.split('.').pop();
-        const fileName = `${selectedPet.id}/${Date.now()}-${i}.${fileExt}`;
+        const fileName = `${selectedPet.user_id}/${selectedPet.id}/${Date.now()}-${i}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from('pet-media')
@@ -407,6 +407,14 @@ const DiaryPage: React.FC = () => {
       setIsRecording(false);
       toast({ title: "Registrazione interrotta" });
     }
+  };
+
+  const playVoiceNote = (voiceNoteUrl: string) => {
+    // For now, just show a toast since we're using placeholder URLs
+    toast({
+      title: "Riproduzione nota vocale",
+      description: "Funzionalità di riproduzione in sviluppo"
+    });
   };
 
   if (!selectedPet) {
@@ -893,7 +901,17 @@ const DiaryPage: React.FC = () => {
                       <span>📸 {entry.photo_urls.length} foto</span>
                     )}
                     {entry.voice_note_url && (
-                      <span>🎤 Nota vocale</span>
+                      <div className="flex items-center gap-2">
+                        <span>🎤 Nota vocale</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => playVoiceNote(entry.voice_note_url!)}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Play className="h-3 w-3" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                   
