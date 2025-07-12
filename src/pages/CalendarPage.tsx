@@ -875,20 +875,6 @@ const CalendarPage: React.FC = () => {
               <h3 className="text-lg font-medium">Impostazioni Eventi</h3>
               
               <div>
-                <Label htmlFor="default-duration">Durata predefinita eventi (minuti)</Label>
-                <Input
-                  id="default-duration"
-                  type="number"
-                  min="15"
-                  step="15"
-                  value={settings.defaultEventDuration}
-                  onChange={(e) => 
-                    setSettings(prev => ({ ...prev, defaultEventDuration: parseInt(e.target.value) || 60 }))
-                  }
-                />
-              </div>
-
-              <div>
                 <Label>Promemoria predefiniti</Label>
                 <div className="space-y-2 mt-2">
                   {REMINDER_OPTIONS.map(option => (
@@ -908,46 +894,6 @@ const CalendarPage: React.FC = () => {
                       </Label>
                     </div>
                   ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Advanced Features */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Funzionalità Avanzate</h3>
-              
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="auto-save"
-                    checked={settings.autoSaveEnabled}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, autoSaveEnabled: checked }))
-                    }
-                  />
-                  <Label htmlFor="auto-save">Salvataggio automatico</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="weather-integration"
-                    checked={settings.weatherIntegration}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, weatherIntegration: checked }))
-                    }
-                  />
-                  <Label htmlFor="weather-integration">Integrazione meteo</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="mood-correlation"
-                    checked={settings.moodCorrelation}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, moodCorrelation: checked }))
-                    }
-                  />
-                  <Label htmlFor="mood-correlation">Correlazione con umore</Label>
                 </div>
               </div>
             </div>

@@ -128,7 +128,8 @@ const DiaryPage: React.FC = () => {
     weekStart: 1, // Monday - like Calendar
     autoSaveEnabled: true,
     showMoodInCalendar: true,
-    reminderEnabled: true
+    reminderEnabled: true,
+    showWeekends: true
   });
 
   // Sync viewMode with settings.defaultView when viewMode changes
@@ -1610,6 +1611,17 @@ const DiaryPage: React.FC = () => {
                 </div>
               </div>
 
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="show-weekends"
+                  checked={settings.showWeekends || true}
+                  onCheckedChange={(checked) => 
+                    setSettings(prev => ({ ...prev, showWeekends: checked }))
+                  }
+                />
+                <Label htmlFor="show-weekends">Mostra weekend</Label>
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -1644,15 +1656,6 @@ const DiaryPage: React.FC = () => {
                   <Label htmlFor="reminders">Promemoria giornalieri</Label>
                 </div>
 
-              </div>
-            </div>
-
-            {/* Advanced Settings */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Impostazioni Avanzate</h3>
-              
-              <div className="space-y-3">
-                {/* Buttons removed as requested */}
               </div>
             </div>
           </div>
