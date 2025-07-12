@@ -278,7 +278,7 @@ const PetsPage: React.FC = () => {
           setShowForm(open);
         }}>
           <DialogTrigger asChild>
-            <Button className="petvoice-button">
+            <Button>
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet
             </Button>
