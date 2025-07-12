@@ -186,19 +186,6 @@ const PetsPage: React.FC = () => {
 
   const handleEdit = (pet: Pet) => {
     setEditingPet(pet);
-    
-    // Set birth date if available
-    if (pet.birth_date) {
-      const date = new Date(pet.birth_date);
-      setBirthDate({
-        day: date.getDate().toString(),
-        month: (date.getMonth() + 1).toString(),
-        year: date.getFullYear().toString()
-      });
-    } else {
-      setBirthDate({ day: '', month: '', year: '' });
-    }
-    
     setFormData({
       name: pet.name,
       type: pet.type,
@@ -211,6 +198,18 @@ const PetsPage: React.FC = () => {
       health_conditions: pet.health_conditions || '',
       personality_traits: pet.personality_traits || ''
     });
+
+    // Set birth date if available
+    if (pet.birth_date) {
+      const date = new Date(pet.birth_date);
+      setBirthDate({
+        day: date.getDate().toString(),
+        month: (date.getMonth() + 1).toString(),
+        year: date.getFullYear().toString()
+      });
+    } else {
+      setBirthDate({ day: '', month: '', year: '' });
+    }
     
     setShowForm(true);
   };
@@ -271,14 +270,9 @@ const PetsPage: React.FC = () => {
             Gestisci le informazioni dei tuoi amici a quattro zampe
           </p>
         </div>
-        <Dialog open={showForm} onOpenChange={(open) => {
-          if (!open) {
-            resetForm();
-          }
-          setShowForm(open);
-        }}>
+        <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="petvoice-button">
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet
             </Button>
@@ -313,7 +307,6 @@ const PetsPage: React.FC = () => {
                 <div>
                   <Label htmlFor="type">Tipo *</Label>
                   <Select 
-                    key={`type-${editingPet?.id || 'new'}-${formData.type}`}
                     value={formData.type} 
                     onValueChange={(value) => setFormData({...formData, type: value, breed: ''})}
                   >
@@ -331,7 +324,6 @@ const PetsPage: React.FC = () => {
                   <div>
                     <Label htmlFor="breed">Razza</Label>
                     <Select 
-                      key={`breed-${editingPet?.id || 'new'}-${formData.breed}`}
                       value={formData.breed} 
                       onValueChange={(value) => setFormData({...formData, breed: value})}
                     >
