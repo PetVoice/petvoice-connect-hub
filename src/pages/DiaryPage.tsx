@@ -458,12 +458,25 @@ const DiaryPage: React.FC = () => {
 
   const playVoiceNote = (voiceNoteUrl: string) => {
     try {
+      // If it's a Supabase storage URL, get the proper public URL
+      let audioUrl = voiceNoteUrl;
+      if (voiceNoteUrl.includes('pet-media/')) {
+        // Extract the file path from the URL
+        const pathMatch = voiceNoteUrl.match(/pet-media\/(.+)$/);
+        if (pathMatch) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('pet-media')
+            .getPublicUrl(pathMatch[1]);
+          audioUrl = publicUrl;
+        }
+      }
+      
       // Create and play audio element
-      const audio = new Audio(voiceNoteUrl);
+      const audio = new Audio(audioUrl);
       
       // Add error handling for audio loading
       audio.addEventListener('error', (e) => {
-        console.error('Audio error:', e);
+        console.error('Audio error:', e, 'URL:', audioUrl);
         toast({
           title: "Errore",
           description: "File audio non trovato o danneggiato",
@@ -942,7 +955,11 @@ const DiaryPage: React.FC = () => {
       {viewMode === 'list' && (
         <div className="space-y-4">
           {filteredEntries.map(entry => (
-            <Card key={entry.id} className="shadow-elegant">
+            <Card 
+              key={entry.id} 
+              className="shadow-elegant cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setViewingEntry(entry)}
+            >
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -1001,7 +1018,10 @@ const DiaryPage: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => setSelectedPhoto(entry.photo_urls![0])}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedPhoto(entry.photo_urls![0]);
+                          }}
                           className="h-6 w-6 p-0"
                         >
                           <Eye className="h-3 w-3" />
@@ -1009,17 +1029,7 @@ const DiaryPage: React.FC = () => {
                       </div>
                     )}
                     {entry.voice_note_url && (
-                      <div className="flex items-center gap-2">
-                        <span>🎤 Nota vocale</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => playVoiceNote(entry.voice_note_url!)}
-                          className="h-6 w-6 p-0"
-                        >
-                          <Play className="h-3 w-3" />
-                        </Button>
-                      </div>
+                      <span>🎤 Nota vocale</span>
                     )}
                   </div>
                   
