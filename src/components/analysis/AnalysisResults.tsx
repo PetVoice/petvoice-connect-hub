@@ -608,8 +608,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               Aggiungi al Diario
             </Button>
             <Button onClick={() => scheduleFollowUp(selectedAnalysis)} className="gradient-coral text-white">
-              <Calendar className="h-4 w-4 mr-2" />
-              Programma Follow-up
+              <Clock className="h-4 w-4 mr-2" />
+              Pianifica Follow-up
             </Button>
           </div>
         </CardContent>

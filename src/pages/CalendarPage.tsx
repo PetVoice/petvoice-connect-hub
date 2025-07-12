@@ -427,14 +427,44 @@ const CalendarPage: React.FC = () => {
     setIsEventDialogOpen(true);
   };
 
-  // Quick add event on date click
+  // Handle date click - show events or create new
+  const [selectedDayEvents, setSelectedDayEvents] = useState<CalendarEvent[]>([]);
+  const [isDayEventsDialogOpen, setIsDayEventsDialogOpen] = useState(false);
+
   const handleDateClick = (date: Date) => {
     setSelectedDate(date);
+    
+    // Get events for the selected day
+    const dayEvents = events.filter(event => {
+      const eventDate = parseISO(event.start_time);
+      return isSameDay(eventDate, date);
+    });
+
+    if (dayEvents.length === 0) {
+      // No events, open create form
+      resetForm();
+      setFormData(prev => ({
+        ...prev,
+        start_time: format(date, "yyyy-MM-dd'T'09:00"),
+        end_time: format(addHours(date, 1), "yyyy-MM-dd'T'10:00")
+      }));
+      setIsEventDialogOpen(true);
+    } else {
+      // Show events for that day
+      setSelectedDayEvents(dayEvents);
+      setIsDayEventsDialogOpen(true);
+    }
+  };
+
+  const handleCreateNewEventForDay = () => {
+    if (!selectedDate) return;
+    
+    setIsDayEventsDialogOpen(false);
     resetForm();
     setFormData(prev => ({
       ...prev,
-      start_time: format(date, "yyyy-MM-dd'T'09:00"),
-      end_time: format(addHours(date, 1), "yyyy-MM-dd'T'10:00")
+      start_time: format(selectedDate, "yyyy-MM-dd'T'09:00"),
+      end_time: format(addHours(selectedDate, 1), "yyyy-MM-dd'T'10:00")
     }));
     setIsEventDialogOpen(true);
   };
@@ -888,6 +918,118 @@ const CalendarPage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Day Events Dialog */}
+      <Dialog open={isDayEventsDialogOpen} onOpenChange={setIsDayEventsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Eventi del {selectedDate && format(selectedDate, 'dd MMMM yyyy', { locale: it })}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-muted-foreground">
+                {selectedDayEvents.length} {selectedDayEvents.length === 1 ? 'evento trovato' : 'eventi trovati'}
+              </p>
+              <Button onClick={handleCreateNewEventForDay} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nuovo Evento
+              </Button>
+            </div>
+
+            <div className="grid gap-4">
+              {selectedDayEvents.map((event) => (
+                <Card key={event.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className={EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.color || 'bg-gray-500'}>
+                            {EVENT_CATEGORIES[event.category as keyof typeof EVENT_CATEGORIES]?.icon || '📅'} {event.category}
+                          </Badge>
+                          <h3 className="font-semibold text-lg">{event.title}</h3>
+                        </div>
+                        
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {format(parseISO(event.start_time), 'HH:mm', { locale: it })}
+                            {event.end_time && ` - ${format(parseISO(event.end_time), 'HH:mm', { locale: it })}`}
+                          </span>
+                          {event.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {event.location}
+                            </span>
+                          )}
+                        </div>
+
+                        {event.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {event.description}
+                          </p>
+                        )}
+
+                        {event.attendees && event.attendees.length > 0 && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            {event.attendees.length} partecipanti
+                          </div>
+                        )}
+
+                        {event.cost && (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <DollarSign className="h-4 w-4" />
+                            €{event.cost}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsDayEventsDialogOpen(false);
+                            openEditDialog(event);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsDayEventsDialogOpen(false);
+                            openEditDialog(event);
+                          }}
+                        >
+                          Modifica
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (window.confirm('Sei sicuro di voler eliminare questo evento?')) {
+                              deleteEvent(event.id);
+                              setSelectedDayEvents(prev => prev.filter(e => e.id !== event.id));
+                            }
+                          }}
+                        >
+                          Elimina
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Upcoming Events Summary */}
       <UpcomingEventsSummary events={events} activePet={activePet} />
     </div>
@@ -953,7 +1095,14 @@ const MonthView: React.FC<{
                 onEventDrop(day);
               }}
             >
-              <div className="text-sm font-medium mb-1">{format(day, 'd')}</div>
+              <div className="flex justify-between items-center mb-1">
+                <div className="text-sm font-medium">{format(day, 'd')}</div>
+                {dayEvents.length > 0 && (
+                  <Badge variant="secondary" className="text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                    {dayEvents.length}
+                  </Badge>
+                )}
+              </div>
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map(event => (
                   <div
