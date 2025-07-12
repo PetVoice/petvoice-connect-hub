@@ -126,9 +126,7 @@ const DiaryPage: React.FC = () => {
   const [settings, setSettings] = useState({
     defaultView: 'month' as 'month' | 'week' | 'day',
     weekStart: 1, // Monday - like Calendar
-    autoSaveEnabled: true,
     showMoodInCalendar: true,
-    reminderEnabled: true,
     showWeekends: true
   });
 
@@ -1633,29 +1631,6 @@ const DiaryPage: React.FC = () => {
                   />
                   <Label htmlFor="show-mood">Mostra umore nel calendario</Label>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="auto-save"
-                    checked={settings.autoSaveEnabled}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, autoSaveEnabled: checked }))
-                    }
-                  />
-                  <Label htmlFor="auto-save">Auto-salvataggio attivo</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="reminders"
-                    checked={settings.reminderEnabled}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, reminderEnabled: checked }))
-                    }
-                  />
-                  <Label htmlFor="reminders">Promemoria giornalieri</Label>
-                </div>
-
               </div>
             </div>
           </div>
