@@ -1578,23 +1578,6 @@ const DiaryPage: React.FC = () => {
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="export-format">Formato esportazione</Label>
-                  <Select 
-                    value={settings.exportFormat} 
-                    onValueChange={(value: 'pdf' | 'csv') => 
-                      setSettings(prev => ({ ...prev, exportFormat: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pdf">PDF</SelectItem>
-                      <SelectItem value="csv">CSV</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               <div className="space-y-3">
