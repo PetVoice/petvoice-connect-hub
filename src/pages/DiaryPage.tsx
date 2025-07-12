@@ -911,7 +911,7 @@ const DiaryPage: React.FC = () => {
                     </Button>
                     <Button onClick={saveEntry} className="gradient-cosmic text-white">
                       <Save className="h-4 w-4 mr-2" />
-                      {editingEntry ? 'Aggiorna' : 'Crea Nota'}
+                      {editingEntry ? 'Aggiorna Nota' : 'Crea Nota'}
                     </Button>
                   </div>
                 </div>
@@ -1064,7 +1064,7 @@ const DiaryPage: React.FC = () => {
             <Card 
               key={entry.id} 
               className="shadow-elegant cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setViewingEntry(entry)}
+              onClick={() => openEditDialog(entry)}
             >
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
