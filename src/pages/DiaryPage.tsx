@@ -247,7 +247,7 @@ const DiaryPage: React.FC = () => {
           });
         }
         
-        toast({ title: "Voce aggiornata con successo!" });
+        toast({ title: "Nota aggiornata con successo!" });
       } else {
         const { error } = await supabase
           .from('diary_entries')
@@ -382,6 +382,15 @@ const DiaryPage: React.FC = () => {
     });
     setEditingEntry(entry);
     setIsDialogOpen(true);
+    
+    // Mostra messaggio di bozza salvata come nel calendario
+    setTimeout(() => {
+      toast({
+        title: "Bozza salvata",
+        description: "Le modifiche sono state salvate automaticamente",
+        variant: "default"
+      });
+    }, 500);
   };
 
   const addTag = (tag: string) => {
@@ -1423,7 +1432,10 @@ const DiaryPage: React.FC = () => {
                 <Card 
                   key={entry.id} 
                   className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setViewingEntry(entry)}
+                  onClick={() => {
+                    setDayEntriesModal({ ...dayEntriesModal, open: false });
+                    openEditDialog(entry);
+                  }}
                 >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-3">
