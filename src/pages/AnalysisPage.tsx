@@ -753,12 +753,6 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </p>
         </div>
         <div className="flex gap-2">
-          {selectedAnalyses.length > 0 && (
-            <Button onClick={handleBatchExport} className="gradient-coral text-white">
-              <Download className="h-4 w-4 mr-2" />
-              Esporta Selezionate ({selectedAnalyses.length})
-            </Button>
-          )}
         </div>
       </div>
 
@@ -1096,14 +1090,6 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   <Download className="h-4 w-4" />
                   Scarica PDF
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleAnalysisSchedule(detailsModal.analysis!)}
-                  className="flex items-center gap-2"
-                >
-                  <Calendar className="h-4 w-4" />
-                  Pianifica Follow-up
-                </Button>
               </div>
             </div>
           )}
@@ -1245,7 +1231,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Scarica PDF
+                  Scarica PDF Confronto
                 </Button>
               </div>
             </div>
