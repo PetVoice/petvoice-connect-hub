@@ -1012,8 +1012,19 @@ const DiaryPage: React.FC = () => {
                             {dayEntries.slice(0, 3).map((entry, index) => (
                               <div 
                                 key={entry.id} 
-                                className={`h-1.5 rounded-full ${getMoodColor(entry.mood_score)}`} 
-                              />
+                                className={`
+                                  text-xs p-1 rounded cursor-pointer
+                                  ${getMoodColor(entry.mood_score)} text-white
+                                `}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setViewingEntry(entry);
+                                }}
+                              >
+                                <div className="truncate font-medium">
+                                  {entry.title || 'Senza titolo'}
+                                </div>
+                              </div>
                             ))}
                           </div>
                           {dayEntries.length > 1 && (
@@ -1022,8 +1033,8 @@ const DiaryPage: React.FC = () => {
                             </div>
                           )}
                           {dayEntries.length > 3 && (
-                            <div className="text-xs text-center text-muted-foreground">
-                              +{dayEntries.length - 3}
+                            <div className="text-xs text-center text-muted-foreground mt-1">
+                              +{dayEntries.length - 3} altre
                             </div>
                           )}
                         </div>

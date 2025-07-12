@@ -610,10 +610,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               <BookOpen className="h-4 w-4 mr-2" />
               Aggiungi al Diario
             </Button>
-            <Button onClick={() => scheduleFollowUp(selectedAnalysis)} variant="outline">
-              <Clock className="h-4 w-4 mr-2" />
-              Pianifica Follow-up
-            </Button>
           </div>
         </CardContent>
       </Card>
