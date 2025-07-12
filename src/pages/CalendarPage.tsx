@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, DollarSign, Camera, FileText, Bell, Repeat, AlertTriangle, Filter, Download, Settings, Grid3X3, List, Eye, Trash2 } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, DollarSign, Camera, FileText, Bell, Repeat, AlertTriangle, Filter, Download, Settings, Grid3X3, List, Eye, Trash2, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -128,6 +128,7 @@ const CalendarPage: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [dateToDeleteAll, setDateToDeleteAll] = useState<Date | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Settings state
   const [settings, setSettings] = useState({
@@ -244,6 +245,16 @@ const CalendarPage: React.FC = () => {
   const filteredEvents = useMemo(() => {
     let filtered = events;
 
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(event =>
+        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.notes?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
     // Filter by category
     if (filterCategory !== 'all') {
       filtered = filtered.filter(event => event.category === filterCategory);
@@ -268,7 +279,7 @@ const CalendarPage: React.FC = () => {
     });
 
     return filtered;
-  }, [events, filterCategory, currentDate, viewMode]);
+  }, [events, searchTerm, filterCategory, currentDate, viewMode]);
 
   // Check for conflicts when creating/editing events
   const checkConflicts = async (startTime: string, endTime: string, excludeId?: string) => {
@@ -669,6 +680,25 @@ const CalendarPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Search Bar - Like Diary */}
+      <Card className="shadow-elegant">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Cerca negli eventi..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Calendar Controls */}
       <Card className="shadow-elegant">

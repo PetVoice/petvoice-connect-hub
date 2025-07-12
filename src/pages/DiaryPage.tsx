@@ -65,6 +65,35 @@ const MOOD_LABELS = {
   10: 'Perfetto'
 };
 
+// Diary Categories with colors - Like Calendar
+const DIARY_CATEGORIES = {
+  happy: {
+    label: '😊 Felice',
+    color: 'bg-green-500 text-white',
+    moodRange: [8, 10]
+  },
+  calm: {
+    label: '😌 Calmo',
+    color: 'bg-blue-500 text-white',
+    moodRange: [6, 7]
+  },
+  neutral: {
+    label: '😐 Neutrale',
+    color: 'bg-gray-500 text-white',
+    moodRange: [5, 5]
+  },
+  sad: {
+    label: '😔 Triste',
+    color: 'bg-yellow-500 text-black',
+    moodRange: [3, 4]
+  },
+  stressed: {
+    label: '😰 Stressato',
+    color: 'bg-red-500 text-white',
+    moodRange: [1, 2]
+  }
+};
+
 const DiaryPage: React.FC = () => {
   const { pets, selectedPet } = usePets();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -88,6 +117,7 @@ const DiaryPage: React.FC = () => {
   const [dayEntriesModal, setDayEntriesModal] = useState<{ open: boolean; date: Date; entries: DiaryEntry[] }>({ open: false, date: new Date(), entries: [] });
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [dateToDeleteAll, setDateToDeleteAll] = useState<Date | null>(null);
+  const [showLegend, setShowLegend] = useState(true);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -605,6 +635,7 @@ const DiaryPage: React.FC = () => {
         </div>
         
         <div className="flex flex-wrap gap-2">
+          {/* View Mode Selector - Like Calendar */}
           <div className="flex rounded-lg overflow-hidden border">
             <Button
               variant={viewMode === 'calendar' ? 'default' : 'outline'}
@@ -612,7 +643,8 @@ const DiaryPage: React.FC = () => {
               onClick={() => setViewMode('calendar')}
               className="rounded-none"
             >
-              <Calendar className="h-4 w-4" />
+              <Calendar className="h-4 w-4 mr-1" />
+              Mese
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
@@ -620,7 +652,8 @@ const DiaryPage: React.FC = () => {
               onClick={() => setViewMode('list')}
               className="rounded-none"
             >
-              <MessageSquare className="h-4 w-4" />
+              <MessageSquare className="h-4 w-4 mr-1" />
+              Lista
             </Button>
             <Button
               variant={viewMode === 'gallery' ? 'default' : 'outline'}
@@ -628,9 +661,20 @@ const DiaryPage: React.FC = () => {
               onClick={() => setViewMode('gallery')}
               className="rounded-none"
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-4 w-4 mr-1" />
+              Galleria
             </Button>
           </div>
+          
+          {/* Legend Button - Like Calendar */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowLegend(!showLegend)}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Legenda
+          </Button>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -927,27 +971,25 @@ const DiaryPage: React.FC = () => {
                 />
               </div>
             </div>
-            
-            <div className="flex gap-2">
-              <Select>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filtra per tag" />
-                </SelectTrigger>
-                <SelectContent className="shadow-elegant">
-                  {Array.from(new Set(entries.flatMap(e => e.behavioral_tags || []))).map(tag => (
-                    <SelectItem key={tag} value={tag}>{tag}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Esporta
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Legend - Like Calendar */}
+      {showLegend && (
+        <Card className="shadow-elegant">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap gap-4">
+              {Object.entries(DIARY_CATEGORIES).map(([key, category]) => (
+                <div key={key} className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded ${category.color}`}></div>
+                  <span className="text-sm">{category.label}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Calendar View */}
       {viewMode === 'calendar' && (
