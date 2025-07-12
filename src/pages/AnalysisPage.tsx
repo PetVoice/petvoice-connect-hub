@@ -96,8 +96,9 @@ const AnalysisPage: React.FC = () => {
   const [emotionFilter, setEmotionFilter] = useState('all');
   const [confidenceFilter, setConfidenceFilter] = useState('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
+const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   const [detailsModal, setDetailsModal] = useState<{ open: boolean; analysis: AnalysisData | null }>({ open: false, analysis: null });
+  const [compareModal, setCompareModal] = useState<{ open: boolean; analyses: AnalysisData[] }>({ open: false, analyses: [] });
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; analysisId: string | null; isMultiple: boolean }>({ open: false, analysisId: null, isMultiple: false });
 
   // Load analyses
@@ -525,16 +526,13 @@ const AnalysisPage: React.FC = () => {
       return;
     }
 
-    try {
-      toast({
-        title: "Confronto in corso...",
-        description: `Analisi comparativa di ${selectedAnalyses.length} risultati`,
-      });
+    // Get selected analyses data and open compare modal
+    const selectedAnalysesData = analyses.filter(a => selectedAnalyses.includes(a.id));
+    setCompareModal({ open: true, analyses: selectedAnalysesData });
+  };
 
-      // Get selected analyses data
-      const selectedAnalysesData = analyses.filter(a => selectedAnalyses.includes(a.id));
-      
-      // Create comparison PDF
+  const generateComparisonPDF = (analysesToCompare: AnalysisData[]) => {
+    try {
       const pdf = new jsPDF();
       pdf.setFont('helvetica', 'normal');
       
@@ -552,12 +550,12 @@ const AnalysisPage: React.FC = () => {
       yPosition += 10;
       
       pdf.setFontSize(12);
-      pdf.text(`Periodo: ${format(new Date(Math.min(...selectedAnalysesData.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')} - ${format(new Date(Math.max(...selectedAnalysesData.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')}`, 20, yPosition);
+      pdf.text(`Periodo: ${format(new Date(Math.min(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')} - ${format(new Date(Math.max(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')}`, 20, yPosition);
       yPosition += 10;
 
       // Emotion distribution
       const emotionCounts: Record<string, number> = {};
-      selectedAnalysesData.forEach(analysis => {
+      analysesToCompare.forEach(analysis => {
         emotionCounts[analysis.primary_emotion] = (emotionCounts[analysis.primary_emotion] || 0) + 1;
       });
 
@@ -567,14 +565,14 @@ const AnalysisPage: React.FC = () => {
       
       pdf.setFont('helvetica', 'normal');
       Object.entries(emotionCounts).forEach(([emotion, count]) => {
-        const percentage = ((count / selectedAnalysesData.length) * 100).toFixed(1);
+        const percentage = ((count / analysesToCompare.length) * 100).toFixed(1);
         pdf.text(`- ${emotion.charAt(0).toUpperCase() + emotion.slice(1)}: ${count} volte (${percentage}%)`, 25, yPosition);
         yPosition += lineHeight;
       });
       yPosition += 5;
 
       // Average confidence
-      const avgConfidence = (selectedAnalysesData.reduce((sum, a) => sum + a.primary_confidence, 0) / selectedAnalysesData.length).toFixed(1);
+      const avgConfidence = (analysesToCompare.reduce((sum, a) => sum + a.primary_confidence, 0) / analysesToCompare.length).toFixed(1);
       pdf.setFont('helvetica', 'bold');
       pdf.text(`CONFIDENZA MEDIA: ${avgConfidence}%`, 20, yPosition);
       yPosition += 10;
@@ -584,7 +582,7 @@ const AnalysisPage: React.FC = () => {
       pdf.text('CRONOLOGIA ANALISI:', 20, yPosition);
       yPosition += lineHeight;
       
-      selectedAnalysesData
+      analysesToCompare
         .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
         .forEach((analysis, index) => {
           if (yPosition > 250) {
@@ -597,20 +595,10 @@ const AnalysisPage: React.FC = () => {
           yPosition += lineHeight;
         });
 
-      // Save PDF
-      const fileName = `confronto-analisi-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
-      pdf.save(fileName);
-
-      toast({
-        title: "Confronto completato!",
-        description: "Report comparativo scaricato",
-      });
+      return pdf;
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile generare il confronto",
-        variant: "destructive"
-      });
+      console.error('Error generating comparison PDF:', error);
+      throw error;
     }
   };
 
@@ -673,34 +661,12 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleAnalysisSchedule = async (analysis: AnalysisData) => {
-    try {
-      const followUpDate = new Date();
-      followUpDate.setDate(followUpDate.getDate() + 7);
-
-      const { error } = await supabase
-        .from('calendar_events')
-        .insert({
-          user_id: (await supabase.auth.getUser()).data.user!.id,
-          pet_id: selectedPet!.id,
-          title: `Follow-up analisi: ${analysis.primary_emotion}`,
-          description: `Controllo comportamentale basato sull'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy')}`,
-          start_time: followUpDate.toISOString(),
-          category: 'health'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Follow-up programmato",
-        description: `Promemoria creato per ${format(followUpDate, 'dd/MM/yyyy')}`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Errore",
-        description: "Impossibile creare il promemoria",
-        variant: "destructive"
-      });
-    }
+    // Reindirizza alla pagina calendario per pianificare manualmente
+    setActiveTab('calendar');
+    toast({
+      title: "Apertura calendario",
+      description: "Ti stiamo reindirizzando al calendario per pianificare l'evento",
+    });
   };
 
   const handleAnalysisDelete = async (analysisId: string) => {
@@ -956,7 +922,7 @@ const AnalysisPage: React.FC = () => {
 
       {/* Details Modal */}
       <Dialog open={detailsModal.open} onOpenChange={(open) => setDetailsModal({ open, analysis: null })}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -975,7 +941,7 @@ const AnalysisPage: React.FC = () => {
                   <CardTitle className="text-lg">Informazioni File</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium">Nome File</Label>
                       <p className="text-sm">{detailsModal.analysis.file_name}</p>
@@ -1114,6 +1080,149 @@ const AnalysisPage: React.FC = () => {
                 >
                   <Calendar className="h-4 w-4" />
                   Pianifica Follow-up
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Compare Modal */}
+      <Dialog open={compareModal.open} onOpenChange={(open) => setCompareModal({ open, analyses: [] })}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Confronto Analisi Emotive
+            </DialogTitle>
+            <DialogDescription>
+              Analisi comparativa di {compareModal.analyses.length} risultati selezionati
+            </DialogDescription>
+          </DialogHeader>
+          
+          {compareModal.analyses.length > 0 && (
+            <div className="space-y-6">
+              {/* Summary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">{compareModal.analyses.length}</div>
+                    <p className="text-xs text-muted-foreground">Analisi Confrontate</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">
+                      {format(new Date(Math.min(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Periodo Analizzato</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">
+                      {(compareModal.analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / compareModal.analyses.length).toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">Confidenza Media</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Emotion Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Distribuzione Emozioni</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {(() => {
+                      const emotionCounts: Record<string, number> = {};
+                      compareModal.analyses.forEach(analysis => {
+                        emotionCounts[analysis.primary_emotion] = (emotionCounts[analysis.primary_emotion] || 0) + 1;
+                      });
+                      
+                      return Object.entries(emotionCounts)
+                        .sort(([,a], [,b]) => b - a)
+                        .map(([emotion, count]) => {
+                          const percentage = ((count / compareModal.analyses.length) * 100).toFixed(1);
+                          return (
+                            <div key={emotion} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg">
+                                  {emotion === 'felice' && '😊'}
+                                  {emotion === 'calmo' && '😌'}
+                                  {emotion === 'ansioso' && '😰'}
+                                  {emotion === 'eccitato' && '🤩'}
+                                  {emotion === 'triste' && '😢'}
+                                  {emotion === 'aggressivo' && '😠'}
+                                  {emotion === 'giocoso' && '😄'}
+                                </span>
+                                <span className="font-medium capitalize">{emotion}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Progress value={parseFloat(percentage)} className="w-24 h-2" />
+                                <span className="text-sm font-medium w-16 text-right">{count} ({percentage}%)</span>
+                              </div>
+                            </div>
+                          );
+                        });
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Timeline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Timeline Analisi</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {compareModal.analyses
+                      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+                      .map((analysis, index) => (
+                        <div key={analysis.id} className="flex items-center justify-between py-2 border-b last:border-0">
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground">{index + 1}.</span>
+                            <span className="text-sm font-medium">{analysis.file_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <span>{format(new Date(analysis.created_at), 'dd/MM HH:mm')}</span>
+                            <Badge variant="outline">{analysis.primary_emotion}</Badge>
+                            <span className="font-medium">{analysis.primary_confidence}%</span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    try {
+                      const pdf = generateComparisonPDF(compareModal.analyses);
+                      const fileName = `confronto-analisi-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
+                      pdf.save(fileName);
+                      
+                      toast({
+                        title: "Download completato",
+                        description: `Report di confronto scaricato: ${fileName}`,
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Errore",
+                        description: "Impossibile generare il report PDF",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Scarica PDF
                 </Button>
               </div>
             </div>

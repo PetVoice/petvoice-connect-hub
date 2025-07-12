@@ -162,50 +162,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const scheduleFollowUp = async (analysis: AnalysisData) => {
-    if (!selectedPet) {
-      toast({
-        title: "Errore",
-        description: "Nessun pet selezionato",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      // Calculate suggested follow-up date (7 days from now)
-      const followUpDate = new Date();
-      followUpDate.setDate(followUpDate.getDate() + 7);
-      
-      // Create calendar event for follow-up
-      const eventData = {
-        title: `Follow-up analisi emotiva - ${petName}`,
-        description: `Controllo comportamentale programmato dopo l'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}.\n\nEmozione rilevata: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nNote: Verificare il comportamento e l'umore del pet, confrontare con i risultati precedenti.`,
-        start_time: followUpDate.toISOString(),
-        end_time: new Date(followUpDate.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
-        category: 'behavioral_check',
-        pet_id: selectedPet.id,
-        user_id: selectedPet.user_id,
-        notes: `Analisi di riferimento: ${analysis.id}\nRaccomandazioni da verificare: ${analysis.recommendations.slice(0, 2).join(', ')}`
-      };
-
-      const { error } = await supabase
-        .from('calendar_events')
-        .insert(eventData);
-
-      if (error) throw error;
-
-      toast({
-        title: "Follow-up Programmato",
-        description: `Promemoria creato per il ${format(followUpDate, 'dd/MM/yyyy HH:mm', { locale: it })} nel calendario`,
-      });
-    } catch (error) {
-      console.error('Error creating follow-up event:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare il promemoria nel calendario",
-        variant: "destructive"
-      });
-    }
+    // Apri calendario per pianificazione manuale
+    toast({
+      title: "Apertura calendario",
+      description: "Ti stiamo reindirizzando al calendario per pianificare il follow-up",
+    });
+    
+    // Reindirizza alla pagina calendario
+    window.location.href = '/calendar';
   };
 
   const shareAnalysis = async (analysis: AnalysisData) => {
