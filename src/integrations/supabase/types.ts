@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          attendees: string[] | null
+          category: string
+          cost: number | null
+          created_at: string
+          description: string | null
+          end_time: string | null
+          id: string
+          is_all_day: boolean | null
+          location: string | null
+          notes: string | null
+          pet_id: string
+          photo_urls: string[] | null
+          recurring_pattern: Json | null
+          reminder_settings: Json | null
+          start_time: string
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendees?: string[] | null
+          category?: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          notes?: string | null
+          pet_id: string
+          photo_urls?: string[] | null
+          recurring_pattern?: Json | null
+          reminder_settings?: Json | null
+          start_time: string
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendees?: string[] | null
+          category?: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          notes?: string | null
+          pet_id?: string
+          photo_urls?: string[] | null
+          recurring_pattern?: Json | null
+          reminder_settings?: Json | null
+          start_time?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       diary_entries: {
         Row: {
           behavioral_tags: string[] | null
@@ -92,6 +158,72 @@ export type Database = {
           user_id?: string
           voice_note_url?: string | null
           weather_condition?: string | null
+        }
+        Relationships: []
+      }
+      event_notifications: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          notification_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          notification_type: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          notification_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      event_templates: {
+        Row: {
+          category: string
+          created_at: string
+          default_duration: unknown | null
+          default_reminder_settings: Json | null
+          id: string
+          name: string
+          template_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          default_duration?: unknown | null
+          default_reminder_settings?: Json | null
+          id?: string
+          name: string
+          template_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_duration?: unknown | null
+          default_reminder_settings?: Json | null
+          id?: string
+          name?: string
+          template_data?: Json | null
+          user_id?: string
         }
         Relationships: []
       }

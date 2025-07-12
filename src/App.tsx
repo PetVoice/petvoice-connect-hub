@@ -12,6 +12,7 @@ import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
+import CalendarPage from "@/pages/CalendarPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import ResetPassword from "@/pages/ResetPassword";
@@ -63,12 +64,7 @@ const App = () => (
               <Route path="/calendar" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Calendario"
-                      description="Programma e monitora le attività"
-                      icon={<Calendar className="h-6 w-6 text-white" />}
-                      features={["Pianificazione eventi", "Reminder", "Visite veterinarie", "Attività ricorrenti"]}
-                    />
+                    <CalendarPage />
                   </Layout>
                 </ProtectedRoute>
               } />
