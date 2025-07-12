@@ -823,7 +823,7 @@ const DiaryPage: React.FC = () => {
                         className={isRecording ? 'bg-red-500 text-white' : ''}
                       >
                         {isRecording ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
-                        {isRecording ? 'Stop Recording' : 'Voice Note'}
+                        {isRecording ? 'Stop Recording' : 'Nota Vocale'}
                       </Button>
                     </div>
                     
