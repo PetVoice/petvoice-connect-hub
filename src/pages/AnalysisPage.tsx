@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import type { DateRange } from 'react-day-picker';
@@ -31,7 +33,8 @@ import {
   BarChart3,
   FileText,
   Trash2,
-  Share2
+  Share2,
+  Eye
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -39,6 +42,7 @@ import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import jsPDF from 'jspdf';
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -46,6 +50,7 @@ import AudioRecorder from '@/components/analysis/AudioRecorder';
 import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
 import ProcessingAnimation from '@/components/analysis/ProcessingAnimation';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 // Types
 interface AnalysisData {
@@ -92,6 +97,8 @@ const AnalysisPage: React.FC = () => {
   const [confidenceFilter, setConfidenceFilter] = useState('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
+  const [detailsModal, setDetailsModal] = useState<{ open: boolean; analysis: AnalysisData | null }>({ open: false, analysis: null });
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; analysisId: string | null; isMultiple: boolean }>({ open: false, analysisId: null, isMultiple: false });
 
   // Load analyses
   useEffect(() => {
@@ -319,6 +326,107 @@ const AnalysisPage: React.FC = () => {
     await handleFileUpload(fileList.files);
   };
 
+  const generateAnalysisPDF = (analysis: AnalysisData) => {
+    try {
+      const pdf = new jsPDF();
+      
+      // Set font
+      pdf.setFont('helvetica', 'normal');
+      
+      let yPosition = 20;
+      const lineHeight = 7;
+      const pageWidth = pdf.internal.pageSize.width;
+      const margin = 20;
+      const contentWidth = pageWidth - (margin * 2);
+      
+      // Helper function to add text with word wrap
+      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        
+        if (text.length > 60) {
+          const lines = pdf.splitTextToSize(text, contentWidth);
+          lines.forEach((line: string) => {
+            if (yPosition > 270) {
+              pdf.addPage();
+              yPosition = 20;
+            }
+            pdf.text(line, margin, yPosition);
+            yPosition += lineHeight;
+          });
+        } else {
+          if (yPosition > 270) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          pdf.text(text, margin, yPosition);
+          yPosition += lineHeight;
+        }
+        yPosition += 3; // Extra spacing
+      };
+
+      // Title
+      addText('ANALISI EMOTIVA PET VOICE', 16, true);
+      addText(`Pet: ${selectedPet?.name || 'N/A'}`, 14, true);
+      yPosition += 5;
+
+      // Analysis info
+      addText('INFORMAZIONI ANALISI', 14, true);
+      addText(`File: ${analysis.file_name}`);
+      addText(`Data: ${format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}`);
+      addText(`Durata: ${String(analysis.analysis_duration)}`);
+      addText(`Dimensione: ${(analysis.file_size / 1024).toFixed(1)} KB`);
+      yPosition += 5;
+
+      // Emotional analysis
+      addText('RISULTATI EMOTIVI', 14, true);
+      addText(`Emozione Principale: ${analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1)}`);
+      addText(`Confidenza: ${analysis.primary_confidence}%`);
+      
+      if (Object.keys(analysis.secondary_emotions).length > 0) {
+        addText('Emozioni Secondarie:', 12, true);
+        Object.entries(analysis.secondary_emotions).forEach(([emotion, confidence]) => {
+          addText(`- ${emotion}: ${confidence}%`);
+        });
+      }
+      yPosition += 5;
+
+      // Insights
+      if (analysis.behavioral_insights) {
+        addText('INSIGHTS COMPORTAMENTALI', 14, true);
+        addText(analysis.behavioral_insights);
+        yPosition += 5;
+      }
+
+      // Recommendations
+      if (analysis.recommendations.length > 0) {
+        addText('RACCOMANDAZIONI', 14, true);
+        analysis.recommendations.forEach((rec, index) => {
+          addText(`${index + 1}. ${rec}`);
+        });
+        yPosition += 5;
+      }
+
+      // Triggers
+      if (analysis.triggers.length > 0) {
+        addText('TRIGGER IDENTIFICATI', 14, true);
+        analysis.triggers.forEach((trigger, index) => {
+          addText(`- ${trigger}`);
+        });
+      }
+
+      // Footer
+      yPosition = 280;
+      addText(`Report generato il ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: it })}`, 8);
+      addText('PetVoice - Analisi Emotiva Avanzata', 8);
+
+      return pdf;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
+
   const handleBatchExport = async () => {
     if (selectedAnalyses.length === 0) {
       toast({
@@ -329,19 +437,82 @@ const AnalysisPage: React.FC = () => {
       return;
     }
 
-    // Mock PDF generation
-    toast({
-      title: "Export in corso...",
-      description: `Generazione PDF per ${selectedAnalyses.length} analisi`,
-    });
+    try {
+      toast({
+        title: "Export in corso...",
+        description: `Generazione PDF per ${selectedAnalyses.length} analisi`,
+      });
 
-    // Simulate export delay
-    setTimeout(() => {
+      // Get selected analyses data
+      const selectedAnalysesData = analyses.filter(a => selectedAnalyses.includes(a.id));
+      
+      if (selectedAnalysesData.length === 1) {
+        // Single analysis - use detailed PDF
+        const pdf = generateAnalysisPDF(selectedAnalysesData[0]);
+        const fileName = `analisi-emotiva-${selectedPet?.name}-${format(new Date(selectedAnalysesData[0].created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
+        pdf.save(fileName);
+      } else {
+        // Multiple analyses - create summary PDF
+        const pdf = new jsPDF();
+        pdf.setFont('helvetica', 'normal');
+        
+        let yPosition = 20;
+        const lineHeight = 7;
+        
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('REPORT ANALISI MULTIPLE - PET VOICE', 20, yPosition);
+        yPosition += 15;
+        
+        pdf.setFontSize(14);
+        pdf.text(`Pet: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
+        yPosition += 10;
+        
+        pdf.setFontSize(12);
+        pdf.text(`Numero analisi: ${selectedAnalysesData.length}`, 20, yPosition);
+        yPosition += 10;
+        
+        selectedAnalysesData.forEach((analysis, index) => {
+          if (yPosition > 250) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(`${index + 1}. ${analysis.file_name}`, 20, yPosition);
+          yPosition += lineHeight;
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
+          yPosition += lineHeight;
+          pdf.text(`Emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 25, yPosition);
+          yPosition += lineHeight;
+          
+          if (analysis.behavioral_insights) {
+            const insight = analysis.behavioral_insights.length > 100 
+              ? analysis.behavioral_insights.substring(0, 100) + '...'
+              : analysis.behavioral_insights;
+            pdf.text(`Insight: ${insight}`, 25, yPosition);
+            yPosition += lineHeight;
+          }
+          yPosition += 5;
+        });
+
+        const fileName = `analisi-multiple-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
+        pdf.save(fileName);
+      }
+
       toast({
         title: "Export completato!",
         description: "Il file PDF è stato scaricato",
       });
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile generare il report PDF",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleBatchCompare = async () => {
@@ -354,23 +525,106 @@ const AnalysisPage: React.FC = () => {
       return;
     }
 
-    toast({
-      title: "Confronto in corso...",
-      description: `Analisi comparativa di ${selectedAnalyses.length} risultati`,
-    });
+    try {
+      toast({
+        title: "Confronto in corso...",
+        description: `Analisi comparativa di ${selectedAnalyses.length} risultati`,
+      });
 
-    // Simulate comparison
-    setTimeout(() => {
+      // Get selected analyses data
+      const selectedAnalysesData = analyses.filter(a => selectedAnalyses.includes(a.id));
+      
+      // Create comparison PDF
+      const pdf = new jsPDF();
+      pdf.setFont('helvetica', 'normal');
+      
+      let yPosition = 20;
+      const lineHeight = 7;
+      
+      // Title
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('CONFRONTO ANALISI EMOTIVE - PET VOICE', 20, yPosition);
+      yPosition += 15;
+      
+      pdf.setFontSize(14);
+      pdf.text(`Pet: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
+      yPosition += 10;
+      
+      pdf.setFontSize(12);
+      pdf.text(`Periodo: ${format(new Date(Math.min(...selectedAnalysesData.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')} - ${format(new Date(Math.max(...selectedAnalysesData.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')}`, 20, yPosition);
+      yPosition += 10;
+
+      // Emotion distribution
+      const emotionCounts: Record<string, number> = {};
+      selectedAnalysesData.forEach(analysis => {
+        emotionCounts[analysis.primary_emotion] = (emotionCounts[analysis.primary_emotion] || 0) + 1;
+      });
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('DISTRIBUZIONE EMOZIONI:', 20, yPosition);
+      yPosition += lineHeight;
+      
+      pdf.setFont('helvetica', 'normal');
+      Object.entries(emotionCounts).forEach(([emotion, count]) => {
+        const percentage = ((count / selectedAnalysesData.length) * 100).toFixed(1);
+        pdf.text(`- ${emotion.charAt(0).toUpperCase() + emotion.slice(1)}: ${count} volte (${percentage}%)`, 25, yPosition);
+        yPosition += lineHeight;
+      });
+      yPosition += 5;
+
+      // Average confidence
+      const avgConfidence = (selectedAnalysesData.reduce((sum, a) => sum + a.primary_confidence, 0) / selectedAnalysesData.length).toFixed(1);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`CONFIDENZA MEDIA: ${avgConfidence}%`, 20, yPosition);
+      yPosition += 10;
+
+      // Timeline
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('CRONOLOGIA ANALISI:', 20, yPosition);
+      yPosition += lineHeight;
+      
+      selectedAnalysesData
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .forEach((analysis, index) => {
+          if (yPosition > 250) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`${index + 1}. ${format(new Date(analysis.created_at), 'dd/MM HH:mm')} - ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 25, yPosition);
+          yPosition += lineHeight;
+        });
+
+      // Save PDF
+      const fileName = `confronto-analisi-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
+      pdf.save(fileName);
+
       toast({
         title: "Confronto completato!",
-        description: "Report comparativo generato",
+        description: "Report comparativo scaricato",
       });
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile generare il confronto",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleBatchDelete = async () => {
     if (selectedAnalyses.length === 0) return;
+    
+    setDeleteConfirm({ 
+      open: true, 
+      analysisId: null, 
+      isMultiple: true 
+    });
+  };
 
+  const confirmBatchDelete = async () => {
     try {
       const { error } = await supabase
         .from('pet_analyses')
@@ -396,39 +650,23 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleAnalysisDetails = (analysis: AnalysisData) => {
-    toast({
-      title: "Dettagli Analisi",
-      description: `Visualizzazione dettagli per ${analysis.file_name}`,
-    });
-    // In a real app, this would open a detailed modal or navigate to a details page
+    setDetailsModal({ open: true, analysis });
   };
 
   const handleAnalysisDownload = async (analysis: AnalysisData) => {
     try {
-      const { data, error } = await supabase.storage
-        .from('pet-media')
-        .download(analysis.storage_path);
-
-      if (error) throw error;
-
-      // Create download link
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = analysis.file_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const pdf = generateAnalysisPDF(analysis);
+      const fileName = `analisi-emotiva-${selectedPet?.name}-${format(new Date(analysis.created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
+      pdf.save(fileName);
 
       toast({
         title: "Download completato",
-        description: `File ${analysis.file_name} scaricato`,
+        description: `Report PDF scaricato: ${fileName}`,
       });
     } catch (error: any) {
       toast({
         title: "Errore",
-        description: "Impossibile scaricare il file",
+        description: "Impossibile generare il report PDF",
         variant: "destructive"
       });
     }
@@ -466,11 +704,21 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleAnalysisDelete = async (analysisId: string) => {
+    setDeleteConfirm({ 
+      open: true, 
+      analysisId, 
+      isMultiple: false 
+    });
+  };
+
+  const confirmSingleDelete = async () => {
+    if (!deleteConfirm.analysisId) return;
+    
     try {
       const { error } = await supabase
         .from('pet_analyses')
         .delete()
-        .eq('id', analysisId);
+        .eq('id', deleteConfirm.analysisId);
 
       if (error) throw error;
 
@@ -479,7 +727,7 @@ const AnalysisPage: React.FC = () => {
         description: "Analisi eliminata",
       });
 
-      setSelectedAnalyses(prev => prev.filter(id => id !== analysisId));
+      setSelectedAnalyses(prev => prev.filter(id => id !== deleteConfirm.analysisId));
       loadAnalyses();
     } catch (error: any) {
       toast({
@@ -705,6 +953,196 @@ const AnalysisPage: React.FC = () => {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Details Modal */}
+      <Dialog open={detailsModal.open} onOpenChange={(open) => setDetailsModal({ open, analysis: null })}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Dettagli Analisi Emotiva
+            </DialogTitle>
+            <DialogDescription>
+              Visualizzazione completa dell'analisi per {detailsModal.analysis?.file_name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {detailsModal.analysis && (
+            <div className="space-y-6">
+              {/* File Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Informazioni File</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium">Nome File</Label>
+                      <p className="text-sm">{detailsModal.analysis.file_name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Tipo</Label>
+                      <p className="text-sm">{detailsModal.analysis.file_type}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Dimensione</Label>
+                      <p className="text-sm">{(detailsModal.analysis.file_size / 1024).toFixed(1)} KB</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Durata Analisi</Label>
+                      <p className="text-sm">{String(detailsModal.analysis.analysis_duration)}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Data Creazione</Label>
+                      <p className="text-sm">{format(new Date(detailsModal.analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Emotional Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Risultati Emotivi</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium">Emozione Principale</Label>
+                    <div className="flex items-center gap-3 mt-2">
+                      <Badge className="flex items-center gap-2 text-lg px-4 py-2">
+                        <span className="text-2xl">
+                          {detailsModal.analysis.primary_emotion === 'felice' && '😊'}
+                          {detailsModal.analysis.primary_emotion === 'calmo' && '😌'}
+                          {detailsModal.analysis.primary_emotion === 'ansioso' && '😰'}
+                          {detailsModal.analysis.primary_emotion === 'eccitato' && '🤩'}
+                          {detailsModal.analysis.primary_emotion === 'triste' && '😢'}
+                          {detailsModal.analysis.primary_emotion === 'aggressivo' && '😠'}
+                          {detailsModal.analysis.primary_emotion === 'giocoso' && '😄'}
+                        </span>
+                        {detailsModal.analysis.primary_emotion.charAt(0).toUpperCase() + detailsModal.analysis.primary_emotion.slice(1)}
+                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Progress value={detailsModal.analysis.primary_confidence} className="w-32 h-3" />
+                        <span className="font-semibold text-lg">{detailsModal.analysis.primary_confidence}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {Object.keys(detailsModal.analysis.secondary_emotions).length > 0 && (
+                    <div>
+                      <Label className="text-sm font-medium">Emozioni Secondarie</Label>
+                       <div className="flex flex-wrap gap-2 mt-2">
+                         {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
+                           <Badge key={emotion} variant="outline" className="text-sm">
+                             {emotion}: {String(confidence)}%
+                           </Badge>
+                         ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Behavioral Insights */}
+              {detailsModal.analysis.behavioral_insights && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Brain className="h-5 w-5" />
+                      Insights Comportamentali
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm leading-relaxed bg-secondary/50 p-4 rounded-lg">
+                      {detailsModal.analysis.behavioral_insights}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Recommendations */}
+              {detailsModal.analysis.recommendations.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Raccomandazioni</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {detailsModal.analysis.recommendations.map((rec, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <span className="text-primary font-bold mt-1">{index + 1}.</span>
+                          <span className="text-sm">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Triggers */}
+              {detailsModal.analysis.triggers.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Trigger Identificati</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                      {detailsModal.analysis.triggers.map((trigger, index) => (
+                        <Badge key={index} variant="destructive">
+                          {trigger}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleAnalysisDownload(detailsModal.analysis!)}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Scarica PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleAnalysisSchedule(detailsModal.analysis!)}
+                  className="flex items-center gap-2"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Pianifica Follow-up
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialogs */}
+      <ConfirmDialog
+        open={deleteConfirm.open}
+        onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}
+        title={deleteConfirm.isMultiple ? "Elimina Analisi Multiple" : "Elimina Analisi"}
+        description={
+          deleteConfirm.isMultiple 
+            ? `Sei sicuro di voler eliminare ${selectedAnalyses.length} analisi selezionate? Questa azione non può essere annullata.`
+            : "Sei sicuro di voler eliminare questa analisi? Questa azione non può essere annullata."
+        }
+        confirmText="Elimina"
+        cancelText="Annulla"
+        variant="destructive"
+        onConfirm={() => {
+          if (deleteConfirm.isMultiple) {
+            confirmBatchDelete();
+          } else {
+            confirmSingleDelete();
+          }
+          setDeleteConfirm({ open: false, analysisId: null, isMultiple: false });
+        }}
+      />
     </div>
   );
 };
