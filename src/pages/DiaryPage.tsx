@@ -1684,7 +1684,7 @@ const DiaryPage: React.FC = () => {
   );
 };
 
-// Weekly diary view component - similar to Calendar WeekView
+// Weekly diary view component - identical to Calendar WeekView
 const DiaryWeekView: React.FC<{
   currentDate: Date;
   entries: DiaryEntry[];
@@ -1695,8 +1695,11 @@ const DiaryWeekView: React.FC<{
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
-  const getEntriesForDay = (date: Date) => {
-    return entries.filter(entry => isSameDay(parseISO(entry.entry_date), date));
+  const getEntriesForDayAndHour = (date: Date, hour: number) => {
+    return entries.filter(entry => {
+      const entryDate = parseISO(entry.created_at);
+      return isSameDay(entryDate, date) && entryDate.getHours() === hour;
+    });
   };
 
   const getMoodColorForEntry = (entry: DiaryEntry) => {
@@ -1722,61 +1725,69 @@ const DiaryWeekView: React.FC<{
         ))}
       </div>
       
-      {/* Day entries (showing entries as full-day items) */}
-      <div className="grid grid-cols-8 gap-2 mb-4">
-        <div className="text-sm text-muted-foreground p-2 text-center">Voci</div>
-        {weekDays.map(day => {
-          const dayEntries = getEntriesForDay(day);
-          return (
-            <div
-              key={`day-${day.toISOString()}`}
-              className="min-h-[120px] p-2 border rounded hover:bg-muted/50 cursor-pointer"
-              onClick={() => onDateClick(day)}
-            >
-              <div className="space-y-1">
-                {dayEntries.map(entry => (
-                  <div
-                    key={entry.id}
-                    className={`
-                      text-xs p-2 rounded cursor-pointer transition-colors
-                      ${getMoodColorForEntry(entry)}
-                    `}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEntryClick(entry);
-                    }}
-                  >
-                    <div className="truncate font-medium">
-                      {entry.title || 'Senza titolo'}
-                    </div>
-                    {entry.mood_score && (
-                      <div className="text-xs opacity-75">
-                        😊 {entry.mood_score}/10
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {dayEntries.length === 0 && (
-                  <div className="text-xs text-muted-foreground text-center py-4">
-                    Nessuna voce
-                  </div>
-                )}
-              </div>
+      {/* Time slots - identical to Calendar */}
+      <div className="max-h-[600px] overflow-y-auto">
+        {hours.map(hour => (
+          <div key={hour} className="grid grid-cols-8 gap-2 border-b border-muted">
+            <div className="text-sm text-muted-foreground p-2 text-center">
+              {hour.toString().padStart(2, '0')}:00
             </div>
-          );
-        })}
+            {weekDays.map(day => {
+              const hourEntries = getEntriesForDayAndHour(day, hour);
+              return (
+                <div
+                  key={`${day.toISOString()}-${hour}`}
+                  className="min-h-[60px] p-1 hover:bg-muted/50 cursor-pointer border-r border-muted"
+                  onClick={() => {
+                    const clickDate = new Date(day);
+                    clickDate.setHours(hour, 0, 0, 0);
+                    onDateClick(clickDate);
+                  }}
+                >
+                  {hourEntries.map(entry => (
+                    <div
+                      key={entry.id}
+                      className={`
+                        text-xs p-1 rounded mb-1 cursor-pointer
+                        ${getMoodColorForEntry(entry)}
+                      `}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEntryClick(entry);
+                      }}
+                    >
+                      <div className="truncate font-medium">{entry.title || 'Senza titolo'}</div>
+                      <div className="text-xs opacity-75">
+                        {format(parseISO(entry.created_at), 'HH:mm')}
+                        {entry.mood_score && ` - 😊${entry.mood_score}`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-// Daily diary view component - similar to Calendar DayView
+// Daily diary view component - identical to Calendar DayView  
 const DiaryDayView: React.FC<{
   currentDate: Date;
   entries: DiaryEntry[];
   onEntryClick: (entry: DiaryEntry) => void;
 }> = ({ currentDate, entries, onEntryClick }) => {
-  const dayEntries = entries.filter(entry => isSameDay(parseISO(entry.entry_date), currentDate));
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const dayEntries = entries.filter(entry => isSameDay(parseISO(entry.created_at), currentDate));
+
+  const getEntriesForHour = (hour: number) => {
+    return dayEntries.filter(entry => {
+      const entryDate = parseISO(entry.created_at);
+      return entryDate.getHours() === hour;
+    });
+  };
 
   const getMoodColorForEntry = (entry: DiaryEntry) => {
     if (!entry.mood_score) return 'bg-gray-500 text-white border-gray-500';
@@ -1785,91 +1796,53 @@ const DiaryDayView: React.FC<{
       entry.mood_score! >= cat.moodRange[0] && entry.mood_score! <= cat.moodRange[1]
     );
     
-    return category ? `${category[1].color} border-l-4` : 'bg-gray-500 text-white border-gray-500';
+    return category ? category[1].color : 'bg-gray-500 text-white';
   };
 
   return (
     <div className="p-4">
       <div className="max-h-[700px] overflow-y-auto">
-        <div className="space-y-4">
-          <div className="text-center p-4 border-b">
-            <h3 className="text-lg font-semibold">
-              {format(currentDate, 'dd MMMM yyyy', { locale: it })}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {dayEntries.length} {dayEntries.length === 1 ? 'voce trovata' : 'voci trovate'}
-            </p>
-          </div>
-
-          {dayEntries.length > 0 ? (
-            <div className="space-y-4">
-              {dayEntries.map(entry => (
-                <div
-                  key={entry.id}
-                  className={`
-                    p-4 rounded-lg cursor-pointer transition-colors border-l-4
-                    ${getMoodColorForEntry(entry)}
-                  `}
-                  onClick={() => onEntryClick(entry)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-lg">
-                      {entry.title || 'Senza titolo'}
-                    </h4>
-                    {entry.mood_score && (
-                      <div className="flex items-center gap-2 opacity-75">
-                        <span className="text-sm">😊 {entry.mood_score}/10</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {entry.content && (
-                    <p className="text-sm opacity-90 mb-3 line-clamp-3">
-                      {entry.content}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-4 text-xs opacity-75">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {format(parseISO(entry.created_at), 'HH:mm')}
-                    </span>
-                    {entry.weather_condition && (
-                      <span>🌤️ {entry.weather_condition}</span>
-                    )}
-                    {entry.temperature && (
-                      <span>🌡️ {entry.temperature}°C</span>
-                    )}
-                    {entry.photo_urls && entry.photo_urls.length > 0 && (
-                      <span>📸 {entry.photo_urls.length}</span>
-                    )}
-                    {entry.voice_note_url && (
-                      <span>🎤 Nota vocale</span>
-                    )}
-                  </div>
-                  
-                  {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {entry.behavioral_tags.slice(0, 5).map(tag => (
-                        <span key={tag} className="text-xs bg-black/10 px-2 py-1 rounded">
-                          {tag}
+        {hours.map(hour => {
+          const hourEntries = getEntriesForHour(hour);
+          return (
+            <div key={hour} className="flex border-b border-muted">
+              <div className="w-20 text-sm text-muted-foreground p-4 text-center border-r border-muted">
+                {hour.toString().padStart(2, '0')}:00
+              </div>
+              <div className="flex-1 min-h-[80px] p-2 hover:bg-muted/50 cursor-pointer">
+                {hourEntries.map(entry => (
+                  <div
+                    key={entry.id}
+                    className={`
+                      p-3 mb-2 rounded-lg cursor-pointer border-l-4
+                      ${getMoodColorForEntry(entry)}
+                    `}
+                    onClick={() => onEntryClick(entry)}
+                  >
+                    <div className="font-medium">{entry.title || 'Senza titolo'}</div>
+                    <div className="text-sm opacity-75 flex items-center gap-4 mt-1">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {format(parseISO(entry.created_at), 'HH:mm')}
+                      </span>
+                      {entry.mood_score && (
+                        <span className="flex items-center gap-1">
+                          😊 {entry.mood_score}/10
                         </span>
-                      ))}
+                      )}
+                      {entry.weather_condition && (
+                        <span>🌤️ {entry.weather_condition}</span>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {entry.content && (
+                      <div className="text-xs mt-2 opacity-75 line-clamp-2">{entry.content}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nessuna voce per oggi</h3>
-              <p className="text-muted-foreground">
-                Inizia creando la prima voce del diario per questo giorno
-              </p>
-            </div>
-          )}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
