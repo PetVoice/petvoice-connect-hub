@@ -125,12 +125,17 @@ const DiaryPage: React.FC = () => {
   // Settings state - Like Calendar
   const [settings, setSettings] = useState({
     defaultView: 'month' as 'month' | 'week' | 'day',
+    weekStart: 1, // Monday - like Calendar
     autoSaveEnabled: true,
     showMoodInCalendar: true,
     reminderEnabled: true,
-    exportFormat: 'pdf' as 'pdf' | 'csv',
     privacyMode: false
   });
+
+  // Sync viewMode with settings.defaultView when viewMode changes
+  useEffect(() => {
+    setSettings(prev => ({ ...prev, defaultView: viewMode }));
+  }, [viewMode]);
 
   // Navigation for different view modes
   const navigateDiary = (direction: 'prev' | 'next') => {
@@ -276,10 +281,19 @@ const DiaryPage: React.FC = () => {
     loadEntries();
   }, [loadEntries]);
 
-  // Get calendar days
+  // Get calendar days - identical to Calendar to show previous/next month days
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const calendarStart = startOfWeek(monthStart);
+  const calendarEnd = endOfWeek(monthEnd);
+  
+  const days = [];
+  let day = calendarStart;
+  
+  while (day <= calendarEnd) {
+    days.push(day);
+    day = addDays(day, 1);
+  }
 
   const getEntriesForDate = (date: Date) => {
     return entries.filter(entry => 
@@ -1578,6 +1592,23 @@ const DiaryPage: React.FC = () => {
                   </Select>
                 </div>
 
+                <div>
+                  <Label htmlFor="week-start">Inizio settimana</Label>
+                  <Select 
+                    value={settings.weekStart.toString()} 
+                    onValueChange={(value) => 
+                      setSettings(prev => ({ ...prev, weekStart: parseInt(value) }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Domenica</SelectItem>
+                      <SelectItem value="1">Lunedì</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-3">

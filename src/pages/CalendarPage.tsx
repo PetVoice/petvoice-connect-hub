@@ -143,6 +143,11 @@ const CalendarPage: React.FC = () => {
     moodCorrelation: true
   });
 
+  // Sync viewMode with settings.defaultView when viewMode changes
+  useEffect(() => {
+    setSettings(prev => ({ ...prev, defaultView: viewMode }));
+  }, [viewMode]);
+
 
   // Form state for event creation/editing
   const [formData, setFormData] = useState({
