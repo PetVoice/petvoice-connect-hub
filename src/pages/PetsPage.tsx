@@ -207,6 +207,7 @@ const PetsPage: React.FC = () => {
       }
       
       resetForm();
+      setShowForm(false); // Chiude il form dopo il salvataggio
     } catch (error) {
       console.error('Error saving pet:', error);
     }

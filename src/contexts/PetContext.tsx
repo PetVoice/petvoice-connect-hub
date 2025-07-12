@@ -189,6 +189,9 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
         title: "Successo",
         description: "Pet aggiornato con successo!",
       });
+
+      // Forza un refresh per assicurarsi che i dati siano sincronizzati
+      await refreshPets();
     } catch (error) {
       console.error('Error updating pet:', error);
       toast({
