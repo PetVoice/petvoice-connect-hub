@@ -46,6 +46,13 @@ interface AnalysisHistoryProps {
   loading: boolean;
   selectedAnalyses: string[];
   onSelectionChange: (selected: string[]) => void;
+  onBatchExport?: () => void;
+  onBatchCompare?: () => void;
+  onBatchDelete?: () => void;
+  onAnalysisDetails?: (analysis: AnalysisData) => void;
+  onAnalysisDownload?: (analysis: AnalysisData) => void;
+  onAnalysisSchedule?: (analysis: AnalysisData) => void;
+  onAnalysisDelete?: (analysisId: string) => void;
   petName: string;
 }
 
@@ -74,6 +81,13 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   loading,
   selectedAnalyses,
   onSelectionChange,
+  onBatchExport,
+  onBatchCompare,
+  onBatchDelete,
+  onAnalysisDetails,
+  onAnalysisDownload,
+  onAnalysisSchedule,
+  onAnalysisDelete,
   petName
 }) => {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -221,15 +235,15 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
 
             {selectedAnalyses.length > 0 && (
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={onBatchExport}>
                   <Download className="h-4 w-4 mr-2" />
                   Esporta ({selectedAnalyses.length})
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button size="sm" variant="outline" onClick={onBatchCompare}>
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Confronta
                 </Button>
-                <Button size="sm" variant="destructive">
+                <Button size="sm" variant="destructive" onClick={onBatchDelete}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Elimina
                 </Button>
@@ -371,19 +385,19 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
 
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-2">
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => onAnalysisDetails?.(analysis)}>
                           <Eye className="h-3 w-3 mr-1" />
                           Dettagli
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => onAnalysisDownload?.(analysis)}>
                           <Download className="h-3 w-3 mr-1" />
                           Download
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => onAnalysisSchedule?.(analysis)}>
                           <Calendar className="h-3 w-3 mr-1" />
                           Pianifica
                         </Button>
-                        <Button size="sm" variant="outline" className="text-destructive">
+                        <Button size="sm" variant="outline" className="text-destructive" onClick={() => onAnalysisDelete?.(analysis.id)}>
                           <Trash2 className="h-3 w-3 mr-1" />
                           Elimina
                         </Button>

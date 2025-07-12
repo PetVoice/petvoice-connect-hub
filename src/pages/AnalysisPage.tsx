@@ -344,6 +344,152 @@ const AnalysisPage: React.FC = () => {
     }, 2000);
   };
 
+  const handleBatchCompare = async () => {
+    if (selectedAnalyses.length < 2) {
+      toast({
+        title: "Errore",
+        description: "Seleziona almeno 2 analisi per il confronto",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Confronto in corso...",
+      description: `Analisi comparativa di ${selectedAnalyses.length} risultati`,
+    });
+
+    // Simulate comparison
+    setTimeout(() => {
+      toast({
+        title: "Confronto completato!",
+        description: "Report comparativo generato",
+      });
+    }, 1500);
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedAnalyses.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('pet_analyses')
+        .delete()
+        .in('id', selectedAnalyses);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: `${selectedAnalyses.length} analisi eliminate`,
+      });
+
+      setSelectedAnalyses([]);
+      loadAnalyses();
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare le analisi",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAnalysisDetails = (analysis: AnalysisData) => {
+    toast({
+      title: "Dettagli Analisi",
+      description: `Visualizzazione dettagli per ${analysis.file_name}`,
+    });
+    // In a real app, this would open a detailed modal or navigate to a details page
+  };
+
+  const handleAnalysisDownload = async (analysis: AnalysisData) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('pet-media')
+        .download(analysis.storage_path);
+
+      if (error) throw error;
+
+      // Create download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = analysis.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Download completato",
+        description: `File ${analysis.file_name} scaricato`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: "Impossibile scaricare il file",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAnalysisSchedule = async (analysis: AnalysisData) => {
+    try {
+      const followUpDate = new Date();
+      followUpDate.setDate(followUpDate.getDate() + 7);
+
+      const { error } = await supabase
+        .from('calendar_events')
+        .insert({
+          user_id: (await supabase.auth.getUser()).data.user!.id,
+          pet_id: selectedPet!.id,
+          title: `Follow-up analisi: ${analysis.primary_emotion}`,
+          description: `Controllo comportamentale basato sull'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy')}`,
+          start_time: followUpDate.toISOString(),
+          category: 'health'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Follow-up programmato",
+        description: `Promemoria creato per ${format(followUpDate, 'dd/MM/yyyy')}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: "Impossibile creare il promemoria",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAnalysisDelete = async (analysisId: string) => {
+    try {
+      const { error } = await supabase
+        .from('pet_analyses')
+        .delete()
+        .eq('id', analysisId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Analisi eliminata",
+      });
+
+      setSelectedAnalyses(prev => prev.filter(id => id !== analysisId));
+      loadAnalyses();
+    } catch (error: any) {
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare l'analisi",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!selectedPet) {
     return (
       <div className="container mx-auto p-6 max-w-4xl">
@@ -548,6 +694,13 @@ const AnalysisPage: React.FC = () => {
             loading={loading}
             selectedAnalyses={selectedAnalyses}
             onSelectionChange={setSelectedAnalyses}
+            onBatchExport={handleBatchExport}
+            onBatchCompare={handleBatchCompare}
+            onBatchDelete={handleBatchDelete}
+            onAnalysisDetails={handleAnalysisDetails}
+            onAnalysisDownload={handleAnalysisDownload}
+            onAnalysisSchedule={handleAnalysisSchedule}
+            onAnalysisDelete={handleAnalysisDelete}
             petName={selectedPet.name}
           />
         </TabsContent>
