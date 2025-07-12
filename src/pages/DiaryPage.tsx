@@ -1649,15 +1649,7 @@ const DiaryPage: React.FC = () => {
               <h3 className="text-lg font-medium">Impostazioni Avanzate</h3>
               
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Download className="h-4 w-4 mr-2" />
-                  Esporta tutti i dati
-                </Button>
-                
-                <Button variant="outline" className="w-full justify-start">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Importa backup
-                </Button>
+                {/* Buttons removed as requested */}
               </div>
             </div>
           </div>
