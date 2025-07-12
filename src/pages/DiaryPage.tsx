@@ -902,7 +902,7 @@ const DiaryPage: React.FC = () => {
                     </Button>
                     <Button onClick={saveEntry} className="gradient-cosmic text-white">
                       <Save className="h-4 w-4 mr-2" />
-                      {editingEntry ? 'Aggiorna' : 'Salva'}
+                      {editingEntry ? 'Aggiorna' : 'Crea Nota'}
                     </Button>
                   </div>
                 </div>
