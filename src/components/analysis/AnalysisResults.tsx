@@ -632,36 +632,46 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="p-4 bg-secondary/50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Episodio Simile</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Comportamento simile osservato il {format(new Date(analyses[1].created_at), 'dd MMMM', { locale: it })} 
-                  con emozione "{analyses[1].primary_emotion}" (confidenza {analyses[1].primary_confidence}%)
-                </p>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="mt-2"
-                  onClick={() => {
-                    if (analyses.length >= 2) {
-                      setComparedAnalyses([selectedAnalysis, analyses[1]]);
-                      setShowComparisonModal(true);
-                    }
-                  }}
-                >
-                  Confronta Analisi
-                </Button>
-              </div>
+              {(() => {
+                const otherAnalyses = analyses.filter(a => a.id !== selectedAnalysis.id);
+                const mostRecentOther = otherAnalyses[0];
+                
+                if (!mostRecentOther) return null;
+                
+                return (
+                  <div className="p-4 bg-secondary/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Episodio Simile</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} 
+                      con emozione "{mostRecentOther.primary_emotion}" (confidenza {mostRecentOther.primary_confidence}%)
+                    </p>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => {
+                        setComparedAnalyses([selectedAnalysis, mostRecentOther]);
+                        setShowComparisonModal(true);
+                      }}
+                    >
+                      Confronta Analisi
+                    </Button>
+                  </div>
+                );
+              })()}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-green-600">
                     {(() => {
+                      const otherAnalyses = analyses.filter(a => a.id !== selectedAnalysis.id);
+                      if (otherAnalyses.length === 0) return '0%';
+                      
                       const currentConfidence = selectedAnalysis.primary_confidence;
-                      const previousConfidence = analyses.length > 1 ? analyses[1].primary_confidence : currentConfidence;
+                      const previousConfidence = otherAnalyses[0].primary_confidence;
                       const improvement = ((currentConfidence - previousConfidence) / previousConfidence * 100).toFixed(1);
                       return Number(improvement) > 0 ? `+${improvement}%` : `${improvement}%`;
                     })()}
@@ -671,9 +681,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-blue-600">
                     {(() => {
-                      if (analyses.length < 2) return '0';
+                      const otherAnalyses = analyses.filter(a => a.id !== selectedAnalysis.id);
+                      if (otherAnalyses.length === 0) return '0';
+                      
                       const current = new Date(selectedAnalysis.created_at);
-                      const previous = new Date(analyses[1].created_at);
+                      const previous = new Date(otherAnalyses[0].created_at);
                       const diffTime = Math.abs(current.getTime() - previous.getTime());
                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                       return diffDays;
@@ -684,7 +696,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-purple-600">
                     {(() => {
-                      if (analyses.length < 2) return '100%';
                       const similarEmotions = analyses.filter(a => a.primary_emotion === selectedAnalysis.primary_emotion).length;
                       const consistency = (similarEmotions / analyses.length * 100).toFixed(0);
                       return `${consistency}%`;
