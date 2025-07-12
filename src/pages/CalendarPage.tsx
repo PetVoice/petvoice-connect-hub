@@ -122,6 +122,20 @@ const CalendarPage: React.FC = () => {
   const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [showLegend, setShowLegend] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
+  // Settings state
+  const [settings, setSettings] = useState({
+    defaultView: 'month' as 'month' | 'week' | 'day',
+    workingHours: { start: '09:00', end: '18:00' },
+    weekStart: 1, // Monday
+    showWeekends: true,
+    defaultEventDuration: 60, // minutes
+    reminderDefault: ['24h', '2h'],
+    autoSaveEnabled: true,
+    weatherIntegration: true,
+    moodCorrelation: true
+  });
 
   // Form state for event creation/editing
   const [formData, setFormData] = useState({
@@ -607,12 +621,7 @@ const CalendarPage: React.FC = () => {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm" onClick={() => {
-                toast({
-                  title: "Impostazioni calendario",
-                  description: "Personalizza le tue preferenze per il calendario"
-                });
-              }}>
+              <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
                 <Settings className="h-4 w-4" />
               </Button>
             </div>
@@ -626,6 +635,213 @@ const CalendarPage: React.FC = () => {
           {renderCalendarGrid()}
         </CardContent>
       </Card>
+
+      {/* Upcoming Events Summary */}
+      <UpcomingEventsSummary events={events} activePet={activePet} />
+
+      {/* Settings Dialog */}
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Impostazioni Calendario
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* View Preferences */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Preferenze Visualizzazione</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="default-view">Vista predefinita</Label>
+                  <Select 
+                    value={settings.defaultView} 
+                    onValueChange={(value: 'month' | 'week' | 'day') => 
+                      setSettings(prev => ({ ...prev, defaultView: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="month">Mensile</SelectItem>
+                      <SelectItem value="week">Settimanale</SelectItem>
+                      <SelectItem value="day">Giornaliera</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="week-start">Inizio settimana</Label>
+                  <Select 
+                    value={settings.weekStart.toString()} 
+                    onValueChange={(value) => 
+                      setSettings(prev => ({ ...prev, weekStart: parseInt(value) }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">Domenica</SelectItem>
+                      <SelectItem value="1">Lunedì</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="show-weekends"
+                  checked={settings.showWeekends}
+                  onCheckedChange={(checked) => 
+                    setSettings(prev => ({ ...prev, showWeekends: checked }))
+                  }
+                />
+                <Label htmlFor="show-weekends">Mostra weekend</Label>
+              </div>
+            </div>
+
+            {/* Working Hours */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Orari di Lavoro</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="work-start">Inizio</Label>
+                  <Input
+                    id="work-start"
+                    type="time"
+                    value={settings.workingHours.start}
+                    onChange={(e) => 
+                      setSettings(prev => ({ 
+                        ...prev, 
+                        workingHours: { ...prev.workingHours, start: e.target.value }
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="work-end">Fine</Label>
+                  <Input
+                    id="work-end"
+                    type="time"
+                    value={settings.workingHours.end}
+                    onChange={(e) => 
+                      setSettings(prev => ({ 
+                        ...prev, 
+                        workingHours: { ...prev.workingHours, end: e.target.value }
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Event Defaults */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Impostazioni Eventi</h3>
+              
+              <div>
+                <Label htmlFor="default-duration">Durata predefinita eventi (minuti)</Label>
+                <Input
+                  id="default-duration"
+                  type="number"
+                  min="15"
+                  step="15"
+                  value={settings.defaultEventDuration}
+                  onChange={(e) => 
+                    setSettings(prev => ({ ...prev, defaultEventDuration: parseInt(e.target.value) || 60 }))
+                  }
+                />
+              </div>
+
+              <div>
+                <Label>Promemoria predefiniti</Label>
+                <div className="space-y-2 mt-2">
+                  {REMINDER_OPTIONS.map(option => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`default-reminder-${option.value}`}
+                        checked={settings.reminderDefault.includes(option.value)}
+                        onCheckedChange={(checked) => {
+                          const newReminders = checked 
+                            ? [...settings.reminderDefault, option.value]
+                            : settings.reminderDefault.filter(r => r !== option.value);
+                          setSettings(prev => ({ ...prev, reminderDefault: newReminders }));
+                        }}
+                      />
+                      <Label htmlFor={`default-reminder-${option.value}`} className="text-sm">
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Features */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Funzionalità Avanzate</h3>
+              
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="auto-save"
+                    checked={settings.autoSaveEnabled}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, autoSaveEnabled: checked }))
+                    }
+                  />
+                  <Label htmlFor="auto-save">Salvataggio automatico</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="weather-integration"
+                    checked={settings.weatherIntegration}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, weatherIntegration: checked }))
+                    }
+                  />
+                  <Label htmlFor="weather-integration">Integrazione meteo</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="mood-correlation"
+                    checked={settings.moodCorrelation}
+                    onCheckedChange={(checked) => 
+                      setSettings(prev => ({ ...prev, moodCorrelation: checked }))
+                    }
+                  />
+                  <Label htmlFor="mood-correlation">Correlazione con umore</Label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+              Annulla
+            </Button>
+            <Button onClick={() => {
+              toast({
+                title: "Impostazioni salvate",
+                description: "Le tue preferenze sono state aggiornate con successo"
+              });
+              setIsSettingsOpen(false);
+            }}>
+              Salva Impostazioni
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Upcoming Events Summary */}
       <UpcomingEventsSummary events={events} activePet={activePet} />
