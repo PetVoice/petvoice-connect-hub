@@ -456,35 +456,29 @@ const DiaryPage: React.FC = () => {
     }
   };
 
-  const playVoiceNote = (voiceNoteUrl: string) => {
+  const playVoiceNote = async (voiceNoteUrl: string) => {
     try {
-      // If it's a Supabase storage URL, get the proper public URL
-      let audioUrl = voiceNoteUrl;
-      if (voiceNoteUrl.includes('pet-media/')) {
-        // Extract the file path from the URL
-        const pathMatch = voiceNoteUrl.match(/pet-media\/(.+)$/);
-        if (pathMatch) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('pet-media')
-            .getPublicUrl(pathMatch[1]);
-          audioUrl = publicUrl;
-        }
-      }
+      console.log('Playing voice note:', voiceNoteUrl);
       
-      // Create and play audio element
-      const audio = new Audio(audioUrl);
+      // Create and play audio element directly with the URL
+      const audio = new Audio(voiceNoteUrl);
       
       // Add error handling for audio loading
       audio.addEventListener('error', (e) => {
-        console.error('Audio error:', e, 'URL:', audioUrl);
+        console.error('Audio error:', e, 'URL:', voiceNoteUrl);
         toast({
           title: "Errore",
-          description: "File audio non trovato o danneggiato",
+          description: `File audio non trovato: ${voiceNoteUrl}`,
           variant: "destructive"
         });
       });
       
+      audio.addEventListener('loadstart', () => {
+        console.log('Audio loading started');
+      });
+      
       audio.addEventListener('canplay', () => {
+        console.log('Audio can play');
         audio.play().then(() => {
           toast({
             title: "Riproduzione avviata",
@@ -984,7 +978,10 @@ const DiaryPage: React.FC = () => {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => handleDeleteClick(entry.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(entry.id);
+                      }}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
