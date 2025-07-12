@@ -104,6 +104,38 @@ const DiaryPage: React.FC = () => {
 
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Funzione per controllare se l'utente ha mai mostrato interesse per il meteo
+  const checkWeatherInterest = useCallback(async () => {
+    if (!selectedPet) return false;
+    
+    try {
+      const { data, error } = await supabase
+        .from('diary_entries')
+        .select('behavioral_tags, weather_condition, content, title')
+        .eq('pet_id', selectedPet.id)
+        .limit(50); // Controlla le ultime 50 voci
+
+      if (error) return false;
+
+      const weatherTags = ['temporale', 'caldo', 'freddo', 'rumoroso', 'silenzioso'];
+      const weatherKeywords = ['pioggia', 'sole', 'vento', 'neve', 'nebbia', 'tempesta', 'sereno', 'nuvoloso'];
+      
+      return data.some(entry => 
+        // Ha tag meteo-correlati
+        entry.behavioral_tags?.some(tag => weatherTags.includes(tag.toLowerCase())) ||
+        // Ha impostato condizioni meteo
+        entry.weather_condition ||
+        // Ha menzionato il meteo nei testi
+        weatherKeywords.some(keyword => 
+          entry.content?.toLowerCase().includes(keyword) || 
+          entry.title?.toLowerCase().includes(keyword)
+        )
+      );
+    } catch {
+      return false;
+    }
+  }, [selectedPet]);
+
   // Load entries
   const loadEntries = useCallback(async () => {
     if (!selectedPet) return;
@@ -245,6 +277,18 @@ const DiaryPage: React.FC = () => {
     return 'bg-green-500';
   };
 
+  // Controllo intelligente per il meteo: mostra toast solo se l'utente ha mostrato interesse
+  const showWeatherToastIfRelevant = useCallback(async () => {
+    const isInterested = await checkWeatherInterest();
+    if (isInterested) {
+      // Qui possiamo aggiungere la logica per il meteo reale quando sarà disponibile l'API
+      toast({
+        title: "🌤️ Condizioni meteo",
+        description: "Ricorda di considerare il meteo quando annoti il comportamento del tuo pet"
+      });
+    }
+  }, [checkWeatherInterest]);
+
   const saveEntry = async () => {
     if (!selectedPet) return;
 
@@ -285,6 +329,11 @@ const DiaryPage: React.FC = () => {
       setIsDialogOpen(false);
       resetForm();
       loadEntries();
+      
+      // Mostra suggerimento meteo intelligente solo se rilevante
+      if (!editingEntry) { // Solo per nuove voci
+        setTimeout(() => showWeatherToastIfRelevant(), 1000);
+      }
     } catch (error) {
       console.error('Error saving entry:', error);
       toast({
