@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Brain, 
   Heart, 
@@ -20,7 +21,8 @@ import {
   Calendar,
   Target,
   Activity,
-  Zap
+  Zap,
+  BarChart3
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -81,6 +83,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   );
   const [comparisonMode, setComparisonMode] = useState(false);
   const [comparedAnalyses, setComparedAnalyses] = useState<AnalysisData[]>([]);
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
 
   if (analyses.length === 0) {
     return (
@@ -638,7 +641,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   Comportamento simile osservato il {format(new Date(analyses[1].created_at), 'dd MMMM', { locale: it })} 
                   con emozione "{analyses[1].primary_emotion}" (confidenza {analyses[1].primary_confidence}%)
                 </p>
-                <Button size="sm" variant="outline" className="mt-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => {
+                    if (analyses.length >= 2) {
+                      setComparedAnalyses([selectedAnalysis, analyses[1]]);
+                      setShowComparisonModal(true);
+                    }
+                  }}
+                >
                   Confronta Analisi
                 </Button>
               </div>
@@ -661,6 +674,154 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           </CardContent>
         </Card>
       )}
+
+      {/* Comparison Modal */}
+      <Dialog open={showComparisonModal} onOpenChange={setShowComparisonModal}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Confronto Analisi Emotive
+            </DialogTitle>
+            <DialogDescription>
+              Analisi comparativa di {comparedAnalyses.length} risultati
+            </DialogDescription>
+          </DialogHeader>
+          
+          {comparedAnalyses.length > 0 && (
+            <div className="space-y-6">
+              {/* Summary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">{comparedAnalyses.length}</div>
+                    <p className="text-xs text-muted-foreground">Analisi Confrontate</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">
+                      {format(new Date(Math.min(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Periodo Analizzato</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-2xl font-bold">
+                      {(comparedAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / comparedAnalyses.length).toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">Confidenza Media</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Detailed Comparison */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {comparedAnalyses.map((analysis, index) => (
+                  <Card key={analysis.id}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        {analysis.file_type.startsWith('audio/') ? (
+                          <FileAudio className="h-5 w-5" />
+                        ) : (
+                          <FileVideo className="h-5 w-5" />
+                        )}
+                        Analisi {index + 1}
+                      </CardTitle>
+                      <CardDescription>
+                        {format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="text-center">
+                        <div className="text-4xl mb-2">
+                          {EMOTION_ICONS[analysis.primary_emotion] || '🤔'}
+                        </div>
+                        <Badge className={cn("mb-2", EMOTION_COLORS[analysis.primary_emotion])}>
+                          {analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1)}
+                        </Badge>
+                        <div className="text-lg font-bold">{analysis.primary_confidence}%</div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-sm">Emozioni Secondarie</h4>
+                        {Object.entries(analysis.secondary_emotions).slice(0, 3).map(([emotion, confidence]) => (
+                          <div key={emotion} className="flex justify-between text-sm">
+                            <span>{emotion}</span>
+                            <span>{confidence}%</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-sm mb-1">Insights</h4>
+                        <p className="text-sm text-muted-foreground line-clamp-3">
+                          {analysis.behavioral_insights}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    try {
+                      const pdf = new jsPDF();
+                      
+                      // Title
+                      pdf.setFontSize(16);
+                      pdf.setFont('helvetica', 'bold');
+                      pdf.text('CONFRONTO ANALISI EMOTIVE - PET VOICE', 20, 20);
+                      
+                      let yPosition = 40;
+                      pdf.setFontSize(14);
+                      pdf.text(`Pet: ${petName}`, 20, yPosition);
+                      yPosition += 20;
+                      
+                      comparedAnalyses.forEach((analysis, index) => {
+                        pdf.setFontSize(12);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(`ANALISI ${index + 1}`, 20, yPosition);
+                        yPosition += 10;
+                        
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 20, yPosition);
+                        yPosition += 7;
+                        pdf.text(`Emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 20, yPosition);
+                        yPosition += 7;
+                        pdf.text(`File: ${analysis.file_name}`, 20, yPosition);
+                        yPosition += 15;
+                      });
+                      
+                      const fileName = `confronto-analisi-${petName}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
+                      pdf.save(fileName);
+                      
+                      toast({
+                        title: "Download completato",
+                        description: `Report di confronto scaricato: ${fileName}`,
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Errore",
+                        description: "Impossibile generare il report PDF",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica PDF Confronto
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -314,8 +314,9 @@ const DiaryPage: React.FC = () => {
       
       toast({ title: `${dayEntries.length} voci eliminate` });
       
-      // Chiudi la modal e aggiorna gli entries
-      setDayEntriesModal({ ...dayEntriesModal, open: false });
+      // Aggiorna la modal locale per mostrare l'elenco vuoto
+      setDayEntriesModal(prev => ({ ...prev, entries: [] }));
+      
       loadEntries();
     } catch (error) {
       console.error('Error deleting all entries:', error);

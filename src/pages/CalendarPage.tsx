@@ -413,8 +413,9 @@ const CalendarPage: React.FC = () => {
       
       toast({ title: `${dayEvents.length} eventi eliminati` });
       
-      // Chiudi la modal e aggiorna gli eventi
-      setIsDayEventsDialogOpen(false);
+      // Aggiorna la modal locale per mostrare l'elenco vuoto
+      setSelectedDayEvents([]);
+      
       loadEvents();
     } catch (error) {
       console.error('Error deleting all events:', error);
