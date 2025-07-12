@@ -128,8 +128,7 @@ const DiaryPage: React.FC = () => {
     weekStart: 1, // Monday - like Calendar
     autoSaveEnabled: true,
     showMoodInCalendar: true,
-    reminderEnabled: true,
-    privacyMode: false
+    reminderEnabled: true
   });
 
   // Sync viewMode with settings.defaultView when viewMode changes
@@ -1585,7 +1584,7 @@ const DiaryPage: React.FC = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="month">Mese</SelectItem>
+                      <SelectItem value="month">Mensile</SelectItem>
                       <SelectItem value="week">Settimana</SelectItem>
                       <SelectItem value="day">Giorno</SelectItem>
                     </SelectContent>
@@ -1645,16 +1644,6 @@ const DiaryPage: React.FC = () => {
                   <Label htmlFor="reminders">Promemoria giornalieri</Label>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="privacy"
-                    checked={settings.privacyMode}
-                    onCheckedChange={(checked) => 
-                      setSettings(prev => ({ ...prev, privacyMode: checked }))
-                    }
-                  />
-                  <Label htmlFor="privacy">Modalità privacy</Label>
-                </div>
               </div>
             </div>
 
