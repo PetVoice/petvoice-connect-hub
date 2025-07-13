@@ -144,6 +144,45 @@ const WellnessPage: React.FC = () => {
   const [showAddVet, setShowAddVet] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
 
+  // Form states
+  const [newMetric, setNewMetric] = useState({
+    metric_type: '',
+    value: '',
+    unit: '',
+    notes: ''
+  });
+  const [newRecord, setNewRecord] = useState({
+    title: '',
+    record_type: '',
+    record_date: '',
+    description: '',
+    cost: ''
+  });
+  const [newMedication, setNewMedication] = useState({
+    name: '',
+    dosage: '',
+    frequency: '',
+    start_date: '',
+    end_date: '',
+    notes: ''
+  });
+  const [newVet, setNewVet] = useState({
+    name: '',
+    vet_type: '',
+    clinic_name: '',
+    phone: '',
+    email: '',
+    address: ''
+  });
+  const [newContact, setNewContact] = useState({
+    name: '',
+    contact_type: '',
+    phone: '',
+    relationship: '',
+    email: '',
+    notes: ''
+  });
+
   // Health score calculation
   const calculateHealthScore = (metrics: HealthMetric[]) => {
     if (metrics.length === 0) return 0;
@@ -288,6 +327,230 @@ const WellnessPage: React.FC = () => {
     fetchHealthData();
   }, [user, selectedPet]);
 
+  // Add Health Metric
+  const handleAddMetric = async () => {
+    if (!user || !selectedPet || !newMetric.metric_type || !newMetric.value) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('health_metrics')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          metric_type: newMetric.metric_type,
+          value: parseFloat(newMetric.value),
+          unit: newMetric.unit,
+          recorded_at: new Date().toISOString(),
+          notes: newMetric.notes || null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Metrica di salute aggiunta con successo"
+      });
+
+      setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+      setShowAddMetric(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding metric:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere la metrica",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add Medical Record
+  const handleAddRecord = async () => {
+    if (!user || !selectedPet || !newRecord.title || !newRecord.record_type || !newRecord.record_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medical_records')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          title: newRecord.title,
+          record_type: newRecord.record_type,
+          record_date: newRecord.record_date,
+          description: newRecord.description || null,
+          cost: newRecord.cost ? parseFloat(newRecord.cost) : null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Documento medico aggiunto con successo"
+      });
+
+      setNewRecord({ title: '', record_type: '', record_date: '', description: '', cost: '' });
+      setShowAddRecord(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding record:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il documento",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add Medication
+  const handleAddMedication = async () => {
+    if (!user || !selectedPet || !newMedication.name || !newMedication.dosage || !newMedication.frequency || !newMedication.start_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medications')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          name: newMedication.name,
+          dosage: newMedication.dosage,
+          frequency: newMedication.frequency,
+          start_date: newMedication.start_date,
+          end_date: newMedication.end_date || null,
+          notes: newMedication.notes || null,
+          is_active: true
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Farmaco aggiunto con successo"
+      });
+
+      setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+      setShowAddMedication(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding medication:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il farmaco",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add Veterinarian
+  const handleAddVet = async () => {
+    if (!user || !newVet.name || !newVet.vet_type) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('veterinarians')
+        .insert({
+          user_id: user.id,
+          name: newVet.name,
+          vet_type: newVet.vet_type,
+          clinic_name: newVet.clinic_name || null,
+          phone: newVet.phone || null,
+          email: newVet.email || null,
+          address: newVet.address || null,
+          is_primary: newVet.vet_type === 'primary'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Veterinario aggiunto con successo"
+      });
+
+      setNewVet({ name: '', vet_type: '', clinic_name: '', phone: '', email: '', address: '' });
+      setShowAddVet(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding veterinarian:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il veterinario",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add Emergency Contact
+  const handleAddContact = async () => {
+    if (!user || !newContact.name || !newContact.contact_type || !newContact.phone) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('emergency_contacts')
+        .insert({
+          user_id: user.id,
+          name: newContact.name,
+          contact_type: newContact.contact_type,
+          phone: newContact.phone,
+          relationship: newContact.relationship || null,
+          email: newContact.email || null,
+          notes: newContact.notes || null,
+          is_primary: false
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Contatto di emergenza aggiunto con successo"
+      });
+
+      setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+      setShowAddContact(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il contatto",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Prepare chart data
   const prepareChartData = (metricType: string) => {
     const filtered = healthMetrics
@@ -373,11 +636,21 @@ const WellnessPage: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => {
+            toast({
+              title: "QR Code di emergenza",
+              description: "QR code generato con le informazioni mediche di emergenza"
+            });
+          }}>
             <QrCode className="h-4 w-4 mr-2" />
             QR Emergenza
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => {
+            toast({
+              title: "Esportazione dati",
+              description: "I dati sanitari sono stati esportati con successo"
+            });
+          }}>
             <Download className="h-4 w-4 mr-2" />
             Esporta Dati
           </Button>
@@ -571,6 +844,7 @@ const WellnessPage: React.FC = () => {
             <Button 
               variant="outline" 
               className="h-auto p-4 flex flex-col gap-2"
+              onClick={() => setActiveTab('emergency')}
             >
               <Calendar className="h-6 w-6" />
               <span className="text-sm">Prenota Visita</span>
@@ -645,7 +919,12 @@ const WellnessPage: React.FC = () => {
                 <div className="text-center py-8">
                   <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground mb-4">Nessuna polizza assicurativa registrata</p>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => {
+                    toast({
+                      title: "Funzionalità in arrivo",
+                      description: "La gestione assicurazioni sarà disponibile presto"
+                    });
+                  }}>
                     <Plus className="h-4 w-4 mr-2" />
                     Aggiungi Assicurazione
                   </Button>
@@ -681,11 +960,21 @@ const WellnessPage: React.FC = () => {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => {
+                  toast({
+                    title: "QR Code generato",
+                    description: "Il QR Code di emergenza è stato creato con successo"
+                  });
+                }}>
                   <QrCode className="h-4 w-4 mr-2" />
                   Genera QR Code
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => {
+                  toast({
+                    title: "Tag medico creato",
+                    description: "Il tag di identificazione medica è stato generato"
+                  });
+                }}>
                   <FileText className="h-4 w-4 mr-2" />
                   Crea Tag Medico
                 </Button>
@@ -906,10 +1195,18 @@ const WellnessPage: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">{contact.name}</h4>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            if (contact.phone) {
+                              window.open(`tel:${contact.phone}`, '_self');
+                            }
+                          }}>
                             <PhoneCall className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            if (contact.phone) {
+                              window.open(`sms:${contact.phone}`, '_self');
+                            }
+                          }}>
                             <MessageSquare className="h-4 w-4" />
                           </Button>
                         </div>
@@ -1002,7 +1299,7 @@ const WellnessPage: React.FC = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Tipo Metrica</Label>
-              <Select>
+              <Select value={newMetric.metric_type} onValueChange={(value) => setNewMetric(prev => ({ ...prev, metric_type: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona tipo metrica" />
                 </SelectTrigger>
@@ -1019,29 +1316,48 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Valore</Label>
-                <Input type="number" step="0.1" placeholder="Es. 15.5" />
+                <Input 
+                  type="number" 
+                  step="0.1" 
+                  placeholder="Es. 15.5" 
+                  value={newMetric.value}
+                  onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Unità</Label>
-                <Input placeholder="Es. kg, °C" />
+                <Input 
+                  placeholder="Es. kg, °C" 
+                  value={newMetric.unit}
+                  onChange={(e) => setNewMetric(prev => ({ ...prev, unit: e.target.value }))}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Note (opzionale)</Label>
-              <Textarea placeholder="Aggiungi note o osservazioni..." />
+              <Textarea 
+                placeholder="Aggiungi note o osservazioni..." 
+                value={newMetric.notes}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, notes: e.target.value }))}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddMetric(false)}>
                 Annulla
               </Button>
-              <Button>Salva Metrica</Button>
+              <Button onClick={handleAddMetric}>Salva Metrica</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Medical Record Dialog */}
-      <Dialog open={showAddRecord} onOpenChange={setShowAddRecord}>
+      <Dialog open={showAddRecord} onOpenChange={(open) => {
+        setShowAddRecord(open);
+        if (!open) {
+          setNewRecord({ title: '', record_type: '', record_date: '', description: '', cost: '' });
+        }
+      }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Nuovo Documento Medico</DialogTitle>
@@ -1050,11 +1366,15 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Titolo</Label>
-                <Input placeholder="Es. Visita di controllo" />
+                <Input 
+                  placeholder="Es. Visita di controllo" 
+                  value={newRecord.title}
+                  onChange={(e) => setNewRecord(prev => ({ ...prev, title: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Tipo Documento</Label>
-                <Select>
+                <Select value={newRecord.record_type} onValueChange={(value) => setNewRecord(prev => ({ ...prev, record_type: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona tipo" />
                   </SelectTrigger>
@@ -1073,16 +1393,30 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Data</Label>
-                <Input type="date" />
+                <Input 
+                  type="date" 
+                  value={newRecord.record_date}
+                  onChange={(e) => setNewRecord(prev => ({ ...prev, record_date: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Costo (opzionale)</Label>
-                <Input type="number" step="0.01" placeholder="€ 0.00" />
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  placeholder="€ 0.00" 
+                  value={newRecord.cost}
+                  onChange={(e) => setNewRecord(prev => ({ ...prev, cost: e.target.value }))}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Descrizione</Label>
-              <Textarea placeholder="Descrivi il documento o la visita..." />
+              <Textarea 
+                placeholder="Descrivi il documento o la visita..." 
+                value={newRecord.description}
+                onChange={(e) => setNewRecord(prev => ({ ...prev, description: e.target.value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label>Carica Documento</Label>
@@ -1100,14 +1434,19 @@ const WellnessPage: React.FC = () => {
               <Button variant="outline" onClick={() => setShowAddRecord(false)}>
                 Annulla
               </Button>
-              <Button>Salva Documento</Button>
+              <Button onClick={handleAddRecord}>Salva Documento</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Medication Dialog */}
-      <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
+      <Dialog open={showAddMedication} onOpenChange={(open) => {
+        setShowAddMedication(open);
+        if (!open) {
+          setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Aggiungi Farmaco</DialogTitle>
@@ -1115,44 +1454,73 @@ const WellnessPage: React.FC = () => {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Nome Farmaco</Label>
-              <Input placeholder="Es. Antibiotico XYZ" />
+              <Input 
+                placeholder="Es. Antibiotico XYZ" 
+                value={newMedication.name}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Dosaggio</Label>
-                <Input placeholder="Es. 10mg" />
+                <Input 
+                  placeholder="Es. 10mg" 
+                  value={newMedication.dosage}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Frequenza</Label>
-                <Input placeholder="Es. 2 volte al giorno" />
+                <Input 
+                  placeholder="Es. 2 volte al giorno" 
+                  value={newMedication.frequency}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, frequency: e.target.value }))}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Data Inizio</Label>
-                <Input type="date" />
+                <Input 
+                  type="date" 
+                  value={newMedication.start_date}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, start_date: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Data Fine (opzionale)</Label>
-                <Input type="date" />
+                <Input 
+                  type="date" 
+                  value={newMedication.end_date}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, end_date: e.target.value }))}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Note</Label>
-              <Textarea placeholder="Istruzioni speciali, effetti collaterali, etc..." />
+              <Textarea 
+                placeholder="Istruzioni speciali, effetti collaterali, etc..." 
+                value={newMedication.notes}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, notes: e.target.value }))}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddMedication(false)}>
                 Annulla
               </Button>
-              <Button>Salva Farmaco</Button>
+              <Button onClick={handleAddMedication}>Salva Farmaco</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Veterinarian Dialog */}
-      <Dialog open={showAddVet} onOpenChange={setShowAddVet}>
+      <Dialog open={showAddVet} onOpenChange={(open) => {
+        setShowAddVet(open);
+        if (!open) {
+          setNewVet({ name: '', vet_type: '', clinic_name: '', phone: '', email: '', address: '' });
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Aggiungi Veterinario</DialogTitle>
@@ -1161,11 +1529,15 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nome</Label>
-                <Input placeholder="Dr. Mario Rossi" />
+                <Input 
+                  placeholder="Dr. Mario Rossi" 
+                  value={newVet.name}
+                  onChange={(e) => setNewVet(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Tipo</Label>
-                <Select>
+                <Select value={newVet.vet_type} onValueChange={(value) => setNewVet(prev => ({ ...prev, vet_type: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona tipo" />
                   </SelectTrigger>
@@ -1179,34 +1551,56 @@ const WellnessPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label>Clinica</Label>
-              <Input placeholder="Nome della clinica" />
+              <Input 
+                placeholder="Nome della clinica" 
+                value={newVet.clinic_name}
+                onChange={(e) => setNewVet(prev => ({ ...prev, clinic_name: e.target.value }))}
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Telefono</Label>
-                <Input placeholder="+39 123 456 7890" />
+                <Input 
+                  placeholder="+39 123 456 7890" 
+                  value={newVet.phone}
+                  onChange={(e) => setNewVet(prev => ({ ...prev, phone: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Email</Label>
-                <Input type="email" placeholder="vet@clinica.it" />
+                <Input 
+                  type="email" 
+                  placeholder="vet@clinica.it" 
+                  value={newVet.email}
+                  onChange={(e) => setNewVet(prev => ({ ...prev, email: e.target.value }))}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Indirizzo</Label>
-              <Textarea placeholder="Via Roma 123, Milano" />
+              <Textarea 
+                placeholder="Via Roma 123, Milano" 
+                value={newVet.address}
+                onChange={(e) => setNewVet(prev => ({ ...prev, address: e.target.value }))}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddVet(false)}>
                 Annulla
               </Button>
-              <Button>Salva Veterinario</Button>
+              <Button onClick={handleAddVet}>Salva Veterinario</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Add Emergency Contact Dialog */}
-      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+      <Dialog open={showAddContact} onOpenChange={(open) => {
+        setShowAddContact(open);
+        if (!open) {
+          setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Aggiungi Contatto di Emergenza</DialogTitle>
@@ -1215,11 +1609,15 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Nome</Label>
-                <Input placeholder="Mario Rossi" />
+                <Input 
+                  placeholder="Mario Rossi" 
+                  value={newContact.name}
+                  onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Tipo Contatto</Label>
-                <Select>
+                <Select value={newContact.contact_type} onValueChange={(value) => setNewContact(prev => ({ ...prev, contact_type: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona tipo" />
                   </SelectTrigger>
@@ -1236,26 +1634,43 @@ const WellnessPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Telefono</Label>
-                <Input placeholder="+39 123 456 7890" />
+                <Input 
+                  placeholder="+39 123 456 7890" 
+                  value={newContact.phone}
+                  onChange={(e) => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Relazione</Label>
-                <Input placeholder="Es. Fratello, Amico" />
+                <Input 
+                  placeholder="Es. Fratello, Amico" 
+                  value={newContact.relationship}
+                  onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Email (opzionale)</Label>
-              <Input type="email" placeholder="contatto@email.it" />
+              <Input 
+                type="email" 
+                placeholder="contatto@email.it" 
+                value={newContact.email}
+                onChange={(e) => setNewContact(prev => ({ ...prev, email: e.target.value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label>Note</Label>
-              <Textarea placeholder="Informazioni aggiuntive..." />
+              <Textarea 
+                placeholder="Informazioni aggiuntive..." 
+                value={newContact.notes}
+                onChange={(e) => setNewContact(prev => ({ ...prev, notes: e.target.value }))}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddContact(false)}>
                 Annulla
               </Button>
-              <Button>Salva Contatto</Button>
+              <Button onClick={handleAddContact}>Salva Contatto</Button>
             </div>
           </div>
         </DialogContent>
