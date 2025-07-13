@@ -376,13 +376,23 @@ const WellnessPage = () => {
       return;
     }
 
+    // Validate required fields
+    if (!newDocument.title.trim()) {
+      toast({
+        title: "Errore",
+        description: "Il titolo del documento è obbligatorio",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsUploading(true);
       
       const fileExt = file.name.split('.').pop();
       const fileName = `medical-documents/${selectedPet.id}/${Date.now()}.${fileExt}`;
       
-      // Upload file to storage
+      // Upload file to storage with proper error handling
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pet-media')
         .upload(fileName, file, {
@@ -392,6 +402,10 @@ const WellnessPage = () => {
 
       if (uploadError) {
         console.error('Storage upload error:', uploadError);
+        // More specific error handling
+        if (uploadError.message.includes('row-level security')) {
+          throw new Error('Permessi insufficienti per il caricamento. Contatta l\'amministratore.');
+        }
         throw new Error(`Errore caricamento file: ${uploadError.message}`);
       }
 
@@ -400,17 +414,19 @@ const WellnessPage = () => {
         .from('pet-media')
         .getPublicUrl(fileName);
 
-      // Create medical record
+      // Create medical record with explicit user_id
       const recordData = {
         user_id: user.id,
         pet_id: selectedPet.id,
-        title: newDocument.title || file.name,
-        description: newDocument.description || null,
+        title: newDocument.title.trim(),
+        description: newDocument.description?.trim() || null,
         record_type: newDocument.record_type || 'documento',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         document_url: publicUrl,
-        notes: newDocument.notes || null
+        notes: newDocument.notes?.trim() || null
       };
+
+      console.log('Inserting record with data:', recordData);
 
       const { data: recordResult, error: recordError } = await supabase
         .from('medical_records')
@@ -419,6 +435,8 @@ const WellnessPage = () => {
 
       if (recordError) {
         console.error('Database insert error:', recordError);
+        // Delete uploaded file if database insert fails
+        await supabase.storage.from('pet-media').remove([fileName]);
         throw new Error(`Errore database: ${recordError.message}`);
       }
 
@@ -429,6 +447,7 @@ const WellnessPage = () => {
 
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
       setShowAddDocument(false);
+      setEditingDocument(null);
       fetchHealthData();
     } catch (error: any) {
       console.error('Error uploading document:', error);
@@ -586,6 +605,128 @@ const WellnessPage = () => {
   };
 
   // Add functions for other CRUD operations...
+  const handleAddMedication = async () => {
+    if (!user || !selectedPet || !newMedication.name) {
+      toast({
+        title: "Errore",
+        description: "Nome del farmaco è obbligatorio",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const medicationData = {
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        name: newMedication.name,
+        dosage: newMedication.dosage,
+        frequency: newMedication.frequency,
+        start_date: newMedication.start_date || new Date().toISOString().split('T')[0],
+        end_date: newMedication.end_date || null,
+        notes: newMedication.notes || null,
+        is_active: true
+      };
+
+      if (editingMedication) {
+        const { error } = await supabase
+          .from('medications')
+          .update(medicationData)
+          .eq('id', editingMedication.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Farmaco aggiornato con successo"
+        });
+      } else {
+        const { error } = await supabase
+          .from('medications')
+          .insert(medicationData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Farmaco aggiunto con successo"
+        });
+      }
+
+      setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+      setEditingMedication(null);
+      setShowAddMedication(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error saving medication:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il farmaco",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddMetric = async () => {
+    if (!user || !selectedPet || !newMetric.metric_type || !newMetric.value) {
+      toast({
+        title: "Errore",
+        description: "Tipo metrica e valore sono obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const metricData = {
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        metric_type: newMetric.metric_type,
+        value: parseFloat(newMetric.value),
+        unit: newMetric.unit || null,
+        notes: newMetric.notes || null,
+        recorded_at: new Date().toISOString()
+      };
+
+      if (editingMetric) {
+        const { error } = await supabase
+          .from('health_metrics')
+          .update(metricData)
+          .eq('id', editingMetric.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Metrica aggiornata con successo"
+        });
+      } else {
+        const { error } = await supabase
+          .from('health_metrics')
+          .insert(metricData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Metrica aggiunta con successo"
+        });
+      }
+
+      setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+      setEditingMetric(null);
+      setShowAddMetric(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error saving metric:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare la metrica",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleAddVet = async () => {
     if (!user || !newVet.name) {
       toast({
@@ -816,6 +957,129 @@ const WellnessPage = () => {
     });
   };
 
+  const handleAddContact = async () => {
+    if (!user || !newContact.name || !newContact.phone) {
+      toast({
+        title: "Errore",
+        description: "Nome e telefono sono obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const contactData = {
+        user_id: user.id,
+        name: newContact.name,
+        contact_type: newContact.contact_type || 'family',
+        phone: newContact.phone,
+        relationship: newContact.relationship || null,
+        email: newContact.email || null,
+        notes: newContact.notes || null
+      };
+
+      if (editingContact) {
+        const { error } = await supabase
+          .from('emergency_contacts')
+          .update(contactData)
+          .eq('id', editingContact.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Contatto aggiornato con successo"
+        });
+      } else {
+        const { error } = await supabase
+          .from('emergency_contacts')
+          .insert(contactData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Contatto aggiunto con successo"
+        });
+      }
+
+      setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+      setEditingContact(null);
+      setShowAddContact(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error saving contact:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il contatto",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAddInsurance = async () => {
+    if (!user || !selectedPet || !newInsurance.provider_name || !newInsurance.policy_number) {
+      toast({
+        title: "Errore",
+        description: "Provider e numero polizza sono obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const insuranceData = {
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        provider_name: newInsurance.provider_name,
+        policy_number: newInsurance.policy_number,
+        policy_type: newInsurance.policy_type || null,
+        start_date: newInsurance.start_date || new Date().toISOString().split('T')[0],
+        end_date: newInsurance.end_date || null,
+        premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
+        deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
+        is_active: true
+      };
+
+      if (editingInsurance) {
+        const { error } = await supabase
+          .from('pet_insurance')
+          .update(insuranceData)
+          .eq('id', editingInsurance.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Assicurazione aggiornata con successo"
+        });
+      } else {
+        const { error } = await supabase
+          .from('pet_insurance')
+          .insert(insuranceData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Assicurazione aggiunta con successo"
+        });
+      }
+
+      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+      setEditingInsurance(null);
+      setShowAddInsurance(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error saving insurance:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare l'assicurazione",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Calculate health metrics for dashboard
   const getLastCheckup = () => {
     const checkups = medicalRecords.filter(r => r.record_type === 'visita' || r.record_type === 'controllo');
@@ -875,12 +1139,34 @@ const WellnessPage = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="profile">Profilo Medico</TabsTrigger>
-          <TabsTrigger value="documents">Documenti</TabsTrigger>
-          <TabsTrigger value="monitoring">Monitoraggio</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="emergency">Emergenze</TabsTrigger>
+          <TabsTrigger value="dashboard">
+            <Activity className="h-4 w-4 mr-2" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="profile">
+            <User className="h-4 w-4 mr-2" />
+            Profilo Medico
+          </TabsTrigger>
+          <TabsTrigger value="documents">
+            <FileText className="h-4 w-4 mr-2" />
+            Documenti
+          </TabsTrigger>
+          <TabsTrigger value="monitoring">
+            <Stethoscope className="h-4 w-4 mr-2" />
+            Monitoraggio
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
+        
+        {/* Emergency Tab in a separate row */}
+        <TabsList className="grid w-full grid-cols-1 mt-2">
+          <TabsTrigger value="emergency">
+            <Siren className="h-4 w-4 mr-2" />
+            Emergenze
+          </TabsTrigger>
         </TabsList>
 
         {/* Dashboard Tab */}
@@ -1278,7 +1564,7 @@ const WellnessPage = () => {
               <div className="flex gap-2 mt-6">
                 <Button 
                   onClick={handleSaveMedicalId}
-                  className="petvoice-button"
+                  className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_0_4px_hsl(var(--primary)/0.1)]"
                 >
                   Salva Informazioni
                 </Button>
@@ -1390,7 +1676,18 @@ const WellnessPage = () => {
                   </CardTitle>
                   <Button 
                     size="sm" 
-                    onClick={() => setShowAddMedication(true)}
+                    onClick={() => {
+                      setEditingMedication(null);
+                      setNewMedication({
+                        name: '',
+                        dosage: '',
+                        frequency: '',
+                        start_date: '',
+                        end_date: '',
+                        notes: ''
+                      });
+                      setShowAddMedication(true);
+                    }}
                     className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
                   >
                     <Plus className="h-4 w-4 mr-1" />
@@ -1476,7 +1773,16 @@ const WellnessPage = () => {
                   </CardTitle>
                   <Button 
                     size="sm" 
-                    onClick={() => setShowAddMetric(true)}
+                    onClick={() => {
+                      setEditingMetric(null);
+                      setNewMetric({
+                        metric_type: '',
+                        value: '',
+                        unit: '',
+                        notes: ''
+                      });
+                      setShowAddMetric(true);
+                    }}
                     className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
                   >
                     <Plus className="h-4 w-4 mr-1" />
@@ -1947,7 +2253,422 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
         onOpenChange={setShowFirstAidGuide} 
       />
 
-      {/* Add other dialogs for vets, medications, etc. with similar patterns... */}
+      {/* Add Medication Dialog */}
+      <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingMedication ? 'Modifica Farmaco' : 'Nuovo Farmaco'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="med_name">Nome Farmaco *</Label>
+              <Input
+                id="med_name"
+                value={newMedication.name}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="es. Antibiotico"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dosage">Dosaggio *</Label>
+              <Input
+                id="dosage"
+                value={newMedication.dosage}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                placeholder="es. 10mg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="frequency">Frequenza *</Label>
+              <Input
+                id="frequency"
+                value={newMedication.frequency}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, frequency: e.target.value }))}
+                placeholder="es. 2 volte al giorno"
+              />
+            </div>
+            <div>
+              <Label htmlFor="start_date">Data Inizio</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={newMedication.start_date}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, start_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="end_date">Data Fine (opzionale)</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={newMedication.end_date}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, end_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="med_notes">Note</Label>
+              <Textarea
+                id="med_notes"
+                value={newMedication.notes}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Note aggiuntive"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddMedication(false);
+                setEditingMedication(null);
+                setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddMedication}>
+              {editingMedication ? 'Aggiorna' : 'Salva'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Metric Dialog */}
+      <Dialog open={showAddMetric} onOpenChange={setShowAddMetric}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingMetric ? 'Modifica Metrica' : 'Nuova Metrica Salute'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="metric_type">Tipo Metrica *</Label>
+              <Select value={newMetric.metric_type} onValueChange={(value) => setNewMetric(prev => ({ ...prev, metric_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="peso">Peso</SelectItem>
+                  <SelectItem value="temperatura">Temperatura</SelectItem>
+                  <SelectItem value="pressione">Pressione</SelectItem>
+                  <SelectItem value="battito">Battito Cardiaco</SelectItem>
+                  <SelectItem value="altro">Altro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="value">Valore *</Label>
+              <Input
+                id="value"
+                type="number"
+                step="0.1"
+                value={newMetric.value}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
+                placeholder="es. 38.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="unit">Unità di Misura</Label>
+              <Input
+                id="unit"
+                value={newMetric.unit}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, unit: e.target.value }))}
+                placeholder="es. °C, kg, bpm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="metric_notes">Note</Label>
+              <Textarea
+                id="metric_notes"
+                value={newMetric.notes}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Note aggiuntive"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddMetric(false);
+                setEditingMetric(null);
+                setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddMetric}>
+              {editingMetric ? 'Aggiorna' : 'Salva'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Emergency Contact Dialog */}
+      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingContact ? 'Modifica Contatto' : 'Nuovo Contatto di Emergenza'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="contact_name">Nome *</Label>
+              <Input
+                id="contact_name"
+                value={newContact.name}
+                onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="es. Mario Rossi"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact_phone">Telefono *</Label>
+              <Input
+                id="contact_phone"
+                type="tel"
+                value={newContact.phone}
+                onChange={(e) => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="es. +39 123 456 7890"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact_type">Tipo Contatto</Label>
+              <Select value={newContact.contact_type} onValueChange={(value) => setNewContact(prev => ({ ...prev, contact_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="family">Famiglia</SelectItem>
+                  <SelectItem value="friend">Amico</SelectItem>
+                  <SelectItem value="vet">Veterinario</SelectItem>
+                  <SelectItem value="other">Altro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="relationship">Relazione</Label>
+              <Input
+                id="relationship"
+                value={newContact.relationship}
+                onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
+                placeholder="es. Fratello, Vicino"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact_email">Email</Label>
+              <Input
+                id="contact_email"
+                type="email"
+                value={newContact.email}
+                onChange={(e) => setNewContact(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="es. mario@email.com"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddContact(false);
+                setEditingContact(null);
+                setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddContact}>
+              {editingContact ? 'Aggiorna' : 'Salva'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Insurance Dialog */}
+      <Dialog open={showAddInsurance} onOpenChange={setShowAddInsurance}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingInsurance ? 'Modifica Assicurazione' : 'Nuova Assicurazione'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="provider_name">Provider *</Label>
+              <Input
+                id="provider_name"
+                value={newInsurance.provider_name}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, provider_name: e.target.value }))}
+                placeholder="es. Assicurazioni Generali"
+              />
+            </div>
+            <div>
+              <Label htmlFor="policy_number">Numero Polizza *</Label>
+              <Input
+                id="policy_number"
+                value={newInsurance.policy_number}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, policy_number: e.target.value }))}
+                placeholder="es. POL123456789"
+              />
+            </div>
+            <div>
+              <Label htmlFor="policy_type">Tipo Polizza</Label>
+              <Select value={newInsurance.policy_type} onValueChange={(value) => setNewInsurance(prev => ({ ...prev, policy_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Base</SelectItem>
+                  <SelectItem value="comprehensive">Completa</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="insurance_start_date">Data Inizio</Label>
+              <Input
+                id="insurance_start_date"
+                type="date"
+                value={newInsurance.start_date}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, start_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="insurance_end_date">Data Fine</Label>
+              <Input
+                id="insurance_end_date"
+                type="date"
+                value={newInsurance.end_date}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, end_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="premium_amount">Premio Annuale (€)</Label>
+              <Input
+                id="premium_amount"
+                type="number"
+                step="0.01"
+                value={newInsurance.premium_amount}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, premium_amount: e.target.value }))}
+                placeholder="es. 250.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="deductible">Franchigia (€)</Label>
+              <Input
+                id="deductible"
+                type="number"
+                step="0.01"
+                value={newInsurance.deductible}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, deductible: e.target.value }))}
+                placeholder="es. 100.00"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddInsurance(false);
+                setEditingInsurance(null);
+                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddInsurance}>
+              {editingInsurance ? 'Aggiorna' : 'Salva'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Veterinarian Dialog */}
+      <Dialog open={showAddVet} onOpenChange={setShowAddVet}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingVet ? 'Modifica Veterinario' : 'Nuovo Veterinario'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="vet_name">Nome *</Label>
+              <Input
+                id="vet_name"
+                value={newVet.name}
+                onChange={(e) => setNewVet(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="es. Dr. Mario Rossi"
+              />
+            </div>
+            <div>
+              <Label htmlFor="clinic_name">Nome Clinica</Label>
+              <Input
+                id="clinic_name"
+                value={newVet.clinic_name}
+                onChange={(e) => setNewVet(prev => ({ ...prev, clinic_name: e.target.value }))}
+                placeholder="es. Clinica Veterinaria Roma"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vet_phone">Telefono</Label>
+              <Input
+                id="vet_phone"
+                type="tel"
+                value={newVet.phone}
+                onChange={(e) => setNewVet(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="es. +39 123 456 7890"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vet_email">Email</Label>
+              <Input
+                id="vet_email"
+                type="email"
+                value={newVet.email}
+                onChange={(e) => setNewVet(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="es. vet@clinica.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vet_address">Indirizzo</Label>
+              <Input
+                id="vet_address"
+                value={newVet.address}
+                onChange={(e) => setNewVet(prev => ({ ...prev, address: e.target.value }))}
+                placeholder="es. Via Roma 123, Milano"
+              />
+            </div>
+            <div>
+              <Label htmlFor="specialization">Specializzazione</Label>
+              <Input
+                id="specialization"
+                value={newVet.specialization}
+                onChange={(e) => setNewVet(prev => ({ ...prev, specialization: e.target.value }))}
+                placeholder="es. Cardiologia, Neurologia"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddVet(false);
+                setEditingVet(null);
+                setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddVet}>
+              {editingVet ? 'Aggiorna' : 'Salva'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Dialog */}
       <ConfirmDialog
