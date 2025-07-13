@@ -56,6 +56,7 @@ import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore
 import { it } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import jsPDF from 'jspdf';
 
 interface HealthMetric {
@@ -149,6 +150,19 @@ const WellnessPage = () => {
   const [showAddContact, setShowAddContact] = useState(false);
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
+  
+  // Confirm dialog states
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    onConfirm: () => {}
+  });
   
   // Form states
   const [newDocument, setNewDocument] = useState({
@@ -616,148 +630,190 @@ const WellnessPage = () => {
     }
   };
 
-  const handleDeleteVet = async (vetId: string) => {
-    try {
-      const { error } = await supabase
-        .from('veterinarians')
-        .delete()
-        .eq('id', vetId);
+  const handleDeleteVet = (vetId: string, vetName: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Veterinario",
+      description: `Sei sicuro di voler eliminare il veterinario "${vetName}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('veterinarians')
+            .delete()
+            .eq('id', vetId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Veterinario eliminato"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting vet:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il veterinario",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Veterinario eliminato con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting vet:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare il veterinario",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
-  const handleDeleteRecord = async (recordId: string) => {
-    try {
-      const { error } = await supabase
-        .from('medical_records')
-        .delete()
-        .eq('id', recordId);
+  const handleDeleteRecord = (recordId: string, recordTitle: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Documento",
+      description: `Sei sicuro di voler eliminare il documento "${recordTitle}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('medical_records')
+            .delete()
+            .eq('id', recordId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Documento eliminato"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting record:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il documento",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Documento eliminato con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting record:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare il documento",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
-  const handleDeleteMedication = async (medicationId: string) => {
-    try {
-      const { error } = await supabase
-        .from('medications')
-        .delete()
-        .eq('id', medicationId);
+  const handleDeleteMedication = (medicationId: string, medicationName: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Farmaco",
+      description: `Sei sicuro di voler eliminare il farmaco "${medicationName}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('medications')
+            .delete()
+            .eq('id', medicationId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Farmaco eliminato"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting medication:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il farmaco",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Farmaco eliminato con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting medication:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare il farmaco",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
-  const handleDeleteMetric = async (metricId: string) => {
-    try {
-      const { error } = await supabase
-        .from('health_metrics')
-        .delete()
-        .eq('id', metricId);
+  const handleDeleteMetric = (metricId: string, metricType: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Metrica",
+      description: `Sei sicuro di voler eliminare questa metrica di "${metricType}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('health_metrics')
+            .delete()
+            .eq('id', metricId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Metrica eliminata"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting metric:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare la metrica",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Metrica eliminata con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting metric:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare la metrica",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
-  const handleDeleteContact = async (contactId: string) => {
-    try {
-      const { error } = await supabase
-        .from('emergency_contacts')
-        .delete()
-        .eq('id', contactId);
+  const handleDeleteContact = (contactId: string, contactName: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Contatto di Emergenza",
+      description: `Sei sicuro di voler eliminare il contatto "${contactName}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('emergency_contacts')
+            .delete()
+            .eq('id', contactId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Contatto eliminato"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting contact:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il contatto",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Contatto eliminato con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting contact:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare il contatto",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
-  const handleDeleteInsurance = async (insuranceId: string) => {
-    try {
-      const { error } = await supabase
-        .from('pet_insurance')
-        .delete()
-        .eq('id', insuranceId);
+  const handleDeleteInsurance = (insuranceId: string, providerName: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Assicurazione",
+      description: `Sei sicuro di voler eliminare l'assicurazione "${providerName}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('pet_insurance')
+            .delete()
+            .eq('id', insuranceId);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Assicurazione eliminata"
-      });
-      fetchHealthData();
-    } catch (error) {
-      console.error('Error deleting insurance:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'assicurazione",
-        variant: "destructive"
-      });
-    }
+          toast({
+            title: "Successo",
+            description: "Assicurazione eliminata con successo"
+          });
+          fetchHealthData();
+        } catch (error) {
+          console.error('Error deleting insurance:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare l'assicurazione",
+            variant: "destructive"
+          });
+        }
+      }
+    });
   };
 
   // Calculate health metrics for dashboard
@@ -1056,7 +1112,7 @@ const WellnessPage = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => handleDeleteVet(vet.id)}
+                            onClick={() => handleDeleteVet(vet.id, vet.name)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -1132,7 +1188,7 @@ const WellnessPage = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost"
-                                onClick={() => handleDeleteInsurance(insurance.id)}
+                                onClick={() => handleDeleteInsurance(insurance.id, insurance.provider_name)}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
@@ -1222,7 +1278,7 @@ const WellnessPage = () => {
               <div className="flex gap-2 mt-6">
                 <Button 
                   onClick={handleSaveMedicalId}
-                  className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                  className="petvoice-button"
                 >
                   Salva Informazioni
                 </Button>
@@ -1308,7 +1364,7 @@ const WellnessPage = () => {
                         <Button 
                           size="sm" 
                           variant="ghost"
-                          onClick={() => handleDeleteRecord(record.id)}
+                          onClick={() => handleDeleteRecord(record.id, record.title)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -1389,7 +1445,7 @@ const WellnessPage = () => {
                               <Button 
                                 size="sm" 
                                 variant="ghost"
-                                onClick={() => handleDeleteMedication(med.id)}
+                                onClick={() => handleDeleteMedication(med.id, med.name)}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
@@ -1466,7 +1522,7 @@ const WellnessPage = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => handleDeleteMetric(metric.id)}
+                            onClick={() => handleDeleteMetric(metric.id, metric.metric_type)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -1643,7 +1699,7 @@ const WellnessPage = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => handleDeleteContact(contact.id)}
+                            onClick={() => handleDeleteContact(contact.id, contact.name)}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -1795,25 +1851,46 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 placeholder="Note aggiuntive"
               />
             </div>
-            <div>
-              <Label htmlFor="file">File</Label>
-              <Input
-                id="file"
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    if (editingDocument) {
-                      // For editing, update the document first then upload
-                      handleUploadDocument(file);
-                    } else {
-                      // For new documents, upload directly
-                      handleUploadDocument(file);
-                    }
-                  }
-                }}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="file">Carica File</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                <div className="space-y-2">
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                  <div>
+                    <label htmlFor="file" className="cursor-pointer">
+                      <span className="text-primary font-medium hover:text-primary/80">Clicca per selezionare</span>
+                      <span className="text-muted-foreground"> o trascina qui il file</span>
+                    </label>
+                    <Input
+                      id="file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (editingDocument) {
+                            // For editing, update the document first then upload
+                            handleUploadDocument(file);
+                          } else {
+                            // For new documents, upload directly
+                            handleUploadDocument(file);
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    PDF, JPG, PNG, DOC, DOCX fino a 10MB
+                  </p>
+                </div>
+              </div>
+              {isUploading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Caricamento in corso...
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <Button onClick={() => setShowAddDocument(false)} variant="outline">
@@ -1871,6 +1948,16 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
       />
 
       {/* Add other dialogs for vets, medications, etc. with similar patterns... */}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
+      />
     </div>
   );
 };
