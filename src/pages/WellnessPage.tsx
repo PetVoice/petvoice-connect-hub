@@ -390,7 +390,7 @@ const WellnessPage = () => {
       setIsUploading(true);
       
       const fileExt = file.name.split('.').pop();
-      const fileName = `medical-documents/${selectedPet.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/medical-documents/${selectedPet.id}/${Date.now()}.${fileExt}`;
       
       console.log('Starting file upload...', { fileName, fileSize: file.size });
       
