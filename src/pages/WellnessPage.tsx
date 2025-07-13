@@ -55,6 +55,7 @@ import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, subMonths, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 
 interface HealthMetric {
@@ -1653,9 +1654,10 @@ Generato: ${new Date().toLocaleDateString('it-IT')}
                         </div>
                         {insurance.premium_amount && (
                           <p className="text-sm">Premio: €{insurance.premium_amount}/anno</p>
-                        )}
-                      </div>
-                    ))}
+                         )}
+                       </div>
+                     );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -1838,9 +1840,9 @@ Generato: ${new Date().toLocaleDateString('it-IT')}
                             </AlertDescription>
                           </Alert>
                         )}
-                      );
-                    })}
-                   </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -1871,9 +1873,10 @@ Generato: ${new Date().toLocaleDateString('it-IT')}
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {medications.filter(m => m.is_active).length === 0 ? (
+                  {medications.filter(m => getMedicationStatus(m) === 'active').length === 0 ? (
                     <p className="text-muted-foreground text-center py-4">Nessun farmaco attivo</p>
-                   ) : (
+                  ) : (
+                    medications.filter(m => getMedicationStatus(m) === 'active').map(med => {
                       const medStatus = getMedicationStatus(med);
                       return (
                         <div 
