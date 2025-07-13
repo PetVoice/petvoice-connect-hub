@@ -392,7 +392,9 @@ const WellnessPage = () => {
       const fileExt = file.name.split('.').pop();
       const fileName = `medical-documents/${selectedPet.id}/${Date.now()}.${fileExt}`;
       
-      // Upload file to storage with proper error handling
+      console.log('Starting file upload...', { fileName, fileSize: file.size });
+      
+      // Upload file to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pet-media')
         .upload(fileName, file, {
@@ -402,17 +404,17 @@ const WellnessPage = () => {
 
       if (uploadError) {
         console.error('Storage upload error:', uploadError);
-        // More specific error handling
-        if (uploadError.message.includes('row-level security')) {
-          throw new Error('Permessi insufficienti per il caricamento. Contatta l\'amministratore.');
-        }
         throw new Error(`Errore caricamento file: ${uploadError.message}`);
       }
+
+      console.log('File uploaded successfully:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('pet-media')
         .getPublicUrl(fileName);
+
+      console.log('Public URL generated:', publicUrl);
 
       // Create medical record with explicit user_id
       const recordData = {
@@ -440,20 +442,100 @@ const WellnessPage = () => {
         throw new Error(`Errore database: ${recordError.message}`);
       }
 
+      console.log('Record created successfully:', recordResult);
+
       toast({
         title: "Successo",
         description: "Documento caricato con successo"
       });
+
+      // Reset form and close dialog
+      setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
+      setShowAddDocument(false);
+      setEditingDocument(null);
+      
+      // Refresh data
+      fetchHealthData();
+      
+    } catch (error: any) {
+      console.error('Error uploading document:', error);
+      toast({
+        title: "Errore di caricamento",
+        description: error.message || "Impossibile caricare il documento. Verifica la connessione e riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Save document without file upload
+  const handleSaveDocumentOnly = async () => {
+    if (!user || !selectedPet) {
+      toast({
+        title: "Errore",
+        description: "Devi essere autenticato e avere un pet selezionato",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newDocument.title.trim()) {
+      toast({
+        title: "Errore",
+        description: "Il titolo del documento è obbligatorio",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+
+      const recordData = {
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        title: newDocument.title.trim(),
+        description: newDocument.description?.trim() || null,
+        record_type: newDocument.record_type || 'documento',
+        record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
+        notes: newDocument.notes?.trim() || null
+      };
+
+      if (editingDocument) {
+        const { error } = await supabase
+          .from('medical_records')
+          .update(recordData)
+          .eq('id', editingDocument.id);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Documento aggiornato con successo"
+        });
+      } else {
+        const { error } = await supabase
+          .from('medical_records')
+          .insert(recordData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Successo",
+          description: "Documento salvato con successo"
+        });
+      }
 
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
       setShowAddDocument(false);
       setEditingDocument(null);
       fetchHealthData();
     } catch (error: any) {
-      console.error('Error uploading document:', error);
+      console.error('Error saving document:', error);
       toast({
-        title: "Errore di caricamento",
-        description: error.message || "Impossibile caricare il documento. Verifica la connessione e riprova.",
+        title: "Errore",
+        description: error.message || "Impossibile salvare il documento",
         variant: "destructive"
       });
     } finally {
@@ -1564,7 +1646,7 @@ const WellnessPage = () => {
               <div className="flex gap-2 mt-6">
                 <Button 
                   onClick={handleSaveMedicalId}
-                  className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_0_0_4px_hsl(var(--primary)/0.1)]"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   Salva Informazioni
                 </Button>
@@ -2198,50 +2280,24 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button onClick={() => setShowAddDocument(false)} variant="outline">
+            <div className="flex gap-2 pt-4 border-t">
+              <Button 
+                onClick={() => {
+                  setShowAddDocument(false);
+                  setEditingDocument(null);
+                  setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
+                }} 
+                variant="outline"
+                disabled={isUploading}
+              >
                 Annulla
               </Button>
-              {editingDocument && (
-                <Button 
-                  onClick={async () => {
-                    // Handle document update
-                    try {
-                      const { error } = await supabase
-                        .from('medical_records')
-                        .update({
-                          title: newDocument.title,
-                          description: newDocument.description || null,
-                          record_type: newDocument.record_type,
-                          record_date: newDocument.record_date,
-                          notes: newDocument.notes || null
-                        })
-                        .eq('id', editingDocument.id);
-
-                      if (error) throw error;
-
-                      toast({
-                        title: "Successo",
-                        description: "Documento aggiornato con successo"
-                      });
-
-                      setEditingDocument(null);
-                      setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
-                      setShowAddDocument(false);
-                      fetchHealthData();
-                    } catch (error) {
-                      console.error('Error updating document:', error);
-                      toast({
-                        title: "Errore",
-                        description: "Impossibile aggiornare il documento",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                >
-                  Aggiorna
-                </Button>
-              )}
+              <Button 
+                onClick={handleSaveDocumentOnly}
+                disabled={isUploading || !newDocument.title.trim()}
+              >
+                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna' : 'Salva Documento'}
+              </Button>
             </div>
           </div>
         </DialogContent>
