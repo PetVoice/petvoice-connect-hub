@@ -1220,7 +1220,7 @@ const WellnessPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard">
             <Activity className="h-4 w-4 mr-2" />
             Dashboard
@@ -1241,10 +1241,6 @@ const WellnessPage = () => {
             <TrendingUp className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
-        </TabsList>
-        
-        {/* Emergency Tab in a separate row */}
-        <TabsList className="grid w-full grid-cols-1 mt-2">
           <TabsTrigger value="emergency">
             <Siren className="h-4 w-4 mr-2" />
             Emergenze
@@ -2280,25 +2276,123 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 </div>
               )}
             </div>
-            <div className="flex gap-2 pt-4 border-t">
-              <Button 
-                onClick={() => {
-                  setShowAddDocument(false);
-                  setEditingDocument(null);
-                  setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
-                }} 
-                variant="outline"
-                disabled={isUploading}
-              >
-                Annulla
-              </Button>
-              <Button 
-                onClick={handleSaveDocumentOnly}
-                disabled={isUploading || !newDocument.title.trim()}
-              >
-                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna' : 'Salva Documento'}
-              </Button>
+      {/* Add Document Dialog */}
+      <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingDocument ? 'Modifica Documento' : 'Nuovo Documento Medico'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="title">Titolo *</Label>
+              <Input
+                id="title"
+                value={newDocument.title}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="es. Visita di controllo"
+              />
             </div>
+            <div>
+              <Label htmlFor="record_type">Tipo Documento</Label>
+              <Select value={newDocument.record_type} onValueChange={(value) => setNewDocument(prev => ({ ...prev, record_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="visita">Visita</SelectItem>
+                  <SelectItem value="esame">Esame</SelectItem>
+                  <SelectItem value="vaccino">Vaccino</SelectItem>
+                  <SelectItem value="operazione">Operazione</SelectItem>
+                  <SelectItem value="documento">Documento</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="record_date">Data</Label>
+              <Input
+                id="record_date"
+                type="date"
+                value={newDocument.record_date}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Descrizione</Label>
+              <Textarea
+                id="description"
+                value={newDocument.description}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descrizione del documento"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Note</Label>
+              <Textarea
+                id="notes"
+                value={newDocument.notes}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Note aggiuntive"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="file">Carica File (Opzionale)</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                <div className="space-y-2">
+                  <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
+                  <div>
+                    <label htmlFor="file" className="cursor-pointer">
+                      <span className="text-primary font-medium hover:text-primary/80 text-sm">Clicca per selezionare file</span>
+                    </label>
+                    <Input
+                      id="file"
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleUploadDocument(file);
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    PDF, JPG, PNG, DOC, DOCX (max 10MB)
+                  </p>
+                </div>
+              </div>
+              {isUploading && (
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Caricamento file in corso...
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4 border-t mt-6">
+            <Button 
+              onClick={() => {
+                setShowAddDocument(false);
+                setEditingDocument(null);
+                setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
+              }} 
+              variant="outline"
+              disabled={isUploading}
+              className="flex-1"
+            >
+              Annulla
+            </Button>
+            <Button 
+              onClick={handleSaveDocumentOnly}
+              disabled={isUploading || !newDocument.title.trim()}
+              className="flex-1"
+            >
+              {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna' : 'Salva'}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
