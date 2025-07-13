@@ -815,43 +815,6 @@ const WellnessPage = () => {
             Monitora la salute di {selectedPet.name}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              const dataToExport = {
-                pet: selectedPet,
-                healthMetrics,
-                medicalRecords,
-                medications,
-                veterinarians,
-                emergencyContacts,
-                insurances,
-                medicalId,
-                exportDate: new Date().toISOString()
-              };
-              
-              const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `salute-${selectedPet.name}-${format(new Date(), 'yyyy-MM-dd')}.json`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-              
-              toast({
-                title: "Successo",
-                description: "Dati esportati con successo"
-              });
-            }}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Esporta Dati
-          </Button>
-        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -974,9 +937,20 @@ const WellnessPage = () => {
                     <p className="font-medium">Nuovo Farmaco</p>
                     <p className="text-sm text-muted-foreground">Aggiungi un farmaco attivo</p>
                   </div>
-                  <Button 
+                   <Button 
                     size="sm" 
-                    onClick={() => setShowAddMedication(true)}
+                    onClick={() => {
+                      setEditingMedication(null);
+                      setNewMedication({
+                        name: '',
+                        dosage: '',
+                        frequency: '',
+                        start_date: '',
+                        end_date: '',
+                        notes: ''
+                      });
+                      setShowAddMedication(true);
+                    }}
                     className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
                   >
                     Aggiungi
@@ -997,7 +971,16 @@ const WellnessPage = () => {
                   </div>
                   <Button 
                     size="sm" 
-                    onClick={() => setShowAddMetric(true)}
+                    onClick={() => {
+                      setEditingMetric(null);
+                      setNewMetric({
+                        metric_type: '',
+                        value: '',
+                        unit: '',
+                        notes: ''
+                      });
+                      setShowAddMetric(true);
+                    }}
                     className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
                   >
                     Aggiungi
@@ -1812,22 +1795,26 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 placeholder="Note aggiuntive"
               />
             </div>
-            {!editingDocument && (
-              <div>
-                <Label htmlFor="file">File</Label>
-                <Input
-                  id="file"
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
+            <div>
+              <Label htmlFor="file">File</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    if (editingDocument) {
+                      // For editing, update the document first then upload
+                      handleUploadDocument(file);
+                    } else {
+                      // For new documents, upload directly
                       handleUploadDocument(file);
                     }
-                  }}
-                />
-              </div>
-            )}
+                  }
+                }}
+              />
+            </div>
             <div className="flex gap-2">
               <Button onClick={() => setShowAddDocument(false)} variant="outline">
                 Annulla
