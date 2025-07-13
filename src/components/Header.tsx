@@ -84,14 +84,20 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-2">
           {/* Pet Selector */}
           <Select value={selectedPetId} onValueChange={handlePetChange}>
-            <SelectTrigger className="w-16 h-9">
-              <div className="flex items-center justify-center">
+            <SelectTrigger className="w-32 h-9">
+              <div className="flex items-center gap-2">
                 {loadingPets ? (
                   <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
                 ) : currentPet ? (
-                  <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                  <>
+                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
+                    <span className="text-sm font-medium truncate">{currentPet.name}</span>
+                  </>
                 ) : (
-                  <Plus className="h-4 w-4 text-coral" />
+                  <>
+                    <Plus className="h-4 w-4 text-coral" />
+                    <span className="text-sm font-medium text-coral">Aggiungi</span>
+                  </>
                 )}
               </div>
             </SelectTrigger>

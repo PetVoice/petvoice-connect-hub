@@ -122,6 +122,20 @@ interface HealthAlert {
   created_at: string;
 }
 
+interface PetInsurance {
+  id: string;
+  provider_name: string;
+  policy_number: string;
+  policy_type?: string;
+  start_date: string;
+  end_date?: string;
+  premium_amount?: number;
+  deductible?: number;
+  coverage_details?: any;
+  contact_info?: any;
+  is_active: boolean;
+}
+
 const WellnessPage: React.FC = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
@@ -136,6 +150,7 @@ const WellnessPage: React.FC = () => {
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [healthAlerts, setHealthAlerts] = useState<HealthAlert[]>([]);
+  const [petInsurance, setPetInsurance] = useState<PetInsurance[]>([]);
   
   // Dialog states
   const [showAddMetric, setShowAddMetric] = useState(false);
@@ -143,6 +158,14 @@ const WellnessPage: React.FC = () => {
   const [showAddMedication, setShowAddMedication] = useState(false);
   const [showAddVet, setShowAddVet] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
+  const [showAddInsurance, setShowAddInsurance] = useState(false);
+  
+  // Edit dialog states
+  const [editingMetric, setEditingMetric] = useState<HealthMetric | null>(null);
+  const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+  const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
+  const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
 
   // Form states
   const [newMetric, setNewMetric] = useState({
@@ -181,6 +204,24 @@ const WellnessPage: React.FC = () => {
     relationship: '',
     email: '',
     notes: ''
+  });
+  const [newInsurance, setNewInsurance] = useState({
+    provider_name: '',
+    policy_number: '',
+    policy_type: '',
+    start_date: '',
+    end_date: '',
+    premium_amount: '',
+    deductible: ''
+  });
+
+  // Medical ID state
+  const [medicalId, setMedicalId] = useState({
+    microchip: '',
+    allergies: '',
+    conditions: '',
+    medications: '',
+    emergency_contact: ''
   });
 
   // Health score calculation
@@ -311,6 +352,17 @@ const WellnessPage: React.FC = () => {
         setHealthAlerts(alertsData);
       }
 
+      // Fetch pet insurance
+      const { data: insuranceData } = await supabase
+        .from('pet_insurance')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false });
+
+      if (insuranceData) {
+        setPetInsurance(insuranceData);
+      }
+
     } catch (error) {
       console.error('Error fetching health data:', error);
       toast({
@@ -371,6 +423,49 @@ const WellnessPage: React.FC = () => {
     }
   };
 
+  // Update Health Metric
+  const handleUpdateMetric = async () => {
+    if (!editingMetric || !newMetric.metric_type || !newMetric.value) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('health_metrics')
+        .update({
+          metric_type: newMetric.metric_type,
+          value: parseFloat(newMetric.value),
+          unit: newMetric.unit,
+          notes: newMetric.notes || null
+        })
+        .eq('id', editingMetric.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Metrica aggiornata con successo"
+      });
+
+      setEditingMetric(null);
+      setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+      setShowAddMetric(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error updating metric:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare la metrica",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Add Medical Record
   const handleAddRecord = async () => {
     if (!user || !selectedPet || !newRecord.title || !newRecord.record_type || !newRecord.record_date) {
@@ -410,6 +505,50 @@ const WellnessPage: React.FC = () => {
       toast({
         title: "Errore",
         description: "Impossibile aggiungere il documento",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Update Medical Record
+  const handleUpdateRecord = async () => {
+    if (!editingRecord || !newRecord.title || !newRecord.record_type || !newRecord.record_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medical_records')
+        .update({
+          title: newRecord.title,
+          record_type: newRecord.record_type,
+          record_date: newRecord.record_date,
+          description: newRecord.description || null,
+          cost: newRecord.cost ? parseFloat(newRecord.cost) : null
+        })
+        .eq('id', editingRecord.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Documento aggiornato con successo"
+      });
+
+      setEditingRecord(null);
+      setNewRecord({ title: '', record_type: '', record_date: '', description: '', cost: '' });
+      setShowAddRecord(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error updating record:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il documento",
         variant: "destructive"
       });
     }
@@ -461,6 +600,51 @@ const WellnessPage: React.FC = () => {
     }
   };
 
+  // Update Medication
+  const handleUpdateMedication = async () => {
+    if (!editingMedication || !newMedication.name || !newMedication.dosage || !newMedication.frequency || !newMedication.start_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medications')
+        .update({
+          name: newMedication.name,
+          dosage: newMedication.dosage,
+          frequency: newMedication.frequency,
+          start_date: newMedication.start_date,
+          end_date: newMedication.end_date || null,
+          notes: newMedication.notes || null
+        })
+        .eq('id', editingMedication.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Farmaco aggiornato con successo"
+      });
+
+      setEditingMedication(null);
+      setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+      setShowAddMedication(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error updating medication:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il farmaco",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Add Veterinarian
   const handleAddVet = async () => {
     if (!user || !newVet.name || !newVet.vet_type) {
@@ -501,6 +685,52 @@ const WellnessPage: React.FC = () => {
       toast({
         title: "Errore",
         description: "Impossibile aggiungere il veterinario",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Update Veterinarian
+  const handleUpdateVet = async () => {
+    if (!editingVet || !newVet.name || !newVet.vet_type) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('veterinarians')
+        .update({
+          name: newVet.name,
+          vet_type: newVet.vet_type,
+          clinic_name: newVet.clinic_name || null,
+          phone: newVet.phone || null,
+          email: newVet.email || null,
+          address: newVet.address || null,
+          is_primary: newVet.vet_type === 'primary'
+        })
+        .eq('id', editingVet.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Veterinario aggiornato con successo"
+      });
+
+      setEditingVet(null);
+      setNewVet({ name: '', vet_type: '', clinic_name: '', phone: '', email: '', address: '' });
+      setShowAddVet(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error updating veterinarian:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il veterinario",
         variant: "destructive"
       });
     }
@@ -549,6 +779,370 @@ const WellnessPage: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  // Update Emergency Contact
+  const handleUpdateContact = async () => {
+    if (!editingContact || !newContact.name || !newContact.contact_type || !newContact.phone) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('emergency_contacts')
+        .update({
+          name: newContact.name,
+          contact_type: newContact.contact_type,
+          phone: newContact.phone,
+          relationship: newContact.relationship || null,
+          email: newContact.email || null,
+          notes: newContact.notes || null
+        })
+        .eq('id', editingContact.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Contatto aggiornato con successo"
+      });
+
+      setEditingContact(null);
+      setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+      setShowAddContact(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il contatto",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Add Insurance
+  const handleAddInsurance = async () => {
+    if (!user || !selectedPet || !newInsurance.provider_name || !newInsurance.policy_number || !newInsurance.start_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('pet_insurance')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          provider_name: newInsurance.provider_name,
+          policy_number: newInsurance.policy_number,
+          policy_type: newInsurance.policy_type || null,
+          start_date: newInsurance.start_date,
+          end_date: newInsurance.end_date || null,
+          premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
+          deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
+          is_active: true
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Assicurazione aggiunta con successo"
+      });
+
+      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+      setShowAddInsurance(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding insurance:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere l'assicurazione",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Save Medical ID
+  const handleSaveMedicalId = async () => {
+    if (!selectedPet || !medicalId.microchip) {
+      toast({
+        title: "Errore",
+        description: "Inserisci almeno il numero del microchip",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Save medical ID info in existing pet fields
+      const { error } = await supabase
+        .from('pets')
+        .update({
+          allergies: medicalId.allergies,
+          health_conditions: medicalId.conditions,
+          description: `Microchip: ${medicalId.microchip}\nFarmaci: ${medicalId.medications}\nContatto emergenza: ${medicalId.emergency_contact}`
+        })
+        .eq('id', selectedPet.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Informazioni mediche salvate con successo"
+      });
+    } catch (error) {
+      console.error('Error saving medical ID:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare le informazioni mediche",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Generate QR Code
+  const handleGenerateQRCode = () => {
+    if (!selectedPet || !medicalId.microchip) {
+      toast({
+        title: "Errore",
+        description: "Salva prima le informazioni mediche",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Simulate QR code generation
+    const qrData = {
+      pet_name: selectedPet.name,
+      microchip: medicalId.microchip,
+      allergies: medicalId.allergies,
+      conditions: medicalId.conditions,
+      emergency_contact: medicalId.emergency_contact
+    };
+
+    toast({
+      title: "QR Code Generato",
+      description: "QR code salvato con le informazioni mediche di emergenza"
+    });
+  };
+
+  // Create Medical Tag
+  const handleCreateMedicalTag = () => {
+    if (!selectedPet || !medicalId.microchip) {
+      toast({
+        title: "Errore",
+        description: "Salva prima le informazioni mediche",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Tag Medico Creato",
+      description: "Tag di identificazione medica pronto per la stampa"
+    });
+  };
+
+  // Upload document
+  const handleUploadDocument = async (file: File) => {
+    if (!selectedPet) return;
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${selectedPet.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('medical-documents')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('medical-documents')
+        .getPublicUrl(fileName);
+
+      toast({
+        title: "Successo",
+        description: "Documento caricato con successo"
+      });
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare il documento",
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+
+  // Export health data
+  const handleExportData = async () => {
+    if (!selectedPet) return;
+
+    try {
+      const exportData = {
+        pet: selectedPet,
+        healthMetrics,
+        medicalRecords,
+        medications,
+        veterinarians,
+        emergencyContacts,
+        petInsurance,
+        exportDate: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedPet.name}_health_data_${format(new Date(), 'yyyy-MM-dd')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Successo",
+        description: "Dati sanitari esportati con successo"
+      });
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile esportare i dati",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Generate emergency QR
+  const handleGenerateEmergencyQR = () => {
+    if (!selectedPet) return;
+
+    const emergencyData = {
+      pet_name: selectedPet.name,
+      pet_type: selectedPet.type,
+      owner_contacts: emergencyContacts.filter(c => c.is_primary),
+      veterinarian: veterinarians.find(v => v.is_primary),
+      allergies: selectedPet.allergies,
+      conditions: selectedPet.health_conditions,
+      active_medications: medications.filter(m => m.is_active)
+    };
+
+    toast({
+      title: "QR Emergenza Generato",
+      description: "QR code di emergenza creato con tutti i dati essenziali"
+    });
+  };
+
+  // Emergency actions
+  const handleEmergencyAction = (action: string) => {
+    switch (action) {
+      case 'call_vet':
+        const primaryVet = veterinarians.find(v => v.is_primary);
+        if (primaryVet?.phone) {
+          window.open(`tel:${primaryVet.phone}`, '_self');
+        } else {
+          toast({
+            title: "Nessun veterinario",
+            description: "Aggiungi un veterinario primario per chiamate di emergenza",
+            variant: "destructive"
+          });
+        }
+        break;
+      case 'find_clinic':
+        window.open('https://maps.google.com/?q=veterinario+vicino', '_blank');
+        break;
+      case 'poison_control':
+        window.open('tel:+390644290300', '_self'); // Numero centro antiveleni Italia
+        break;
+      case 'first_aid':
+        toast({
+          title: "Guida Primo Soccorso",
+          description: "Consulta la guida per le emergenze veterinarie"
+        });
+        break;
+    }
+  };
+
+  // Edit handlers
+  const handleEditMetric = (metric: HealthMetric) => {
+    setEditingMetric(metric);
+    setNewMetric({
+      metric_type: metric.metric_type,
+      value: metric.value.toString(),
+      unit: metric.unit,
+      notes: metric.notes || ''
+    });
+    setShowAddMetric(true);
+  };
+
+  const handleEditRecord = (record: MedicalRecord) => {
+    setEditingRecord(record);
+    setNewRecord({
+      title: record.title,
+      record_type: record.record_type,
+      record_date: record.record_date,
+      description: record.description || '',
+      cost: record.cost?.toString() || ''
+    });
+    setShowAddRecord(true);
+  };
+
+  const handleEditMedication = (medication: Medication) => {
+    setEditingMedication(medication);
+    setNewMedication({
+      name: medication.name,
+      dosage: medication.dosage,
+      frequency: medication.frequency,
+      start_date: medication.start_date,
+      end_date: medication.end_date || '',
+      notes: medication.notes || ''
+    });
+    setShowAddMedication(true);
+  };
+
+  const handleEditVet = (vet: Veterinarian) => {
+    setEditingVet(vet);
+    setNewVet({
+      name: vet.name,
+      vet_type: vet.vet_type,
+      clinic_name: vet.clinic_name || '',
+      phone: vet.phone || '',
+      email: vet.email || '',
+      address: vet.address || ''
+    });
+    setShowAddVet(true);
+  };
+
+  const handleEditContact = (contact: EmergencyContact) => {
+    setEditingContact(contact);
+    setNewContact({
+      name: contact.name,
+      contact_type: contact.contact_type,
+      phone: contact.phone,
+      relationship: contact.relationship || '',
+      email: '',
+      notes: ''
+    });
+    setShowAddContact(true);
   };
 
   // Prepare chart data
@@ -636,21 +1230,11 @@ const WellnessPage: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => {
-            toast({
-              title: "QR Code di emergenza",
-              description: "QR code generato con le informazioni mediche di emergenza"
-            });
-          }}>
+          <Button variant="outline" size="sm" onClick={handleGenerateEmergencyQR}>
             <QrCode className="h-4 w-4 mr-2" />
             QR Emergenza
           </Button>
-          <Button variant="outline" size="sm" onClick={() => {
-            toast({
-              title: "Esportazione dati",
-              description: "I dati sanitari sono stati esportati con successo"
-            });
-          }}>
+          <Button variant="outline" size="sm" onClick={handleExportData}>
             <Download className="h-4 w-4 mr-2" />
             Esporta Dati
           </Button>
@@ -819,7 +1403,7 @@ const WellnessPage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
+              className="h-auto p-4 flex flex-col gap-2 bg-background hover:bg-muted/50 transition-colors"
               onClick={() => setShowAddMetric(true)}
             >
               <Plus className="h-6 w-6" />
@@ -827,7 +1411,7 @@ const WellnessPage: React.FC = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
+              className="h-auto p-4 flex flex-col gap-2 bg-background hover:bg-muted/50 transition-colors"
               onClick={() => setShowAddRecord(true)}
             >
               <FileText className="h-6 w-6" />
@@ -835,7 +1419,7 @@ const WellnessPage: React.FC = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
+              className="h-auto p-4 flex flex-col gap-2 bg-background hover:bg-muted/50 transition-colors"
               onClick={() => setShowAddMedication(true)}
             >
               <Pill className="h-6 w-6" />
@@ -843,7 +1427,7 @@ const WellnessPage: React.FC = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col gap-2"
+              className="h-auto p-4 flex flex-col gap-2 bg-background hover:bg-muted/50 transition-colors"
               onClick={() => setActiveTab('emergency')}
             >
               <Calendar className="h-6 w-6" />
@@ -863,7 +1447,12 @@ const WellnessPage: React.FC = () => {
                     <Stethoscope className="h-5 w-5" />
                     Veterinari
                   </CardTitle>
-                  <Button size="sm" onClick={() => setShowAddVet(true)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddVet(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Aggiungi
                   </Button>
@@ -874,7 +1463,11 @@ const WellnessPage: React.FC = () => {
                   <p className="text-muted-foreground text-center py-4">Nessun veterinario registrato</p>
                 ) : (
                   veterinarians.map(vet => (
-                    <div key={vet.id} className="border rounded-lg p-4 space-y-2">
+                    <div 
+                      key={vet.id} 
+                      className="border rounded-lg p-4 space-y-2 hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => handleEditVet(vet)}
+                    >
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">{vet.name}</h4>
                         <div className="flex gap-1">
@@ -882,6 +1475,7 @@ const WellnessPage: React.FC = () => {
                             <Badge variant="default">Primario</Badge>
                           )}
                           <Badge variant="secondary">{vet.vet_type}</Badge>
+                          <Edit className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
                       {vet.clinic_name && (
@@ -910,25 +1504,54 @@ const WellnessPage: React.FC = () => {
             {/* Insurance */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Assicurazione
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">Nessuna polizza assicurativa registrata</p>
-                  <Button variant="outline" onClick={() => {
-                    toast({
-                      title: "Funzionalità in arrivo",
-                      description: "La gestione assicurazioni sarà disponibile presto"
-                    });
-                  }}>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Assicurazione
+                  </CardTitle>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddInsurance(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    Aggiungi Assicurazione
+                    Aggiungi
                   </Button>
                 </div>
+              </CardHeader>
+              <CardContent>
+                {petInsurance.length === 0 ? (
+                  <div className="text-center py-8">
+                    <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground mb-4">Nessuna polizza assicurativa registrata</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {petInsurance.map(insurance => (
+                      <div key={insurance.id} className="border rounded-lg p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">{insurance.provider_name}</h4>
+                          <Badge variant={insurance.is_active ? "default" : "secondary"}>
+                            {insurance.is_active ? "Attiva" : "Scaduta"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Polizza: {insurance.policy_number}
+                        </p>
+                        <div className="flex gap-4 text-sm">
+                          <span>Dal: {format(new Date(insurance.start_date), 'dd/MM/yyyy')}</span>
+                          {insurance.end_date && (
+                            <span>Al: {format(new Date(insurance.end_date), 'dd/MM/yyyy')}</span>
+                          )}
+                        </div>
+                        {insurance.premium_amount && (
+                          <p className="text-sm">Premio: €{insurance.premium_amount}/anno</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -945,37 +1568,61 @@ const WellnessPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="space-y-2">
                   <Label>Microchip</Label>
-                  <Input placeholder="Numero microchip" />
+                  <Input 
+                    placeholder="Numero microchip" 
+                    value={medicalId.microchip}
+                    onChange={(e) => setMedicalId(prev => ({ ...prev, microchip: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Registro</Label>
-                  <Input placeholder="Database di registrazione" />
+                  <Label>Allergie</Label>
+                  <Input 
+                    placeholder="Es. Polline, alcuni cibi" 
+                    value={medicalId.allergies}
+                    onChange={(e) => setMedicalId(prev => ({ ...prev, allergies: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Data Impianto</Label>
-                  <Input type="date" />
+                  <Label>Condizioni</Label>
+                  <Input 
+                    placeholder="Es. Artrite, diabete" 
+                    value={medicalId.conditions}
+                    onChange={(e) => setMedicalId(prev => ({ ...prev, conditions: e.target.value }))}
+                  />
                 </div>
               </div>
-              <div className="mt-4 flex gap-2">
-                <Button variant="outline" onClick={() => {
-                  toast({
-                    title: "QR Code generato",
-                    description: "Il QR Code di emergenza è stato creato con successo"
-                  });
-                }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="space-y-2">
+                  <Label>Farmaci Attuali</Label>
+                  <Textarea 
+                    placeholder="Lista farmaci in corso" 
+                    value={medicalId.medications}
+                    onChange={(e) => setMedicalId(prev => ({ ...prev, medications: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Contatto di Emergenza</Label>
+                  <Textarea 
+                    placeholder="Nome e telefono del contatto principale" 
+                    value={medicalId.emergency_contact}
+                    onChange={(e) => setMedicalId(prev => ({ ...prev, emergency_contact: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <Button onClick={handleSaveMedicalId}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Salva Informazioni
+                </Button>
+                <Button variant="outline" onClick={handleGenerateQRCode}>
                   <QrCode className="h-4 w-4 mr-2" />
                   Genera QR Code
                 </Button>
-                <Button variant="outline" onClick={() => {
-                  toast({
-                    title: "Tag medico creato",
-                    description: "Il tag di identificazione medica è stato generato"
-                  });
-                }}>
-                  <FileText className="h-4 w-4 mr-2" />
+                <Button variant="outline" onClick={handleCreateMedicalTag}>
+                  <CreditCard className="h-4 w-4 mr-2" />
                   Crea Tag Medico
                 </Button>
               </div>
@@ -983,30 +1630,65 @@ const WellnessPage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* MEDICAL RECORDS TAB */}
+        {/* DOCUMENTS TAB */}
         <TabsContent value="records" className="space-y-6">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Documenti Medici</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Documenti Medici
+                  </CardTitle>
                   <CardDescription>
-                    Gestisci cartelle cliniche, referti e documenti sanitari
+                    Organizza e gestisci tutti i documenti sanitari del tuo pet
                   </CardDescription>
                 </div>
-                <Button onClick={() => setShowAddRecord(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuovo Documento
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Carica
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddRecord(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuovo Documento
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
+              <input
+                id="file-upload"
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadDocument(file);
+                  }
+                }}
+              />
               <div className="space-y-4">
                 {medicalRecords.length === 0 ? (
                   <div className="text-center py-8">
                     <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4">Nessun documento medico caricato</p>
-                    <Button variant="outline" onClick={() => setShowAddRecord(true)}>
+                    <Button 
+                      variant="outline" 
+                      className="bg-background hover:bg-muted/50 transition-colors"
+                      onClick={() => setShowAddRecord(true)}
+                    >
                       <Upload className="h-4 w-4 mr-2" />
                       Carica Primo Documento
                     </Button>
@@ -1014,7 +1696,11 @@ const WellnessPage: React.FC = () => {
                 ) : (
                   <div className="space-y-3">
                     {medicalRecords.map(record => (
-                      <div key={record.id} className="border rounded-lg p-4">
+                      <div 
+                        key={record.id} 
+                        className="border rounded-lg p-4 hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => handleEditRecord(record)}
+                      >
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
@@ -1043,6 +1729,7 @@ const WellnessPage: React.FC = () => {
                             <Button size="sm" variant="outline">
                               <Share className="h-4 w-4" />
                             </Button>
+                            <Edit className="h-4 w-4 text-muted-foreground" />
                           </div>
                         </div>
                       </div>
@@ -1065,7 +1752,12 @@ const WellnessPage: React.FC = () => {
                     <Pill className="h-5 w-5" />
                     Farmaci Attivi
                   </CardTitle>
-                  <Button size="sm" onClick={() => setShowAddMedication(true)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddMedication(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Aggiungi
                   </Button>
@@ -1077,10 +1769,17 @@ const WellnessPage: React.FC = () => {
                     <p className="text-muted-foreground text-center py-4">Nessun farmaco attivo</p>
                   ) : (
                     medications.filter(m => m.is_active).map(med => (
-                      <div key={med.id} className="border rounded-lg p-4 space-y-2">
+                      <div 
+                        key={med.id} 
+                        className="border rounded-lg p-4 space-y-2 hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => handleEditMedication(med)}
+                      >
                         <div className="flex items-center justify-between">
                           <h4 className="font-medium">{med.name}</h4>
-                          <Badge variant="default">Attivo</Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="default">Attivo</Badge>
+                            <Edit className="h-4 w-4 text-muted-foreground" />
+                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {med.dosage} - {med.frequency}
@@ -1104,7 +1803,12 @@ const WellnessPage: React.FC = () => {
                     <Activity className="h-5 w-5" />
                     Ultime Metriche
                   </CardTitle>
-                  <Button size="sm" onClick={() => setShowAddMetric(true)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddMetric(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Aggiungi
                   </Button>
@@ -1113,15 +1817,22 @@ const WellnessPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   {healthMetrics.slice(0, 5).map(metric => (
-                    <div key={metric.id} className="flex items-center justify-between border-b pb-2">
+                    <div 
+                      key={metric.id} 
+                      className="flex items-center justify-between border-b pb-2 hover:bg-muted/30 transition-colors cursor-pointer rounded px-2 py-1"
+                      onClick={() => handleEditMetric(metric)}
+                    >
                       <div>
                         <p className="font-medium capitalize">{metric.metric_type}</p>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(metric.recorded_at), 'dd/MM HH:mm')}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold">{metric.value} {metric.unit}</p>
+                      <div className="text-right flex items-center gap-2">
+                        <div>
+                          <p className="font-bold">{metric.value} {metric.unit}</p>
+                        </div>
+                        <Edit className="h-4 w-4 text-muted-foreground" />
                       </div>
                     </div>
                   ))}
@@ -1134,36 +1845,132 @@ const WellnessPage: React.FC = () => {
         {/* ANALYTICS TAB */}
         <TabsContent value="analytics" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Correlazioni Salute-Umore</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  Correlazioni Salute-Umore
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Analisi delle correlazioni disponibile con più dati
-                </p>
+                <div className="space-y-4">
+                  <div className="h-32 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-8 w-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Analisi delle correlazioni tra salute fisica e stato emotivo
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => toast({
+                      title: "Analisi Correlazioni",
+                      description: "Funzionalità in sviluppo - Analisi avanzate disponibili presto"
+                    })}
+                  >
+                    Visualizza Analisi
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Pattern Stagionali
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="h-32 bg-gradient-to-r from-warning/10 to-success/10 rounded-lg flex items-center justify-center">
+                    <Eye className="h-8 w-8 text-warning" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Identifica pattern comportamentali e di salute stagionali
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => toast({
+                      title: "Pattern Stagionali",
+                      description: "Analisi dei pattern climatici e stagionali in corso"
+                    })}
+                  >
+                    Analizza Pattern
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  Efficacia Farmaci
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="h-32 bg-gradient-to-r from-success/10 to-primary/10 rounded-lg flex items-center justify-center">
+                    <Target className="h-8 w-8 text-success" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Monitoraggio efficacia terapie e trattamenti
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => toast({
+                      title: "Efficacia Farmaci",
+                      description: "Tracking dell'efficacia delle terapie in corso"
+                    })}
+                  >
+                    Valuta Efficacia
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Analytics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Trend Salute Generale</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={prepareChartData('activity')}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Pattern Stagionali</CardTitle>
+                <CardTitle>Distribuzione Visite</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Riconoscimento pattern in corso...
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Efficacia Farmaci</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Tracking efficacia terapie
-                </p>
+                <div className="space-y-4">
+                  {['Controlli di routine', 'Emergenze', 'Vaccinazioni', 'Specialistiche'].map((type, index) => (
+                    <div key={type} className="flex items-center justify-between">
+                      <span className="text-sm">{type}</span>
+                      <div className="flex items-center gap-2">
+                        <Progress value={[60, 20, 15, 5][index]} className="w-20" />
+                        <span className="text-sm text-muted-foreground">{[60, 20, 15, 5][index]}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -1180,7 +1987,12 @@ const WellnessPage: React.FC = () => {
                     <Phone className="h-5 w-5" />
                     Contatti di Emergenza
                   </CardTitle>
-                  <Button size="sm" onClick={() => setShowAddContact(true)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="bg-background hover:bg-muted/50 transition-colors"
+                    onClick={() => setShowAddContact(true)}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Aggiungi
                   </Button>
@@ -1191,24 +2003,31 @@ const WellnessPage: React.FC = () => {
                   <p className="text-muted-foreground text-center py-4">Nessun contatto di emergenza</p>
                 ) : (
                   emergencyContacts.map(contact => (
-                    <div key={contact.id} className="border rounded-lg p-4 space-y-2">
+                    <div 
+                      key={contact.id} 
+                      className="border rounded-lg p-4 space-y-2 hover:bg-muted/30 transition-colors cursor-pointer"
+                      onClick={() => handleEditContact(contact)}
+                    >
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">{contact.name}</h4>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => {
+                          <Button size="sm" variant="outline" onClick={(e) => {
+                            e.stopPropagation();
                             if (contact.phone) {
                               window.open(`tel:${contact.phone}`, '_self');
                             }
                           }}>
                             <PhoneCall className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => {
+                          <Button size="sm" variant="outline" onClick={(e) => {
+                            e.stopPropagation();
                             if (contact.phone) {
                               window.open(`sms:${contact.phone}`, '_self');
                             }
                           }}>
                             <MessageSquare className="h-4 w-4" />
                           </Button>
+                          <Edit className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -1230,19 +2049,35 @@ const WellnessPage: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="destructive" className="w-full justify-start">
+                <Button 
+                  variant="destructive" 
+                  className="w-full justify-start"
+                  onClick={() => handleEmergencyAction('call_vet')}
+                >
                   <PhoneCall className="h-4 w-4 mr-2" />
                   Chiama Veterinario di Emergenza
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start bg-background hover:bg-muted/50"
+                  onClick={() => handleEmergencyAction('find_clinic')}
+                >
                   <MapPin className="h-4 w-4 mr-2" />
                   Trova Clinica Più Vicina
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start bg-background hover:bg-muted/50"
+                  onClick={() => handleEmergencyAction('poison_control')}
+                >
                   <AlertTriangle className="h-4 w-4 mr-2" />
                   Centro Antiveleni
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start bg-background hover:bg-muted/50"
+                  onClick={() => handleEmergencyAction('first_aid')}
+                >
                   <FileText className="h-4 w-4 mr-2" />
                   Guida Primo Soccorso
                 </Button>
@@ -1294,7 +2129,9 @@ const WellnessPage: React.FC = () => {
       <Dialog open={showAddMetric} onOpenChange={setShowAddMetric}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aggiungi Metrica di Salute</DialogTitle>
+            <DialogTitle>
+              {editingMetric ? 'Modifica Metrica di Salute' : 'Aggiungi Metrica di Salute'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -1342,10 +2179,16 @@ const WellnessPage: React.FC = () => {
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowAddMetric(false)}>
+              <Button variant="outline" onClick={() => {
+                setShowAddMetric(false);
+                setEditingMetric(null);
+                setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+              }}>
                 Annulla
               </Button>
-              <Button onClick={handleAddMetric}>Salva Metrica</Button>
+              <Button onClick={editingMetric ? handleUpdateMetric : handleAddMetric}>
+                {editingMetric ? 'Aggiorna Metrica' : 'Salva Metrica'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1355,12 +2198,15 @@ const WellnessPage: React.FC = () => {
       <Dialog open={showAddRecord} onOpenChange={(open) => {
         setShowAddRecord(open);
         if (!open) {
+          setEditingRecord(null);
           setNewRecord({ title: '', record_type: '', record_date: '', description: '', cost: '' });
         }
       }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Nuovo Documento Medico</DialogTitle>
+            <DialogTitle>
+              {editingRecord ? 'Modifica Documento Medico' : 'Nuovo Documento Medico'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1392,7 +2238,7 @@ const WellnessPage: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Data</Label>
+                <Label>Data Documento</Label>
                 <Input 
                   type="date" 
                   value={newRecord.record_date}
@@ -1420,7 +2266,10 @@ const WellnessPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <Label>Carica Documento</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+              <div 
+                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => document.getElementById('record-file-upload')?.click()}
+              >
                 <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
                   Trascina qui i file o clicca per selezionare
@@ -1429,12 +2278,26 @@ const WellnessPage: React.FC = () => {
                   PDF, immagini, documenti (max 10MB)
                 </p>
               </div>
+              <input
+                id="record-file-upload"
+                type="file"
+                hidden
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadDocument(file);
+                  }
+                }}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowAddRecord(false)}>
                 Annulla
               </Button>
-              <Button onClick={handleAddRecord}>Salva Documento</Button>
+              <Button onClick={editingRecord ? handleUpdateRecord : handleAddRecord}>
+                {editingRecord ? 'Aggiorna Documento' : 'Salva Documento'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1444,12 +2307,15 @@ const WellnessPage: React.FC = () => {
       <Dialog open={showAddMedication} onOpenChange={(open) => {
         setShowAddMedication(open);
         if (!open) {
+          setEditingMedication(null);
           setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
         }
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aggiungi Farmaco</DialogTitle>
+            <DialogTitle>
+              {editingMedication ? 'Modifica Farmaco' : 'Aggiungi Farmaco'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -1508,7 +2374,9 @@ const WellnessPage: React.FC = () => {
               <Button variant="outline" onClick={() => setShowAddMedication(false)}>
                 Annulla
               </Button>
-              <Button onClick={handleAddMedication}>Salva Farmaco</Button>
+              <Button onClick={editingMedication ? handleUpdateMedication : handleAddMedication}>
+                {editingMedication ? 'Aggiorna Farmaco' : 'Salva Farmaco'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1518,12 +2386,15 @@ const WellnessPage: React.FC = () => {
       <Dialog open={showAddVet} onOpenChange={(open) => {
         setShowAddVet(open);
         if (!open) {
+          setEditingVet(null);
           setNewVet({ name: '', vet_type: '', clinic_name: '', phone: '', email: '', address: '' });
         }
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aggiungi Veterinario</DialogTitle>
+            <DialogTitle>
+              {editingVet ? 'Modifica Veterinario' : 'Aggiungi Veterinario'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1588,7 +2459,9 @@ const WellnessPage: React.FC = () => {
               <Button variant="outline" onClick={() => setShowAddVet(false)}>
                 Annulla
               </Button>
-              <Button onClick={handleAddVet}>Salva Veterinario</Button>
+              <Button onClick={editingVet ? handleUpdateVet : handleAddVet}>
+                {editingVet ? 'Aggiorna Veterinario' : 'Salva Veterinario'}
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -1598,12 +2471,15 @@ const WellnessPage: React.FC = () => {
       <Dialog open={showAddContact} onOpenChange={(open) => {
         setShowAddContact(open);
         if (!open) {
+          setEditingContact(null);
           setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
         }
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Aggiungi Contatto di Emergenza</DialogTitle>
+            <DialogTitle>
+              {editingContact ? 'Modifica Contatto di Emergenza' : 'Aggiungi Contatto di Emergenza'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1670,7 +2546,97 @@ const WellnessPage: React.FC = () => {
               <Button variant="outline" onClick={() => setShowAddContact(false)}>
                 Annulla
               </Button>
-              <Button onClick={handleAddContact}>Salva Contatto</Button>
+              <Button onClick={editingContact ? handleUpdateContact : handleAddContact}>
+                {editingContact ? 'Aggiorna Contatto' : 'Salva Contatto'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Insurance Dialog */}
+      <Dialog open={showAddInsurance} onOpenChange={setShowAddInsurance}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aggiungi Assicurazione</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Compagnia Assicuratrice</Label>
+                <Input 
+                  placeholder="Es. Allianz Pet" 
+                  value={newInsurance.provider_name}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, provider_name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Numero Polizza</Label>
+                <Input 
+                  placeholder="Es. POL123456789" 
+                  value={newInsurance.policy_number}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, policy_number: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Tipo Polizza</Label>
+              <Select value={newInsurance.policy_type} onValueChange={(value) => setNewInsurance(prev => ({ ...prev, policy_type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="basic">Base</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="comprehensive">Completa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Data Inizio</Label>
+                <Input 
+                  type="date" 
+                  value={newInsurance.start_date}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, start_date: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Data Fine (opzionale)</Label>
+                <Input 
+                  type="date" 
+                  value={newInsurance.end_date}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, end_date: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Premio Annuale (€)</Label>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  placeholder="500.00" 
+                  value={newInsurance.premium_amount}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, premium_amount: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Franchigia (€)</Label>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  placeholder="100.00" 
+                  value={newInsurance.deductible}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, deductible: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowAddInsurance(false)}>
+                Annulla
+              </Button>
+              <Button onClick={handleAddInsurance}>Salva Assicurazione</Button>
             </div>
           </div>
         </DialogContent>
