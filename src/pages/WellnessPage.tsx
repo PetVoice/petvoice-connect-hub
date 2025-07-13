@@ -55,7 +55,7 @@ import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, endOfMonth, subMonths, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { toast } from '@/hooks/use-toast';
+import { FirstAidGuide } from '@/components/FirstAidGuide';
 
 interface HealthMetric {
   id: string;
@@ -224,6 +224,9 @@ const WellnessPage: React.FC = () => {
     emergency_contact: ''
   });
 
+  // First aid guide state
+  const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
+
   // Health score calculation
   const calculateHealthScore = (metrics: HealthMetric[]) => {
     if (metrics.length === 0) return 0;
@@ -361,6 +364,21 @@ const WellnessPage: React.FC = () => {
 
       if (insuranceData) {
         setPetInsurance(insuranceData);
+      }
+
+      // Load medical ID data from pet
+      if (selectedPet) {
+        const microchipMatch = selectedPet.description?.match(/Microchip: ([^\n]*)/);
+        const medicationsMatch = selectedPet.description?.match(/Farmaci: ([^\n]*)/);
+        const emergencyMatch = selectedPet.description?.match(/Contatto emergenza: ([^\n]*)/);
+        
+        setMedicalId({
+          microchip: microchipMatch?.[1] || '',
+          allergies: selectedPet.allergies || '',
+          conditions: selectedPet.health_conditions || '',
+          medications: medicationsMatch?.[1] || '',
+          emergency_contact: emergencyMatch?.[1] || ''
+        });
       }
 
     } catch (error) {
@@ -922,14 +940,28 @@ const WellnessPage: React.FC = () => {
       return;
     }
 
-    // Simulate QR code generation
+    // Create downloadable QR code data
     const qrData = {
       pet_name: selectedPet.name,
       microchip: medicalId.microchip,
       allergies: medicalId.allergies,
       conditions: medicalId.conditions,
-      emergency_contact: medicalId.emergency_contact
+      emergency_contact: medicalId.emergency_contact,
+      owner_id: user?.id
     };
+
+    // Create and download QR code as JSON
+    const blob = new Blob([JSON.stringify(qrData, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedPet.name}_qr_medical_data.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
     toast({
       title: "QR Code Generato",
@@ -948,6 +980,27 @@ const WellnessPage: React.FC = () => {
       return;
     }
 
+    // Create printable medical tag
+    const tagData = `
+**TAG MEDICO**
+Nome: ${selectedPet.name}
+Microchip: ${medicalId.microchip}
+Allergie: ${medicalId.allergies || 'Nessuna'}
+Condizioni: ${medicalId.conditions || 'Nessuna'}
+Emergenza: ${medicalId.emergency_contact || 'N/A'}
+Generato: ${new Date().toLocaleDateString('it-IT')}
+    `;
+
+    const blob = new Blob([tagData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedPet.name}_medical_tag.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     toast({
       title: "Tag Medico Creato",
       description: "Tag di identificazione medica pronto per la stampa"
@@ -963,20 +1016,34 @@ const WellnessPage: React.FC = () => {
       const fileName = `${selectedPet.id}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
-        .from('medical-documents')
+        .from('pet-media')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage
-        .from('medical-documents')
+        .from('pet-media')
         .getPublicUrl(fileName);
+
+      // Create medical record entry
+      await supabase
+        .from('medical_records')
+        .insert({
+          user_id: user?.id,
+          pet_id: selectedPet.id,
+          title: file.name,
+          record_type: 'document',
+          record_date: new Date().toISOString().split('T')[0],
+          document_url: data.publicUrl,
+          description: 'Documento caricato'
+        });
 
       toast({
         title: "Successo",
         description: "Documento caricato con successo"
       });
 
+      fetchHealthData(); // Refresh data
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading document:', error);
@@ -1043,8 +1110,23 @@ const WellnessPage: React.FC = () => {
       veterinarian: veterinarians.find(v => v.is_primary),
       allergies: selectedPet.allergies,
       conditions: selectedPet.health_conditions,
-      active_medications: medications.filter(m => m.is_active)
+      active_medications: medications.filter(m => m.is_active && (!m.end_date || new Date(m.end_date) > new Date())),
+      microchip: medicalId.microchip,
+      generated_at: new Date().toISOString()
     };
+
+    // Create and download emergency QR data
+    const blob = new Blob([JSON.stringify(emergencyData, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedPet.name}_emergency_qr.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
     toast({
       title: "QR Emergenza Generato",
@@ -1074,10 +1156,7 @@ const WellnessPage: React.FC = () => {
         window.open('tel:+390644290300', '_self'); // Numero centro antiveleni Italia
         break;
       case 'first_aid':
-        toast({
-          title: "Guida Primo Soccorso",
-          description: "Consulta la guida per le emergenze veterinarie"
-        });
+        setShowFirstAidGuide(true);
         break;
     }
   };
@@ -1181,19 +1260,45 @@ const WellnessPage: React.FC = () => {
   // Quick stats
   const getQuickStats = () => {
     const lastVetVisit = medicalRecords
-      .filter(r => r.record_type === 'exam')
+      .filter(r => r.record_type === 'visit' || r.record_type === 'exam' || r.record_type === 'checkup')
       .sort((a, b) => new Date(b.record_date).getTime() - new Date(a.record_date).getTime())[0];
 
     const nextAppointment = null; // Would come from calendar_events
 
-    const activeMeds = medications.filter(m => m.is_active).length;
+    const activeMeds = medications.filter(m => 
+      m.is_active && (!m.end_date || new Date(m.end_date) >= new Date())
+    ).length;
 
     return {
-      lastVetVisit: lastVetVisit ? format(new Date(lastVetVisit.record_date), 'dd/MM/yyyy') : 'Mai',
-      nextAppointment: nextAppointment ? 'Data appuntamento' : 'Nessuno',
+      lastVetVisit: lastVetVisit ? format(new Date(lastVetVisit.record_date), 'dd/MM/yyyy') : 'Mai registrato',
+      nextAppointment: 'Da programmare',
       activeMedications: activeMeds,
       totalRecords: medicalRecords.length
     };
+  };
+
+  // Check insurance status
+  const getInsuranceStatus = (insurance: PetInsurance) => {
+    if (!insurance.end_date) return 'active';
+    
+    const endDate = new Date(insurance.end_date);
+    const today = new Date();
+    const daysToExpiry = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+    
+    if (endDate < today) return 'expired';
+    if (daysToExpiry <= 30) return 'expiring';
+    return 'active';
+  };
+
+  // Check medication status
+  const getMedicationStatus = (medication: Medication) => {
+    if (!medication.is_active) return 'inactive';
+    if (!medication.end_date) return 'active';
+    
+    const endDate = new Date(medication.end_date);
+    const today = new Date();
+    
+    return endDate >= today ? 'active' : 'inactive';
   };
 
   const quickStats = getQuickStats();
@@ -1233,10 +1338,6 @@ const WellnessPage: React.FC = () => {
           <Button variant="outline" size="sm" onClick={handleGenerateEmergencyQR}>
             <QrCode className="h-4 w-4 mr-2" />
             QR Emergenza
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExportData}>
-            <Download className="h-4 w-4 mr-2" />
-            Esporta Dati
           </Button>
         </div>
       </div>
@@ -1474,7 +1575,6 @@ const WellnessPage: React.FC = () => {
                           {vet.is_primary && (
                             <Badge variant="default">Primario</Badge>
                           )}
-                          <Badge variant="secondary">{vet.vet_type}</Badge>
                           <Edit className="h-4 w-4 text-muted-foreground" />
                         </div>
                       </div>
@@ -1528,14 +1628,20 @@ const WellnessPage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {petInsurance.map(insurance => (
-                      <div key={insurance.id} className="border rounded-lg p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">{insurance.provider_name}</h4>
-                          <Badge variant={insurance.is_active ? "default" : "secondary"}>
-                            {insurance.is_active ? "Attiva" : "Scaduta"}
-                          </Badge>
-                        </div>
+                    {petInsurance.map(insurance => {
+                      const status = getInsuranceStatus(insurance);
+                      return (
+                        <div key={insurance.id} className="border rounded-lg p-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{insurance.provider_name}</h4>
+                            <Badge variant={
+                              status === 'active' ? "default" : 
+                              status === 'expiring' ? "destructive" : "secondary"
+                            }>
+                              {status === 'active' ? "Attiva" : 
+                               status === 'expiring' ? "In scadenza" : "Scaduta"}
+                            </Badge>
+                          </div>
                         <p className="text-sm text-muted-foreground">
                           Polizza: {insurance.policy_number}
                         </p>
@@ -1721,20 +1827,20 @@ const WellnessPage: React.FC = () => {
                             )}
                           </div>
                           <div className="flex gap-2">
-                            {record.document_url && (
-                              <Button size="sm" variant="outline">
-                                <FileImage className="h-4 w-4" />
-                              </Button>
-                            )}
-                            <Button size="sm" variant="outline">
-                              <Share className="h-4 w-4" />
-                            </Button>
                             <Edit className="h-4 w-4 text-muted-foreground" />
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                        {status === 'expiring' && (
+                          <Alert>
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                              La polizza scade tra pochi giorni. Rinnova per mantenere la copertura.
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                      );
+                    })}
+                   </div>
                 )}
               </div>
             </CardContent>
@@ -1767,29 +1873,33 @@ const WellnessPage: React.FC = () => {
                 <div className="space-y-4">
                   {medications.filter(m => m.is_active).length === 0 ? (
                     <p className="text-muted-foreground text-center py-4">Nessun farmaco attivo</p>
-                  ) : (
-                    medications.filter(m => m.is_active).map(med => (
-                      <div 
-                        key={med.id} 
-                        className="border rounded-lg p-4 space-y-2 hover:bg-muted/30 transition-colors cursor-pointer"
-                        onClick={() => handleEditMedication(med)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium">{med.name}</h4>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="default">Attivo</Badge>
-                            <Edit className="h-4 w-4 text-muted-foreground" />
+                   ) : (
+                      const medStatus = getMedicationStatus(med);
+                      return (
+                        <div 
+                          key={med.id} 
+                          className="border rounded-lg p-4 space-y-2 hover:bg-muted/30 transition-colors cursor-pointer"
+                          onClick={() => handleEditMedication(med)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{med.name}</h4>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={medStatus === 'active' ? "default" : "secondary"}>
+                                {medStatus === 'active' ? "Attivo" : "Scaduto"}
+                              </Badge>
+                              <Edit className="h-4 w-4 text-muted-foreground" />
+                            </div>
                           </div>
+                          <p className="text-sm text-muted-foreground">
+                            {med.dosage} - {med.frequency}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Dal {format(new Date(med.start_date), 'dd/MM/yyyy')}
+                            {med.end_date && ` al ${format(new Date(med.end_date), 'dd/MM/yyyy')}`}
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          {med.dosage} - {med.frequency}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Dal {format(new Date(med.start_date), 'dd/MM/yyyy')}
-                          {med.end_date && ` al ${format(new Date(med.end_date), 'dd/MM/yyyy')}`}
-                        </p>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </CardContent>
@@ -2641,8 +2751,12 @@ const WellnessPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
+        <FirstAidGuide 
+          open={showFirstAidGuide} 
+          onOpenChange={setShowFirstAidGuide} 
+        />
+      </div>
+    );
+  };
 
-export default WellnessPage;
+  export default WellnessPage;
