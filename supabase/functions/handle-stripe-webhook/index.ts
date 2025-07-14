@@ -50,43 +50,58 @@ serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        logStep("Checkout session completed", { sessionId: session.id, customerEmail: session.customer_email });
+        logStep("Checkout session completed", { sessionId: session.id, customerEmail: session.customer_details?.email });
 
         if (session.mode === 'subscription' && session.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-          const priceId = subscription.items.data[0].price.id;
-          const price = await stripe.prices.retrieve(priceId);
-          const amount = price.unit_amount || 0;
+          try {
+            const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+            logStep("Subscription retrieved", { subscriptionId: subscription.id, status: subscription.status });
+            
+            const priceId = subscription.items.data[0].price.id;
+            const price = await stripe.prices.retrieve(priceId);
+            const amount = price.unit_amount || 0;
+            logStep("Price details", { priceId, amount });
 
-          let subscriptionTier = 'free';
-          if (amount === 97) {
-            subscriptionTier = "premium";
-          } else if (amount === 197) {
-            subscriptionTier = "family";
-          } else if (amount <= 100) {
-            subscriptionTier = "premium";
-          } else {
-            subscriptionTier = "family";
+            let subscriptionTier = 'premium'; // Default to premium for any paid subscription
+            if (amount >= 197 || amount >= 19700) { // Family plan (€1.97 or €19.7)
+              subscriptionTier = "family";
+            }
+
+            const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+            const customerEmail = session.customer_details?.email || session.customer_email;
+
+            logStep("About to update database", { 
+              email: customerEmail, 
+              tier: subscriptionTier, 
+              subscriptionId: subscription.id,
+              subscriptionEnd 
+            });
+
+            // Update subscriber in database
+            const { data, error } = await supabaseClient.from("subscribers").upsert({
+              email: customerEmail,
+              stripe_customer_id: session.customer,
+              subscribed: true,
+              subscription_tier: subscriptionTier,
+              subscription_end: subscriptionEnd,
+              stripe_subscription_id: subscription.id,
+              is_cancelled: false,
+              cancellation_type: null,
+              cancellation_date: null,
+              cancellation_effective_date: null,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'email' });
+
+            if (error) {
+              logStep("Database update error", { error: error.message });
+              throw error;
+            }
+
+            logStep("Successfully updated subscription", { email: customerEmail, tier: subscriptionTier, data });
+          } catch (error) {
+            logStep("Error processing subscription", { error: error.message });
+            throw error;
           }
-
-          const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-
-          // Update subscriber in database
-          await supabaseClient.from("subscribers").upsert({
-            email: session.customer_email,
-            stripe_customer_id: session.customer,
-            subscribed: true,
-            subscription_tier: subscriptionTier,
-            subscription_end: subscriptionEnd,
-            stripe_subscription_id: subscription.id,
-            is_cancelled: false,
-            cancellation_type: null,
-            cancellation_date: null,
-            cancellation_effective_date: null,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'email' });
-
-          logStep("Updated subscription", { email: session.customer_email, tier: subscriptionTier });
         }
         break;
       }
