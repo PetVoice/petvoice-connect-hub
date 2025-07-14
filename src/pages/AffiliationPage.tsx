@@ -281,7 +281,20 @@ export default function AffiliationPage() {
 
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
-    const tier = TIER_CONFIG[referralProfile.current_tier as keyof typeof TIER_CONFIG];
+    
+    // Map old English tier names to new Italian ones
+    const tierMapping: { [key: string]: string } = {
+      'Bronze': 'Bronzo',
+      'Silver': 'Argento', 
+      'Gold': 'Oro',
+      'Platinum': 'Platino',
+      'Diamond': 'Platino' // Diamond maps to Platino since Diamond was removed
+    };
+    
+    // Get the current tier, with fallback mapping and default
+    const currentTierName = tierMapping[referralProfile.current_tier] || referralProfile.current_tier || 'Bronzo';
+    const tier = TIER_CONFIG[currentTierName as keyof typeof TIER_CONFIG] || TIER_CONFIG.Bronzo;
+    
     const progress = tier.nextTarget ? 
       Math.min(100, (referralProfile.successful_conversions / tier.nextTarget) * 100) : 100;
     return { ...tier, progress };
