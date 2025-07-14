@@ -1340,7 +1340,6 @@ const WellnessPage = () => {
                     onClick={() => setShowAddDocument(true)}
                     disabled={isUploading}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     {isUploading ? 'Caricamento...' : 'Aggiungi'}
                   </Button>
@@ -1373,7 +1372,6 @@ const WellnessPage = () => {
                       setShowAddMedication(true);
                     }}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Aggiungi
                   </Button>
@@ -1404,7 +1402,6 @@ const WellnessPage = () => {
                       setShowAddMetric(true);
                     }}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Aggiungi
                   </Button>
@@ -1429,7 +1426,6 @@ const WellnessPage = () => {
                     size="sm" 
                     onClick={() => setShowAddVet(true)}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1504,7 +1500,6 @@ const WellnessPage = () => {
                     size="sm" 
                     onClick={() => setShowAddInsurance(true)}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1772,7 +1767,6 @@ const WellnessPage = () => {
                       setShowAddMedication(true);
                     }}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1868,7 +1862,6 @@ const WellnessPage = () => {
                       setShowAddMetric(true);
                     }}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -2038,7 +2031,6 @@ const WellnessPage = () => {
                     size="sm" 
                     onClick={() => setShowAddContact(true)}
                     variant="outline"
-                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
