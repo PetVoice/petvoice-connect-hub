@@ -1592,23 +1592,25 @@ export default function StatsPage() {
                   <div className="p-4 border rounded-lg text-center">
                     <h4 className="font-medium mb-2">Giorni più attivi</h4>
                     <p className="text-2xl font-bold text-primary">
-                      {analytics.activityPatterns.reduce((max, day) => 
-                        day.analyses > max.analyses ? day : max
-                      ).day}
+                      {displayAnalytics.activityPatterns.length > 0 ? 
+                        displayAnalytics.activityPatterns.reduce((max, day) => 
+                          day.analyses > max.analyses ? day : max
+                        ).day : 'N/A'}
                     </p>
                   </div>
                   <div className="p-4 border rounded-lg text-center">
                     <h4 className="font-medium mb-2">Confidenza media</h4>
                     <p className="text-2xl font-bold text-primary">
-                      {Math.round(analytics.activityPatterns.reduce((sum, day) => 
-                        sum + day.avgConfidence, 0) / analytics.activityPatterns.length)}%
+                      {displayAnalytics.activityPatterns.length > 0 ? 
+                        Math.round(displayAnalytics.activityPatterns.reduce((sum, day) => 
+                          sum + day.avgConfidence, 0) / displayAnalytics.activityPatterns.length) : 0}%
                     </p>
                   </div>
                   <div className="p-4 border rounded-lg text-center">
                     <h4 className="font-medium mb-2">Consistenza</h4>
                     <p className="text-2xl font-bold text-primary">
-                      {analytics.activeDays > analytics.timeSpan * 0.7 ? 'Alta' : 
-                       analytics.activeDays > analytics.timeSpan * 0.4 ? 'Media' : 'Bassa'}
+                      {displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.7 ? 'Alta' : 
+                       displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.4 ? 'Media' : 'Bassa'}
                     </p>
                   </div>
                 </div>
