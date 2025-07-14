@@ -504,21 +504,44 @@ export default function StatsPage() {
     );
   }
 
-  if (!analytics) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Non ci sono dati sufficienti per generare le statistiche. Inizia ad analizzare le emozioni del tuo pet per vedere i progressi.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Crea analytics vuote se non ci sono dati, altrimenti usa quelle esistenti
+  const displayAnalytics = analytics || {
+    totalAnalyses: 0,
+    averageWellnessScore: 0,
+    emotionDistribution: [],
+    weeklyTrend: [],
+    activeDays: 0,
+    timeSpan: 30,
+    wellnessTrend: 0,
+    behaviorInsights: {
+      mostCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
+      leastCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
+      emotionalStability: 0,
+      positiveEmotionsRatio: 0
+    },
+    recommendations: [
+      "Inizia ad analizzare le emozioni del tuo pet per ricevere consigli personalizzati",
+      "Aggiungi metriche sanitarie nella sezione Benessere",
+      "Tieni un diario comportamentale regolare"
+    ]
+  };
+
+  // Mostra alert informativo se non ci sono dati reali
+  const hasNoData = !analytics;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Alert informativo se non ci sono dati */}
+      {hasNoData && (
+        <Alert className="border-blue-200 bg-blue-50">
+          <AlertTriangle className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            <strong>Statistiche in attesa di dati:</strong> Inizia ad analizzare le emozioni del tuo pet per vedere statistiche reali. 
+            Per ora vengono mostrate le strutture con valori azzerati.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -567,16 +590,16 @@ export default function StatsPage() {
                 doc.setFontSize(16);
                 doc.text('Panoramica', 20, 45);
                 doc.setFontSize(10);
-                doc.text(`Analisi Totali: ${analytics.totalAnalyses}`, 20, 55);
-                doc.text(`Score Benessere: ${analytics.averageWellnessScore}%`, 20, 65);
-                doc.text(`Giorni Attivi: ${analytics.activeDays}/${analytics.timeSpan}`, 20, 75);
-                doc.text(`Emozione Principale: ${analytics.emotionDistribution[0]?.emotion || 'N/A'} (${analytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 85);
+                doc.text(`Analisi Totali: ${displayAnalytics.totalAnalyses}`, 20, 55);
+                doc.text(`Score Benessere: ${displayAnalytics.averageWellnessScore}%`, 20, 65);
+                doc.text(`Giorni Attivi: ${displayAnalytics.activeDays}/${displayAnalytics.timeSpan}`, 20, 75);
+                doc.text(`Emozione Principale: ${displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'} (${displayAnalytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 85);
                 
                 // Emotions
                 doc.setFontSize(16);
                 doc.text('Distribuzione Emozioni', 20, 105);
                 doc.setFontSize(10);
-                analytics.emotionDistribution.slice(0, 5).forEach((emotion, index) => {
+                displayAnalytics.emotionDistribution.slice(0, 5).forEach((emotion, index) => {
                   doc.text(`${emotion.emotion}: ${emotion.percentage}%`, 20, 115 + (index * 10));
                 });
                 

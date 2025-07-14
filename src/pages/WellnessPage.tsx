@@ -1200,10 +1200,62 @@ const WellnessPage = () => {
   };
 
   const getHealthScore = () => {
-    if (healthMetrics.length === 0) return null; // No data available
-    const recentMetrics = healthMetrics.slice(0, 5);
-    const avgScore = recentMetrics.reduce((sum, metric) => sum + (metric.value * 10), 0) / recentMetrics.length;
-    return Math.round(avgScore);
+    // Health Score basato su dati reali
+    let totalScore = 0;
+    let factorsCount = 0;
+    
+    // 1. Score dalle analisi emotive (40% del punteggio)
+    if (selectedPet) {
+      // Qui dovremmo recuperare le analisi dal database, per ora usiamo 0
+      // const emotionScore = calculateEmotionScore(analyses);
+      // totalScore += emotionScore * 0.4;
+      // factorsCount++;
+    }
+    
+    // 2. Score dalle metriche sanitarie (30% del punteggio)
+    if (healthMetrics.length > 0) {
+      const recentMetrics = healthMetrics.slice(0, 5);
+      // Normalizza le metriche su scala 0-100 (assumendo valori 1-10)
+      const avgMetricScore = recentMetrics.reduce((sum, metric) => {
+        // Converti metriche su scala 1-10 in percentuale
+        const normalizedValue = Math.min(100, Math.max(0, (metric.value / 10) * 100));
+        return sum + normalizedValue;
+      }, 0) / recentMetrics.length;
+      
+      totalScore += avgMetricScore * 0.3;
+      factorsCount++;
+    }
+    
+    // 3. Score dalle visite veterinarie (20% del punteggio)
+    if (medicalRecords.length > 0) {
+      const recentVisits = medicalRecords.filter(record => {
+        const recordDate = new Date(record.record_date);
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        return recordDate >= sixMonthsAgo;
+      });
+      
+      // Score basato su visite recenti (più visite = score migliore)
+      const visitScore = Math.min(100, (recentVisits.length / 2) * 100); // 2 visite in 6 mesi = 100%
+      totalScore += visitScore * 0.2;
+      factorsCount++;
+    }
+    
+    // 4. Score dalle vaccinazioni/farmaci (10% del punteggio)
+    if (medications.length > 0) {
+      const activeMeds = medications.filter(med => med.is_active);
+      // Punteggio positivo se ha farmaci/vaccinazioni attive quando necessario
+      const medScore = activeMeds.length > 0 ? 80 : 100; // Assumiamo che avere farmaci attivi sia normale
+      totalScore += medScore * 0.1;
+      factorsCount++;
+    }
+    
+    // Ritorna il punteggio solo se abbiamo almeno un fattore
+    if (factorsCount === 0) return null;
+    
+    // Calcola media pesata
+    const finalScore = Math.round(totalScore);
+    return Math.min(100, Math.max(0, finalScore));
   };
 
   if (!selectedPet) {
