@@ -345,44 +345,42 @@ export default function AffiliationPage() {
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
     
-    console.log('Debug - referralProfile.current_tier:', referralProfile.current_tier);
-    console.log('Debug - TIER_CONFIG:', TIER_CONFIG);
+    const conversions = referralProfile.successful_conversions;
+    console.log('Debug - successful_conversions:', conversions);
     
-    // Map old English tier names to new Italian ones
-    const tierMapping: { [key: string]: string } = {
-      'Bronze': 'Bronzo',
-      'Silver': 'Argento', 
-      'Gold': 'Oro',
-      'Platinum': 'Platino',
-      'Diamond': 'Platino' // Diamond maps to Platino since Diamond was removed
-    };
+    // Calculate tier based on successful conversions
+    let currentTierName = 'Bronzo';
+    if (conversions >= 50) {
+      currentTierName = 'Platino';
+    } else if (conversions >= 20) {
+      currentTierName = 'Oro';
+    } else if (conversions >= 5) {
+      currentTierName = 'Argento';
+    } else {
+      currentTierName = 'Bronzo';
+    }
     
-    // Get the current tier, with fallback mapping and default
-    const currentTierName = tierMapping[referralProfile.current_tier] || referralProfile.current_tier || 'Bronzo';
-    console.log('Debug - currentTierName:', currentTierName);
+    console.log('Debug - calculated tier:', currentTierName);
     
     const tier = TIER_CONFIG[currentTierName as keyof typeof TIER_CONFIG];
-    console.log('Debug - tier found:', tier);
+    console.log('Debug - tier config:', tier);
     
-    // If tier is still undefined, use Bronzo as absolute fallback
-    const finalTier = tier || TIER_CONFIG.Bronzo;
-    console.log('Debug - finalTier:', finalTier);
-    
-    if (!finalTier) {
-      console.error('CRITICAL: finalTier is undefined!');
+    if (!tier) {
+      console.error('CRITICAL: tier is undefined!');
       return {
         minReferrals: 0,
         color: 'bg-amber-600',
         next: 'Argento',
         nextTarget: 5,
         commission: 0.05,
-        progress: 0
+        progress: 0,
+        currentTierName: 'Bronzo'
       };
     }
     
-    const progress = finalTier.nextTarget ? 
-      Math.min(100, (referralProfile.successful_conversions / finalTier.nextTarget) * 100) : 100;
-    return { ...finalTier, progress };
+    const progress = tier.nextTarget ? 
+      Math.min(100, (conversions / tier.nextTarget) * 100) : 100;
+    return { ...tier, progress, currentTierName };
   };
 
   const getActiveCredits = () => {
@@ -617,7 +615,7 @@ export default function AffiliationPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Badge className={tierInfo?.color}>{getTierDisplayName(referralProfile.current_tier)}</Badge>
+              <Badge className={tierInfo?.color}>{tierInfo?.currentTierName || 'Bronzo'}</Badge>
             </div>
             {tierInfo?.nextTarget && (
               <div className="mt-2">
