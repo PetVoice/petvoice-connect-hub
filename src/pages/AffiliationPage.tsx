@@ -279,6 +279,17 @@ export default function AffiliationPage() {
     }
   };
 
+  const getTierDisplayName = (tierName: string) => {
+    const tierMapping: { [key: string]: string } = {
+      'Bronze': 'Bronzo',
+      'Silver': 'Argento',
+      'Gold': 'Oro',
+      'Platinum': 'Platino',
+      'Diamond': 'Platino'
+    };
+    return tierMapping[tierName] || tierName || 'Bronzo';
+  };
+
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
     
@@ -461,7 +472,7 @@ export default function AffiliationPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Badge className={tierInfo?.color}>{referralProfile.current_tier}</Badge>
+              <Badge className={tierInfo?.color}>{getTierDisplayName(referralProfile.current_tier)}</Badge>
             </div>
             {tierInfo?.nextTarget && (
               <div className="mt-2">
@@ -988,7 +999,7 @@ export default function AffiliationPage() {
                   yPos += 10;
                   doc.text(`• Crediti Attivi: €${activeCreditsBalance.toFixed(2)}`, 25, yPos);
                   yPos += 10;
-                  doc.text(`• Tier Attuale: ${referralProfile.current_tier}`, 25, yPos);
+                  doc.text(`• Tier Attuale: ${getTierDisplayName(referralProfile.current_tier)}`, 25, yPos);
                   yPos += 20;
                   
                   // Referral Details
