@@ -24,7 +24,10 @@ export const useSubscription = () => {
   const [loading, setLoading] = useState(false);
 
   const checkSubscription = async (showErrorToast = false) => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
     try {
@@ -35,6 +38,12 @@ export const useSubscription = () => {
       setSubscription(data);
     } catch (error) {
       console.error('Error checking subscription:', error);
+      // Set default free tier on error
+      setSubscription({
+        subscribed: false,
+        subscription_tier: 'free',
+        subscription_end: null,
+      });
       // Only show toast for manual checks, not automatic ones
       if (showErrorToast) {
         toast({
