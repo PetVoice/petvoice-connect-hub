@@ -67,26 +67,16 @@ const AuthPage: React.FC = () => {
     
     const { error } = await signUp(registerEmail, registerPassword, displayName, referralCode);
     
-    if (error) {
-      // Gestisce errori specifici per email già registrata
-      if (error.message.includes('User already registered') || 
-          error.message.includes('already registered') ||
-          error.message.includes('already been registered') ||
-          error.message.includes('Email already in use')) {
-        toast.error('Email già registrata. Usa un\'altra email o accedi con questa.');
-      } else {
-        toast.error(error.message);
-      }
-      setLoading(false);
-      return;
-    }
-    
-    // Registrazione riuscita - toast già gestito in AuthContext
+    // Non mostrare toast qui - sono già gestiti in AuthContext
     setLoading(false);
-    setRegisterEmail('');
-    setRegisterPassword('');
-    setDisplayName('');
-    setReferralCode('');
+    
+    if (!error) {
+      // Registrazione riuscita - pulisci i campi
+      setRegisterEmail('');
+      setRegisterPassword('');
+      setDisplayName('');
+      setReferralCode('');
+    }
   };
 
 
