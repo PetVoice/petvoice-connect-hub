@@ -57,6 +57,7 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
     return localStorage.getItem('petvoice-selected-pet') || '';
   });
   const [loading, setLoading] = useState(false);
+  const [addingPet, setAddingPet] = useState(false);
 
   const selectedPet = pets.find(pet => pet.id === selectedPetId) || null;
 
@@ -126,6 +127,10 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
 
   const addPet = async (petData: Partial<Pet>): Promise<Pet | null> => {
     if (!user) return null;
+    
+    // Prevent multiple concurrent additions
+    if (addingPet) return null;
+    setAddingPet(true);
 
     try {
       // Assicuriamoci che i campi richiesti siano presenti
@@ -166,6 +171,8 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
         variant: "destructive",
       });
       return null;
+    } finally {
+      setAddingPet(false);
     }
   };
 
