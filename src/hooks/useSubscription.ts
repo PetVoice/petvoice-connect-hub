@@ -23,7 +23,7 @@ export const useSubscription = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const checkSubscription = async () => {
+  const checkSubscription = async (showErrorToast = false) => {
     if (!user) return;
     
     setLoading(true);
@@ -35,11 +35,14 @@ export const useSubscription = () => {
       setSubscription(data);
     } catch (error) {
       console.error('Error checking subscription:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile verificare lo stato dell'abbonamento",
-        variant: "destructive",
-      });
+      // Only show toast for manual checks, not automatic ones
+      if (showErrorToast) {
+        toast({
+          title: "Errore",
+          description: "Impossibile verificare lo stato dell'abbonamento",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

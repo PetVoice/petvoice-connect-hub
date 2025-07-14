@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift } from 'lucide-react';
+import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift, CheckCircle, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useSubscription } from '@/hooks/useSubscription';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { cn } from '@/lib/utils';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 const SubscriptionPage = () => {
   const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal } = useSubscription();
+  const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
   // Auto-refresh subscription status every 5 seconds and on page load
@@ -186,26 +189,63 @@ const SubscriptionPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Analisi questo mese</span>
-                  <span className="font-medium">
-                    {analysesUsed}
-                    {subscription.subscription_tier === 'free' && ` / ${analysesLimit}`}
-                  </span>
-                </div>
-                {subscription.subscription_tier === 'free' && (
+            {/* FREE Plan - Show usage counters */}
+            {subscription.subscription_tier === 'free' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Analisi questo mese</span>
+                    <span className="font-medium">
+                      {analysesUsed} / {analysesLimit}
+                    </span>
+                  </div>
                   <Progress value={analysesPercentage} className="h-2" />
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Pet registrati</span>
-                  <span className="font-medium">{usageStats?.total_pets || 0}</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Pet registrati</span>
+                    <span className="font-medium">{usageStats?.total_pets || 0} / 1</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* PREMIUM Plan - Show unlimited usage */}
+            {subscription.subscription_tier === 'premium' && (
+              <div className="text-center py-6">
+                <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
+                  <CheckCircle className="w-6 h-6" />
+                  <span className="text-xl font-semibold">Utilizzo illimitato</span>
+                </div>
+                <p className="text-muted-foreground">
+                  Hai accesso a tutte le funzionalità premium senza limiti
+                </p>
+              </div>
+            )}
+
+            {/* FAMILY Plan - Show connected devices */}
+            {subscription.subscription_tier === 'family' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-2 text-green-600 mb-4">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-semibold">Piano Family Attivo</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      Dispositivi connessi
+                    </span>
+                    <span className="font-medium">1 / 6</span>
+                  </div>
+                  <Progress value={(1/6) * 100} className="h-2" />
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  Invita fino a 5 familiari per condividere l'account
+                </p>
+              </div>
+            )}
+
             {subscription.subscribed && (
               <div className="pt-4 border-t">
                 <Button onClick={openCustomerPortal} variant="outline" className="w-full">
@@ -383,6 +423,12 @@ const SubscriptionPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal} 
+      />
     </div>
   );
 };
