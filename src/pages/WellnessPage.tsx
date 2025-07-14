@@ -449,10 +449,8 @@ const WellnessPage = () => {
         description: "Documento caricato con successo"
       });
 
-      // Reset form and close dialog
-      setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
-      setShowAddDocument(false);
-      setEditingDocument(null);
+      // Keep dialog open after file upload - user will close it manually by clicking "Salva"
+      // setShowAddDocument(false); // Commented out to keep dialog open
       
       // Refresh data
       fetchHealthData();
