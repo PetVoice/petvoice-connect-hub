@@ -475,7 +475,7 @@ const SubscriptionPage = () => {
                     onClick={() => handleSubscribe('premium')}
                     disabled={loading || processingPlan === 'premium'}
                   >
-                    {processingPlan === 'premium' ? 'Elaborazione...' : 'Inizia con Premium'}
+                    {processingPlan === 'premium' ? 'Elaborazione...' : 'Upgrade a Premium'}
                   </Button>
                 ) : subscription.subscription_tier === 'family' ? (
                   <Button 
@@ -493,7 +493,16 @@ const SubscriptionPage = () => {
                 )
               ) : (
                 // Family plan
-                subscription.subscription_tier === 'free' || subscription.subscription_tier === 'premium' ? (
+                subscription.subscription_tier === 'free' ? (
+                  <Button 
+                    variant="outline"
+                    className="w-full hover-scale transition-all duration-200" 
+                    onClick={() => handleSubscribe('family')}
+                    disabled={loading || processingPlan === 'family'}
+                  >
+                    {processingPlan === 'family' ? 'Elaborazione...' : 'Upgrade a Family'}
+                  </Button>
+                ) : subscription.subscription_tier === 'premium' ? (
                   <Button 
                     variant="outline"
                     className="w-full hover-scale transition-all duration-200" 
