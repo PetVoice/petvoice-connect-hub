@@ -57,12 +57,12 @@ serve(async (req) => {
       logStep("Creating new customer");
     }
 
-    // Only Premium plan available with 7-day trial
+    // Only Premium plan available - NO TRIAL
     const planConfig = {
       premium: {
-        name: "Piano Premium",
+        name: "PetVoice Premium",
         amount: 97, // €0.97 in cents
-        features: "Analisi illimitate, pet illimitati, AI insights avanzati, supporto prioritario"
+        features: "Pet illimitati, analisi illimitate, AI insights avanzati, supporto prioritario"
       }
     };
 
@@ -92,7 +92,6 @@ serve(async (req) => {
       success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription`,
       subscription_data: {
-        trial_period_days: 7, // 7 giorni gratis sempre
         metadata: {
           plan_type: 'premium',
           user_id: user.id

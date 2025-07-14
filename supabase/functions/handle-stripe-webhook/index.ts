@@ -113,16 +113,7 @@ serve(async (req) => {
         const price = await stripe.prices.retrieve(priceId);
         const amount = price.unit_amount || 0;
 
-        let subscriptionTier = 'free';
-        if (amount === 97) {
-          subscriptionTier = "premium";
-        } else if (amount === 197) {
-          subscriptionTier = "family";
-        } else if (amount <= 100) {
-          subscriptionTier = "premium";
-        } else {
-          subscriptionTier = "family";
-        }
+        let subscriptionTier = 'premium'; // Solo Premium disponibile
 
         const isActive = subscription.status === 'active';
         const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
@@ -131,7 +122,7 @@ serve(async (req) => {
           email: customer.email,
           stripe_customer_id: subscription.customer,
           subscribed: isActive,
-          subscription_tier: isActive ? subscriptionTier : 'free',
+          subscription_tier: isActive ? 'premium' : null,
           subscription_end: subscriptionEnd,
           stripe_subscription_id: subscription.id,
           updated_at: new Date().toISOString(),
@@ -151,7 +142,7 @@ serve(async (req) => {
           email: customer.email,
           stripe_customer_id: subscription.customer,
           subscribed: false,
-          subscription_tier: 'free',
+          subscription_tier: null,
           subscription_end: null,
           stripe_subscription_id: null,
           is_cancelled: true,
