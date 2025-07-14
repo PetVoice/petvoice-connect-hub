@@ -81,8 +81,7 @@ const AuthPage: React.FC = () => {
       return;
     }
     
-    // Registrazione riuscita
-    toast.success('Registrazione completata! Controlla la tua email per confermare l\'account.');
+    // Registrazione riuscita - toast già gestito in AuthContext
     setLoading(false);
     setRegisterEmail('');
     setRegisterPassword('');
