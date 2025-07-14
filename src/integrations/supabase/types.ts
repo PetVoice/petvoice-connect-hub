@@ -730,6 +730,9 @@ export type Database = {
           id: string
           language: string | null
           notifications_enabled: boolean | null
+          referral_code: string | null
+          referral_count: number | null
+          referred_by: string | null
           theme: string | null
           updated_at: string
           user_id: string
@@ -741,6 +744,9 @@ export type Database = {
           id?: string
           language?: string | null
           notifications_enabled?: boolean | null
+          referral_code?: string | null
+          referral_count?: number | null
+          referred_by?: string | null
           theme?: string | null
           updated_at?: string
           user_id: string
@@ -752,6 +758,9 @@ export type Database = {
           id?: string
           language?: string | null
           notifications_enabled?: boolean | null
+          referral_code?: string | null
+          referral_count?: number | null
+          referred_by?: string | null
           theme?: string | null
           updated_at?: string
           user_id?: string
@@ -1002,49 +1011,49 @@ export type Database = {
           cancellation_date: string | null
           cancellation_effective_date: string | null
           cancellation_type: string | null
-          created_at: string
-          email: string
+          created_at: string | null
           id: string
           is_cancelled: boolean | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          subscribed: boolean
-          subscription_end: string | null
-          subscription_tier: string | null
-          updated_at: string
-          user_id: string | null
+          max_pets_allowed: number | null
+          subscription_end_date: string | null
+          subscription_plan: string
+          subscription_start_date: string | null
+          subscription_status: string
+          trial_used: boolean | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
           cancellation_date?: string | null
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
-          created_at?: string
-          email: string
+          created_at?: string | null
           id?: string
           is_cancelled?: boolean | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          subscribed?: boolean
-          subscription_end?: string | null
-          subscription_tier?: string | null
-          updated_at?: string
-          user_id?: string | null
+          max_pets_allowed?: number | null
+          subscription_end_date?: string | null
+          subscription_plan?: string
+          subscription_start_date?: string | null
+          subscription_status?: string
+          trial_used?: boolean | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
           cancellation_date?: string | null
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
-          created_at?: string
-          email?: string
+          created_at?: string | null
           id?: string
           is_cancelled?: boolean | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          subscribed?: boolean
-          subscription_end?: string | null
-          subscription_tier?: string | null
-          updated_at?: string
-          user_id?: string | null
+          max_pets_allowed?: number | null
+          subscription_end_date?: string | null
+          subscription_plan?: string
+          subscription_start_date?: string | null
+          subscription_status?: string
+          trial_used?: boolean | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1190,6 +1199,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_user_subscription: {
+        Args: { p_user_id: string; p_immediate?: boolean }
+        Returns: boolean
+      }
       check_email_exists: {
         Args: { email_to_check: string }
         Returns: boolean
@@ -1201,6 +1214,21 @@ export type Database = {
       generate_referral_code: {
         Args: Record<PropertyKey, never> | { user_email: string }
         Returns: string
+      }
+      get_user_subscription: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          subscription_plan: string
+          subscription_status: string
+          is_cancelled: boolean
+          max_pets_allowed: number
+          cancellation_effective_date: string
+        }[]
+      }
+      reactivate_user_subscription: {
+        Args: { p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
