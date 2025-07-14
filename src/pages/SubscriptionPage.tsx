@@ -221,7 +221,7 @@ const SubscriptionPage = () => {
               </Badge>
             )}
             {plan.current && (
-              <Badge variant="secondary" className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge variant="secondary" className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-50 bg-background border">
                 Piano attuale
               </Badge>
             )}
