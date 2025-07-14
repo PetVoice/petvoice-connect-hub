@@ -1210,7 +1210,7 @@ const WellnessPage = () => {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Heart className="h-8 w-8 text-destructive" />
+            <Heart className="h-8 w-8 text-primary" />
             Salute e Benessere
           </h1>
           <p className="text-muted-foreground">
