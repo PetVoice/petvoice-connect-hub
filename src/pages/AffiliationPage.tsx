@@ -96,11 +96,11 @@ const TIER_CONFIG = {
 };
 
 const BADGE_ICONS = {
-  first_referral: Trophy,
+  primo_referral: Trophy,
   streak_5: Zap,
-  tier_gold: Crown,
-  month_champion: Star,
-  social_sharer: Share2,
+  tier_platino: Crown,
+  campione_mese: Star,
+  condivisore_social: Share2,
   early_adopter: Sparkles
 };
 
