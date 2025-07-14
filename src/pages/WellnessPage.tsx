@@ -2467,11 +2467,13 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="peso">Peso</SelectItem>
-                  <SelectItem value="temperatura">Temperatura</SelectItem>
-                  <SelectItem value="pressione">Pressione</SelectItem>
-                  <SelectItem value="battito">Battito Cardiaco</SelectItem>
-                  <SelectItem value="altro">Altro</SelectItem>
+                  <SelectItem value="weight">Peso</SelectItem>
+                  <SelectItem value="temperature">Temperatura</SelectItem>
+                  <SelectItem value="heart_rate">Battito Cardiaco</SelectItem>
+                  <SelectItem value="appetite">Appetito</SelectItem>
+                  <SelectItem value="sleep">Sonno</SelectItem>
+                  <SelectItem value="activity">Attività</SelectItem>
+                  <SelectItem value="behavior">Comportamento</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 import { 
   ChartContainer,
   ChartTooltip,
@@ -147,6 +148,7 @@ const TIME_RANGES = [
 export default function StatsPage() {
   const { user } = useAuth();
   const { selectedPet: activePet, pets } = usePets();
+  const { toast } = useToast();
   
   // State management
   const [loading, setLoading] = useState(true);
@@ -1433,45 +1435,10 @@ export default function StatsPage() {
                         const textToShare = `${shareData.title}\n\n${shareData.text}\n\nVedi di più: ${shareData.url}`;
                         await navigator.clipboard.writeText(textToShare);
                         
-                        // Create and show notification
-                        const style = document.createElement('style');
-                        style.textContent = `
-                          @keyframes slideInRight {
-                            from { transform: translateX(100%); opacity: 0; }
-                            to { transform: translateX(0); opacity: 1; }
-                          }
-                          @keyframes slideOutRight {
-                            from { transform: translateX(0); opacity: 1; }
-                            to { transform: translateX(100%); opacity: 0; }
-                          }
-                        `;
-                        document.head.appendChild(style);
-                        
-                        const notification = document.createElement('div');
-                        notification.textContent = '📋 Link copiato negli appunti!';
-                        notification.style.cssText = `
-                          position: fixed;
-                          top: 20px;
-                          right: 20px;
-                          background: hsl(var(--primary));
-                          color: hsl(var(--primary-foreground));
-                          padding: 12px 16px;
-                          border-radius: 8px;
-                          font-size: 14px;
-                          font-weight: 500;
-                          z-index: 1000;
-                          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                          animation: slideInRight 0.3s ease-out;
-                        `;
-                        document.body.appendChild(notification);
-                        
-                        setTimeout(() => {
-                          notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
-                          setTimeout(() => {
-                            document.body.removeChild(notification);
-                            document.head.removeChild(style);
-                          }, 300);
-                        }, 2500);
+                        toast({
+                          title: "Testo Copiato",
+                          description: "I dettagli dell'analisi sono stati copiati negli appunti. Incollali dove vuoi condividerli!",
+                        });
                       }
                     } catch (error) {
                       console.error('Errore durante la condivisione:', error);
