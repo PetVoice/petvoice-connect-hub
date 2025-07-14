@@ -472,6 +472,29 @@ export default function StatsPage() {
     };
   }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
 
+  // Create display analytics with fallback values
+  const displayAnalytics = analytics || {
+    totalAnalyses: 0,
+    averageWellnessScore: 0,
+    emotionDistribution: [],
+    moodTrends: [],
+    wellnessTrends: [],
+    activityPatterns: [],
+    weightTrends: [],
+    temperatureTrends: [],
+    heartRateTrends: [],
+    weatherMoodData: [],
+    activeDays: 0,
+    timeSpan: 30,
+    wellnessTrend: 0,
+    healthMetricsSummary: {
+      totalMetrics: 0,
+      uniqueMetricTypes: 0,
+      lastWeekMetrics: 0,
+      criticalValues: 0
+    }
+  };
+
   if (!activePet) {
     return (
       <div className="container mx-auto p-6">
@@ -504,39 +527,6 @@ export default function StatsPage() {
     );
   }
 
-  // Crea analytics vuote se non ci sono dati, altrimenti usa quelle esistenti
-  const displayAnalytics = analytics || {
-    totalAnalyses: 0,
-    averageWellnessScore: 0,
-    emotionDistribution: [],
-    moodTrends: [],
-    wellnessTrends: [],
-    activityPatterns: [],
-    weightTrends: [],
-    temperatureTrends: [],
-    heartRateTrends: [],
-    weatherMoodData: [],
-    activeDays: 0,
-    timeSpan: 30,
-    wellnessTrend: 0,
-    healthMetricsSummary: {
-      totalMetrics: 0,
-      uniqueMetricTypes: 0,
-      lastWeekMetrics: 0,
-      criticalValues: 0
-    },
-    behaviorInsights: {
-      mostCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
-      leastCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
-      emotionalStability: 0,
-      positiveEmotionsRatio: 0
-    },
-    recommendations: [
-      "Inizia ad analizzare le emozioni del tuo pet per ricevere consigli personalizzati",
-      "Aggiungi metriche sanitarie nella sezione Benessere",
-      "Tieni un diario comportamentale regolare"
-    ]
-  };
 
   // Mostra alert informativo se non ci sono dati reali
   const hasNoData = !analytics;
