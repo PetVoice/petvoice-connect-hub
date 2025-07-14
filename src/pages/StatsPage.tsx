@@ -284,9 +284,61 @@ export default function StatsPage() {
 
     // Overview metrics
     const totalAnalyses = analysisData.length;
-    const averageWellnessScore = wellnessData.length > 0 
-      ? Math.round(wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length)
-      : 0;
+    // Calculate real health score based on multiple factors
+    const calculateHealthScore = () => {
+      if (healthData.length === 0 && diaryData.length === 0) return 0;
+      
+      let score = 0;
+      let factors = 0;
+
+      // Base score from wellness data
+      if (wellnessData.length > 0) {
+        score += wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
+        factors++;
+      }
+
+      // Health metrics contribution
+      if (healthData.length > 0) {
+        const recentHealthData = healthData.filter(h => 
+          new Date(h.recorded_at) >= subDays(new Date(), 30)
+        );
+        
+        if (recentHealthData.length > 0) {
+          // Regular monitoring bonus
+          score += Math.min(20, recentHealthData.length * 2);
+          factors++;
+          
+          // Critical values penalty
+          const criticalCount = recentHealthData.filter(h => {
+            if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
+            if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
+            return false;
+          }).length;
+          
+          score -= criticalCount * 10;
+        }
+      }
+
+      // Diary mood contribution
+      if (diaryData.length > 0) {
+        const recentMoods = diaryData
+          .filter(d => d.mood_score && new Date(d.entry_date) >= subDays(new Date(), 14))
+          .map(d => d.mood_score);
+        
+        if (recentMoods.length > 0) {
+          const avgMood = recentMoods.reduce((sum, m) => sum + m, 0) / recentMoods.length;
+          score += (avgMood * 10); // Convert 1-10 scale to percentage contribution
+          factors++;
+        }
+      }
+
+      // Default score if no data
+      if (factors === 0) return 0;
+      
+      return Math.max(0, Math.min(100, Math.round(score / factors)));
+    };
+
+    const averageWellnessScore = calculateHealthScore();
     const activeDays = new Set([
       ...analysisData.map(a => format(new Date(a.created_at), 'yyyy-MM-dd')),
       ...diaryData.map(d => d.entry_date)
@@ -856,43 +908,43 @@ export default function StatsPage() {
                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Peso monitorato</span>
-                      <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
+                      <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Temperatura monitorata</span>
-                      <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"}>
+                      <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {analytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Battito cardiaco</span>
-                      <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"}>
+                      <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {analytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Appetito monitorato</span>
-                      <Badge variant={healthData.filter(h => h.metric_type === 'appetite').length > 0 ? "default" : "secondary"}>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'appetite').length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {healthData.filter(h => h.metric_type === 'appetite').length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Sonno monitorato</span>
-                      <Badge variant={healthData.filter(h => h.metric_type === 'sleep').length > 0 ? "default" : "secondary"}>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'sleep').length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {healthData.filter(h => h.metric_type === 'sleep').length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Attività monitorata</span>
-                      <Badge variant={healthData.filter(h => h.metric_type === 'activity').length > 0 ? "default" : "secondary"}>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'activity').length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {healthData.filter(h => h.metric_type === 'activity').length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Comportamento monitorato</span>
-                      <Badge variant={healthData.filter(h => h.metric_type === 'behavior').length > 0 ? "default" : "secondary"}>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'behavior').length > 0 ? "default" : "secondary"} className="w-8 justify-center">
                         {healthData.filter(h => h.metric_type === 'behavior').length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
