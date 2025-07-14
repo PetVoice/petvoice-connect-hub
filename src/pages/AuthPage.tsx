@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Monitor, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 const AuthPage: React.FC = () => {
   const [loginEmail, setLoginEmail] = useState('');
@@ -66,14 +67,27 @@ const AuthPage: React.FC = () => {
     
     const { error } = await signUp(registerEmail, registerPassword, displayName, referralCode);
     
-    setLoading(false);
-    
-    if (!error) {
-      setRegisterEmail('');
-      setRegisterPassword('');
-      setDisplayName('');
-      setReferralCode('');
+    if (error) {
+      // Gestisce errori specifici per email già registrata
+      if (error.message.includes('User already registered') || 
+          error.message.includes('already registered') ||
+          error.message.includes('already been registered') ||
+          error.message.includes('Email already in use')) {
+        toast.error('Email già registrata. Usa un\'altra email o accedi con questa.');
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
     }
+    
+    // Registrazione riuscita
+    toast.success('Registrazione completata! Controlla la tua email per confermare l\'account.');
+    setLoading(false);
+    setRegisterEmail('');
+    setRegisterPassword('');
+    setDisplayName('');
+    setReferralCode('');
   };
 
 
