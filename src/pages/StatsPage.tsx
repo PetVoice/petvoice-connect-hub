@@ -48,7 +48,6 @@ import {
   AlertTriangle,
   Target,
   Filter,
-  RefreshCw,
   PieChart as PieChartIcon,
   LineChart as LineChartIcon,
   BarChart as BarChartIcon,
@@ -67,7 +66,8 @@ import {
   Calendar as CalendarIcon,
   MapPin,
   Thermometer,
-  Cloud
+  Cloud,
+  BarChart2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
@@ -245,12 +245,12 @@ export default function StatsPage() {
     }
   };
 
-  // Fetch data when dependencies change
+  // Fetch data when dependencies change (auto-refresh)
   useEffect(() => {
     if (selectedPets.length > 0) {
       fetchData();
     }
-  }, [selectedPets, dateRange, user]);
+  }, [selectedPets, dateRange, user, selectedTimeRange]);
 
   // Computed analytics
   const analytics = useMemo(() => {
@@ -392,31 +392,17 @@ export default function StatsPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Statistiche Avanzate</h1>
-          <p className="text-muted-foreground">
-            Analisi approfondita del benessere e comportamento dei tuoi pet
-          </p>
+        <div className="flex items-center gap-3">
+          <BarChart2 className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Statistiche Avanzate</h1>
+            <p className="text-muted-foreground">
+              Analisi approfondita del benessere e comportamento dei tuoi pet
+            </p>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          {/* Pet Selection */}
-          <Select 
-            value={selectedPets[0] || ''} 
-            onValueChange={(value) => setSelectedPets([value])}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Seleziona pet" />
-            </SelectTrigger>
-            <SelectContent>
-              {pets.map(pet => (
-                <SelectItem key={pet.id} value={pet.id}>
-                  {pet.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           {/* Time Range Selection */}
           <Select value={selectedTimeRange} onValueChange={updateTimeRange}>
             <SelectTrigger className="w-[140px]">
@@ -430,17 +416,6 @@ export default function StatsPage() {
               ))}
             </SelectContent>
           </Select>
-
-          {/* Refresh Button */}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={refreshData}
-            disabled={refreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Aggiorna
-          </Button>
 
           {/* Export Button */}
           <Button variant="outline" size="sm">
@@ -643,27 +618,29 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={{}} className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={analytics.emotionDistribution}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="count"
-                      >
-                        {analytics.emotionDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+                <div className="flex justify-center">
+                  <ChartContainer config={{}} className="h-[400px] w-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={analytics.emotionDistribution}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
+                          outerRadius={120}
+                          fill="#8884d8"
+                          dataKey="count"
+                        >
+                          {analytics.emotionDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
@@ -733,6 +710,71 @@ export default function StatsPage() {
 
         {/* Health Tab */}
         <TabsContent value="health" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Health Score Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  Punteggio Salute
+                </CardTitle>
+                <CardDescription>
+                  Indicatore generale dello stato di salute
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-4">
+                  <div className="text-4xl font-bold text-primary">
+                    {analytics.averageWellnessScore}%
+                  </div>
+                  <Progress value={analytics.averageWellnessScore} className="h-3" />
+                  <p className="text-sm text-muted-foreground">
+                    {analytics.averageWellnessScore >= 80 ? 'Ottimo' : 
+                     analytics.averageWellnessScore >= 60 ? 'Buono' : 
+                     analytics.averageWellnessScore >= 40 ? 'Discreto' : 'Da migliorare'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5" />
+                  Metriche Salute
+                </CardTitle>
+                <CardDescription>
+                  Riepilogo delle metriche di salute monitorate
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Peso monitorato</span>
+                    <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
+                      {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Controlli regolari</span>
+                    <Badge variant={analytics.activeDays > analytics.timeSpan * 0.5 ? "default" : "secondary"}>
+                      {analytics.activeDays > analytics.timeSpan * 0.5 ? 'Sì' : 'Da migliorare'}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Trend generale</span>
+                    <Badge variant={analytics.wellnessTrend >= 0 ? "default" : "destructive"}>
+                      {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                       analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Weight Trend Chart */}
           {analytics.weightTrends.length > 0 && (
             <Card>
               <CardHeader>
@@ -767,6 +809,41 @@ export default function StatsPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Health Recommendations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Raccomandazioni Salute
+              </CardTitle>
+              <CardDescription>
+                Suggerimenti basati sui dati di monitoraggio
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {analytics.averageWellnessScore < 60 && (
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      Il punteggio di benessere è sotto la media. Considera un controllo veterinario.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <ul className="text-sm space-y-2">
+                  {analytics.weightTrends.length === 0 && (
+                    <li>• Inizia a monitorare il peso regolarmente</li>
+                  )}
+                  {analytics.activeDays < analytics.timeSpan * 0.3 && (
+                    <li>• Aumenta la frequenza dei controlli</li>
+                  )}
+                  <li>• Mantieni un diario delle attività del pet</li>
+                  <li>• Monitora l'umore e il comportamento giornalmente</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
 
           <Alert>
             <Stethoscope className="h-4 w-4" />
@@ -821,57 +898,173 @@ export default function StatsPage() {
 
         {/* Predictions Tab */}
         <TabsContent value="predictions" className="space-y-6">
+          <Alert>
+            <Eye className="h-4 w-4" />
+            <AlertDescription>
+              Le previsioni sono basate sui pattern storici e sono puramente indicative.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Trend Predictions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Previsioni Trend
+                </CardTitle>
+                <CardDescription>
+                  Analisi delle tendenze future basate sui dati storici
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">Benessere Generale</span>
+                      <div className="flex items-center gap-1">
+                        {analytics.wellnessTrend > 0 ? (
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                        ) : analytics.wellnessTrend < 0 ? (
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <span className="h-4 w-4" />
+                        )}
+                        <span className={
+                          analytics.wellnessTrend > 0 ? 'text-green-600' : 
+                          analytics.wellnessTrend < 0 ? 'text-red-600' : 
+                          'text-muted-foreground'
+                        }>
+                          {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                           analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                        </span>
+                      </div>
+                    </div>
+                    <Progress 
+                      value={Math.min(100, Math.max(0, analytics.averageWellnessScore + analytics.wellnessTrend))} 
+                      className="h-2"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Previsione prossima settimana: {Math.round(analytics.averageWellnessScore + analytics.wellnessTrend)}%
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">Attività Comportamentale</span>
+                      <Badge variant={analytics.activeDays > analytics.timeSpan * 0.7 ? "default" : "secondary"}>
+                        {analytics.activeDays > analytics.timeSpan * 0.7 ? 'Alta' : 'Media'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Basata sui pattern attuali, prevediamo {Math.round(analytics.activeDays / analytics.timeSpan * 7)} giorni attivi la prossima settimana
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Risk Assessment */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Valutazione Rischi
+                </CardTitle>
+                <CardDescription>
+                  Identificazione di potenziali aree di attenzione
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">Rischio Benessere</span>
+                      <Badge variant={
+                        analytics.averageWellnessScore >= 70 ? "default" : 
+                        analytics.averageWellnessScore >= 50 ? "secondary" : "destructive"
+                      }>
+                        {analytics.averageWellnessScore >= 70 ? 'Basso' : 
+                         analytics.averageWellnessScore >= 50 ? 'Medio' : 'Alto'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {analytics.averageWellnessScore >= 70 ? 'Condizioni ottimali' : 
+                       analytics.averageWellnessScore >= 50 ? 'Monitoraggio consigliato' : 'Attenzione richiesta'}
+                    </p>
+                  </div>
+
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-medium">Consistenza Dati</span>
+                      <Badge variant={analytics.activeDays > analytics.timeSpan * 0.5 ? "default" : "secondary"}>
+                        {analytics.activeDays > analytics.timeSpan * 0.5 ? 'Buona' : 'Scarsa'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {analytics.activeDays > analytics.timeSpan * 0.5 ? 
+                        'Dati sufficienti per analisi accurate' : 
+                        'Aumenta la frequenza di monitoraggio'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recommendations */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5" />
-                Analisi Predittiva
+                Raccomandazioni Intelligenti
               </CardTitle>
               <CardDescription>
-                Previsioni basate sui dati storici e trend identificati
+                Suggerimenti personalizzati basati sull'analisi predittiva
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <Alert>
-                  <Eye className="h-4 w-4" />
-                  <AlertDescription>
-                    Le previsioni sono basate sui pattern storici e sono puramente indicative.
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Trend Benessere</h4>
-                    <div className="flex items-center gap-2">
-                      {analytics.wellnessTrend > 0 ? (
-                        <>
-                          <TrendingUp className="h-4 w-4 text-green-600" />
-                          <span className="text-green-600">In miglioramento</span>
-                        </>
-                      ) : analytics.wellnessTrend < 0 ? (
-                        <>
-                          <TrendingDown className="h-4 w-4 text-red-600" />
-                          <span className="text-red-600">In peggioramento</span>
-                        </>
-                      ) : (
-                        <span className="text-muted-foreground">Stabile</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">Raccomandazioni</h4>
-                    <ul className="text-sm space-y-1">
-                      {analytics.wellnessTrend < 0 && (
-                        <li>• Aumenta le attività positive</li>
-                      )}
-                      {analytics.activeDays < analytics.timeSpan * 0.5 && (
-                        <li>• Monitora più regolarmente</li>
-                      )}
-                      <li>• Mantieni la routine attuale</li>
-                    </ul>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <h4 className="font-medium">Azioni Immediate</h4>
+                  <ul className="text-sm space-y-2">
+                    {analytics.wellnessTrend < -2 && (
+                      <li className="flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3 text-orange-500" />
+                        Consulta un veterinario per il trend negativo
+                      </li>
+                    )}
+                    {analytics.activeDays < analytics.timeSpan * 0.3 && (
+                      <li className="flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-blue-500" />
+                        Aumenta la frequenza di monitoraggio
+                      </li>
+                    )}
+                    {analytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30) && (
+                      <li className="flex items-center gap-2">
+                        <Heart className="h-3 w-3 text-red-500" />
+                        Considera attività rilassanti
+                      </li>
+                    )}
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium">Obiettivi a Lungo Termine</h4>
+                  <ul className="text-sm space-y-2">
+                    <li className="flex items-center gap-2">
+                      <Target className="h-3 w-3 text-green-500" />
+                      Mantieni punteggio benessere &gt;75%
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Award className="h-3 w-3 text-purple-500" />
+                      Raggiungi 80% giorni attivi al mese
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <BarChart3 className="h-3 w-3 text-indigo-500" />
+                      Stabilizza i pattern comportamentali
+                    </li>
+                  </ul>
                 </div>
               </div>
             </CardContent>
@@ -890,7 +1083,19 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full">
+                <Button 
+                  className="w-full hover:bg-primary/90 transition-colors"
+                  onClick={() => {
+                    // Generate PDF report
+                    const reportData = {
+                      pet: activePet?.name,
+                      dateRange: `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`,
+                      analytics
+                    };
+                    console.log('Generating PDF report:', reportData);
+                    // TODO: Implement PDF generation
+                  }}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Genera PDF
                 </Button>
@@ -906,7 +1111,21 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:bg-primary/90 transition-colors"
+                  onClick={() => {
+                    // Export CSV data
+                    const csvData = {
+                      analyses: analysisData,
+                      diary: diaryData,
+                      health: healthData,
+                      wellness: wellnessData
+                    };
+                    console.log('Exporting CSV data:', csvData);
+                    // TODO: Implement CSV export
+                  }}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Esporta CSV
                 </Button>
@@ -922,7 +1141,25 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:bg-primary/90 transition-colors"
+                  onClick={() => {
+                    // Share progress
+                    const shareData = {
+                      title: `Progressi di ${activePet?.name}`,
+                      text: `Il mio pet ha un punteggio di benessere del ${analytics.averageWellnessScore}%!`,
+                      url: window.location.href
+                    };
+                    if (navigator.share) {
+                      navigator.share(shareData).catch(console.error);
+                    } else {
+                      // Fallback: copy to clipboard
+                      navigator.clipboard.writeText(`${shareData.title}: ${shareData.text} - ${shareData.url}`);
+                      console.log('Shared data copied to clipboard');
+                    }
+                  }}
+                >
                   <Share2 className="h-4 w-4 mr-2" />
                   Condividi
                 </Button>
