@@ -62,10 +62,7 @@ serve(async (req) => {
             const amount = price.unit_amount || 0;
             logStep("Price details", { priceId, amount });
 
-            let subscriptionTier = 'premium'; // Default to premium for any paid subscription
-            if (amount >= 197 || amount >= 19700) { // Family plan (€1.97 or €19.7)
-              subscriptionTier = "family";
-            }
+            const subscriptionTier = 'premium'; // Solo piano Premium disponibile
 
             const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
             const customerEmail = session.customer_details?.email || session.customer_email;

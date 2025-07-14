@@ -41,8 +41,8 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { plan } = await req.json();
-    if (!plan || !['premium', 'family'].includes(plan)) {
-      throw new Error("Invalid plan specified");
+    if (!plan || plan !== 'premium') {
+      throw new Error('Only premium plan is available');
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -57,22 +57,17 @@ serve(async (req) => {
       logStep("Creating new customer");
     }
 
-    // Plan configurations
+    // Only Premium plan available with 7-day trial
     const planConfig = {
       premium: {
-        name: "Premium Plan",
+        name: "Piano Premium",
         amount: 97, // €0.97 in cents
-        features: "Unlimited pets, unlimited analyses, AI insights, priority support"
-      },
-      family: {
-        name: "Family Plan", 
-        amount: 197, // €1.97 in cents
-        features: "6 connected accounts, shared pets, group challenges"
+        features: "Analisi illimitate, pet illimitati, AI insights avanzati, supporto prioritario"
       }
     };
 
-    const selectedPlan = planConfig[plan as keyof typeof planConfig];
-    logStep("Plan selected", { plan, selectedPlan });
+    const selectedPlan = planConfig.premium;
+    logStep("Premium plan selected", { selectedPlan });
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
@@ -97,9 +92,9 @@ serve(async (req) => {
       success_url: `${origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/subscription`,
       subscription_data: {
-        trial_period_days: 7,
+        trial_period_days: 7, // 7 giorni gratis sempre
         metadata: {
-          plan_type: plan,
+          plan_type: 'premium',
           user_id: user.id
         }
       },

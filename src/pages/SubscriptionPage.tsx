@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift, CheckCircle, Smartphone, Settings, AlertTriangle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Crown, Gift, CheckCircle, Settings, AlertTriangle, BarChart3, Shield, CreditCard, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { cn } from '@/lib/utils';
@@ -13,7 +12,7 @@ import { CancellationModal } from '@/components/CancellationModal';
 import { ReactivationModal } from '@/components/ReactivationModal';
 
 const SubscriptionPage = () => {
-  const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal, cancelSubscription, reactivateSubscription } = useSubscription();
+  const { subscription, loading, createCheckoutSession, openCustomerPortal, cancelSubscription, reactivateSubscription } = useSubscription();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   const [showCancellationModal, setShowCancellationModal] = useState(false);
@@ -21,12 +20,9 @@ const SubscriptionPage = () => {
   const [cancellationType, setCancellationType] = useState<'immediate' | 'end_of_period'>('end_of_period');
   const [isProcessingCancellation, setIsProcessingCancellation] = useState(false);
 
-  // Remove the useEffect that was causing infinite loops
-  // The useSubscription hook already handles checking subscription status
-
-  const handleSubscribe = async (plan: 'premium' | 'family') => {
-    setProcessingPlan(plan);
-    const checkoutUrl = await createCheckoutSession(plan);
+  const handleSubscribe = async () => {
+    setProcessingPlan('premium');
+    const checkoutUrl = await createCheckoutSession('premium');
     if (checkoutUrl) {
       window.open(checkoutUrl, '_blank');
     }
@@ -56,121 +52,15 @@ const SubscriptionPage = () => {
     }
   };
 
-  const plans = [
-    {
-      id: 'free',
-      name: 'Free',
-      price: '€0',
-      period: '/mese',
-      description: 'Perfetto per iniziare',
-      features: [
-        '1 pet',
-        '5 analisi al mese',
-        'Features base',
-        'Accesso community',
-        'Supporto email'
-      ],
-      limitations: [
-        'Analisi limitate',
-        'Nessun insight AI',
-        'Export limitato'
-      ],
-      popular: false,
-      current: subscription.subscription_tier === 'free'
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: '€0,97',
-      period: '/mese',
-      description: 'Il piano più popolare',
-      features: [
-        'Pet illimitati',
-        'Analisi illimitate',
-        'AI insights avanzati',
-        'Music therapy',
-        'Export completo',
-        'Supporto prioritario',
-        'Dashboard avanzata',
-        'Notifiche personalizzate'
-      ],
-      limitations: [],
-      popular: true,
-      current: subscription.subscription_tier === 'premium'
-    },
-    {
-      id: 'family',
-      name: 'Family',
-      price: '€1,97',
-      period: '/mese',
-      description: 'Perfetto per famiglie',
-      features: [
-        'Tutto del Premium',
-        '3 account connessi',
-        'Pet condivisi',
-        'Group challenges',
-        'Statistiche famiglia',
-        'Gestione multiutente',
-        'Backup automatico',
-        'Support dedicato'
-      ],
-      limitations: [],
-      popular: false,
-      current: subscription.subscription_tier === 'family'
-    }
-  ];
-
-  const faqItems = [
-    {
-      question: "Posso cancellare in qualsiasi momento?",
-      answer: "Sì, puoi cancellare il tuo abbonamento in qualsiasi momento. L'accesso alle funzioni premium continuerà fino alla fine del periodo di fatturazione corrente."
-    },
-    {
-      question: "C'è un periodo di prova gratuito?",
-      answer: "Sì! Tutti i piani premium includono 7 giorni di prova gratuita. Puoi cancellare prima della fine del periodo di prova senza essere addebitato."
-    },
-    {
-      question: "Posso cambiare piano in qualsiasi momento?",
-      answer: "Certamente! Puoi effettuare l'upgrade o il downgrade del tuo piano in qualsiasi momento tramite il portale di gestione."
-    },
-    {
-      question: "I dati sono sicuri?",
-      answer: "Assolutamente sì. Utilizziamo crittografia di livello bancario e rispettiamo tutte le normative GDPR per proteggere i tuoi dati."
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Maria Rossi",
-      text: "PetVoice ha trasformato il modo in cui capisco il mio cane. Le analisi AI sono incredibilmente accurate!",
-      plan: "Premium"
-    },
-    {
-      name: "Luca Bianchi", 
-      text: "Il piano Family ci permette di monitorare tutti i nostri animali insieme. Fantastico per famiglie numerose!",
-      plan: "Family"
-    },
-    {
-      name: "Elena Verde",
-      text: "Dopo 3 mesi di utilizzo, il comportamento del mio gatto è migliorato moltissimo grazie ai consigli dell'AI.",
-      plan: "Premium"
-    }
-  ];
-
   const usageStats = subscription.usage;
   const analysesUsed = usageStats?.analyses_this_month || 0;
-  const analysesLimit = subscription.subscription_tier === 'free' ? 5 : Infinity;
-  const analysesPercentage = subscription.subscription_tier === 'free' ? (analysesUsed / analysesLimit) * 100 : 0;
-
+  
   // Check if subscription is cancelled but still active
   const isCancelled = subscription.is_cancelled;
   const isEndOfPeriodCancellation = isCancelled && subscription.cancellation_type === 'end_of_period';
   const cancellationEffectiveDate = subscription.cancellation_effective_date 
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
     : '';
-
-  // Hide upgrade/downgrade buttons if subscription is cancelled
-  const showPlanButtons = !isCancelled;
 
   return (
     <div className="space-y-12">
@@ -181,11 +71,10 @@ const SubscriptionPage = () => {
           7 giorni di prova gratuita
         </div>
         <h1 className="text-4xl font-bold">
-          Scegli il piano perfetto per te e i tuoi pet
+          Piano Premium con 7 giorni gratuiti
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Sblocca il potenziale completo di PetVoice con analisi AI avanzate, 
-          insights comportamentali e supporto prioritario.
+          Tutto quello che ti serve per i tuoi pet. Analisi illimitate, pet illimitati, AI insights avanzati.
         </p>
         <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
@@ -194,119 +83,61 @@ const SubscriptionPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-blue-500" />
-            Garanzia 30 giorni
+            Nessun pagamento ora
           </div>
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-yellow-500" />
-            Cancellazione istantanea
+            Cancella quando vuoi
           </div>
         </div>
       </div>
 
       {/* Current Usage Stats */}
-      {subscription.subscription_tier && (
+      {subscription.subscribed && (
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
-              Il tuo utilizzo attuale
+              Il tuo utilizzo
             </CardTitle>
             <CardDescription>
-              Piano attuale: <Badge variant="outline" className="ml-1">
-                {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)}
-              </Badge>
+              Piano attuale: <Badge variant="outline" className="ml-1">Premium</Badge>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* FREE Plan - Show usage counters */}
-            {subscription.subscription_tier === 'free' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Analisi questo mese</span>
-                    <span className="font-medium">
-                      {analysesUsed} / {analysesLimit}
-                    </span>
-                  </div>
-                  <Progress value={analysesPercentage} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Pet registrati</span>
-                    <span className="font-medium">{usageStats?.total_pets || 0} / 1</span>
-                  </div>
-                </div>
+            <div className="text-center py-6">
+              <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
+                <CheckCircle className="w-6 h-6" />
+                <span className="text-xl font-semibold">Utilizzo illimitato</span>
               </div>
-            )}
+              <p className="text-muted-foreground">
+                Hai accesso a tutte le funzionalità premium senza limiti
+              </p>
+              {isEndOfPeriodCancellation && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ Attivo fino al {cancellationEffectiveDate}
+                  </p>
+                </div>
+              )}
+            </div>
 
-            {/* PREMIUM Plan - Show unlimited usage */}
-            {subscription.subscription_tier === 'premium' && (
-              <div className="text-center py-6">
-                <div className="flex items-center justify-center gap-2 text-green-600 mb-2">
-                  <CheckCircle className="w-6 h-6" />
-                  <span className="text-xl font-semibold">Utilizzo illimitato</span>
-                </div>
-                <p className="text-muted-foreground">
-                  Hai accesso a tutte le funzionalità premium senza limiti
-                </p>
-                {isEndOfPeriodCancellation && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      ⚠️ Attivo fino al {cancellationEffectiveDate}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* FAMILY Plan - Show connected devices */}
-            {subscription.subscription_tier === 'family' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-center gap-2 text-green-600 mb-4">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-semibold">Piano Family Attivo</span>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Smartphone className="w-4 h-4" />
-                      Dispositivi connessi
-                    </span>
-                    <span className="font-medium">1 / 3</span>
-                  </div>
-                  <Progress value={(1/3) * 100} className="h-2" />
-                </div>
-                <p className="text-xs text-muted-foreground text-center">
-                  Invita fino a 2 familiari per condividere l'account
-                </p>
-                {isEndOfPeriodCancellation && (
-                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      ⚠️ Attivo fino al {cancellationEffectiveDate}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {subscription.subscribed && (
-              <div className="pt-4 border-t">
-                <Button onClick={openCustomerPortal} variant="outline" className="w-full">
-                  Gestisci abbonamento
-                </Button>
-              </div>
-            )}
+            <div className="pt-4 border-t">
+              <Button onClick={openCustomerPortal} variant="outline" className="w-full">
+                Gestisci abbonamento
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {/* Subscription Management Section */}
-      {subscription.subscribed && subscription.subscription_tier !== 'free' && (
+      {subscription.subscribed && (
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              🔧 Gestione Abbonamento
+              Gestione Abbonamento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -318,11 +149,7 @@ const SubscriptionPage = () => {
                     <span className="font-semibold text-yellow-800">⚠️ ABBONAMENTO IN CANCELLAZIONE</span>
                   </div>
                   <p className="text-sm text-yellow-800 mb-3">
-                    Il tuo abbonamento {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)} è stato cancellato
-                    ma rimane attivo fino al {cancellationEffectiveDate}
-                  </p>
-                  <p className="text-sm text-yellow-800">
-                    Dopo questa data tornerai automaticamente al piano Free
+                    Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
                   </p>
                 </div>
                 <Button 
@@ -336,9 +163,7 @@ const SubscriptionPage = () => {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <p className="font-medium">
-                    Il tuo abbonamento {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)} è attivo
-                  </p>
+                  <p className="font-medium">Il tuo abbonamento Premium è attivo</p>
                   {subscription.subscription_end && (
                     <p className="text-sm text-muted-foreground">
                       Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
@@ -369,180 +194,102 @@ const SubscriptionPage = () => {
         </Card>
       )}
 
-      {/* Pricing Plans */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {plans.map((plan) => (
-          <Card 
-            key={plan.id} 
-            className={cn(
-              "relative transition-all duration-200",
-              plan.popular && "border-primary shadow-lg scale-105",
-              plan.current && "ring-2 ring-primary"
-            )}
-          >
-            {plan.popular && (
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
-                Più popolare
-              </Badge>
-            )}
-            {plan.current && (
-              <Badge variant="secondary" className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-50 bg-background border">
-                Piano attuale
-              </Badge>
-            )}
-            
-            <CardHeader className="text-center pb-8">
-              <div className={cn(
-                "w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-4",
-                plan.id === 'free' && "bg-gray-100",
-                plan.id === 'premium' && "bg-gradient-to-br from-purple-100 to-blue-100",
-                plan.id === 'family' && "bg-gradient-to-br from-green-100 to-blue-100"
-              )}>
-                {plan.id === 'free' && <Shield className="w-6 h-6" />}
-                {plan.id === 'premium' && <Crown className="w-6 h-6 text-purple-600" />}
-                {plan.id === 'family' && <Users className="w-6 h-6 text-green-600" />}
+      {/* Premium Plan Card */}
+      <div className="max-w-md mx-auto">
+        <Card className={cn(
+          "relative transition-all duration-200 border-primary shadow-lg scale-105",
+          subscription.subscribed && "ring-2 ring-green-500 border-green-500"
+        )}>
+          <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-green-500 to-blue-500 text-white">
+            🎉 7 GIORNI GRATIS
+          </Badge>
+          
+          {subscription.subscribed && (
+            <Badge variant="secondary" className="absolute -top-3 right-4 z-50 bg-green-100 text-green-800 border-green-200">
+              ✓ ATTIVO
+            </Badge>
+          )}
+          
+          <CardHeader className="text-center pb-8">
+            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center mb-4">
+              <Crown className="w-8 h-8 text-purple-600" />
+            </div>
+            <CardTitle className="text-3xl text-primary">Premium</CardTitle>
+            <CardDescription className="text-lg">Tutto quello che ti serve per i tuoi pet</CardDescription>
+            <div className="pt-4 space-y-2">
+              <div className="text-sm text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full">
+                PROVA GRATUITA PER 7 GIORNI
               </div>
-              <CardTitle className="text-2xl">{plan.name}</CardTitle>
-              <CardDescription>{plan.description}</CardDescription>
-              <div className="pt-4">
-                <span className="text-4xl font-bold">{plan.price}</span>
-                <span className="text-muted-foreground">{plan.period}</span>
-                {plan.id !== 'free' && (
-                  <div className="text-sm text-green-600 font-medium mt-1">
-                    Risparmia 20% con il piano annuale
-                  </div>
-                )}
+              <div>
+                <span className="text-4xl font-bold text-primary">€0,97</span>
+                <span className="text-muted-foreground">/mese</span>
               </div>
-            </CardHeader>
+              <div className="text-sm text-muted-foreground">
+                dopo 7 giorni gratis
+              </div>
+            </div>
+          </CardHeader>
 
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                {plan.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              {[
+                'Pet illimitati',
+                'Analisi illimitate',
+                'AI insights avanzati',
+                'Music therapy',
+                'Export completo',
+                'Supporto prioritario',
+                'Dashboard avanzata',
+                'Notifiche personalizzate',
+                'Backup automatico',
+                'Accesso anticipato'
+              ].map((feature, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3 h-3 text-green-600" />
                   </div>
-                ))}
-              </div>
-              
-              {plan.limitations.length > 0 && (
-                <>
-                  <Separator />
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Limitazioni:</p>
-                    {plan.limitations.map((limitation, index) => (
-                      <div key={index} className="flex items-center gap-3 text-muted-foreground">
-                        <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                          <div className="w-1 h-1 bg-muted-foreground rounded-full" />
-                        </div>
-                        <span className="text-sm">{limitation}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </CardContent>
+                  <span className="text-sm font-medium">{feature}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
 
-            <CardFooter>
-              {!showPlanButtons ? (
-                <Button variant="outline" className="w-full" disabled>
-                  Abbonamento in gestione
+          <CardFooter className="pt-6">
+            {subscription.subscribed ? (
+              <div className="w-full space-y-3">
+                <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Abbonamento Attivo
                 </Button>
-              ) : plan.current ? (
-                <Button variant="outline" className="w-full" disabled>
-                  Piano attuale
+                <p className="text-xs text-center text-muted-foreground">
+                  Gestisci il tuo abbonamento nelle impostazioni
+                </p>
+              </div>
+            ) : (
+              <div className="w-full space-y-3">  
+                <Button 
+                  className="w-full text-lg py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
+                  size="lg"
+                  onClick={handleSubscribe}
+                  disabled={processingPlan === 'premium' || loading}
+                >
+                  {processingPlan === 'premium' ? (
+                    'Elaborazione...'
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Gift className="w-5 h-5" />
+                      Inizia la Prova Gratuita
+                    </span>
+                  )}
                 </Button>
-              ) : plan.id === 'free' ? (
-                subscription.subscription_tier === 'premium' || subscription.subscription_tier === 'family' ? (
-                  <Button 
-                    variant="outline"
-                    className="w-full hover-scale transition-all duration-200" 
-                    onClick={() => openCustomerPortal()}
-                    disabled={loading}
-                  >
-                    Downgrade a Free
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Piano gratuito
-                  </Button>
-                )
-              ) : plan.id === 'premium' ? (
-                subscription.subscription_tier === 'free' ? (
-                  <Button 
-                    variant="outline"
-                    className="w-full hover-scale transition-all duration-200" 
-                    onClick={() => handleSubscribe('premium')}
-                    disabled={loading || processingPlan === 'premium'}
-                  >
-                    {processingPlan === 'premium' ? 'Elaborazione...' : 'Upgrade a Premium'}
-                  </Button>
-                ) : subscription.subscription_tier === 'family' ? (
-                  <Button 
-                    variant="outline"
-                    className="w-full hover-scale transition-all duration-200" 
-                    onClick={() => openCustomerPortal()}
-                    disabled={loading}
-                  >
-                    Downgrade a Premium
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Piano attuale
-                  </Button>
-                )
-              ) : (
-                // Family plan
-                subscription.subscription_tier === 'free' ? (
-                  <Button 
-                    variant="outline"
-                    className="w-full hover-scale transition-all duration-200" 
-                    onClick={() => handleSubscribe('family')}
-                    disabled={loading || processingPlan === 'family'}
-                  >
-                    {processingPlan === 'family' ? 'Elaborazione...' : 'Upgrade a Family'}
-                  </Button>
-                ) : subscription.subscription_tier === 'premium' ? (
-                  <Button 
-                    variant="outline"
-                    className="w-full hover-scale transition-all duration-200" 
-                    onClick={() => handleSubscribe('family')}
-                    disabled={loading || processingPlan === 'family'}
-                  >
-                    {processingPlan === 'family' ? 'Elaborazione...' : 'Upgrade a Family'}
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Piano attuale
-                  </Button>
-                )
-              )}
-            </CardFooter>
-          </Card>
-        ))}
+                <p className="text-xs text-center text-muted-foreground">
+                  Nessun pagamento richiesto ora • Cancella quando vuoi
+                </p>
+              </div>
+            )}
+          </CardFooter>
+        </Card>
       </div>
-
-      {/* Modals */}
-      <CancellationModal
-        isOpen={showCancellationModal}
-        onClose={() => setShowCancellationModal(false)}
-        onConfirm={confirmCancellation}
-        cancellationType={cancellationType}
-        subscriptionTier={subscription.subscription_tier}
-        subscriptionEnd={subscription.subscription_end}
-        isLoading={isProcessingCancellation}
-      />
-
-      <ReactivationModal
-        isOpen={showReactivationModal}
-        onClose={() => setShowReactivationModal(false)}
-        onConfirm={confirmReactivation}
-        subscriptionTier={subscription.subscription_tier}
-        subscriptionEnd={subscription.subscription_end}
-        isLoading={isProcessingCancellation}
-      />
-
-      {/* ... keep existing code (testimonials, FAQ, etc.) */}
 
       {/* Social Proof */}
       <div className="text-center space-y-6">
@@ -562,36 +309,28 @@ const SubscriptionPage = () => {
         </div>
       </div>
 
-      {/* Testimonials */}
-      <div className="space-y-8">
-        <h2 className="text-3xl font-bold text-center">Cosa dicono i nostri utenti</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => (
-            <Card key={index} className="text-center">
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground italic mb-4">"{testimonial.text}"</p>
-                <div>
-                  <p className="font-semibold">{testimonial.name}</p>
-                  <Badge variant="outline" className="mt-1">{testimonial.plan}</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
       {/* FAQ */}
       <div className="space-y-8 max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold text-center">Domande frequenti</h2>
         <div className="space-y-6">
-          {faqItems.map((item, index) => (
-            <Card key={index}>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-2">{item.question}</h3>
-                <p className="text-muted-foreground">{item.answer}</p>
-              </CardContent>
-            </Card>
-          ))}
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-2">La prova gratuita è davvero gratis?</h3>
+              <p className="text-muted-foreground">Sì! 7 giorni completamente gratuiti. Nessun pagamento richiesto all'inizio. Puoi cancellare prima della fine senza essere addebitato.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-2">Posso cancellare in qualsiasi momento?</h3>
+              <p className="text-muted-foreground">Assolutamente sì. Puoi cancellare il tuo abbonamento in qualsiasi momento. L'accesso alle funzioni premium continuerà fino alla fine del periodo di fatturazione.</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-2">I dati sono sicuri?</h3>
+              <p className="text-muted-foreground">Sì. Utilizziamo crittografia di livello bancario e rispettiamo tutte le normative GDPR per proteggere i tuoi dati.</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -613,7 +352,26 @@ const SubscriptionPage = () => {
         </div>
       </div>
 
-      {/* Upgrade Modal */}
+      {/* Modals */}
+      <CancellationModal
+        isOpen={showCancellationModal}
+        onClose={() => setShowCancellationModal(false)}
+        onConfirm={confirmCancellation}
+        cancellationType={cancellationType}
+        subscriptionTier="premium"
+        subscriptionEnd={subscription.subscription_end}
+        isLoading={isProcessingCancellation}
+      />
+
+      <ReactivationModal
+        isOpen={showReactivationModal}
+        onClose={() => setShowReactivationModal(false)}
+        onConfirm={confirmReactivation}
+        subscriptionTier="premium"
+        subscriptionEnd={subscription.subscription_end}
+        isLoading={isProcessingCancellation}
+      />
+
       <UpgradeModal 
         open={showUpgradeModal} 
         onOpenChange={setShowUpgradeModal} 
