@@ -422,7 +422,7 @@ const WellnessPage = () => {
         pet_id: selectedPet.id,
         title: newDocument.title.trim(),
         description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'esame',
+        record_type: newDocument.record_type || 'exam',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         document_url: publicUrl,
         notes: newDocument.notes?.trim() || null
@@ -497,7 +497,7 @@ const WellnessPage = () => {
         pet_id: selectedPet.id,
         title: newDocument.title.trim(),
         description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'esame',
+        record_type: newDocument.record_type || 'exam',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         notes: newDocument.notes?.trim() || null
       };
@@ -2200,13 +2200,13 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona tipo" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="visita">Visita</SelectItem>
-                    <SelectItem value="esame">Esame</SelectItem>
-                    <SelectItem value="vaccino">Vaccino</SelectItem>
-                    <SelectItem value="operazione">Operazione</SelectItem>
-                    <SelectItem value="documento">Documento</SelectItem>
-                  </SelectContent>
+                <SelectContent>
+                  <SelectItem value="visit">Visita</SelectItem>
+                  <SelectItem value="exam">Esame</SelectItem>
+                  <SelectItem value="vaccination">Vaccino</SelectItem>
+                  <SelectItem value="surgery">Operazione</SelectItem>
+                  <SelectItem value="document">Documento</SelectItem>
+                </SelectContent>
                 </Select>
               </div>
             </div>
