@@ -299,7 +299,7 @@ const WellnessPage = () => {
         month: format(date, 'MMM', { locale: it }),
         score: monthMetrics.length > 0 
           ? Math.round(monthMetrics.reduce((sum, m) => sum + (m.value * 10), 0) / monthMetrics.length)
-          : Math.floor(Math.random() * 20) + 75,
+          : null, // No fake data
         visits: monthMetrics.filter(m => m.metric_type === 'checkup').length
       });
     }
@@ -1200,7 +1200,7 @@ const WellnessPage = () => {
   };
 
   const getHealthScore = () => {
-    if (healthMetrics.length === 0) return 85; // Default score
+    if (healthMetrics.length === 0) return null; // No data available
     const recentMetrics = healthMetrics.slice(0, 5);
     const avgScore = recentMetrics.reduce((sum, metric) => sum + (metric.value * 10), 0) / recentMetrics.length;
     return Math.round(avgScore);
@@ -1283,9 +1283,21 @@ const WellnessPage = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Punteggio Generale</span>
-                    <span className="text-2xl font-bold text-primary">{getHealthScore()}/100</span>
+                    {getHealthScore() !== null ? (
+                      <span className="text-2xl font-bold text-primary">{getHealthScore()}/100</span>
+                    ) : (
+                      <span className="text-lg text-muted-foreground">Non disponibile</span>
+                    )}
                   </div>
-                  <Progress value={getHealthScore()} className="h-3" />
+                  {getHealthScore() !== null ? (
+                    <Progress value={getHealthScore()} className="h-3" />
+                  ) : (
+                    <div className="h-3 bg-muted rounded-full">
+                      <div className="h-full bg-muted-foreground/20 rounded-full flex items-center justify-center">
+                        <span className="text-xs text-muted-foreground">Aggiungi metriche sanitarie per calcolare il punteggio</span>
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -2014,10 +2026,23 @@ const WellnessPage = () => {
                 <CardTitle className="text-sm">Correlazioni Salute-Umore</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">85%</div>
-                <p className="text-sm text-muted-foreground">
-                  Correlazione positiva tra visite regolari e benessere generale
-                </p>
+                {healthMetrics.length > 0 ? (
+                  <>
+                    <div className="text-2xl font-bold">
+                      {Math.round((healthMetrics.filter(m => m.value > 7).length / healthMetrics.length) * 100)}%
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Correlazione tra visite regolari e metriche sanitarie positive
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-lg text-muted-foreground">Non disponibile</div>
+                    <p className="text-sm text-muted-foreground">
+                      Aggiungi metriche sanitarie per vedere le correlazioni
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
