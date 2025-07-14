@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +31,15 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import jsPDF from 'jspdf';
+
+interface SharingTemplate {
+  id: string;
+  platform: string;
+  content: string;
+  template_name: string;
+  is_active: boolean;
+  variables: any;
+}
 
 interface AnalysisData {
   id: string;
@@ -84,6 +93,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [comparisonMode, setComparisonMode] = useState(false);
   const [comparedAnalyses, setComparedAnalyses] = useState<AnalysisData[]>([]);
   const [showComparisonModal, setShowComparisonModal] = useState(false);
+  const [templates, setTemplates] = useState<SharingTemplate[]>([]);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  useEffect(() => {
+    loadSharingTemplates();
+  }, []);
+
+  const loadSharingTemplates = async () => {
+    try {
+      const { data: templateData } = await supabase
+        .from('sharing_templates')
+        .select('*')
+        .eq('is_active', true);
+      
+      setTemplates(templateData || []);
+    } catch (error) {
+      console.error('Error loading templates:', error);
+    }
+  };
 
   if (analyses.length === 0) {
     return (
@@ -211,48 +239,47 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     }
   };
 
-  const shareAnalysis = async (analysis: AnalysisData) => {
-    try {
-      const shareData = {
-        title: `Analisi Emotiva - ${petName}`,
-        text: `${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni: ${analysis.recommendations.slice(0, 2).join(', ')}`,
-        url: window.location.href
-      };
+  const shareToSocial = (platform: string, template: SharingTemplate, analysis: AnalysisData) => {
+    if (!selectedPet) return;
 
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-        toast({
-          title: "Condiviso con Successo",
-          description: "L'analisi è stata condivisa.",
-        });
-      } else {
-        // Fallback: copy to clipboard with enhanced content
-        const shareText = `🐾 ${shareData.title}\n\n${shareData.text}\n\n🔗 Link: ${shareData.url}`;
-        await navigator.clipboard.writeText(shareText);
-        toast({
-          title: "Testo Copiato",
-          description: "I dettagli dell'analisi sono stati copiati negli appunti. Incollali dove vuoi condividerli!",
-        });
-      }
-    } catch (error) {
-      // Fallback finale: aprire dialog condivisione manuale
-      const shareText = `🐾 Analisi Emotiva - ${petName}\n\n${petName} mostra emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nVuoi condividere questi risultati?`;
-      
-      if (confirm(shareText)) {
-        try {
-          await navigator.clipboard.writeText(`${petName}: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza) - ${window.location.href}`);
-          toast({
-            title: "Copiato negli Appunti",
-            description: "Puoi ora incollare il link dove preferisci condividerlo",
-          });
-        } catch {
-          toast({
-            title: "Condivisione Manuale",
-            description: "Copia questo link per condividere: " + window.location.href,
-          });
-        }
-      }
+    let content = template.content;
+    const currentUrl = window.location.href;
+    
+    // Replace variables in template
+    content = content.replace(/\{\{pet_name\}\}/g, petName);
+    content = content.replace(/\{\{emotion\}\}/g, analysis.primary_emotion);
+    content = content.replace(/\{\{confidence\}\}/g, analysis.primary_confidence.toString());
+    content = content.replace(/\{\{insights\}\}/g, analysis.behavioral_insights);
+    content = content.replace(/\{\{url\}\}/g, currentUrl);
+
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(content)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(content)}`;
+        break;
+      case 'instagram':
+        // Instagram web interface
+        shareUrl = `https://www.instagram.com/`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(content)}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`;
+        break;
     }
+
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
+
+  const shareAnalysis = (analysis: AnalysisData) => {
+    setShareDialogOpen(true);
   };
 
   const downloadReport = (analysis: AnalysisData) => {
@@ -854,6 +881,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Condividi Analisi</DialogTitle>
+            <DialogDescription>
+              Scegli come condividere i risultati dell'analisi di {petName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4">
+            {templates.slice(0, 4).map((template) => (
+              <Button
+                key={template.id}
+                variant="outline"
+                className="h-20 flex-col"
+                onClick={() => {
+                  shareToSocial(template.platform, template, selectedAnalysis);
+                  setShareDialogOpen(false);
+                }}
+              >
+                <div className="capitalize">{template.platform}</div>
+              </Button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
