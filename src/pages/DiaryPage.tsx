@@ -712,7 +712,7 @@ const DiaryPage: React.FC = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} variant="outline">
+              <Button onClick={resetForm}>
                 <Plus className="h-4 w-4 mr-2" />
                 Nuova Voce
               </Button>
@@ -1404,16 +1404,7 @@ const DiaryPage: React.FC = () => {
                       Elimina Tutte
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
-                      resetForm();
-                      setDayEntriesModal({ ...dayEntriesModal, open: false });
-                      setIsDialogOpen(true);
-                    }}
-                  >
+                  <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Nuova Voce
                   </Button>
@@ -1517,7 +1508,6 @@ const DiaryPage: React.FC = () => {
                     Inizia creando la prima voce per il {format(dayEntriesModal.date, 'dd MMMM yyyy', { locale: it })}
                   </p>
                   <Button
-                    variant="outline"
                     onClick={() => {
                       setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       resetForm();

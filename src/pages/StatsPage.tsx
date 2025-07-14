@@ -358,27 +358,14 @@ export default function StatsPage() {
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends - se non ci sono dati reali, generiamo dati di esempio
-    let moodTrends = diaryData
+    // Mood trends
+    const moodTrends = diaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
         mood: d.mood_score,
-        dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
+        dateFormatted: format(new Date(d.entry_date), 'd MMV', { locale: it })
       }));
-
-    // Se non ci sono dati reali, generiamo dati di esempio per la demo
-    if (moodTrends.length === 0) {
-      const today = new Date();
-      moodTrends = Array.from({ length: 14 }, (_, i) => {
-        const date = subDays(today, 13 - i);
-        return {
-          date: format(date, 'yyyy-MM-dd'),
-          mood: Math.floor(Math.random() * 6) + 4, // Random tra 4-10
-          dateFormatted: format(date, 'd MMM', { locale: it })
-        };
-      });
-    }
 
     // Wellness trends
     const wellnessTrends = wellnessData.map(w => ({
