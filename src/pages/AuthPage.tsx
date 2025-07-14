@@ -21,8 +21,6 @@ const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMode, setResetMode] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [checkingEmail, setCheckingEmail] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   
   const { user, signIn, signUp, resetPassword } = useAuth();
@@ -64,10 +62,6 @@ const AuthPage: React.FC = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (emailError) {
-      return; // Non procedere se c'è un errore email
-    }
-    
     setLoading(true);
     
     const { error } = await signUp(registerEmail, registerPassword, displayName, referralCode);
@@ -82,58 +76,10 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  const checkEmailExists = async (emailToCheck: string) => {
-    if (!emailToCheck || !emailToCheck.includes('@')) {
-      setEmailError('');
-      return;
-    }
-
-    setCheckingEmail(true);
-    try {
-      // Prova ad accedere con una password dummy per verificare se l'email esiste
-      const { error } = await supabase.auth.signInWithPassword({
-        email: emailToCheck,
-        password: '__dummy_password_check__'
-      });
-
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          // Email esiste ma password sbagliata
-          setEmailError('Email già registrata');
-        } else if (error.message.includes('Email not confirmed')) {
-          // Email esiste ma non confermata
-          setEmailError('Email già registrata (non confermata)');
-        } else if (error.message.includes('User not found') || 
-                   error.message.includes('Invalid credentials')) {
-          // Email non esiste
-          setEmailError('');
-        } else {
-          // Altri errori, assumiamo che l'email non esista
-          setEmailError('');
-        }
-      } else {
-        // Nessun errore significa che l'email e la password sono corrette
-        // Questo caso è improbabile con una password dummy, ma per sicurezza
-        setEmailError('Email già registrata');
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      setEmailError('');
-    } finally {
-      setCheckingEmail(false);
-    }
-  };
 
   const handleEmailChange = (value: string, isRegister: boolean = false) => {
     if (isRegister) {
       setRegisterEmail(value);
-      // Solo controlla email se è nella scheda registrazione
-      if (activeTab === 'register') {
-        const timer = setTimeout(() => {
-          checkEmailExists(value);
-        }, 1000);
-        return () => clearTimeout(timer);
-      }
     } else {
       setLoginEmail(value);
     }
@@ -155,9 +101,6 @@ const AuthPage: React.FC = () => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    // Reset errori quando cambi tab
-    setEmailError('');
-    setCheckingEmail(false);
   };
 
   if (resetMode) {
@@ -431,22 +374,12 @@ const AuthPage: React.FC = () => {
                         type="email"
                         placeholder="la-tua-email@esempio.com"
                         value={registerEmail}
-                        onChange={(e) => handleEmailChange(e.target.value, true)}
-                        className={`pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02] ${
-                          emailError ? 'border-red-500 focus:border-red-500' : ''
-                        }`}
-                        required
-                      />
-                      {checkingEmail && (
-                        <div className="absolute right-3 top-3">
-                          <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
-                        </div>
-                      )}
-                    </div>
-                    {emailError && (
-                      <p className="text-xs text-red-500 pl-1">{emailError}</p>
-                    )}
-                  </div>
+                         onChange={(e) => handleEmailChange(e.target.value, true)}
+                         className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
+                         required
+                       />
+                   </div>
+                   </div>
                   
                   <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.2s' }}>
                     <Label htmlFor="reg-password" className="text-sm font-medium">Password</Label>
@@ -503,7 +436,7 @@ const AuthPage: React.FC = () => {
                     <Button 
                       type="submit" 
                       className="w-full petvoice-button h-12 font-medium text-lg group" 
-                      disabled={loading || !!emailError || checkingEmail}
+                      disabled={loading}
                     >
                       {loading ? (
                         <div className="flex items-center gap-2">
