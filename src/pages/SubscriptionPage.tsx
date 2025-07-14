@@ -11,22 +11,19 @@ import { cn } from '@/lib/utils';
 const SubscriptionPage = () => {
   const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal } = useSubscription();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
 
-  // Auto-refresh subscription status every 10 seconds
+  // Auto-refresh subscription status every 5 seconds and on page load
   useEffect(() => {
+    // Check immediately on load
+    checkSubscription();
+    
+    // Then check every 5 seconds
     const interval = setInterval(() => {
       checkSubscription();
-    }, 10000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [checkSubscription]);
-
-  const handleRefreshSubscription = async () => {
-    setRefreshing(true);
-    await checkSubscription();
-    setRefreshing(false);
-  };
 
   const handleSubscribe = async (plan: 'premium' | 'family') => {
     setProcessingPlan(plan);
@@ -182,21 +179,10 @@ const SubscriptionPage = () => {
               <BarChart3 className="w-5 h-5" />
               Il tuo utilizzo attuale
             </CardTitle>
-            <CardDescription className="flex items-center justify-between">
-              <div>
-                Piano attuale: <Badge variant="outline" className="ml-1">
-                  {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)}
-                </Badge>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleRefreshSubscription}
-                disabled={refreshing}
-                className="text-xs"
-              >
-                {refreshing ? 'Aggiornamento...' : 'Aggiorna stato'}
-              </Button>
+            <CardDescription>
+              Piano attuale: <Badge variant="outline" className="ml-1">
+                {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)}
+              </Badge>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

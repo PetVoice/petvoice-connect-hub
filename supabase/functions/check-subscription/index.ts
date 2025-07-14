@@ -92,10 +92,18 @@ serve(async (req) => {
       const price = await stripe.prices.retrieve(priceId);
       const amount = price.unit_amount || 0;
       
-      if (amount <= 100) {
+      // Premium: €0.97 = 97 cents, Family: €1.97 = 197 cents
+      if (amount === 97) {
         subscriptionTier = "premium";
-      } else {
+      } else if (amount === 197) {
         subscriptionTier = "family";
+      } else {
+        // Default based on amount range for flexibility
+        if (amount <= 100) {
+          subscriptionTier = "premium";
+        } else {
+          subscriptionTier = "family";
+        }
       }
       logStep("Determined subscription tier", { priceId, amount, subscriptionTier });
     } else {
