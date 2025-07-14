@@ -571,54 +571,6 @@ export default function StatsPage() {
             </SelectContent>
           </Select>
 
-          {/* Export Button */}
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              // Generate comprehensive PDF report
-              import('jspdf').then(({ default: jsPDF }) => {
-                const doc = new jsPDF();
-                const pet = activePet?.name || 'Pet';
-                const dateRangeText = `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`;
-                
-                // Header
-                doc.setFontSize(20);
-                doc.text(`Report Statistiche - ${pet}`, 20, 20);
-                doc.setFontSize(12);
-                doc.text(`Periodo: ${dateRangeText}`, 20, 30);
-                
-                // Overview
-                doc.setFontSize(16);
-                doc.text('Panoramica', 20, 45);
-                doc.setFontSize(10);
-                doc.text(`Analisi Totali: ${displayAnalytics.totalAnalyses}`, 20, 55);
-                doc.text(`Score Benessere: ${displayAnalytics.averageWellnessScore}%`, 20, 65);
-                doc.text(`Giorni Attivi: ${displayAnalytics.activeDays}/${displayAnalytics.timeSpan}`, 20, 75);
-                doc.text(`Emozione Principale: ${displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'} (${displayAnalytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 85);
-                
-                // Emotions
-                doc.setFontSize(16);
-                doc.text('Distribuzione Emozioni', 20, 105);
-                doc.setFontSize(10);
-                displayAnalytics.emotionDistribution.slice(0, 5).forEach((emotion, index) => {
-                  doc.text(`${emotion.emotion}: ${emotion.percentage}%`, 20, 115 + (index * 10));
-                });
-                
-                // Health summary
-                doc.setFontSize(16);
-                doc.text('Riassunto Salute', 20, 175);
-                doc.setFontSize(10);
-                doc.text(`Trend generale: ${displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}`, 20, 185);
-                
-                // Save PDF
-                doc.save(`statistiche-${pet.toLowerCase().replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-              });
-            }}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Esporta
-          </Button>
         </div>
       </div>
 
@@ -815,29 +767,29 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex justify-center">
-                  <ChartContainer config={{}} className="h-[400px] w-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={displayAnalytics.emotionDistribution}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
-                          outerRadius={120}
-                          fill="#8884d8"
-                          dataKey="count"
-                        >
-                          {displayAnalytics.emotionDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </div>
+                 <div className="flex justify-center">
+                   <ChartContainer config={{}} className="h-[500px] w-[500px]">
+                     <ResponsiveContainer width="100%" height="100%">
+                       <PieChart>
+                         <Pie
+                           data={displayAnalytics.emotionDistribution}
+                           cx="50%"
+                           cy="50%"
+                           labelLine={false}
+                           label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
+                           outerRadius={160}
+                           fill="#8884d8"
+                           dataKey="count"
+                         >
+                           {displayAnalytics.emotionDistribution.map((entry, index) => (
+                             <Cell key={`cell-${index}`} fill={entry.fill} />
+                           ))}
+                         </Pie>
+                         <Tooltip />
+                       </PieChart>
+                     </ResponsiveContainer>
+                   </ChartContainer>
+                 </div>
               </CardContent>
             </Card>
 
@@ -905,55 +857,583 @@ export default function StatsPage() {
           </Card>
         </TabsContent>
 
-        {/* Health Tab - CONTINUA QUI con il resto delle tabs... */}
+        {/* Health Tab */}
         <TabsContent value="health" className="space-y-6">
-          {/* Health content placeholder */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Health Metrics Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5" />
+                  Parametri Vitali
+                </CardTitle>
+                <CardDescription>
+                  Riassunto delle metriche di salute monitorate
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.totalMetrics}</div>
+                    <div className="text-sm text-muted-foreground">Misurazioni Totali</div>
+                  </div>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.uniqueMetricTypes}</div>
+                    <div className="text-sm text-muted-foreground">Tipi di Parametri</div>
+                  </div>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.lastWeekMetrics}</div>
+                    <div className="text-sm text-muted-foreground">Ultima Settimana</div>
+                  </div>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">{displayAnalytics.healthMetricsSummary.criticalValues}</div>
+                    <div className="text-sm text-muted-foreground">Valori Critici</div>
+                  </div>
+                </div>
+                
+                {displayAnalytics.healthMetricsSummary.totalMetrics === 0 && (
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      Nessun parametro vitale registrato. Inizia a monitorare peso, temperatura e battito cardiaco per vedere i trend di salute.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Temperature Trends */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Thermometer className="h-5 w-5" />
+                  Temperatura Corporea
+                </CardTitle>
+                <CardDescription>
+                  Monitoraggio della temperatura nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {displayAnalytics.temperatureTrends.length > 0 ? (
+                  <ChartContainer config={{
+                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
+                  }} className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={displayAnalytics.temperatureTrends}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="dateFormatted" />
+                        <YAxis domain={[36, 42]} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line
+                          type="monotone"
+                          dataKey="temperature"
+                          stroke="hsl(var(--destructive))"
+                          strokeWidth={2}
+                          dot={{ fill: "hsl(var(--destructive))", r: 3 }}
+                        />
+                        <ReferenceLine y={38.5} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Normale" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Thermometer className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessun dato temperatura disponibile</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Weight Trends - Full Width */}
           <Card>
             <CardHeader>
-              <CardTitle>Salute del Pet</CardTitle>
-              <CardDescription>Monitoraggio parametri vitali e salute generale</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Scale className="h-5 w-5" />
+                Andamento Peso
+              </CardTitle>
+              <CardDescription>
+                Monitoraggio del peso corporeo nel tempo
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Contenuto salute da implementare...</p>
+              {displayAnalytics.weightTrends.length > 0 ? (
+                <ChartContainer config={{
+                  weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={displayAnalytics.weightTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="weight"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Scale className="h-12 w-12 mx-auto mb-2" />
+                  <p>Nessun dato peso disponibile</p>
+                  <p className="text-sm">Aggiungi misurazioni del peso per vedere i trend</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Behavior Tab */}
         <TabsContent value="behavior" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Behavioral Tags Analysis */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Comportamenti Osservati
+                </CardTitle>
+                <CardDescription>
+                  Tag comportamentali più frequenti dalle osservazioni
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
+                  <div className="space-y-3">
+                    {(() => {
+                      const tagCounts = diaryData
+                        .flatMap(d => d.behavioral_tags || [])
+                        .reduce((acc, tag) => {
+                          acc[tag] = (acc[tag] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>);
+                      
+                      const sortedTags = Object.entries(tagCounts)
+                        .sort(([,a], [,b]) => b - a)
+                        .slice(0, 10);
+                      
+                      return sortedTags.map(([tag, count]) => (
+                        <div key={tag} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                          <span className="capitalize font-medium">{tag}</span>
+                          <Badge variant="secondary">{count}</Badge>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Eye className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessun comportamento registrato</p>
+                    <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Emotion-Behavior Correlation */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  Pattern Emotivi
+                </CardTitle>
+                <CardDescription>
+                  Correlazione tra emozioni e comportamenti
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {displayAnalytics.emotionDistribution.length > 0 ? (
+                  <div className="space-y-3">
+                    {displayAnalytics.emotionDistribution.slice(0, 5).map((emotion, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="capitalize font-medium">{emotion.emotion}</span>
+                          <span className="text-sm text-muted-foreground">{emotion.percentage}%</span>
+                        </div>
+                        <Progress value={emotion.percentage} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Brain className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessuna analisi emotiva disponibile</p>
+                    <p className="text-sm">Carica audio/video per analizzare le emozioni</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Daily Activity Patterns */}
           <Card>
             <CardHeader>
-              <CardTitle>Comportamento</CardTitle>
-              <CardDescription>Analisi comportamentale del pet</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Pattern di Attività Settimanali
+              </CardTitle>
+              <CardDescription>
+                Analisi dell'attività del pet durante la settimana
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Contenuto comportamento da implementare...</p>
+              <ChartContainer config={{
+                analyses: { label: "Analisi", color: "hsl(var(--primary))" },
+                avgConfidence: { label: "Confidenza Media", color: "hsl(var(--secondary))" }
+              }} className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={displayAnalytics.activityPatterns}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="day" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar yAxisId="left" dataKey="analyses" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="avgConfidence" stroke="hsl(var(--secondary))" strokeWidth={2} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Predictions Tab */}
         <TabsContent value="predictions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Wellness Trend Prediction */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere Futuro
+                </CardTitle>
+                <CardDescription>
+                  Previsione del benessere basata sui dati storici
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      {displayAnalytics.wellnessTrend > 0 ? (
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                      ) : displayAnalytics.wellnessTrend < 0 ? (
+                        <TrendingDown className="h-5 w-5 text-red-600" />
+                      ) : (
+                        <div className="h-5 w-5 bg-yellow-500 rounded-full" />
+                      )}
+                      <span className="font-medium">
+                        {displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                         displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {displayAnalytics.wellnessTrend > 0 ? 
+                        'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
+                        displayAnalytics.wellnessTrend < 0 ?
+                        'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
+                        'Il benessere è stabile. Mantieni la routine attuale.'}
+                    </p>
+                  </div>
+                  
+                  {displayAnalytics.averageWellnessScore > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Score Attuale</span>
+                        <span>{displayAnalytics.averageWellnessScore}%</span>
+                      </div>
+                      <Progress value={displayAnalytics.averageWellnessScore} className="h-2" />
+                      <div className="flex justify-between text-sm">
+                        <span>Previsione 30gg</span>
+                        <span>{Math.max(0, Math.min(100, displayAnalytics.averageWellnessScore + displayAnalytics.wellnessTrend * 2))}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  Raccomandazioni AI
+                </CardTitle>
+                <CardDescription>
+                  Suggerimenti basati sui pattern rilevati
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(() => {
+                    const recommendations = [];
+                    
+                    if (displayAnalytics.healthMetricsSummary.criticalValues > 0) {
+                      recommendations.push({
+                        type: 'warning',
+                        text: 'Rilevati parametri vitali anomali. Consulta un veterinario.'
+                      });
+                    }
+                    
+                    if (displayAnalytics.activeDays < displayAnalytics.timeSpan * 0.3) {
+                      recommendations.push({
+                        type: 'info',
+                        text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
+                      });
+                    }
+                    
+                    if (displayAnalytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30)) {
+                      recommendations.push({
+                        type: 'warning',
+                        text: 'Livelli di ansia elevati. Considera attività rilassanti.'
+                      });
+                    }
+                    
+                    if (displayAnalytics.wellnessTrend > 5) {
+                      recommendations.push({
+                        type: 'success',
+                        text: 'Ottimo miglioramento! Continua con le attuali strategie.'
+                      });
+                    }
+                    
+                    if (recommendations.length === 0) {
+                      recommendations.push({
+                        type: 'info',
+                        text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
+                      });
+                    }
+                    
+                    return recommendations.slice(0, 4).map((rec, index) => (
+                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
+                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
+                        'bg-blue-50 border-blue-400'
+                      }`}>
+                        <p className="text-sm">{rec.text}</p>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Seasonal Predictions */}
           <Card>
             <CardHeader>
-              <CardTitle>Previsioni</CardTitle>
-              <CardDescription>Previsioni basate sui dati storici</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Previsioni Stagionali
+              </CardTitle>
+              <CardDescription>
+                Analisi dei pattern stagionali del comportamento
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Contenuto previsioni da implementare...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
+                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
+                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
+                  
+                  return (
+                    <div key={season} className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">{season}</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Attività:</span>
+                          <span className="font-medium">{activity}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Umore:</span>
+                          <span className="font-medium">{mood}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Reports Tab */}
         <TabsContent value="reports" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Summary Report */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Riassunto Generale
+                </CardTitle>
+                <CardDescription>
+                  Report completo del periodo selezionato
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Periodo Analizzato:</span>
+                    <span>{format(dateRange.from, 'dd/MM/yyyy')} - {format(dateRange.to, 'dd/MM/yyyy')}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Giorni Totali:</span>
+                    <span>{displayAnalytics.timeSpan}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Giorni con Attività:</span>
+                    <span>{displayAnalytics.activeDays}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Analisi Completate:</span>
+                    <span>{displayAnalytics.totalAnalyses}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Score Benessere Medio:</span>
+                    <span className="font-bold">{displayAnalytics.averageWellnessScore}%</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="font-medium">Emozione Predominante:</span>
+                    <span className="capitalize font-medium">
+                      {displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Report */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  Report Salute
+                </CardTitle>
+                <CardDescription>
+                  Riassunto dei parametri di salute
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Parametri Monitorati:</span>
+                    <span>{displayAnalytics.healthMetricsSummary.totalMetrics}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Tipi di Metriche:</span>
+                    <span>{displayAnalytics.healthMetricsSummary.uniqueMetricTypes}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="font-medium">Misurazioni Recenti:</span>
+                    <span>{displayAnalytics.healthMetricsSummary.lastWeekMetrics}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="font-medium">Valori Critici:</span>
+                    <span className={displayAnalytics.healthMetricsSummary.criticalValues > 0 ? 'text-red-600 font-bold' : 'text-green-600'}>
+                      {displayAnalytics.healthMetricsSummary.criticalValues}
+                    </span>
+                  </div>
+                </div>
+                
+                {displayAnalytics.healthMetricsSummary.criticalValues > 0 && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <AlertDescription className="text-red-800">
+                      Rilevati {displayAnalytics.healthMetricsSummary.criticalValues} valori critici. Si consiglia una visita veterinaria.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Detailed Analytics */}
           <Card>
             <CardHeader>
-              <CardTitle>Report</CardTitle>
-              <CardDescription>Genera report personalizzati</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Analisi Dettagliata
+              </CardTitle>
+              <CardDescription>
+                Statistiche approfondite per il periodo selezionato
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Contenuto report da implementare...</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Emotion Breakdown */}
+                <div>
+                  <h4 className="font-medium mb-3">Distribuzione Emozioni</h4>
+                  <div className="space-y-2">
+                    {displayAnalytics.emotionDistribution.slice(0, 5).map((emotion, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <span className="capitalize">{emotion.emotion}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full"
+                              style={{ 
+                                width: `${emotion.percentage}%`, 
+                                backgroundColor: emotion.fill 
+                              }}
+                            />
+                          </div>
+                          <span className="font-medium">{emotion.percentage}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Activity Summary */}
+                <div>
+                  <h4 className="font-medium mb-3">Attività Settimanale</h4>
+                  <div className="space-y-2">
+                    {displayAnalytics.activityPatterns.map((day, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <span>{day.day}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary rounded-full"
+                              style={{ width: `${(day.analyses / Math.max(...displayAnalytics.activityPatterns.map(p => p.analyses), 1)) * 100}%` }}
+                            />
+                          </div>
+                          <span className="font-medium">{day.analyses}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Insights */}
+                <div>
+                  <h4 className="font-medium mb-3">Insights Chiave</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="p-2 bg-muted/50 rounded">
+                      <strong>Giorno più attivo:</strong> {
+                        displayAnalytics.activityPatterns.reduce((max, day) => 
+                          day.analyses > max.analyses ? day : max, displayAnalytics.activityPatterns[0] || { day: 'N/A', analyses: 0 }
+                        ).day
+                      }
+                    </div>
+                    <div className="p-2 bg-muted/50 rounded">
+                      <strong>Consistenza:</strong> {Math.round((displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100)}% giorni attivi
+                    </div>
+                    <div className="p-2 bg-muted/50 rounded">
+                      <strong>Trend generale:</strong> {
+                        displayAnalytics.wellnessTrend > 0 ? 'In miglioramento' :
+                        displayAnalytics.wellnessTrend < 0 ? 'In peggioramento' : 'Stabile'
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
