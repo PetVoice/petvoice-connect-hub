@@ -488,6 +488,22 @@ export default function StatsPage() {
     );
   }
 
+  if (!activePet) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="text-center py-8">
+            <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">Seleziona un Pet</h3>
+            <p className="text-muted-foreground">
+              Seleziona un pet dal menu a tendina per visualizzare le informazioni.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!analytics) {
     return (
       <div className="container mx-auto p-6">

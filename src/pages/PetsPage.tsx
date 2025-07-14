@@ -279,7 +279,7 @@ const PetsPage: React.FC = () => {
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button 
-              className="petvoice-button"
+              variant="outline"
               onClick={() => {
                 if (checkPetLimit(pets.length)) {
                   setShowForm(true);
@@ -476,7 +476,7 @@ const PetsPage: React.FC = () => {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="submit" className="petvoice-button flex-1" disabled={loading}>
+                <Button type="submit" className="flex-1" disabled={loading}>
                   {loading ? 'Salvando...' : (editingPet ? 'Aggiorna Pet' : 'Aggiungi Pet')}
                 </Button>
                 <Button 
@@ -512,7 +512,7 @@ const PetsPage: React.FC = () => {
                   showUpgradePrompt("Aggiunta di più pet");
                 }
               }}
-              className="petvoice-button"
+              variant="outline"
             >
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi il tuo primo Pet
@@ -615,7 +615,13 @@ const PetsPage: React.FC = () => {
       {/* Upgrade Modal */}
       <UpgradeModal 
         open={showUpgradeModal} 
-        onOpenChange={setShowUpgradeModal} 
+        onOpenChange={(open) => {
+          setShowUpgradeModal(open);
+          // Chiudi anche il form di aggiunta pet quando l'upgrade modal viene chiuso
+          if (!open) {
+            setShowForm(false);
+          }
+        }} 
       />
     </div>
   );
