@@ -54,12 +54,26 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .single();
 
-    if (subError || !subscriber) {
+    logStep("Subscriber query result", { subscriber, subError });
+
+    if (subError) {
+      logStep("Subscriber query error", { error: subError });
+      throw new Error(`Subscriber query failed: ${subError.message}`);
+    }
+    
+    if (!subscriber) {
+      logStep("No subscriber found");
       throw new Error("Subscriber not found");
     }
 
     if (!subscriber.subscribed || subscriber.subscription_tier === null) {
+      logStep("No active subscription", { subscribed: subscriber.subscribed, tier: subscriber.subscription_tier });
       throw new Error("No active subscription to cancel");
+    }
+
+    if (!subscriber.stripe_customer_id) {
+      logStep("No stripe customer ID found");
+      throw new Error("No Stripe customer ID found");
     }
 
     logStep("Found subscriber", { subscription_tier: subscriber.subscription_tier });
