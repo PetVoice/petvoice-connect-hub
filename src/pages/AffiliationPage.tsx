@@ -200,12 +200,14 @@ export default function AffiliationPage() {
 
       setTemplates(templateData || []);
 
-      // Load my referrer info
+      // Load my referrer info - cerca anche referrals con status 'registered'
       const { data: myReferralData } = await supabase
         .from('referrals')
         .select('*')
         .eq('referred_user_id', user.id)
-        .eq('status', 'converted')
+        .in('status', ['registered', 'converted'])
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
       if (myReferralData) {
@@ -324,6 +326,22 @@ export default function AffiliationPage() {
     return tierMapping[tierName] || tierName || 'Bronzo';
   };
 
+  const getChannelDisplayName = (channel: string) => {
+    const channelMapping: { [key: string]: string } = {
+      'manual_code': 'Codice Manuale',
+      'social_media': 'Social Media',
+      'email': 'Email',
+      'whatsapp': 'WhatsApp',
+      'facebook': 'Facebook',
+      'instagram': 'Instagram',
+      'twitter': 'Twitter',
+      'linkedin': 'LinkedIn',
+      'direct_link': 'Link Diretto',
+      'qr_code': 'QR Code'
+    };
+    return channelMapping[channel] || channel || 'Altro';
+  };
+
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
     
@@ -399,6 +417,18 @@ export default function AffiliationPage() {
           schema: 'public',
           table: 'referrals',
           filter: `referrer_id=eq.${user?.id}`
+        },
+        () => {
+          loadReferralData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'referrals',
+          filter: `referred_user_id=eq.${user?.id}`
         },
         () => {
           loadReferralData();
@@ -750,7 +780,7 @@ export default function AffiliationPage() {
                       <div>
                         <p className="font-medium">{referral.referred_email}</p>
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(referral.created_at), 'dd MMM yyyy', { locale: it })} · {referral.channel}
+                          {format(new Date(referral.created_at), 'dd MMM yyyy', { locale: it })} · {getChannelDisplayName(referral.channel)}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -804,7 +834,7 @@ export default function AffiliationPage() {
                       return acc;
                     }, {} as Record<string, number>);
                     const topChannel = Object.entries(channelCounts).sort(([,a], [,b]) => b - a)[0];
-                    return topChannel ? topChannel[0] : 'N/A';
+                    return topChannel ? getChannelDisplayName(topChannel[0]) : 'N/A';
                   })() : 'N/A'}
                 </div>
               </CardContent>
