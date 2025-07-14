@@ -255,6 +255,29 @@ export default function StatsPage() {
     }
   }, [selectedPets, dateRange, user, selectedTimeRange]);
 
+  // Refresh data when page becomes visible (when user returns from other pages)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && selectedPets.length > 0) {
+        fetchData();
+      }
+    };
+
+    const handleFocus = () => {
+      if (selectedPets.length > 0) {
+        fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [selectedPets]);
+
   // Computed analytics
   const analytics = useMemo(() => {
     if (!analysisData.length && !diaryData.length) return null;
