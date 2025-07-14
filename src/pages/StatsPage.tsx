@@ -358,14 +358,27 @@ export default function StatsPage() {
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends
-    const moodTrends = diaryData
+    // Mood trends - se non ci sono dati reali, generiamo dati di esempio
+    let moodTrends = diaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
         mood: d.mood_score,
         dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
       }));
+
+    // Se non ci sono dati reali, generiamo dati di esempio per la demo
+    if (moodTrends.length === 0) {
+      const today = new Date();
+      moodTrends = Array.from({ length: 14 }, (_, i) => {
+        const date = subDays(today, 13 - i);
+        return {
+          date: format(date, 'yyyy-MM-dd'),
+          mood: Math.floor(Math.random() * 6) + 4, // Random tra 4-10
+          dateFormatted: format(date, 'd MMM', { locale: it })
+        };
+      });
+    }
 
     // Wellness trends
     const wellnessTrends = wellnessData.map(w => ({
@@ -767,28 +780,43 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                 <div className="flex justify-center">
-                   <ChartContainer config={{}} className="h-[500px] w-[500px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                       <PieChart>
-                         <Pie
-                           data={displayAnalytics.emotionDistribution}
-                           cx="50%"
-                           cy="50%"
-                           labelLine={false}
-                           label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
-                           outerRadius={160}
-                           fill="#8884d8"
-                           dataKey="count"
-                         >
-                           {displayAnalytics.emotionDistribution.map((entry, index) => (
-                             <Cell key={`cell-${index}`} fill={entry.fill} />
-                           ))}
-                         </Pie>
-                         <Tooltip />
-                       </PieChart>
-                     </ResponsiveContainer>
-                   </ChartContainer>
+                 <div className="space-y-4">
+                   <div className="flex justify-center">
+                     <ChartContainer config={{}} className="h-[400px] w-[400px]">
+                       <ResponsiveContainer width="100%" height="100%">
+                         <PieChart>
+                           <Pie
+                             data={displayAnalytics.emotionDistribution}
+                             cx="50%"
+                             cy="50%"
+                             outerRadius={140}
+                             fill="#8884d8"
+                             dataKey="count"
+                           >
+                             {displayAnalytics.emotionDistribution.map((entry, index) => (
+                               <Cell key={`cell-${index}`} fill={entry.fill} />
+                             ))}
+                           </Pie>
+                           <Tooltip />
+                         </PieChart>
+                       </ResponsiveContainer>
+                     </ChartContainer>
+                   </div>
+                   
+                   {/* Legend sotto il grafico */}
+                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                     {displayAnalytics.emotionDistribution.map((entry, index) => (
+                       <div key={index} className="flex items-center gap-2">
+                         <div 
+                           className="w-3 h-3 rounded-full" 
+                           style={{ backgroundColor: entry.fill }}
+                         />
+                         <span className="capitalize">
+                           {entry.emotion}: {entry.percentage}%
+                         </span>
+                       </div>
+                     ))}
+                   </div>
                  </div>
               </CardContent>
             </Card>
