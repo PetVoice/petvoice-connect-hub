@@ -17,6 +17,8 @@ import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import StatsPage from "@/pages/StatsPage";
+import SubscriptionPage from "@/pages/SubscriptionPage";
+import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
 import NotFound from "./pages/NotFound";
@@ -99,12 +101,14 @@ const App = () => (
               <Route path="/subscription" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Abbonamenti"
-                      description="Gestisci il tuo piano"
-                      icon={<CreditCard className="h-6 w-6 text-white" />}
-                      features={["Piani premium", "Funzionalità avanzate", "Supporto prioritario", "Analisi illimitate"]}
-                    />
+                    <SubscriptionPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/subscription-success" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <SubscriptionSuccessPage />
                   </Layout>
                 </ProtectedRoute>
               } />
