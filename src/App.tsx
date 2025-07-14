@@ -20,6 +20,7 @@ import StatsPage from "@/pages/StatsPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
+import AffiliationPage from "@/pages/AffiliationPage";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
 import NotFound from "./pages/NotFound";
 
@@ -117,8 +118,6 @@ const App = () => (
                   <Layout>
                     <AffiliationPage />
                   </Layout>
-                </ProtectedRoute>
-              } />
                 </ProtectedRoute>
               } />
               <Route path="/tutorial" element={
