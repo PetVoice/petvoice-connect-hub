@@ -56,21 +56,12 @@ const AppSidebar: React.FC = () => {
   
   const isCollapsed = state === 'collapsed';
 
-  // Auto-hide sidebar on navigation for mobile/tablet
+  // Auto-hide sidebar on navigation for mobile only
   React.useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) { // lg breakpoint
-        setOpen(false);
-      }
-    };
-    
-    // Close sidebar on navigation change for smaller screens
-    if (window.innerWidth < 1024) {
+    // Only close sidebar on navigation change for mobile screens
+    if (window.innerWidth < 768) { // mobile breakpoint
       setOpen(false);
     }
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, [location.pathname, setOpen]);
   
   const isActive = (path: string) => {
