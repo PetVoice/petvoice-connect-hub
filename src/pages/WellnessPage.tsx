@@ -1673,7 +1673,7 @@ const WellnessPage = () => {
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           {record.document_url ? (
                             <button
-                              onClick={() => window.open(record.document_url, '_blank', 'noopener,noreferrer')}
+                              onClick={() => window.open(record.document_url, '_self')}
                               className="font-medium text-primary hover:underline cursor-pointer text-left"
                             >
                               {record.title}
@@ -1689,20 +1689,6 @@ const WellnessPage = () => {
                         {record.description && (
                           <p className="text-sm text-muted-foreground mt-1">{record.description}</p>
                         )}
-                        {/* Show attachment link if document_url exists */}
-                        {record.document_url && (
-                          <div className="flex items-center gap-2 mt-2">
-                            <Paperclip className="h-3 w-3 text-muted-foreground" />
-                            <a 
-                              href={record.document_url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-sm text-primary hover:underline"
-                            >
-                              Visualizza allegato
-                            </a>
-                          </div>
-                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Attachment button - only show if document_url exists */}
@@ -1710,7 +1696,7 @@ const WellnessPage = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => window.open(record.document_url, '_blank', 'noopener,noreferrer')}
+                            onClick={() => window.open(record.document_url, '_self')}
                             title="Visualizza allegato"
                           >
                             <Paperclip className="h-4 w-4" />
@@ -2299,7 +2285,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => window.open(uploadedFileUrl, '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open(uploadedFileUrl, '_self')}
                       className="text-green-600 hover:text-green-700"
                     >
                       <Eye className="h-4 w-4 mr-1" />
