@@ -282,6 +282,9 @@ export default function AffiliationPage() {
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
     
+    console.log('Debug - referralProfile.current_tier:', referralProfile.current_tier);
+    console.log('Debug - TIER_CONFIG:', TIER_CONFIG);
+    
     // Map old English tier names to new Italian ones
     const tierMapping: { [key: string]: string } = {
       'Bronze': 'Bronzo',
@@ -293,11 +296,30 @@ export default function AffiliationPage() {
     
     // Get the current tier, with fallback mapping and default
     const currentTierName = tierMapping[referralProfile.current_tier] || referralProfile.current_tier || 'Bronzo';
-    const tier = TIER_CONFIG[currentTierName as keyof typeof TIER_CONFIG] || TIER_CONFIG.Bronzo;
+    console.log('Debug - currentTierName:', currentTierName);
     
-    const progress = tier.nextTarget ? 
-      Math.min(100, (referralProfile.successful_conversions / tier.nextTarget) * 100) : 100;
-    return { ...tier, progress };
+    const tier = TIER_CONFIG[currentTierName as keyof typeof TIER_CONFIG];
+    console.log('Debug - tier found:', tier);
+    
+    // If tier is still undefined, use Bronzo as absolute fallback
+    const finalTier = tier || TIER_CONFIG.Bronzo;
+    console.log('Debug - finalTier:', finalTier);
+    
+    if (!finalTier) {
+      console.error('CRITICAL: finalTier is undefined!');
+      return {
+        minReferrals: 0,
+        color: 'bg-amber-600',
+        next: 'Argento',
+        nextTarget: 5,
+        commission: 0.05,
+        progress: 0
+      };
+    }
+    
+    const progress = finalTier.nextTarget ? 
+      Math.min(100, (referralProfile.successful_conversions / finalTier.nextTarget) * 100) : 100;
+    return { ...finalTier, progress };
   };
 
   const getActiveCredits = () => {
