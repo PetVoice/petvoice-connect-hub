@@ -512,7 +512,7 @@ const PetsPage: React.FC = () => {
                   showUpgradePrompt("Aggiunta di più pet");
                 }
               }}
-              variant="outline"
+              className="petvoice-button"
             >
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi il tuo primo Pet
