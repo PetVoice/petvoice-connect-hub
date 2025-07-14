@@ -112,6 +112,9 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     e.preventDefault();
     if (!user) return;
 
+    // Prevent double submission
+    if (loading) return;
+
     if (!formData.name || !formData.type) {
       toast({
         title: "Errore",

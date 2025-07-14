@@ -79,7 +79,7 @@ const SubscriptionPage = () => {
       description: 'Perfetto per famiglie',
       features: [
         'Tutto del Premium',
-        '6 account connessi',
+        '3 account connessi',
         'Pet condivisi',
         'Group challenges',
         'Statistiche famiglia',
@@ -228,12 +228,12 @@ const SubscriptionPage = () => {
                       <Smartphone className="w-4 h-4" />
                       Dispositivi connessi
                     </span>
-                    <span className="font-medium">1 / 6</span>
+                    <span className="font-medium">1 / 3</span>
                   </div>
-                  <Progress value={(1/6) * 100} className="h-2" />
+                  <Progress value={(1/3) * 100} className="h-2" />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  Invita fino a 5 familiari per condividere l'account
+                  Invita fino a 2 familiari per condividere l'account
                 </p>
               </div>
             )}
