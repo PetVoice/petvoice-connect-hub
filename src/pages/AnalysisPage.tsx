@@ -745,7 +745,8 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <Brain className="h-8 w-8 text-primary" />
             Analisi Emotiva
           </h1>
           <p className="text-muted-foreground mt-1">

@@ -265,7 +265,10 @@ const PetsPage: React.FC = () => {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">I Miei Pet</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Heart className="h-8 w-8 text-primary" />
+            I Miei Pet
+          </h1>
           <p className="text-muted-foreground">
             Gestisci le informazioni dei tuoi amici a quattro zampe
           </p>

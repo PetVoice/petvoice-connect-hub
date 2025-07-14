@@ -1220,7 +1220,7 @@ const WellnessPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard">
             <Activity className="h-4 w-4 mr-2" />
             Dashboard
@@ -1241,10 +1241,6 @@ const WellnessPage = () => {
             <TrendingUp className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
-        </TabsList>
-        
-        {/* Emergency Tab in a separate row */}
-        <TabsList className="grid w-full grid-cols-1 mt-2">
           <TabsTrigger value="emergency">
             <Siren className="h-4 w-4 mr-2" />
             Emergenze

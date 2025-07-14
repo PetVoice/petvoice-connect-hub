@@ -349,7 +349,10 @@ const Dashboard: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Ciao {getUserName()}! 👋</h1>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Activity className="h-8 w-8 text-primary" />
+            Ciao {getUserName()}! 👋
+          </h1>
           <p className="text-muted-foreground">
             {activePet ? `Ecco come sta ${activePet.name} oggi` : 'Aggiungi il tuo primo pet per iniziare'}
           </p>
