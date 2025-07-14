@@ -74,9 +74,26 @@ serve(async (req) => {
               subscriptionEnd 
             });
 
+            // Try to get user_id from metadata or by looking up the user with this email
+            let userId = session.metadata?.user_id || null;
+            
+            if (!userId && customerEmail) {
+              // Try to find user by email in auth.users (via profile lookup)
+              const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('user_id')
+                .eq('user_id', (await supabaseClient.auth.admin.getUserByEmail(customerEmail)).data.user?.id)
+                .single();
+              
+              if (profile) {
+                userId = profile.user_id;
+              }
+            }
+
             // Update subscriber in database
             const { data, error } = await supabaseClient.from("subscribers").upsert({
               email: customerEmail,
+              user_id: userId,
               stripe_customer_id: session.customer,
               subscribed: true,
               subscription_tier: subscriptionTier,
