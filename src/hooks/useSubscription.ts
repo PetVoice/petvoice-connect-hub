@@ -105,9 +105,8 @@ export const useSubscription = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      checkSubscription();
-    }
+    // Always call checkSubscription to ensure loading state is handled
+    checkSubscription();
   }, [user]);
 
   return {
