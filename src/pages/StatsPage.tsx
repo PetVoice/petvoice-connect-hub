@@ -163,12 +163,12 @@ export default function StatsPage() {
     to: new Date()
   });
 
-  // Initialize selected pets
+  // Initialize and update selected pets when active pet changes
   useEffect(() => {
-    if (activePet && selectedPets.length === 0) {
+    if (activePet) {
       setSelectedPets([activePet.id]);
     }
-  }, [activePet, selectedPets]);
+  }, [activePet]);
 
   // Fetch all data
   const fetchData = async () => {
@@ -318,6 +318,38 @@ export default function StatsPage() {
         dateFormatted: format(new Date(h.recorded_at), 'd MMM', { locale: it })
       }));
 
+    // Temperature trends
+    const temperatureTrends = healthData
+      .filter(h => h.metric_type === 'temperatura')
+      .map(h => ({
+        date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
+        temperature: h.value,
+        dateFormatted: format(new Date(h.recorded_at), 'd MMM', { locale: it })
+      }));
+
+    // Heart rate trends
+    const heartRateTrends = healthData
+      .filter(h => h.metric_type === 'battito_cardiaco')
+      .map(h => ({
+        date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
+        heartRate: h.value,
+        dateFormatted: format(new Date(h.recorded_at), 'd MMM', { locale: it })
+      }));
+
+    // Health metrics summary
+    const healthMetricsSummary = {
+      totalMetrics: healthData.length,
+      uniqueMetricTypes: new Set(healthData.map(h => h.metric_type)).size,
+      lastWeekMetrics: healthData.filter(h => 
+        new Date(h.recorded_at) >= subDays(new Date(), 7)
+      ).length,
+      criticalValues: healthData.filter(h => {
+        if (h.metric_type === 'temperatura' && (h.value < 37.5 || h.value > 39.5)) return true;
+        if (h.metric_type === 'battito_cardiaco' && (h.value < 60 || h.value > 140)) return true;
+        return false;
+      }).length
+    };
+
     // Behavioral correlations with weather
     const weatherCorrelations = diaryData
       .filter(d => d.weather_condition && d.mood_score)
@@ -354,6 +386,9 @@ export default function StatsPage() {
       wellnessTrends,
       activityPatterns,
       weightTrends,
+      temperatureTrends,
+      heartRateTrends,
+      healthMetricsSummary,
       weatherMoodData,
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
@@ -792,31 +827,133 @@ export default function StatsPage() {
                   Riepilogo delle metriche di salute monitorate
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Peso monitorato</span>
-                    <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
-                      {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Controlli regolari</span>
-                    <Badge variant={analytics.activeDays > analytics.timeSpan * 0.5 ? "default" : "secondary"}>
-                      {analytics.activeDays > analytics.timeSpan * 0.5 ? 'Sì' : 'Da migliorare'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Trend generale</span>
-                    <Badge variant={analytics.wellnessTrend >= 0 ? "default" : "destructive"}>
-                      {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
-                       analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
+               <CardContent>
+                 <div className="space-y-3">
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Peso monitorato</span>
+                     <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
+                       {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
+                     </Badge>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Temperatura monitorata</span>
+                     <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"}>
+                       {analytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
+                     </Badge>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Battito cardiaco</span>
+                     <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"}>
+                       {analytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
+                     </Badge>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Metriche totali</span>
+                     <Badge variant="outline">
+                       {analytics.healthMetricsSummary.totalMetrics}
+                     </Badge>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Controlli regolari</span>
+                     <Badge variant={analytics.activeDays > analytics.timeSpan * 0.5 ? "default" : "secondary"}>
+                       {analytics.activeDays > analytics.timeSpan * 0.5 ? 'Sì' : 'Da migliorare'}
+                     </Badge>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-sm">Trend generale</span>
+                     <Badge variant={analytics.wellnessTrend >= 0 ? "default" : "destructive"}>
+                       {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                        analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                     </Badge>
+                   </div>
+                   {analytics.healthMetricsSummary.criticalValues > 0 && (
+                     <div className="flex justify-between items-center">
+                       <span className="text-sm">Valori critici</span>
+                       <Badge variant="destructive">
+                         {analytics.healthMetricsSummary.criticalValues}
+                       </Badge>
+                     </div>
+                   )}
+                 </div>
+               </CardContent>
             </Card>
           </div>
+
+          {/* Temperature Trend Chart */}
+          {analytics.temperatureTrends.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Thermometer className="h-5 w-5" />
+                  Trend Temperatura
+                </CardTitle>
+                <CardDescription>
+                  Monitoraggio della temperatura corporea nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={analytics.temperatureTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[36, 41]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="temperature"
+                        stroke="hsl(var(--destructive))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2, r: 4 }}
+                      />
+                      <ReferenceLine y={38.5} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Normale" />
+                      <ReferenceLine y={39.5} stroke="hsl(var(--warning))" strokeDasharray="5 5" label="Febbre" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Heart Rate Trend Chart */}
+          {analytics.heartRateTrends.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="h-5 w-5" />
+                  Trend Battito Cardiaco
+                </CardTitle>
+                <CardDescription>
+                  Monitoraggio della frequenza cardiaca nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  heartRate: { label: "Battiti/min", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={analytics.heartRateTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[40, 160]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="heartRate"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      />
+                      <ReferenceLine y={90} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Normale" />
+                      <ReferenceLine y={140} stroke="hsl(var(--warning))" strokeDasharray="5 5" label="Elevato" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Weight Trend Chart */}
           {analytics.weightTrends.length > 0 && (
@@ -1282,24 +1419,36 @@ export default function StatsPage() {
                   variant="outline" 
                   className="w-full bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
                   onClick={async () => {
-                    // Share progress
-                    const shareData = {
-                      title: `Progressi di ${activePet?.name}`,
-                      text: `Il mio pet ${activePet?.name} ha un punteggio di benessere del ${analytics.averageWellnessScore}%! 🐾`,
-                      url: window.location.href
-                    };
-                    
                     try {
-                      if (navigator.share) {
+                      const shareData = {
+                        title: `Progressi di ${activePet?.name}`,
+                        text: `Il mio pet ${activePet?.name} ha un punteggio di benessere del ${analytics.averageWellnessScore}%! 🐾`,
+                        url: window.location.href
+                      };
+                      
+                      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
                         await navigator.share(shareData);
                       } else {
                         // Fallback: copy to clipboard
                         const textToShare = `${shareData.title}\n\n${shareData.text}\n\nVedi di più: ${shareData.url}`;
                         await navigator.clipboard.writeText(textToShare);
                         
-                        // Show a temporary notification
+                        // Create and show notification
+                        const style = document.createElement('style');
+                        style.textContent = `
+                          @keyframes slideInRight {
+                            from { transform: translateX(100%); opacity: 0; }
+                            to { transform: translateX(0); opacity: 1; }
+                          }
+                          @keyframes slideOutRight {
+                            from { transform: translateX(0); opacity: 1; }
+                            to { transform: translateX(100%); opacity: 0; }
+                          }
+                        `;
+                        document.head.appendChild(style);
+                        
                         const notification = document.createElement('div');
-                        notification.textContent = 'Link copiato negli appunti!';
+                        notification.textContent = '📋 Link copiato negli appunti!';
                         notification.style.cssText = `
                           position: fixed;
                           top: 20px;
@@ -1307,18 +1456,44 @@ export default function StatsPage() {
                           background: hsl(var(--primary));
                           color: hsl(var(--primary-foreground));
                           padding: 12px 16px;
-                          border-radius: 6px;
+                          border-radius: 8px;
                           font-size: 14px;
+                          font-weight: 500;
                           z-index: 1000;
-                          animation: slideIn 0.3s ease;
+                          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                          animation: slideInRight 0.3s ease-out;
                         `;
                         document.body.appendChild(notification);
+                        
                         setTimeout(() => {
-                          notification.remove();
-                        }, 3000);
+                          notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                          setTimeout(() => {
+                            document.body.removeChild(notification);
+                            document.head.removeChild(style);
+                          }, 300);
+                        }, 2500);
                       }
                     } catch (error) {
                       console.error('Errore durante la condivisione:', error);
+                      
+                      // Show error notification
+                      const errorNotification = document.createElement('div');
+                      errorNotification.textContent = '❌ Errore durante la condivisione';
+                      errorNotification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: hsl(var(--destructive));
+                        color: hsl(var(--destructive-foreground));
+                        padding: 12px 16px;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 500;
+                        z-index: 1000;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                      `;
+                      document.body.appendChild(errorNotification);
+                      setTimeout(() => errorNotification.remove(), 3000);
                     }
                   }}
                 >

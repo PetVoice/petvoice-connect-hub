@@ -767,17 +767,17 @@ const WellnessPage = () => {
       return;
     }
 
-    try {
-      // Validate required fields
-      if (!newMetric.metric_type || !newMetric.value || isNaN(parseFloat(newMetric.value))) {
-        toast({
-          title: "Errore",
-          description: "Tipo di metrica e valore sono obbligatori",
-          variant: "destructive"
-        });
-        return;
-      }
+    // Validate numeric value
+    if (isNaN(parseFloat(newMetric.value))) {
+      toast({
+        title: "Errore",
+        description: "Il valore deve essere un numero valido",
+        variant: "destructive"
+      });
+      return;
+    }
 
+    try {
       const metricData = {
         user_id: user.id,
         pet_id: selectedPet.id,
