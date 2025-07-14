@@ -831,24 +831,48 @@ export default function StatsPage() {
               </CardHeader>
                <CardContent>
                  <div className="space-y-3">
-                   <div className="flex justify-between items-center">
-                     <span className="text-sm">Peso monitorato</span>
-                     <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
-                       {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
-                     </Badge>
-                   </div>
-                   <div className="flex justify-between items-center">
-                     <span className="text-sm">Temperatura monitorata</span>
-                     <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"}>
-                       {analytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
-                     </Badge>
-                   </div>
-                   <div className="flex justify-between items-center">
-                     <span className="text-sm">Battito cardiaco</span>
-                     <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"}>
-                       {analytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
-                     </Badge>
-                   </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Peso monitorato</span>
+                      <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"}>
+                        {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Temperatura monitorata</span>
+                      <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"}>
+                        {analytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Battito cardiaco</span>
+                      <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"}>
+                        {analytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Appetito monitorato</span>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'appetite').length > 0 ? "default" : "secondary"}>
+                        {healthData.filter(h => h.metric_type === 'appetite').length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Sonno monitorato</span>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'sleep').length > 0 ? "default" : "secondary"}>
+                        {healthData.filter(h => h.metric_type === 'sleep').length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Attività monitorata</span>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'activity').length > 0 ? "default" : "secondary"}>
+                        {healthData.filter(h => h.metric_type === 'activity').length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Comportamento monitorato</span>
+                      <Badge variant={healthData.filter(h => h.metric_type === 'behavior').length > 0 ? "default" : "secondary"}>
+                        {healthData.filter(h => h.metric_type === 'behavior').length > 0 ? 'Sì' : 'No'}
+                      </Badge>
+                    </div>
                    <div className="flex justify-between items-center">
                      <span className="text-sm">Metriche totali</span>
                      <Badge variant="outline">
