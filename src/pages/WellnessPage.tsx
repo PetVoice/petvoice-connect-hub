@@ -132,10 +132,26 @@ interface Insurance {
 const translateRecordType = (type: string): string => {
   const translations: Record<string, string> = {
     'visit': 'Visita',
-    'exam': 'Esame',
+    'exam': 'Esame', 
     'vaccination': 'Vaccino',
     'surgery': 'Operazione',
-    'document': 'Documento'
+    'document': 'Documento',
+    'treatment': 'Trattamento',
+    'lab_work': 'Analisi',
+    'emergency': 'Emergenza',
+    'medication': 'Farmaco',
+    'other': 'Altro',
+    // Italian values (in case they're already stored in Italian)
+    'visita': 'Visita',
+    'esame': 'Esame',
+    'vaccino': 'Vaccino',
+    'operazione': 'Operazione',
+    'documento': 'Documento',
+    'trattamento': 'Trattamento',
+    'analisi': 'Analisi',
+    'emergenza': 'Emergenza',
+    'farmaco': 'Farmaco',
+    'altro': 'Altro'
   };
   return translations[type] || type;
 };
@@ -481,7 +497,7 @@ const WellnessPage = () => {
         pet_id: selectedPet.id,
         title: newDocument.title.trim(),
         description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'exam',
+        record_type: newDocument.record_type || 'esame',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         document_url: uploadedFileUrl || null, // Include uploaded file URL if present
         notes: newDocument.notes?.trim() || null
@@ -2215,11 +2231,15 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                     <SelectValue placeholder="Seleziona tipo" />
                   </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="visit">Visita</SelectItem>
-                  <SelectItem value="exam">Esame</SelectItem>
-                  <SelectItem value="vaccination">Vaccino</SelectItem>
-                  <SelectItem value="surgery">Operazione</SelectItem>
-                  <SelectItem value="document">Documento</SelectItem>
+                  <SelectItem value="visita">Visita</SelectItem>
+                  <SelectItem value="esame">Esame</SelectItem>
+                  <SelectItem value="vaccino">Vaccino</SelectItem>
+                  <SelectItem value="operazione">Operazione</SelectItem>
+                  <SelectItem value="documento">Documento</SelectItem>
+                  <SelectItem value="analisi">Analisi</SelectItem>
+                  <SelectItem value="trattamento">Trattamento</SelectItem>
+                  <SelectItem value="emergenza">Emergenza</SelectItem>
+                  <SelectItem value="altro">Altro</SelectItem>
                 </SelectContent>
                 </Select>
               </div>
