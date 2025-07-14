@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +9,24 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 
 const SubscriptionPage = () => {
-  const { subscription, loading, createCheckoutSession, openCustomerPortal } = useSubscription();
+  const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal } = useSubscription();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Auto-refresh subscription status every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkSubscription();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [checkSubscription]);
+
+  const handleRefreshSubscription = async () => {
+    setRefreshing(true);
+    await checkSubscription();
+    setRefreshing(false);
+  };
 
   const handleSubscribe = async (plan: 'premium' | 'family') => {
     setProcessingPlan(plan);
@@ -166,10 +182,21 @@ const SubscriptionPage = () => {
               <BarChart3 className="w-5 h-5" />
               Il tuo utilizzo attuale
             </CardTitle>
-            <CardDescription>
-              Piano attuale: <Badge variant="outline" className="ml-1">
-                {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)}
-              </Badge>
+            <CardDescription className="flex items-center justify-between">
+              <div>
+                Piano attuale: <Badge variant="outline" className="ml-1">
+                  {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)}
+                </Badge>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRefreshSubscription}
+                disabled={refreshing}
+                className="text-xs"
+              >
+                {refreshing ? 'Aggiornamento...' : 'Aggiorna stato'}
+              </Button>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
