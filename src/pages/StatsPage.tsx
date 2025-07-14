@@ -1645,31 +1645,31 @@ export default function StatsPage() {
                   <div className="p-3 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">Benessere Generale</span>
-                      <div className="flex items-center gap-1">
-                        {analytics.wellnessTrend > 0 ? (
-                          <TrendingUp className="h-4 w-4 text-green-600" />
-                        ) : analytics.wellnessTrend < 0 ? (
-                          <TrendingDown className="h-4 w-4 text-red-600" />
-                        ) : (
-                          <span className="h-4 w-4" />
-                        )}
-                        <span className={
-                          analytics.wellnessTrend > 0 ? 'text-green-600' : 
-                          analytics.wellnessTrend < 0 ? 'text-red-600' : 
-                          'text-muted-foreground'
-                        }>
-                          {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
-                           analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
-                        </span>
-                      </div>
-                    </div>
-                    <Progress 
-                      value={Math.min(100, Math.max(0, analytics.averageWellnessScore + analytics.wellnessTrend))} 
-                      className="h-2"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Previsione prossima settimana: {Math.round(analytics.averageWellnessScore + analytics.wellnessTrend)}%
-                    </p>
+                       <div className="flex items-center gap-1">
+                         {displayAnalytics.wellnessTrend > 0 ? (
+                           <TrendingUp className="h-4 w-4 text-green-600" />
+                         ) : displayAnalytics.wellnessTrend < 0 ? (
+                           <TrendingDown className="h-4 w-4 text-red-600" />
+                         ) : (
+                           <span className="h-4 w-4" />
+                         )}
+                         <span className={
+                           displayAnalytics.wellnessTrend > 0 ? 'text-green-600' : 
+                           displayAnalytics.wellnessTrend < 0 ? 'text-red-600' : 
+                           'text-muted-foreground'
+                         }>
+                           {displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                            displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                         </span>
+                       </div>
+                     </div>
+                     <Progress 
+                       value={Math.min(100, Math.max(0, displayAnalytics.averageWellnessScore + displayAnalytics.wellnessTrend))} 
+                       className="h-2"
+                     />
+                     <p className="text-xs text-muted-foreground mt-1">
+                       Previsione prossima settimana: {Math.round(displayAnalytics.averageWellnessScore + displayAnalytics.wellnessTrend)}%
+                     </p>
                   </div>
 
                   <div className="p-3 border rounded-lg">
@@ -1751,13 +1751,13 @@ export default function StatsPage() {
                 <div className="space-y-3">
                   <h4 className="font-medium">Azioni Immediate</h4>
                   <ul className="text-sm space-y-2">
-                    {analytics.wellnessTrend < -2 && (
+                    {displayAnalytics.wellnessTrend < -2 && (
                       <li className="flex items-center gap-2">
                         <AlertTriangle className="h-3 w-3 text-orange-500" />
                         Consulta un veterinario per il trend negativo
                       </li>
                     )}
-                    {analytics.activeDays < analytics.timeSpan * 0.3 && (
+                    {displayAnalytics.activeDays < displayAnalytics.timeSpan * 0.3 && (
                       <li className="flex items-center gap-2">
                         <Clock className="h-3 w-3 text-blue-500" />
                         Aumenta la frequenza di monitoraggio
@@ -1827,45 +1827,45 @@ export default function StatsPage() {
                       doc.setFontSize(16);
                       doc.text('PANORAMICA GENERALE', 20, 55);
                       doc.setFontSize(10);
-                      doc.text(`Analisi Totali: ${analytics.totalAnalyses}`, 20, 65);
-                      doc.text(`Score Benessere Medio: ${analytics.averageWellnessScore}%`, 20, 75);
-                      doc.text(`Giorni Attivi: ${analytics.activeDays} su ${analytics.timeSpan} giorni (${Math.round((analytics.activeDays / analytics.timeSpan) * 100)}%)`, 20, 85);
-                      doc.text(`Trend Benessere: ${analytics.wellnessTrend > 0 ? 'In miglioramento' : analytics.wellnessTrend < 0 ? 'In peggioramento' : 'Stabile'} (${analytics.wellnessTrend > 0 ? '+' : ''}${Math.round(analytics.wellnessTrend)}%)`, 20, 95);
+                       doc.text(`Analisi Totali: ${displayAnalytics.totalAnalyses}`, 20, 65);
+                       doc.text(`Score Benessere Medio: ${displayAnalytics.averageWellnessScore}%`, 20, 75);
+                       doc.text(`Giorni Attivi: ${displayAnalytics.activeDays} su ${displayAnalytics.timeSpan} giorni (${Math.round((displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100)}%)`, 20, 85);
+                       doc.text(`Trend Benessere: ${displayAnalytics.wellnessTrend > 0 ? 'In miglioramento' : displayAnalytics.wellnessTrend < 0 ? 'In peggioramento' : 'Stabile'} (${displayAnalytics.wellnessTrend > 0 ? '+' : ''}${Math.round(displayAnalytics.wellnessTrend)}%)`, 20, 95);
                       
                       // Emotions Section
                       doc.setFontSize(16);
                       doc.text('ANALISI EMOTIVA', 20, 115);
                       doc.setFontSize(10);
-                      doc.text(`Emozione Principale: ${analytics.emotionDistribution[0]?.emotion || 'N/A'} (${analytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 125);
-                      doc.text('Distribuzione completa:', 20, 135);
-                      analytics.emotionDistribution.slice(0, 6).forEach((emotion, index) => {
-                        doc.text(`• ${emotion.emotion}: ${emotion.percentage}% (${emotion.count} occorrenze)`, 25, 145 + (index * 8));
-                      });
-                      
-                      // Health Section
-                      doc.setFontSize(16);
-                      doc.text('INDICATORI DI SALUTE', 20, 205);
-                      doc.setFontSize(10);
-                      doc.text(`Consistenza nel monitoraggio: ${analytics.activeDays > analytics.timeSpan * 0.7 ? 'Eccellente' : analytics.activeDays > analytics.timeSpan * 0.5 ? 'Buona' : 'Da migliorare'}`, 20, 215);
-                      doc.text(`Livello di attività: ${analytics.activeDays > analytics.timeSpan * 0.7 ? 'Alto' : 'Medio'}`, 20, 225);
-                      
-                      // Recommendations
-                      doc.setFontSize(16);
-                      doc.text('RACCOMANDAZIONI', 20, 245);
-                      doc.setFontSize(10);
-                      let yPos = 255;
-                      if (analytics.wellnessTrend < -2) {
-                        doc.text('• Monitoraggio veterinario consigliato per trend negativo', 20, yPos);
-                        yPos += 10;
-                      }
-                      if (analytics.activeDays < analytics.timeSpan * 0.3) {
-                        doc.text('• Aumentare la frequenza di monitoraggio comportamentale', 20, yPos);
-                        yPos += 10;
-                      }
-                      if (analytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30)) {
-                        doc.text('• Considerare attività rilassanti per ridurre ansia', 20, yPos);
-                        yPos += 10;
-                      }
+                       doc.text(`Emozione Principale: ${displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'} (${displayAnalytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 125);
+                       doc.text('Distribuzione completa:', 20, 135);
+                       displayAnalytics.emotionDistribution.slice(0, 6).forEach((emotion, index) => {
+                         doc.text(`• ${emotion.emotion}: ${emotion.percentage}% (${emotion.count} occorrenze)`, 25, 145 + (index * 8));
+                       });
+                       
+                       // Health Section
+                       doc.setFontSize(16);
+                       doc.text('INDICATORI DI SALUTE', 20, 205);
+                       doc.setFontSize(10);
+                       doc.text(`Consistenza nel monitoraggio: ${displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.7 ? 'Eccellente' : displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.5 ? 'Buona' : 'Da migliorare'}`, 20, 215);
+                       doc.text(`Livello di attività: ${displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.7 ? 'Alto' : 'Medio'}`, 20, 225);
+                       
+                       // Recommendations
+                       doc.setFontSize(16);
+                       doc.text('RACCOMANDAZIONI', 20, 245);
+                       doc.setFontSize(10);
+                       let yPos = 255;
+                       if (displayAnalytics.wellnessTrend < -2) {
+                         doc.text('• Monitoraggio veterinario consigliato per trend negativo', 20, yPos);
+                         yPos += 10;
+                       }
+                       if (displayAnalytics.activeDays < displayAnalytics.timeSpan * 0.3) {
+                         doc.text('• Aumentare la frequenza di monitoraggio comportamentale', 20, yPos);
+                         yPos += 10;
+                       }
+                       if (displayAnalytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30)) {
+                         doc.text('• Considerare attività rilassanti per ridurre ansia', 20, yPos);
+                         yPos += 10;
+                       }
                       doc.text('• Continuare il monitoraggio regolare per mantenere il benessere', 20, yPos);
                       
                       // Save PDF
