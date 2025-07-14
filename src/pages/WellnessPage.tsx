@@ -768,13 +768,23 @@ const WellnessPage = () => {
     }
 
     try {
+      // Validate required fields
+      if (!newMetric.metric_type || !newMetric.value || isNaN(parseFloat(newMetric.value))) {
+        toast({
+          title: "Errore",
+          description: "Tipo di metrica e valore sono obbligatori",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const metricData = {
         user_id: user.id,
         pet_id: selectedPet.id,
-        metric_type: newMetric.metric_type,
+        metric_type: newMetric.metric_type.toLowerCase().trim(),
         value: parseFloat(newMetric.value),
-        unit: newMetric.unit || null,
-        notes: newMetric.notes || null,
+        unit: newMetric.unit?.trim() || null,
+        notes: newMetric.notes?.trim() || null,
         recorded_at: new Date().toISOString()
       };
 

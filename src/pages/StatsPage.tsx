@@ -103,6 +103,7 @@ interface HealthData {
   value: number;
   unit: string;
   pet_id: string;
+  notes?: string;
 }
 
 interface WellnessData {
@@ -418,7 +419,50 @@ export default function StatsPage() {
           </Select>
 
           {/* Export Button */}
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              // Generate comprehensive PDF report
+              import('jspdf').then(({ default: jsPDF }) => {
+                const doc = new jsPDF();
+                const pet = activePet?.name || 'Pet';
+                const dateRangeText = `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`;
+                
+                // Header
+                doc.setFontSize(20);
+                doc.text(`Report Statistiche - ${pet}`, 20, 20);
+                doc.setFontSize(12);
+                doc.text(`Periodo: ${dateRangeText}`, 20, 30);
+                
+                // Overview
+                doc.setFontSize(16);
+                doc.text('Panoramica', 20, 45);
+                doc.setFontSize(10);
+                doc.text(`Analisi Totali: ${analytics.totalAnalyses}`, 20, 55);
+                doc.text(`Score Benessere: ${analytics.averageWellnessScore}%`, 20, 65);
+                doc.text(`Giorni Attivi: ${analytics.activeDays}/${analytics.timeSpan}`, 20, 75);
+                doc.text(`Emozione Principale: ${analytics.emotionDistribution[0]?.emotion || 'N/A'} (${analytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 85);
+                
+                // Emotions
+                doc.setFontSize(16);
+                doc.text('Distribuzione Emozioni', 20, 105);
+                doc.setFontSize(10);
+                analytics.emotionDistribution.slice(0, 5).forEach((emotion, index) => {
+                  doc.text(`${emotion.emotion}: ${emotion.percentage}%`, 20, 115 + (index * 10));
+                });
+                
+                // Health summary
+                doc.setFontSize(16);
+                doc.text('Riassunto Salute', 20, 175);
+                doc.setFontSize(10);
+                doc.text(`Trend generale: ${analytics.wellnessTrend > 0 ? 'Miglioramento' : analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}`, 20, 185);
+                
+                // Save PDF
+                doc.save(`statistiche-${pet.toLowerCase().replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+              });
+            }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Esporta
           </Button>
@@ -1084,16 +1128,70 @@ export default function StatsPage() {
               </CardHeader>
               <CardContent>
                 <Button 
-                  className="w-full hover:bg-primary/90 transition-colors"
+                  variant="outline"
+                  className="w-full bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
                   onClick={() => {
-                    // Generate PDF report
-                    const reportData = {
-                      pet: activePet?.name,
-                      dateRange: `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`,
-                      analytics
-                    };
-                    console.log('Generating PDF report:', reportData);
-                    // TODO: Implement PDF generation
+                    // Generate comprehensive PDF report
+                    import('jspdf').then(({ default: jsPDF }) => {
+                      const doc = new jsPDF();
+                      const pet = activePet?.name || 'Pet';
+                      const dateRangeText = `${format(dateRange.from, 'dd/MM/yyyy')} - ${format(dateRange.to, 'dd/MM/yyyy')}`;
+                      
+                      // Header
+                      doc.setFontSize(20);
+                      doc.text(`Report Veterinario - ${pet}`, 20, 20);
+                      doc.setFontSize(12);
+                      doc.text(`Periodo: ${dateRangeText}`, 20, 30);
+                      doc.text(`Generato il: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 20, 40);
+                      
+                      // Overview Section
+                      doc.setFontSize(16);
+                      doc.text('PANORAMICA GENERALE', 20, 55);
+                      doc.setFontSize(10);
+                      doc.text(`Analisi Totali: ${analytics.totalAnalyses}`, 20, 65);
+                      doc.text(`Score Benessere Medio: ${analytics.averageWellnessScore}%`, 20, 75);
+                      doc.text(`Giorni Attivi: ${analytics.activeDays} su ${analytics.timeSpan} giorni (${Math.round((analytics.activeDays / analytics.timeSpan) * 100)}%)`, 20, 85);
+                      doc.text(`Trend Benessere: ${analytics.wellnessTrend > 0 ? 'In miglioramento' : analytics.wellnessTrend < 0 ? 'In peggioramento' : 'Stabile'} (${analytics.wellnessTrend > 0 ? '+' : ''}${Math.round(analytics.wellnessTrend)}%)`, 20, 95);
+                      
+                      // Emotions Section
+                      doc.setFontSize(16);
+                      doc.text('ANALISI EMOTIVA', 20, 115);
+                      doc.setFontSize(10);
+                      doc.text(`Emozione Principale: ${analytics.emotionDistribution[0]?.emotion || 'N/A'} (${analytics.emotionDistribution[0]?.percentage || 0}%)`, 20, 125);
+                      doc.text('Distribuzione completa:', 20, 135);
+                      analytics.emotionDistribution.slice(0, 6).forEach((emotion, index) => {
+                        doc.text(`• ${emotion.emotion}: ${emotion.percentage}% (${emotion.count} occorrenze)`, 25, 145 + (index * 8));
+                      });
+                      
+                      // Health Section
+                      doc.setFontSize(16);
+                      doc.text('INDICATORI DI SALUTE', 20, 205);
+                      doc.setFontSize(10);
+                      doc.text(`Consistenza nel monitoraggio: ${analytics.activeDays > analytics.timeSpan * 0.7 ? 'Eccellente' : analytics.activeDays > analytics.timeSpan * 0.5 ? 'Buona' : 'Da migliorare'}`, 20, 215);
+                      doc.text(`Livello di attività: ${analytics.activeDays > analytics.timeSpan * 0.7 ? 'Alto' : 'Medio'}`, 20, 225);
+                      
+                      // Recommendations
+                      doc.setFontSize(16);
+                      doc.text('RACCOMANDAZIONI', 20, 245);
+                      doc.setFontSize(10);
+                      let yPos = 255;
+                      if (analytics.wellnessTrend < -2) {
+                        doc.text('• Monitoraggio veterinario consigliato per trend negativo', 20, yPos);
+                        yPos += 10;
+                      }
+                      if (analytics.activeDays < analytics.timeSpan * 0.3) {
+                        doc.text('• Aumentare la frequenza di monitoraggio comportamentale', 20, yPos);
+                        yPos += 10;
+                      }
+                      if (analytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30)) {
+                        doc.text('• Considerare attività rilassanti per ridurre ansia', 20, yPos);
+                        yPos += 10;
+                      }
+                      doc.text('• Continuare il monitoraggio regolare per mantenere il benessere', 20, yPos);
+                      
+                      // Save PDF
+                      doc.save(`report-veterinario-${pet.toLowerCase().replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+                    });
                   }}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -1113,17 +1211,56 @@ export default function StatsPage() {
               <CardContent>
                 <Button 
                   variant="outline" 
-                  className="w-full hover:bg-primary/90 transition-colors"
+                  className="w-full bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
                   onClick={() => {
                     // Export CSV data
-                    const csvData = {
-                      analyses: analysisData,
-                      diary: diaryData,
-                      health: healthData,
-                      wellness: wellnessData
-                    };
-                    console.log('Exporting CSV data:', csvData);
-                    // TODO: Implement CSV export
+                    const csvContent = [
+                      // Header
+                      ['Tipo', 'Data', 'Valore', 'Dettagli', 'Pet'],
+                      // Analysis data
+                      ...analysisData.map(item => [
+                        'Analisi',
+                        format(new Date(item.created_at), 'dd/MM/yyyy HH:mm'),
+                        item.primary_emotion,
+                        `Confidenza: ${item.primary_confidence}%`,
+                        activePet?.name || 'N/A'
+                      ]),
+                      // Diary data
+                      ...diaryData.map(item => [
+                        'Diario',
+                        format(new Date(item.entry_date), 'dd/MM/yyyy'),
+                        item.mood_score?.toString() || 'N/A',
+                        item.behavioral_tags?.join(', ') || 'N/A',
+                        activePet?.name || 'N/A'
+                      ]),
+                      // Health data
+                      ...healthData.map(item => [
+                        'Salute',
+                        format(new Date(item.recorded_at), 'dd/MM/yyyy'),
+                        `${item.value} ${item.unit || ''}`,
+                        `${item.metric_type}: ${item.notes || 'N/A'}`,
+                        activePet?.name || 'N/A'
+                      ]),
+                      // Wellness data
+                      ...wellnessData.map(item => [
+                        'Benessere',
+                        format(new Date(item.score_date), 'dd/MM/yyyy'),
+                        `${item.wellness_score}%`,
+                        'Score di benessere giornaliero',
+                        activePet?.name || 'N/A'
+                      ])
+                    ].map(row => row.join(',')).join('\n');
+
+                    // Create and download CSV file
+                    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `dati-${activePet?.name?.toLowerCase().replace(/\s+/g, '-') || 'pet'}-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                   }}
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -1143,20 +1280,45 @@ export default function StatsPage() {
               <CardContent>
                 <Button 
                   variant="outline" 
-                  className="w-full hover:bg-primary/90 transition-colors"
-                  onClick={() => {
+                  className="w-full bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                  onClick={async () => {
                     // Share progress
                     const shareData = {
                       title: `Progressi di ${activePet?.name}`,
-                      text: `Il mio pet ha un punteggio di benessere del ${analytics.averageWellnessScore}%!`,
+                      text: `Il mio pet ${activePet?.name} ha un punteggio di benessere del ${analytics.averageWellnessScore}%! 🐾`,
                       url: window.location.href
                     };
-                    if (navigator.share) {
-                      navigator.share(shareData).catch(console.error);
-                    } else {
-                      // Fallback: copy to clipboard
-                      navigator.clipboard.writeText(`${shareData.title}: ${shareData.text} - ${shareData.url}`);
-                      console.log('Shared data copied to clipboard');
+                    
+                    try {
+                      if (navigator.share) {
+                        await navigator.share(shareData);
+                      } else {
+                        // Fallback: copy to clipboard
+                        const textToShare = `${shareData.title}\n\n${shareData.text}\n\nVedi di più: ${shareData.url}`;
+                        await navigator.clipboard.writeText(textToShare);
+                        
+                        // Show a temporary notification
+                        const notification = document.createElement('div');
+                        notification.textContent = 'Link copiato negli appunti!';
+                        notification.style.cssText = `
+                          position: fixed;
+                          top: 20px;
+                          right: 20px;
+                          background: hsl(var(--primary));
+                          color: hsl(var(--primary-foreground));
+                          padding: 12px 16px;
+                          border-radius: 6px;
+                          font-size: 14px;
+                          z-index: 1000;
+                          animation: slideIn 0.3s ease;
+                        `;
+                        document.body.appendChild(notification);
+                        setTimeout(() => {
+                          notification.remove();
+                        }, 3000);
+                      }
+                    } catch (error) {
+                      console.error('Errore durante la condivisione:', error);
                     }
                   }}
                 >
