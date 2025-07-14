@@ -598,7 +598,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       <Card>
         <CardContent className="p-4">
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => shareAnalysis(selectedAnalysis)} variant="outline">
+            <Button onClick={() => shareAnalysis(selectedAnalysis)} className="bg-azure hover:bg-azure/90 text-white">
               <Share2 className="h-4 w-4 mr-2" />
               Condividi
             </Button>

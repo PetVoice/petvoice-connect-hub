@@ -51,10 +51,27 @@ const supportItems = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { state } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const location = useLocation();
   
   const isCollapsed = state === 'collapsed';
+
+  // Auto-hide sidebar on navigation for mobile/tablet
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) { // lg breakpoint
+        setOpen(false);
+      }
+    };
+    
+    // Close sidebar on navigation change for smaller screens
+    if (window.innerWidth < 1024) {
+      setOpen(false);
+    }
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [location.pathname, setOpen]);
   
   const isActive = (path: string) => {
     if (path === '/') {

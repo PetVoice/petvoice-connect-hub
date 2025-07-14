@@ -289,9 +289,55 @@ export default function AffiliationPage() {
       .reduce((sum, credit) => sum + credit.amount, 0);
   };
 
+  // Setup real-time updates
   useEffect(() => {
     loadReferralData();
-  }, [loadReferralData]);
+    
+    // Subscribe to real-time updates for user's referral data
+    const channel = supabase
+      .channel('referral-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_referrals',
+          filter: `user_id=eq.${user?.id}`
+        },
+        () => {
+          loadReferralData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'referrals',
+          filter: `referrer_id=eq.${user?.id}`
+        },
+        () => {
+          loadReferralData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'referral_credits',
+          filter: `user_id=eq.${user?.id}`
+        },
+        () => {
+          loadReferralData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [loadReferralData, user?.id]);
 
   if (loading) {
     return (
@@ -336,12 +382,9 @@ export default function AffiliationPage() {
           </h1>
           <p className="text-muted-foreground">
             Guadagna condividendo PetVoice con i tuoi amici
+            <span className="inline-block w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" title="Aggiornamento in tempo reale"></span>
           </p>
         </div>
-        <Button onClick={loadReferralData} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Aggiorna
-        </Button>
       </div>
 
       {/* Overview Cards */}
