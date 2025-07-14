@@ -55,6 +55,10 @@ serve(async (req) => {
         subscribed: false,
         subscription_tier: 'free',
         subscription_end: null,
+        is_cancelled: false,
+        cancellation_type: null,
+        cancellation_date: null,
+        cancellation_effective_date: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
       
@@ -62,6 +66,10 @@ serve(async (req) => {
         subscribed: false, 
         subscription_tier: 'free',
         subscription_end: null,
+        is_cancelled: false,
+        cancellation_type: null,
+        cancellation_date: null,
+        cancellation_effective_date: null,
         usage: await getUserUsage(supabaseClient, user.id)
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -110,6 +118,13 @@ serve(async (req) => {
       logStep("No active subscription found");
     }
 
+    // Get current subscriber data to check cancellation status
+    const { data: existingSubscriber } = await supabaseClient
+      .from("subscribers")
+      .select("is_cancelled, cancellation_type, cancellation_date, cancellation_effective_date")
+      .eq("email", user.email)
+      .single();
+
     await supabaseClient.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -117,6 +132,11 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
       subscription_end: subscriptionEnd,
+      // Preserve existing cancellation data if subscription is still active
+      is_cancelled: existingSubscriber?.is_cancelled || false,
+      cancellation_type: existingSubscriber?.cancellation_type || null,
+      cancellation_date: existingSubscriber?.cancellation_date || null,
+      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 
@@ -127,6 +147,10 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
       subscription_end: subscriptionEnd,
+      is_cancelled: existingSubscriber?.is_cancelled || false,
+      cancellation_type: existingSubscriber?.cancellation_type || null,
+      cancellation_date: existingSubscriber?.cancellation_date || null,
+      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
       usage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

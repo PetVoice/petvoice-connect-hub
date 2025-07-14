@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift, CheckCircle, Smartphone } from 'lucide-react';
+import { Check, Crown, Users, Zap, Shield, CreditCard, BarChart3, Gift, CheckCircle, Smartphone, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,11 +9,17 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { cn } from '@/lib/utils';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { CancellationModal } from '@/components/CancellationModal';
+import { ReactivationModal } from '@/components/ReactivationModal';
 
 const SubscriptionPage = () => {
-  const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal } = useSubscription();
+  const { subscription, loading, checkSubscription, createCheckoutSession, openCustomerPortal, cancelSubscription, reactivateSubscription } = useSubscription();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [showReactivationModal, setShowReactivationModal] = useState(false);
+  const [cancellationType, setCancellationType] = useState<'immediate' | 'end_of_period'>('end_of_period');
+  const [isProcessingCancellation, setIsProcessingCancellation] = useState(false);
 
   // Remove the useEffect that was causing infinite loops
   // The useSubscription hook already handles checking subscription status
@@ -25,6 +31,29 @@ const SubscriptionPage = () => {
       window.open(checkoutUrl, '_blank');
     }
     setProcessingPlan(null);
+  };
+
+  const handleCancellation = (type: 'immediate' | 'end_of_period') => {
+    setCancellationType(type);
+    setShowCancellationModal(true);
+  };
+
+  const confirmCancellation = async () => {
+    setIsProcessingCancellation(true);
+    const success = await cancelSubscription(cancellationType);
+    setIsProcessingCancellation(false);
+    if (success) {
+      setShowCancellationModal(false);
+    }
+  };
+
+  const confirmReactivation = async () => {
+    setIsProcessingCancellation(true);
+    const success = await reactivateSubscription();
+    setIsProcessingCancellation(false);
+    if (success) {
+      setShowReactivationModal(false);
+    }
   };
 
   const plans = [
@@ -133,6 +162,16 @@ const SubscriptionPage = () => {
   const analysesLimit = subscription.subscription_tier === 'free' ? 5 : Infinity;
   const analysesPercentage = subscription.subscription_tier === 'free' ? (analysesUsed / analysesLimit) * 100 : 0;
 
+  // Check if subscription is cancelled but still active
+  const isCancelled = subscription.is_cancelled;
+  const isEndOfPeriodCancellation = isCancelled && subscription.cancellation_type === 'end_of_period';
+  const cancellationEffectiveDate = subscription.cancellation_effective_date 
+    ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
+    : '';
+
+  // Hide upgrade/downgrade buttons if subscription is cancelled
+  const showPlanButtons = !isCancelled;
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -210,6 +249,13 @@ const SubscriptionPage = () => {
                 <p className="text-muted-foreground">
                   Hai accesso a tutte le funzionalità premium senza limiti
                 </p>
+                {isEndOfPeriodCancellation && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ Attivo fino al {cancellationEffectiveDate}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -233,6 +279,13 @@ const SubscriptionPage = () => {
                 <p className="text-xs text-muted-foreground text-center">
                   Invita fino a 2 familiari per condividere l'account
                 </p>
+                {isEndOfPeriodCancellation && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ Attivo fino al {cancellationEffectiveDate}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -241,6 +294,75 @@ const SubscriptionPage = () => {
                 <Button onClick={openCustomerPortal} variant="outline" className="w-full">
                   Gestisci abbonamento
                 </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Subscription Management Section */}
+      {subscription.subscribed && subscription.subscription_tier !== 'free' && (
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              🔧 Gestione Abbonamento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isEndOfPeriodCancellation ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                    <span className="font-semibold text-yellow-800">⚠️ ABBONAMENTO IN CANCELLAZIONE</span>
+                  </div>
+                  <p className="text-sm text-yellow-800 mb-3">
+                    Il tuo abbonamento {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)} è stato cancellato
+                    ma rimane attivo fino al {cancellationEffectiveDate}
+                  </p>
+                  <p className="text-sm text-yellow-800">
+                    Dopo questa data tornerai automaticamente al piano Free
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setShowReactivationModal(true)}
+                  className="w-full"
+                  disabled={isProcessingCancellation}
+                >
+                  {isProcessingCancellation ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium">
+                    Il tuo abbonamento {subscription.subscription_tier.charAt(0).toUpperCase() + subscription.subscription_tier.slice(1)} è attivo
+                  </p>
+                  {subscription.subscription_end && (
+                    <p className="text-sm text-muted-foreground">
+                      Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="destructive"
+                    onClick={() => handleCancellation('immediate')}
+                    disabled={isProcessingCancellation}
+                    className="flex-1"
+                  >
+                    Cancella Immediatamente
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleCancellation('end_of_period')}
+                    disabled={isProcessingCancellation}
+                    className="flex-1"
+                  >
+                    Cancella a Fine Periodo
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -322,7 +444,11 @@ const SubscriptionPage = () => {
             </CardContent>
 
             <CardFooter>
-              {plan.current ? (
+              {!showPlanButtons ? (
+                <Button variant="outline" className="w-full" disabled>
+                  Abbonamento in gestione
+                </Button>
+              ) : plan.current ? (
                 <Button variant="outline" className="w-full" disabled>
                   Piano attuale
                 </Button>
@@ -386,6 +512,28 @@ const SubscriptionPage = () => {
           </Card>
         ))}
       </div>
+
+      {/* Modals */}
+      <CancellationModal
+        isOpen={showCancellationModal}
+        onClose={() => setShowCancellationModal(false)}
+        onConfirm={confirmCancellation}
+        cancellationType={cancellationType}
+        subscriptionTier={subscription.subscription_tier}
+        subscriptionEnd={subscription.subscription_end}
+        isLoading={isProcessingCancellation}
+      />
+
+      <ReactivationModal
+        isOpen={showReactivationModal}
+        onClose={() => setShowReactivationModal(false)}
+        onConfirm={confirmReactivation}
+        subscriptionTier={subscription.subscription_tier}
+        subscriptionEnd={subscription.subscription_end}
+        isLoading={isProcessingCancellation}
+      />
+
+      {/* ... keep existing code (testimonials, FAQ, etc.) */}
 
       {/* Social Proof */}
       <div className="text-center space-y-6">

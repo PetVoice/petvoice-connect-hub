@@ -719,9 +719,13 @@ export type Database = {
       }
       subscribers: {
         Row: {
+          cancellation_date: string | null
+          cancellation_effective_date: string | null
+          cancellation_type: string | null
           created_at: string
           email: string
           id: string
+          is_cancelled: boolean | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscribed: boolean
@@ -731,9 +735,13 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cancellation_date?: string | null
+          cancellation_effective_date?: string | null
+          cancellation_type?: string | null
           created_at?: string
           email: string
           id?: string
+          is_cancelled?: boolean | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscribed?: boolean
@@ -743,9 +751,13 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cancellation_date?: string | null
+          cancellation_effective_date?: string | null
+          cancellation_type?: string | null
           created_at?: string
           email?: string
           id?: string
+          is_cancelled?: boolean | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscribed?: boolean
