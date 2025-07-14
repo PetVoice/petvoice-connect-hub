@@ -422,7 +422,7 @@ const WellnessPage = () => {
         pet_id: selectedPet.id,
         title: newDocument.title.trim(),
         description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'documento',
+        record_type: newDocument.record_type || 'esame',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         document_url: publicUrl,
         notes: newDocument.notes?.trim() || null
@@ -497,7 +497,7 @@ const WellnessPage = () => {
         pet_id: selectedPet.id,
         title: newDocument.title.trim(),
         description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'documento',
+        record_type: newDocument.record_type || 'esame',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
         notes: newDocument.notes?.trim() || null
       };
@@ -1339,7 +1339,8 @@ const WellnessPage = () => {
                     size="sm" 
                     onClick={() => setShowAddDocument(true)}
                     disabled={isUploading}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     {isUploading ? 'Caricamento...' : 'Aggiungi'}
                   </Button>
@@ -1371,7 +1372,8 @@ const WellnessPage = () => {
                       });
                       setShowAddMedication(true);
                     }}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Aggiungi
                   </Button>
@@ -1401,7 +1403,8 @@ const WellnessPage = () => {
                       });
                       setShowAddMetric(true);
                     }}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     Aggiungi
                   </Button>
@@ -1425,7 +1428,8 @@ const WellnessPage = () => {
                   <Button 
                     size="sm" 
                     onClick={() => setShowAddVet(true)}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1499,7 +1503,8 @@ const WellnessPage = () => {
                   <Button 
                     size="sm" 
                     onClick={() => setShowAddInsurance(true)}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1766,7 +1771,8 @@ const WellnessPage = () => {
                       });
                       setShowAddMedication(true);
                     }}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -1861,7 +1867,8 @@ const WellnessPage = () => {
                       });
                       setShowAddMetric(true);
                     }}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -2030,7 +2037,8 @@ const WellnessPage = () => {
                   <Button 
                     size="sm" 
                     onClick={() => setShowAddContact(true)}
-                    className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                    variant="outline"
+                    className="text-primary border-primary hover:bg-primary hover:text-primary-foreground"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Aggiungi
@@ -2297,7 +2305,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 disabled={isUploading || !newDocument.title.trim()}
                 className="flex-1"
               >
-                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna Documento' : 'Salva Documento'}
+                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna' : 'Salva'}
               </Button>
             </div>
           </div>
