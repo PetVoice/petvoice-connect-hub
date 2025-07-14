@@ -418,47 +418,16 @@ const WellnessPage = () => {
 
       console.log('🔗 Public URL generated:', publicUrl);
 
-      // Create medical record with explicit user_id
-      const recordData = {
-        user_id: user.id,
-        pet_id: selectedPet.id,
-        title: newDocument.title.trim(),
-        description: newDocument.description?.trim() || null,
-        record_type: newDocument.record_type || 'exam',
-        record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
-        document_url: publicUrl,
-        notes: newDocument.notes?.trim() || null
-      };
-
-      console.log('💾 Inserting record with data:', recordData);
-
-      const { data: recordResult, error: recordError } = await supabase
-        .from('medical_records')
-        .insert(recordData)
-        .select('*');
-
-      if (recordError) {
-        console.error('❌ Database insert error:', recordError);
-        // Delete uploaded file if database insert fails
-        await supabase.storage.from('pet-media').remove([fileName]);
-        throw new Error(`Errore database: ${recordError.message}`);
-      }
-
-      console.log('✅ Record created successfully:', recordResult);
+      // Save uploaded file URL for preview and later use when saving
+      setUploadedFileUrl(publicUrl);
 
       toast({
         title: "🎉 Successo!",
         description: "Documento caricato con successo"
       });
 
-      // Save uploaded file URL for preview
-      setUploadedFileUrl(publicUrl);
-
       // Keep dialog open after file upload - user will close it manually by clicking "Salva"
-      // setShowAddDocument(false); // Commented out to keep dialog open
-      
-      // Refresh data
-      fetchHealthData();
+      // Don't create database record yet - wait for user to click "Salva"
       
     } catch (error: any) {
       console.error('❌ Error uploading document:', error);
@@ -502,6 +471,7 @@ const WellnessPage = () => {
         description: newDocument.description?.trim() || null,
         record_type: newDocument.record_type || 'exam',
         record_date: newDocument.record_date || new Date().toISOString().split('T')[0],
+        document_url: uploadedFileUrl || null, // Include uploaded file URL if present
         notes: newDocument.notes?.trim() || null
       };
 
@@ -1701,7 +1671,16 @@ const WellnessPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-muted-foreground" />
-                          <p className="font-medium">{record.title}</p>
+                          {record.document_url ? (
+                            <button
+                              onClick={() => window.open(record.document_url, '_blank', 'noopener,noreferrer')}
+                              className="font-medium text-primary hover:underline cursor-pointer text-left"
+                            >
+                              {record.title}
+                            </button>
+                          ) : (
+                            <p className="font-medium">{record.title}</p>
+                          )}
                           <Badge variant="outline">{record.record_type}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
