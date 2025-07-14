@@ -369,7 +369,7 @@ const WellnessPage = () => {
 
     if (!file) {
       toast({
-        title: "Errore",
+        title: "Errore", 
         description: "Nessun file selezionato",
         variant: "destructive"
       });
@@ -390,9 +390,9 @@ const WellnessPage = () => {
       setIsUploading(true);
       
       const fileExt = file.name.split('.').pop();
-      const fileName = `medical-documents/${selectedPet.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/${selectedPet.id}/medical-documents/${Date.now()}.${fileExt}`;
       
-      console.log('Starting file upload...', { fileName, fileSize: file.size });
+      console.log('🚀 Starting file upload...', { fileName, fileSize: file.size, user: user.id, pet: selectedPet.id });
       
       // Upload file to storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -403,18 +403,18 @@ const WellnessPage = () => {
         });
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
+        console.error('❌ Storage upload error:', uploadError);
         throw new Error(`Errore caricamento file: ${uploadError.message}`);
       }
 
-      console.log('File uploaded successfully:', uploadData);
+      console.log('✅ File uploaded successfully:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('pet-media')
         .getPublicUrl(fileName);
 
-      console.log('Public URL generated:', publicUrl);
+      console.log('🔗 Public URL generated:', publicUrl);
 
       // Create medical record with explicit user_id
       const recordData = {
@@ -428,7 +428,7 @@ const WellnessPage = () => {
         notes: newDocument.notes?.trim() || null
       };
 
-      console.log('Inserting record with data:', recordData);
+      console.log('💾 Inserting record with data:', recordData);
 
       const { data: recordResult, error: recordError } = await supabase
         .from('medical_records')
@@ -436,16 +436,16 @@ const WellnessPage = () => {
         .select('*');
 
       if (recordError) {
-        console.error('Database insert error:', recordError);
+        console.error('❌ Database insert error:', recordError);
         // Delete uploaded file if database insert fails
         await supabase.storage.from('pet-media').remove([fileName]);
         throw new Error(`Errore database: ${recordError.message}`);
       }
 
-      console.log('Record created successfully:', recordResult);
+      console.log('✅ Record created successfully:', recordResult);
 
       toast({
-        title: "Successo",
+        title: "🎉 Successo!",
         description: "Documento caricato con successo"
       });
 
@@ -458,7 +458,7 @@ const WellnessPage = () => {
       fetchHealthData();
       
     } catch (error: any) {
-      console.error('Error uploading document:', error);
+      console.error('❌ Error uploading document:', error);
       toast({
         title: "Errore di caricamento",
         description: error.message || "Impossibile caricare il documento. Verifica la connessione e riprova.",
@@ -2177,37 +2177,40 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
 
       {/* Add Document Dialog */}
       <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingDocument ? 'Modifica Documento' : 'Nuovo Documento Medico'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Titolo *</Label>
-              <Input
-                id="title"
-                value={newDocument.title}
-                onChange={(e) => setNewDocument(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="es. Visita di controllo"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="title">Titolo *</Label>
+                <Input
+                  id="title"
+                  value={newDocument.title}
+                  onChange={(e) => setNewDocument(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="es. Visita di controllo"
+                />
+              </div>
+              <div>
+                <Label htmlFor="record_type">Tipo Documento</Label>
+                <Select value={newDocument.record_type} onValueChange={(value) => setNewDocument(prev => ({ ...prev, record_type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="visita">Visita</SelectItem>
+                    <SelectItem value="esame">Esame</SelectItem>
+                    <SelectItem value="vaccino">Vaccino</SelectItem>
+                    <SelectItem value="operazione">Operazione</SelectItem>
+                    <SelectItem value="documento">Documento</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="record_type">Tipo Documento</Label>
-              <Select value={newDocument.record_type} onValueChange={(value) => setNewDocument(prev => ({ ...prev, record_type: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="visita">Visita</SelectItem>
-                  <SelectItem value="esame">Esame</SelectItem>
-                  <SelectItem value="vaccino">Vaccino</SelectItem>
-                  <SelectItem value="operazione">Operazione</SelectItem>
-                  <SelectItem value="documento">Documento</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            
             <div>
               <Label htmlFor="record_date">Data</Label>
               <Input
@@ -2217,6 +2220,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
             </div>
+            
             <div>
               <Label htmlFor="description">Descrizione</Label>
               <Textarea
@@ -2224,8 +2228,10 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 value={newDocument.description}
                 onChange={(e) => setNewDocument(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Descrizione del documento"
+                rows={3}
               />
             </div>
+            
             <div>
               <Label htmlFor="notes">Note</Label>
               <Textarea
@@ -2233,13 +2239,15 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 value={newDocument.notes}
                 onChange={(e) => setNewDocument(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Note aggiuntive"
+                rows={2}
               />
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="file">Carica File</Label>
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+              <Label htmlFor="file">Carica File (opzionale)</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
                 <div className="space-y-2">
-                  <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                  <Upload className="h-6 w-6 mx-auto text-muted-foreground" />
                   <div>
                     <label htmlFor="file" className="cursor-pointer">
                       <span className="text-primary font-medium hover:text-primary/80">Clicca per selezionare</span>
@@ -2253,13 +2261,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (editingDocument) {
-                            // For editing, update the document first then upload
-                            handleUploadDocument(file);
-                          } else {
-                            // For new documents, upload directly
-                            handleUploadDocument(file);
-                          }
+                          handleUploadDocument(file);
                         }
                       }}
                     />
@@ -2272,10 +2274,11 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
               {isUploading && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                  Caricamento in corso...
+                  Caricamento file in corso...
                 </div>
               )}
             </div>
+            
             <div className="flex gap-2 pt-4 border-t">
               <Button 
                 onClick={() => {
@@ -2285,14 +2288,16 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 }} 
                 variant="outline"
                 disabled={isUploading}
+                className="flex-1"
               >
                 Annulla
               </Button>
               <Button 
                 onClick={handleSaveDocumentOnly}
                 disabled={isUploading || !newDocument.title.trim()}
+                className="flex-1"
               >
-                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna' : 'Salva Documento'}
+                {isUploading ? 'Salvando...' : editingDocument ? 'Aggiorna Documento' : 'Salva Documento'}
               </Button>
             </div>
           </div>
