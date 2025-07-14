@@ -110,30 +110,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       if (error) {
-        let errorMessage = error.message;
-        
-        // Handle various error cases for existing users
-        if (error.message.includes('already registered') || 
-            error.message.includes('User already registered') ||
-            error.message.includes('already been registered') ||
-            error.message.includes('signup_disabled') ||
-            error.message.includes('email_address_not_authorized') ||
-            error.message.includes('Email already exists') ||
-            error.status === 422) {
-          errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
-          
-          toast({
-            title: "Email già registrata",
-            description: errorMessage,
-            variant: "destructive",
-          });
-          
-          return { error: { message: errorMessage, isEmailExists: true } };
-        }
-        
         toast({
           title: "Errore di registrazione",
-          description: errorMessage,
+          description: error.message,
           variant: "destructive",
         });
         
