@@ -25,6 +25,12 @@ export const useSubscription = () => {
 
   const checkSubscription = async (showErrorToast = false) => {
     if (!user) {
+      // Set default free tier when no user is logged in
+      setSubscription({
+        subscribed: false,
+        subscription_tier: 'free',
+        subscription_end: null,
+      });
       setLoading(false);
       return;
     }
