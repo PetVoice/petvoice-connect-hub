@@ -1269,7 +1269,7 @@ export default function StatsPage() {
           )}
 
           {/* Heart Rate Trend Chart */}
-          {analytics.heartRateTrends.length > 0 && (
+          {displayAnalytics.heartRateTrends.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1285,7 +1285,7 @@ export default function StatsPage() {
                   heartRate: { label: "Battiti/min", color: "hsl(var(--primary))" }
                 }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analytics.heartRateTrends}>
+                    <LineChart data={displayAnalytics.heartRateTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="dateFormatted" />
                       <YAxis domain={[40, 160]} />
@@ -1307,7 +1307,7 @@ export default function StatsPage() {
           )}
 
           {/* Weight Trend Chart */}
-          {analytics.weightTrends.length > 0 && (
+          {displayAnalytics.weightTrends.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1323,7 +1323,7 @@ export default function StatsPage() {
                   weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
                 }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analytics.weightTrends}>
+                    <LineChart data={displayAnalytics.weightTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="dateFormatted" />
                       <YAxis />
@@ -1355,7 +1355,7 @@ export default function StatsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {analytics.averageWellnessScore < 60 && (
+                {displayAnalytics.averageWellnessScore < 60 && (
                   <Alert>
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
@@ -1364,10 +1364,10 @@ export default function StatsPage() {
                   </Alert>
                 )}
                 <ul className="text-sm space-y-2">
-                  {analytics.weightTrends.length === 0 && (
+                  {displayAnalytics.weightTrends.length === 0 && (
                     <li>• Inizia a monitorare il peso regolarmente</li>
                   )}
-                  {analytics.activeDays < analytics.timeSpan * 0.3 && (
+                  {displayAnalytics.activeDays < displayAnalytics.timeSpan * 0.3 && (
                     <li>• Aumenta la frequenza dei controlli</li>
                   )}
                   <li>• Mantieni un diario delle attività del pet</li>
@@ -1402,9 +1402,9 @@ export default function StatsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h4 className="font-medium">Trend Analisi Emotive</h4>
-                  {analytics.emotionDistribution.length > 0 ? (
+                  {displayAnalytics.emotionDistribution.length > 0 ? (
                     <div className="space-y-2">
-                      {analytics.emotionDistribution.slice(0, 3).map((emotion, index) => (
+                      {displayAnalytics.emotionDistribution.slice(0, 3).map((emotion, index) => (
                         <div key={index} className="flex items-center justify-between p-2 border rounded">
                           <span className="capitalize">{emotion.emotion}</span>
                           <Badge variant="secondary">{emotion.percentage}%</Badge>
