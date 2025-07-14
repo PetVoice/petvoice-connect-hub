@@ -51,7 +51,7 @@ const supportItems = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { state, open, setOpen, isMobile } = useSidebar();
+  const { state, open, setOpen, openMobile, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   
   const isCollapsed = state === 'collapsed';
@@ -59,9 +59,9 @@ const AppSidebar: React.FC = () => {
   // Auto-hide sidebar on navigation for mobile
   React.useEffect(() => {
     if (isMobile) {
-      setOpen(false);
+      setOpenMobile(false);
     }
-  }, [location.pathname, setOpen, isMobile]);
+  }, [location.pathname, setOpenMobile, isMobile]);
   
   const isActive = (path: string) => {
     if (path === '/') {
@@ -80,11 +80,11 @@ const AppSidebar: React.FC = () => {
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="gap-0">
         {/* Logo and Title */}
-        <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed ? "justify-center" : ""}`}>
+        <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed && !isMobile ? "justify-center" : ""}`}>
           <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow">
             <span className="text-white font-bold text-sm">🐾</span>
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
                 PetVoice
@@ -98,7 +98,7 @@ const AppSidebar: React.FC = () => {
 
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed ? "hidden" : "block"}>
+          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
             Navigazione Principale
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -111,7 +111,7 @@ const AppSidebar: React.FC = () => {
                       className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -122,7 +122,7 @@ const AppSidebar: React.FC = () => {
 
         {/* Community & Business */}
         <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed ? "hidden" : "block"}>
+          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
             Community & Business
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -135,7 +135,7 @@ const AppSidebar: React.FC = () => {
                       className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -146,7 +146,7 @@ const AppSidebar: React.FC = () => {
 
         {/* Support */}
         <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed ? "hidden" : "block"}>
+          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
             Supporto
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -159,7 +159,7 @@ const AppSidebar: React.FC = () => {
                       className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
                     >
                       <item.icon className="h-5 w-5 shrink-0" />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
