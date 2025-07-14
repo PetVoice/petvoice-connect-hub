@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import jsPDF from 'jspdf';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -263,13 +264,9 @@ export default function AffiliationPage() {
         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(content)}`;
         break;
       case 'instagram':
-        // Instagram doesn't support direct URL sharing, copy to clipboard instead
-        copyToClipboard(`${content}\n\n${referralLink}`);
-        toast({
-          title: "Contenuto copiato!",
-          description: "Incolla il contenuto nel tuo post Instagram",
-        });
-        return;
+        // Instagram web interface
+        shareUrl = `https://www.instagram.com/`;
+        break;
       case 'whatsapp':
         shareUrl = `https://wa.me/?text=${encodeURIComponent(content)}`;
         break;
@@ -924,51 +921,72 @@ export default function AffiliationPage() {
                 variant="outline" 
                 className="w-full justify-start"
                 onClick={() => {
-                  // Generate PDF report
-                  const reportData = {
-                    user: user?.email,
-                    referralCode: referralProfile.referral_code,
-                    totalReferrals: referralProfile.total_referrals,
-                    conversions: referralProfile.successful_conversions,
-                    totalCredits: referralProfile.total_credits_earned,
-                    currentTier: referralProfile.current_tier,
-                    activeCredits: activeCreditsBalance,
-                    date: format(new Date(), 'dd/MM/yyyy')
-                  };
+                  // Create PDF report
+                  const doc = new jsPDF();
                   
-                  // Create PDF content
-                  const pdfContent = `
-REPORT AFFILIAZIONE PETVOICE
-============================
-Data: ${reportData.date}
-Utente: ${reportData.user}
-Codice Referral: ${reportData.referralCode}
-
-STATISTICHE:
-- Referral Totali: ${reportData.totalReferrals}
-- Conversioni: ${reportData.conversions}
-- Crediti Totali Guadagnati: €${reportData.totalCredits}
-- Crediti Attivi: €${reportData.activeCredits}
-- Tier Attuale: ${reportData.currentTier}
-
-DETTAGLI REFERRAL:
-${referrals.map(r => `- ${r.referred_email} (${r.status}) - €${r.credits_awarded || 0}`).join('\n')}
-                  `;
+                  // Header
+                  doc.setFontSize(20);
+                  doc.text('REPORT AFFILIAZIONE PETVOICE', 20, 30);
                   
-                  // Create and download PDF
-                  const blob = new Blob([pdfContent], { type: 'text/plain' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `report-affiliazione-${format(new Date(), 'yyyy-MM-dd')}.txt`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
+                  doc.setFontSize(12);
+                  doc.text('='.repeat(50), 20, 40);
+                  
+                  // Info
+                  let yPos = 55;
+                  doc.text(`Data: ${format(new Date(), 'dd/MM/yyyy')}`, 20, yPos);
+                  yPos += 10;
+                  doc.text(`Utente: ${user?.email || 'N/A'}`, 20, yPos);
+                  yPos += 10;
+                  doc.text(`Codice Referral: ${referralProfile.referral_code}`, 20, yPos);
+                  yPos += 20;
+                  
+                  // Statistics
+                  doc.setFontSize(14);
+                  doc.text('STATISTICHE:', 20, yPos);
+                  yPos += 15;
+                  
+                  doc.setFontSize(12);
+                  doc.text(`• Referral Totali: ${referralProfile.total_referrals}`, 25, yPos);
+                  yPos += 10;
+                  doc.text(`• Conversioni: ${referralProfile.successful_conversions}`, 25, yPos);
+                  yPos += 10;
+                  doc.text(`• Crediti Totali Guadagnati: €${referralProfile.total_credits_earned.toFixed(2)}`, 25, yPos);
+                  yPos += 10;
+                  doc.text(`• Crediti Attivi: €${activeCreditsBalance.toFixed(2)}`, 25, yPos);
+                  yPos += 10;
+                  doc.text(`• Tier Attuale: ${referralProfile.current_tier}`, 25, yPos);
+                  yPos += 20;
+                  
+                  // Referral Details
+                  doc.setFontSize(14);
+                  doc.text('DETTAGLI REFERRAL:', 20, yPos);
+                  yPos += 15;
+                  
+                  doc.setFontSize(10);
+                  if (referrals.length === 0) {
+                    doc.text('Nessun referral ancora', 25, yPos);
+                  } else {
+                    referrals.forEach((referral, index) => {
+                      if (yPos > 270) { // New page if needed
+                        doc.addPage();
+                        yPos = 20;
+                      }
+                      doc.text(`• ${referral.referred_email} (${referral.status}) - €${(referral.credits_awarded || 0).toFixed(2)}`, 25, yPos);
+                      yPos += 8;
+                    });
+                  }
+                  
+                  // Footer
+                  yPos += 20;
+                  doc.setFontSize(8);
+                  doc.text('Report generato automaticamente da PetVoice - Programma Affiliazione', 20, yPos);
+                  
+                  // Save PDF
+                  doc.save(`report-affiliazione-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
                   
                   toast({
-                    title: "Report Scaricato",
-                    description: "Il report dettagliato è stato scaricato con successo",
+                    title: "Report PDF Scaricato",
+                    description: "Il report dettagliato è stato scaricato in formato PDF",
                   });
                 }}
               >
