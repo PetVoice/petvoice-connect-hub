@@ -89,11 +89,10 @@ interface SharingTemplate {
 }
 
 const TIER_CONFIG = {
-  Bronze: { minReferrals: 0, color: 'bg-amber-600', next: 'Silver', nextTarget: 5 },
-  Silver: { minReferrals: 5, color: 'bg-gray-400', next: 'Gold', nextTarget: 20 },
-  Gold: { minReferrals: 20, color: 'bg-yellow-500', next: 'Platinum', nextTarget: 50 },
-  Platinum: { minReferrals: 50, color: 'bg-purple-500', next: 'Diamond', nextTarget: 100 },
-  Diamond: { minReferrals: 100, color: 'bg-blue-600', next: null, nextTarget: null }
+  Bronzo: { minReferrals: 0, color: 'bg-amber-600', next: 'Argento', nextTarget: 5, commission: 0.05 },
+  Argento: { minReferrals: 5, color: 'bg-gray-400', next: 'Oro', nextTarget: 20, commission: 0.10 },
+  Oro: { minReferrals: 20, color: 'bg-yellow-500', next: 'Platino', nextTarget: 50, commission: 0.15 },
+  Platino: { minReferrals: 50, color: 'bg-purple-500', next: null, nextTarget: null, commission: 0.20 }
 };
 
 const BADGE_ICONS = {
