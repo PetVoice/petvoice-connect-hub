@@ -156,6 +156,464 @@ const translateRecordType = (type: string): string => {
   return translations[type] || type;
 };
 
+// Health Score Components
+const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, selectedPet, user }: {
+  healthMetrics: HealthMetric[];
+  medicalRecords: MedicalRecord[];
+  medications: Medication[];
+  selectedPet: any;
+  user: any;
+}) => {
+  const [healthScore, setHealthScore] = React.useState<number | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  
+  const calculateHealthScore = async () => {
+    if (!user || !selectedPet) return null;
+
+    let totalScore = 0;
+    
+    // 🔵 PARAMETRI VITALI (25 punti max)
+    let vitalScore = 0;
+    
+    // Peso: controlla se nella norma per la razza
+    if (selectedPet.weight) {
+      // Assumiamo peso normale per ora (dovrebbe essere basato su razza/taglia)
+      vitalScore += 5; // peso nella norma
+    }
+    
+    // Temperatura: controlla dai health_metrics
+    const tempMetrics = healthMetrics.filter(m => m.metric_type === 'temperature');
+    if (tempMetrics.length > 0) {
+      const lastTemp = tempMetrics[0];
+      if (lastTemp.value >= 38 && lastTemp.value <= 39) {
+        vitalScore += 5; // temperatura normale
+      }
+    }
+    
+    // Battito cardiaco: controlla dai health_metrics
+    const heartMetrics = healthMetrics.filter(m => m.metric_type === 'heart_rate');
+    if (heartMetrics.length > 0) {
+      const lastHeart = heartMetrics[0];
+      if (lastHeart.value >= 60 && lastHeart.value <= 120) {
+        vitalScore += 5; // battito normale
+      }
+    }
+    
+    totalScore += Math.min(25, vitalScore);
+    
+    // 🟢 ATTIVITÀ E COMPORTAMENTO (20 punti max)
+    let behaviorScore = 0;
+    
+    // Attività fisica: basata su entry del diario recenti
+    try {
+      const { data: recentDiary } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .gte('entry_date', subDays(new Date(), 14).toISOString().split('T')[0])
+        .order('entry_date', { ascending: false });
+      
+      if (recentDiary && recentDiary.length > 0) {
+        const avgMood = recentDiary.reduce((sum, entry) => sum + (entry.mood_score || 5), 0) / recentDiary.length;
+        if (avgMood >= 7) behaviorScore += 10; // comportamento ottimo
+        else if (avgMood >= 5) behaviorScore += 5; // comportamento normale
+      }
+    } catch (error) {
+      console.error('Error fetching diary entries:', error);
+    }
+    
+    totalScore += Math.min(20, behaviorScore);
+    
+    // 🟡 CURE MEDICHE (25 punti max)
+    let medicalScore = 0;
+    
+    // Vaccini: controlla medical_records per vaccini recenti
+    const vaccinations = medicalRecords.filter(r => 
+      r.record_type === 'vaccino' || r.record_type === 'vaccination'
+    );
+    const recentVaccinations = vaccinations.filter(v => {
+      const vaccDate = new Date(v.record_date);
+      const oneYearAgo = subDays(new Date(), 365);
+      return vaccDate >= oneYearAgo;
+    });
+    
+    if (recentVaccinations.length > 0) {
+      medicalScore += 10; // vaccini aggiornati
+    }
+    
+    // Farmaci: controlla medications attive
+    const activeMeds = medications.filter(m => m.is_active);
+    if (activeMeds.length > 0) {
+      medicalScore += 10; // terapie seguite
+    }
+    
+    // Visite veterinarie
+    const recentVisits = medicalRecords.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      const oneYearAgo = subDays(new Date(), 365);
+      
+      if (visitDate >= sixMonthsAgo) return 'recent';
+      if (visitDate >= oneYearAgo) return 'medium';
+      return 'old';
+    });
+    
+    const recentVisitsCount = recentVisits.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      return visitDate >= sixMonthsAgo;
+    }).length;
+    
+    const mediumVisitsCount = recentVisits.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      const oneYearAgo = subDays(new Date(), 365);
+      return visitDate < sixMonthsAgo && visitDate >= oneYearAgo;
+    }).length;
+    
+    if (recentVisitsCount > 0) medicalScore += 5; // visite recenti
+    else if (mediumVisitsCount > 0) medicalScore += 3; // visite nell'ultimo anno
+    
+    totalScore += Math.min(25, medicalScore);
+    
+    // 🟠 INTERVENTI E CONTROLLI (15 punti max)
+    let interventionScore = 0;
+    
+    // Esami recenti
+    const recentExams = medicalRecords.filter(r => {
+      const examDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      return examDate >= sixMonthsAgo && (r.record_type === 'esame' || r.record_type === 'exam');
+    });
+    
+    if (recentExams.length > 0) interventionScore += 5;
+    
+    // Operazioni necessarie
+    const surgeries = medicalRecords.filter(r => 
+      r.record_type === 'operazione' || r.record_type === 'surgery'
+    );
+    if (surgeries.length > 0) interventionScore += 5;
+    
+    // Trattamenti seguiti (basato su farmaci completati)
+    const completedMeds = medications.filter(m => !m.is_active && m.end_date);
+    if (completedMeds.length > 0) interventionScore += 5;
+    
+    totalScore += Math.min(15, interventionScore);
+    
+    // 🔴 ANALISI EMOTIVE APP (15 punti max)
+    let emotionScore = 0;
+    
+    try {
+      const { data: analyses } = await supabase
+        .from('pet_analyses')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (analyses && analyses.length > 0) {
+        const oneWeekAgo = subDays(new Date(), 7);
+        const oneMonthAgo = subDays(new Date(), 30);
+        
+        const recentAnalyses = analyses.filter(a => new Date(a.created_at) >= oneWeekAgo);
+        const monthlyAnalyses = analyses.filter(a => new Date(a.created_at) >= oneMonthAgo);
+        
+        if (recentAnalyses.length > 0) {
+          emotionScore += 15; // analisi ultima settimana
+        } else if (monthlyAnalyses.length > 0) {
+          emotionScore += 10; // analisi ultimo mese
+        } else if (analyses.length > 0) {
+          emotionScore += 5; // analisi più vecchie
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching analyses:', error);
+    }
+    
+    totalScore += Math.min(15, emotionScore);
+    
+    // Assicurati che il punteggio sia tra 0 e 100
+    const finalScore = Math.min(100, Math.max(0, Math.round(totalScore)));
+    
+    return finalScore;
+  };
+  
+  React.useEffect(() => {
+    const fetchHealthScore = async () => {
+      setLoading(true);
+      const score = await calculateHealthScore();
+      setHealthScore(score);
+      setLoading(false);
+    };
+    
+    fetchHealthScore();
+  }, [healthMetrics, medicalRecords, medications, selectedPet]);
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Punteggio Generale</span>
+        <span className="text-lg text-muted-foreground">Caricamento...</span>
+      </div>
+    );
+  }
+  
+  const getScoreMessage = (score: number | null) => {
+    if (score === null || score === 0) return "Inizia ad aggiungere più dati sulla salute";
+    if (score < 30) return "Inizia ad aggiungere più dati sulla salute";
+    if (score < 70) return "Dati insufficienti";
+    return "Ottima salute";
+  };
+  
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Punteggio Generale</span>
+        {healthScore !== null && healthScore > 0 ? (
+          <span className="text-2xl font-bold text-primary">{healthScore}/100</span>
+        ) : (
+          <span className="text-lg text-muted-foreground">Non disponibile</span>
+        )}
+      </div>
+      {healthScore !== null && healthScore > 0 ? (
+        <Progress value={healthScore} className="h-3" />
+      ) : (
+        <div className="h-3 bg-muted rounded-full">
+          <div className="h-full bg-muted-foreground/20 rounded-full"></div>
+        </div>
+      )}
+      <div className="text-sm text-center p-2 bg-muted/50 rounded-lg">
+        <span className="font-medium">{getScoreMessage(healthScore)}</span>
+      </div>
+    </div>
+  );
+};
+
+const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selectedPet, user }: {
+  healthMetrics: HealthMetric[];
+  medicalRecords: MedicalRecord[];
+  medications: Medication[];
+  selectedPet: any;
+  user: any;
+}) => {
+  const [healthScore, setHealthScore] = React.useState<number | null>(null);
+  
+  const calculateHealthScore = async () => {
+    if (!user || !selectedPet) return null;
+
+    let totalScore = 0;
+    
+    // 🔵 PARAMETRI VITALI (25 punti max)
+    let vitalScore = 0;
+    
+    // Peso: controlla se nella norma per la razza
+    if (selectedPet.weight) {
+      // Assumiamo peso normale per ora (dovrebbe essere basato su razza/taglia)
+      vitalScore += 5; // peso nella norma
+    }
+    
+    // Temperatura: controlla dai health_metrics
+    const tempMetrics = healthMetrics.filter(m => m.metric_type === 'temperature');
+    if (tempMetrics.length > 0) {
+      const lastTemp = tempMetrics[0];
+      if (lastTemp.value >= 38 && lastTemp.value <= 39) {
+        vitalScore += 5; // temperatura normale
+      }
+    }
+    
+    // Battito cardiaco: controlla dai health_metrics
+    const heartMetrics = healthMetrics.filter(m => m.metric_type === 'heart_rate');
+    if (heartMetrics.length > 0) {
+      const lastHeart = heartMetrics[0];
+      if (lastHeart.value >= 60 && lastHeart.value <= 120) {
+        vitalScore += 5; // battito normale
+      }
+    }
+    
+    totalScore += Math.min(25, vitalScore);
+    
+    // 🟢 ATTIVITÀ E COMPORTAMENTO (20 punti max)
+    let behaviorScore = 0;
+    
+    // Attività fisica: basata su entry del diario recenti
+    try {
+      const { data: recentDiary } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .gte('entry_date', subDays(new Date(), 14).toISOString().split('T')[0])
+        .order('entry_date', { ascending: false });
+      
+      if (recentDiary && recentDiary.length > 0) {
+        const avgMood = recentDiary.reduce((sum, entry) => sum + (entry.mood_score || 5), 0) / recentDiary.length;
+        if (avgMood >= 7) behaviorScore += 10; // comportamento ottimo
+        else if (avgMood >= 5) behaviorScore += 5; // comportamento normale
+      }
+    } catch (error) {
+      console.error('Error fetching diary entries:', error);
+    }
+    
+    totalScore += Math.min(20, behaviorScore);
+    
+    // 🟡 CURE MEDICHE (25 punti max)
+    let medicalScore = 0;
+    
+    // Vaccini: controlla medical_records per vaccini recenti
+    const vaccinations = medicalRecords.filter(r => 
+      r.record_type === 'vaccino' || r.record_type === 'vaccination'
+    );
+    const recentVaccinations = vaccinations.filter(v => {
+      const vaccDate = new Date(v.record_date);
+      const oneYearAgo = subDays(new Date(), 365);
+      return vaccDate >= oneYearAgo;
+    });
+    
+    if (recentVaccinations.length > 0) {
+      medicalScore += 10; // vaccini aggiornati
+    }
+    
+    // Farmaci: controlla medications attive
+    const activeMeds = medications.filter(m => m.is_active);
+    if (activeMeds.length > 0) {
+      medicalScore += 10; // terapie seguite
+    }
+    
+    // Visite veterinarie
+    const recentVisits = medicalRecords.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      const oneYearAgo = subDays(new Date(), 365);
+      
+      if (visitDate >= sixMonthsAgo) return 'recent';
+      if (visitDate >= oneYearAgo) return 'medium';
+      return 'old';
+    });
+    
+    const recentVisitsCount = recentVisits.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      return visitDate >= sixMonthsAgo;
+    }).length;
+    
+    const mediumVisitsCount = recentVisits.filter(r => {
+      const visitDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      const oneYearAgo = subDays(new Date(), 365);
+      return visitDate < sixMonthsAgo && visitDate >= oneYearAgo;
+    }).length;
+    
+    if (recentVisitsCount > 0) medicalScore += 5; // visite recenti
+    else if (mediumVisitsCount > 0) medicalScore += 3; // visite nell'ultimo anno
+    
+    totalScore += Math.min(25, medicalScore);
+    
+    // 🟠 INTERVENTI E CONTROLLI (15 punti max)
+    let interventionScore = 0;
+    
+    // Esami recenti
+    const recentExams = medicalRecords.filter(r => {
+      const examDate = new Date(r.record_date);
+      const sixMonthsAgo = subDays(new Date(), 180);
+      return examDate >= sixMonthsAgo && (r.record_type === 'esame' || r.record_type === 'exam');
+    });
+    
+    if (recentExams.length > 0) interventionScore += 5;
+    
+    // Operazioni necessarie
+    const surgeries = medicalRecords.filter(r => 
+      r.record_type === 'operazione' || r.record_type === 'surgery'
+    );
+    if (surgeries.length > 0) interventionScore += 5;
+    
+    // Trattamenti seguiti (basato su farmaci completati)
+    const completedMeds = medications.filter(m => !m.is_active && m.end_date);
+    if (completedMeds.length > 0) interventionScore += 5;
+    
+    totalScore += Math.min(15, interventionScore);
+    
+    // 🔴 ANALISI EMOTIVE APP (15 punti max)
+    let emotionScore = 0;
+    
+    try {
+      const { data: analyses } = await supabase
+        .from('pet_analyses')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (analyses && analyses.length > 0) {
+        const oneWeekAgo = subDays(new Date(), 7);
+        const oneMonthAgo = subDays(new Date(), 30);
+        
+        const recentAnalyses = analyses.filter(a => new Date(a.created_at) >= oneWeekAgo);
+        const monthlyAnalyses = analyses.filter(a => new Date(a.created_at) >= oneMonthAgo);
+        
+        if (recentAnalyses.length > 0) {
+          emotionScore += 15; // analisi ultima settimana
+        } else if (monthlyAnalyses.length > 0) {
+          emotionScore += 10; // analisi ultimo mese
+        } else if (analyses.length > 0) {
+          emotionScore += 5; // analisi più vecchie
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching analyses:', error);
+    }
+    
+    totalScore += Math.min(15, emotionScore);
+    
+    // Assicurati che il punteggio sia tra 0 e 100
+    const finalScore = Math.min(100, Math.max(0, Math.round(totalScore)));
+    
+    return finalScore;
+  };
+  
+  React.useEffect(() => {
+    const fetchHealthScore = async () => {
+      const score = await calculateHealthScore();
+      setHealthScore(score);
+    };
+    
+    fetchHealthScore();
+  }, [healthMetrics, medicalRecords, medications, selectedPet]);
+  
+  const displayScore = healthScore || 0;
+  
+  return (
+    <div className="flex items-center justify-center">
+      <div className="relative w-40 h-40">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            className="text-muted/20"
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={`${2 * Math.PI * 40}`}
+            strokeDashoffset={`${2 * Math.PI * 40 * (1 - displayScore / 100)}`}
+            className="text-primary transition-all duration-500"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-3xl font-bold">{displayScore}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const WellnessPage = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
@@ -1199,63 +1657,9 @@ const WellnessPage = () => {
     return medicalRecords.length;
   };
 
-  const getHealthScore = () => {
-    // Health Score basato su dati reali
-    let totalScore = 0;
-    let factorsCount = 0;
-    
-    // 1. Score dalle analisi emotive (40% del punteggio)
-    if (selectedPet) {
-      // Qui dovremmo recuperare le analisi dal database, per ora usiamo 0
-      // const emotionScore = calculateEmotionScore(analyses);
-      // totalScore += emotionScore * 0.4;
-      // factorsCount++;
-    }
-    
-    // 2. Score dalle metriche sanitarie (30% del punteggio)
-    if (healthMetrics.length > 0) {
-      const recentMetrics = healthMetrics.slice(0, 5);
-      // Normalizza le metriche su scala 0-100 (assumendo valori 1-10)
-      const avgMetricScore = recentMetrics.reduce((sum, metric) => {
-        // Converti metriche su scala 1-10 in percentuale
-        const normalizedValue = Math.min(100, Math.max(0, (metric.value / 10) * 100));
-        return sum + normalizedValue;
-      }, 0) / recentMetrics.length;
-      
-      totalScore += avgMetricScore * 0.3;
-      factorsCount++;
-    }
-    
-    // 3. Score dalle visite veterinarie (20% del punteggio)
-    if (medicalRecords.length > 0) {
-      const recentVisits = medicalRecords.filter(record => {
-        const recordDate = new Date(record.record_date);
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-        return recordDate >= sixMonthsAgo;
-      });
-      
-      // Score basato su visite recenti (più visite = score migliore)
-      const visitScore = Math.min(100, (recentVisits.length / 2) * 100); // 2 visite in 6 mesi = 100%
-      totalScore += visitScore * 0.2;
-      factorsCount++;
-    }
-    
-    // 4. Score dalle vaccinazioni/farmaci (10% del punteggio)
-    if (medications.length > 0) {
-      const activeMeds = medications.filter(med => med.is_active);
-      // Punteggio positivo se ha farmaci/vaccinazioni attive quando necessario
-      const medScore = activeMeds.length > 0 ? 80 : 100; // Assumiamo che avere farmaci attivi sia normale
-      totalScore += medScore * 0.1;
-      factorsCount++;
-    }
-    
-    // Ritorna il punteggio solo se abbiamo almeno un fattore
-    if (factorsCount === 0) return null;
-    
-    // Calcola media pesata
-    const finalScore = Math.round(totalScore);
-    return Math.min(100, Math.max(0, finalScore));
+  const getHealthScore = async () => {
+    // This function is now deprecated - use HealthScoreDisplay and HealthScoreCircle components
+    return null;
   };
 
   if (!selectedPet) {
@@ -1333,23 +1737,13 @@ const WellnessPage = () => {
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Punteggio Generale</span>
-                    {getHealthScore() !== null ? (
-                      <span className="text-2xl font-bold text-primary">{getHealthScore()}/100</span>
-                    ) : (
-                      <span className="text-lg text-muted-foreground">Non disponibile</span>
-                    )}
-                  </div>
-                  {getHealthScore() !== null ? (
-                    <Progress value={getHealthScore()} className="h-3" />
-                  ) : (
-                    <div className="h-3 bg-muted rounded-full">
-                      <div className="h-full bg-muted-foreground/20 rounded-full flex items-center justify-center">
-                        <span className="text-xs text-muted-foreground">Aggiungi metriche sanitarie per calcolare il punteggio</span>
-                      </div>
-                    </div>
-                  )}
+                  <HealthScoreDisplay 
+                    healthMetrics={healthMetrics}
+                    medicalRecords={medicalRecords}
+                    medications={medications}
+                    selectedPet={selectedPet}
+                    user={user}
+                  />
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -1371,36 +1765,13 @@ const WellnessPage = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-center">
-                  <div className="relative w-40 h-40">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        className="text-muted/20"
-                      />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={`${2 * Math.PI * 40}`}
-                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - getHealthScore() / 100)}`}
-                        className="text-primary transition-all duration-500"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-3xl font-bold">{getHealthScore()}</span>
-                    </div>
-                  </div>
-                </div>
+                <HealthScoreCircle 
+                  healthMetrics={healthMetrics}
+                  medicalRecords={medicalRecords}
+                  medications={medications}
+                  selectedPet={selectedPet}
+                  user={user}
+                />
               </div>
             </CardContent>
           </Card>

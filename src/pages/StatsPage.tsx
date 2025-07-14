@@ -905,6 +905,205 @@ export default function StatsPage() {
 
         {/* Health Tab */}
         <TabsContent value="health" className="space-y-6">
+          {/* 📊 PARAMETRI VITALI */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Thermometer className="h-5 w-5" />
+                Parametri Vitali
+              </CardTitle>
+              <CardDescription>
+                Monitoraggio peso, temperatura e battito cardiaco
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Peso */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Scale className="h-4 w-4" />
+                      Andamento Peso
+                    </h4>
+                    <Badge variant="outline">{analytics.weightTrends.length} misurazioni</Badge>
+                  </div>
+                  {analytics.weightTrends.length > 0 ? (
+                    <ChartContainer config={{
+                      weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
+                    }} className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={analytics.weightTrends}>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                          <XAxis dataKey="dateFormatted" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            dot={{ fill: "hsl(var(--primary))", r: 4 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  ) : (
+                    <div className="h-[200px] flex items-center justify-center border rounded-lg bg-muted/50">
+                      <div className="text-center">
+                        <Scale className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Nessun dato inserito</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Aggiungi misurazioni del peso per vedere il grafico
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Temperatura */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Thermometer className="h-4 w-4" />
+                      Temperatura
+                    </h4>
+                    <Badge variant="outline">{analytics.temperatureTrends.length} misurazioni</Badge>
+                  </div>
+                  {analytics.temperatureTrends.length > 0 ? (
+                    <ChartContainer config={{
+                      temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
+                    }} className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={analytics.temperatureTrends}>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                          <XAxis dataKey="dateFormatted" />
+                          <YAxis domain={[37, 40]} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line
+                            type="monotone"
+                            dataKey="temperature"
+                            stroke="hsl(var(--destructive))"
+                            strokeWidth={2}
+                            dot={{ fill: "hsl(var(--destructive))", r: 4 }}
+                          />
+                          <ReferenceLine y={38.5} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  ) : (
+                    <div className="h-[200px] flex items-center justify-center border rounded-lg bg-muted/50">
+                      <div className="text-center">
+                        <Thermometer className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Nessun dato inserito</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Aggiungi misurazioni temperatura per vedere il grafico
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Battito Cardiaco */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Heart className="h-4 w-4" />
+                      Battito Cardiaco
+                    </h4>
+                    <Badge variant="outline">{analytics.heartRateTrends.length} misurazioni</Badge>
+                  </div>
+                  {analytics.heartRateTrends.length > 0 ? (
+                    <ChartContainer config={{
+                      heartRate: { label: "BPM", color: "hsl(var(--warning))" }
+                    }} className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={analytics.heartRateTrends}>
+                          <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                          <XAxis dataKey="dateFormatted" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line
+                            type="monotone"
+                            dataKey="heartRate"
+                            stroke="hsl(var(--warning))"
+                            strokeWidth={2}
+                            dot={{ fill: "hsl(var(--warning))", r: 4 }}
+                          />
+                          <ReferenceLine y={90} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  ) : (
+                    <div className="h-[200px] flex items-center justify-center border rounded-lg bg-muted/50">
+                      <div className="text-center">
+                        <Heart className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Nessun dato inserito</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Aggiungi misurazioni battito per vedere il grafico
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 💊 CURE E MEDICINA */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Stethoscope className="h-5 w-5" />
+                Cure e Medicina
+              </CardTitle>
+              <CardDescription>
+                Farmaci attivi, vaccini e visite veterinarie
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Farmaci Attivi</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <div className="text-3xl font-bold text-primary mb-2">0</div>
+                    <p className="text-sm text-muted-foreground">
+                      Nessun farmaco registrato
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Aggiungi farmaci nella sezione Benessere
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Calendario Vaccini</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <div className="text-3xl font-bold text-primary mb-2">0</div>
+                    <p className="text-sm text-muted-foreground">
+                      Nessun vaccino registrato
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Aggiungi record vaccini per vedere le scadenze
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Visite Veterinarie</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <div className="text-3xl font-bold text-primary mb-2">0</div>
+                    <p className="text-sm text-muted-foreground">
+                      Nessuna visita registrata
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Documenta le visite per il monitoraggio
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Health Score Card */}
             <Card>
@@ -1176,6 +1375,205 @@ export default function StatsPage() {
 
         {/* Behavior Tab */}
         <TabsContent value="behavior" className="space-y-6">
+          {/* 🎯 COMPORTAMENTO E ANALISI */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Comportamento e Analisi
+              </CardTitle>
+              <CardDescription>
+                Trend analisi emotive, appetito, sonno e attività
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Trend Analisi Emotive</h4>
+                  {analytics.emotionDistribution.length > 0 ? (
+                    <div className="space-y-2">
+                      {analytics.emotionDistribution.slice(0, 3).map((emotion, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 border rounded">
+                          <span className="capitalize">{emotion.emotion}</span>
+                          <Badge variant="secondary">{emotion.percentage}%</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-6 border rounded-lg bg-muted/50">
+                      <Brain className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Inizia a monitorare</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Carica file audio/video per analizzare le emozioni
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Parametri Comportamentali</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">Appetito</span>
+                      <Badge variant="outline">Non monitorato</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">Sonno</span>
+                      <Badge variant="outline">Non monitorato</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 border rounded">
+                      <span className="text-sm">Attività Fisica</span>
+                      <Badge variant="outline">Non monitorato</Badge>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center mt-4">
+                    Compila il diario regolarmente per monitorare questi parametri
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* ⚡ EMERGENZE E TRATTAMENTI */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Emergenze e Trattamenti
+              </CardTitle>
+              <CardDescription>
+                Cronologia emergenze, trattamenti e operazioni
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Cronologia Emergenze</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Nessuna emergenza registrata
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Le emergenze future verranno archiviate qui
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Trattamenti</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <Stethoscope className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Nessun trattamento in corso
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Documenta i trattamenti nella sezione Benessere
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium">Operazioni</h4>
+                  <div className="text-center p-6 border rounded-lg bg-muted/50">
+                    <Award className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Nessuna operazione registrata
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Le operazioni chirurgiche verranno documentate qui
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 🏆 OBIETTIVI SALUTE */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Obiettivi Salute
+              </CardTitle>
+              <CardDescription>
+                Progress bar basati sui dati reali, promemoria e raccomandazioni
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Obiettivi Settimanali</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Analisi Emotive</span>
+                          <span>0/3</span>
+                        </div>
+                        <Progress value={0} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Entries Diario</span>
+                          <span>0/5</span>
+                        </div>
+                        <Progress value={0} className="h-2" />
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Monitoraggio Peso</span>
+                          <span>0/1</span>
+                        </div>
+                        <Progress value={0} className="h-2" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h4 className="font-medium">Promemoria</h4>
+                    <div className="space-y-2">
+                      <div className="p-3 border rounded-lg bg-blue-50 border-blue-200">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-800">
+                            Imposta obiettivi per il tuo pet
+                          </span>
+                        </div>
+                        <p className="text-xs text-blue-600 mt-1">
+                          Definisci target di benessere personalizzati
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="pt-4 border-t">
+                  <h4 className="font-medium mb-3">Raccomandazioni Personalizzate</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg bg-green-50 border-green-200">
+                      <Lightbulb className="h-5 w-5 text-green-600 mb-2" />
+                      <p className="text-sm font-medium text-green-800">
+                        Inizia con le analisi emotive
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">
+                        Carica un video o audio del tuo pet per iniziare il monitoraggio comportamentale
+                      </p>
+                    </div>
+                    <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+                      <Heart className="h-5 w-5 text-blue-600 mb-2" />
+                      <p className="text-sm font-medium text-blue-800">
+                        Compila il profilo medico
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Aggiungi informazioni sui farmaci, vaccini e visite veterinarie
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
