@@ -470,9 +470,7 @@ export default function StatsPage() {
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
-
-  // Create display analytics with fallback values
+  // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
     totalAnalyses: 0,
     averageWellnessScore: 0,
@@ -495,7 +493,8 @@ export default function StatsPage() {
     }
   };
 
-  if (!activePet) {
+  // Mostra alert informativo se non ci sono dati reali
+  const hasNoData = !analytics;
     return (
       <div className="container mx-auto p-6">
         <Card>
@@ -530,6 +529,29 @@ export default function StatsPage() {
 
   // Mostra alert informativo se non ci sono dati reali
   const hasNoData = !analytics;
+
+  // Ensure displayAnalytics is always safe to use
+  const safeAnalytics = displayAnalytics || {
+    totalAnalyses: 0,
+    averageWellnessScore: 0,
+    emotionDistribution: [],
+    moodTrends: [],
+    wellnessTrends: [],
+    activityPatterns: [],
+    weightTrends: [],
+    temperatureTrends: [],
+    heartRateTrends: [],
+    weatherMoodData: [],
+    activeDays: 0,
+    timeSpan: 30,
+    wellnessTrend: 0,
+    healthMetricsSummary: {
+      totalMetrics: 0,
+      uniqueMetricTypes: 0,
+      lastWeekMetrics: 0,
+      criticalValues: 0
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -630,9 +652,9 @@ export default function StatsPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{displayAnalytics.totalAnalyses}</div>
+            <div className="text-2xl font-bold">{safeAnalytics.totalAnalyses}</div>
             <p className="text-xs text-muted-foreground">
-              negli ultimi {displayAnalytics.timeSpan} giorni
+              negli ultimi {safeAnalytics.timeSpan} giorni
             </p>
           </CardContent>
         </Card>
@@ -644,15 +666,15 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold flex items-center gap-2">
-              {displayAnalytics.averageWellnessScore}%
-              {displayAnalytics.wellnessTrend > 0 ? (
+              {safeAnalytics.averageWellnessScore}%
+              {safeAnalytics.wellnessTrend > 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-600" />
-              ) : displayAnalytics.wellnessTrend < 0 ? (
+              ) : safeAnalytics.wellnessTrend < 0 ? (
                 <TrendingDown className="h-4 w-4 text-red-600" />
               ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
-              {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs periodo precedente
+              {safeAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(safeAnalytics.wellnessTrend)}% vs periodo precedente
             </p>
           </CardContent>
         </Card>
