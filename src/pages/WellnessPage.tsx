@@ -1705,16 +1705,7 @@ const WellnessPage = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-muted-foreground" />
-                          {record.document_url ? (
-                            <button
-                              onClick={() => window.open(record.document_url, '_self')}
-                              className="font-medium text-primary hover:underline cursor-pointer text-left"
-                            >
-                              {record.title}
-                            </button>
-                          ) : (
-                            <p className="font-medium">{record.title}</p>
-                          )}
+                          <p className="font-medium">{record.title}</p>
                           <Badge variant="outline">{translateRecordType(record.record_type)}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
@@ -1730,7 +1721,7 @@ const WellnessPage = () => {
                           <Button 
                             size="sm" 
                             variant="ghost"
-                            onClick={() => window.open(record.document_url, '_self')}
+                            onClick={() => window.open(record.document_url, '_blank', 'noopener,noreferrer')}
                             title="Visualizza allegato"
                           >
                             <Paperclip className="h-4 w-4" />
@@ -2325,7 +2316,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => window.open(uploadedFileUrl, '_self')}
+                      onClick={() => window.open(uploadedFileUrl, '_blank', 'noopener,noreferrer')}
                       className="text-green-600 hover:text-green-700"
                     >
                       <Eye className="h-4 w-4 mr-1" />
