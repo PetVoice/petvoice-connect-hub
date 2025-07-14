@@ -1190,12 +1190,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_email_exists: {
+        Args: { email_to_check: string }
+        Returns: boolean
+      }
       delete_user_account: {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
       }
       generate_referral_code: {
-        Args: { user_email: string }
+        Args: Record<PropertyKey, never> | { user_email: string }
         Returns: string
       }
     }

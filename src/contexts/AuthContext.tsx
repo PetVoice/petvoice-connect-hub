@@ -80,6 +80,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (email: string, password: string, displayName: string, referralCode?: string) => {
     try {
+      // Check if email already exists
+      const { data: emailExists } = await supabase.rpc('check_email_exists', { 
+        email_to_check: email 
+      });
+      
+      if (emailExists) {
+        const errorMessage = 'Un account con questa email esiste già. Prova ad accedere invece.';
+        toast({
+          title: "Email già registrata",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return { error: { message: errorMessage, isEmailExists: true } };
+      }
+      
       const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({

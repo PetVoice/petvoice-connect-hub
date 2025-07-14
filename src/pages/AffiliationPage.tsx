@@ -118,6 +118,7 @@ export default function AffiliationPage() {
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [analytics, setAnalytics] = useState<any>({});
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [myReferrer, setMyReferrer] = useState<any>(null);
   
   // UI State
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -198,6 +199,39 @@ export default function AffiliationPage() {
         .eq('is_active', true);
 
       setTemplates(templateData || []);
+
+      // Load my referrer info
+      const { data: myReferralData } = await supabase
+        .from('referrals')
+        .select('*')
+        .eq('referred_user_id', user.id)
+        .eq('status', 'converted')
+        .single();
+
+      if (myReferralData) {
+        // Get referrer info
+        const { data: referrerInfo } = await supabase
+          .from('user_referrals')
+          .select('user_id, referral_code')
+          .eq('user_id', myReferralData.referrer_id)
+          .single();
+
+        if (referrerInfo) {
+          // Get referrer profile info
+          const { data: referrerProfile } = await supabase
+            .from('profiles')
+            .select('display_name, user_id')
+            .eq('user_id', referrerInfo.user_id)
+            .single();
+
+          setMyReferrer({
+            user_id: referrerInfo.user_id,
+            referral_code: referrerInfo.referral_code,
+            display_name: referrerProfile?.display_name || 'Utente',
+            referral_date: myReferralData.created_at
+          });
+        }
+      }
 
     } catch (error) {
       console.error('Error loading referral data:', error);
@@ -437,6 +471,33 @@ export default function AffiliationPage() {
         </div>
       </div>
 
+      {/* My Referrer Card */}
+      {myReferrer && (
+        <Card className="mb-4 border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-600" />
+              Il Tuo Referente
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">{myReferrer.display_name}</span>
+                <Badge variant="secondary">{myReferrer.referral_code}</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ti ha invitato il {format(new Date(myReferrer.referral_date), 'dd/MM/yyyy', { locale: it })}
+              </p>
+              <Button size="sm" variant="outline" className="w-full">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Contatta (Prossimamente)
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -447,7 +508,7 @@ export default function AffiliationPage() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">€{activeCreditsBalance.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">
-              Utilizzabili solo per il rinnovo dell'abbonamento mensile
+              Ricevi commissioni ad ogni rinnovo mensile
             </p>
           </CardContent>
         </Card>
