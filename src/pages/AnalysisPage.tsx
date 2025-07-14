@@ -41,8 +41,10 @@ import { it } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -81,6 +83,7 @@ interface ProcessingState {
 const AnalysisPage: React.FC = () => {
   const { selectedPet } = usePets();
   const { toast } = useToast();
+  const { checkAnalysisLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [activeTab, setActiveTab] = useState('upload');
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<AnalysisData[]>([]);
@@ -182,6 +185,12 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
         description: "Seleziona un pet prima di iniziare l'analisi",
         variant: "destructive"
       });
+      return;
+    }
+
+    // Check analysis limit for free users
+    if (!checkAnalysisLimit(analyses.length)) {
+      showUpgradePrompt("Analisi aggiuntive");
       return;
     }
 
@@ -1261,6 +1270,12 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           }
           setDeleteConfirm({ open: false, analysisId: null, isMultiple: false });
         }}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal} 
       />
     </div>
   );

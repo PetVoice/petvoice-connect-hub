@@ -15,17 +15,9 @@ const SubscriptionPage = () => {
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
-  // Auto-refresh subscription status every 5 seconds and on page load
+  // Check subscription status only on page load
   useEffect(() => {
-    // Check immediately on load
     checkSubscription();
-    
-    // Then check every 5 seconds
-    const interval = setInterval(() => {
-      checkSubscription();
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, [checkSubscription]);
 
   const handleSubscribe = async (plan: 'premium' | 'family') => {

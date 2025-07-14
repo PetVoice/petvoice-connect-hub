@@ -23,6 +23,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 interface Pet {
   id: string;
@@ -89,6 +91,7 @@ const PetsPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, loading, updatePet, deletePet, addPet } = usePets();
   const navigate = useNavigate();
+  const { checkPetLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -275,7 +278,16 @@ const PetsPage: React.FC = () => {
         </div>
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button 
+              className="petvoice-button"
+              onClick={() => {
+                if (checkPetLimit(pets.length)) {
+                  setShowForm(true);
+                } else {
+                  showUpgradePrompt("Aggiunta di più pet");
+                }
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet
             </Button>
@@ -493,7 +505,13 @@ const PetsPage: React.FC = () => {
               Non hai ancora aggiunto nessun pet. Inizia creando il profilo del tuo amico a quattro zampe!
             </CardDescription>
             <Button 
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                if (checkPetLimit(pets.length)) {
+                  setShowForm(true);
+                } else {
+                  showUpgradePrompt("Aggiunta di più pet");
+                }
+              }}
               className="petvoice-button"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -592,6 +610,12 @@ const PetsPage: React.FC = () => {
         cancelText="Annulla"
         variant="destructive"
         onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal} 
       />
     </div>
   );
