@@ -36,7 +36,8 @@ export const usePlanLimits = () => {
   const { subscription } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const currentLimits = subscription.subscription_tier ? PLAN_LIMITS[subscription.subscription_tier] : {
+  const currentLimits = (subscription.subscribed && subscription.subscription_tier && subscription.subscription_tier !== 'free') ? 
+    PLAN_LIMITS[subscription.subscription_tier] : {
     maxPets: 0,
     maxAnalysesPerMonth: 0,
     hasAiInsights: false,
@@ -72,7 +73,7 @@ export const usePlanLimits = () => {
   };
 
   const requiresPremium = (action: () => void, featureName: string, customCheck?: () => boolean) => {
-    const hasAccess = customCheck ? customCheck() : subscription.subscription_tier !== null;
+    const hasAccess = customCheck ? customCheck() : (subscription.subscribed && subscription.subscription_tier !== 'free');
     
     if (hasAccess) {
       action();
@@ -91,7 +92,7 @@ export const usePlanLimits = () => {
     checkDeviceLimit,
     showUpgradePrompt,
     requiresPremium,
-    isPremium: subscription.subscription_tier !== null,
+    isPremium: subscription.subscribed && subscription.subscription_tier !== 'free',
     isFamily: subscription.subscription_tier === 'family',
   };
 };

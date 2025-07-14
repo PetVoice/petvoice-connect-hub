@@ -61,8 +61,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   };
 
-  // Block access to all other pages if not premium
-  if (!subscription.subscribed) {
+  // Block access to all other pages if not premium or cancelled immediately
+  const isBlocked = !subscription.subscribed || 
+    (subscription.is_cancelled && subscription.cancellation_type === 'immediate');
+    
+  if (isBlocked) {
     // Determine if user is cancelled or new
     const isCancelledUser = subscription.is_cancelled || subscription.cancellation_date !== null;
     

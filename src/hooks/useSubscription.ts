@@ -130,8 +130,15 @@ export const useSubscription = () => {
       
       if (error) throw error;
       
-      // Refresh subscription status
+      // Force refresh subscription status
       await checkSubscription();
+      
+      // If immediate cancellation, force page refresh to ensure blocking works
+      if (type === 'immediate') {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
       
       toast({
         title: type === 'immediate' ? "Abbonamento cancellato" : "Cancellazione programmata",
