@@ -128,6 +128,18 @@ interface Insurance {
   is_active: boolean;
 }
 
+// Helper function to translate record types to Italian
+const translateRecordType = (type: string): string => {
+  const translations: Record<string, string> = {
+    'visit': 'Visita',
+    'exam': 'Esame',
+    'vaccination': 'Vaccino',
+    'surgery': 'Operazione',
+    'document': 'Documento'
+  };
+  return translations[type] || type;
+};
+
 const WellnessPage = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
@@ -476,9 +488,15 @@ const WellnessPage = () => {
       };
 
       if (editingDocument) {
+        // When editing, preserve existing document_url if no new file was uploaded
+        const updateData = {
+          ...recordData,
+          document_url: uploadedFileUrl || editingDocument.document_url || null
+        };
+        
         const { error } = await supabase
           .from('medical_records')
-          .update(recordData)
+          .update(updateData)
           .eq('id', editingDocument.id);
         
         if (error) throw error;
@@ -1681,7 +1699,7 @@ const WellnessPage = () => {
                           ) : (
                             <p className="font-medium">{record.title}</p>
                           )}
-                          <Badge variant="outline">{record.record_type}</Badge>
+                          <Badge variant="outline">{translateRecordType(record.record_type)}</Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
                           {format(new Date(record.record_date), 'dd MMMM yyyy', { locale: it })}
@@ -1714,6 +1732,8 @@ const WellnessPage = () => {
                               record_date: record.record_date,
                               notes: record.notes || ''
                             });
+                            // Set uploaded file URL if document has attachment
+                            setUploadedFileUrl(record.document_url || null);
                             setShowAddDocument(true);
                           }}
                         >
