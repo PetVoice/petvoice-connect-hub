@@ -336,7 +336,7 @@ export default function StatsPage() {
 
     // Health metrics trends
     const weightTrends = healthData
-      .filter(h => h.metric_type === 'peso')
+      .filter(h => h.metric_type === 'weight')
       .map(h => ({
         date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
         weight: h.value,
@@ -345,7 +345,7 @@ export default function StatsPage() {
 
     // Temperature trends
     const temperatureTrends = healthData
-      .filter(h => h.metric_type === 'temperatura')
+      .filter(h => h.metric_type === 'temperature')
       .map(h => ({
         date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
         temperature: h.value,
@@ -354,7 +354,7 @@ export default function StatsPage() {
 
     // Heart rate trends
     const heartRateTrends = healthData
-      .filter(h => h.metric_type === 'battito_cardiaco')
+      .filter(h => h.metric_type === 'heart_rate')
       .map(h => ({
         date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
         heartRate: h.value,
@@ -369,8 +369,8 @@ export default function StatsPage() {
         new Date(h.recorded_at) >= subDays(new Date(), 7)
       ).length,
       criticalValues: healthData.filter(h => {
-        if (h.metric_type === 'temperatura' && (h.value < 37.5 || h.value > 39.5)) return true;
-        if (h.metric_type === 'battito_cardiaco' && (h.value < 60 || h.value > 140)) return true;
+        if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
+        if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
         return false;
       }).length
     };
