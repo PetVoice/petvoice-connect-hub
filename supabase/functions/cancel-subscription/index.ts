@@ -58,7 +58,7 @@ serve(async (req) => {
       throw new Error("Subscriber not found");
     }
 
-    if (!subscriber.subscribed || subscriber.subscription_tier === 'free') {
+    if (!subscriber.subscribed || subscriber.subscription_tier === null) {
       throw new Error("No active subscription to cancel");
     }
 
@@ -91,7 +91,7 @@ serve(async (req) => {
         .from("subscribers")
         .update({
           subscribed: false,
-          subscription_tier: 'free',
+          subscription_tier: null,
           is_cancelled: true,
           cancellation_type: 'immediate',
           cancellation_date: now,

@@ -13,14 +13,6 @@ export interface PlanLimits {
 }
 
 const PLAN_LIMITS: Record<string, PlanLimits> = {
-  free: {
-    maxPets: 1,
-    maxAnalysesPerMonth: 5,
-    hasAiInsights: false,
-    hasMusicTherapy: false,
-    hasDataExport: false,
-    hasPrioritySupport: false,
-  },
   premium: {
     maxPets: Infinity,
     maxAnalysesPerMonth: Infinity,
@@ -44,7 +36,14 @@ export const usePlanLimits = () => {
   const { subscription } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const currentLimits = PLAN_LIMITS[subscription.subscription_tier] || PLAN_LIMITS.free;
+  const currentLimits = subscription.subscription_tier ? PLAN_LIMITS[subscription.subscription_tier] : {
+    maxPets: 0,
+    maxAnalysesPerMonth: 0,
+    hasAiInsights: false,
+    hasMusicTherapy: false,
+    hasDataExport: false,
+    hasPrioritySupport: false,
+  };
 
   const checkFeatureAccess = (feature: keyof PlanLimits): boolean => {
     return Boolean(currentLimits[feature]);
@@ -73,7 +72,7 @@ export const usePlanLimits = () => {
   };
 
   const requiresPremium = (action: () => void, featureName: string, customCheck?: () => boolean) => {
-    const hasAccess = customCheck ? customCheck() : subscription.subscription_tier !== 'free';
+    const hasAccess = customCheck ? customCheck() : subscription.subscription_tier !== null;
     
     if (hasAccess) {
       action();
@@ -92,7 +91,7 @@ export const usePlanLimits = () => {
     checkDeviceLimit,
     showUpgradePrompt,
     requiresPremium,
-    isPremium: subscription.subscription_tier !== 'free',
+    isPremium: subscription.subscription_tier !== null,
     isFamily: subscription.subscription_tier === 'family',
   };
 };

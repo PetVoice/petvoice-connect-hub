@@ -53,7 +53,7 @@ serve(async (req) => {
         user_id: user.id,
         stripe_customer_id: null,
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: null,
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -64,7 +64,7 @@ serve(async (req) => {
       
       return new Response(JSON.stringify({ 
         subscribed: false, 
-        subscription_tier: 'free',
+        subscription_tier: null,
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -87,7 +87,7 @@ serve(async (req) => {
     });
     
     const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionTier = 'free';
+    let subscriptionTier = null;
     let subscriptionEnd = null;
 
     if (hasActiveSub) {

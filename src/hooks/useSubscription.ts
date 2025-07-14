@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast';
 
 export interface SubscriptionData {
   subscribed: boolean;
-  subscription_tier: 'free' | 'premium' | 'family';
+  subscription_tier: 'premium' | 'family' | null;
   subscription_end: string | null;
   is_cancelled: boolean;
   cancellation_type: 'immediate' | 'end_of_period' | null;
@@ -22,7 +22,7 @@ export const useSubscription = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
-    subscription_tier: 'free',
+    subscription_tier: null,
     subscription_end: null,
     is_cancelled: false,
     cancellation_type: null,
@@ -33,10 +33,10 @@ export const useSubscription = () => {
 
   const checkSubscription = async (showErrorToast = false) => {
     if (!user) {
-      // Set default free tier when no user is logged in
+      // Set default state when no user is logged in
       setSubscription({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: null,
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -56,10 +56,10 @@ export const useSubscription = () => {
       setSubscription(data);
     } catch (error) {
       console.error('Error checking subscription:', error);
-      // Set default free tier on error
+      // Set default state on error
       setSubscription({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: null,
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -136,9 +136,9 @@ export const useSubscription = () => {
       toast({
         title: type === 'immediate' ? "Abbonamento cancellato" : "Cancellazione programmata",
         description: type === 'immediate' 
-          ? "Sei tornato al piano Free" 
+          ? "Abbonamento cancellato immediatamente. Accesso bloccato." 
           : `Abbonamento attivo fino al ${new Date(data.cancellation_effective_date).toLocaleDateString()}`,
-        variant: "default",
+        variant: "destructive",
       });
       
       return true;
