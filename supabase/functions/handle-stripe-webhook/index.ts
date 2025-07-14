@@ -112,6 +112,24 @@ serve(async (req) => {
             }
 
             logStep("Successfully updated subscription", { email: customerEmail, tier: subscriptionTier, data });
+
+            // 🚀 CONVERTI REFERRAL AL PAGAMENTO - CHIAMATA DIRETTA RPC
+            if (customerEmail) {
+              try {
+                logStep("Attempting referral conversion", { email: customerEmail });
+                const { data: referralResult, error: referralError } = await supabaseClient
+                  .rpc('convert_referral_on_payment', { user_email: customerEmail });
+                
+                if (referralError) {
+                  logStep("Referral conversion error", { error: referralError.message, email: customerEmail });
+                } else {
+                  logStep("Referral conversion result", { result: referralResult, email: customerEmail });
+                }
+              } catch (referralError) {
+                logStep("Referral conversion exception", { error: referralError.message, email: customerEmail });
+                // Non fallire il webhook per errori referral
+              }
+            }
           } catch (error) {
             logStep("Error processing subscription", { error: error.message });
             throw error;

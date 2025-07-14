@@ -1210,6 +1210,10 @@ export type Database = {
         Args: { email_to_check: string }
         Returns: boolean
       }
+      convert_referral_on_payment: {
+        Args: { user_email: string }
+        Returns: Json
+      }
       delete_user_account: {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
