@@ -2010,19 +2010,19 @@ export default function StatsPage() {
                       // Show error notification
                       const errorNotification = document.createElement('div');
                       errorNotification.textContent = '❌ Errore durante la condivisione';
-                      errorNotification.style.cssText = `
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background: hsl(var(--destructive));
-                        color: hsl(var(--destructive-foreground));
-                        padding: 12px 16px;
-                        border-radius: 8px;
-                        font-size: 14px;
-                        font-weight: 500;
-                        z-index: 1000;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                      `;
+                       errorNotification.style.cssText = `
+                         position: fixed;
+                         top: 20px;
+                         right: 20px;
+                         background: hsl(var(--destructive));
+                         color: hsl(var(--destructive-foreground));
+                         padding: 12px 16px;
+                         border-radius: 8px;
+                         font-size: 14px;
+                         font-weight: 500;
+                         z-index: 1000;
+                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                       `;
                       document.body.appendChild(errorNotification);
                       setTimeout(() => errorNotification.remove(), 3000);
                     }
