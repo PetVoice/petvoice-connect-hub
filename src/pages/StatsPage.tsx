@@ -364,7 +364,7 @@ export default function StatsPage() {
       .map(d => ({
         date: d.entry_date,
         mood: d.mood_score,
-        dateFormatted: format(new Date(d.entry_date), 'd MMV', { locale: it })
+        dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
       }));
 
     // Wellness trends
