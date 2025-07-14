@@ -289,7 +289,8 @@ const SubscriptionPage = () => {
                 </Button>
               ) : (
                 <Button 
-                  className="w-full" 
+                  variant="outline"
+                  className="w-full hover-scale transition-all duration-200" 
                   onClick={() => handleSubscribe(plan.id as 'premium' | 'family')}
                   disabled={loading || processingPlan === plan.id}
                 >
