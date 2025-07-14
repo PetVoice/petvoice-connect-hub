@@ -472,22 +472,6 @@ export default function StatsPage() {
     };
   }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-muted rounded"></div>
-            ))}
-          </div>
-          <div className="h-96 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
   if (!activePet) {
     return (
       <div className="container mx-auto p-6">
@@ -500,6 +484,22 @@ export default function StatsPage() {
             </p>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+          <div className="h-96 bg-muted rounded"></div>
+        </div>
       </div>
     );
   }

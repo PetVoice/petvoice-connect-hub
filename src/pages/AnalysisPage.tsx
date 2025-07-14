@@ -336,6 +336,25 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
     await handleFileUpload(fileList.files);
   };
 
+  const handleStartRecording = () => {
+    if (!selectedPet) {
+      toast({
+        title: "Errore",
+        description: "Seleziona un pet prima di iniziare l'analisi",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    // Check analysis limit for free users
+    if (!checkAnalysisLimit(analyses.length)) {
+      showUpgradePrompt("Analisi aggiuntive");
+      return false;
+    }
+
+    return true;
+  };
+
   const generateAnalysisPDF = (analysis: AnalysisData) => {
     try {
       const pdf = new jsPDF();
@@ -794,7 +813,10 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
         <TabsContent value="upload" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <FileUploader onFilesSelected={handleFileUpload} />
-            <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+            <AudioRecorder 
+              onRecordingComplete={handleRecordingComplete} 
+              onStartRecording={handleStartRecording}
+            />
           </div>
         </TabsContent>
 

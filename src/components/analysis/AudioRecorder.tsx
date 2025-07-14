@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
   maxDuration?: number; // in seconds
+  onStartRecording?: () => boolean;
 }
 
 interface RecordingState {
@@ -28,9 +29,10 @@ interface RecordingState {
   audioUrl?: string;
 }
 
-const AudioRecorder: React.FC<AudioRecorderProps> = ({
-  onRecordingComplete,
-  maxDuration = 300 // 5 minutes default
+const AudioRecorder: React.FC<AudioRecorderProps> = ({ 
+  onRecordingComplete, 
+  maxDuration = 300, // 5 minutes default
+  onStartRecording
 }) => {
   const [recordingState, setRecordingState] = useState<RecordingState>({
     isRecording: false,
@@ -130,6 +132,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   const startRecording = async () => {
+    // Check if we should allow recording to start
+    if (onStartRecording && !onStartRecording()) {
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
