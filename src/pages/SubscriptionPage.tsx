@@ -15,10 +15,8 @@ const SubscriptionPage = () => {
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 
-  // Check subscription status only on page load
-  useEffect(() => {
-    checkSubscription();
-  }, [checkSubscription]);
+  // Remove the useEffect that was causing infinite loops
+  // The useSubscription hook already handles checking subscription status
 
   const handleSubscribe = async (plan: 'premium' | 'family') => {
     setProcessingPlan(plan);

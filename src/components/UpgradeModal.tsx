@@ -82,6 +82,7 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
             </ul>
 
             <Button 
+              variant="outline"
               className="w-full" 
               onClick={() => handleSubscribe('premium')}
               disabled={processingPlan !== null}
