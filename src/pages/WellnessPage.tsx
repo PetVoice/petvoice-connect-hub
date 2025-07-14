@@ -145,6 +145,7 @@ const WellnessPage = () => {
   
   // Dialog states
   const [showAddDocument, setShowAddDocument] = useState(false);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
   const [showAddVet, setShowAddVet] = useState(false);
   const [showAddMedication, setShowAddMedication] = useState(false);
   const [showAddMetric, setShowAddMetric] = useState(false);
@@ -450,6 +451,9 @@ const WellnessPage = () => {
         description: "Documento caricato con successo"
       });
 
+      // Save uploaded file URL for preview
+      setUploadedFileUrl(publicUrl);
+
       // Keep dialog open after file upload - user will close it manually by clicking "Salva"
       // setShowAddDocument(false); // Commented out to keep dialog open
       
@@ -529,6 +533,7 @@ const WellnessPage = () => {
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
       setShowAddDocument(false);
       setEditingDocument(null);
+      setUploadedFileUrl(null); // Clear uploaded file URL
       fetchHealthData();
     } catch (error: any) {
       console.error('Error saving document:', error);
@@ -1721,6 +1726,17 @@ const WellnessPage = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
+                        {/* Attachment button - only show if document_url exists */}
+                        {record.document_url && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => window.open(record.document_url, '_blank', 'noopener,noreferrer')}
+                            title="Visualizza allegato"
+                          >
+                            <Paperclip className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button 
                           size="sm" 
                           variant="ghost"
@@ -2290,6 +2306,29 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   Caricamento file in corso...
                 </div>
               )}
+              
+              {/* File Preview */}
+              {uploadedFileUrl && (
+                <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Paperclip className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                        File caricato con successo
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => window.open(uploadedFileUrl, '_blank', 'noopener,noreferrer')}
+                      className="text-green-600 hover:text-green-700"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Visualizza
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="flex gap-2 pt-4 border-t">
@@ -2298,6 +2337,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   setShowAddDocument(false);
                   setEditingDocument(null);
                   setNewDocument({ title: '', description: '', record_type: '', record_date: '', notes: '' });
+                  setUploadedFileUrl(null); // Clear uploaded file URL
                 }} 
                 variant="outline"
                 disabled={isUploading}
