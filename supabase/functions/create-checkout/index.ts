@@ -103,9 +103,6 @@ serve(async (req) => {
           user_id: user.id
         }
       },
-      automatic_tax: {
-        enabled: true,
-      },
       allow_promotion_codes: true,
     });
 
