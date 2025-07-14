@@ -110,6 +110,47 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_participations: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean | null
+          referrals_count: number | null
+          reward_claimed: boolean | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          referrals_count?: number | null
+          reward_claimed?: boolean | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          referrals_count?: number | null
+          reward_claimed?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participations_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "referral_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       diary_entries: {
         Row: {
           behavioral_tags: string[] | null
@@ -717,6 +758,245 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_analytics: {
+        Row: {
+          clicks: number | null
+          conversions: number | null
+          created_at: string
+          credits_earned: number | null
+          date: string
+          geographic_data: Json | null
+          id: string
+          registrations: number | null
+          top_channel: string | null
+          user_id: string
+        }
+        Insert: {
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          credits_earned?: number | null
+          date: string
+          geographic_data?: Json | null
+          id?: string
+          registrations?: number | null
+          top_channel?: string | null
+          user_id: string
+        }
+        Update: {
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          credits_earned?: number | null
+          date?: string
+          geographic_data?: Json | null
+          id?: string
+          registrations?: number | null
+          top_channel?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_badges: {
+        Row: {
+          badge_description: string | null
+          badge_name: string
+          badge_type: string
+          earned_at: string
+          icon_name: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_description?: string | null
+          badge_name: string
+          badge_type: string
+          earned_at?: string
+          icon_name?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_description?: string | null
+          badge_name?: string
+          badge_type?: string
+          earned_at?: string
+          icon_name?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_challenges: {
+        Row: {
+          challenge_name: string
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          reward_credits: number
+          start_date: string
+          target_referrals: number
+        }
+        Insert: {
+          challenge_name: string
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          reward_credits: number
+          start_date: string
+          target_referrals: number
+        }
+        Update: {
+          challenge_name?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          reward_credits?: number
+          start_date?: string
+          target_referrals?: number
+        }
+        Relationships: []
+      }
+      referral_credits: {
+        Row: {
+          amount: number
+          created_at: string
+          credit_type: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          redeemed_at: string | null
+          referral_id: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          credit_type: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          referral_id?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          credit_type?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          redeemed_at?: string | null
+          referral_id?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_credits_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          channel: string | null
+          conversion_date: string | null
+          created_at: string
+          credits_awarded: number | null
+          device_fingerprint: string | null
+          id: string
+          ip_address: unknown | null
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          status: string | null
+          updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          channel?: string | null
+          conversion_date?: string | null
+          created_at?: string
+          credits_awarded?: number | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          status?: string | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          channel?: string | null
+          conversion_date?: string | null
+          created_at?: string
+          credits_awarded?: number | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown | null
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          status?: string | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      sharing_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          platform: string
+          template_name: string
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          template_name: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          template_name?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           cancellation_date: string | null
@@ -818,6 +1098,48 @@ export type Database = {
           },
         ]
       }
+      user_referrals: {
+        Row: {
+          consecutive_months: number | null
+          created_at: string
+          current_tier: string | null
+          id: string
+          is_leaderboard_visible: boolean | null
+          referral_code: string
+          successful_conversions: number | null
+          total_credits_earned: number | null
+          total_referrals: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consecutive_months?: number | null
+          created_at?: string
+          current_tier?: string | null
+          id?: string
+          is_leaderboard_visible?: boolean | null
+          referral_code: string
+          successful_conversions?: number | null
+          total_credits_earned?: number | null
+          total_referrals?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consecutive_months?: number | null
+          created_at?: string
+          current_tier?: string | null
+          id?: string
+          is_leaderboard_visible?: boolean | null
+          referral_code?: string
+          successful_conversions?: number | null
+          total_credits_earned?: number | null
+          total_referrals?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       veterinarians: {
         Row: {
           address: string | null
@@ -871,6 +1193,10 @@ export type Database = {
       delete_user_account: {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
+      }
+      generate_referral_code: {
+        Args: { user_email: string }
+        Returns: string
       }
     }
     Enums: {

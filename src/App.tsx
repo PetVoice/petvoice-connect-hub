@@ -115,13 +115,10 @@ const App = () => (
               <Route path="/affiliate" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Affiliazione"
-                      description="Guadagna con il programma affiliati" 
-                      icon={<Handshake className="h-6 w-6 text-white" />}
-                      features={["Link affiliazione", "Commissioni", "Statistiche guadagni", "Materiali promozionali"]}
-                    />
+                    <AffiliationPage />
                   </Layout>
+                </ProtectedRoute>
+              } />
                 </ProtectedRoute>
               } />
               <Route path="/tutorial" element={
