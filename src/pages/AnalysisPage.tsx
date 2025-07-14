@@ -42,6 +42,7 @@ import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
+import { useSubscription } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { UpgradeModal } from '@/components/UpgradeModal';
@@ -83,6 +84,7 @@ interface ProcessingState {
 const AnalysisPage: React.FC = () => {
   const { selectedPet } = usePets();
   const { toast } = useToast();
+  const { subscription } = useSubscription();
   const { checkAnalysisLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const [activeTab, setActiveTab] = useState('upload');
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
@@ -346,8 +348,9 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       return false;
     }
 
-    // Check analysis limit for free users
-    if (!checkAnalysisLimit(analyses.length)) {
+    // Check analysis limit for free users using subscription data
+    const currentAnalyses = subscription.usage?.analyses_this_month || 0;
+    if (!checkAnalysisLimit(currentAnalyses)) {
       showUpgradePrompt("Analisi aggiuntive");
       return false;
     }

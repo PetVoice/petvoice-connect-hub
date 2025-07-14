@@ -36,7 +36,7 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasMusicTherapy: true,
     hasDataExport: true,
     hasPrioritySupport: true,
-    maxDevices: 6,
+    maxDevices: 3,
   },
 };
 
@@ -56,6 +56,11 @@ export const usePlanLimits = () => {
 
   const checkAnalysisLimit = (currentAnalyses: number): boolean => {
     return currentAnalyses < currentLimits.maxAnalysesPerMonth;
+  };
+
+  const checkDeviceLimit = (currentDevices: number): boolean => {
+    if (!currentLimits.maxDevices) return true; // No limit for plans without maxDevices
+    return currentDevices < currentLimits.maxDevices;
   };
 
   const showUpgradePrompt = (featureName: string) => {
@@ -84,6 +89,7 @@ export const usePlanLimits = () => {
     checkFeatureAccess,
     checkPetLimit,
     checkAnalysisLimit,
+    checkDeviceLimit,
     showUpgradePrompt,
     requiresPremium,
     isPremium: subscription.subscription_tier !== 'free',
