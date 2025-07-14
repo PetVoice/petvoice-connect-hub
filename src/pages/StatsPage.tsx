@@ -509,10 +509,22 @@ export default function StatsPage() {
     totalAnalyses: 0,
     averageWellnessScore: 0,
     emotionDistribution: [],
-    weeklyTrend: [],
+    moodTrends: [],
+    wellnessTrends: [],
+    activityPatterns: [],
+    weightTrends: [],
+    temperatureTrends: [],
+    heartRateTrends: [],
+    weatherMoodData: [],
     activeDays: 0,
     timeSpan: 30,
     wellnessTrend: 0,
+    healthMetricsSummary: {
+      totalMetrics: 0,
+      uniqueMetricTypes: 0,
+      lastWeekMetrics: 0,
+      criticalValues: 0
+    },
     behaviorInsights: {
       mostCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
       leastCommonEmotion: { emotion: 'N/A', count: 0, percentage: 0 },
@@ -628,9 +640,9 @@ export default function StatsPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.totalAnalyses}</div>
+            <div className="text-2xl font-bold">{displayAnalytics.totalAnalyses}</div>
             <p className="text-xs text-muted-foreground">
-              negli ultimi {analytics.timeSpan} giorni
+              negli ultimi {displayAnalytics.timeSpan} giorni
             </p>
           </CardContent>
         </Card>
@@ -642,15 +654,15 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold flex items-center gap-2">
-              {analytics.averageWellnessScore}%
-              {analytics.wellnessTrend > 0 ? (
+              {displayAnalytics.averageWellnessScore}%
+              {displayAnalytics.wellnessTrend > 0 ? (
                 <TrendingUp className="h-4 w-4 text-green-600" />
-              ) : analytics.wellnessTrend < 0 ? (
+              ) : displayAnalytics.wellnessTrend < 0 ? (
                 <TrendingDown className="h-4 w-4 text-red-600" />
               ) : null}
             </div>
             <p className="text-xs text-muted-foreground">
-              {analytics.wellnessTrend > 0 ? '+' : ''}{Math.round(analytics.wellnessTrend)}% vs periodo precedente
+              {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs periodo precedente
             </p>
           </CardContent>
         </Card>
@@ -661,13 +673,13 @@ export default function StatsPage() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.activeDays}</div>
+            <div className="text-2xl font-bold">{displayAnalytics.activeDays}</div>
             <Progress 
-              value={(analytics.activeDays / analytics.timeSpan) * 100} 
+              value={(displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100} 
               className="h-2 mt-2"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              {Math.round((analytics.activeDays / analytics.timeSpan) * 100)}% del periodo
+              {Math.round((displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100)}% del periodo
             </p>
           </CardContent>
         </Card>
@@ -679,10 +691,10 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold capitalize">
-              {analytics.emotionDistribution[0]?.emotion || 'N/A'}
+              {displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'}
             </div>
             <p className="text-xs text-muted-foreground">
-              {analytics.emotionDistribution[0]?.percentage || 0}% delle analisi
+              {displayAnalytics.emotionDistribution[0]?.percentage || 0}% delle analisi
             </p>
           </CardContent>
         </Card>
@@ -718,7 +730,7 @@ export default function StatsPage() {
                   score: { label: "Benessere", color: "hsl(var(--primary))" }
                 }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={analytics.wellnessTrends}>
+                    <AreaChart data={displayAnalytics.wellnessTrends || []}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="dateFormatted" />
                       <YAxis domain={[0, 100]} />
