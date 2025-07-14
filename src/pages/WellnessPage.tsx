@@ -1674,7 +1674,7 @@ const WellnessPage = () => {
                 <Button 
                   onClick={() => setShowAddDocument(true)}
                   disabled={isUploading}
-                  className="bg-background hover:bg-muted text-foreground border hover:border-muted-foreground transition-colors"
+                  variant="outline"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {isUploading ? 'Caricamento...' : 'Nuovo Documento'}
