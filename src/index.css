@@ -220,7 +220,7 @@ button:not(.no-hover):hover,
   }
   
   .petvoice-button {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+    @apply bg-background text-foreground border border-border hover:bg-muted/50 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
   }
   
   .petvoice-input {
