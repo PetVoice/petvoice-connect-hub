@@ -51,18 +51,17 @@ const supportItems = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { state, setOpen } = useSidebar();
+  const { state, open, setOpen, isMobile } = useSidebar();
   const location = useLocation();
   
   const isCollapsed = state === 'collapsed';
 
-  // Auto-hide sidebar on navigation for mobile only
+  // Auto-hide sidebar on navigation for mobile
   React.useEffect(() => {
-    // Only close sidebar on navigation change for mobile screens
-    if (window.innerWidth < 768) { // mobile breakpoint
+    if (isMobile) {
       setOpen(false);
     }
-  }, [location.pathname, setOpen]);
+  }, [location.pathname, setOpen, isMobile]);
   
   const isActive = (path: string) => {
     if (path === '/') {
