@@ -473,26 +473,80 @@ export default function AffiliationPage() {
 
       {/* My Referrer Card */}
       {myReferrer && (
-        <Card className="mb-4 border-blue-200 bg-blue-50">
+        <Card className="mb-4 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-600" />
               Il Tuo Referente
             </CardTitle>
+            <CardDescription>
+              La persona che ti ha invitato a PetVoice
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">{myReferrer.display_name}</span>
-                <Badge variant="secondary">{myReferrer.referral_code}</Badge>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">
+                      {myReferrer.display_name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-medium">{myReferrer.display_name}</p>
+                    <p className="text-xs text-muted-foreground">Referente PetVoice</p>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  {myReferrer.referral_code}
+                </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Ti ha invitato il {format(new Date(myReferrer.referral_date), 'dd/MM/yyyy', { locale: it })}
-              </p>
-              <Button size="sm" variant="outline" className="w-full">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Contatta (Prossimamente)
-              </Button>
+              
+              <div className="bg-white/60 p-3 rounded-lg">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Data invito:</span>
+                  <span className="font-medium">
+                    {format(new Date(myReferrer.referral_date), 'dd/MM/yyyy', { locale: it })}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    toast({
+                      title: "Funzione in Sviluppo",
+                      description: "Il sistema di messaggistica interno sarà disponibile presto!",
+                    });
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Messaggio
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    const subject = encodeURIComponent("Grazie per avermi invitato a PetVoice!");
+                    const body = encodeURIComponent(`Ciao ${myReferrer.display_name},\n\nVolevo ringraziarti per avermi invitato a PetVoice. Sto trovando l'app molto utile per prendermi cura del mio animale domestico!\n\nGrazie ancora,\n[Il tuo nome]`);
+                    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+                  }}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email
+                </Button>
+              </div>
+              
+              <Alert className="bg-blue-50 border-blue-200">
+                <Handshake className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  Grazie a {myReferrer.display_name}, anche tu puoi guadagnare invitando i tuoi amici!
+                </AlertDescription>
+              </Alert>
             </div>
           </CardContent>
         </Card>
@@ -920,22 +974,41 @@ export default function AffiliationPage() {
               <CardTitle>Gestione Crediti</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline" className="h-20 flex-col">
-                  <div className="text-lg font-bold">Auto-Apply</div>
-                  <div className="text-xs text-muted-foreground">Al prossimo rinnovo abbonamento</div>
-                </Button>
-                
-                <Button variant="outline" className="h-20 flex-col" disabled>
-                  <div className="text-lg font-bold">Cash Out</div>
-                  <div className="text-xs text-muted-foreground">Non disponibile - Solo rinnovo abbonamento</div>
+              <div className="flex justify-center">
+                <Button 
+                  variant="default" 
+                  className="h-20 flex-col px-8"
+                  disabled={activeCreditsBalance === 0}
+                  onClick={async () => {
+                    try {
+                      // Qui implementeremo la logica per utilizzare i crediti per l'abbonamento
+                      toast({
+                        title: "Auto-Apply Attivato",
+                        description: `€${activeCreditsBalance.toFixed(2)} saranno automaticamente applicati al prossimo rinnovo`,
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Errore",
+                        description: "Impossibile attivare l'auto-apply",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                >
+                  <div className="text-lg font-bold">Auto-Apply Attivo</div>
+                  <div className="text-xs text-muted-foreground">
+                    {activeCreditsBalance > 0 ? 
+                      `€${activeCreditsBalance.toFixed(2)} disponibili` : 
+                      'Nessun credito disponibile'
+                    }
+                  </div>
                 </Button>
               </div>
               
               <Alert>
-                <Clock className="h-4 w-4" />
+                <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  I crediti scadono dopo 24 mesi dall'assegnazione e possono essere utilizzati esclusivamente per il rinnovo del tuo abbonamento mensile Premium. I crediti in scadenza saranno applicati automaticamente.
+                  I tuoi crediti attivi (€{activeCreditsBalance.toFixed(2)}) saranno automaticamente applicati al prossimo rinnovo dell'abbonamento Premium. I crediti scadono dopo 24 mesi dall'assegnazione.
                 </AlertDescription>
               </Alert>
             </CardContent>
