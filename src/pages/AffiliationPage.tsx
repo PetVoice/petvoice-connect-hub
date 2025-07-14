@@ -262,6 +262,14 @@ export default function AffiliationPage() {
       case 'twitter':
         shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(content)}`;
         break;
+      case 'instagram':
+        // Instagram doesn't support direct URL sharing, copy to clipboard instead
+        copyToClipboard(`${content}\n\n${referralLink}`);
+        toast({
+          title: "Contenuto copiato!",
+          description: "Incolla il contenuto nel tuo post Instagram",
+        });
+        return;
       case 'whatsapp':
         shareUrl = `https://wa.me/?text=${encodeURIComponent(content)}`;
         break;
@@ -397,7 +405,7 @@ export default function AffiliationPage() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">€{activeCreditsBalance.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">
-              Disponibili per il prossimo rinnovo
+              Utilizzabili solo per il rinnovo dell'abbonamento mensile
             </p>
           </CardContent>
         </Card>
@@ -456,11 +464,9 @@ export default function AffiliationPage() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="sharing">Condivisione</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="challenges">Sfide</TabsTrigger>
           <TabsTrigger value="credits">Crediti</TabsTrigger>
           <TabsTrigger value="badges">Badges</TabsTrigger>
           <TabsTrigger value="settings">Impostazioni</TabsTrigger>
@@ -476,7 +482,7 @@ export default function AffiliationPage() {
                   Il Tuo Codice Referral
                 </CardTitle>
                 <CardDescription>
-                  Condividi questo codice per guadagnare crediti
+                  Condividi questo codice per guadagnare crediti. I crediti vengono assegnati solo quando il referral acquista un abbonamento Premium.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -489,6 +495,7 @@ export default function AffiliationPage() {
                   <Button 
                     onClick={() => copyToClipboard(referralProfile.referral_code, 'code')}
                     size="sm"
+                    variant="outline"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -503,6 +510,7 @@ export default function AffiliationPage() {
                   <Button 
                     onClick={() => copyToClipboard(generateReferralLink(referralProfile.referral_code))}
                     size="sm"
+                    variant="outline"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -610,113 +618,6 @@ export default function AffiliationPage() {
           </Card>
         </TabsContent>
 
-        {/* Sharing Tab */}
-        <TabsContent value="sharing" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Template Condivisione</CardTitle>
-                <CardDescription>
-                  Usa i nostri template ottimizzati per i social media
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {templates.map((template) => (
-                  <div key={template.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium capitalize">{template.platform}</h4>
-                      <Button 
-                        size="sm"
-                        onClick={() => {
-                          setSelectedTemplate(template);
-                          shareToSocial(template.platform, template);
-                        }}
-                      >
-                        Condividi
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {template.content.substring(0, 100)}...
-                    </p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Messaggio Personalizzato</CardTitle>
-                <CardDescription>
-                  Crea il tuo messaggio personalizzato
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
-                  placeholder="Scrivi qui il tuo messaggio personalizzato..."
-                  rows={4}
-                />
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => copyToClipboard(
-                      `${customMessage}\n\nUsa il mio codice: ${referralProfile.referral_code}\n${generateReferralLink(referralProfile.referral_code)}`
-                    )}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copia
-                  </Button>
-                  <Button size="sm">
-                    <Send className="h-4 w-4 mr-2" />
-                    Condividi
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Multi-Channel Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Canali di Distribuzione</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {[
-                  { name: 'Email', icon: Mail, color: 'text-blue-600' },
-                  { name: 'WhatsApp', icon: MessageSquare, color: 'text-green-600' },
-                  { name: 'Facebook', icon: Facebook, color: 'text-blue-700' },
-                  { name: 'Instagram', icon: Instagram, color: 'text-pink-600' },
-                  { name: 'Twitter', icon: Twitter, color: 'text-blue-400' },
-                  { name: 'SMS', icon: Smartphone, color: 'text-gray-600' },
-                  { name: 'QR Code', icon: QrCode, color: 'text-purple-600' },
-                  { name: 'Link Diretto', icon: Link, color: 'text-indigo-600' }
-                ].map((channel) => (
-                  <Button
-                    key={channel.name}
-                    variant="outline"
-                    className="h-20 flex-col"
-                    onClick={() => {
-                      if (channel.name === 'QR Code') {
-                        setQrDialogOpen(true);
-                      } else {
-                        const template = templates.find(t => t.platform === channel.name.toLowerCase());
-                        if (template) {
-                          shareToSocial(channel.name.toLowerCase(), template);
-                        }
-                      }
-                    }}
-                  >
-                    <channel.icon className={`h-6 w-6 ${channel.color}`} />
-                    <span className="text-xs mt-1">{channel.name}</span>
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-6">
@@ -832,61 +733,6 @@ export default function AffiliationPage() {
           </Card>
         </TabsContent>
 
-        {/* Challenges Tab */}
-        <TabsContent value="challenges" className="space-y-6">
-          <div className="grid gap-4">
-            {challenges.map((challenge) => (
-              <Card key={challenge.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Target className="h-5 w-5" />
-                      {challenge.challenge_name}
-                    </CardTitle>
-                    <Badge variant="secondary">
-                      €{challenge.reward_credits} reward
-                    </Badge>
-                  </div>
-                  <CardDescription>{challenge.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span>Progresso</span>
-                      <span>{challenge.user_progress || 0} / {challenge.target_referrals}</span>
-                    </div>
-                    <Progress 
-                      value={((challenge.user_progress || 0) / challenge.target_referrals) * 100} 
-                      className="h-2"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Scade: {format(new Date(challenge.end_date), 'dd MMM yyyy')}</span>
-                      <span>
-                        {challenge.is_completed ? (
-                          <Badge variant="default" className="text-xs">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Completata
-                          </Badge>
-                        ) : (
-                          `${challenge.target_referrals - (challenge.user_progress || 0)} ancora`
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-            
-            {challenges.length === 0 && (
-              <Card>
-                <CardContent className="text-center py-8">
-                  <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">Nessuna sfida attiva al momento</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
 
         {/* Credits Tab */}
         <TabsContent value="credits" className="space-y-6">
@@ -974,19 +820,19 @@ export default function AffiliationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button variant="outline" className="h-20 flex-col">
                   <div className="text-lg font-bold">Auto-Apply</div>
-                  <div className="text-xs text-muted-foreground">Al prossimo rinnovo</div>
+                  <div className="text-xs text-muted-foreground">Al prossimo rinnovo abbonamento</div>
                 </Button>
                 
-                <Button variant="outline" className="h-20 flex-col">
+                <Button variant="outline" className="h-20 flex-col" disabled>
                   <div className="text-lg font-bold">Cash Out</div>
-                  <div className="text-xs text-muted-foreground">Min. €50 via PayPal</div>
+                  <div className="text-xs text-muted-foreground">Non disponibile - Solo rinnovo abbonamento</div>
                 </Button>
               </div>
               
               <Alert>
                 <Clock className="h-4 w-4" />
                 <AlertDescription>
-                  I crediti scadono dopo 24 mesi dall'assegnazione. I crediti in scadenza saranno utilizzati automaticamente.
+                  I crediti scadono dopo 24 mesi dall'assegnazione e possono essere utilizzati esclusivamente per il rinnovo del tuo abbonamento mensile Premium. I crediti in scadenza saranno applicati automaticamente.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -1057,34 +903,75 @@ export default function AffiliationPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestione Account</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button variant="outline" onClick={() => copyToClipboard(referralProfile.referral_code, 'code')}>
-                <Copy className="h-4 w-4 mr-2" />
-                Copia Codice Referral
-              </Button>
-              
-              <Button variant="outline" onClick={loadReferralData}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Aggiorna Statistiche
-              </Button>
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>Supporto</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => {
+                  window.open('mailto:support@petvoice.com?subject=Supporto Programma Affiliazione', '_blank');
+                }}
+              >
                 <Headphones className="h-4 w-4 mr-2" />
                 Contatta il Supporto
               </Button>
               
-              <Button variant="outline" className="w-full justify-start">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => {
+                  // Generate PDF report
+                  const reportData = {
+                    user: user?.email,
+                    referralCode: referralProfile.referral_code,
+                    totalReferrals: referralProfile.total_referrals,
+                    conversions: referralProfile.successful_conversions,
+                    totalCredits: referralProfile.total_credits_earned,
+                    currentTier: referralProfile.current_tier,
+                    activeCredits: activeCreditsBalance,
+                    date: format(new Date(), 'dd/MM/yyyy')
+                  };
+                  
+                  // Create PDF content
+                  const pdfContent = `
+REPORT AFFILIAZIONE PETVOICE
+============================
+Data: ${reportData.date}
+Utente: ${reportData.user}
+Codice Referral: ${reportData.referralCode}
+
+STATISTICHE:
+- Referral Totali: ${reportData.totalReferrals}
+- Conversioni: ${reportData.conversions}
+- Crediti Totali Guadagnati: €${reportData.totalCredits}
+- Crediti Attivi: €${reportData.activeCredits}
+- Tier Attuale: ${reportData.currentTier}
+
+DETTAGLI REFERRAL:
+${referrals.map(r => `- ${r.referred_email} (${r.status}) - €${r.credits_awarded || 0}`).join('\n')}
+                  `;
+                  
+                  // Create and download PDF
+                  const blob = new Blob([pdfContent], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `report-affiliazione-${format(new Date(), 'yyyy-MM-dd')}.txt`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  
+                  toast({
+                    title: "Report Scaricato",
+                    description: "Il report dettagliato è stato scaricato con successo",
+                  });
+                }}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Scarica Report Dettagliato
               </Button>
