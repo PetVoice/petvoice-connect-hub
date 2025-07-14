@@ -619,7 +619,7 @@ export default function StatsPage() {
                 doc.setFontSize(16);
                 doc.text('Riassunto Salute', 20, 175);
                 doc.setFontSize(10);
-                doc.text(`Trend generale: ${analytics.wellnessTrend > 0 ? 'Miglioramento' : analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}`, 20, 185);
+                doc.text(`Trend generale: ${displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}`, 20, 185);
                 
                 // Save PDF
                 doc.save(`statistiche-${pet.toLowerCase().replace(/\s+/g, '-')}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
@@ -766,7 +766,7 @@ export default function StatsPage() {
                   analyses: { label: "Analisi", color: "hsl(var(--primary))" }
                 }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.activityPatterns}>
+                     <BarChart data={displayAnalytics.activityPatterns}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="day" />
                       <YAxis />
@@ -780,7 +780,7 @@ export default function StatsPage() {
           </div>
 
           {/* Mood vs Weather Correlation */}
-          {analytics.weatherMoodData.length > 0 && (
+          {displayAnalytics.weatherMoodData.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -796,7 +796,7 @@ export default function StatsPage() {
                   avgMood: { label: "Umore Medio", color: "hsl(var(--primary))" }
                 }} className="h-[200px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analytics.weatherMoodData}>
+                    <BarChart data={displayAnalytics.weatherMoodData}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="weather" />
                       <YAxis domain={[0, 10]} />
@@ -830,7 +830,7 @@ export default function StatsPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={analytics.emotionDistribution}
+                          data={displayAnalytics.emotionDistribution}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
@@ -839,7 +839,7 @@ export default function StatsPage() {
                           fill="#8884d8"
                           dataKey="count"
                         >
-                          {analytics.emotionDistribution.map((entry, index) => (
+                          {displayAnalytics.emotionDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.fill} />
                           ))}
                         </Pie>
@@ -867,7 +867,7 @@ export default function StatsPage() {
                   mood: { label: "Umore", color: "hsl(var(--primary))" }
                 }} className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analytics.moodTrends}>
+                    <LineChart data={displayAnalytics.moodTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="dateFormatted" />
                       <YAxis domain={[1, 10]} />
@@ -898,7 +898,7 @@ export default function StatsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {analytics.emotionDistribution.map((emotion, index) => (
+                {displayAnalytics.emotionDistribution.map((emotion, index) => (
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium capitalize">{emotion.emotion}</span>
@@ -937,14 +937,14 @@ export default function StatsPage() {
                       <Scale className="h-4 w-4" />
                       Andamento Peso
                     </h4>
-                    <Badge variant="outline">{analytics.weightTrends.length} misurazioni</Badge>
+                     <Badge variant="outline">{displayAnalytics.weightTrends.length} misurazioni</Badge>
                   </div>
-                  {analytics.weightTrends.length > 0 ? (
+                  {displayAnalytics.weightTrends.length > 0 ? (
                     <ChartContainer config={{
                       weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
                     }} className="h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={analytics.weightTrends}>
+                         <LineChart data={displayAnalytics.weightTrends}>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                           <XAxis dataKey="dateFormatted" />
                           <YAxis />
@@ -979,14 +979,14 @@ export default function StatsPage() {
                       <Thermometer className="h-4 w-4" />
                       Temperatura
                     </h4>
-                    <Badge variant="outline">{analytics.temperatureTrends.length} misurazioni</Badge>
+                     <Badge variant="outline">{displayAnalytics.temperatureTrends.length} misurazioni</Badge>
                   </div>
-                  {analytics.temperatureTrends.length > 0 ? (
+                  {displayAnalytics.temperatureTrends.length > 0 ? (
                     <ChartContainer config={{
                       temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
                     }} className="h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={analytics.temperatureTrends}>
+                         <LineChart data={displayAnalytics.temperatureTrends}>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                           <XAxis dataKey="dateFormatted" />
                           <YAxis domain={[37, 40]} />
@@ -1022,14 +1022,14 @@ export default function StatsPage() {
                       <Heart className="h-4 w-4" />
                       Battito Cardiaco
                     </h4>
-                    <Badge variant="outline">{analytics.heartRateTrends.length} misurazioni</Badge>
+                     <Badge variant="outline">{displayAnalytics.heartRateTrends.length} misurazioni</Badge>
                   </div>
-                  {analytics.heartRateTrends.length > 0 ? (
+                  {displayAnalytics.heartRateTrends.length > 0 ? (
                     <ChartContainer config={{
                       heartRate: { label: "BPM", color: "hsl(var(--warning))" }
                     }} className="h-[200px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={analytics.heartRateTrends}>
+                         <LineChart data={displayAnalytics.heartRateTrends}>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                           <XAxis dataKey="dateFormatted" />
                           <YAxis />
@@ -1131,13 +1131,13 @@ export default function StatsPage() {
               <CardContent>
                 <div className="text-center space-y-4">
                   <div className="text-4xl font-bold text-primary">
-                    {analytics.averageWellnessScore}%
+                    {displayAnalytics.averageWellnessScore}%
                   </div>
-                  <Progress value={analytics.averageWellnessScore} className="h-3" />
+                  <Progress value={displayAnalytics.averageWellnessScore} className="h-3" />
                   <p className="text-sm text-muted-foreground">
-                    {analytics.averageWellnessScore >= 80 ? 'Ottimo' : 
-                     analytics.averageWellnessScore >= 60 ? 'Buono' : 
-                     analytics.averageWellnessScore >= 40 ? 'Discreto' : 'Da migliorare'}
+                    {displayAnalytics.averageWellnessScore >= 80 ? 'Ottimo' : 
+                     displayAnalytics.averageWellnessScore >= 60 ? 'Buono' : 
+                     displayAnalytics.averageWellnessScore >= 40 ? 'Discreto' : 'Da migliorare'}
                   </p>
                 </div>
               </CardContent>
@@ -1156,22 +1156,22 @@ export default function StatsPage() {
               </CardHeader>
                <CardContent>
                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
+                     <div className="flex justify-between items-center">
                       <span className="text-sm">Peso monitorato</span>
-                      <Badge variant={analytics.weightTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
-                        {analytics.weightTrends.length > 0 ? 'Sì' : 'No'}
+                      <Badge variant={displayAnalytics.weightTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
+                        {displayAnalytics.weightTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Temperatura monitorata</span>
-                      <Badge variant={analytics.temperatureTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
-                        {analytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
+                      <Badge variant={displayAnalytics.temperatureTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
+                        {displayAnalytics.temperatureTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Battito cardiaco</span>
-                      <Badge variant={analytics.heartRateTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
-                        {analytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
+                      <Badge variant={displayAnalytics.heartRateTrends.length > 0 ? "default" : "secondary"} className="w-8 justify-center">
+                        {displayAnalytics.heartRateTrends.length > 0 ? 'Sì' : 'No'}
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
@@ -1201,27 +1201,27 @@ export default function StatsPage() {
                    <div className="flex justify-between items-center">
                      <span className="text-sm">Metriche totali</span>
                      <Badge variant="outline">
-                       {analytics.healthMetricsSummary.totalMetrics}
+                       {displayAnalytics.healthMetricsSummary.totalMetrics}
                      </Badge>
                    </div>
                    <div className="flex justify-between items-center">
                      <span className="text-sm">Controlli regolari</span>
-                     <Badge variant={analytics.activeDays > analytics.timeSpan * 0.5 ? "default" : "secondary"}>
-                       {analytics.activeDays > analytics.timeSpan * 0.5 ? 'Sì' : 'Da migliorare'}
+                     <Badge variant={displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.5 ? "default" : "secondary"}>
+                       {displayAnalytics.activeDays > displayAnalytics.timeSpan * 0.5 ? 'Sì' : 'Da migliorare'}
                      </Badge>
                    </div>
                    <div className="flex justify-between items-center">
                      <span className="text-sm">Trend generale</span>
-                     <Badge variant={analytics.wellnessTrend >= 0 ? "default" : "destructive"}>
-                       {analytics.wellnessTrend > 0 ? 'Miglioramento' : 
-                        analytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
+                     <Badge variant={displayAnalytics.wellnessTrend >= 0 ? "default" : "destructive"}>
+                       {displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : 
+                        displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
                      </Badge>
                    </div>
-                   {analytics.healthMetricsSummary.criticalValues > 0 && (
+                   {displayAnalytics.healthMetricsSummary.criticalValues > 0 && (
                      <div className="flex justify-between items-center">
                        <span className="text-sm">Valori critici</span>
                        <Badge variant="destructive">
-                         {analytics.healthMetricsSummary.criticalValues}
+                         {displayAnalytics.healthMetricsSummary.criticalValues}
                        </Badge>
                      </div>
                    )}
@@ -1231,7 +1231,7 @@ export default function StatsPage() {
           </div>
 
           {/* Temperature Trend Chart */}
-          {analytics.temperatureTrends.length > 0 && (
+          {displayAnalytics.temperatureTrends.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1247,7 +1247,7 @@ export default function StatsPage() {
                   temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
                 }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={analytics.temperatureTrends}>
+                    <LineChart data={displayAnalytics.temperatureTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                       <XAxis dataKey="dateFormatted" />
                       <YAxis domain={[36, 41]} />
