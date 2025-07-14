@@ -495,6 +495,8 @@ export default function StatsPage() {
 
   // Mostra alert informativo se non ci sono dati reali
   const hasNoData = !analytics;
+
+  if (!activePet) {
     return (
       <div className="container mx-auto p-6">
         <Card>
