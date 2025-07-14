@@ -1,0 +1,936 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePickerWithRange } from '@/components/ui/date-picker';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent 
+} from '@/components/ui/chart';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  ReferenceLine,
+  Tooltip,
+  Legend
+} from 'recharts';
+import {
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  Activity,
+  Heart,
+  Calendar,
+  Users,
+  Download,
+  FileText,
+  AlertTriangle,
+  Target,
+  Filter,
+  RefreshCw,
+  PieChart as PieChartIcon,
+  LineChart as LineChartIcon,
+  BarChart as BarChartIcon,
+  Zap,
+  Clock,
+  Award,
+  Scale,
+  Stethoscope,
+  Brain,
+  Eye,
+  Lightbulb,
+  Share2,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  MapPin,
+  Thermometer,
+  Cloud
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { usePets } from '@/contexts/PetContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceInDays } from 'date-fns';
+import { it } from 'date-fns/locale';
+
+interface AnalysisData {
+  id: string;
+  created_at: string;
+  primary_emotion: string;
+  primary_confidence: number;
+  secondary_emotions: any;
+  behavioral_insights: string;
+  file_type: string;
+  pet_id: string;
+}
+
+interface DiaryData {
+  id: string;
+  entry_date: string;
+  mood_score: number;
+  behavioral_tags: string[];
+  temperature: number;
+  weather_condition: string;
+  pet_id: string;
+}
+
+interface HealthData {
+  id: string;
+  recorded_at: string;
+  metric_type: string;
+  value: number;
+  unit: string;
+  pet_id: string;
+}
+
+interface WellnessData {
+  id: string;
+  score_date: string;
+  wellness_score: number;
+  factors: any;
+  pet_id: string;
+}
+
+interface Pet {
+  id: string;
+  name: string;
+  type: string;
+  breed: string;
+  age: number;
+  weight: number;
+}
+
+const EMOTION_COLORS = {
+  'felice': '#22c55e',
+  'triste': '#3b82f6', 
+  'ansioso': '#f59e0b',
+  'calmo': '#06b6d4',
+  'agitato': '#ef4444',
+  'giocoso': '#8b5cf6',
+  'spaventato': '#6b7280',
+  'aggressivo': '#dc2626',
+  'curioso': '#10b981',
+  'affettuoso': '#ec4899'
+};
+
+const TIME_RANGES = [
+  { value: '7d', label: '7 giorni', days: 7 },
+  { value: '1m', label: '1 mese', days: 30 },
+  { value: '3m', label: '3 mesi', days: 90 },
+  { value: '6m', label: '6 mesi', days: 180 },
+  { value: '1y', label: '1 anno', days: 365 }
+];
+
+export default function StatsPage() {
+  const { user } = useAuth();
+  const { selectedPet: activePet, pets } = usePets();
+  
+  // State management
+  const [loading, setLoading] = useState(true);
+  const [analysisData, setAnalysisData] = useState<AnalysisData[]>([]);
+  const [diaryData, setDiaryData] = useState<DiaryData[]>([]);
+  const [healthData, setHealthData] = useState<HealthData[]>([]);
+  const [wellnessData, setWellnessData] = useState<WellnessData[]>([]);
+  const [selectedTimeRange, setSelectedTimeRange] = useState('1m');
+  const [selectedPets, setSelectedPets] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [refreshing, setRefreshing] = useState(false);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subMonths(new Date(), 1),
+    to: new Date()
+  });
+
+  // Initialize selected pets
+  useEffect(() => {
+    if (activePet && selectedPets.length === 0) {
+      setSelectedPets([activePet.id]);
+    }
+  }, [activePet, selectedPets]);
+
+  // Fetch all data
+  const fetchData = async () => {
+    if (!user || selectedPets.length === 0) return;
+    
+    setLoading(true);
+    try {
+      const { from, to } = dateRange;
+      const fromStr = format(startOfDay(from), 'yyyy-MM-dd HH:mm:ss');
+      const toStr = format(endOfDay(to), 'yyyy-MM-dd HH:mm:ss');
+
+      // Fetch analyses
+      const { data: analyses } = await supabase
+        .from('pet_analyses')
+        .select('*')
+        .in('pet_id', selectedPets)
+        .gte('created_at', fromStr)
+        .lte('created_at', toStr)
+        .order('created_at', { ascending: true });
+
+      // Fetch diary entries
+      const { data: diaryEntries } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .in('pet_id', selectedPets)
+        .gte('entry_date', format(from, 'yyyy-MM-dd'))
+        .lte('entry_date', format(to, 'yyyy-MM-dd'))
+        .order('entry_date', { ascending: true });
+
+      // Fetch health metrics
+      const { data: healthMetrics } = await supabase
+        .from('health_metrics')
+        .select('*')
+        .in('pet_id', selectedPets)
+        .gte('recorded_at', fromStr)
+        .lte('recorded_at', toStr)
+        .order('recorded_at', { ascending: true });
+
+      // Fetch wellness scores
+      const { data: wellnessScores } = await supabase
+        .from('pet_wellness_scores')
+        .select('*')
+        .in('pet_id', selectedPets)
+        .gte('score_date', format(from, 'yyyy-MM-dd'))
+        .lte('score_date', format(to, 'yyyy-MM-dd'))
+        .order('score_date', { ascending: true });
+
+      setAnalysisData(analyses || []);
+      setDiaryData(diaryEntries || []);
+      setHealthData(healthMetrics || []);
+      setWellnessData(wellnessScores || []);
+    } catch (error) {
+      console.error('Error fetching stats data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refresh data
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  // Update date range based on time range selection
+  const updateTimeRange = (range: string) => {
+    setSelectedTimeRange(range);
+    const selectedRange = TIME_RANGES.find(r => r.value === range);
+    if (selectedRange) {
+      setDateRange({
+        from: subDays(new Date(), selectedRange.days),
+        to: new Date()
+      });
+    }
+  };
+
+  // Fetch data when dependencies change
+  useEffect(() => {
+    if (selectedPets.length > 0) {
+      fetchData();
+    }
+  }, [selectedPets, dateRange, user]);
+
+  // Computed analytics
+  const analytics = useMemo(() => {
+    if (!analysisData.length && !diaryData.length) return null;
+
+    // Overview metrics
+    const totalAnalyses = analysisData.length;
+    const averageWellnessScore = wellnessData.length > 0 
+      ? Math.round(wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length)
+      : 0;
+    const activeDays = new Set([
+      ...analysisData.map(a => format(new Date(a.created_at), 'yyyy-MM-dd')),
+      ...diaryData.map(d => d.entry_date)
+    ]).size;
+
+    // Emotion distribution
+    const emotionCounts = analysisData.reduce((acc, analysis) => {
+      acc[analysis.primary_emotion] = (acc[analysis.primary_emotion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const emotionDistribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
+      emotion,
+      count,
+      percentage: Math.round((count / totalAnalyses) * 100),
+      fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
+    }));
+
+    // Mood trends
+    const moodTrends = diaryData
+      .filter(d => d.mood_score)
+      .map(d => ({
+        date: d.entry_date,
+        mood: d.mood_score,
+        dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
+      }));
+
+    // Wellness trends
+    const wellnessTrends = wellnessData.map(w => ({
+      date: w.score_date,
+      score: w.wellness_score || 0,
+      dateFormatted: format(new Date(w.score_date), 'd MMM', { locale: it })
+    }));
+
+    // Activity patterns - group by day of week
+    const activityPatterns = Array.from({ length: 7 }, (_, i) => {
+      const dayName = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'][i];
+      const dayAnalyses = analysisData.filter(a => new Date(a.created_at).getDay() === i);
+      return {
+        day: dayName,
+        analyses: dayAnalyses.length,
+        avgConfidence: dayAnalyses.length > 0 
+          ? Math.round(dayAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / dayAnalyses.length * 100)
+          : 0
+      };
+    });
+
+    // Health metrics trends
+    const weightTrends = healthData
+      .filter(h => h.metric_type === 'peso')
+      .map(h => ({
+        date: format(new Date(h.recorded_at), 'yyyy-MM-dd'),
+        weight: h.value,
+        dateFormatted: format(new Date(h.recorded_at), 'd MMM', { locale: it })
+      }));
+
+    // Behavioral correlations with weather
+    const weatherCorrelations = diaryData
+      .filter(d => d.weather_condition && d.mood_score)
+      .reduce((acc, d) => {
+        if (!acc[d.weather_condition]) {
+          acc[d.weather_condition] = { total: 0, count: 0, moods: [] };
+        }
+        acc[d.weather_condition].total += d.mood_score;
+        acc[d.weather_condition].count += 1;
+        acc[d.weather_condition].moods.push(d.mood_score);
+        return acc;
+      }, {} as Record<string, { total: number; count: number; moods: number[] }>);
+
+    const weatherMoodData = Object.entries(weatherCorrelations).map(([weather, data]) => ({
+      weather,
+      avgMood: Math.round(data.total / data.count * 10) / 10,
+      count: data.count
+    }));
+
+    // Trend analysis
+    const recentWellness = wellnessData.slice(-7);
+    const previousWellness = wellnessData.slice(-14, -7);
+    const wellnessTrend = recentWellness.length > 0 && previousWellness.length > 0
+      ? ((recentWellness.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / recentWellness.length) -
+         (previousWellness.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / previousWellness.length))
+      : 0;
+
+    return {
+      totalAnalyses,
+      averageWellnessScore,
+      activeDays,
+      emotionDistribution,
+      moodTrends,
+      wellnessTrends,
+      activityPatterns,
+      weightTrends,
+      weatherMoodData,
+      wellnessTrend,
+      timeSpan: differenceInDays(dateRange.to, dateRange.from)
+    };
+  }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-muted rounded"></div>
+            ))}
+          </div>
+          <div className="h-96 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Non ci sono dati sufficienti per generare le statistiche. Inizia ad analizzare le emozioni del tuo pet per vedere i progressi.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Statistiche Avanzate</h1>
+          <p className="text-muted-foreground">
+            Analisi approfondita del benessere e comportamento dei tuoi pet
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Pet Selection */}
+          <Select 
+            value={selectedPets[0] || ''} 
+            onValueChange={(value) => setSelectedPets([value])}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Seleziona pet" />
+            </SelectTrigger>
+            <SelectContent>
+              {pets.map(pet => (
+                <SelectItem key={pet.id} value={pet.id}>
+                  {pet.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Time Range Selection */}
+          <Select value={selectedTimeRange} onValueChange={updateTimeRange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {TIME_RANGES.map(range => (
+                <SelectItem key={range.value} value={range.value}>
+                  {range.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Refresh Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshData}
+            disabled={refreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Aggiorna
+          </Button>
+
+          {/* Export Button */}
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Esporta
+          </Button>
+        </div>
+      </div>
+
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Analisi Totali</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.totalAnalyses}</div>
+            <p className="text-xs text-muted-foreground">
+              negli ultimi {analytics.timeSpan} giorni
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Score Benessere</CardTitle>
+            <Heart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold flex items-center gap-2">
+              {analytics.averageWellnessScore}%
+              {analytics.wellnessTrend > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              ) : analytics.wellnessTrend < 0 ? (
+                <TrendingDown className="h-4 w-4 text-red-600" />
+              ) : null}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {analytics.wellnessTrend > 0 ? '+' : ''}{Math.round(analytics.wellnessTrend)}% vs periodo precedente
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Giorni Attivi</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics.activeDays}</div>
+            <Progress 
+              value={(analytics.activeDays / analytics.timeSpan) * 100} 
+              className="h-2 mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {Math.round((analytics.activeDays / analytics.timeSpan) * 100)}% del periodo
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Emozione Principale</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold capitalize">
+              {analytics.emotionDistribution[0]?.emotion || 'N/A'}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {analytics.emotionDistribution[0]?.percentage || 0}% delle analisi
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Analytics Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Panoramica</TabsTrigger>
+          <TabsTrigger value="emotions">Emozioni</TabsTrigger>
+          <TabsTrigger value="health">Salute</TabsTrigger>
+          <TabsTrigger value="behavior">Comportamento</TabsTrigger>
+          <TabsTrigger value="predictions">Previsioni</TabsTrigger>
+          <TabsTrigger value="reports">Report</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Wellness Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere
+                </CardTitle>
+                <CardDescription>
+                  Evoluzione del punteggio di benessere nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  score: { label: "Benessere", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={analytics.wellnessTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[0, 100]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="score"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                      <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Activity Patterns */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Pattern Attività
+                </CardTitle>
+                <CardDescription>
+                  Distribuzione delle analisi per giorno della settimana
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  analyses: { label: "Analisi", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analytics.activityPatterns}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="analyses" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Mood vs Weather Correlation */}
+          {analytics.weatherMoodData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cloud className="h-5 w-5" />
+                  Correlazione Umore-Meteo
+                </CardTitle>
+                <CardDescription>
+                  Come le condizioni meteorologiche influenzano l'umore del pet
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  avgMood: { label: "Umore Medio", color: "hsl(var(--primary))" }
+                }} className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analytics.weatherMoodData}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="weather" />
+                      <YAxis domain={[0, 10]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="avgMood" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Emotions Tab */}
+        <TabsContent value="emotions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Emotion Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChartIcon className="h-5 w-5" />
+                  Distribuzione Emozioni
+                </CardTitle>
+                <CardDescription>
+                  Percentuale delle diverse emozioni rilevate
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{}} className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={analytics.emotionDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="count"
+                      >
+                        {analytics.emotionDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Mood Trends */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChartIcon className="h-5 w-5" />
+                  Trend Umore
+                </CardTitle>
+                <CardDescription>
+                  Variazione dell'umore nel tempo (scala 1-10)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  mood: { label: "Umore", color: "hsl(var(--primary))" }
+                }} className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={analytics.moodTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[1, 10]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="mood"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      />
+                      <ReferenceLine y={7} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={4} stroke="hsl(var(--destructive))" strokeDasharray="5 5" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Emotion Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Dettaglio Emozioni</CardTitle>
+              <CardDescription>
+                Analisi approfondita delle emozioni rilevate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analytics.emotionDistribution.map((emotion, index) => (
+                  <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium capitalize">{emotion.emotion}</span>
+                      <Badge variant="secondary">{emotion.count}</Badge>
+                    </div>
+                    <Progress value={emotion.percentage} className="h-2 mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      {emotion.percentage}% del totale
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Health Tab */}
+        <TabsContent value="health" className="space-y-6">
+          {analytics.weightTrends.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Scale className="h-5 w-5" />
+                  Trend Peso
+                </CardTitle>
+                <CardDescription>
+                  Evoluzione del peso nel tempo con range salutare
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={analytics.weightTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="weight"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          <Alert>
+            <Stethoscope className="h-4 w-4" />
+            <AlertDescription>
+              Le metriche di salute mostrate sono solo a scopo informativo. Consulta sempre il veterinario per decisioni mediche.
+            </AlertDescription>
+          </Alert>
+        </TabsContent>
+
+        {/* Behavior Tab */}
+        <TabsContent value="behavior" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5" />
+                Analisi Comportamentale
+              </CardTitle>
+              <CardDescription>
+                Pattern e correlazioni nei comportamenti del pet
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-medium mb-2">Giorni più attivi</h4>
+                    <p className="text-2xl font-bold text-primary">
+                      {analytics.activityPatterns.reduce((max, day) => 
+                        day.analyses > max.analyses ? day : max
+                      ).day}
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-medium mb-2">Confidenza media</h4>
+                    <p className="text-2xl font-bold text-primary">
+                      {Math.round(analytics.activityPatterns.reduce((sum, day) => 
+                        sum + day.avgConfidence, 0) / analytics.activityPatterns.length)}%
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <h4 className="font-medium mb-2">Consistenza</h4>
+                    <p className="text-2xl font-bold text-primary">
+                      {analytics.activeDays > analytics.timeSpan * 0.7 ? 'Alta' : 
+                       analytics.activeDays > analytics.timeSpan * 0.4 ? 'Media' : 'Bassa'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5" />
+                Analisi Predittiva
+              </CardTitle>
+              <CardDescription>
+                Previsioni basate sui dati storici e trend identificati
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Alert>
+                  <Eye className="h-4 w-4" />
+                  <AlertDescription>
+                    Le previsioni sono basate sui pattern storici e sono puramente indicative.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Trend Benessere</h4>
+                    <div className="flex items-center gap-2">
+                      {analytics.wellnessTrend > 0 ? (
+                        <>
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                          <span className="text-green-600">In miglioramento</span>
+                        </>
+                      ) : analytics.wellnessTrend < 0 ? (
+                        <>
+                          <TrendingDown className="h-4 w-4 text-red-600" />
+                          <span className="text-red-600">In peggioramento</span>
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground">Stabile</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Raccomandazioni</h4>
+                    <ul className="text-sm space-y-1">
+                      {analytics.wellnessTrend < 0 && (
+                        <li>• Aumenta le attività positive</li>
+                      )}
+                      {analytics.activeDays < analytics.timeSpan * 0.5 && (
+                        <li>• Monitora più regolarmente</li>
+                      )}
+                      <li>• Mantieni la routine attuale</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Reports Tab */}
+        <TabsContent value="reports" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="text-center">
+                <FileText className="h-12 w-12 mx-auto text-primary mb-2" />
+                <CardTitle>Report Veterinario</CardTitle>
+                <CardDescription>
+                  Report completo per il veterinario con tutti i dati di salute e comportamento
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="w-full">
+                  <Download className="h-4 w-4 mr-2" />
+                  Genera PDF
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="text-center">
+                <BarChart3 className="h-12 w-12 mx-auto text-primary mb-2" />
+                <CardTitle>Dati Grezzi</CardTitle>
+                <CardDescription>
+                  Esporta tutti i dati in formato CSV per analisi personalizzate
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  <Download className="h-4 w-4 mr-2" />
+                  Esporta CSV
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardHeader className="text-center">
+                <Share2 className="h-12 w-12 mx-auto text-primary mb-2" />
+                <CardTitle>Condividi</CardTitle>
+                <CardDescription>
+                  Condividi i progressi del tuo pet con amici e famiglia
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Condividi
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

@@ -16,6 +16,7 @@ import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
+import StatsPage from "@/pages/StatsPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
 import NotFound from "./pages/NotFound";
@@ -79,12 +80,7 @@ const App = () => (
               <Route path="/stats" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Statistiche"
-                      description="Analizza i progressi nel tempo"
-                      icon={<BarChart3 className="h-6 w-6 text-white" />}
-                      features={["Grafici dettagliati", "Confronti temporali", "Export dati", "Report PDF"]}
-                    />
+                    <StatsPage />
                   </Layout>
                 </ProtectedRoute>
               } />
