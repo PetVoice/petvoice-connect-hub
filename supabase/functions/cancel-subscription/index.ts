@@ -51,7 +51,7 @@ serve(async (req) => {
     const { data: subscriber, error: subError } = await supabaseClient
       .from("subscribers")
       .select("*")
-      .eq("email", user.email)
+      .eq("user_id", user.id)
       .single();
 
     if (subError || !subscriber) {
@@ -98,7 +98,7 @@ serve(async (req) => {
           cancellation_effective_date: now,
           updated_at: now,
         })
-        .eq("email", user.email);
+        .eq("user_id", user.id);
 
       // Delete extra pets (keep only the first one)
       const { data: pets } = await supabaseClient
@@ -136,7 +136,7 @@ serve(async (req) => {
           cancellation_effective_date: effectiveDate,
           updated_at: now,
         })
-        .eq("email", user.email);
+        .eq("user_id", user.id);
     }
 
     logStep("Updated database with cancellation info", { 

@@ -46,7 +46,7 @@ serve(async (req) => {
     const { data: subscriber, error: subError } = await supabaseClient
       .from("subscribers")
       .select("*")
-      .eq("email", user.email)
+      .eq("user_id", user.id)
       .single();
 
     if (subError || !subscriber) {
@@ -91,7 +91,7 @@ serve(async (req) => {
         cancellation_effective_date: null,
         updated_at: now,
       })
-      .eq("email", user.email);
+      .eq("user_id", user.id);
 
     logStep("Updated database - removed cancellation info");
 

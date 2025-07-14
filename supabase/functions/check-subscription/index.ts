@@ -49,7 +49,6 @@ serve(async (req) => {
     if (customers.data.length === 0) {
       logStep("No customer found, updating unsubscribed state");
       await supabaseClient.from("subscribers").upsert({
-        email: user.email,
         user_id: user.id,
         stripe_customer_id: null,
         subscribed: false,
@@ -60,7 +59,7 @@ serve(async (req) => {
         cancellation_date: null,
         cancellation_effective_date: null,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'email' });
+      }, { onConflict: 'user_id' });
       
       return new Response(JSON.stringify({ 
         subscribed: false, 
@@ -122,11 +121,10 @@ serve(async (req) => {
     const { data: existingSubscriber } = await supabaseClient
       .from("subscribers")
       .select("is_cancelled, cancellation_type, cancellation_date, cancellation_effective_date")
-      .eq("email", user.email)
+      .eq("user_id", user.id)
       .single();
 
     await supabaseClient.from("subscribers").upsert({
-      email: user.email,
       user_id: user.id,
       stripe_customer_id: customerId,
       subscribed: hasActiveSub,
@@ -138,7 +136,7 @@ serve(async (req) => {
       cancellation_date: existingSubscriber?.cancellation_date || null,
       cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' });
+    }, { onConflict: 'user_id' });
 
     const usage = await getUserUsage(supabaseClient, user.id);
 
