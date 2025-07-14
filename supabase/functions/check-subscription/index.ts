@@ -51,9 +51,9 @@ serve(async (req) => {
       await supabaseClient.from("subscribers").upsert({
         user_id: user.id,
         stripe_customer_id: null,
-        subscribed: false,
-        subscription_tier: null,
-        subscription_end: null,
+        subscription_status: 'inactive',
+        subscription_plan: 'free',
+        subscription_end_date: null,
         is_cancelled: false,
         cancellation_type: null,
         cancellation_date: null,
@@ -63,7 +63,7 @@ serve(async (req) => {
       
       return new Response(JSON.stringify({ 
         subscribed: false, 
-        subscription_tier: null,
+        subscription_tier: 'free',
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -127,9 +127,9 @@ serve(async (req) => {
     await supabaseClient.from("subscribers").upsert({
       user_id: user.id,
       stripe_customer_id: customerId,
-      subscribed: hasActiveSub,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd,
+      subscription_status: hasActiveSub ? 'active' : 'inactive',
+      subscription_plan: subscriptionTier || 'free',
+      subscription_end_date: subscriptionEnd,
       // Preserve existing cancellation data if subscription is still active
       is_cancelled: existingSubscriber?.is_cancelled || false,
       cancellation_type: existingSubscriber?.cancellation_type || null,
@@ -143,7 +143,7 @@ serve(async (req) => {
     logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
-      subscription_tier: subscriptionTier,
+      subscription_tier: subscriptionTier || 'free',
       subscription_end: subscriptionEnd,
       is_cancelled: existingSubscriber?.is_cancelled || false,
       cancellation_type: existingSubscriber?.cancellation_type || null,

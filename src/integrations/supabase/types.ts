@@ -1015,6 +1015,7 @@ export type Database = {
           id: string
           is_cancelled: boolean | null
           max_pets_allowed: number | null
+          stripe_customer_id: string | null
           subscription_end_date: string | null
           subscription_plan: string
           subscription_start_date: string | null
@@ -1031,6 +1032,7 @@ export type Database = {
           id?: string
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
+          stripe_customer_id?: string | null
           subscription_end_date?: string | null
           subscription_plan?: string
           subscription_start_date?: string | null
@@ -1047,6 +1049,7 @@ export type Database = {
           id?: string
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
+          stripe_customer_id?: string | null
           subscription_end_date?: string | null
           subscription_plan?: string
           subscription_start_date?: string | null

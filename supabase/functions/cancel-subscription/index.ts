@@ -66,8 +66,8 @@ serve(async (req) => {
       throw new Error("Subscriber not found");
     }
 
-    if (!subscriber.subscribed || subscriber.subscription_tier === null) {
-      logStep("No active subscription", { subscribed: subscriber.subscribed, tier: subscriber.subscription_tier });
+    if (subscriber.subscription_status !== 'active' || subscriber.subscription_plan === 'free') {
+      logStep("No active subscription", { status: subscriber.subscription_status, plan: subscriber.subscription_plan });
       throw new Error("No active subscription to cancel");
     }
 
@@ -76,7 +76,7 @@ serve(async (req) => {
       throw new Error("No Stripe customer ID found");
     }
 
-    logStep("Found subscriber", { subscription_tier: subscriber.subscription_tier });
+    logStep("Found subscriber", { subscription_plan: subscriber.subscription_plan });
 
     // Get Stripe subscription
     const subscriptions = await stripe.subscriptions.list({
@@ -104,8 +104,8 @@ serve(async (req) => {
       await supabaseClient
         .from("subscribers")
         .update({
-          subscribed: false,
-          subscription_tier: null,
+          subscription_status: 'cancelled',
+          subscription_plan: 'free',
           is_cancelled: true,
           cancellation_type: 'immediate',
           cancellation_date: now,

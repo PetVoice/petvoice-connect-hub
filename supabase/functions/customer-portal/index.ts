@@ -42,11 +42,30 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length === 0) {
-      throw new Error("No Stripe customer found for this user");
+    
+    // Get customer from database first
+    const { data: subscriber } = await supabaseClient
+      .from("subscribers")
+      .select("stripe_customer_id")
+      .eq("user_id", user.id)
+      .single();
+    
+    let customerId = subscriber?.stripe_customer_id;
+    
+    // If no customer ID in database, find by email in Stripe
+    if (!customerId) {
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length === 0) {
+        throw new Error("No Stripe customer found for this user");
+      }
+      customerId = customers.data[0].id;
+      
+      // Update database with customer ID
+      await supabaseClient
+        .from("subscribers")
+        .update({ stripe_customer_id: customerId })
+        .eq("user_id", user.id);
     }
-    const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
