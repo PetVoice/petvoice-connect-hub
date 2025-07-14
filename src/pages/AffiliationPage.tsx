@@ -975,39 +975,30 @@ export default function AffiliationPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-center">
-                <Button 
-                  variant="default" 
-                  className="h-20 flex-col px-8"
-                  disabled={activeCreditsBalance === 0}
-                  onClick={async () => {
-                    try {
-                      // Qui implementeremo la logica per utilizzare i crediti per l'abbonamento
-                      toast({
-                        title: "Auto-Apply Attivato",
-                        description: `€${activeCreditsBalance.toFixed(2)} saranno automaticamente applicati al prossimo rinnovo`,
-                      });
-                    } catch (error) {
-                      toast({
-                        title: "Errore",
-                        description: "Impossibile attivare l'auto-apply",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                >
-                  <div className="text-lg font-bold">Auto-Apply Attivo</div>
-                  <div className="text-xs text-muted-foreground">
-                    {activeCreditsBalance > 0 ? 
-                      `€${activeCreditsBalance.toFixed(2)} disponibili` : 
-                      'Nessun credito disponibile'
-                    }
-                  </div>
-                </Button>
+                <Card className="w-full max-w-md bg-white border-2 border-gray-200 shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="text-center space-y-2">
+                      <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <CheckCircle className="h-8 w-8 text-green-600" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900">Auto-Apply Attivo</div>
+                      <div className="text-sm text-gray-600">
+                        {activeCreditsBalance > 0 ? 
+                          `€${activeCreditsBalance.toFixed(2)} disponibili` : 
+                          'Nessun credito disponibile'
+                        }
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        I crediti vengono applicati automaticamente
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
               
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="bg-green-50 border-green-200">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
                   I tuoi crediti attivi (€{activeCreditsBalance.toFixed(2)}) saranno automaticamente applicati al prossimo rinnovo dell'abbonamento Premium. I crediti scadono dopo 24 mesi dall'assegnazione.
                 </AlertDescription>
               </Alert>
