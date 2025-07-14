@@ -63,6 +63,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Block access to all other pages if not premium
   if (!subscription.subscribed) {
+    // Determine if user is cancelled or new
+    const isCancelledUser = subscription.is_cancelled || subscription.cancellation_date !== null;
+    
     // Show modal for dashboard and other pages
     if (location.pathname !== '/subscription') {
       return (
@@ -72,6 +75,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
             isOpen={true}
             onSubscribe={handleSubscribe}
             isLoading={subscribeLoading}
+            isCancelledUser={isCancelledUser}
           />
         </>
       );

@@ -14,12 +14,14 @@ interface SubscriptionBlockModalProps {
   isOpen: boolean;
   onSubscribe: () => void;
   isLoading: boolean;
+  isCancelledUser?: boolean;
 }
 
 export const SubscriptionBlockModal: React.FC<SubscriptionBlockModalProps> = ({
   isOpen,
   onSubscribe,
-  isLoading
+  isLoading,
+  isCancelledUser = false
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}} modal={true}>
@@ -36,10 +38,16 @@ export const SubscriptionBlockModal: React.FC<SubscriptionBlockModalProps> = ({
               <Card className="petvoice-card">
                 <CardContent className="p-4 text-center">
                   <p className="font-medium text-foreground mb-2">
-                    Il tuo abbonamento è stato cancellato
+                    {isCancelledUser 
+                      ? "Il tuo abbonamento è stato cancellato" 
+                      : "Abbonamento Premium richiesto"
+                    }
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Per continuare ad usare PetVoice devi riattivare l'abbonamento Premium
+                    {isCancelledUser 
+                      ? "Per continuare ad usare PetVoice devi riattivare l'abbonamento Premium"
+                      : "Per utilizzare PetVoice devi attivare l'abbonamento Premium"
+                    }
                   </p>
                 </CardContent>
               </Card>
@@ -63,13 +71,13 @@ export const SubscriptionBlockModal: React.FC<SubscriptionBlockModalProps> = ({
             ) : (
               <>
                 <Crown className="w-5 h-5 mr-2" />
-                RIATTIVA PREMIUM - €0,97/mese
+                {isCancelledUser ? "RIATTIVA PREMIUM - €0,97/mese" : "ATTIVA PREMIUM - €0,97/mese"}
               </>
             )}
           </Button>
           
           <p className="text-center text-xs text-muted-foreground mt-3">
-            Modal non chiudibile - Devi riattivare l'abbonamento per continuare
+            Modal non chiudibile - Devi {isCancelledUser ? "riattivare" : "attivare"} l'abbonamento per continuare
           </p>
         </div>
       </DialogContent>
