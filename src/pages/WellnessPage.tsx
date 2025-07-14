@@ -38,6 +38,7 @@ import {
   Stethoscope,
   Siren,
   User,
+  Paperclip,
   CreditCard,
   FileImage,
   ChevronRight,
@@ -1703,6 +1704,20 @@ const WellnessPage = () => {
                         </p>
                         {record.description && (
                           <p className="text-sm text-muted-foreground mt-1">{record.description}</p>
+                        )}
+                        {/* Show attachment link if document_url exists */}
+                        {record.document_url && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                            <a 
+                              href={record.document_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-sm text-primary hover:underline"
+                            >
+                              Visualizza allegato
+                            </a>
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
