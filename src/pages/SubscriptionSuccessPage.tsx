@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,20 +11,24 @@ const SubscriptionSuccessPage = () => {
   const [searchParams] = useSearchParams();
   const { checkSubscription } = useSubscription();
   const sessionId = searchParams.get('session_id');
+  const toastShown = useRef(false);
 
   useEffect(() => {
-    if (sessionId) {
-      // Refresh subscription status after successful payment
-      setTimeout(() => {
-        checkSubscription();
-      }, 2000);
+    if (sessionId && !toastShown.current) {
+      toastShown.current = true;
       
+      // Show toast only once
       toast({
         title: "Abbonamento attivato!",
         description: "Benvenuto in PetVoice Premium! Il tuo abbonamento è ora attivo.",
       });
+      
+      // Refresh subscription status after successful payment
+      setTimeout(() => {
+        checkSubscription();
+      }, 2000);
     }
-  }, [sessionId, checkSubscription]);
+  }, [sessionId]);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
@@ -57,7 +61,8 @@ const SubscriptionSuccessPage = () => {
           
           <div className="space-y-3">
             <Button 
-              onClick={() => navigate('/dashboard')} 
+              onClick={() => navigate('/')} 
+              variant="outline"
               className="w-full"
             >
               Vai alla Dashboard
