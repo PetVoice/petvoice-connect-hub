@@ -38,9 +38,9 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
     description: "Cosa succederà ORA:",
     consequences: [
       "❌ Abbonamento terminato immediatamente",
-      "❌ Accesso a funzioni premium revocato",
-      "❌ Pet extra rimossi (solo 1 rimane)",
-      "❌ Analisi limitate a 5/mese",
+      "❌ Accesso all'app bloccato completamente",
+      "❌ Tutte le funzionalità disabilitate",
+      "❌ Dovrai riattivare l'abbonamento per continuare",
       "❌ Nessun rimborso"
     ],
     question: "Sei sicuro di voler cancellare immediatamente?",
@@ -54,10 +54,11 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
     description: "Cosa succederà:",
     consequences: [
       `✅ Abbonamento attivo fino al ${endDate}`,
-      `✅ Tutte le funzioni premium disponibili fino al ${endDate}`,
+      `✅ Tutte le funzioni disponibili fino al ${endDate}`,
       "✅ Nessuna perdita di dati",
       "⚠️ Non ci sarà rinnovo automatico",
-      `⚠️ Dal ${endDate} tornerai al piano Free`
+      `⚠️ Dal ${endDate} l'accesso all'app verrà bloccato`,
+      `⚠️ Dovrai riattivare l'abbonamento per continuare ad usare PetVoice`
     ],
     question: "Confermi la cancellazione a fine periodo?",
     confirmText: "CONFERMA CANCELLAZIONE",

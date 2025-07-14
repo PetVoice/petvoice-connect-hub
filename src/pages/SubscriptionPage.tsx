@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Crown, CheckCircle, Settings, AlertTriangle, Shield, CreditCard, Trash2, Calendar } from 'lucide-react';
+import { Check, Crown, CheckCircle, Settings, AlertTriangle, Shield, CreditCard, Trash2, Calendar, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,39 +9,46 @@ import { ReactivationModal } from '@/components/ReactivationModal';
 
 const SubscriptionPage = () => {
   const { subscription, loading, createCheckoutSession, openCustomerPortal, cancelSubscription, reactivateSubscription } = useSubscription();
-  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [showCancellationModal, setShowCancellationModal] = useState(false);
   const [showReactivationModal, setShowReactivationModal] = useState(false);
   const [cancellationType, setCancellationType] = useState<'immediate' | 'end_of_period'>('end_of_period');
-  const [isProcessingCancellation, setIsProcessingCancellation] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   const handleSubscribe = async () => {
-    setProcessingPlan('premium');
+    setSubscribeLoading(true);
     const checkoutUrl = await createCheckoutSession('premium');
     if (checkoutUrl) {
       window.open(checkoutUrl, '_blank');
     }
-    setProcessingPlan(null);
+    setSubscribeLoading(false);
   };
 
-  const handleCancellation = (type: 'immediate' | 'end_of_period') => {
+  const handleOpenCustomerPortal = async () => {
+    setPortalLoading(true);
+    await openCustomerPortal();
+    setPortalLoading(false);
+  };
+
+  const handleCancelSubscription = (type: 'immediate' | 'end_of_period') => {
     setCancellationType(type);
     setShowCancellationModal(true);
   };
 
   const confirmCancellation = async () => {
-    setIsProcessingCancellation(true);
+    setCancelLoading(true);
     const success = await cancelSubscription(cancellationType);
-    setIsProcessingCancellation(false);
+    setCancelLoading(false);
     if (success) {
       setShowCancellationModal(false);
     }
   };
 
   const confirmReactivation = async () => {
-    setIsProcessingCancellation(true);
+    setCancelLoading(true);
     const success = await reactivateSubscription();
-    setIsProcessingCancellation(false);
+    setCancelLoading(false);
     if (success) {
       setShowReactivationModal(false);
     }
@@ -58,218 +65,204 @@ const SubscriptionPage = () => {
     : '';
 
   return (
-    <div className="space-y-12">
-      {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl font-bold">
-          💎 PetVoice Premium
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-4">
+          🎵 PetVoice Premium
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          L'unico piano disponibile. Pagamento obbligatorio per accedere all'app.
+        <p className="text-xl text-muted-foreground">
+          L'unico piano disponibile per sbloccare tutto il potenziale di PetVoice
         </p>
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-green-500" />
-            Pagamenti sicuri
-          </div>
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4 text-blue-500" />
-            Stripe certificato
-          </div>
-        </div>
       </div>
 
-      {/* Active Subscription Status */}
-      {subscription.subscribed && (
-        <Card className="max-w-2xl mx-auto border-green-200 bg-green-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-700">
-              <CheckCircle className="w-6 h-6" />
-              ✅ ABBONAMENTO PREMIUM ATTIVO
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div>
-                <p className="font-medium">Piano: Premium €0,97/mese</p>
-                {subscription.subscription_end && (
-                  <p className="text-sm text-muted-foreground">
-                    Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
-                  </p>
-                )}
-              </div>
-              
-              {isEndOfPeriodCancellation && (
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    ⚠️ Cancellato - Attivo fino al {cancellationEffectiveDate}
-                  </p>
+      <div className="grid gap-8">
+        {subscription.subscribed ? (
+          // Active subscription card
+          <Card className="petvoice-card border-2 border-success">
+            <CardHeader className="text-center pb-4">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 rounded-full gradient-coral flex items-center justify-center">
+                  <Crown className="w-8 h-8 text-white" />
                 </div>
+              </div>
+              <CardTitle className="text-3xl font-bold text-success mb-2">
+                ✅ ABBONAMENTO PREMIUM ATTIVO
+              </CardTitle>
+              <CardDescription className="text-lg">
+                Hai accesso completo a tutte le funzionalità
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-8">
+              <div className="text-center space-y-4">
+                <Card className="petvoice-card">
+                  <CardContent className="p-6">
+                    <div className="text-sm font-medium text-muted-foreground mb-1">Piano Attivo</div>
+                    <div className="text-2xl font-bold">Premium €0,97/mese</div>
+                    {subscription.subscription_end && (
+                      <div className="text-sm mt-2 text-muted-foreground">
+                        Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {isEndOfPeriodCancellation && (
+                <Card className="petvoice-card border-warning">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-sm text-warning">
+                      ⚠️ Cancellato - Attivo fino al {cancellationEffectiveDate}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
-              
-              <div className="flex gap-2 pt-4">
-                <Button 
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  onClick={() => handleCancelSubscription('immediate')}
                   variant="destructive"
-                  onClick={() => handleCancellation('immediate')}
-                  disabled={isProcessingCancellation}
-                  className="flex-1"
+                  size="lg"
+                  disabled={cancelLoading}
+                  className="flex-1 sm:flex-none"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-5 h-5 mr-2" />
                   🗑️ Cancella Immediatamente
                 </Button>
-                <Button 
+                
+                <Button
+                  onClick={() => handleCancelSubscription('end_of_period')}
                   variant="outline"
-                  onClick={() => handleCancellation('end_of_period')}
-                  disabled={isProcessingCancellation}
-                  className="flex-1"
+                  size="lg"
+                  disabled={cancelLoading}
+                  className="flex-1 sm:flex-none"
                 >
-                  <Calendar className="w-4 h-4 mr-2" />
+                  <Calendar className="w-5 h-5 mr-2" />
                   📅 Cancella a Fine Periodo
                 </Button>
+                
+                <Button
+                  onClick={handleOpenCustomerPortal}
+                  size="lg"
+                  disabled={portalLoading}
+                  className="flex-1 sm:flex-none petvoice-button"
+                >
+                  <Settings className="w-5 h-5 mr-2" />
+                  ⚙️ Gestisci Pagamenti
+                </Button>
               </div>
-              
-              <Button onClick={openCustomerPortal} variant="secondary" className="w-full">
-                ⚙️ Gestisci Pagamenti
+            </CardContent>
+          </Card>
+        ) : (
+          // Subscribe card
+          <Card className="petvoice-card border-2 border-primary relative overflow-hidden">
+            <div className="absolute inset-0 bg-primary/5" />
+            
+            <CardHeader className="text-center pb-6 relative z-10">
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 rounded-full gradient-coral flex items-center justify-center shadow-glow">
+                  <Crown className="w-10 h-10 text-white" />
+                </div>
+              </div>
+              <CardTitle className="text-4xl font-bold text-primary mb-3">
+                💎 PETVOICE PREMIUM
+              </CardTitle>
+              <div className="space-y-2">
+                <div className="text-5xl font-bold text-primary">€0,97</div>
+                <div className="text-xl text-muted-foreground">/mese</div>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="space-y-8 relative z-10">
+              <div className="grid gap-4">
+                {[
+                  "Pet illimitati",
+                  "Analisi emotive illimitate", 
+                  "AI insights avanzati",
+                  "Music therapy",
+                  "Export completo",
+                  "Support prioritario"
+                ].map((feature, index) => (
+                  <Card key={index} className="petvoice-card p-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-6 h-6 text-success flex-shrink-0" />
+                      <span className="font-medium">{feature}</span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleSubscribe}
+                size="lg"
+                disabled={subscribeLoading}
+                className="w-full petvoice-button py-6 text-xl shadow-glow transform hover:scale-105 transition-all duration-200"
+              >
+                {subscribeLoading ? (
+                  <>
+                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                    Elaborazione...
+                  </>
+                ) : (
+                  <>
+                    <Crown className="w-6 h-6 mr-3" />
+                    ATTIVA PREMIUM
+                  </>
+                )}
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
+              <Card className="petvoice-card p-3">
+                <p className="text-center text-sm text-muted-foreground">
+                  💳 Pagamento sicuro con Stripe • Cancellabile in qualsiasi momento
+                </p>
+              </Card>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Reactivation Section */}
       {isEndOfPeriodCancellation && (
-        <Card className="max-w-2xl mx-auto border-yellow-200 bg-yellow-50">
+        <Card className="petvoice-card border-warning mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-yellow-700">
+            <CardTitle className="flex items-center gap-2 text-warning">
               <AlertTriangle className="w-5 h-5" />
               ⚠️ ABBONAMENTO IN CANCELLAZIONE
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-yellow-800">
+            <p className="text-sm text-muted-foreground">
               Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
             </p>
             <Button 
               onClick={() => setShowReactivationModal(true)}
-              className="w-full"
-              disabled={isProcessingCancellation}
+              className="w-full petvoice-button"
+              disabled={cancelLoading}
             >
-              {isProcessingCancellation ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
+              {cancelLoading ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {/* Premium Plan Card - ONLY OPTION */}
-      <div className="max-w-md mx-auto">
-        <Card className="relative border-primary shadow-lg">
-          {subscription.subscribed && (
-            <Badge variant="secondary" className="absolute -top-3 right-4 z-50 bg-green-100 text-green-800 border-green-200">
-              ✓ ATTIVO
-            </Badge>
-          )}
-          
-          <CardHeader className="text-center pb-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center mb-4">
-              <Crown className="w-8 h-8 text-purple-600" />
-            </div>
-            <CardTitle className="text-3xl text-primary">💎 PETVOICE PREMIUM</CardTitle>
-            <div className="pt-4">
-              <div>
-                <span className="text-4xl font-bold text-primary">€0,97</span>
-                <span className="text-muted-foreground">/mese</span>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              {[
-                '✅ Pet illimitati',
-                '✅ Analisi emotive illimitate', 
-                '✅ AI insights avanzati',
-                '✅ Music therapy',
-                '✅ Export completo',
-                '✅ Support prioritario'
-              ].map((feature, index) => (
-                <div key={index} className="text-sm font-medium">
-                  {feature}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-
-          <CardFooter className="pt-6">
-            {subscription.subscribed ? (
-              <Button className="w-full bg-green-600 hover:bg-green-700" disabled>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Abbonamento Attivo
-              </Button>
-            ) : (
-              <Button 
-                className="w-full text-lg py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700" 
-                size="lg"
-                onClick={handleSubscribe}
-                disabled={processingPlan === 'premium' || loading}
-              >
-                {processingPlan === 'premium' ? 'Elaborazione...' : '[ ATTIVA PREMIUM ]'}
-              </Button>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
-
-      {/* Important Notice */}
-      {!subscription.subscribed && (
-        <Card className="max-w-2xl mx-auto border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <AlertTriangle className="w-8 h-8 text-red-600 mx-auto" />
-              <h3 className="font-bold text-red-800">ACCESSO BLOCCATO</h3>
-              <p className="text-red-700">
-                Per utilizzare PetVoice devi avere un abbonamento Premium attivo.
-                <br />
-                <strong>Non è disponibile nessun piano gratuito.</strong>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Trust Badges */}
-      <div className="border-t pt-8">
-        <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            <span>Pagamenti sicuri SSL</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
-            <span>Stripe certified</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Modals */}
       <CancellationModal
         isOpen={showCancellationModal}
         onClose={() => setShowCancellationModal(false)}
         onConfirm={confirmCancellation}
         cancellationType={cancellationType}
-        subscriptionTier="premium"
+        subscriptionTier={subscription.subscription_tier || 'premium'}
         subscriptionEnd={subscription.subscription_end}
-        isLoading={isProcessingCancellation}
+        isLoading={cancelLoading}
       />
 
       <ReactivationModal
         isOpen={showReactivationModal}
         onClose={() => setShowReactivationModal(false)}
         onConfirm={confirmReactivation}
-        subscriptionTier="premium"
+        subscriptionTier={subscription.subscription_tier || 'premium'}
         subscriptionEnd={subscription.subscription_end}
-        isLoading={isProcessingCancellation}
+        isLoading={cancelLoading}
       />
-
     </div>
   );
 };
