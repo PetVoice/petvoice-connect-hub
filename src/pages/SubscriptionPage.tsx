@@ -174,19 +174,29 @@ const SubscriptionPage = () => {
             </CardHeader>
             
             <CardContent className="space-y-8 relative z-10">
-              <div className="grid gap-4">
+              <div className="space-y-2 mb-6">
+                <p className="text-center font-medium text-muted-foreground">
+                  Tutto quello che serve per il benessere del tuo pet:
+                </p>
+              </div>
+              
+              <div className="grid gap-3">
                 {[
-                  "Pet illimitati",
-                  "Analisi emotive illimitate", 
-                  "AI insights avanzati",
-                  "Music therapy",
-                  "Export completo",
-                  "Support prioritario"
+                  { icon: "🐕", text: "Gestisci tutti i tuoi animali" },
+                  { icon: "🧠", text: "Analisi emotive avanzate con AI" },
+                  { icon: "📊", text: "Monitoraggio salute completo" },
+                  { icon: "🎵", text: "Musicoterapia personalizzata" },
+                  { icon: "📅", text: "Calendario veterinario integrato" },
+                  { icon: "📝", text: "Diario comportamentale dettagliato" },
+                  { icon: "💊", text: "Gestione farmaci e vaccinazioni" },
+                  { icon: "📈", text: "Statistiche e trend analitici" },
+                  { icon: "📱", text: "Sincronizzazione multi-dispositivo" },
+                  { icon: "🆘", text: "Supporto dedicato 24/7" }
                 ].map((feature, index) => (
                   <Card key={index} className="petvoice-card p-3">
                     <div className="flex items-center gap-3">
-                      <CheckCircle className="w-6 h-6 text-success flex-shrink-0" />
-                      <span className="font-medium">{feature}</span>
+                      <span className="text-lg flex-shrink-0">{feature.icon}</span>
+                      <span className="font-medium text-sm">{feature.text}</span>
                     </div>
                   </Card>
                 ))}
