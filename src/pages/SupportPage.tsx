@@ -126,11 +126,29 @@ interface FeatureRequest {
   user_id: string;
 }
 
+interface FeatureRequestComment {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  feature_request_id: string;
+}
+
+interface FeatureRequestVote {
+  id: string;
+  user_id: string;
+  feature_request_id: string;
+}
+
 const SupportPage: React.FC = () => {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase[]>([]);
   const [featureRequests, setFeatureRequests] = useState<FeatureRequest[]>([]);
+  const [featureComments, setFeatureComments] = useState<{[key: string]: FeatureRequestComment[]}>({});
+  const [userVotes, setUserVotes] = useState<string[]>([]);
+  const [selectedFeatureForComments, setSelectedFeatureForComments] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -220,6 +238,17 @@ const SupportPage: React.FC = () => {
         setFeatureRequests(frData || []);
       }
 
+      // Carica i voti dell'utente corrente
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: votesData } = await supabase
+          .from('feature_request_votes')
+          .select('feature_request_id')
+          .eq('user_id', user.id);
+        
+        setUserVotes(votesData?.map(v => v.feature_request_id) || []);
+      }
+
     } catch (error) {
       console.error('Error loading support data:', error);
     } finally {
@@ -239,6 +268,17 @@ const SupportPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Errore",
+          description: "Devi essere autenticato per creare un ticket",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('support_tickets')
         .insert({
@@ -247,7 +287,7 @@ const SupportPage: React.FC = () => {
           subject: newTicket.subject,
           description: newTicket.description,
           ticket_number: '', // Verrà generato automaticamente dal trigger
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: user.id
         });
 
       if (error) throw error;
@@ -265,6 +305,8 @@ const SupportPage: React.FC = () => {
         description: ''
       });
 
+      setIsNewTicketDialogOpen(false);
+      
       // Ricarica i tickets
       loadSupportData();
     } catch (error) {
@@ -291,13 +333,23 @@ const SupportPage: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Errore",
+          description: "Devi essere autenticato per creare una richiesta",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('support_feature_requests')
         .insert({
           title: newFeatureRequest.title,
           description: newFeatureRequest.description,
           category: newFeatureRequest.category,
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: user.id
         });
 
       if (error) throw error;
@@ -371,21 +423,53 @@ const SupportPage: React.FC = () => {
 
   const voteFeatureRequest = async (requestId: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Errore",
+          description: "Devi essere autenticato per votare",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Verifica se l'utente ha già votato
+      if (userVotes.includes(requestId)) {
+        toast({
+          title: "Già votato",
+          description: "Hai già votato questa richiesta"
+        });
+        return;
+      }
+
+      // Aggiungi il voto
+      const { error: voteError } = await supabase
+        .from('feature_request_votes')
+        .insert({
+          user_id: user.id,
+          feature_request_id: requestId
+        });
+
+      if (voteError) throw voteError;
+
+      // Aggiorna il contatore
       const request = featureRequests.find(r => r.id === requestId);
       if (!request) return;
 
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('support_feature_requests')
         .update({ votes: request.votes + 1 })
         .eq('id', requestId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
+      // Aggiorna lo stato locale
       setFeatureRequests(featureRequests.map(r => 
         r.id === requestId 
           ? { ...r, votes: r.votes + 1 }
           : r
       ));
+      setUserVotes([...userVotes, requestId]);
 
       toast({
         title: "Voto aggiunto",
@@ -393,6 +477,11 @@ const SupportPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Error voting feature request:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il voto",
+        variant: "destructive"
+      });
     }
   };
 
@@ -430,6 +519,66 @@ const SupportPage: React.FC = () => {
       setChatMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  const loadFeatureComments = async (featureRequestId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('feature_request_comments')
+        .select('*')
+        .eq('feature_request_id', featureRequestId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      setFeatureComments(prev => ({
+        ...prev,
+        [featureRequestId]: data || []
+      }));
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
+  };
+
+  const addFeatureComment = async () => {
+    if (!newComment.trim() || !selectedFeatureForComments) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Errore",
+          description: "Devi essere autenticato per commentare",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('feature_request_comments')
+        .insert({
+          feature_request_id: selectedFeatureForComments,
+          user_id: user.id,
+          content: newComment.trim()
+        });
+
+      if (error) throw error;
+
+      setNewComment('');
+      loadFeatureComments(selectedFeatureForComments);
+      
+      toast({
+        title: "Commento aggiunto",
+        description: "Il tuo commento è stato pubblicato!"
+      });
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il commento",
+        variant: "destructive"
+      });
     }
   };
 
@@ -983,15 +1132,18 @@ const SupportPage: React.FC = () => {
                           
                           <div className="flex flex-col items-center space-y-2">
                             <Button
-                              variant="outline"
+                              variant={userVotes.includes(request.id) ? "default" : "outline"}
                               size="sm"
                               onClick={() => voteFeatureRequest(request.id)}
+                              disabled={userVotes.includes(request.id)}
                               className="flex items-center space-x-1"
                             >
                               <ThumbsUp className="h-3 w-3" />
                               <span>{request.votes}</span>
                             </Button>
-                            <span className="text-xs text-muted-foreground">voti</span>
+                            <span className="text-xs text-muted-foreground">
+                              {userVotes.includes(request.id) ? 'votato' : 'voti'}
+                            </span>
                           </div>
                         </div>
                         
@@ -1002,7 +1154,14 @@ const SupportPage: React.FC = () => {
                               locale: it 
                             })}
                           </span>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedFeatureForComments(request.id);
+                              loadFeatureComments(request.id);
+                            }}
+                          >
                             <MessageSquare className="h-3 w-3 mr-1" />
                             Discuti
                           </Button>
@@ -1568,6 +1727,67 @@ const SupportPage: React.FC = () => {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Comments Dialog */}
+        <Dialog open={!!selectedFeatureForComments} onOpenChange={() => setSelectedFeatureForComments(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                Discussione: {featureRequests.find(r => r.id === selectedFeatureForComments)?.title}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Existing Comments */}
+              <div className="space-y-3">
+                {selectedFeatureForComments && featureComments[selectedFeatureForComments]?.map((comment) => (
+                  <Card key={comment.id} className="p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-sm font-medium">Utente</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(comment.created_at), { 
+                          addSuffix: true, 
+                          locale: it 
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm">{comment.content}</p>
+                  </Card>
+                ))}
+                
+                {selectedFeatureForComments && (!featureComments[selectedFeatureForComments] || featureComments[selectedFeatureForComments].length === 0) && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Nessun commento ancora. Inizia la discussione!</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Add Comment */}
+              <div className="border-t pt-4">
+                <Textarea
+                  placeholder="Scrivi un commento..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  rows={3}
+                  className="mb-3"
+                />
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={() => setSelectedFeatureForComments(null)}>
+                    Chiudi
+                  </Button>
+                  <Button 
+                    onClick={addFeatureComment}
+                    disabled={!newComment.trim()}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Pubblica Commento
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* User Guide Modal */}
         <Dialog open={isUserGuideDialogOpen} onOpenChange={setIsUserGuideDialogOpen}>

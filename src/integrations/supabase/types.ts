@@ -445,6 +445,70 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_request_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          feature_request_id: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          feature_request_id: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          feature_request_id?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_request_comments_feature_request_id_fkey"
+            columns: ["feature_request_id"]
+            isOneToOne: false
+            referencedRelation: "support_feature_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_request_votes: {
+        Row: {
+          created_at: string | null
+          feature_request_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feature_request_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feature_request_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_request_votes_feature_request_id_fkey"
+            columns: ["feature_request_id"]
+            isOneToOne: false
+            referencedRelation: "support_feature_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       health_alerts: {
         Row: {
           alert_type: string
