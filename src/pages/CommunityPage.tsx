@@ -407,15 +407,15 @@ const CommunityPage = () => {
   const [activeTab, setActiveTab] = useState<'community' | 'news'>('community');
   const [channels, setChannels] = useState<Channel[]>([]);
   const [subscribedChannels, setSubscribedChannels] = useState<string[]>([]);
-  const [activeChannel, setActiveChannel] = useState<string>('');
+  const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [messageText, setMessageText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Filters
-  const [selectedCountry, setSelectedCountry] = useState<string>('IT');
+  // Filters - INIZIALIZZAZIONE VUOTA
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedPetType, setSelectedPetType] = useState<string>('');
   const [selectedBreed, setSelectedBreed] = useState<string>('');
   
@@ -646,7 +646,7 @@ const CommunityPage = () => {
       
       // Se era il canale attivo, deseleziona
       if (activeChannel === channelId) {
-        setActiveChannel('');
+        setActiveChannel(null);
       }
       
       await loadUserSubscriptions();
@@ -1503,10 +1503,11 @@ const CommunityPage = () => {
                     <div className="mb-4">
                       <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground" />
                     </div>
-                    <h2 className="font-semibold mb-2">Benvenuto nella Community!</h2>
+                    <h2 className="font-semibold mb-2">🌍 Benvenuto nei Canali</h2>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Seleziona un paese dal menu in alto per accedere al canale
+                      Seleziona un paese dal menu in alto per iniziare a chattare con altri proprietari di animali
                     </p>
+                    <div className="text-4xl mb-4">💬</div>
                     {selectedCountry && (
                       <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
                         <div className="flex items-center gap-2 mb-3">
@@ -1516,7 +1517,7 @@ const CommunityPage = () => {
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground mb-4">
-                          Benvenuto nel canale {COUNTRIES.find(c => c.code === selectedCountry)?.name}!
+                          Entra nel canale {COUNTRIES.find(c => c.code === selectedCountry)?.name} per chattare con proprietari di animali della tua zona!
                         </p>
                         <Button 
                           onClick={() => {
@@ -1598,7 +1599,8 @@ const CommunityPage = () => {
                     </div>
                   ) : (
                     <>
-                      <div className="flex-1 overflow-y-auto">
+                      {/* Messages Area - Layout migliorato */}
+                      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 320px)' }}>
                         <div className="p-4 space-y-4">
                           {messages.length === 0 ? (
                             <div className="text-center py-8">
@@ -1616,16 +1618,16 @@ const CommunityPage = () => {
                         </div>
                       </div>
                       
-                      {/* Message Input - Solo se nel canale */}
-                      <div className="border-t p-4 bg-card flex-shrink-0">
+                      {/* Input Area - SEMPRE VISIBILE IN BASSO */}
+                      <div className="border-t p-4 bg-card flex-shrink-0 sticky bottom-0 z-10">
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
+                          <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-3">
                             <Input
                               placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
                               value={messageText}
                               onChange={(e) => setMessageText(e.target.value)}
                               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                              className="border-0 bg-transparent focus-visible:ring-0"
+                              className="border-0 bg-transparent focus-visible:ring-0 text-sm"
                               disabled={loading}
                             />
                             
@@ -1635,7 +1637,7 @@ const CommunityPage = () => {
                                 size="sm"
                                 onClick={isRecording ? stopRecording : startRecording}
                                 className={isRecording ? 'text-red-500' : ''}
-                                title="🎤 Audio"
+                                title="🎤 Registra messaggio vocale"
                                 disabled={loading}
                               >
                                 {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -1645,7 +1647,7 @@ const CommunityPage = () => {
                                 variant="ghost" 
                                 size="sm"
                                 onClick={() => fileInputRef.current?.click()}
-                                title="📷 Foto"
+                                title="📷 Carica foto"
                                 disabled={loading}
                               >
                                 <Camera className="h-4 w-4" />
@@ -1656,6 +1658,7 @@ const CommunityPage = () => {
                                 size="sm"
                                 onClick={sendMessage}
                                 disabled={!messageText.trim() || loading}
+                                className="bg-primary hover:bg-primary/90"
                               >
                                 <Send className="h-4 w-4" />
                               </Button>
@@ -1670,12 +1673,50 @@ const CommunityPage = () => {
                             />
                           </div>
                         </div>
+                        
+                        {/* Riga pulsanti media */}
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={loading}
+                            className="text-xs"
+                          >
+                            📷 Foto
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={isRecording ? stopRecording : startRecording}
+                            disabled={loading}
+                            className="text-xs"
+                          >
+                            🎤 Audio
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={loading}
+                            className="text-xs"
+                          >
+                            🎥 Video
+                          </Button>
+                        </div>
                       </div>
                     </>
                   )}
                 </div>
               ) : (
-                <div className="flex-1" />
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4">🌍</div>
+                    <h3 className="text-lg font-semibold mb-2">Area Chat Vuota</h3>
+                    <p className="text-muted-foreground">
+                      Seleziona un paese dal menu in alto per accedere ai canali
+                    </p>
+                  </div>
+                </div>
               )}
             </TabsContent>
             
@@ -1687,7 +1728,7 @@ const CommunityPage = () => {
                   <div>
                     <h2 className="font-semibold">News & Alert Locali</h2>
                     <p className="text-sm text-muted-foreground">
-                      Informazioni sanitarie per {COUNTRIES.find(c => c.code === selectedCountry)?.name}
+                      Informazioni sanitarie per {selectedCountry ? COUNTRIES.find(c => c.code === selectedCountry)?.name : 'la tua area'}
                     </p>
                   </div>
                   
@@ -1780,7 +1821,7 @@ const CommunityPage = () => {
                         Nessun alert per la tua zona
                       </h3>
                       <p className="text-muted-foreground">
-                        Al momento non ci sono segnalazioni per {COUNTRIES.find(c => c.code === selectedCountry)?.name}
+                        Al momento non ci sono segnalazioni per {selectedCountry ? COUNTRIES.find(c => c.code === selectedCountry)?.name : 'la tua area'}
                       </p>
                     </div>
                   )}
