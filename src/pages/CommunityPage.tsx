@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -139,6 +142,8 @@ const CommunityPage = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
+  const [openCountry, setOpenCountry] = useState(false);
+  const [openBreed, setOpenBreed] = useState(false);
   
   // CARICA I MIEI GRUPPI SEMPRE ALL'INIZIO
   useEffect(() => {
@@ -312,46 +317,127 @@ const CommunityPage = () => {
               <CardHeader>
                 <CardTitle>Filtri Community</CardTitle>
               </CardHeader>
-              <CardContent>
+               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Paese</label>
-                    <Select 
-                      value={selectedCountry} 
-                      onValueChange={(value) => setSelectedCountry(value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona paese" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tutti i paesi</SelectItem>
-                        {COUNTRIES.map(country => (
-                          <SelectItem key={country.code} value={country.name}>
-                            {country.flag} {country.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openCountry} onOpenChange={setOpenCountry}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openCountry}
+                          className="w-full justify-between"
+                        >
+                          {selectedCountry === 'all' ? 'Tutti i paesi' : 
+                           COUNTRIES.find(country => country.name === selectedCountry)?.flag + ' ' + selectedCountry || 'Seleziona paese'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Cerca paese..." />
+                          <CommandList>
+                            <CommandEmpty>Nessun paese trovato.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                value="all"
+                                onSelect={() => {
+                                  setSelectedCountry('all');
+                                  setOpenCountry(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCountry === 'all' ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Tutti i paesi
+                              </CommandItem>
+                              {COUNTRIES.map(country => (
+                                <CommandItem
+                                  key={country.code}
+                                  value={country.name}
+                                  onSelect={() => {
+                                    setSelectedCountry(country.name);
+                                    setOpenCountry(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedCountry === country.name ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {country.flag} {country.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   
                   <div>
                     <label className="text-sm font-medium mb-2 block">Razza</label>
-                    <Select 
-                      value={selectedBreed} 
-                      onValueChange={(value) => setSelectedBreed(value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona razza" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tutte le razze</SelectItem>
-                        {ALL_BREEDS.map(breed => (
-                          <SelectItem key={breed} value={breed}>
-                            {breed}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openBreed} onOpenChange={setOpenBreed}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openBreed}
+                          className="w-full justify-between"
+                        >
+                          {selectedBreed === 'all' ? 'Tutte le razze' : selectedBreed || 'Seleziona razza'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Cerca razza..." />
+                          <CommandList>
+                            <CommandEmpty>Nessuna razza trovata.</CommandEmpty>
+                            <CommandGroup>
+                              <CommandItem
+                                value="all"
+                                onSelect={() => {
+                                  setSelectedBreed('all');
+                                  setOpenBreed(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedBreed === 'all' ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                Tutte le razze
+                              </CommandItem>
+                              {ALL_BREEDS.map(breed => (
+                                <CommandItem
+                                  key={breed}
+                                  value={breed}
+                                  onSelect={() => {
+                                    setSelectedBreed(breed);
+                                    setOpenBreed(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedBreed === breed ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {breed}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               </CardContent>
