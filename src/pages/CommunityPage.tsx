@@ -947,61 +947,46 @@ const CommunityPage = () => {
     }
   }, [user, availableGroups]);
 
-  // Unsubscribe from group - FIX: funziona con qualsiasi gruppo
+  // Unsubscribe from group - FIX: eliminazione diretta usando channel_name
   const unsubscribeFromGroup = useCallback(async (groupId: string) => {
     if (!user) return;
     
     try {
-      const group = joinedChannels.find(g => g === groupId);
-      if (!group) {
-        console.log('Gruppo non trovato in joinedGroups:', groupId);
-        return;
-      }
-      
       console.log('Uscita dal gruppo:', groupId, 'User:', user.id);
 
-      // Trova il gruppo nei dati disponibili
-      const groupData = availableGroups.find(g => g.id === groupId);
-      if (!groupData) {
-        console.log('Dati gruppo non trovati:', groupId);
-        return;
-      }
-
-      // Trova il canale corrispondente
-      const channel = channels.find(c => c.name === groupData.name && c.country_code === groupData.country);
+      // ELIMINA DIRETTAMENTE USANDO channel_name
+      const { error } = await supabase
+        .from('user_channel_subscriptions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('channel_name', groupId);
       
-      if (channel) {
-        // Se il canale esiste nel database, elimina la subscription
-        const { error } = await supabase
-          .from('user_channel_subscriptions')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('channel_id', channel.id);
-        
-        if (error) {
-          console.error('Errore eliminazione subscription:', error);
-        } else {
-          console.log('Subscription eliminata per channel:', channel.id);
-        }
-        
-        if (activeChannel === channel.id) {
-          setActiveChannel(null);
-        }
-        
-        // Aggiorna subscribedChannels
-        setSubscribedChannels(prev => prev.filter(id => id !== channel.id));
+      if (error) {
+        console.error('Errore eliminazione subscription:', error);
+        throw error;
       }
       
-      // Aggiorna SEMPRE lo stato locale
+      console.log('Subscription eliminata per gruppo:', groupId);
+      
+      // Aggiorna lo stato locale
       setJoinedChannels(prev => {
         const updated = prev.filter(id => id !== groupId);
         console.log('Gruppi aggiornati dopo uscita:', updated);
         return updated;
       });
       
+      // Se il canale attivo è quello che stiamo lasciando, chiudilo
+      if (activeChannel === groupId) {
+        setActiveChannel(null);
+      }
+      
+      // Trova il gruppo per il messaggio di conferma
+      const groupData = availableGroups.find(g => g.id === groupId);
+      const groupName = groupData?.name || groupId;
+      
       toast({
         title: "Uscita completata",
-        description: `Hai lasciato ${groupData.name}`
+        description: `Hai lasciato ${groupName}`
       });
       
     } catch (error) {
@@ -1012,7 +997,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, joinedChannels, availableGroups, channels, activeChannel]);
+  }, [user, availableGroups, activeChannel]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
