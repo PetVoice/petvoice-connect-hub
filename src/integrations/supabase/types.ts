@@ -196,6 +196,7 @@ export type Database = {
       community_messages: {
         Row: {
           channel_id: string
+          channel_name: string | null
           content: string | null
           created_at: string
           deleted_at: string | null
@@ -210,6 +211,7 @@ export type Database = {
         }
         Insert: {
           channel_id: string
+          channel_name?: string | null
           content?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -224,6 +226,7 @@ export type Database = {
         }
         Update: {
           channel_id?: string
+          channel_name?: string | null
           content?: string | null
           created_at?: string
           deleted_at?: string | null

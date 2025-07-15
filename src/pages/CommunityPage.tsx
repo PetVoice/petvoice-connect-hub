@@ -736,6 +736,7 @@ const CommunityPage = () => {
           content,
           user_id,
           channel_id,
+          channel_name,
           message_type,
           is_emergency,
           file_url,
@@ -744,7 +745,7 @@ const CommunityPage = () => {
           created_at,
           updated_at
         `)
-        .eq('channel_id', activeChannel)
+        .eq('channel_name', activeChannel)  // Usa channel_name invece di channel_id
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
