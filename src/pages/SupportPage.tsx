@@ -149,6 +149,7 @@ const SupportPage: React.FC = () => {
   }>>([]);
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [activeTab, setActiveTab] = useState('faq');
   const { toast } = useToast();
 
   // Carica i dati iniziali
@@ -502,13 +503,7 @@ const SupportPage: React.FC = () => {
 
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => {
-              // Scroll to the tickets tab and activate it
-              const ticketsTab = document.querySelector('[value="tickets"]') as HTMLElement;
-              if (ticketsTab) {
-                ticketsTab.click();
-              }
-            }}
+            onClick={() => setActiveTab('tickets')}
           >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
@@ -542,13 +537,7 @@ const SupportPage: React.FC = () => {
 
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => {
-              // Scroll to the contact tab and activate it
-              const contactTab = document.querySelector('[value="contact"]') as HTMLElement;
-              if (contactTab) {
-                contactTab.click();
-              }
-            }}
+            onClick={() => setActiveTab('contact')}
           >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
@@ -565,7 +554,7 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="faq" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="tickets">I Miei Ticket</TabsTrigger>
