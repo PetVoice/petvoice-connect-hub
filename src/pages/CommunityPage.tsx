@@ -872,7 +872,9 @@ const CommunityPage = () => {
         setActiveChannel(null);
       }
       
+      // Aggiorna immediatamente lo stato locale
       setJoinedGroups(prev => prev.filter(id => id !== groupId));
+      setSubscribedChannels(prev => prev.filter(id => id !== channel.id));
       await loadUserSubscriptions();
       
       toast({
@@ -920,18 +922,19 @@ const CommunityPage = () => {
     }
   }, [selectedAnimalType, getBreedsByAnimalType]);
 
-  // DISABILITO QUESTO useEffect CHE RESETTA joinedGroups
-  // IL PROBLEMA È CHE QUESTO SOVRASCRIVE L'AGGIORNAMENTO IMMEDIATO DI subscribeToGroup
-  /*
+  // Sincronizza joinedGroups con subscribedChannels (solo se joinedGroups è vuoto)
   useEffect(() => {
-    const joined = availableGroups.filter(group => {
-      const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
-      return channel && subscribedChannels.includes(channel.id);
-    }).map(group => group.id);
-    
-    setJoinedGroups(joined);
-  }, [availableGroups, channels, subscribedChannels]);
-  */
+    if (joinedGroups.length === 0 && subscribedChannels.length > 0) {
+      const joined = availableGroups.filter(group => {
+        const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
+        return channel && subscribedChannels.includes(channel.id);
+      }).map(group => group.id);
+      
+      if (joined.length > 0) {
+        setJoinedGroups(joined);
+      }
+    }
+  }, [availableGroups, channels, subscribedChannels, joinedGroups.length]);
 
   if (!user) {
     return (
