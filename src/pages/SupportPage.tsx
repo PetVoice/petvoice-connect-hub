@@ -1,0 +1,1141 @@
+import React, { useState, useEffect } from 'react';
+import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { 
+  MessageCircle, 
+  Ticket, 
+  Book, 
+  Search, 
+  Star, 
+  Phone, 
+  Mail, 
+  FileText, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle, 
+  Plus, 
+  Send, 
+  Heart, 
+  ThumbsUp, 
+  ThumbsDown,
+  Lightbulb,
+  Settings,
+  TrendingUp,
+  Users,
+  Zap,
+  Shield,
+  Paperclip,
+  Calendar,
+  BarChart3,
+  HelpCircle,
+  VideoIcon,
+  MessageSquare,
+  PhoneCall,
+  Globe,
+  Award,
+  Target,
+  Headphones,
+  Bot,
+  Filter,
+  Download,
+  Upload,
+  Eye,
+  AlertTriangle,
+  Info,
+  ChevronRight,
+  ExternalLink,
+  Sparkles,
+  Bell,
+  Activity,
+  Timer,
+  Flag,
+  XCircle,
+  UserCheck,
+  FileCheck,
+  Database,
+  Code,
+  RefreshCw,
+  Lock,
+  Camera,
+  Mic,
+  PlayCircle,
+  Pause
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { it } from 'date-fns/locale';
+
+interface SupportTicket {
+  id: string;
+  ticket_number: string;
+  category: string;
+  priority: string;
+  subject: string;
+  description: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  sla_deadline: string;
+  customer_satisfaction_rating?: number;
+  satisfaction_feedback?: string;
+}
+
+interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  tags: string[];
+  helpful_count: number;
+  not_helpful_count: number;
+  view_count: number;
+}
+
+interface KnowledgeBase {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  tags: string[];
+  helpful_count: number;
+  not_helpful_count: number;
+  view_count: number;
+}
+
+interface FeatureRequest {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  votes: number;
+  created_at: string;
+  user_id: string;
+}
+
+const SupportPage: React.FC = () => {
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBase[]>([]);
+  const [featureRequests, setFeatureRequests] = useState<FeatureRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [newTicket, setNewTicket] = useState({
+    category: '',
+    priority: 'medium',
+    subject: '',
+    description: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{
+    text: string;
+    sender: 'user' | 'bot';
+    timestamp: Date;
+  }>>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const { toast } = useToast();
+
+  // Carica i dati iniziali
+  useEffect(() => {
+    loadSupportData();
+  }, []);
+
+  const loadSupportData = async () => {
+    try {
+      setLoading(true);
+      
+      // Carica tickets
+      const { data: ticketsData, error: ticketsError } = await supabase
+        .from('support_tickets')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ticketsError) {
+        console.error('Error loading tickets:', ticketsError);
+      } else {
+        setTickets(ticketsData || []);
+      }
+
+      // Carica FAQ
+      const { data: faqData, error: faqError } = await supabase
+        .from('support_faq')
+        .select('*')
+        .eq('is_published', true)
+        .order('sort_order', { ascending: true });
+
+      if (faqError) {
+        console.error('Error loading FAQ:', faqError);
+      } else {
+        setFaqs(faqData || []);
+      }
+
+      // Carica knowledge base
+      const { data: kbData, error: kbError } = await supabase
+        .from('support_knowledge_base')
+        .select('*')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (kbError) {
+        console.error('Error loading knowledge base:', kbError);
+      } else {
+        setKnowledgeBase(kbData || []);
+      }
+
+      // Carica feature requests
+      const { data: frData, error: frError } = await supabase
+        .from('support_feature_requests')
+        .select('*')
+        .order('votes', { ascending: false });
+
+      if (frError) {
+        console.error('Error loading feature requests:', frError);
+      } else {
+        setFeatureRequests(frData || []);
+      }
+
+    } catch (error) {
+      console.error('Error loading support data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createTicket = async () => {
+    if (!newTicket.subject || !newTicket.description || !newTicket.category) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .insert({
+          category: newTicket.category,
+          priority: newTicket.priority,
+          subject: newTicket.subject,
+          description: newTicket.description,
+          ticket_number: '', // Verrà generato automaticamente dal trigger
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Ticket creato",
+        description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
+      });
+
+      // Reset form
+      setNewTicket({
+        category: '',
+        priority: 'medium',
+        subject: '',
+        description: ''
+      });
+
+      // Ricarica i tickets
+      loadSupportData();
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile creare il ticket. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const markFAQHelpful = async (faqId: string, isHelpful: boolean) => {
+    try {
+      const faq = faqs.find(f => f.id === faqId);
+      if (!faq) return;
+
+      const updateField = isHelpful ? 'helpful_count' : 'not_helpful_count';
+      const currentCount = isHelpful ? faq.helpful_count : faq.not_helpful_count;
+
+      const { error } = await supabase
+        .from('support_faq')
+        .update({ 
+          [updateField]: currentCount + 1,
+          view_count: faq.view_count + 1
+        })
+        .eq('id', faqId);
+
+      if (error) throw error;
+
+      // Aggiorna lo stato locale
+      setFaqs(faqs.map(f => 
+        f.id === faqId 
+          ? { 
+              ...f, 
+              [updateField]: currentCount + 1,
+              view_count: f.view_count + 1
+            }
+          : f
+      ));
+
+      toast({
+        title: isHelpful ? "Grazie per il feedback!" : "Grazie per il feedback",
+        description: "Il tuo feedback ci aiuta a migliorare il supporto."
+      });
+    } catch (error) {
+      console.error('Error updating FAQ feedback:', error);
+    }
+  };
+
+  const voteFeatureRequest = async (requestId: string) => {
+    try {
+      const request = featureRequests.find(r => r.id === requestId);
+      if (!request) return;
+
+      const { error } = await supabase
+        .from('support_feature_requests')
+        .update({ votes: request.votes + 1 })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      setFeatureRequests(featureRequests.map(r => 
+        r.id === requestId 
+          ? { ...r, votes: r.votes + 1 }
+          : r
+      ));
+
+      toast({
+        title: "Voto aggiunto",
+        description: "Grazie per aver votato questa richiesta di funzionalità!"
+      });
+    } catch (error) {
+      console.error('Error voting feature request:', error);
+    }
+  };
+
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage = {
+      text: chatInput,
+      sender: 'user' as const,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsTyping(true);
+
+    // Simula una risposta del chatbot
+    setTimeout(() => {
+      const botResponse = {
+        text: "Grazie per il tuo messaggio! Sto analizzando la tua richiesta e ti fornirò assistenza nel modo migliore possibile. Per questioni urgenti, puoi aprire un ticket di supporto.",
+        sender: 'bot' as const,
+        timestamp: new Date()
+      };
+      
+      setChatMessages(prev => [...prev, botResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-500';
+      case 'high': return 'bg-orange-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open': return 'bg-blue-500';
+      case 'in_progress': return 'bg-orange-500';
+      case 'resolved': return 'bg-green-500';
+      case 'closed': return 'bg-gray-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'technical': return <Settings className="h-4 w-4" />;
+      case 'billing': return <BarChart3 className="h-4 w-4" />;
+      case 'medical': return <Heart className="h-4 w-4" />;
+      case 'general': return <HelpCircle className="h-4 w-4" />;
+      default: return <MessageCircle className="h-4 w-4" />;
+    }
+  };
+
+  const filteredFAQs = faqs.filter(faq => {
+    const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredKnowledgeBase = knowledgeBase.filter(kb => {
+    const matchesSearch = kb.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         kb.content.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || kb.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Caricamento supporto...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Centro di Supporto PetVoice
+          </h1>
+          <p className="text-muted-foreground">
+            Ottieni aiuto, trova risposte e resta aggiornato sulle novità
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <MessageCircle className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Chat Live</p>
+                  <p className="text-sm text-muted-foreground">Assistenza immediata</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Ticket className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Nuovo Ticket</p>
+                  <p className="text-sm text-muted-foreground">Supporto tecnico</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Book className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Guida Utente</p>
+                  <p className="text-sm text-muted-foreground">Documentazione</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium">Contatti</p>
+                  <p className="text-sm text-muted-foreground">Supporto diretto</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="faq" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
+            <TabsTrigger value="tickets">I Miei Ticket</TabsTrigger>
+            <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
+            <TabsTrigger value="features">Richieste</TabsTrigger>
+            <TabsTrigger value="contact">Contatti</TabsTrigger>
+            <TabsTrigger value="analytics">Statistiche</TabsTrigger>
+          </TabsList>
+
+          {/* FAQ Tab */}
+          <TabsContent value="faq" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <HelpCircle className="h-5 w-5" />
+                  <span>Domande Frequenti</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Search and Filter */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Cerca nelle FAQ..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="w-full sm:w-48">
+                        <SelectValue placeholder="Categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tutte le categorie</SelectItem>
+                        <SelectItem value="technical">Tecnico</SelectItem>
+                        <SelectItem value="billing">Fatturazione</SelectItem>
+                        <SelectItem value="medical">Medico</SelectItem>
+                        <SelectItem value="general">Generale</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* FAQ List */}
+                  <div className="space-y-4">
+                    {filteredFAQs.map((faq) => (
+                      <Card key={faq.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="font-medium text-lg">{faq.question}</h3>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="secondary">{faq.category}</Badge>
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                <Eye className="h-3 w-3 mr-1" />
+                                {faq.view_count}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <p className="text-muted-foreground mb-4">{faq.answer}</p>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              {faq.tags.map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm text-muted-foreground">Utile?</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => markFAQHelpful(faq.id, true)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <ThumbsUp className="h-4 w-4" />
+                              </Button>
+                              <span className="text-sm text-muted-foreground">
+                                {faq.helpful_count}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => markFAQHelpful(faq.id, false)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <ThumbsDown className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {filteredFAQs.length === 0 && (
+                    <div className="text-center py-8">
+                      <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Nessuna FAQ trovata per la tua ricerca
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tickets Tab */}
+          <TabsContent value="tickets" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Ticket className="h-5 w-5" />
+                    <span>I Miei Ticket di Supporto</span>
+                  </CardTitle>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nuovo Ticket
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Crea Nuovo Ticket</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Categoria</label>
+                            <Select value={newTicket.category} onValueChange={(value) => setNewTicket({ ...newTicket, category: value })}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleziona categoria" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="technical">Tecnico</SelectItem>
+                                <SelectItem value="billing">Fatturazione</SelectItem>
+                                <SelectItem value="medical">Medico</SelectItem>
+                                <SelectItem value="general">Generale</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Priorità</label>
+                            <Select value={newTicket.priority} onValueChange={(value) => setNewTicket({ ...newTicket, priority: value })}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="low">Bassa</SelectItem>
+                                <SelectItem value="medium">Media</SelectItem>
+                                <SelectItem value="high">Alta</SelectItem>
+                                <SelectItem value="critical">Critica</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Oggetto</label>
+                          <Input
+                            value={newTicket.subject}
+                            onChange={(e) => setNewTicket({ ...newTicket, subject: e.target.value })}
+                            placeholder="Descrivi brevemente il problema"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Descrizione</label>
+                          <Textarea
+                            value={newTicket.description}
+                            onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                            placeholder="Descrivi il problema in dettaglio"
+                            rows={5}
+                          />
+                        </div>
+                        
+                        <Button
+                          onClick={createTicket}
+                          className="w-full"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Creazione in corso...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-2" />
+                              Crea Ticket
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tickets.map((ticket) => (
+                    <Card key={ticket.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                              {getCategoryIcon(ticket.category)}
+                            </div>
+                            <div>
+                              <h3 className="font-medium">{ticket.subject}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                #{ticket.ticket_number}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <Badge className={`${getPriorityColor(ticket.priority)} text-white`}>
+                              {ticket.priority}
+                            </Badge>
+                            <Badge className={`${getStatusColor(ticket.status)} text-white`}>
+                              {ticket.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <p className="text-muted-foreground mb-4 line-clamp-2">
+                          {ticket.description}
+                        </p>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <span className="flex items-center">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {formatDistanceToNow(new Date(ticket.created_at), { 
+                                addSuffix: true, 
+                                locale: it 
+                              })}
+                            </span>
+                            {ticket.sla_deadline && (
+                              <span className="flex items-center">
+                                <Timer className="h-3 w-3 mr-1" />
+                                SLA: {formatDistanceToNow(new Date(ticket.sla_deadline), { 
+                                  addSuffix: true, 
+                                  locale: it 
+                                })}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <Button variant="outline" size="sm">
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Visualizza
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  
+                  {tickets.length === 0 && (
+                    <div className="text-center py-8">
+                      <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Non hai ancora creato nessun ticket
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Knowledge Base Tab */}
+          <TabsContent value="knowledge" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Book className="h-5 w-5" />
+                  <span>Base di Conoscenza</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Cerca nella knowledge base..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+
+                  {/* Knowledge Base Items */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredKnowledgeBase.map((kb) => (
+                      <Card key={kb.id} className="hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="font-medium">{kb.title}</h3>
+                            <Badge variant="secondary">{kb.category}</Badge>
+                          </div>
+                          
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                            {kb.content}
+                          </p>
+                          
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              {kb.tags.map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                            
+                            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                              <Eye className="h-3 w-3" />
+                              {kb.view_count}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {filteredKnowledgeBase.length === 0 && (
+                    <div className="text-center py-8">
+                      <Book className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Nessun articolo trovato per la tua ricerca
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Feature Requests Tab */}
+          <TabsContent value="features" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Lightbulb className="h-5 w-5" />
+                  <span>Richieste di Funzionalità</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {featureRequests.map((request) => (
+                    <Card key={request.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="font-medium mb-2">{request.title}</h3>
+                            <p className="text-muted-foreground text-sm mb-2">
+                              {request.description}
+                            </p>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline">{request.category}</Badge>
+                              <Badge className={`${getPriorityColor(request.priority)} text-white`}>
+                                {request.priority}
+                              </Badge>
+                              <Badge variant="secondary">{request.status}</Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col items-center space-y-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => voteFeatureRequest(request.id)}
+                              className="flex items-center space-x-1"
+                            >
+                              <ThumbsUp className="h-3 w-3" />
+                              <span>{request.votes}</span>
+                            </Button>
+                            <span className="text-xs text-muted-foreground">voti</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>
+                            {formatDistanceToNow(new Date(request.created_at), { 
+                              addSuffix: true, 
+                              locale: it 
+                            })}
+                          </span>
+                          <Button variant="ghost" size="sm">
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Discuti
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {featureRequests.length === 0 && (
+                    <div className="text-center py-8">
+                      <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Nessuna richiesta di funzionalità al momento
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Contact Tab */}
+          <TabsContent value="contact" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Contact Methods */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Headphones className="h-5 w-5" />
+                    <span>Contatti Diretti</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Chat Live</p>
+                      <p className="text-sm text-muted-foreground">
+                        Disponibile 24/7 per assistenza immediata
+                      </p>
+                    </div>
+                    <Button size="sm" onClick={() => setShowChatbot(true)}>
+                      Avvia Chat
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <Mail className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Email</p>
+                      <p className="text-sm text-muted-foreground">
+                        support@petvoice.com
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Invia Email
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Telefono</p>
+                      <p className="text-sm text-muted-foreground">
+                        +39 02 1234 5678
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      <PhoneCall className="h-3 w-3 mr-1" />
+                      Chiama
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Support Hours */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Clock className="h-5 w-5" />
+                    <span>Orari di Supporto</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Lunedì - Venerdì</span>
+                      <span className="text-muted-foreground">9:00 - 18:00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Sabato</span>
+                      <span className="text-muted-foreground">10:00 - 16:00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Domenica</span>
+                      <span className="text-muted-foreground">Chiuso</span>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Supporto di Emergenza</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Per questioni critiche relative alla salute degli animali, 
+                      il supporto di emergenza è disponibile 24/7.
+                    </p>
+                    <Button variant="destructive" size="sm" className="w-full">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Emergenza 24/7
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Ticket Risolti</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">95%</div>
+                  <p className="text-sm text-muted-foreground">
+                    Tasso di risoluzione mensile
+                  </p>
+                  <Progress value={95} className="mt-2" />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Timer className="h-5 w-5" />
+                    <span>Tempo Medio</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">2.5h</div>
+                  <p className="text-sm text-muted-foreground">
+                    Tempo di prima risposta
+                  </p>
+                  <Progress value={85} className="mt-2" />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Star className="h-5 w-5" />
+                    <span>Soddisfazione</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-600">4.8/5</div>
+                  <p className="text-sm text-muted-foreground">
+                    Valutazione media clienti
+                  </p>
+                  <Progress value={96} className="mt-2" />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Chatbot Modal */}
+        {showChatbot && (
+          <Dialog open={showChatbot} onOpenChange={setShowChatbot}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <Bot className="h-5 w-5" />
+                  <span>Assistente Virtuale</span>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <ScrollArea className="h-80 w-full border rounded-lg p-4">
+                  <div className="space-y-4">
+                    {chatMessages.length === 0 && (
+                      <div className="text-center text-muted-foreground">
+                        <Bot className="h-8 w-8 mx-auto mb-2" />
+                        <p>Ciao! Come posso aiutarti oggi?</p>
+                      </div>
+                    )}
+                    
+                    {chatMessages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-xs p-3 rounded-lg ${
+                            message.sender === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          <p className="text-sm">{message.text}</p>
+                          <p className="text-xs opacity-70 mt-1">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {isTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-muted p-3 rounded-lg">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-100"></div>
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-200"></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+                
+                <div className="flex space-x-2">
+                  <Input
+                    placeholder="Scrivi il tuo messaggio..."
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+                  />
+                  <Button onClick={handleChatSubmit} disabled={!chatInput.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+    </Layout>
+  );
+};
+
+export default SupportPage;

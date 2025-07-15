@@ -1258,6 +1258,463 @@ export type Database = {
         }
         Relationships: []
       }
+      support_agents: {
+        Row: {
+          created_at: string
+          current_ticket_count: number | null
+          email: string
+          id: string
+          is_active: boolean | null
+          max_concurrent_tickets: number | null
+          name: string
+          specializations: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_ticket_count?: number | null
+          email: string
+          id?: string
+          is_active?: boolean | null
+          max_concurrent_tickets?: number | null
+          name: string
+          specializations?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_ticket_count?: number | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          max_concurrent_tickets?: number | null
+          name?: string
+          specializations?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      support_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url: string
+          id: string
+          message_id: string | null
+          ticket_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url: string
+          id?: string
+          message_id?: string | null
+          ticket_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          file_url?: string
+          id?: string
+          message_id?: string | null
+          ticket_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "support_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_faq: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          helpful_count: number | null
+          id: string
+          is_published: boolean | null
+          not_helpful_count: number | null
+          question: string
+          sort_order: number | null
+          tags: string[] | null
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_published?: boolean | null
+          not_helpful_count?: number | null
+          question: string
+          sort_order?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_published?: boolean | null
+          not_helpful_count?: number | null
+          question?: string
+          sort_order?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      support_feature_requests: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          votes: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          votes?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          votes?: number | null
+        }
+        Relationships: []
+      }
+      support_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          feedback_type: string
+          id: string
+          improvement_suggestions: string | null
+          metadata: Json | null
+          rating: number
+          ticket_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          feedback_type: string
+          id?: string
+          improvement_suggestions?: string | null
+          metadata?: Json | null
+          rating: number
+          ticket_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          feedback_type?: string
+          id?: string
+          improvement_suggestions?: string | null
+          metadata?: Json | null
+          rating?: number
+          ticket_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_feedback_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_knowledge_base: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          created_by: string
+          helpful_count: number | null
+          id: string
+          is_published: boolean | null
+          last_updated_by: string
+          not_helpful_count: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          created_by: string
+          helpful_count?: number | null
+          id?: string
+          is_published?: boolean | null
+          last_updated_by: string
+          not_helpful_count?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          helpful_count?: number | null
+          id?: string
+          is_published?: boolean | null
+          last_updated_by?: string
+          not_helpful_count?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          id: string
+          is_internal: boolean | null
+          message_type: string
+          metadata: Json | null
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          sender_id: string
+          sender_type: string
+          ticket_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          sender_id?: string
+          sender_type?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_performance_metrics: {
+        Row: {
+          avg_resolution_time_hours: number | null
+          avg_response_time_minutes: number | null
+          created_at: string
+          customer_satisfaction_avg: number | null
+          date: string
+          escalation_count: number | null
+          first_contact_resolution_rate: number | null
+          id: string
+          resolved_tickets: number | null
+          total_tickets: number | null
+        }
+        Insert: {
+          avg_resolution_time_hours?: number | null
+          avg_response_time_minutes?: number | null
+          created_at?: string
+          customer_satisfaction_avg?: number | null
+          date: string
+          escalation_count?: number | null
+          first_contact_resolution_rate?: number | null
+          id?: string
+          resolved_tickets?: number | null
+          total_tickets?: number | null
+        }
+        Update: {
+          avg_resolution_time_hours?: number | null
+          avg_response_time_minutes?: number | null
+          created_at?: string
+          customer_satisfaction_avg?: number | null
+          date?: string
+          escalation_count?: number | null
+          first_contact_resolution_rate?: number | null
+          id?: string
+          resolved_tickets?: number | null
+          total_tickets?: number | null
+        }
+        Relationships: []
+      }
+      support_sla_config: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          priority: string
+          resolution_time_hours: number
+          response_time_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          priority: string
+          resolution_time_hours: number
+          response_time_minutes: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          priority?: string
+          resolution_time_hours?: number
+          response_time_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_agent_id: string | null
+          category: string
+          closed_at: string | null
+          created_at: string
+          customer_satisfaction_rating: number | null
+          description: string
+          escalation_count: number | null
+          first_response_at: string | null
+          id: string
+          metadata: Json | null
+          priority: string
+          resolved_at: string | null
+          satisfaction_feedback: string | null
+          sla_deadline: string | null
+          status: string
+          subject: string
+          tags: string[] | null
+          ticket_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_agent_id?: string | null
+          category: string
+          closed_at?: string | null
+          created_at?: string
+          customer_satisfaction_rating?: number | null
+          description: string
+          escalation_count?: number | null
+          first_response_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          resolved_at?: string | null
+          satisfaction_feedback?: string | null
+          sla_deadline?: string | null
+          status?: string
+          subject: string
+          tags?: string[] | null
+          ticket_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_agent_id?: string | null
+          category?: string
+          closed_at?: string | null
+          created_at?: string
+          customer_satisfaction_rating?: number | null
+          description?: string
+          escalation_count?: number | null
+          first_response_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          resolved_at?: string | null
+          satisfaction_feedback?: string | null
+          sla_deadline?: string | null
+          status?: string
+          subject?: string
+          tags?: string[] | null
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       symptoms: {
         Row: {
           created_at: string
@@ -1435,6 +1892,10 @@ export type Database = {
         Args: { converted_count: number }
         Returns: Json
       }
+      calculate_sla_deadline: {
+        Args: { category: string; priority: string }
+        Returns: string
+      }
       cancel_user_subscription: {
         Args: { p_user_id: string; p_immediate?: boolean }
         Returns: boolean
@@ -1457,6 +1918,10 @@ export type Database = {
       }
       generate_referral_code: {
         Args: Record<PropertyKey, never> | { user_email: string }
+        Returns: string
+      }
+      generate_ticket_number: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_user_subscription: {

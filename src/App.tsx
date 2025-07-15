@@ -22,6 +22,7 @@ import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import AffiliationPage from "@/pages/AffiliationPage";
+import SupportPage from "@/pages/SupportPage";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
 import NotFound from "./pages/NotFound";
 
@@ -131,14 +132,7 @@ const App = () => (
               } />
               <Route path="/support" element={
                 <ProtectedRoute>
-                  <Layout>
-                    <PlaceholderPage
-                      title="Supporto"
-                      description="Ottieni aiuto quando ne hai bisogno"
-                      icon={<HeadphonesIcon className="h-6 w-6 text-white" />}
-                      features={["Chat live", "Ticket support", "Knowledge base", "Contatti diretti"]}
-                    />
-                  </Layout>
+                  <SupportPage />
                 </ProtectedRoute>
               } />
               <Route path="/settings" element={
