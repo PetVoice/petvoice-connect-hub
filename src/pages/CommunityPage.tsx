@@ -769,11 +769,13 @@ const CommunityPage = () => {
       const { error } = await supabase
         .from('community_messages')
         .insert({
+          content: 'Messaggio vocale',
           user_id: user.id,
           channel_id: activeChannel,
           message_type: 'voice',
           file_url: publicUrl,
-          voice_duration: 0, // Could calculate duration
+          voice_duration: 0,
+          is_emergency: false,
           metadata: { timestamp: new Date().toISOString() }
         });
       
@@ -818,10 +820,12 @@ const CommunityPage = () => {
       const { error } = await supabase
         .from('community_messages')
         .insert({
+          content: 'Immagine condivisa',
           user_id: user.id,
           channel_id: activeChannel,
           message_type: 'image',
           file_url: publicUrl,
+          is_emergency: false,
           metadata: { 
             filename: file.name,
             timestamp: new Date().toISOString() 
@@ -889,10 +893,18 @@ const CommunityPage = () => {
     }
   };
 
-  // Filter channels to show only subscribed ones
-  const filteredChannels = channels.filter(channel => 
-    subscribedChannels.includes(channel.id)
-  );
+  // Filter channels - show only the country channel if selected, otherwise only subscribed channels
+  const filteredChannels = channels.filter(channel => {
+    // If a country is selected, show only that country's channel (regardless of subscription)
+    if (selectedCountry) {
+      return channel.channel_type === 'country' && channel.country_code === selectedCountry;
+    }
+    
+    // Otherwise, show only subscribed channels (excluding general and emergency)
+    return subscribedChannels.includes(channel.id) && 
+           channel.name !== 'Generale' && 
+           channel.name !== 'Emergenze';
+  });
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
@@ -1216,11 +1228,18 @@ const CommunityPage = () => {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
               Canali Iscritti
             </div>
-            {filteredChannels.length === 0 ? (
+            {selectedCountry && !subscribedChannels.includes(filteredChannels[0]?.id) ? (
               <div className="text-center py-8 px-2">
                 <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-xs text-muted-foreground">
-                  Nessun canale iscritto. Seleziona un paese dal menu per unirti a un canale.
+                  Premi "ACCEDI AL CANALE" per unirti al canale del paese selezionato.
+                </p>
+              </div>
+            ) : filteredChannels.length === 0 ? (
+              <div className="text-center py-8 px-2">
+                <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-xs text-muted-foreground">
+                  Seleziona un paese dal menu per unirti a un canale.
                 </p>
               </div>
             ) : (
@@ -1232,8 +1251,7 @@ const CommunityPage = () => {
                   onClick={() => setActiveChannel(channel.id)}
                 >
                   <span className="text-sm flex items-center gap-2">
-                    {channel.emoji}
-                    {channel.name}
+                    {channel.emoji} {channel.name}
                   </span>
                 </Button>
               ))
