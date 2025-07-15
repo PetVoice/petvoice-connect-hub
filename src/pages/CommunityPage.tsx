@@ -7,71 +7,38 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-// Lista completa dei paesi con flag
-const COUNTRIES_WITH_FLAGS = [
-  { code: 'DZ', name: 'Algeria', flag: '🇩🇿' },
-  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-  { code: 'AT', name: 'Austria', flag: '🇦🇹' },
-  { code: 'BE', name: 'Belgio', flag: '🇧🇪' },
-  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
-  { code: 'BG', name: 'Bulgaria', flag: '🇧🇬' },
-  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-  { code: 'CL', name: 'Cile', flag: '🇨🇱' },
-  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
-  { code: 'CY', name: 'Cipro', flag: '🇨🇾' },
-  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
-  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
-  { code: 'HR', name: 'Croazia', flag: '🇭🇷' },
-  { code: 'DK', name: 'Danimarca', flag: '🇩🇰' },
-  { code: 'EG', name: 'Egitto', flag: '🇪🇬' },
-  { code: 'ET', name: 'Etiopia', flag: '🇪🇹' },
-  { code: 'PH', name: 'Filippine', flag: '🇵🇭' },
-  { code: 'FI', name: 'Finlandia', flag: '🇫🇮' },
-  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
-  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
-  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
-  { code: 'GR', name: 'Grecia', flag: '🇬🇷' },
-  { code: 'IN', name: 'India', flag: '🇮🇳' },
-  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
-  { code: 'IE', name: 'Irlanda', flag: '🇮🇪' },
-  { code: 'IS', name: 'Islanda', flag: '🇮🇸' },
-  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
-  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
-  { code: 'LU', name: 'Lussemburgo', flag: '🇱🇺' },
-  { code: 'MY', name: 'Malesia', flag: '🇲🇾' },
-  { code: 'MT', name: 'Malta', flag: '🇲🇹' },
-  { code: 'MA', name: 'Marocco', flag: '🇲🇦' },
-  { code: 'MX', name: 'Messico', flag: '🇲🇽' },
-  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
-  { code: 'NO', name: 'Norvegia', flag: '🇳🇴' },
-  { code: 'NZ', name: 'Nuova Zelanda', flag: '🇳🇿' },
-  { code: 'NL', name: 'Paesi Bassi', flag: '🇳🇱' },
-  { code: 'PE', name: 'Perù', flag: '🇵🇪' },
-  { code: 'PL', name: 'Polonia', flag: '🇵🇱' },
-  { code: 'PT', name: 'Portogallo', flag: '🇵🇹' },
-  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
-  { code: 'CZ', name: 'Repubblica Ceca', flag: '🇨🇿' },
-  { code: 'RO', name: 'Romania', flag: '🇷🇴' },
-  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
-  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
-  { code: 'SK', name: 'Slovacchia', flag: '🇸🇰' },
-  { code: 'SI', name: 'Slovenia', flag: '🇸🇮' },
-  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
-  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
-  { code: 'ZA', name: 'Sudafrica', flag: '🇿🇦' },
-  { code: 'SE', name: 'Svezia', flag: '🇸🇪' },
-  { code: 'CH', name: 'Svizzera', flag: '🇨🇭' },
-  { code: 'TH', name: 'Tailandia', flag: '🇹🇭' },
-  { code: 'TN', name: 'Tunisia', flag: '🇹🇳' },
-  { code: 'TR', name: 'Turchia', flag: '🇹🇷' },
-  { code: 'HU', name: 'Ungheria', flag: '🇭🇺' },
-  { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
-  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' }
-];
+// Lista completa dei paesi (semplificata per la ricerca)
+const COUNTRIES = [
+  'Algeria', 'Argentina', 'Australia', 'Austria', 'Belgio', 'Brasile', 'Bulgaria', 
+  'Canada', 'Cile', 'Cina', 'Cipro', 'Colombia', 'Corea del Sud', 'Croazia', 
+  'Danimarca', 'Egitto', 'Etiopia', 'Filippine', 'Finlandia', 'Francia', 
+  'Germania', 'Giappone', 'Grecia', 'India', 'Indonesia', 'Irlanda', 'Islanda', 
+  'Italia', 'Kenya', 'Lussemburgo', 'Malesia', 'Malta', 'Marocco', 'Messico', 
+  'Nigeria', 'Norvegia', 'Nuova Zelanda', 'Paesi Bassi', 'Perù', 'Polonia', 
+  'Portogallo', 'Regno Unito', 'Repubblica Ceca', 'Romania', 'Russia', 
+  'Singapore', 'Slovacchia', 'Slovenia', 'Spagna', 'Stati Uniti', 'Sudafrica', 
+  'Svezia', 'Svizzera', 'Tailandia', 'Tunisia', 'Turchia', 'Ungheria', 
+  'Venezuela', 'Vietnam'
+].sort();
 
-// Array semplice dei nomi dei paesi ordinato alfabeticamente (per la ricerca)
-const COUNTRIES = COUNTRIES_WITH_FLAGS.map(country => country.name).sort();
+// Mappa per le bandiere
+const COUNTRY_FLAGS = {
+  'Algeria': '🇩🇿', 'Argentina': '🇦🇷', 'Australia': '🇦🇺', 'Austria': '🇦🇹',
+  'Belgio': '🇧🇪', 'Brasile': '🇧🇷', 'Bulgaria': '🇧🇬', 'Canada': '🇨🇦',
+  'Cile': '🇨🇱', 'Cina': '🇨🇳', 'Cipro': '🇨🇾', 'Colombia': '🇨🇴',
+  'Corea del Sud': '🇰🇷', 'Croazia': '🇭🇷', 'Danimarca': '🇩🇰', 'Egitto': '🇪🇬',
+  'Etiopia': '🇪🇹', 'Filippine': '🇵🇭', 'Finlandia': '🇫🇮', 'Francia': '🇫🇷',
+  'Germania': '🇩🇪', 'Giappone': '🇯🇵', 'Grecia': '🇬🇷', 'India': '🇮🇳',
+  'Indonesia': '🇮🇩', 'Irlanda': '🇮🇪', 'Islanda': '🇮🇸', 'Italia': '🇮🇹',
+  'Kenya': '🇰🇪', 'Lussemburgo': '🇱🇺', 'Malesia': '🇲🇾', 'Malta': '🇲🇹',
+  'Marocco': '🇲🇦', 'Messico': '🇲🇽', 'Nigeria': '🇳🇬', 'Norvegia': '🇳🇴',
+  'Nuova Zelanda': '🇳🇿', 'Paesi Bassi': '🇳🇱', 'Perù': '🇵🇪', 'Polonia': '🇵🇱',
+  'Portogallo': '🇵🇹', 'Regno Unito': '🇬🇧', 'Repubblica Ceca': '🇨🇿', 'Romania': '🇷🇴',
+  'Russia': '🇷🇺', 'Singapore': '🇸🇬', 'Slovacchia': '🇸🇰', 'Slovenia': '🇸🇮',
+  'Spagna': '🇪🇸', 'Stati Uniti': '🇺🇸', 'Sudafrica': '🇿🇦', 'Svezia': '🇸🇪',
+  'Svizzera': '🇨🇭', 'Tailandia': '🇹🇭', 'Tunisia': '🇹🇳', 'Turchia': '🇹🇷',
+  'Ungheria': '🇭🇺', 'Venezuela': '🇻🇪', 'Vietnam': '🇻🇳'
+};
 
 // Lista completa delle razze cani
 const DOG_BREEDS = [
@@ -311,14 +278,11 @@ const CommunityPage = () => {
                       </SelectTrigger>
                       <SelectContent className="pointer-events-auto">
                         <SelectItem value="all">Tutti i paesi</SelectItem>
-                        {COUNTRIES.map(country => {
-                          const countryData = COUNTRIES_WITH_FLAGS.find(c => c.name === country);
-                          return (
-                            <SelectItem key={country} value={country}>
-                              {countryData?.flag} {country}
-                            </SelectItem>
-                          );
-                        })}
+                        {COUNTRIES.map(country => (
+                          <SelectItem key={country} value={country}>
+                            {COUNTRY_FLAGS[country]} {country}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
