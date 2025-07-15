@@ -619,48 +619,46 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
-  // Subscribe to group (create dynamic channel)
+  // Subscribe to group (fixed - only join existing channels)
   const subscribeToGroup = useCallback(async (groupId: string) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Errore",
+        description: "Devi essere loggato per iscriverti",
+        variant: "destructive"
+      });
+      return;
+    }
     
     try {
       const group = availableGroups.find(g => g.id === groupId);
       if (!group) return;
 
-      // Check if channel exists, if not create it
-      let { data: existingChannel, error: channelError } = await supabase
+      console.log('Tentativo iscrizione:', { groupId, group, userId: user.id });
+
+      // Find existing channel only - don't create new ones
+      const { data: existingChannel, error: channelError } = await supabase
         .from('community_channels')
         .select('*')
         .eq('name', group.name)
         .eq('country_code', group.country)
         .maybeSingle();
 
-      if (channelError && channelError.code !== 'PGRST116') {
+      if (channelError) {
+        console.error('Errore ricerca canale:', channelError);
         throw channelError;
       }
 
       if (!existingChannel) {
-        // Create new channel
-        const { data: newChannel, error: createError } = await supabase
-          .from('community_channels')
-          .insert({
-            name: group.name,
-            description: group.description,
-            channel_type: group.type,
-            country_code: group.country,
-            pet_type: group.animalType as 'dog' | 'cat' | 'other',
-            breed: group.breed,
-            emoji: group.flag,
-            is_active: true
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        existingChannel = newChannel;
+        toast({
+          title: "Canale non disponibile",
+          description: "Il canale richiesto non è ancora attivo",
+          variant: "destructive"
+        });
+        return;
       }
 
-      // Subscribe to channel
+      // Subscribe to existing channel
       const { error: subscribeError } = await supabase
         .from('user_channel_subscriptions')
         .insert({
@@ -669,7 +667,12 @@ const CommunityPage = () => {
           notifications_enabled: true
         });
 
-      if (subscribeError) throw subscribeError;
+      if (subscribeError) {
+        console.error('Errore iscrizione:', subscribeError);
+        throw subscribeError;
+      }
+
+      console.log('Iscrizione completata con successo');
 
       setActiveChannel(existingChannel.id);
       setJoinedGroups(prev => [...prev, groupId]);
@@ -684,7 +687,7 @@ const CommunityPage = () => {
       console.error('Error subscribing to group:', error);
       toast({
         title: "Errore",
-        description: "Impossibile iscriversi al gruppo",
+        description: "Impossibile iscriversi al gruppo: " + error.message,
         variant: "destructive"
       });
     }
