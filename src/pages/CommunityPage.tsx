@@ -317,7 +317,7 @@ const CommunityPage = () => {
               <CardHeader>
                 <CardTitle>Filtri Community</CardTitle>
               </CardHeader>
-               <CardContent>
+              <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Paese</label>
