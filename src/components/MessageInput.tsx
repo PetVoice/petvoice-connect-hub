@@ -74,7 +74,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       
       if (error) {
         console.error('Supabase error:', error);
-        throw error;
+        throw new Error(error.message || 'Errore di database');
       }
       
       console.log('Message sent successfully:', data);

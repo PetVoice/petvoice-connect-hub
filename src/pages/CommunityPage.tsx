@@ -96,6 +96,7 @@ interface Message {
   voice_duration?: number;
   metadata: any;
   created_at: string;
+  updated_at: string;
   user_profile?: {
     display_name: string;
     avatar_url?: string;
@@ -306,7 +307,7 @@ const CommunityPage = () => {
       const channelUUID = generateChannelUUID(activeChannel);
       console.log('Loading messages for channel:', { activeChannel, channelUUID });
       
-      const { data, error } = await supabase
+      const { data: messagesData, error: messagesError } = await supabase
         .from('community_messages')
         .select(`
           id,
@@ -319,20 +320,38 @@ const CommunityPage = () => {
           voice_duration,
           metadata,
           created_at,
-          updated_at,
-          profiles:user_id (
-            display_name,
-            avatar_url
-          )
+          updated_at
         `)
         .eq('channel_id', channelUUID)
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
-      if (error) throw error;
+      if (messagesError) {
+        console.error('Error loading messages:', messagesError);
+        throw messagesError;
+      }
+
+      // Carica i profili per i messaggi
+      const userIds = [...new Set(messagesData?.map(msg => msg.user_id) || [])];
+      let profilesData = [];
       
-      console.log('Messages loaded:', data);
-      setMessages((data as Message[]) || []);
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+        profilesData = profiles || [];
+      }
+
+      // Combina messaggi con profili
+      const messagesWithProfiles = messagesData?.map(message => ({
+        ...message,
+        message_type: message.message_type as 'text' | 'voice' | 'image',
+        user_profile: profilesData.find(p => p.user_id === message.user_id)
+      })) || [];
+
+      console.log('Messages loaded:', messagesWithProfiles);
+      setMessages(messagesWithProfiles as Message[]);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -592,6 +611,7 @@ const CommunityPage = () => {
                                 variant="ghost"
                                 onClick={() => unsubscribeFromChannel(channel.id)}
                                 title="Esci dal canale"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
                               >
                                 <X className="h-3 w-3" />
                               </Button>
