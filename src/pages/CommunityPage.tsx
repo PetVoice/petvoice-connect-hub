@@ -768,7 +768,7 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
-  // Subscribe to group (direct subscription without channel existence check)
+  // Subscribe to group - FIX: aggiorna subito lo stato senza ricaricamenti
   const subscribeToGroup = useCallback(async (groupId: string) => {
     if (!user) {
       toast({
@@ -783,7 +783,7 @@ const CommunityPage = () => {
       const group = availableGroups.find(g => g.id === groupId);
       if (!group) return;
 
-      console.log('Tentativo iscrizione:', { groupId, group, userId: user.id });
+      console.log('Iscrizione a:', { groupId, group, userId: user.id });
 
       // Try to find existing channel first
       const { data: existingChannel } = await supabase
@@ -800,7 +800,7 @@ const CommunityPage = () => {
         channelId = crypto.randomUUID();
       }
 
-      // Subscribe directly without strict channel existence check
+      // Subscribe directly to database
       const { error: subscribeError } = await supabase
         .from('user_channel_subscriptions')
         .upsert({
@@ -819,10 +819,15 @@ const CommunityPage = () => {
 
       console.log('Iscrizione completata con successo');
 
+      // AGGIORNA SUBITO LO STATO LOCALE - NON ASPETTARE RICARICAMENTI
+      setJoinedGroups(prev => {
+        const newGroups = [...new Set([...prev, groupId])];
+        console.log('Nuovi gruppi iscritti:', newGroups);
+        return newGroups;
+      });
+      
+      setSubscribedChannels(prev => [...new Set([...prev, channelId])]);
       setActiveChannel(channelId);
-      setJoinedGroups(prev => [...prev, groupId]);
-      await loadUserSubscriptions();
-      await loadChannels();
       
       toast({
         title: "Iscrizione completata",
@@ -836,7 +841,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, availableGroups, loadUserSubscriptions, loadChannels]);
+  }, [user, availableGroups]);
 
   // Unsubscribe from group
   const unsubscribeFromGroup = useCallback(async (groupId: string) => {
@@ -890,49 +895,6 @@ const CommunityPage = () => {
     loadMessages();
   }, [loadMessages]);
 
-  // ===== PERSISTENZA STATO =====
-  
-  // Salva stato nel localStorage quando cambiano i valori
-  useEffect(() => {
-    if (stateLoaded) {
-      const communityState = {
-        selectedCountry,
-        selectedAnimalType,
-        selectedBreed,
-        activeChannel,
-        joinedGroups,
-        notificationsEnabled,
-        soundEnabled,
-        translationEnabled
-      };
-      console.log('Salvataggio stato:', communityState);
-      localStorage.setItem('communityState', JSON.stringify(communityState));
-    }
-  }, [selectedCountry, selectedAnimalType, selectedBreed, activeChannel, joinedGroups, notificationsEnabled, soundEnabled, translationEnabled, stateLoaded]);
-  
-  // Ripristina stato dal localStorage all'avvio
-  useEffect(() => {
-    console.log('Caricamento stato community...');
-    const savedState = localStorage.getItem('communityState');
-    if (savedState) {
-      try {
-        const state = JSON.parse(savedState);
-        console.log('Stato salvato trovato:', state);
-        
-        setSelectedCountry(state.selectedCountry || null);
-        setSelectedAnimalType(state.selectedAnimalType || '');
-        setSelectedBreed(state.selectedBreed || '');
-        setActiveChannel(state.activeChannel || null);
-        setJoinedGroups(state.joinedGroups || []);
-        setNotificationsEnabled(state.notificationsEnabled ?? true);
-        setSoundEnabled(state.soundEnabled ?? true);
-        setTranslationEnabled(state.translationEnabled ?? true);
-      } catch (error) {
-        console.error('Errore ripristino stato community:', error);
-      }
-    }
-    setStateLoaded(true);
-  }, []);
 
   // Effects
   useEffect(() => {
