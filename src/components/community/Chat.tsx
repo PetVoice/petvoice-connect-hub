@@ -116,17 +116,12 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   };
 
   const sendMessage = async (content: string, messageType: string = 'text', fileUrl?: string, voiceDuration?: number) => {
-    console.log('sendMessage called with:', { content, messageType, fileUrl, voiceDuration });
-    
-    if (!user || (!content?.trim() && !fileUrl)) {
-      console.log('sendMessage validation failed:', { user: !!user, content, fileUrl });
-      return;
-    }
+    if (!user || (!content?.trim() && !fileUrl)) return;
 
     try {
       const messageData = {
         user_id: user.id,
-        channel_id: crypto.randomUUID(), // Genera un UUID valido
+        channel_id: crypto.randomUUID(),
         channel_name: channelId,
         content: content?.trim() || null,
         message_type: messageType,
@@ -135,18 +130,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         metadata: {}
       };
 
-      console.log('Sending message data:', messageData);
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('community_messages')
-        .insert([messageData]);
+        .insert([messageData])
+        .select();
 
-      if (error) {
-        console.error('Supabase insert error:', error);
-        throw error;
+      if (error) throw error;
+
+      // Aggiungi il messaggio alla lista locale se non arriva tramite realtime
+      if (data && data[0]) {
+        setMessages(prev => [...prev, data[0]]);
       }
-
-      console.log('Message sent successfully');
 
     } catch (error) {
       console.error('Error sending message:', error);
