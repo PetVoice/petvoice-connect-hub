@@ -150,6 +150,7 @@ const SupportPage: React.FC = () => {
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [activeTab, setActiveTab] = useState('faq');
+  const [isNewTicketDialogOpen, setIsNewTicketDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Carica i dati iniziali
@@ -483,7 +484,7 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer" 
             onClick={() => setShowChatbot(true)}
@@ -503,7 +504,10 @@ const SupportPage: React.FC = () => {
 
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => setActiveTab('tickets')}
+            onClick={() => {
+              setActiveTab('tickets');
+              setIsNewTicketDialogOpen(true);
+            }}
           >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
@@ -520,7 +524,7 @@ const SupportPage: React.FC = () => {
 
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => window.open('https://docs.lovable.dev', '_blank')}
+            onClick={() => setActiveTab('guide')}
           >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
@@ -534,31 +538,15 @@ const SupportPage: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-
-          <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => setActiveTab('contact')}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Phone className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Contatti</p>
-                  <p className="text-sm text-muted-foreground">Supporto diretto</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="tickets">I Miei Ticket</TabsTrigger>
             <TabsTrigger value="features">Richieste</TabsTrigger>
+            <TabsTrigger value="guide">Guida Utente</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
             <TabsTrigger value="analytics">Statistiche</TabsTrigger>
           </TabsList>
@@ -676,7 +664,7 @@ const SupportPage: React.FC = () => {
                     <Ticket className="h-5 w-5" />
                     <span>I Miei Ticket di Supporto</span>
                   </CardTitle>
-                  <Dialog>
+                  <Dialog open={isNewTicketDialogOpen} onOpenChange={setIsNewTicketDialogOpen}>
                     <DialogTrigger asChild>
                       <Button>
                         <Plus className="h-4 w-4 mr-2" />
@@ -903,6 +891,268 @@ const SupportPage: React.FC = () => {
                       </p>
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Guide Tab */}
+          <TabsContent value="guide" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Book className="h-5 w-5" />
+                  <span>Guida Utente PetVoice</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  {/* Primi Passi */}
+                  <Card className="border-primary/20">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <span>🚀 Primi Passi</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                        <div>
+                          <h4 className="font-medium">Registra il tuo pet</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Vai su "I Miei Pet" e aggiungi nome, tipo, razza e dettagli del tuo animale
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                        <div>
+                          <h4 className="font-medium">Prima analisi</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Carica un video, audio o foto per la tua prima analisi comportamentale
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                        <div>
+                          <h4 className="font-medium">Inizia il diario</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Registra quotidianamente l'umore e i comportamenti del tuo pet
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Funzioni Principali */}
+                  <Card className="border-green-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Zap className="h-5 w-5 text-green-600" />
+                        <span>⚡ Funzioni Principali</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center space-x-3 p-2 bg-green-50 rounded-lg">
+                        <Camera className="h-4 w-4 text-green-600" />
+                        <div className="text-sm">
+                          <span className="font-medium">Analisi AI:</span> Carica file per analisi comportamentali
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                        <div className="text-sm">
+                          <span className="font-medium">Calendario:</span> Programma visite e attività
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                        <FileText className="h-4 w-4 text-purple-600" />
+                        <div className="text-sm">
+                          <span className="font-medium">Diario:</span> Traccia giornalmente comportamenti e umore
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-3 p-2 bg-orange-50 rounded-lg">
+                        <BarChart3 className="h-4 w-4 text-orange-600" />
+                        <div className="text-sm">
+                          <span className="font-medium">Wellness:</span> Monitora la salute e il benessere
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Suggerimenti */}
+                  <Card className="border-blue-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Lightbulb className="h-5 w-5 text-blue-600" />
+                        <span>💡 Suggerimenti</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>File di qualità:</strong> Usa video/audio chiari per analisi più precise
+                        </p>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Consistenza:</strong> Aggiorna il diario quotidianamente per trend migliori
+                        </p>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Premium:</strong> Sblocca analisi illimitate per solo 0,97€/mese
+                        </p>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Backup:</strong> I tuoi dati sono al sicuro nel cloud
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Risoluzione Problemi */}
+                  <Card className="border-red-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Shield className="h-5 w-5 text-red-600" />
+                        <span>🛠️ Risoluzione Problemi</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-sm">Upload non funziona?</h5>
+                        <p className="text-xs text-muted-foreground">
+                          Verifica connessione internet e dimensione file (max 100MB)
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-sm">Analisi imprecisa?</h5>
+                        <p className="text-xs text-muted-foreground">
+                          Usa video di almeno 10 secondi con buona illuminazione
+                        </p>
+                      </div>
+                      <Separator />
+                      <div className="space-y-2">
+                        <h5 className="font-medium text-sm">Non vedi i dati?</h5>
+                        <p className="text-xs text-muted-foreground">
+                          Aggiorna la pagina o contatta il supporto se il problema persiste
+                        </p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full mt-3"
+                        onClick={() => setActiveTab('tickets')}
+                      >
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        Contatta Supporto
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Formati Supportati */}
+                  <Card className="md:col-span-2 border-yellow-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <FileText className="h-5 w-5 text-yellow-600" />
+                        <span>📁 Formati Supportati & Limiti</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <h5 className="font-medium flex items-center space-x-2">
+                            <PlayCircle className="h-4 w-4" />
+                            <span>Video</span>
+                          </h5>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>• MP4, MOV, AVI</p>
+                            <p>• Max 100MB</p>
+                            <p>• Durata: 5sec - 5min</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h5 className="font-medium flex items-center space-x-2">
+                            <Mic className="h-4 w-4" />
+                            <span>Audio</span>
+                          </h5>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>• MP3, WAV, M4A</p>
+                            <p>• Max 50MB</p>
+                            <p>• Durata: 3sec - 10min</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h5 className="font-medium flex items-center space-x-2">
+                            <Camera className="h-4 w-4" />
+                            <span>Immagini</span>
+                          </h5>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p>• JPG, PNG, HEIC</p>
+                            <p>• Max 10MB</p>
+                            <p>• Min 800x600px</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Piano Premium */}
+                  <Card className="md:col-span-2 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/30">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Star className="h-5 w-5 text-primary" />
+                        <span>⭐ Vantaggi Piano Premium (0,97€/mese)</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Analisi comportamentali illimitate</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Supporto prioritario 24/7</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Backup automatico nel cloud</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Calendari intelligenti avanzati</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Export dati e report PDF</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span>Accesso a funzioni beta</span>
+                          </div>
+                        </div>
+                      </div>
+                      <Button className="w-full mt-4">
+                        <Star className="h-4 w-4 mr-2" />
+                        Passa a Premium
+                      </Button>
+                    </CardContent>
+                  </Card>
+
                 </div>
               </CardContent>
             </Card>
