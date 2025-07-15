@@ -601,8 +601,7 @@ const CommunityPage = () => {
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [loading, setLoading] = useState(false);
   const [availableGroups, setAvailableGroups] = useState<ChannelGroup[]>([]);
-  const [joinedGroups, setJoinedGroups] = useState<string[]>([]);
-  const [persistedJoinedGroups, setPersistedJoinedGroups] = useState<string[]>([]);
+  const [joinedChannels, setJoinedChannels] = useState<string[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
   
   // Filters
@@ -715,11 +714,11 @@ const CommunityPage = () => {
       console.log('Iscrizioni caricate:', subscribedChannelNames);
       
       setSubscribedChannels(subscribedChannelIds);
-      setJoinedGroups(subscribedChannelNames);
+      setJoinedChannels(subscribedChannelNames);
       
     } catch (error) {
       console.error('Error loading subscriptions:', error);
-      setJoinedGroups([]);
+      setJoinedChannels([]);
     } finally {
       setIsLoadingSubscriptions(false);
     }
@@ -923,7 +922,7 @@ const CommunityPage = () => {
       }
 
       // AGGIORNA IMMEDIATAMENTE LO STATO LOCALE
-      setJoinedGroups(prev => {
+      setJoinedChannels(prev => {
         const newGroups = [...new Set([...prev, groupId])];
         console.log('Nuovi gruppi iscritti:', newGroups);
         return newGroups;
@@ -952,7 +951,7 @@ const CommunityPage = () => {
     if (!user) return;
     
     try {
-      const group = joinedGroups.find(g => g === groupId);
+      const group = joinedChannels.find(g => g === groupId);
       if (!group) {
         console.log('Gruppo non trovato in joinedGroups:', groupId);
         return;
@@ -993,7 +992,7 @@ const CommunityPage = () => {
       }
       
       // Aggiorna SEMPRE lo stato locale
-      setJoinedGroups(prev => {
+      setJoinedChannels(prev => {
         const updated = prev.filter(id => id !== groupId);
         console.log('Gruppi aggiornati dopo uscita:', updated);
         return updated;
@@ -1012,7 +1011,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, joinedGroups, availableGroups, channels, activeChannel]);
+  }, [user, joinedChannels, availableGroups, channels, activeChannel]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -1040,16 +1039,36 @@ const CommunityPage = () => {
   }, []);
 
 
+  // CARICA GRUPPI SEMPRE - FIX DEFINITIVO
+  useEffect(() => {
+    if (user?.id) {
+      loadMyGroups();
+    }
+  }, [user?.id]);
+
+  const loadMyGroups = async () => {
+    if (!user?.id) return;
+    
+    const { data } = await supabase
+      .from('user_channel_subscriptions')
+      .select('channel_name')
+      .eq('user_id', user.id);
+    
+    const groups = data?.map(d => d.channel_name) || [];
+    setJoinedChannels(groups);
+    console.log('GRUPPI CARICATI:', groups);
+  };
+  
+  // FUNZIONE APERTURA CHAT - FIX DEFINITIVO
+  const openChat = (groupId: string) => {
+    console.log('APERTURA CHAT:', groupId);
+    setActiveChannel(groupId);
+  };
+
   // Effects
   useEffect(() => {
     loadChannels();
   }, [loadChannels]);
-
-  useEffect(() => {
-    if (user) {
-      loadUserSubscriptions();
-    }
-  }, [user, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
@@ -1094,8 +1113,7 @@ const CommunityPage = () => {
       console.log('Gruppi trovati nel database:', allJoinedGroups);
       
       if (allJoinedGroups.length > 0) {
-        setJoinedGroups(allJoinedGroups);
-        setPersistedJoinedGroups(allJoinedGroups);
+        setJoinedChannels(allJoinedGroups);
       }
     }
   }, [channels, subscribedChannels]);
@@ -1131,51 +1149,9 @@ const CommunityPage = () => {
     );
   }
 
-  // Get joined and available groups - usa i gruppi persistenti se disponibili
-  const joinedGroupsList = availableGroups.filter(group => joinedGroups.includes(group.id));
-  const persistedGroupsList = persistedJoinedGroups.map(groupId => {
-    // Ricrea i gruppi dai dati persistenti
-    const countryMatch = groupId.match(/^([a-z]{2})-general$/);
-    const breedMatch = groupId.match(/^([a-z]{2})-(.+)$/);
-    
-    if (countryMatch) {
-      const countryCode = countryMatch[1].toUpperCase();
-      const country = COUNTRIES.find(c => c.code === countryCode);
-      if (country) {
-        return {
-          id: groupId,
-          name: country.name,
-          type: 'country' as const,
-          country: countryCode,
-          flag: country.flag,
-          description: `Community ${country.name.toLowerCase()}`
-        };
-      }
-    } else if (breedMatch) {
-      const countryCode = breedMatch[1].toUpperCase();
-      const breedSlug = breedMatch[2];
-      const breed = [...DOG_BREEDS, ...CAT_BREEDS].find(b => 
-        b.toLowerCase().replace(/\s+/g, '-') === breedSlug
-      );
-      const country = COUNTRIES.find(c => c.code === countryCode);
-      
-      if (country && breed) {
-        return {
-          id: groupId,
-          name: `${country.name} - ${breed}`,
-          type: 'breed' as const,
-          country: countryCode,
-          breed: breed,
-          flag: country.flag,
-          description: `Community ${country.name.toLowerCase()} specializzata in ${breed}`
-        };
-      }
-    }
-    return null;
-  }).filter(Boolean) as ChannelGroup[];
-  
-  const finalJoinedGroups = joinedGroupsList.length > 0 ? joinedGroupsList : persistedGroupsList;
-  const availableGroupsList = availableGroups.filter(group => !joinedGroups.includes(group.id));
+  // Get joined and available groups
+  const joinedGroupsList = availableGroups.filter(group => joinedChannels.includes(group.id));
+  const availableGroupsList = availableGroups.filter(group => !joinedChannels.includes(group.id));
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
@@ -1248,7 +1224,7 @@ const CommunityPage = () => {
         <div className="w-80 border-r bg-muted/50 flex flex-col">
           <ScrollArea className="flex-1">
             {/* I tuoi gruppi */}
-            {finalJoinedGroups.length > 0 && (
+            {joinedGroupsList.length > 0 && (
               <div className="border-b">
                 <div className="p-4 border-b">
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -1256,7 +1232,7 @@ const CommunityPage = () => {
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
-                  {finalJoinedGroups.map((group) => {
+                  {joinedGroupsList.map((group) => {
                     const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
                     const isActive = activeChannel === channel?.id;
                     
