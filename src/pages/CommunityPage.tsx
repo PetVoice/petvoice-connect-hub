@@ -630,6 +630,11 @@ const CommunityPage = () => {
     loadLocalAlerts();
   }, [loadLocalAlerts]);
 
+  // Ricarica i canali quando cambia il paese selezionato
+  useEffect(() => {
+    loadChannels();
+  }, [selectedCountry, loadChannels]);
+
   // Real-time subscriptions
   useEffect(() => {
     if (!user || !activeChannel) return;
@@ -1388,8 +1393,8 @@ const CommunityPage = () => {
               
               {/* Messages Area */}
               {activeChannel ? (
-                <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                  <div className="space-y-4">
+                <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+                  <div className="p-4 space-y-4">
                     {messages.length === 0 ? (
                       <div className="text-center py-8">
                         <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -1556,8 +1561,8 @@ const CommunityPage = () => {
               </div>
               
               {/* Alerts List */}
-              <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                <div className="space-y-4">
+              <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+                <div className="p-4 space-y-4">
                   {localAlerts.map((alert) => (
                     <LocalAlertComponent key={alert.id} alert={alert} />
                   ))}
