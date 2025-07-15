@@ -955,10 +955,10 @@ const CommunityPage = () => {
   }, [loadChannels]);
 
   useEffect(() => {
-    if (user && channels.length > 0) {
+    if (user) {
       loadUserSubscriptions();
     }
-  }, [user, channels, loadUserSubscriptions]);
+  }, [user, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
