@@ -14,8 +14,8 @@ const CommunityPage = () => {
   const [myGroups, setMyGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [selectedBreed, setSelectedBreed] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState('all');
+  const [selectedBreed, setSelectedBreed] = useState('all');
   
   // CARICA I MIEI GRUPPI SEMPRE ALL'INIZIO
   useEffect(() => {
@@ -54,7 +54,7 @@ const CommunityPage = () => {
   const generateAvailableGroups = () => {
     const groups = [];
     
-    if (selectedCountry) {
+    if (selectedCountry && selectedCountry !== 'all') {
       // Gruppo generico paese
       groups.push({
         id: `${selectedCountry.toLowerCase()}-general`,
@@ -64,7 +64,7 @@ const CommunityPage = () => {
       });
       
       // Gruppo specifico razza
-      if (selectedBreed) {
+      if (selectedBreed && selectedBreed !== 'all') {
         groups.push({
           id: `${selectedCountry.toLowerCase()}-${selectedBreed.toLowerCase().replace(/\s+/g, '-')}`,
           name: `${selectedCountry} - ${selectedBreed}`,
@@ -186,8 +186,8 @@ const CommunityPage = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Paese</label>
                     <Select 
-                      value={selectedCountry || 'all'} 
-                      onValueChange={(value) => setSelectedCountry(value === 'all' ? null : value)}
+                      value={selectedCountry} 
+                      onValueChange={(value) => setSelectedCountry(value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona paese" />
@@ -206,8 +206,8 @@ const CommunityPage = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Razza</label>
                     <Select 
-                      value={selectedBreed || 'all'} 
-                      onValueChange={(value) => setSelectedBreed(value === 'all' ? null : value)}
+                      value={selectedBreed} 
+                      onValueChange={(value) => setSelectedBreed(value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona razza" />
