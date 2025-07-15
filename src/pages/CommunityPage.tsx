@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/SearchableSelect';
 import { 
   MessageSquare, 
   Globe, 
@@ -451,14 +452,11 @@ const CommunityPage = () => {
       
       setChannels((data as Channel[]) || []);
       
-      // Set default channel
-      if (data && data.length > 0 && !activeChannel) {
-        setActiveChannel(data[0].id);
-      }
+      // Non impostare canale di default - l'utente deve scegliere
     } catch (error) {
       console.error('Error loading channels:', error);
     }
-  }, [activeChannel]);
+  }, []);
 
   // Load user subscriptions
   const loadUserSubscriptions = useCallback(async () => {
@@ -602,24 +600,18 @@ const CommunityPage = () => {
     console.log('🌍 Paese selezionato:', countryCode);
     setSelectedCountry(countryCode);
     
-    // Trova il canale per questo paese
-    const countryChannel = channels.find(c => 
-      c.channel_type === 'country' && c.country_code === countryCode
-    );
+    // Reset active channel quando cambia paese
+    setActiveChannel(null);
+  }, []);
+
+  // Handle pet type change
+  const handlePetTypeChange = useCallback((petType: string) => {
+    console.log('🐕 Tipo animale selezionato:', petType);
+    setSelectedPetType(petType);
     
-    if (countryChannel) {
-      console.log('📡 Canale trovato:', countryChannel.name);
-      // Se non sono già iscritto al canale, lo mostro nella sidebar
-      if (!subscribedChannels.includes(countryChannel.id)) {
-        console.log('🔔 Canale non ancora iscritto, mostro nella sidebar');
-      } else {
-        console.log('✅ Già iscritto al canale, attivo automaticamente');
-        setActiveChannel(countryChannel.id);
-      }
-    } else {
-      console.log('❌ Nessun canale trovato per questo paese');
-    }
-  }, [channels, subscribedChannels]);
+    // Reset active channel quando cambia tipo animale
+    setActiveChannel(null);
+  }, []);
 
   // Subscribe to channel
   const subscribeToChannel = useCallback(async (channelId: string) => {
@@ -1086,10 +1078,24 @@ const CommunityPage = () => {
     }
   };
 
-  // Get selected country channel
-  const selectedCountryChannel = selectedCountry 
-    ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
-    : null;
+  // Get selected country channel based on country + pet type
+  const selectedCountryChannel = useMemo(() => {
+    if (!selectedCountry || !selectedPetType || selectedPetType === 'all') return null;
+    
+    // Prima cerca canale specifico per paese + tipo animale
+    const specificChannel = channels.find(c => 
+      c.channel_type === 'pet_type' && 
+      c.country_code === selectedCountry && 
+      c.pet_type === selectedPetType
+    );
+    
+    if (specificChannel) return specificChannel;
+    
+    // Se non trova canale specifico, cerca canale del paese
+    return channels.find(c => 
+      c.channel_type === 'country' && c.country_code === selectedCountry
+    );
+  }, [selectedCountry, selectedPetType, channels]);
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
@@ -1340,21 +1346,21 @@ const CommunityPage = () => {
           
           <div className="flex items-center gap-2">
             {/* Country Filter */}
-            <Select value={selectedCountry} onValueChange={handleCountryChange}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="🌍 Seleziona paese" />
-              </SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map(country => (
-                  <SelectItem key={country.code} value={country.code}>
-                    {country.flag} {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={selectedCountry || ''}
+              onValueChange={handleCountryChange}
+              placeholder="Paese"
+              searchPlaceholder="Cerca paese..."
+              className="w-40"
+              options={COUNTRIES.map(country => ({
+                value: country.code,
+                label: country.name,
+                flag: country.flag
+              }))}
+            />
             
             {/* Pet Type Filter */}
-            <Select value={selectedPetType} onValueChange={setSelectedPetType}>
+            <Select value={selectedPetType} onValueChange={handlePetTypeChange}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
@@ -1434,7 +1440,7 @@ const CommunityPage = () => {
           </div>
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-3">
-              {/* Canale del paese selezionato (se disponibile e non già iscritto) */}
+              {/* Canale del paese + tipo animale selezionato (se disponibile e non già iscritto) */}
               {selectedCountryChannel && !subscribedChannels.includes(selectedCountryChannel.id) && (
                 <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
@@ -1442,7 +1448,11 @@ const CommunityPage = () => {
                     <Badge variant="secondary" className="text-xs">Nuovo</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Canale dedicato a {COUNTRIES.find(c => c.code === selectedCountry)?.name}
+                    {selectedCountryChannel.channel_type === 'pet_type' ? (
+                      <>Canale per {selectedPetType === 'dog' ? 'cani' : 'gatti'} in {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
+                    ) : (
+                      <>Canale dedicato a {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
+                    )}
                   </p>
                   <Button 
                     size="sm" 
@@ -1561,34 +1571,37 @@ const CommunityPage = () => {
                       <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground" />
                     </div>
                     <h2 className="font-semibold mb-2">🌍 Benvenuto nei Canali</h2>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Seleziona un paese dal menu in alto per iniziare a chattare con altri proprietari di animali
-                    </p>
-                    <div className="text-4xl mb-4">💬</div>
-                    {selectedCountry && (
-                      <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-                        <div className="flex items-center gap-2 mb-3">
-                          {COUNTRIES.find(c => c.code === selectedCountry)?.flag}
-                          <span className="font-medium">
-                            Canale {COUNTRIES.find(c => c.code === selectedCountry)?.name}
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Entra nel canale {COUNTRIES.find(c => c.code === selectedCountry)?.name} per chattare con proprietari di animali della tua zona!
-                        </p>
-                        <Button 
-                          onClick={() => {
-                            const countryChannel = channels.find(c => 
-                              c.channel_type === 'country' && c.country_code === selectedCountry
-                            );
-                            if (countryChannel) subscribeToChannel(countryChannel.id);
-                          }}
-                          className="w-full"
-                        >
-                          🚪 ACCEDI AL CANALE
-                        </Button>
-                      </div>
-                    )}
+                     <p className="text-sm text-muted-foreground mb-4">
+                       Seleziona un paese e un tipo di animale dal menu in alto per iniziare a chattare
+                     </p>
+                     <div className="text-4xl mb-4">💬</div>
+                     {selectedCountry && selectedPetType && selectedPetType !== 'all' && selectedCountryChannel && (
+                       <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
+                         <div className="flex items-center gap-2 mb-3">
+                           {COUNTRIES.find(c => c.code === selectedCountry)?.flag}
+                           <span className="font-medium">
+                             {selectedCountryChannel.channel_type === 'pet_type' ? (
+                               <>Canale {selectedPetType === 'dog' ? 'Cani' : 'Gatti'} - {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
+                             ) : (
+                               <>Canale {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
+                             )}
+                           </span>
+                         </div>
+                         <p className="text-sm text-muted-foreground mb-4">
+                           {selectedCountryChannel.channel_type === 'pet_type' ? (
+                             <>Entra nel canale dedicato ai {selectedPetType === 'dog' ? 'cani' : 'gatti'} in {COUNTRIES.find(c => c.code === selectedCountry)?.name}!</>
+                           ) : (
+                             <>Entra nel canale {COUNTRIES.find(c => c.code === selectedCountry)?.name} per chattare con proprietari di animali della tua zona!</>
+                           )}
+                         </p>
+                         <Button 
+                           onClick={() => selectedCountryChannel && subscribeToChannel(selectedCountryChannel.id)}
+                           className="w-full"
+                         >
+                           🚪 ACCEDI AL CANALE
+                         </Button>
+                       </div>
+                     )}
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
