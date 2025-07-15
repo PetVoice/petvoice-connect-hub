@@ -551,7 +551,21 @@ const CommunityPage = () => {
 
   const filteredChannels = getFilteredChannels();
   const subscribedChannelsList = filteredChannels.filter(channel => subscribedChannels.includes(channel.id));
-  const unsubscribedChannelsList = filteredChannels.filter(channel => !subscribedChannels.includes(channel.id));
+  
+  // Show only the specific channel that matches the exact filters
+  const getSpecificChannel = () => {
+    if (!selectedCountry) return [];
+    
+    return filteredChannels.filter(channel => {
+      const matchesCountry = channel.country_code === selectedCountry;
+      const matchesPetType = !selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType;
+      const matchesBreed = !selectedBreed || channel.breed === selectedBreed;
+      
+      return matchesCountry && matchesPetType && matchesBreed && !subscribedChannels.includes(channel.id);
+    }).slice(0, 1); // Only show the first matching channel
+  };
+  
+  const unsubscribedChannelsList = getSpecificChannel();
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
