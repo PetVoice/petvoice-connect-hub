@@ -44,7 +44,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         .from('user_channel_subscriptions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('channel_id', channelId)
+        .eq('channel_name', channelId)  // Usa channel_name invece di channel_id
         .maybeSingle();
       
       if (!subscription) {
