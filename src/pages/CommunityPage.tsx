@@ -1259,7 +1259,7 @@ const CommunityPage = () => {
                             <Button
                               size="sm"
                               variant={isActive ? "default" : "outline"}
-                              onClick={() => openGroupChat(group.id)}
+                              onClick={() => openChat(group.id)}
                             >
                               {isActive ? (
                                 <>
