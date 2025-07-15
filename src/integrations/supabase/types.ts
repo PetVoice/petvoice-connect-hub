@@ -1012,6 +1012,7 @@ export type Database = {
           cancellation_effective_date: string | null
           cancellation_type: string | null
           created_at: string | null
+          email: string | null
           id: string
           is_cancelled: boolean | null
           max_pets_allowed: number | null
@@ -1029,6 +1030,7 @@ export type Database = {
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
           created_at?: string | null
+          email?: string | null
           id?: string
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
@@ -1046,6 +1048,7 @@ export type Database = {
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
           created_at?: string | null
+          email?: string | null
           id?: string
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
