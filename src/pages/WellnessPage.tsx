@@ -2352,31 +2352,6 @@ const WellnessPage = () => {
                             {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
                           </p>
                         </div>
-                        <div className="flex gap-1">
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => {
-                              setEditingMetric(metric);
-                              setNewMetric({
-                                metric_type: metric.metric_type,
-                                value: metric.value.toString(),
-                                unit: metric.unit,
-                                notes: metric.notes || ''
-                              });
-                              setShowAddMetric(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => handleDeleteMetric(metric.id, metric.metric_type)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
                       </div>
                     ))}
                   </div>
