@@ -754,9 +754,10 @@ const CommunityPage = () => {
     try {
       // Upload audio file
       const fileName = `voice_${Date.now()}.wav`;
+      const filePath = `${user.id}/voice-messages/${fileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pet-media')
-        .upload(`voice-messages/${fileName}`, audioBlob);
+        .upload(filePath, audioBlob);
       
       if (uploadError) throw uploadError;
       
@@ -805,9 +806,10 @@ const CommunityPage = () => {
       
       // Upload image
       const fileName = `image_${Date.now()}.${file.name.split('.').pop()}`;
+      const filePath = `${user.id}/chat-images/${fileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('pet-media')
-        .upload(`chat-images/${fileName}`, file);
+        .upload(filePath, file);
       
       if (uploadError) throw uploadError;
       
@@ -1217,11 +1219,13 @@ const CommunityPage = () => {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Channels */}
-        <div className="w-64 border-r bg-muted/50 p-4 overflow-y-auto">
-          <div className="space-y-2">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
+        <div className="w-64 border-r bg-muted/50 flex flex-col">
+          <div className="p-4 border-b">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Canali Iscritti
             </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2">
             {filteredChannels.length === 0 ? (
               <div className="text-center py-8 px-2">
                 <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -1230,18 +1234,20 @@ const CommunityPage = () => {
                 </p>
               </div>
             ) : (
-              filteredChannels.map((channel) => (
-                <Button
-                  key={channel.id}
-                  variant={activeChannel === channel.id ? "secondary" : "ghost"}
-                  className="w-full justify-start text-left"
-                  onClick={() => setActiveChannel(channel.id)}
-                >
-                  <span className="text-sm flex items-center gap-2">
-                    {channel.name}
-                  </span>
-                </Button>
-              ))
+              <div className="space-y-1">
+                {filteredChannels.map((channel) => (
+                  <Button
+                    key={channel.id}
+                    variant={activeChannel === channel.id ? "secondary" : "ghost"}
+                    className="w-full justify-start text-left"
+                    onClick={() => setActiveChannel(channel.id)}
+                  >
+                    <span className="text-sm flex items-center gap-2">
+                      {channel.name}
+                    </span>
+                  </Button>
+                ))}
+              </div>
             )}
           </div>
         </div>
