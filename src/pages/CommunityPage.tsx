@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -301,13 +302,34 @@ const CommunityPage = () => {
                         >
                           Apri
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => leaveGroup(group.id)}
-                        >
-                          Esci
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                            >
+                              Esci
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Conferma uscita dal gruppo</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Sei sicuro di voler uscire dal gruppo "{group.name}"? 
+                                Non riceverai più messaggi da questo gruppo.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annulla</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => leaveGroup(group.id)}
+                                className="bg-destructive hover:bg-destructive/90"
+                              >
+                                Esci dal gruppo
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
