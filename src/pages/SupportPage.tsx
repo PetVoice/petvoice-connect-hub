@@ -483,7 +483,10 @@ const SupportPage: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer" 
+            onClick={() => setShowChatbot(true)}
+          >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -497,7 +500,16 @@ const SupportPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              // Scroll to the tickets tab and activate it
+              const ticketsTab = document.querySelector('[value="tickets"]') as HTMLElement;
+              if (ticketsTab) {
+                ticketsTab.click();
+              }
+            }}
+          >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -511,7 +523,10 @@ const SupportPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => window.open('https://docs.lovable.dev', '_blank')}
+          >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
@@ -525,7 +540,16 @@ const SupportPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              // Scroll to the contact tab and activate it
+              const contactTab = document.querySelector('[value="contact"]') as HTMLElement;
+              if (contactTab) {
+                contactTab.click();
+              }
+            }}
+          >
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
