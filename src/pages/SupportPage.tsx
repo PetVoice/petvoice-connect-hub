@@ -151,6 +151,12 @@ const SupportPage: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [activeTab, setActiveTab] = useState('faq');
   const [isNewTicketDialogOpen, setIsNewTicketDialogOpen] = useState(false);
+  const [isNewFeatureDialogOpen, setIsNewFeatureDialogOpen] = useState(false);
+  const [newFeatureRequest, setNewFeatureRequest] = useState({
+    title: '',
+    description: '',
+    category: 'feature'
+  });
   const { toast } = useToast();
 
   // Carica i dati iniziali
@@ -271,6 +277,57 @@ const SupportPage: React.FC = () => {
     }
   };
 
+  const createFeatureRequest = async () => {
+    if (!newFeatureRequest.title || !newFeatureRequest.description) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('support_feature_requests')
+        .insert({
+          title: newFeatureRequest.title,
+          description: newFeatureRequest.description,
+          category: newFeatureRequest.category,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Richiesta inviata",
+        description: "La tua richiesta di funzionalità è stata inviata con successo."
+      });
+
+      // Reset form
+      setNewFeatureRequest({
+        title: '',
+        description: '',
+        category: 'feature'
+      });
+
+      setIsNewFeatureDialogOpen(false);
+      
+      // Ricarica i data
+      loadSupportData();
+    } catch (error) {
+      console.error('Error creating feature request:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile inviare la richiesta. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const markFAQHelpful = async (faqId: string, isHelpful: boolean) => {
     try {
       const faq = faqs.find(f => f.id === faqId);
@@ -378,7 +435,7 @@ const SupportPage: React.FC = () => {
     const message = userMessage.toLowerCase();
     
     if (message.includes('prezzo') || message.includes('costo') || message.includes('piano')) {
-      return "Il piano premium di PetVoice costa solo 0,97€ al mese e include analisi comportamentali avanzate, supporto prioritario, calendari intelligenti e molto altro. Vuoi sapere di più sui vantaggi del piano premium?";
+      return "PetVoice offre un servizio completo per il monitoraggio del benessere del tuo pet. Include analisi comportamentali avanzate, supporto dedicato, calendari intelligenti e molto altro. Vuoi sapere di più sulle funzionalità disponibili?";
     }
     
     if (message.includes('ticket') || message.includes('problema') || message.includes('bug')) {
@@ -406,7 +463,7 @@ const SupportPage: React.FC = () => {
     }
     
     if (message.includes('premium') || message.includes('abbonamento') || message.includes('pagamento')) {
-      return "Il piano premium costa 0,97€/mese e offre analisi illimitate, supporto prioritario, backup cloud e funzioni esclusive. Puoi disdire in qualsiasi momento. Vuoi vedere tutti i vantaggi?";
+      return "PetVoice offre un servizio completo con analisi illimitate, supporto dedicato, backup cloud e funzioni avanzate. Puoi utilizzare tutte le funzionalità per monitorare al meglio il benessere del tuo pet. Vuoi vedere tutte le caratteristiche?";
     }
     
     // Risposta generica per altre domande
@@ -828,10 +885,63 @@ const SupportPage: React.FC = () => {
           <TabsContent value="features" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Lightbulb className="h-5 w-5" />
-                  <span>Richieste di Funzionalità</span>
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Lightbulb className="h-5 w-5" />
+                    <span>Richieste di Funzionalità</span>
+                  </CardTitle>
+                  <Dialog open={isNewFeatureDialogOpen} onOpenChange={setIsNewFeatureDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Nuova funzionalità
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Richiedi Nuova Funzionalità</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Titolo</label>
+                          <Input
+                            value={newFeatureRequest.title}
+                            onChange={(e) => setNewFeatureRequest({ ...newFeatureRequest, title: e.target.value })}
+                            placeholder="Titolo della funzionalità"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Descrizione</label>
+                          <Textarea
+                            value={newFeatureRequest.description}
+                            onChange={(e) => setNewFeatureRequest({ ...newFeatureRequest, description: e.target.value })}
+                            placeholder="Descrivi la funzionalità che vorresti vedere implementata"
+                            rows={4}
+                          />
+                        </div>
+                        
+                        <Button
+                          onClick={createFeatureRequest}
+                          className="w-full"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              Invio in corso...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-2" />
+                              Invia Richiesta
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -887,7 +997,7 @@ const SupportPage: React.FC = () => {
                     <div className="text-center py-8">
                       <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <p className="text-muted-foreground">
-                        Nessuna richiesta di funzionalità al momento
+                        Non hai ancora creato nessuna richiesta
                       </p>
                     </div>
                   )}
@@ -1007,7 +1117,7 @@ const SupportPage: React.FC = () => {
                       <div className="flex items-start space-x-2">
                         <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                         <p className="text-sm text-muted-foreground">
-                          <strong>Premium:</strong> Sblocca analisi illimitate per solo 0,97€/mese
+                          <strong>Analisi regolari:</strong> Carica contenuti regolarmente per monitoraggi migliori
                         </p>
                       </div>
                       <div className="flex items-start space-x-2">
@@ -1052,7 +1162,10 @@ const SupportPage: React.FC = () => {
                         size="sm" 
                         variant="outline" 
                         className="w-full mt-3"
-                        onClick={() => setActiveTab('tickets')}
+                        onClick={() => {
+                          setActiveTab('tickets');
+                          setIsNewTicketDialogOpen(true);
+                        }}
                       >
                         <MessageCircle className="h-3 w-3 mr-1" />
                         Contatta Supporto
@@ -1104,52 +1217,6 @@ const SupportPage: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Piano Premium */}
-                  <Card className="md:col-span-2 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/30">
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2 text-lg">
-                        <Star className="h-5 w-5 text-primary" />
-                        <span>⭐ Vantaggi Piano Premium (0,97€/mese)</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Analisi comportamentali illimitate</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Supporto prioritario 24/7</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Backup automatico nel cloud</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Calendari intelligenti avanzati</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Export dati e report PDF</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <span>Accesso a funzioni beta</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button className="w-full mt-4">
-                        <Star className="h-4 w-4 mr-2" />
-                        Passa a Premium
-                      </Button>
                     </CardContent>
                   </Card>
 
