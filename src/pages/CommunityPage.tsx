@@ -387,11 +387,95 @@ const AudioMessage: React.FC<{ message: Message }> = ({ message }) => {
   );
 };
 
-// Unified Message Component
-const MessageComponent: React.FC<{ message: Message; user: any }> = ({ message, user }) => {
+// Enhanced Message Component with Edit/Delete
+const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: string, content: string) => void; onDelete?: (id: string) => void }> = ({ message, user, onEdit, onDelete }) => {
   const isMyMessage = message.user_id === user?.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(message.content || '');
+  
+  const handleEdit = async () => {
+    if (!editText.trim()) return;
+    
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ 
+          content: editText.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', message.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setIsEditing(false);
+      onEdit?.(message.id, editText.trim());
+      
+      toast({
+        title: "Messaggio modificato",
+        description: "Il messaggio è stato modificato con successo"
+      });
+      
+    } catch (error) {
+      console.error('Error editing message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile modificare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleDelete = async () => {
+    if (!confirm('Eliminare questo messaggio?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', message.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      onDelete?.(message.id);
+      
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato eliminato"
+      });
+      
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
   
   const renderMessageContent = () => {
+    if (isEditing && message.message_type === 'text') {
+      return (
+        <div className="flex gap-2 items-center">
+          <Input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleEdit()}
+            className="flex-1"
+            placeholder="Modifica messaggio..."
+          />
+          <Button size="sm" onClick={handleEdit}>
+            💾
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>
+            ❌
+          </Button>
+        </div>
+      );
+    }
+    
     switch (message.message_type) {
       case 'text':
         return <p className="text-sm">{message.content}</p>;
@@ -406,7 +490,7 @@ const MessageComponent: React.FC<{ message: Message; user: any }> = ({ message, 
   };
   
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 group">
       <Avatar>
         <AvatarImage src={message.user_profile?.avatar_url} />
         <AvatarFallback>
@@ -423,11 +507,38 @@ const MessageComponent: React.FC<{ message: Message; user: any }> = ({ message, 
               addSuffix: true, 
               locale: it 
             })}
+            {message.updated_at !== message.created_at && (
+              <span className="text-xs text-muted-foreground ml-1">(modificato)</span>
+            )}
           </span>
         </div>
         <div className="message-content">
           {renderMessageContent()}
         </div>
+        
+        {/* Edit/Delete buttons - only for my messages and text messages */}
+        {isMyMessage && !isEditing && (
+          <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {message.message_type === 'text' && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsEditing(true)}
+                className="h-6 px-2 text-xs"
+              >
+                ✏️ Modifica
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleDelete}
+              className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+            >
+              🗑️ Elimina
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -740,6 +851,43 @@ const CommunityPage = () => {
   const handleMessageSent = useCallback(() => {
     loadMessages();
   }, [loadMessages]);
+
+  // ===== PERSISTENZA STATO =====
+  
+  // Salva stato nel localStorage quando cambiano i valori
+  useEffect(() => {
+    const communityState = {
+      selectedCountry,
+      selectedAnimalType,
+      selectedBreed,
+      activeChannel,
+      joinedGroups,
+      notificationsEnabled,
+      soundEnabled,
+      translationEnabled
+    };
+    localStorage.setItem('communityState', JSON.stringify(communityState));
+  }, [selectedCountry, selectedAnimalType, selectedBreed, activeChannel, joinedGroups, notificationsEnabled, soundEnabled, translationEnabled]);
+  
+  // Ripristina stato dal localStorage all'avvio
+  useEffect(() => {
+    const savedState = localStorage.getItem('communityState');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        setSelectedCountry(state.selectedCountry || null);
+        setSelectedAnimalType(state.selectedAnimalType || '');
+        setSelectedBreed(state.selectedBreed || '');
+        setActiveChannel(state.activeChannel || null);
+        setJoinedGroups(state.joinedGroups || []);
+        setNotificationsEnabled(state.notificationsEnabled ?? true);
+        setSoundEnabled(state.soundEnabled ?? true);
+        setTranslationEnabled(state.translationEnabled ?? true);
+      } catch (error) {
+        console.error('Errore ripristino stato community:', error);
+      }
+    }
+  }, []);
 
   // Effects
   useEffect(() => {
