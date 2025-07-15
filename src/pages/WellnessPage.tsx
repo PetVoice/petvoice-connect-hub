@@ -639,6 +639,19 @@ const WellnessPage = () => {
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   
+  // Listener per aprire la guida primo soccorso da altre pagine
+  useEffect(() => {
+    const handleOpenFirstAidGuide = () => {
+      setShowFirstAidGuide(true);
+    };
+    
+    window.addEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
+    
+    return () => {
+      window.removeEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
+    };
+  }, []);
+  
   // Confirm dialog states
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -2608,6 +2621,7 @@ const WellnessPage = () => {
                     variant="outline" 
                     className="w-full justify-start"
                     onClick={() => setShowFirstAidGuide(true)}
+                    data-testid="first-aid-guide-button"
                   >
                     <Heart className="h-4 w-4 mr-2" />
                     Guida Primo Soccorso
