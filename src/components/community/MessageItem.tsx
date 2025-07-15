@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { MoreVertical, Edit, Trash2, Download, Play, Pause } from 'lucide-react';
 import { Message } from './Chat';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,13 +14,19 @@ interface MessageItemProps {
   isOwn: boolean;
   onDelete: () => void;
   onEdit: (newContent: string) => void;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
 export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   isOwn,
   onDelete,
-  onEdit
+  onEdit,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content || '');
@@ -67,13 +74,24 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'}`}>
+      <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'} flex items-start gap-2`}>
+        {/* Selection checkbox (only for own messages in selection mode) */}
+        {isSelectionMode && isOwn && (
+          <div className="mt-3">
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={onToggleSelection}
+              className="h-4 w-4"
+            />
+          </div>
+        )}
+        
         <div
           className={`rounded-lg p-3 ${
             isOwn
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted'
-          }`}
+          } ${isSelectionMode && isOwn ? 'flex-1' : ''}`}
         >
           {/* Message content */}
           {message.message_type === 'text' && (
@@ -169,8 +187,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           </div>
         </div>
 
-        {/* Actions menu (only for own messages) */}
-        {isOwn && (
+        {/* Actions menu (only for own messages and not in selection mode) */}
+        {isOwn && !isSelectionMode && (
           <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mt-1`}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

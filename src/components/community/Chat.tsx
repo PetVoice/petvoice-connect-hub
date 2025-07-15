@@ -4,6 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { CheckSquare, Square, Trash2, X } from 'lucide-react';
 
 interface ChatProps {
   channelId: string;
@@ -30,6 +33,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -196,6 +202,61 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedMessages([]);
+  };
+
+  const toggleMessageSelection = (messageId: string) => {
+    setSelectedMessages(prev => 
+      prev.includes(messageId) 
+        ? prev.filter(id => id !== messageId)
+        : [...prev, messageId]
+    );
+  };
+
+  const selectAllMessages = () => {
+    const userMessages = messages.filter(msg => msg.user_id === user?.id);
+    const allUserMessageIds = userMessages.map(msg => msg.id);
+    setSelectedMessages(allUserMessageIds);
+  };
+
+  const deselectAllMessages = () => {
+    setSelectedMessages([]);
+  };
+
+  const deleteSelectedMessages = async () => {
+    if (selectedMessages.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ deleted_at: new Date().toISOString() })
+        .in('id', selectedMessages)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setMessages(prev => prev.filter(msg => !selectedMessages.includes(msg.id)));
+      setSelectedMessages([]);
+      setIsSelectionMode(false);
+      setShowBulkDeleteDialog(false);
+
+      toast({
+        title: "Messaggi eliminati",
+        description: `${selectedMessages.length} messaggi sono stati eliminati con successo`
+      });
+    } catch (error) {
+      console.error('Error deleting messages:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi selezionati",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -207,8 +268,61 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   return (
     <div className="flex flex-col h-[600px]">
       <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="text-center py-2 border-b bg-muted/20">
-          <div className="font-semibold">Chat: {channelName}</div>
+        <div className="py-2 border-b bg-muted/20">
+          {!isSelectionMode ? (
+            <div className="flex items-center justify-between px-4">
+              <div className="font-semibold">Chat: {channelName}</div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSelectionMode}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <CheckSquare className="h-4 w-4 mr-2" />
+                Seleziona
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between px-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleSelectionMode}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <span className="font-semibold">
+                  {selectedMessages.length} selezionati
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectedMessages.length === messages.filter(msg => msg.user_id === user?.id).length ? deselectAllMessages : selectAllMessages}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {selectedMessages.length === messages.filter(msg => msg.user_id === user?.id).length ? (
+                    <Square className="h-4 w-4 mr-2" />
+                  ) : (
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                  )}
+                  {selectedMessages.length === messages.filter(msg => msg.user_id === user?.id).length ? 'Deseleziona' : 'Seleziona tutto'}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowBulkDeleteDialog(true)}
+                  disabled={selectedMessages.length === 0}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Elimina ({selectedMessages.length})
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
         
         <MessageList 
@@ -216,12 +330,36 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           currentUserId={user?.id || ''}
           onDeleteMessage={deleteMessage}
           onEditMessage={editMessage}
+          isSelectionMode={isSelectionMode}
+          selectedMessages={selectedMessages}
+          onToggleSelection={toggleMessageSelection}
         />
         
         <div ref={messagesEndRef} />
       </div>
       
       <MessageInput onSendMessage={sendMessage} />
+
+      {/* Bulk delete confirmation dialog */}
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare {selectedMessages.length} messaggi selezionati? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteSelectedMessages}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Elimina {selectedMessages.length} messaggi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

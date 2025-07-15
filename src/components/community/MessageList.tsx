@@ -7,13 +7,19 @@ interface MessageListProps {
   currentUserId: string;
   onDeleteMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
+  isSelectionMode?: boolean;
+  selectedMessages?: string[];
+  onToggleSelection?: (messageId: string) => void;
 }
 
 export const MessageList: React.FC<MessageListProps> = ({
   messages,
   currentUserId,
   onDeleteMessage,
-  onEditMessage
+  onEditMessage,
+  isSelectionMode = false,
+  selectedMessages = [],
+  onToggleSelection
 }) => {
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -29,6 +35,9 @@ export const MessageList: React.FC<MessageListProps> = ({
             isOwn={message.user_id === currentUserId}
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
+            isSelectionMode={isSelectionMode}
+            isSelected={selectedMessages.includes(message.id)}
+            onToggleSelection={() => onToggleSelection?.(message.id)}
           />
         ))
       )}
