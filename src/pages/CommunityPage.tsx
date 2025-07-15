@@ -280,7 +280,7 @@ const CommunityPage = () => {
                         <SelectItem value="all">Tutti i paesi</SelectItem>
                         {COUNTRIES.map(country => (
                           <SelectItem key={country} value={country}>
-                            {COUNTRY_FLAGS[country]} {country}
+                            {country}
                           </SelectItem>
                         ))}
                       </SelectContent>
