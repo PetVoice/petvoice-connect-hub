@@ -550,6 +550,40 @@ const CommunityPage = () => {
     }
   }, [user, loadUserSubscriptions]);
 
+  // Unsubscribe from channel
+  const unsubscribeFromChannel = useCallback(async (channelId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_channel_subscriptions')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('channel_id', channelId);
+      
+      if (error) throw error;
+      
+      // Se era il canale attivo, deseleziona
+      if (activeChannel === channelId) {
+        setActiveChannel('');
+      }
+      
+      await loadUserSubscriptions();
+      
+      toast({
+        title: "Disiscrizione completata",
+        description: "Hai lasciato il canale"
+      });
+    } catch (error) {
+      console.error('Error unsubscribing from channel:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile lasciare il canale",
+        variant: "destructive"
+      });
+    }
+  }, [user, activeChannel, loadUserSubscriptions]);
+
   // Edit message
   const editMessage = useCallback(async (messageId: string, newContent: string) => {
     if (!user) return;
@@ -914,15 +948,42 @@ const CommunityPage = () => {
     }
   };
 
-  // Filter channels to show only subscribed channels (excluding general and emergency)
-  const filteredChannels = channels.filter(channel => 
-    subscribedChannels.includes(channel.id) && 
-    channel.name !== '🌍 Generale' && 
-    channel.name !== '🆘 Emergenze'
-  );
+  // Genera lista dinamica dei canali da mostrare
+  const getChannelList = () => {
+    const channelSet = new Set<string>();
+    const channelList: Channel[] = [];
+    
+    // 1. Aggiungi sempre il canale del paese selezionato
+    const selectedCountryChannel = selectedCountry 
+      ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
+      : null;
+    
+    if (selectedCountryChannel) {
+      channelSet.add(selectedCountryChannel.id);
+      channelList.push(selectedCountryChannel);
+    }
+    
+    // 2. Aggiungi tutti i canali a cui sono iscritto (escludendo generali e emergenze)
+    const subscribedChannelObjects = channels.filter(channel => 
+      subscribedChannels.includes(channel.id) && 
+      channel.name !== '🌍 Generale' && 
+      channel.name !== '🆘 Emergenze' &&
+      !channelSet.has(channel.id) // Evita duplicati
+    );
+    
+    subscribedChannelObjects.forEach(channel => {
+      channelSet.add(channel.id);
+      channelList.push(channel);
+    });
+    
+    return channelList;
+  };
 
-  // Find the channel corresponding to the selected country to show it available
-  const availableCountryChannel = selectedCountry 
+  // Lista dinamica dei canali da mostrare
+  const filteredChannels = getChannelList();
+
+  // Trova il canale del paese selezionato
+  const selectedCountryChannel = selectedCountry 
     ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
     : null;
 
@@ -1252,10 +1313,10 @@ const CommunityPage = () => {
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-3">
               {/* Canale del paese selezionato (se disponibile e non già iscritto) */}
-              {availableCountryChannel && !subscribedChannels.includes(availableCountryChannel.id) && (
+              {selectedCountryChannel && !subscribedChannels.includes(selectedCountryChannel.id) && (
                 <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{availableCountryChannel?.name}</span>
+                    <span className="text-sm font-medium">{selectedCountryChannel?.name}</span>
                     <Badge variant="secondary" className="text-xs">Nuovo</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mb-3">
@@ -1264,7 +1325,7 @@ const CommunityPage = () => {
                   <Button 
                     size="sm" 
                     className="w-full"
-                    onClick={() => availableCountryChannel && subscribeToChannel(availableCountryChannel.id)}
+                    onClick={() => selectedCountryChannel && subscribeToChannel(selectedCountryChannel.id)}
                   >
                     <Users className="h-3 w-3 mr-1" />
                     Entra nel Canale
@@ -1272,41 +1333,88 @@ const CommunityPage = () => {
                 </div>
               )}
 
-              {/* Canali a cui si è iscritti */}
+              {/* Lista canali dinamica */}
               {filteredChannels.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                     I Tuoi Canali
                   </div>
-                  <div className="space-y-1">
-                    {filteredChannels.map((channel) => (
-                      <Button
-                        key={channel.id}
-                        variant={activeChannel === channel.id ? "secondary" : "ghost"}
-                        className="w-full justify-start text-left p-3 h-auto"
-                        onClick={() => setActiveChannel(channel.id)}
-                      >
-                        <div className="flex items-center gap-3 w-full">
-                          <div className="flex-1 text-left">
-                            <div className="text-sm font-medium">{channel.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {channel.channel_type === 'country' && 'Canale Nazionale'}
-                              {channel.channel_type === 'pet_type' && 'Per Tipo di Animale'}
-                              {channel.channel_type === 'breed' && 'Per Razza'}
-                            </div>
+                  <div className="space-y-2">
+                    {filteredChannels.map((channel) => {
+                      const isSubscribed = subscribedChannels.includes(channel.id);
+                      const isActive = activeChannel === channel.id;
+                      
+                      return (
+                        <div
+                          key={channel.id}
+                          className={`bg-card border rounded-lg p-3 ${
+                            isActive ? 'border-primary bg-primary/5' : 'border-muted'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <button
+                              onClick={() => setActiveChannel(channel.id)}
+                              className="flex-1 text-left"
+                            >
+                              <div className="text-sm font-medium flex items-center gap-2">
+                                {channel.country_code && 
+                                  COUNTRIES.find(c => c.code === channel.country_code)?.flag
+                                }
+                                {channel.name}
+                                {isActive && (
+                                  <CheckCircle className="h-3 w-3 text-primary" />
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {channel.channel_type === 'country' && 'Canale Nazionale'}
+                                {channel.channel_type === 'pet_type' && 'Per Tipo di Animale'}
+                                {channel.channel_type === 'breed' && 'Per Razza'}
+                              </div>
+                            </button>
                           </div>
-                          {activeChannel === channel.id && (
-                            <CheckCircle className="h-4 w-4 text-primary" />
-                          )}
+                          
+                          <div className="flex items-center gap-2">
+                            {isSubscribed ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => unsubscribeFromChannel(channel.id)}
+                                className="flex-1 text-xs"
+                              >
+                                <X className="h-3 w-3 mr-1" />
+                                Esci
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                onClick={() => subscribeToChannel(channel.id)}
+                                className="flex-1 text-xs"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Entra
+                              </Button>
+                            )}
+                            
+                            {isActive && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setActiveChannel(channel.id)}
+                                className="text-xs"
+                              >
+                                <MessageCircle className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                      </Button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
               {/* Messaggio quando non ci sono canali */}
-              {filteredChannels.length === 0 && !availableCountryChannel && (
+              {filteredChannels.length === 0 && !selectedCountryChannel && (
                 <div className="text-center py-8 px-2">
                   <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                   <p className="text-xs text-muted-foreground">
@@ -1393,8 +1501,8 @@ const CommunityPage = () => {
               
               {/* Messages Area */}
               {activeChannel ? (
-                <div className="flex-1 flex flex-col">
-                  <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 overflow-y-auto">
                     <div className="p-4 space-y-4">
                       {messages.length === 0 ? (
                         <div className="text-center py-8">
@@ -1412,8 +1520,8 @@ const CommunityPage = () => {
                     </div>
                   </div>
                   
-                  {/* Message Input */}
-                  <div className="border-t p-4 bg-card">
+                  {/* Message Input - Sempre visibile */}
+                  <div className="border-t p-4 bg-card flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
                         <Input
