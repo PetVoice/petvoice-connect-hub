@@ -116,291 +116,27 @@ interface LocalAlert {
   };
 }
 
-// Complete country list from AddPetDialog
+// Complete country list
 const COUNTRIES = [
-  { code: 'AD', name: 'Andorra', flag: '🇦🇩' },
-  { code: 'AE', name: 'Emirati Arabi Uniti', flag: '🇦🇪' },
-  { code: 'AF', name: 'Afghanistan', flag: '🇦🇫' },
-  { code: 'AG', name: 'Antigua e Barbuda', flag: '🇦🇬' },
-  { code: 'AI', name: 'Anguilla', flag: '🇦🇮' },
-  { code: 'AL', name: 'Albania', flag: '🇦🇱' },
-  { code: 'AM', name: 'Armenia', flag: '🇦🇲' },
-  { code: 'AO', name: 'Angola', flag: '🇦🇴' },
-  { code: 'AQ', name: 'Antartide', flag: '🇦🇶' },
-  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'AS', name: 'Samoa Americane', flag: '🇦🇸' },
-  { code: 'AT', name: 'Austria', flag: '🇦🇹' },
-  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-  { code: 'AW', name: 'Aruba', flag: '🇦🇼' },
-  { code: 'AX', name: 'Isole Åland', flag: '🇦🇽' },
-  { code: 'AZ', name: 'Azerbaigian', flag: '🇦🇿' },
-  { code: 'BA', name: 'Bosnia ed Erzegovina', flag: '🇧🇦' },
-  { code: 'BB', name: 'Barbados', flag: '🇧🇧' },
-  { code: 'BD', name: 'Bangladesh', flag: '🇧🇩' },
-  { code: 'BE', name: 'Belgio', flag: '🇧🇪' },
-  { code: 'BF', name: 'Burkina Faso', flag: '🇧🇫' },
-  { code: 'BG', name: 'Bulgaria', flag: '🇧🇬' },
-  { code: 'BH', name: 'Bahrein', flag: '🇧🇭' },
-  { code: 'BI', name: 'Burundi', flag: '🇧🇮' },
-  { code: 'BJ', name: 'Benin', flag: '🇧🇯' },
-  { code: 'BL', name: 'Saint-Barthélemy', flag: '🇧🇱' },
-  { code: 'BM', name: 'Bermuda', flag: '🇧🇲' },
-  { code: 'BN', name: 'Brunei', flag: '🇧🇳' },
-  { code: 'BO', name: 'Bolivia', flag: '🇧🇴' },
-  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
-  { code: 'BS', name: 'Bahamas', flag: '🇧🇸' },
-  { code: 'BT', name: 'Bhutan', flag: '🇧🇹' },
-  { code: 'BV', name: 'Isola Bouvet', flag: '🇧🇻' },
-  { code: 'BW', name: 'Botswana', flag: '🇧🇼' },
-  { code: 'BY', name: 'Bielorussia', flag: '🇧🇾' },
-  { code: 'BZ', name: 'Belize', flag: '🇧🇿' },
-  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-  { code: 'CC', name: 'Isole Cocos', flag: '🇨🇨' },
-  { code: 'CD', name: 'Repubblica Democratica del Congo', flag: '🇨🇩' },
-  { code: 'CF', name: 'Repubblica Centrafricana', flag: '🇨🇫' },
-  { code: 'CG', name: 'Repubblica del Congo', flag: '🇨🇬' },
-  { code: 'CH', name: 'Svizzera', flag: '🇨🇭' },
-  { code: 'CI', name: 'Costa d\'Avorio', flag: '🇨🇮' },
-  { code: 'CK', name: 'Isole Cook', flag: '🇨🇰' },
-  { code: 'CL', name: 'Cile', flag: '🇨🇱' },
-  { code: 'CM', name: 'Camerun', flag: '🇨🇲' },
-  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
-  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
-  { code: 'CR', name: 'Costa Rica', flag: '🇨🇷' },
-  { code: 'CU', name: 'Cuba', flag: '🇨🇺' },
-  { code: 'CV', name: 'Capo Verde', flag: '🇨🇻' },
-  { code: 'CW', name: 'Curaçao', flag: '🇨🇼' },
-  { code: 'CX', name: 'Isola Christmas', flag: '🇨🇽' },
-  { code: 'CY', name: 'Cipro', flag: '🇨🇾' },
-  { code: 'CZ', name: 'Repubblica Ceca', flag: '🇨🇿' },
-  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
-  { code: 'DJ', name: 'Gibuti', flag: '🇩🇯' },
-  { code: 'DK', name: 'Danimarca', flag: '🇩🇰' },
-  { code: 'DM', name: 'Dominica', flag: '🇩🇲' },
-  { code: 'DO', name: 'Repubblica Dominicana', flag: '🇩🇴' },
-  { code: 'DZ', name: 'Algeria', flag: '🇩🇿' },
-  { code: 'EC', name: 'Ecuador', flag: '🇪🇨' },
-  { code: 'EE', name: 'Estonia', flag: '🇪🇪' },
-  { code: 'EG', name: 'Egitto', flag: '🇪🇬' },
-  { code: 'EH', name: 'Sahara Occidentale', flag: '🇪🇭' },
-  { code: 'ER', name: 'Eritrea', flag: '🇪🇷' },
-  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
-  { code: 'ET', name: 'Etiopia', flag: '🇪🇹' },
-  { code: 'FI', name: 'Finlandia', flag: '🇫🇮' },
-  { code: 'FJ', name: 'Figi', flag: '🇫🇯' },
-  { code: 'FK', name: 'Isole Falkland', flag: '🇫🇰' },
-  { code: 'FM', name: 'Micronesia', flag: '🇫🇲' },
-  { code: 'FO', name: 'Isole Fær Øer', flag: '🇫🇴' },
-  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
-  { code: 'GA', name: 'Gabon', flag: '🇬🇦' },
-  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
-  { code: 'GD', name: 'Grenada', flag: '🇬🇩' },
-  { code: 'GE', name: 'Georgia', flag: '🇬🇪' },
-  { code: 'GF', name: 'Guyana Francese', flag: '🇬🇫' },
-  { code: 'GG', name: 'Guernsey', flag: '🇬🇬' },
-  { code: 'GH', name: 'Ghana', flag: '🇬🇭' },
-  { code: 'GI', name: 'Gibilterra', flag: '🇬🇮' },
-  { code: 'GL', name: 'Groenlandia', flag: '🇬🇱' },
-  { code: 'GM', name: 'Gambia', flag: '🇬🇲' },
-  { code: 'GN', name: 'Guinea', flag: '🇬🇳' },
-  { code: 'GP', name: 'Guadalupa', flag: '🇬🇵' },
-  { code: 'GQ', name: 'Guinea Equatoriale', flag: '🇬🇶' },
-  { code: 'GR', name: 'Grecia', flag: '🇬🇷' },
-  { code: 'GS', name: 'Georgia del Sud e Sandwich Australi', flag: '🇬🇸' },
-  { code: 'GT', name: 'Guatemala', flag: '🇬🇹' },
-  { code: 'GU', name: 'Guam', flag: '🇬🇺' },
-  { code: 'GW', name: 'Guinea-Bissau', flag: '🇬🇼' },
-  { code: 'GY', name: 'Guyana', flag: '🇬🇾' },
-  { code: 'HK', name: 'Hong Kong', flag: '🇭🇰' },
-  { code: 'HM', name: 'Isole Heard e McDonald', flag: '🇭🇲' },
-  { code: 'HN', name: 'Honduras', flag: '🇭🇳' },
-  { code: 'HR', name: 'Croazia', flag: '🇭🇷' },
-  { code: 'HT', name: 'Haiti', flag: '🇭🇹' },
-  { code: 'HU', name: 'Ungheria', flag: '🇭🇺' },
-  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
-  { code: 'IE', name: 'Irlanda', flag: '🇮🇪' },
-  { code: 'IL', name: 'Israele', flag: '🇮🇱' },
-  { code: 'IM', name: 'Isola di Man', flag: '🇮🇲' },
-  { code: 'IN', name: 'India', flag: '🇮🇳' },
-  { code: 'IO', name: 'Territorio britannico dell\'Oceano Indiano', flag: '🇮🇴' },
-  { code: 'IQ', name: 'Iraq', flag: '🇮🇶' },
-  { code: 'IR', name: 'Iran', flag: '🇮🇷' },
-  { code: 'IS', name: 'Islanda', flag: '🇮🇸' },
   { code: 'IT', name: 'Italia', flag: '🇮🇹' },
-  { code: 'JE', name: 'Jersey', flag: '🇯🇪' },
-  { code: 'JM', name: 'Giamaica', flag: '🇯🇲' },
-  { code: 'JO', name: 'Giordania', flag: '🇯🇴' },
-  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
-  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
-  { code: 'KG', name: 'Kirghizistan', flag: '🇰🇬' },
-  { code: 'KH', name: 'Cambogia', flag: '🇰🇭' },
-  { code: 'KI', name: 'Kiribati', flag: '🇰🇮' },
-  { code: 'KM', name: 'Comore', flag: '🇰🇲' },
-  { code: 'KN', name: 'Saint Kitts e Nevis', flag: '🇰🇳' },
-  { code: 'KP', name: 'Corea del Nord', flag: '🇰🇵' },
-  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
-  { code: 'KW', name: 'Kuwait', flag: '🇰🇼' },
-  { code: 'KY', name: 'Isole Cayman', flag: '🇰🇾' },
-  { code: 'KZ', name: 'Kazakistan', flag: '🇰🇿' },
-  { code: 'LA', name: 'Laos', flag: '🇱🇦' },
-  { code: 'LB', name: 'Libano', flag: '🇱🇧' },
-  { code: 'LC', name: 'Santa Lucia', flag: '🇱🇨' },
-  { code: 'LI', name: 'Liechtenstein', flag: '🇱🇮' },
-  { code: 'LK', name: 'Sri Lanka', flag: '🇱🇰' },
-  { code: 'LR', name: 'Liberia', flag: '🇱🇷' },
-  { code: 'LS', name: 'Lesotho', flag: '🇱🇸' },
-  { code: 'LT', name: 'Lituania', flag: '🇱🇹' },
-  { code: 'LU', name: 'Lussemburgo', flag: '🇱🇺' },
-  { code: 'LV', name: 'Lettonia', flag: '🇱🇻' },
-  { code: 'LY', name: 'Libia', flag: '🇱🇾' },
-  { code: 'MA', name: 'Marocco', flag: '🇲🇦' },
-  { code: 'MC', name: 'Monaco', flag: '🇲🇨' },
-  { code: 'MD', name: 'Moldavia', flag: '🇲🇩' },
-  { code: 'ME', name: 'Montenegro', flag: '🇲🇪' },
-  { code: 'MF', name: 'Saint-Martin', flag: '🇲🇫' },
-  { code: 'MG', name: 'Madagascar', flag: '🇲🇬' },
-  { code: 'MH', name: 'Isole Marshall', flag: '🇲🇭' },
-  { code: 'MK', name: 'Macedonia del Nord', flag: '🇲🇰' },
-  { code: 'ML', name: 'Mali', flag: '🇲🇱' },
-  { code: 'MM', name: 'Myanmar', flag: '🇲🇲' },
-  { code: 'MN', name: 'Mongolia', flag: '🇲🇳' },
-  { code: 'MO', name: 'Macao', flag: '🇲🇴' },
-  { code: 'MP', name: 'Isole Marianne Settentrionali', flag: '🇲🇵' },
-  { code: 'MQ', name: 'Martinica', flag: '🇲🇶' },
-  { code: 'MR', name: 'Mauritania', flag: '🇲🇷' },
-  { code: 'MS', name: 'Montserrat', flag: '🇲🇸' },
-  { code: 'MT', name: 'Malta', flag: '🇲🇹' },
-  { code: 'MU', name: 'Mauritius', flag: '🇲🇺' },
-  { code: 'MV', name: 'Maldive', flag: '🇲🇻' },
-  { code: 'MW', name: 'Malawi', flag: '🇲🇼' },
-  { code: 'MX', name: 'Messico', flag: '🇲🇽' },
-  { code: 'MY', name: 'Malesia', flag: '🇲🇾' },
-  { code: 'MZ', name: 'Mozambico', flag: '🇲🇿' },
-  { code: 'NA', name: 'Namibia', flag: '🇳🇦' },
-  { code: 'NC', name: 'Nuova Caledonia', flag: '🇳🇨' },
-  { code: 'NE', name: 'Niger', flag: '🇳🇪' },
-  { code: 'NF', name: 'Isola Norfolk', flag: '🇳🇫' },
-  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
-  { code: 'NI', name: 'Nicaragua', flag: '🇳🇮' },
-  { code: 'NL', name: 'Paesi Bassi', flag: '🇳🇱' },
-  { code: 'NO', name: 'Norvegia', flag: '🇳🇴' },
-  { code: 'NP', name: 'Nepal', flag: '🇳🇵' },
-  { code: 'NR', name: 'Nauru', flag: '🇳🇷' },
-  { code: 'NU', name: 'Niue', flag: '🇳🇺' },
-  { code: 'NZ', name: 'Nuova Zelanda', flag: '🇳🇿' },
-  { code: 'OM', name: 'Oman', flag: '🇴🇲' },
-  { code: 'PA', name: 'Panama', flag: '🇵🇦' },
-  { code: 'PE', name: 'Perù', flag: '🇵🇪' },
-  { code: 'PF', name: 'Polinesia Francese', flag: '🇵🇫' },
-  { code: 'PG', name: 'Papua Nuova Guinea', flag: '🇵🇬' },
-  { code: 'PH', name: 'Filippine', flag: '🇵🇭' },
-  { code: 'PK', name: 'Pakistan', flag: '🇵🇰' },
-  { code: 'PL', name: 'Polonia', flag: '🇵🇱' },
-  { code: 'PM', name: 'Saint-Pierre e Miquelon', flag: '🇵🇲' },
-  { code: 'PN', name: 'Isole Pitcairn', flag: '🇵🇳' },
-  { code: 'PR', name: 'Porto Rico', flag: '🇵🇷' },
-  { code: 'PS', name: 'Palestina', flag: '🇵🇸' },
-  { code: 'PT', name: 'Portogallo', flag: '🇵🇹' },
-  { code: 'PW', name: 'Palau', flag: '🇵🇼' },
-  { code: 'PY', name: 'Paraguay', flag: '🇵🇾' },
-  { code: 'QA', name: 'Qatar', flag: '🇶🇦' },
-  { code: 'RE', name: 'Riunione', flag: '🇷🇪' },
-  { code: 'RO', name: 'Romania', flag: '🇷🇴' },
-  { code: 'RS', name: 'Serbia', flag: '🇷🇸' },
-  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
-  { code: 'RW', name: 'Ruanda', flag: '🇷🇼' },
-  { code: 'SA', name: 'Arabia Saudita', flag: '🇸🇦' },
-  { code: 'SB', name: 'Isole Salomone', flag: '🇸🇧' },
-  { code: 'SC', name: 'Seychelles', flag: '🇸🇨' },
-  { code: 'SD', name: 'Sudan', flag: '🇸🇩' },
-  { code: 'SE', name: 'Svezia', flag: '🇸🇪' },
-  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
-  { code: 'SH', name: 'Sant\'Elena', flag: '🇸🇭' },
-  { code: 'SI', name: 'Slovenia', flag: '🇸🇮' },
-  { code: 'SJ', name: 'Svalbard e Jan Mayen', flag: '🇸🇯' },
-  { code: 'SK', name: 'Slovacchia', flag: '🇸🇰' },
-  { code: 'SL', name: 'Sierra Leone', flag: '🇸🇱' },
-  { code: 'SM', name: 'San Marino', flag: '🇸🇲' },
-  { code: 'SN', name: 'Senegal', flag: '🇸🇳' },
-  { code: 'SO', name: 'Somalia', flag: '🇸🇴' },
-  { code: 'SR', name: 'Suriname', flag: '🇸🇷' },
-  { code: 'SS', name: 'Sudan del Sud', flag: '🇸🇸' },
-  { code: 'ST', name: 'São Tomé e Príncipe', flag: '🇸🇹' },
-  { code: 'SV', name: 'El Salvador', flag: '🇸🇻' },
-  { code: 'SX', name: 'Sint Maarten', flag: '🇸🇽' },
-  { code: 'SY', name: 'Siria', flag: '🇸🇾' },
-  { code: 'SZ', name: 'eSwatini', flag: '🇸🇿' },
-  { code: 'TC', name: 'Isole Turks e Caicos', flag: '🇹🇨' },
-  { code: 'TD', name: 'Ciad', flag: '🇹🇩' },
-  { code: 'TF', name: 'Terre australi e antartiche francesi', flag: '🇹🇫' },
-  { code: 'TG', name: 'Togo', flag: '🇹🇬' },
-  { code: 'TH', name: 'Tailandia', flag: '🇹🇭' },
-  { code: 'TJ', name: 'Tagikistan', flag: '🇹🇯' },
-  { code: 'TK', name: 'Tokelau', flag: '🇹🇰' },
-  { code: 'TL', name: 'Timor Est', flag: '🇹🇱' },
-  { code: 'TM', name: 'Turkmenistan', flag: '🇹🇲' },
-  { code: 'TN', name: 'Tunisia', flag: '🇹🇳' },
-  { code: 'TO', name: 'Tonga', flag: '🇹🇴' },
-  { code: 'TR', name: 'Turchia', flag: '🇹🇷' },
-  { code: 'TT', name: 'Trinidad e Tobago', flag: '🇹🇹' },
-  { code: 'TV', name: 'Tuvalu', flag: '🇹🇻' },
-  { code: 'TW', name: 'Taiwan', flag: '🇹🇼' },
-  { code: 'TZ', name: 'Tanzania', flag: '🇹🇿' },
-  { code: 'UA', name: 'Ucraina', flag: '🇺🇦' },
-  { code: 'UG', name: 'Uganda', flag: '🇺🇬' },
-  { code: 'UM', name: 'Isole minori esterne degli Stati Uniti', flag: '🇺🇲' },
-  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
-  { code: 'UY', name: 'Uruguay', flag: '🇺🇾' },
-  { code: 'UZ', name: 'Uzbekistan', flag: '🇺🇿' },
-  { code: 'VA', name: 'Vaticano', flag: '🇻🇦' },
-  { code: 'VC', name: 'Saint Vincent e Grenadine', flag: '🇻🇨' },
-  { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
-  { code: 'VG', name: 'Isole Vergini Britanniche', flag: '🇻🇬' },
-  { code: 'VI', name: 'Isole Vergini Americane', flag: '🇻🇮' },
-  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
-  { code: 'VU', name: 'Vanuatu', flag: '🇻🇺' },
-  { code: 'WF', name: 'Wallis e Futuna', flag: '🇼🇫' },
-  { code: 'WS', name: 'Samoa', flag: '🇼🇸' },
-  { code: 'YE', name: 'Yemen', flag: '🇾🇪' },
-  { code: 'YT', name: 'Mayotte', flag: '🇾🇹' },
-  { code: 'ZA', name: 'Sudafrica', flag: '🇿🇦' },
-  { code: 'ZM', name: 'Zambia', flag: '🇿🇲' },
-  { code: 'ZW', name: 'Zimbabwe', flag: '🇿🇼' }
+  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
+  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
+  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
+  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' }
 ];
 
-// Complete breed lists from AddPetDialog
 const DOG_BREEDS = [
-  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
-  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
-  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
-  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
-  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
-  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
-  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman',
-  'English Setter', 'English Springer Spaniel', 'Fox Terrier', 'French Bulldog',
-  'German Shepherd', 'German Shorthaired Pointer', 'Golden Retriever', 'Great Dane',
-  'Greyhound', 'Havanese', 'Irish Setter', 'Irish Wolfhound', 'Jack Russell Terrier',
-  'Japanese Spitz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltese', 'Mastiff',
-  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
-  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
-  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
-  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+  'Labrador Retriever', 'Golden Retriever', 'Boxer', 'American Pit Bull Terrier',
+  'Rottweiler', 'German Shepherd', 'Bulldog', 'Poodle', 'Beagle'
 ];
 
 const CAT_BREEDS = [
-  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
-  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
-  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
-  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
-  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
-  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
-  'Pixie-bob', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
-  'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura', 'Somali', 'Sphynx',
-  'Tonkinese', 'Turkish Van'
+  'Persiano', 'Maine Coon', 'Siamese', 'British Shorthair', 
+  'Ragdoll', 'Bengala', 'Sphynx', 'Russian Blue'
 ];
 
 const CommunityPage = () => {
-  console.log('CommunityPage component loaded successfully');
   const { user } = useAuth();
   const { selectedPet } = usePets();
   
@@ -415,10 +151,12 @@ const CommunityPage = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   
-  // Filters - INIZIALIZZAZIONE VUOTA
+  // Filters with dynamic channel generation
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedPetType, setSelectedPetType] = useState<string>('');
   const [selectedBreed, setSelectedBreed] = useState<string>('');
+  const [availableChannels, setAvailableChannels] = useState<any[]>([]);
+  const [breedOptions, setBreedOptions] = useState<string[]>([]);
   
   // Settings
   const [showSettings, setShowSettings] = useState(false);
@@ -426,20 +164,63 @@ const CommunityPage = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [translationEnabled, setTranslationEnabled] = useState(true);
   
-  // Alert dialog
-  const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const [alertTitle, setAlertTitle] = useState('');
-  const [alertDescription, setAlertDescription] = useState('');
-  const [alertType, setAlertType] = useState<'health' | 'emergency' | 'environment' | 'outbreak'>('health');
-  const [alertSeverity, setAlertSeverity] = useState<'info' | 'warning' | 'emergency'>('info');
-  
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load channels
+  // Get breeds by animal type
+  const getBreedsByAnimalType = useCallback((animalType: string) => {
+    const breeds = {
+      'dog': DOG_BREEDS,
+      'cat': CAT_BREEDS,
+      'all': [],
+      '': []
+    };
+    return breeds[animalType as keyof typeof breeds] || [];
+  }, []);
+
+  // Generate dynamic channels based on selection
+  const generateChannels = useCallback((country: string | null, animalType: string, breed: string) => {
+    const channels = [];
+    
+    if (country) {
+      const countryData = COUNTRIES.find(c => c.code === country);
+      if (countryData) {
+        // Canale generico paese
+        channels.push({
+          id: `${country.toLowerCase()}-general`,
+          name: `${countryData.name} (Generico)`,
+          type: 'general',
+          country: country,
+          flag: countryData.flag,
+          description: `Canale generale per ${countryData.name}`
+        });
+        
+        // Canale specifico
+        if (animalType && animalType !== 'all' && animalType !== '' && breed && breed !== '') {
+          const animalEmoji = animalType === 'dog' ? '🐕' : animalType === 'cat' ? '🐱' : '🐾';
+          const animalName = animalType === 'dog' ? 'Cani' : animalType === 'cat' ? 'Gatti' : 'Animali';
+          
+          channels.push({
+            id: `${country.toLowerCase()}-${animalType.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`,
+            name: `${countryData.name} → ${animalName} → ${breed}`,
+            type: 'specific',
+            country: country,
+            animalType: animalType,
+            breed: breed,
+            flag: countryData.flag,
+            description: `Canale specifico per ${breed} in ${countryData.name}`
+          });
+        }
+      }
+    }
+    
+    return channels;
+  }, []);
+
+  // Load channels (placeholder)
   const loadChannels = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -449,10 +230,7 @@ const CommunityPage = () => {
         .order('name');
       
       if (error) throw error;
-      
       setChannels((data as Channel[]) || []);
-      
-      // Non impostare canale di default - l'utente deve scegliere
     } catch (error) {
       console.error('Error loading channels:', error);
     }
@@ -469,14 +247,13 @@ const CommunityPage = () => {
         .eq('user_id', user.id);
       
       if (error) throw error;
-      
       setSubscribedChannels(data?.map(sub => sub.channel_id) || []);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
   }, [user]);
 
-  // Load messages for active channel - CRONOLOGIA COMPLETA
+  // Load messages
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
@@ -505,111 +282,28 @@ const CommunityPage = () => {
         .order('created_at', { ascending: true });
       
       if (error) throw error;
-      
-      // Carica TUTTA la cronologia del canale
       setMessages((data as Message[]) || []);
-      
-      // Auto-scroll ai messaggi più recenti
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
   }, [activeChannel]);
 
-  // Controlla se sono iscritto a un canale
-  const isSubscribedToChannel = (channelId: string) => {
-    return subscribedChannels.includes(channelId);
-  };
-
-  // Controlla se sono nel canale attivo
-  const isInActiveChannel = activeChannel ? isSubscribedToChannel(activeChannel) : false;
-
-  // Setup realtime subscription for new messages
-  useEffect(() => {
-    if (!activeChannel || !isInActiveChannel) return;
-    
-    const channel = supabase
-      .channel(`community-${activeChannel}`)
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'community_messages',
-        filter: `channel_id=eq.${activeChannel}`
-      }, async (payload) => {
-        // Carica il messaggio completo con il profilo utente
-        const { data: newMessage } = await supabase
-          .from('community_messages')
-          .select(`
-            id,
-            content,
-            user_id,
-            channel_id,
-            message_type,
-            is_emergency,
-            file_url,
-            voice_duration,
-            metadata,
-            created_at,
-            updated_at,
-            profiles:user_id (
-              display_name,
-              avatar_url
-            )
-          `)
-          .eq('id', payload.new.id)
-          .single();
-        
-        if (newMessage) {
-          setMessages(prev => [...prev, newMessage as Message]);
-          
-          // Auto-scroll ai nuovi messaggi
-          setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-        }
-      })
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [activeChannel, isInActiveChannel]);
-
-  // Load local alerts
-  const loadLocalAlerts = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('local_alerts')
-        .select('*')
-        .eq('country_code', selectedCountry)
-        .order('created_at', { ascending: false })
-        .limit(20);
-      
-      if (error) throw error;
-      
-      setLocalAlerts((data as LocalAlert[]) || []);
-    } catch (error) {
-      console.error('Error loading alerts:', error);
-    }
-  }, [selectedCountry]);
-
-  // Handle country change with automatic channel activation
+  // Handle country change
   const handleCountryChange = useCallback((countryCode: string) => {
-    console.log('🌍 Paese selezionato:', countryCode);
     setSelectedCountry(countryCode);
-    
-    // Reset active channel quando cambia paese
     setActiveChannel(null);
   }, []);
 
   // Handle pet type change
   const handlePetTypeChange = useCallback((petType: string) => {
-    console.log('🐕 Tipo animale selezionato:', petType);
     setSelectedPetType(petType);
-    
-    // Reset active channel quando cambia tipo animale
+    setSelectedBreed('');
+    setActiveChannel(null);
+  }, []);
+
+  // Handle breed change
+  const handleBreedChange = useCallback((breed: string) => {
+    setSelectedBreed(breed);
     setActiveChannel(null);
   }, []);
 
@@ -618,17 +312,13 @@ const CommunityPage = () => {
     if (!user) return;
     
     try {
-      const { error } = await supabase
+      await supabase
         .from('user_channel_subscriptions')
         .upsert({
           user_id: user.id,
           channel_id: channelId,
           notifications_enabled: true
-        }, {
-          onConflict: 'user_id,channel_id'
         });
-      
-      if (error) throw error;
       
       setActiveChannel(channelId);
       await loadUserSubscriptions();
@@ -639,11 +329,6 @@ const CommunityPage = () => {
       });
     } catch (error) {
       console.error('Error subscribing to channel:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile iscriversi al canale",
-        variant: "destructive"
-      });
     }
   }, [user, loadUserSubscriptions]);
 
@@ -652,15 +337,12 @@ const CommunityPage = () => {
     if (!user) return;
     
     try {
-      const { error } = await supabase
+      await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
         .eq('channel_id', channelId);
       
-      if (error) throw error;
-      
-      // Se era il canale attivo, deseleziona
       if (activeChannel === channelId) {
         setActiveChannel(null);
       }
@@ -673,80 +355,53 @@ const CommunityPage = () => {
       });
     } catch (error) {
       console.error('Error unsubscribing from channel:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile lasciare il canale",
-        variant: "destructive"
-      });
     }
   }, [user, activeChannel, loadUserSubscriptions]);
 
-  // Edit message
-  const editMessage = useCallback(async (messageId: string, newContent: string) => {
-    if (!user) return;
+  // Send message
+  const sendMessage = useCallback(async () => {
+    if (!activeChannel || !messageText.trim() || !user) return;
     
     try {
-      const { error } = await supabase
+      await supabase
         .from('community_messages')
-        .update({ 
-          content: newContent,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', messageId)
-        .eq('user_id', user.id);
+        .insert({
+          channel_id: activeChannel,
+          user_id: user.id,
+          content: messageText.trim(),
+          message_type: 'text',
+          is_emergency: false,
+          metadata: {}
+        });
       
-      if (error) throw error;
-      
+      setMessageText('');
       await loadMessages();
-      toast({
-        title: "Messaggio modificato",
-        description: "Il messaggio è stato aggiornato"
-      });
     } catch (error) {
-      console.error('Error editing message:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile modificare il messaggio",
-        variant: "destructive"
-      });
+      console.error('Error sending message:', error);
     }
-  }, [user, loadMessages]);
+  }, [activeChannel, messageText, user, loadMessages]);
 
-  // Delete message (soft delete)
-  const deleteMessage = useCallback(async (messageId: string) => {
-    if (!user) return;
-    
-    try {
-      const { error } = await supabase
-        .from('community_messages')
-        .update({ 
-          deleted_at: new Date().toISOString()
-        })
-        .eq('id', messageId)
-        .eq('user_id', user.id);
-      
-      if (error) throw error;
-      
-      await loadMessages();
-      toast({
-        title: "Messaggio eliminato",
-        description: "Il messaggio è stato rimosso"
-      });
-    } catch (error) {
-      console.error('Error deleting message:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
-      });
-    }
-  }, [user, loadMessages]);
+  // Handle image upload
+  const handleImageUpload = useCallback(() => {
+    // Placeholder for image upload
+    toast({
+      title: "Funzione in arrivo",
+      description: "Caricamento immagini sarà disponibile presto"
+    });
+  }, []);
+
+  // Recording functions
+  const startRecording = useCallback(() => {
+    setIsRecording(true);
+    // Placeholder for recording
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    setIsRecording(false);
+    // Placeholder for stopping recording
+  }, []);
 
   // Effects
-  useEffect(() => {
-    loadChannels();
-  }, [loadChannels]);
-
   useEffect(() => {
     if (user) {
       loadUserSubscriptions();
@@ -757,565 +412,22 @@ const CommunityPage = () => {
     loadMessages();
   }, [loadMessages]);
 
+  // Aggiorna canali disponibili quando cambia qualsiasi filtro
   useEffect(() => {
-    loadLocalAlerts();
-  }, [loadLocalAlerts]);
+    const newChannels = generateChannels(selectedCountry, selectedPetType, selectedBreed);
+    setAvailableChannels(newChannels);
+  }, [selectedCountry, selectedPetType, selectedBreed, generateChannels]);
 
-  // Ricarica i canali quando cambia il paese selezionato
+  // Aggiorna razze disponibili quando cambia tipo animale
   useEffect(() => {
-    loadChannels();
-  }, [selectedCountry, loadChannels]);
-
-  // Real-time subscriptions
-  useEffect(() => {
-    if (!user || !activeChannel) return;
-    
-    const channel = supabase
-      .channel(`messages-${activeChannel}`)
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'community_messages',
-          filter: `channel_id=eq.${activeChannel}`
-        },
-        (payload) => {
-          loadMessages();
-          
-          // Show notification if not own message
-          if (payload.new.user_id !== user.id && notificationsEnabled) {
-            toast({
-              title: "Nuovo messaggio",
-              description: "Hai ricevuto un nuovo messaggio nel canale"
-            });
-          }
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, activeChannel, notificationsEnabled, loadMessages]);
-
-  // Auto-scroll to bottom - only when sending new messages
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, []);
-  
-  // Track if user should auto-scroll (only when sending messages)
-  const shouldAutoScroll = useRef(false);
-  
-  useEffect(() => {
-    if (shouldAutoScroll.current) {
-      scrollToBottom();
-      shouldAutoScroll.current = false;
+    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
+      const availableBreeds = getBreedsByAnimalType(selectedPetType);
+      setBreedOptions(availableBreeds);
+    } else {
+      setBreedOptions([]);
     }
-  }, [messages, scrollToBottom]);
-
-  // Send message
-  const sendMessage = async () => {
-    if (!messageText.trim() || !user || !activeChannel) {
-      console.log('⚠️ sendMessage: Validazione fallita', { messageText: messageText.trim(), user: !!user, activeChannel });
-      return;
-    }
-    
-    console.log('📤 Invio messaggio:', { 
-      channel: activeChannel, 
-      user: user.id, 
-      text: messageText.trim().substring(0, 50) + '...' 
-    });
-    
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('community_messages')
-        .insert({
-          content: messageText,
-          user_id: user.id,
-          channel_id: activeChannel,
-          message_type: 'text',
-          is_emergency: false,
-          metadata: {
-            pet_id: selectedPet?.id,
-            timestamp: new Date().toISOString()
-          }
-        });
-      
-      if (error) throw error;
-      
-      console.log('✅ Messaggio inviato con successo');
-      setMessageText('');
-      // Auto-scroll only when sending a message
-      shouldAutoScroll.current = true;
-      
-      toast({
-        title: "Messaggio inviato",
-        description: "Il tuo messaggio è stato pubblicato nel canale"
-      });
-    } catch (error) {
-      console.error('❌ Errore invio messaggio:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile inviare il messaggio",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Voice recording
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder.current = new MediaRecorder(stream);
-      audioChunks.current = [];
-      
-      mediaRecorder.current.ondataavailable = (event) => {
-        audioChunks.current.push(event.data);
-      };
-      
-      mediaRecorder.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-        await sendVoiceMessage(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorder.current.start();
-      setIsRecording(true);
-      
-      toast({
-        title: "Registrazione avviata",
-        description: "Clicca di nuovo per fermare e inviare"
-      });
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile accedere al microfono",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const stopRecording = () => {
-    if (mediaRecorder.current && isRecording) {
-      mediaRecorder.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const sendVoiceMessage = async (audioBlob: Blob) => {
-    if (!user || !activeChannel) return;
-    
-    try {
-      // Upload audio file
-      const fileName = `voice_${Date.now()}.wav`;
-      const filePath = `${user.id}/voice-messages/${fileName}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('pet-media')
-        .upload(filePath, audioBlob);
-      
-      if (uploadError) throw uploadError;
-      
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('pet-media')
-        .getPublicUrl(uploadData.path);
-      
-      // Send message
-      const { error } = await supabase
-        .from('community_messages')
-        .insert({
-          content: 'Messaggio vocale',
-          user_id: user.id,
-          channel_id: activeChannel,
-          message_type: 'voice',
-          file_url: publicUrl,
-          voice_duration: 0,
-          is_emergency: false,
-          metadata: { timestamp: new Date().toISOString() }
-        });
-      
-      if (error) throw error;
-      
-      // Auto-scroll only when sending a voice message
-      shouldAutoScroll.current = true;
-      
-      toast({
-        title: "Messaggio vocale inviato",
-        description: "Il tuo messaggio vocale è stato inviato"
-      });
-    } catch (error) {
-      console.error('Error sending voice message:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile inviare il messaggio vocale",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Image upload
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user || !activeChannel) {
-      console.log('⚠️ handleImageUpload: Validazione fallita', { file: !!file, user: !!user, activeChannel });
-      return;
-    }
-    
-    console.log('📷 Caricamento immagine:', { 
-      channel: activeChannel, 
-      user: user.id, 
-      filename: file.name,
-      size: file.size 
-    });
-    
-    try {
-      setLoading(true);
-      
-      // Upload image to channel-media bucket
-      const fileName = `image_${Date.now()}.${file.name.split('.').pop()}`;
-      const filePath = `${user.id}/chat-images/${fileName}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('channel-media')
-        .upload(filePath, file);
-      
-      if (uploadError) throw uploadError;
-      
-      console.log('✅ Immagine caricata su storage:', uploadData.path);
-      
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('channel-media')
-        .getPublicUrl(uploadData.path);
-      
-      console.log('🔗 URL pubblico generato:', publicUrl);
-      
-      // Send message
-      const { error } = await supabase
-        .from('community_messages')
-        .insert({
-          content: 'Immagine condivisa',
-          user_id: user.id,
-          channel_id: activeChannel,
-          message_type: 'image',
-          file_url: publicUrl,
-          is_emergency: false,
-          metadata: { 
-            filename: file.name,
-            timestamp: new Date().toISOString() 
-          }
-        });
-      
-      if (error) throw error;
-      
-      console.log('✅ Messaggio immagine inviato con successo');
-      // Auto-scroll only when sending an image
-      shouldAutoScroll.current = true;
-      
-      toast({
-        title: "Immagine inviata",
-        description: "La tua immagine è stata condivisa nel canale"
-      });
-      
-      // Reset file input
-      event.target.value = '';
-    } catch (error) {
-      console.error('❌ Errore caricamento immagine:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare l'immagine",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Create alert
-  const createAlert = async () => {
-    if (!user || !alertTitle.trim() || !alertDescription.trim()) return;
-    
-    try {
-      setLoading(true);
-      
-      const { error } = await supabase
-        .from('local_alerts')
-        .insert({
-          user_id: user.id,
-          title: alertTitle,
-          description: alertDescription,
-          alert_type: alertType,
-          severity: alertSeverity,
-          country_code: selectedCountry,
-          affected_species: selectedPetType ? [selectedPetType] : [],
-          metadata: { timestamp: new Date().toISOString() }
-        });
-      
-      if (error) throw error;
-      
-      setShowAlertDialog(false);
-      setAlertTitle('');
-      setAlertDescription('');
-      loadLocalAlerts();
-      
-      toast({
-        title: "Alert creato",
-        description: "Il tuo alert è stato segnalato alla community"
-      });
-    } catch (error) {
-      console.error('Error creating alert:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare l'alert",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Get selected country channel based on country + pet type
-  const selectedCountryChannel = useMemo(() => {
-    if (!selectedCountry || !selectedPetType || selectedPetType === 'all') return null;
-    
-    // Prima cerca canale specifico per paese + tipo animale
-    const specificChannel = channels.find(c => 
-      c.channel_type === 'pet_type' && 
-      c.country_code === selectedCountry && 
-      c.pet_type === selectedPetType
-    );
-    
-    if (specificChannel) return specificChannel;
-    
-    // Se non trova canale specifico, cerca canale del paese
-    return channels.find(c => 
-      c.channel_type === 'country' && c.country_code === selectedCountry
-    );
-  }, [selectedCountry, selectedPetType, channels]);
-
-  // Get current channel info
-  const currentChannel = channels.find(c => c.id === activeChannel);
-
-  // Lista canali da mostrare - SOLO CANALI ATTIVI (dove sono iscritto)
-  const visibleChannels = useMemo(() => {
-    const activeChannelsOnly: Channel[] = [];
-    
-    // Mostra SOLO i canali a cui sono effettivamente iscritto
-    subscribedChannels.forEach(channelId => {
-      const channel = channels.find(c => c.id === channelId);
-      if (channel) {
-        activeChannelsOnly.push(channel);
-      }
-    });
-    
-    // Se ho selezionato un paese ma non sono iscritto al suo canale, NON mostrarlo
-    // L'utente deve prima cliccare "Entra" per vederlo nella lista
-    
-    return activeChannelsOnly;
-  }, [subscribedChannels, channels]);
-
-  // Message Component
-  const MessageComponent = ({ message }: { message: Message }) => {
-    const isOwnMessage = message.user_id === user?.id;
-    const [isEditing, setIsEditing] = useState(false);
-    const [editContent, setEditContent] = useState(message.content || '');
-    const [showDropdown, setShowDropdown] = useState(false);
-    
-    const handleSaveEdit = async () => {
-      if (editContent.trim()) {
-        await editMessage(message.id, editContent.trim());
-        setIsEditing(false);
-      }
-    };
-
-    const handleDeleteMessage = async () => {
-      if (confirm('Sei sicuro di voler eliminare questo messaggio?')) {
-        await deleteMessage(message.id);
-      }
-      setShowDropdown(false);
-    };
-
-    return (
-      <div className={`group flex gap-3 p-3 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>
-            {user?.email?.charAt(0).toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className={`flex-1 max-w-xs ${isOwnMessage ? 'text-right' : ''}`}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium">
-              {isOwnMessage ? 'Tu' : 'Utente'}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(message.created_at), { 
-                addSuffix: true, 
-                locale: it 
-              })}
-            </span>
-            {isOwnMessage && (
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                  onClick={() => setShowDropdown(!showDropdown)}
-                >
-                  <MoreVertical className="h-3 w-3" />
-                </Button>
-                {showDropdown && (
-                  <div className="absolute right-0 top-8 z-10 bg-background border rounded-lg shadow-lg py-1 min-w-[120px]">
-                    <button
-                      className="w-full px-3 py-1 text-sm text-left hover:bg-muted flex items-center gap-2"
-                      onClick={() => {
-                        setIsEditing(true);
-                        setShowDropdown(false);
-                      }}
-                    >
-                      ✏️ Modifica
-                    </button>
-                    <button
-                      className="w-full px-3 py-1 text-sm text-left hover:bg-muted flex items-center gap-2 text-destructive"
-                      onClick={handleDeleteMessage}
-                    >
-                      🗑️ Elimina
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          
-          <div className={`rounded-lg p-3 ${
-            isOwnMessage 
-              ? 'bg-primary text-primary-foreground ml-auto' 
-              : 'bg-muted'
-          }`}>
-            {message.message_type === 'voice' && (
-              <div className="flex items-center gap-2">
-                <Volume2 className="h-4 w-4" />
-                <span className="text-sm">Messaggio vocale</span>
-                {message.file_url && (
-                  <audio controls className="max-w-full">
-                    <source src={message.file_url} type="audio/wav" />
-                  </audio>
-                )}
-              </div>
-            )}
-            
-            {message.message_type === 'image' && message.file_url && (
-              <img 
-                src={message.file_url} 
-                alt="Immagine condivisa" 
-                className="max-w-full rounded-md"
-              />
-            )}
-            
-            {message.message_type === 'text' && message.content && (
-              <>
-                {isEditing ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      className="text-sm text-foreground bg-background"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveEdit();
-                        if (e.key === 'Escape') setIsEditing(false);
-                      }}
-                    />
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveEdit}>Salva</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>Annulla</Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm">{message.content}</p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Alert Component
-  const LocalAlertComponent = ({ alert }: { alert: LocalAlert }) => {
-    const getSeverityColor = (severity: string) => {
-      switch (severity) {
-        case 'emergency': return 'destructive';
-        case 'warning': return 'secondary';
-        default: return 'outline';
-      }
-    };
-    
-    const getAlertIcon = (type: string) => {
-      switch (type) {
-        case 'health': return <Stethoscope className="h-4 w-4" />;
-        case 'emergency': return <Siren className="h-4 w-4" />;
-        case 'environment': return <MapPinIcon className="h-4 w-4" />;
-        case 'outbreak': return <AlertTriangle className="h-4 w-4" />;
-        default: return <AlertCircle className="h-4 w-4" />;
-      }
-    };
-    
-    return (
-      <Card className="mb-4">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              {getAlertIcon(alert.alert_type)}
-              <CardTitle className="text-base">{alert.title}</CardTitle>
-              <Badge variant={getSeverityColor(alert.severity)}>
-                {alert.severity.toUpperCase()}
-              </Badge>
-            </div>
-          </div>
-          <CardDescription>
-            {COUNTRIES.find(c => c.code === alert.country_code)?.name} • 
-            <span className="ml-1">
-              {formatDistanceToNow(new Date(alert.created_at), { 
-                addSuffix: true, 
-                locale: it 
-              })}
-            </span>
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-3">
-            {alert.description}
-          </p>
-          
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
-              {alert.reports_count} segnalazioni
-            </span>
-            <span className="flex items-center gap-1">
-              {alert.verification_status === 'verified' ? (
-                <>
-                  <CheckCircle className="h-3 w-3 text-green-500" />
-                  Verificato
-                </>
-              ) : (
-                <>
-                  <Clock className="h-3 w-3" />
-                  In verifica
-                </>
-              )}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+    setSelectedBreed('');
+  }, [selectedPetType, getBreedsByAnimalType]);
 
   if (!user) {
     return (
@@ -1360,185 +472,125 @@ const CommunityPage = () => {
             />
             
             {/* Pet Type Filter */}
-            <Select value={selectedPetType} onValueChange={handlePetTypeChange}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tutti</SelectItem>
-                <SelectItem value="dog">🐕 Cani</SelectItem>
-                <SelectItem value="cat">🐱 Gatti</SelectItem>
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={selectedPetType || ''}
+              onValueChange={handlePetTypeChange}
+              placeholder="Tutti"
+              searchPlaceholder="Cerca tipo..."
+              className="w-32"
+              options={[
+                { value: 'all', label: 'Tutti', flag: '🐾' },
+                { value: 'dog', label: 'Cani', flag: '🐕' },
+                { value: 'cat', label: 'Gatti', flag: '🐱' }
+              ]}
+            />
             
             {/* Breed Filter */}
-            {selectedPetType && selectedPetType !== 'all' && (
-              <Select value={selectedBreed} onValueChange={setSelectedBreed}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Razza" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tutte</SelectItem>
-                  {(selectedPetType === 'dog' ? DOG_BREEDS : CAT_BREEDS).map(breed => (
-                    <SelectItem key={breed} value={breed}>{breed}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {selectedPetType && selectedPetType !== 'all' && selectedPetType !== '' && breedOptions.length > 0 && (
+              <SearchableSelect
+                value={selectedBreed || ''}
+                onValueChange={handleBreedChange}
+                placeholder="Razza"
+                searchPlaceholder="Cerca razza..."
+                className="w-40"
+                options={breedOptions.map(breed => ({
+                  value: breed,
+                  label: breed,
+                  flag: selectedPetType === 'dog' ? '🐕' : '🐱'
+                }))}
+              />
             )}
-            
-            {/* Settings */}
-            <Dialog open={showSettings} onOpenChange={setShowSettings}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Impostazioni Community</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="notifications">Notifiche push</Label>
-                    <Switch
-                      id="notifications"
-                      checked={notificationsEnabled}
-                      onCheckedChange={setNotificationsEnabled}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="sound">Suoni notifiche</Label>
-                    <Switch
-                      id="sound"
-                      checked={soundEnabled}
-                      onCheckedChange={setSoundEnabled}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="translation">Traduzione automatica</Label>
-                    <Switch
-                      id="translation"
-                      checked={translationEnabled}
-                      onCheckedChange={setTranslationEnabled}
-                    />
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
       </div>
       
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Channels */}
+        {/* Sidebar */}
         <div className="w-80 border-r bg-muted/50 flex flex-col">
           <div className="p-4 border-b">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Canali Disponibili
             </div>
           </div>
+          
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-3">
-              {/* Canale del paese + tipo animale selezionato (se disponibile e non già iscritto) */}
-              {selectedCountryChannel && !subscribedChannels.includes(selectedCountryChannel.id) && (
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{selectedCountryChannel?.name}</span>
-                    <Badge variant="secondary" className="text-xs">Nuovo</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {selectedCountryChannel.channel_type === 'pet_type' ? (
-                      <>Canale per {selectedPetType === 'dog' ? 'cani' : 'gatti'} in {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
-                    ) : (
-                      <>Canale dedicato a {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
-                    )}
-                  </p>
-                  <Button 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => selectedCountryChannel && subscribeToChannel(selectedCountryChannel.id)}
-                  >
-                    <Users className="h-3 w-3 mr-1" />
-                    Entra nel Canale
-                  </Button>
-                </div>
-              )}
-
-              {/* Lista canali attivi - SOLO CANALI DOVE SONO ISCRITTO */}
-              {visibleChannels.length > 0 && (
-                <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    I Tuoi Canali Attivi ({visibleChannels.length})
-                  </div>
-                  <div className="space-y-2">
-                    {visibleChannels.map((channel) => {
-                      const isActive = activeChannel === channel.id;
-                      
-                      return (
-                        <div
-                          key={channel.id}
-                          className={`bg-card border rounded-lg p-3 ${
-                            isActive ? 'border-primary bg-primary/5' : 'border-muted'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <button
-                              onClick={() => setActiveChannel(channel.id)}
-                              className="flex-1 text-left"
-                            >
-                              <div className="text-sm font-medium flex items-center gap-2">
-                                {channel.country_code && 
-                                  COUNTRIES.find(c => c.code === channel.country_code)?.flag
-                                }
-                                {channel.name}
-                                {isActive && (
-                                  <CheckCircle className="h-3 w-3 text-primary" />
-                                )}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {channel.channel_type === 'country' && 'Canale Nazionale'}
-                                {channel.channel_type === 'pet_type' && 'Per Tipo di Animale'}
-                                {channel.channel_type === 'breed' && 'Per Razza'}
-                              </div>
-                            </button>
+              {availableChannels.length > 0 ? (
+                availableChannels.map((channel) => {
+                  const isJoined = subscribedChannels.includes(channel.id);
+                  const isActive = activeChannel === channel.id;
+                  
+                  return (
+                    <div
+                      key={channel.id}
+                      className={`bg-card border rounded-lg p-3 ${
+                        isActive ? 'border-primary bg-primary/5' : 'border-muted'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{channel.flag}</span>
+                          <div>
+                            <div className="text-sm font-medium">{channel.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {channel.type === 'general' ? 'Generico' : 'Specifico'}
+                            </div>
                           </div>
-                          
+                        </div>
+                        
+                        {isJoined ? (
                           <div className="flex items-center gap-2">
                             <Button
                               size="sm"
-                              variant="outline"
-                              onClick={() => unsubscribeFromChannel(channel.id)}
-                              className="flex-1 text-xs text-red-600 hover:text-red-700"
+                              variant={isActive ? "default" : "outline"}
+                              onClick={() => setActiveChannel(channel.id)}
                             >
-                              <X className="h-3 w-3 mr-1" />
-                              Esci
+                              {isActive ? (
+                                <>
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Attivo
+                                </>
+                              ) : (
+                                <>
+                                  <MessageSquare className="h-3 w-3 mr-1" />
+                                  Apri
+                                </>
+                              )}
                             </Button>
-                            
-                            {isActive && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setActiveChannel(channel.id)}
-                                className="text-xs"
-                              >
-                                <MessageCircle className="h-3 w-3" />
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => unsubscribeFromChannel(channel.id)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Messaggio quando non ci sono canali */}
-              {visibleChannels.length === 0 && !selectedCountryChannel && (
-                <div className="text-center py-8 px-2">
-                  <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-xs text-muted-foreground">
-                    Seleziona un paese dal menu in alto per trovare canali disponibili.
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => subscribeToChannel(channel.id)}
+                          >
+                            <Users className="h-3 w-3 mr-1" />
+                            Entra
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground">
+                        {channel.description}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-8">
+                  <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    Nessun canale disponibile
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Seleziona Paese, Tipo Animale e Razza per vedere i canali disponibili
                   </p>
                 </div>
               )}
@@ -1546,359 +598,128 @@ const CommunityPage = () => {
           </ScrollArea>
         </div>
         
-        {/* Main Chat/News Area */}
+        {/* Content Area */}
         <div className="flex-1 flex flex-col">
-          {/* Tab Navigation */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col">
-            <TabsList className="grid w-full grid-cols-2 m-4">
-              <TabsTrigger value="community" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Community
-              </TabsTrigger>
-              <TabsTrigger value="news" className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                News & Alert
-              </TabsTrigger>
-            </TabsList>
-            
-            {/* Community Tab */}
-            <TabsContent value="community" className="flex-1 flex flex-col m-0">
-              {/* Channel Header */}
-              <div className="border-b p-4 bg-card">
-                {!activeChannel ? (
-                  <div className="text-center py-8">
-                    <div className="mb-4">
-                      <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground" />
-                    </div>
-                    <h2 className="font-semibold mb-2">🌍 Benvenuto nei Canali</h2>
-                     <p className="text-sm text-muted-foreground mb-4">
-                       Seleziona un paese e un tipo di animale dal menu in alto per iniziare a chattare
-                     </p>
-                     <div className="text-4xl mb-4">💬</div>
-                     {selectedCountry && selectedPetType && selectedPetType !== 'all' && selectedCountryChannel && (
-                       <div className="bg-muted/50 rounded-lg p-4 max-w-md mx-auto">
-                         <div className="flex items-center gap-2 mb-3">
-                           {COUNTRIES.find(c => c.code === selectedCountry)?.flag}
-                           <span className="font-medium">
-                             {selectedCountryChannel.channel_type === 'pet_type' ? (
-                               <>Canale {selectedPetType === 'dog' ? 'Cani' : 'Gatti'} - {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
-                             ) : (
-                               <>Canale {COUNTRIES.find(c => c.code === selectedCountry)?.name}</>
-                             )}
-                           </span>
-                         </div>
-                         <p className="text-sm text-muted-foreground mb-4">
-                           {selectedCountryChannel.channel_type === 'pet_type' ? (
-                             <>Entra nel canale dedicato ai {selectedPetType === 'dog' ? 'cani' : 'gatti'} in {COUNTRIES.find(c => c.code === selectedCountry)?.name}!</>
-                           ) : (
-                             <>Entra nel canale {COUNTRIES.find(c => c.code === selectedCountry)?.name} per chattare con proprietari di animali della tua zona!</>
-                           )}
-                         </p>
-                         <Button 
-                           onClick={() => selectedCountryChannel && subscribeToChannel(selectedCountryChannel.id)}
-                           className="w-full"
-                         >
-                           🚪 ACCEDI AL CANALE
-                         </Button>
-                       </div>
-                     )}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="font-semibold flex items-center gap-2">
-                        {currentChannel?.name}
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        {currentChannel?.description || 'Chat attiva - Tutti gli utenti possono partecipare'}
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {isInActiveChannel && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => unsubscribeFromChannel(activeChannel)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Esci dal Canale
-                        </Button>
-                      )}
-                      <Button variant="outline" size="sm">
-                        <Languages className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Messages Area */}
-              {activeChannel ? (
-                <div className="flex-1 flex flex-col min-h-0">
-                  {/* Controllo accesso al canale */}
-                  {!isInActiveChannel ? (
-                    <div className="flex-1 flex items-center justify-center p-8">
-                      <div className="text-center max-w-md">
-                        <div className="mb-6">
-                          <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">
-                            Accesso Richiesto
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Per vedere i messaggi e partecipare alle discussioni in{' '}
-                            <span className="font-medium">
-                              {currentChannel?.country_code && 
-                                COUNTRIES.find(c => c.code === currentChannel.country_code)?.flag
-                              }{' '}
-                              {currentChannel?.name}
-                            </span>
-                            , devi prima unirti al canale.
-                          </p>
-                        </div>
-                        
-                        <Button
-                          onClick={() => subscribeToChannel(activeChannel)}
-                          className="w-full"
-                          size="lg"
-                        >
-                          🚪 ENTRA NEL CANALE {currentChannel?.name?.toUpperCase()}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Messages Area - Layout migliorato */}
-                      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 320px)' }}>
-                        <div className="p-4 space-y-4">
-                          {messages.length === 0 ? (
-                            <div className="text-center py-8">
-                              <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                              <p className="text-sm text-muted-foreground">
-                                Nessun messaggio ancora. Inizia la conversazione!
-                              </p>
-                            </div>
-                          ) : (
-                            messages.map((message) => (
-                              <MessageComponent key={message.id} message={message} />
-                            ))
-                          )}
-                          <div ref={messagesEndRef} />
-                        </div>
-                      </div>
-                      
-                      {/* Input Area - SEMPRE VISIBILE IN BASSO */}
-                      <div className="border-t p-4 bg-card flex-shrink-0 sticky bottom-0 z-10">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-3">
-                            <Input
-                              placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
-                              value={messageText}
-                              onChange={(e) => setMessageText(e.target.value)}
-                              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                              className="border-0 bg-transparent focus-visible:ring-0 text-sm"
-                              disabled={loading}
-                            />
-                            
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={isRecording ? stopRecording : startRecording}
-                                className={isRecording ? 'text-red-500' : ''}
-                                title="🎤 Registra messaggio vocale"
-                                disabled={loading}
-                              >
-                                {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                              </Button>
-                              
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => fileInputRef.current?.click()}
-                                title="📷 Carica foto"
-                                disabled={loading}
-                              >
-                                <Camera className="h-4 w-4" />
-                              </Button>
-                              
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={sendMessage}
-                                disabled={!messageText.trim() || loading}
-                                className="bg-primary hover:bg-primary/90"
-                              >
-                                <Send className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            
-                            <input
-                              ref={fileInputRef}
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Riga pulsanti media */}
-                        <div className="flex items-center justify-center gap-2 mt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={loading}
-                            className="text-xs"
-                          >
-                            📷 Foto
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={isRecording ? stopRecording : startRecording}
-                            disabled={loading}
-                            className="text-xs"
-                          >
-                            🎤 Audio
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={loading}
-                            className="text-xs"
-                          >
-                            🎥 Video
-                          </Button>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">🌍</div>
-                    <h3 className="text-lg font-semibold mb-2">Area Chat Vuota</h3>
-                    <p className="text-muted-foreground">
-                      Seleziona un paese dal menu in alto per accedere ai canali
-                    </p>
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-            
-            {/* News & Alerts Tab */}
-            <TabsContent value="news" className="flex-1 flex flex-col m-0">
-              {/* News Header */}
-              <div className="border-b p-4 bg-card">
+          {activeChannel ? (
+            <>
+              {/* Chat Header */}
+              <div className="border-b p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-semibold">News & Alert Locali</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Informazioni sanitarie per {selectedCountry ? COUNTRIES.find(c => c.code === selectedCountry)?.name : 'la tua area'}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-lg">
+                      {availableChannels.find(c => c.id === activeChannel)?.flag}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">
+                        {availableChannels.find(c => c.id === activeChannel)?.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {availableChannels.find(c => c.id === activeChannel)?.description}
+                      </p>
+                    </div>
                   </div>
                   
-                  <Dialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
-                    <DialogTrigger asChild>
-                      <Button variant="default">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Segnala Alert
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Crea nuovo alert</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="alert-type">Tipo di alert</Label>
-                          <Select value={alertType} onValueChange={(v: any) => setAlertType(v)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="health">🏥 Salute</SelectItem>
-                              <SelectItem value="emergency">🆘 Emergenza</SelectItem>
-                              <SelectItem value="environment">🌍 Ambiente</SelectItem>
-                              <SelectItem value="outbreak">⚠️ Epidemia</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="alert-severity">Gravità</Label>
-                          <Select value={alertSeverity} onValueChange={(v: any) => setAlertSeverity(v)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="info">ℹ️ Informazione</SelectItem>
-                              <SelectItem value="warning">⚠️ Attenzione</SelectItem>
-                              <SelectItem value="emergency">🚨 Emergenza</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="alert-title">Titolo</Label>
-                          <Input
-                            id="alert-title"
-                            value={alertTitle}
-                            onChange={(e) => setAlertTitle(e.target.value)}
-                            placeholder="Titolo dell'alert"
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="alert-description">Descrizione</Label>
-                          <Textarea
-                            id="alert-description"
-                            value={alertDescription}
-                            onChange={(e) => setAlertDescription(e.target.value)}
-                            placeholder="Descrivi dettagliatamente la situazione"
-                            rows={4}
-                          />
-                        </div>
-                        
-                        <Button 
-                          onClick={createAlert} 
-                          disabled={loading || !alertTitle.trim() || !alertDescription.trim()}
-                          className="w-full"
-                        >
-                          Crea Alert
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">
+                      {messages.length} messaggi
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setActiveChannel(null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
               
-              {/* Alerts List */}
-              <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-                <div className="p-4 space-y-4">
-                  {localAlerts.map((alert) => (
-                    <LocalAlertComponent key={alert.id} alert={alert} />
-                  ))}
-                  
-                  {localAlerts.length === 0 && (
-                    <div className="text-center py-8">
-                      <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">
-                        Nessun alert per la tua zona
-                      </h3>
-                      <p className="text-muted-foreground">
-                        Al momento non ci sono segnalazioni per {selectedCountry ? COUNTRIES.find(c => c.code === selectedCountry)?.name : 'la tua area'}
-                      </p>
+              {/* Messages */}
+              <div className="flex-1 overflow-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div key={message.id} className="flex gap-3">
+                    <Avatar>
+                      <AvatarImage src={message.user_profile?.avatar_url} />
+                      <AvatarFallback>
+                        {message.user_profile?.display_name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium">
+                          {message.user_profile?.display_name || 'Utente'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(message.created_at), { 
+                            addSuffix: true, 
+                            locale: it 
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm">{message.content}</p>
                     </div>
-                  )}
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+              
+              {/* Message Input */}
+              <div className="border-t p-4">
+                <div className="flex gap-2">
+                  <Input
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    placeholder={`Scrivi in ${availableChannels.find(c => c.id === activeChannel)?.name}...`}
+                    className="flex-1"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                  />
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={handleImageUpload}
+                    disabled={loading}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={loading}
+                  >
+                    {isRecording ? (
+                      <MicOff className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!messageText.trim() || loading}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  Seleziona un canale
+                </h3>
+                <p className="text-muted-foreground">
+                  Scegli un canale dalla barra laterale per iniziare a chattare
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
