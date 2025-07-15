@@ -186,14 +186,14 @@ const CommunityPage = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Paese</label>
                     <Select 
-                      value={selectedCountry || ''} 
-                      onValueChange={(value) => setSelectedCountry(value || null)}
+                      value={selectedCountry || 'all'} 
+                      onValueChange={(value) => setSelectedCountry(value === 'all' ? null : value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona paese" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tutti i paesi</SelectItem>
+                        <SelectItem value="all">Tutti i paesi</SelectItem>
                         <SelectItem value="Italia">Italia</SelectItem>
                         <SelectItem value="Germania">Germania</SelectItem>
                         <SelectItem value="Francia">Francia</SelectItem>
@@ -206,14 +206,14 @@ const CommunityPage = () => {
                   <div>
                     <label className="text-sm font-medium mb-2 block">Razza</label>
                     <Select 
-                      value={selectedBreed || ''} 
-                      onValueChange={(value) => setSelectedBreed(value || null)}
+                      value={selectedBreed || 'all'} 
+                      onValueChange={(value) => setSelectedBreed(value === 'all' ? null : value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona razza" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tutte le razze</SelectItem>
+                        <SelectItem value="all">Tutte le razze</SelectItem>
                         <SelectItem value="Boxer">Boxer</SelectItem>
                         <SelectItem value="Labrador">Labrador</SelectItem>
                         <SelectItem value="Bulldog">Bulldog</SelectItem>
