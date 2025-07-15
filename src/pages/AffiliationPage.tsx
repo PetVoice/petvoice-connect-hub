@@ -389,22 +389,25 @@ export default function AffiliationPage() {
       .reduce((sum, credit) => sum + credit.amount, 0);
   };
 
-  // Setup real-time updates
+  // Setup real-time updates per TUTTE le tabelle dei referral
   useEffect(() => {
     loadReferralData();
     
-    // Subscribe to real-time updates for user's referral data
+    if (!user?.id) return;
+    
+    // Canale per aggiornamenti real-time su TUTTE le tabelle referral
     const channel = supabase
-      .channel('referral-updates')
+      .channel('referral-updates-complete')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'user_referrals',
-          filter: `user_id=eq.${user?.id}`
+          filter: `user_id=eq.${user.id}`
         },
-        () => {
+        (payload) => {
+          console.log('🔄 Real-time update - user_referrals:', payload);
           loadReferralData();
         }
       )
@@ -414,21 +417,10 @@ export default function AffiliationPage() {
           event: '*',
           schema: 'public',
           table: 'referrals',
-          filter: `referrer_id=eq.${user?.id}`
+          filter: `referrer_id=eq.${user.id}`
         },
-        () => {
-          loadReferralData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'referrals',
-          filter: `referred_user_id=eq.${user?.id}`
-        },
-        () => {
+        (payload) => {
+          console.log('🔄 Real-time update - referrals:', payload);
           loadReferralData();
         }
       )
@@ -438,14 +430,16 @@ export default function AffiliationPage() {
           event: '*',
           schema: 'public',
           table: 'referral_credits',
-          filter: `user_id=eq.${user?.id}`
+          filter: `user_id=eq.${user.id}`
         },
-        () => {
+        (payload) => {
+          console.log('🔄 Real-time update - referral_credits:', payload);
           loadReferralData();
         }
       )
-      .subscribe();
-
+      .subscribe((status) => {
+        console.log('📡 Real-time subscription status:', status);
+      });
     return () => {
       supabase.removeChannel(channel);
     };

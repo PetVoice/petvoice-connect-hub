@@ -1264,6 +1264,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      update_all_referral_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
