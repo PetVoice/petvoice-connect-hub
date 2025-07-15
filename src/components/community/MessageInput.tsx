@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Image, Mic, MicOff, Camera } from 'lucide-react';
+import { Send, Image, Mic, MicOff, Camera, Smile } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -13,10 +13,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showEmojis, setShowEmojis] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTime = useRef<number>(0);
+
+  const emojis = ['😀', '😂', '❤️', '😍', '🥺', '😊', '🙄', '😢', '😡', '🤔', '👍', '👎', '🙏', '💪', '🔥', '💯', '🎉', '❄️', '☀️', '🌟', '🐶', '🐱', '🐾', '💕', '🎁'];
 
   const handleSendText = () => {
     if (message.trim()) {
@@ -169,18 +172,51 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
     }
   };
 
+  const addEmoji = (emoji: string) => {
+    setMessage(prev => prev + emoji);
+    setShowEmojis(false);
+  };
+
   return (
     <div className="border-t p-4">
       <div className="flex gap-2 items-end">
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Scrivi un messaggio..."
             disabled={uploading}
-            className="resize-none"
+            className="resize-none pr-10"
           />
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+            onClick={() => setShowEmojis(!showEmojis)}
+            disabled={uploading}
+          >
+            <Smile size={16} />
+          </Button>
+          
+          {showEmojis && (
+            <div className="absolute bottom-full right-0 mb-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] w-64">
+              <div className="grid grid-cols-5 gap-2">
+                {emojis.map((emoji, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className="text-lg hover:bg-gray-100 dark:hover:bg-gray-700 p-2 h-8 w-8"
+                    onClick={() => addEmoji(emoji)}
+                  >
+                    {emoji}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Image upload */}
