@@ -89,7 +89,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         <div
           className={`rounded-lg p-3 ${
             isOwn
-              ? 'bg-green-600 text-white'
+              ? 'bg-primary/80 text-primary-foreground'
               : 'bg-muted'
           } ${isSelectionMode && isOwn ? 'flex-1' : ''}`}
         >
@@ -179,7 +179,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           )}
 
           {/* Timestamp */}
-          <div className={`text-xs mt-2 ${isOwn ? 'text-white/70' : 'text-muted-foreground'}`}>
+          <div className={`text-xs mt-2 ${isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
             {formatDistanceToNow(new Date(message.created_at), { 
               addSuffix: true, 
               locale: it 
