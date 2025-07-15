@@ -192,6 +192,27 @@ export const useSubscription = () => {
   useEffect(() => {
     // Always call checkSubscription to ensure loading state is handled
     checkSubscription();
+
+    // Listen for payment success messages from child windows
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'PAYMENT_SUCCESS') {
+        // Refresh subscription status when payment is successful
+        setTimeout(() => {
+          checkSubscription();
+        }, 1000);
+        
+        toast({
+          title: "Abbonamento attivato!",
+          description: "Il tuo abbonamento è ora attivo. Benvenuto in PetVoice Premium!",
+        });
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
   }, [user]);
 
   return {

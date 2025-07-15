@@ -26,9 +26,24 @@ const SubscriptionSuccessPage = () => {
       // Refresh subscription status after successful payment
       setTimeout(() => {
         checkSubscription();
-      }, 2000);
+      }, 1000);
+
+      // Se siamo in una nuova tab aperta per il pagamento
+      if (window.opener) {
+        // Invia messaggio al parent window per aggiornare lo stato
+        try {
+          window.opener.postMessage({ type: 'PAYMENT_SUCCESS' }, '*');
+        } catch (error) {
+          console.log('Could not communicate with parent window');
+        }
+        
+        // Chiudi la tab dopo un breve delay
+        setTimeout(() => {
+          window.close();
+        }, 3000);
+      }
     }
-  }, [sessionId]);
+  }, [sessionId, checkSubscription]);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
@@ -59,23 +74,39 @@ const SubscriptionSuccessPage = () => {
             </ul>
           </div>
           
-          <div className="space-y-3">
-            <Button 
-              onClick={() => navigate('/')} 
-              variant="outline"
-              className="w-full"
-            >
-              Vai alla Dashboard
-            </Button>
-            <Button 
-              onClick={() => navigate('/subscription')} 
-              variant="outline" 
-              className="w-full"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Gestisci Abbonamento
-            </Button>
-          </div>
+          {/* Mostra messaggio diverso se siamo in una nuova tab */}
+          {window.opener ? (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Questa tab si chiuderà automaticamente tra pochi secondi...
+              </p>
+              <Button 
+                onClick={() => window.close()} 
+                variant="outline"
+                className="w-full"
+              >
+                Chiudi Tab
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <Button 
+                onClick={() => navigate('/')} 
+                variant="outline"
+                className="w-full"
+              >
+                Vai alla Dashboard
+              </Button>
+              <Button 
+                onClick={() => navigate('/subscription')} 
+                variant="outline" 
+                className="w-full"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Gestisci Abbonamento
+              </Button>
+            </div>
+          )}
           
           <p className="text-xs text-muted-foreground">
             Riceverai una email di conferma con tutti i dettagli del tuo abbonamento.
