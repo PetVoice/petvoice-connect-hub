@@ -63,7 +63,10 @@ import {
   X,
   Bell,
   BellOff,
-  Camera
+  Camera,
+  Play,
+  Pause,
+  ZoomIn
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -89,12 +92,23 @@ interface Channel {
   animalType?: string;
 }
 
+interface ChannelGroup {
+  id: string;
+  name: string;
+  type: 'country' | 'breed';
+  country: string;
+  animalType?: string;
+  breed?: string;
+  flag: string;
+  description: string;
+}
+
 interface Message {
   id: string;
   content?: string;
   user_id: string;
   channel_id: string;
-  message_type: 'text' | 'voice' | 'image';
+  message_type: 'text' | 'voice' | 'image' | 'audio';
   is_emergency: boolean;
   file_url?: string;
   voice_duration?: number;
@@ -245,6 +259,180 @@ const CAT_BREEDS = [
   'Turkish Van', 'Ukrainian Levkoy'
 ];
 
+// Helper function to get country flag
+const getCountryFlag = (countryCode: string): string => {
+  const country = COUNTRIES.find(c => c.code === countryCode);
+  return country?.flag || '🌐';
+};
+
+// Helper function to get country name
+const getCountryName = (countryCode: string): string => {
+  const country = COUNTRIES.find(c => c.code === countryCode);
+  return country?.name || countryCode;
+};
+
+// Image Message Component
+const ImageMessage: React.FC<{ message: Message }> = ({ message }) => {
+  const [showModal, setShowModal] = useState(false);
+  
+  return (
+    <>
+      <div className="image-message relative inline-block group">
+        <img 
+          src={message.file_url}
+          alt="Immagine condivisa"
+          className="max-w-[200px] max-h-[150px] rounded-lg cursor-pointer transition-transform hover:scale-105 object-cover"
+          onClick={() => setShowModal(true)}
+          loading="lazy"
+        />
+        <div className="absolute top-2 right-2 bg-black/70 rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <ZoomIn className="h-4 w-4 text-white" />
+        </div>
+      </div>
+      
+      {showModal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
+          <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-2xl"
+              onClick={() => setShowModal(false)}
+            >
+              ✕
+            </button>
+            <img 
+              src={message.file_url}
+              alt="Immagine ingrandita"
+              className="max-w-full max-h-full rounded-lg"
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// Audio Message Component
+const AudioMessage: React.FC<{ message: Message }> = ({ message }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+    
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+    
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+  
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+  
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+  
+  return (
+    <div className="bg-muted/50 rounded-2xl p-3 max-w-[280px]">
+      <audio ref={audioRef} src={message.file_url} preload="metadata" />
+      
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={togglePlay}
+          className="flex items-center justify-center w-10 h-10 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors"
+        >
+          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        </button>
+        
+        <div className="flex-1">
+          <div className="h-1 bg-muted rounded-full overflow-hidden mb-2">
+            <div 
+              className="h-full bg-primary transition-all duration-100"
+              style={{ width: `${(currentTime / duration) * 100}%` }}
+            />
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {formatTime(currentTime)} / {formatTime(duration)}
+          </div>
+        </div>
+        
+        <div className="text-lg">
+          🎤
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Unified Message Component
+const MessageComponent: React.FC<{ message: Message; user: any }> = ({ message, user }) => {
+  const isMyMessage = message.user_id === user?.id;
+  
+  const renderMessageContent = () => {
+    switch (message.message_type) {
+      case 'text':
+        return <p className="text-sm">{message.content}</p>;
+      case 'image':
+        return <ImageMessage message={message} />;
+      case 'audio':
+      case 'voice':
+        return <AudioMessage message={message} />;
+      default:
+        return <p className="text-sm">{message.content}</p>;
+    }
+  };
+  
+  return (
+    <div className="flex gap-3">
+      <Avatar>
+        <AvatarImage src={message.user_profile?.avatar_url} />
+        <AvatarFallback>
+          {message.user_profile?.display_name?.charAt(0) || 'U'}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium">
+            {message.user_profile?.display_name || 'Utente'}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(message.created_at), { 
+              addSuffix: true, 
+              locale: it 
+            })}
+          </span>
+        </div>
+        <div className="message-content">
+          {renderMessageContent()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CommunityPage = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
@@ -257,10 +445,12 @@ const CommunityPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [loading, setLoading] = useState(false);
+  const [availableGroups, setAvailableGroups] = useState<ChannelGroup[]>([]);
+  const [joinedGroups, setJoinedGroups] = useState<string[]>([]);
   
   // Filters
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [selectedPetType, setSelectedPetType] = useState<string>('');
+  const [selectedAnimalType, setSelectedAnimalType] = useState<string>('');
   const [selectedBreed, setSelectedBreed] = useState<string>('');
   const [breedOptions, setBreedOptions] = useState<string[]>([]);
   
@@ -273,6 +463,40 @@ const CommunityPage = () => {
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Generate channel groups based on filters - ONLY GENERIC + BREED
+  const generateChannelGroups = useCallback((country: string | null, animalType: string, breed: string): ChannelGroup[] => {
+    const groups: ChannelGroup[] = [];
+    
+    // ALWAYS show generic country group if country selected
+    if (country) {
+      groups.push({
+        id: `${country.toLowerCase()}-general`,
+        name: getCountryName(country),
+        type: 'country',
+        country: country,
+        flag: getCountryFlag(country),
+        description: `Community ${getCountryName(country).toLowerCase()}`
+      });
+    }
+    
+    // SKIP animal type group - go directly to breed
+    // Only if breed selected, add specific breed group
+    if (country && breed && animalType !== 'all' && animalType !== '') {
+      groups.push({
+        id: `${country.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`,
+        name: `${getCountryName(country)} - ${breed}`,
+        type: 'breed',
+        country: country,
+        animalType: animalType,
+        breed: breed,
+        flag: getCountryFlag(country),
+        description: `Community ${getCountryName(country).toLowerCase()} specializzata in ${breed}`
+      });
+    }
+    
+    return groups;
+  }, []);
+
   // Get breeds by animal type
   const getBreedsByAnimalType = useCallback((animalType: string) => {
     const breeds = {
@@ -284,36 +508,11 @@ const CommunityPage = () => {
     return breeds[animalType as keyof typeof breeds] || [];
   }, []);
 
-  // Filter channels based on selection
-  const getFilteredChannels = useCallback(() => {
-    let filtered = channels;
-    
-    // Filter by country
-    if (selectedCountry) {
-      filtered = filtered.filter(channel => 
-        channel.country_code === selectedCountry || 
-        channel.channel_type === 'country' && channel.country_code === selectedCountry
-      );
-    }
-    
-    // Filter by pet type
-    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
-      filtered = filtered.filter(channel => 
-        channel.pet_type === selectedPetType || 
-        channel.channel_type === 'pet_type' && channel.pet_type === selectedPetType
-      );
-    }
-    
-    // Filter by breed
-    if (selectedBreed && selectedBreed !== '') {
-      filtered = filtered.filter(channel => 
-        channel.breed === selectedBreed || 
-        channel.channel_type === 'breed' && channel.breed === selectedBreed
-      );
-    }
-    
-    return filtered;
-  }, [channels, selectedCountry, selectedPetType, selectedBreed]);
+  // Update groups when ANY selection changes
+  useEffect(() => {
+    const newGroups = generateChannelGroups(selectedCountry, selectedAnimalType, selectedBreed);
+    setAvailableGroups(newGroups);
+  }, [selectedCountry, selectedAnimalType, selectedBreed, generateChannelGroups]);
 
   // Load channels from database
   const loadChannels = useCallback(async () => {
@@ -343,7 +542,6 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
-      // Use real channel IDs from database
       const subscribedChannelIds = data?.map(sub => sub.channel_id) || [];
       setSubscribedChannels(subscribedChannelIds);
     } catch (error) {
@@ -392,7 +590,7 @@ const CommunityPage = () => {
       // Combine messages with profiles
       const messagesWithProfiles = messagesData?.map(message => ({
         ...message,
-        message_type: message.message_type as 'text' | 'voice' | 'image',
+        message_type: message.message_type as 'text' | 'voice' | 'image' | 'audio',
         user_profile: profilesData.find(p => p.user_id === message.user_id)
       })) || [];
 
@@ -408,9 +606,9 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
-  // Handle pet type change
-  const handlePetTypeChange = useCallback((petType: string) => {
-    setSelectedPetType(petType);
+  // Handle animal type change
+  const handleAnimalTypeChange = useCallback((animalType: string) => {
+    setSelectedAnimalType(animalType);
     setSelectedBreed('');
     setActiveChannel(null);
   }, []);
@@ -421,88 +619,123 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
-  // Subscribe to channel
-  const subscribeToChannel = useCallback(async (channelId: string) => {
+  // Subscribe to group (create dynamic channel)
+  const subscribeToGroup = useCallback(async (groupId: string) => {
     if (!user) return;
     
     try {
-      // Check if user is already subscribed
-      const { data: existingSubscription } = await supabase
-        .from('user_channel_subscriptions')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('channel_id', channelId)
+      const group = availableGroups.find(g => g.id === groupId);
+      if (!group) return;
+
+      // Check if channel exists, if not create it
+      let { data: existingChannel, error: channelError } = await supabase
+        .from('community_channels')
+        .select('*')
+        .eq('name', group.name)
+        .eq('country_code', group.country)
         .maybeSingle();
-      
-      if (existingSubscription) {
-        setActiveChannel(channelId);
-        await loadUserSubscriptions();
-        toast({
-          title: "Già iscritto",
-          description: "Sei già iscritto a questo canale!"
-        });
-        return;
+
+      if (channelError && channelError.code !== 'PGRST116') {
+        throw channelError;
       }
-      
-      const { error } = await supabase
+
+      if (!existingChannel) {
+        // Create new channel
+        const { data: newChannel, error: createError } = await supabase
+          .from('community_channels')
+          .insert({
+            name: group.name,
+            description: group.description,
+            channel_type: group.type,
+            country_code: group.country,
+            pet_type: group.animalType as 'dog' | 'cat' | 'other',
+            breed: group.breed,
+            emoji: group.flag,
+            is_active: true
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        existingChannel = newChannel;
+      }
+
+      // Subscribe to channel
+      const { error: subscribeError } = await supabase
         .from('user_channel_subscriptions')
         .insert({
           user_id: user.id,
-          channel_id: channelId,
+          channel_id: existingChannel.id,
           notifications_enabled: true
         });
-      
-      if (error) throw error;
-      
-      setActiveChannel(channelId);
+
+      if (subscribeError) throw subscribeError;
+
+      setActiveChannel(existingChannel.id);
+      setJoinedGroups(prev => [...prev, groupId]);
       await loadUserSubscriptions();
+      await loadChannels();
       
       toast({
         title: "Iscrizione completata",
-        description: "Ora puoi chattare in questo canale!"
+        description: `Ora puoi chattare in ${group.name}!`
       });
     } catch (error) {
-      console.error('Error subscribing to channel:', error);
+      console.error('Error subscribing to group:', error);
       toast({
         title: "Errore",
-        description: "Impossibile iscriversi al canale",
+        description: "Impossibile iscriversi al gruppo",
         variant: "destructive"
       });
     }
-  }, [user, loadUserSubscriptions]);
+  }, [user, availableGroups, loadUserSubscriptions, loadChannels]);
 
-  // Unsubscribe from channel
-  const unsubscribeFromChannel = useCallback(async (channelId: string) => {
+  // Unsubscribe from group
+  const unsubscribeFromGroup = useCallback(async (groupId: string) => {
     if (!user) return;
     
     try {
+      const group = availableGroups.find(g => g.id === groupId);
+      if (!group) return;
+
+      // Find channel by name and country
+      const { data: channel } = await supabase
+        .from('community_channels')
+        .select('*')
+        .eq('name', group.name)
+        .eq('country_code', group.country)
+        .maybeSingle();
+
+      if (!channel) return;
+
       const { error } = await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
-        .eq('channel_id', channelId);
+        .eq('channel_id', channel.id);
       
       if (error) throw error;
       
-      if (activeChannel === channelId) {
+      if (activeChannel === channel.id) {
         setActiveChannel(null);
       }
       
+      setJoinedGroups(prev => prev.filter(id => id !== groupId));
       await loadUserSubscriptions();
       
       toast({
         title: "Disiscrizione completata",
-        description: "Hai lasciato il canale"
+        description: `Hai lasciato ${group.name}`
       });
     } catch (error) {
-      console.error('Error unsubscribing from channel:', error);
+      console.error('Error unsubscribing from group:', error);
       toast({
         title: "Errore",
-        description: "Impossibile lasciare il canale",
+        description: "Impossibile lasciare il gruppo",
         variant: "destructive"
       });
     }
-  }, [user, activeChannel, loadUserSubscriptions]);
+  }, [user, availableGroups, activeChannel, loadUserSubscriptions]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -526,13 +759,23 @@ const CommunityPage = () => {
 
   // Update available breeds when animal type changes
   useEffect(() => {
-    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
-      const availableBreeds = getBreedsByAnimalType(selectedPetType);
+    if (selectedAnimalType && selectedAnimalType !== 'all' && selectedAnimalType !== '') {
+      const availableBreeds = getBreedsByAnimalType(selectedAnimalType);
       setBreedOptions(availableBreeds);
     } else {
       setBreedOptions([]);
     }
-  }, [selectedPetType, getBreedsByAnimalType]);
+  }, [selectedAnimalType, getBreedsByAnimalType]);
+
+  // Update joined groups based on subscriptions
+  useEffect(() => {
+    const joined = availableGroups.filter(group => {
+      const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
+      return channel && subscribedChannels.includes(channel.id);
+    }).map(group => group.id);
+    
+    setJoinedGroups(joined);
+  }, [availableGroups, channels, subscribedChannels]);
 
   if (!user) {
     return (
@@ -549,23 +792,9 @@ const CommunityPage = () => {
     );
   }
 
-  const filteredChannels = getFilteredChannels();
-  const subscribedChannelsList = filteredChannels.filter(channel => subscribedChannels.includes(channel.id));
-  
-  // Show only the specific channel that matches the exact filters
-  const getSpecificChannel = () => {
-    if (!selectedCountry) return [];
-    
-    return filteredChannels.filter(channel => {
-      const matchesCountry = channel.country_code === selectedCountry;
-      const matchesPetType = !selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType;
-      const matchesBreed = !selectedBreed || channel.breed === selectedBreed;
-      
-      return matchesCountry && matchesPetType && matchesBreed && !subscribedChannels.includes(channel.id);
-    }).slice(0, 1); // Only show the first matching channel
-  };
-  
-  const unsubscribedChannelsList = getSpecificChannel();
+  // Get joined and available groups
+  const joinedGroupsList = availableGroups.filter(group => joinedGroups.includes(group.id));
+  const availableGroupsList = availableGroups.filter(group => !joinedGroups.includes(group.id));
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
@@ -600,7 +829,7 @@ const CommunityPage = () => {
           
           <div className="flex items-center gap-2">
             <Dog className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedPetType} onValueChange={handlePetTypeChange}>
+            <Select value={selectedAnimalType} onValueChange={handleAnimalTypeChange}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Animale" />
               </SelectTrigger>
@@ -612,7 +841,7 @@ const CommunityPage = () => {
             </Select>
           </div>
           
-          {selectedPetType && selectedPetType !== 'all' && selectedPetType !== '' && (
+          {selectedAnimalType && selectedAnimalType !== 'all' && selectedAnimalType !== '' && (
             <div className="flex items-center gap-2">
               <Heart className="h-4 w-4 text-muted-foreground" />
               <Select value={selectedBreed} onValueChange={handleBreedChange}>
@@ -637,32 +866,34 @@ const CommunityPage = () => {
         {/* Sidebar */}
         <div className="w-80 border-r bg-muted/50 flex flex-col">
           <ScrollArea className="flex-1">
-            {/* I tuoi canali */}
-            {subscribedChannelsList.length > 0 && (
+            {/* I tuoi gruppi */}
+            {joinedGroupsList.length > 0 && (
               <div className="border-b">
                 <div className="p-4 border-b">
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    I tuoi canali
+                    I tuoi gruppi
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
-                  {subscribedChannelsList.map((channel) => {
-                    const isActive = activeChannel === channel.id;
+                  {joinedGroupsList.map((group) => {
+                    const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
+                    const isActive = activeChannel === channel?.id;
                     
                     return (
                       <div
-                        key={channel.id}
+                        key={group.id}
                         className={`bg-card border rounded-lg p-3 ${
                           isActive ? 'border-primary bg-primary/5' : 'border-muted'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{channel.emoji || channel.flag || '🌐'}</span>
+                            {/* UNA SOLA BANDIERA QUI */}
+                            <span className="text-lg">{group.flag}</span>
                             <div>
-                              <div className="text-sm font-medium">{channel.name}</div>
+                              <div className="text-sm font-medium">{group.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {channel.type || channel.channel_type}
+                                {group.type}
                               </div>
                             </div>
                           </div>
@@ -671,7 +902,7 @@ const CommunityPage = () => {
                             <Button
                               size="sm"
                               variant={isActive ? "default" : "outline"}
-                              onClick={() => setActiveChannel(channel.id)}
+                              onClick={() => setActiveChannel(channel?.id || null)}
                             >
                               {isActive ? (
                                 <>
@@ -688,8 +919,8 @@ const CommunityPage = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => unsubscribeFromChannel(channel.id)}
-                              title="Esci dal canale"
+                              onClick={() => unsubscribeFromGroup(group.id)}
+                              title="Esci dal gruppo"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                               <X className="h-3 w-3" />
@@ -698,7 +929,7 @@ const CommunityPage = () => {
                         </div>
                         
                         <p className="text-xs text-muted-foreground">
-                          {channel.description}
+                          {group.description}
                         </p>
                       </div>
                     );
@@ -707,35 +938,36 @@ const CommunityPage = () => {
               </div>
             )}
             
-            {/* Canali disponibili */}
+            {/* Gruppi disponibili */}
             <div>
               <div className="p-4 border-b">
                 <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Canali disponibili
+                  Gruppi disponibili
                 </div>
               </div>
               <div className="p-4 space-y-3">
-                {unsubscribedChannelsList.length > 0 ? (
-                  unsubscribedChannelsList.map((channel) => {
+                {availableGroupsList.length > 0 ? (
+                  availableGroupsList.map((group) => {
                     return (
                       <div
-                        key={channel.id}
+                        key={group.id}
                         className="bg-card border rounded-lg p-3 border-muted"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{channel.emoji || channel.flag || '🌐'}</span>
+                            {/* UNA SOLA BANDIERA QUI */}
+                            <span className="text-lg">{group.flag}</span>
                             <div>
-                              <div className="text-sm font-medium">{channel.name}</div>
+                              <div className="text-sm font-medium">{group.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {channel.type || channel.channel_type}
+                                {group.type}
                               </div>
                             </div>
                           </div>
                           
                           <Button
                             size="sm"
-                            onClick={() => subscribeToChannel(channel.id)}
+                            onClick={() => subscribeToGroup(group.id)}
                           >
                             <Users className="h-3 w-3 mr-1" />
                             Entra
@@ -743,7 +975,7 @@ const CommunityPage = () => {
                         </div>
                         
                         <p className="text-xs text-muted-foreground">
-                          {channel.description}
+                          {group.description}
                         </p>
                       </div>
                     );
@@ -752,11 +984,11 @@ const CommunityPage = () => {
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
-                      {!selectedCountry ? 'Seleziona un paese' : 'Nessun canale disponibile'}
+                      {!selectedCountry ? 'Seleziona un paese' : 'Nessun gruppo disponibile'}
                     </h3>
                     <p className="text-muted-foreground text-sm">
                       {!selectedCountry 
-                        ? 'Usa i filtri sopra per trovare i canali della tua zona'
+                        ? 'Usa i filtri sopra per trovare i gruppi della tua zona'
                         : 'Crea una nuova selezione o prova altri filtri'
                       }
                     </p>
@@ -806,28 +1038,7 @@ const CommunityPage = () => {
               {/* Messages */}
               <div className="flex-1 overflow-auto p-4 space-y-4">
                 {messages.map((message) => (
-                  <div key={message.id} className="flex gap-3">
-                    <Avatar>
-                      <AvatarImage src={message.user_profile?.avatar_url} />
-                      <AvatarFallback>
-                        {message.user_profile?.display_name?.charAt(0) || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          {message.user_profile?.display_name || 'Utente'}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(message.created_at), { 
-                            addSuffix: true, 
-                            locale: it 
-                          })}
-                        </span>
-                      </div>
-                      <p className="text-sm">{message.content}</p>
-                    </div>
-                  </div>
+                  <MessageComponent key={message.id} message={message} user={user} />
                 ))}
                 <div ref={messagesEndRef} />
               </div>
@@ -835,7 +1046,7 @@ const CommunityPage = () => {
               {/* Message Input */}
               <MessageInput
                 channelId={activeChannel}
-                channelName={filteredChannels.find(c => c.id === activeChannel)?.name || 'Canale'}
+                channelName={channels.find(c => c.id === activeChannel)?.name || 'Canale'}
                 onMessageSent={handleMessageSent}
                 disabled={loading}
               />
@@ -845,10 +1056,10 @@ const CommunityPage = () => {
               <div className="text-center">
                 <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2">
-                  Seleziona un canale
+                  Seleziona un gruppo
                 </h3>
                 <p className="text-muted-foreground">
-                  Scegli un canale dalla barra laterale per iniziare a chattare
+                  Scegli un gruppo dalla barra laterale per iniziare a chattare
                 </p>
               </div>
             </div>
