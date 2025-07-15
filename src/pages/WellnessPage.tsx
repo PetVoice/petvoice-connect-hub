@@ -639,13 +639,17 @@ const WellnessPage = () => {
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   
-  // Controlla localStorage per aprire automaticamente la guida primo soccorso
+  // Listener per aprire la guida primo soccorso da altre pagine
   useEffect(() => {
-    const shouldOpenGuide = localStorage.getItem('openFirstAidGuide');
-    if (shouldOpenGuide === 'true') {
+    const handleOpenFirstAidGuide = () => {
       setShowFirstAidGuide(true);
-      localStorage.removeItem('openFirstAidGuide'); // Rimuovi il flag
-    }
+    };
+    
+    window.addEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
+    
+    return () => {
+      window.removeEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
+    };
   }, []);
   
   // Confirm dialog states
@@ -2360,6 +2364,31 @@ const WellnessPage = () => {
                           <p className="text-sm text-muted-foreground">
                             {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
                           </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingMetric(metric);
+                              setNewMetric({
+                                metric_type: metric.metric_type,
+                                value: metric.value.toString(),
+                                unit: metric.unit,
+                                notes: metric.notes || ''
+                              });
+                              setShowAddMetric(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => handleDeleteMetric(metric.id, metric.metric_type)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         </div>
                       </div>
                     ))}

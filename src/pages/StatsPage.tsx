@@ -1100,9 +1100,8 @@ export default function StatsPage() {
                       variant="outline" 
                       size="sm"
                       onClick={() => {
-                        // Salva flag per aprire la guida e vai alla pagina wellness
-                        localStorage.setItem('openFirstAidGuide', 'true');
-                        window.location.href = '/wellness';
+                        // Evento personalizzato per aprire la guida primo soccorso
+                        window.dispatchEvent(new CustomEvent('open-first-aid-guide'));
                       }}
                       className="border-blue-300 text-blue-700 hover:bg-blue-100"
                     >
