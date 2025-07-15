@@ -821,7 +821,7 @@ const CommunityPage = () => {
               {/* Message Input */}
               <MessageInput
                 channelId={activeChannel}
-                channelName={channels.find(c => c.id === activeChannel)?.name || 'Canale'}
+                channelName={filteredChannels.find(c => c.id === activeChannel)?.name || 'Canale'}
                 onMessageSent={handleMessageSent}
                 disabled={loading}
               />
