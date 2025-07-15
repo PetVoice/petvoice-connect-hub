@@ -1388,8 +1388,8 @@ const CommunityPage = () => {
               
               {/* Messages Area */}
               {activeChannel ? (
-                <ScrollArea className="flex-1 p-4 overflow-y-auto">
-                  <div className="space-y-4 min-h-0">
+                <div className="flex-1 overflow-y-auto p-4 min-h-0">
+                  <div className="space-y-4">
                     {messages.length === 0 ? (
                       <div className="text-center py-8">
                         <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -1404,7 +1404,7 @@ const CommunityPage = () => {
                     )}
                     <div ref={messagesEndRef} />
                   </div>
-                </ScrollArea>
+                </div>
               ) : (
                 <div className="flex-1" />
               )}
@@ -1556,7 +1556,7 @@ const CommunityPage = () => {
               </div>
               
               {/* Alerts List */}
-              <ScrollArea className="flex-1 p-4">
+              <div className="flex-1 overflow-y-auto p-4 min-h-0">
                 <div className="space-y-4">
                   {localAlerts.map((alert) => (
                     <LocalAlertComponent key={alert.id} alert={alert} />
@@ -1574,7 +1574,7 @@ const CommunityPage = () => {
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
           </Tabs>
         </div>
