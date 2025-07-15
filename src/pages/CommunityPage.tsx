@@ -597,6 +597,30 @@ const CommunityPage = () => {
     }
   }, [selectedCountry]);
 
+  // Handle country change with automatic channel activation
+  const handleCountryChange = useCallback((countryCode: string) => {
+    console.log('🌍 Paese selezionato:', countryCode);
+    setSelectedCountry(countryCode);
+    
+    // Trova il canale per questo paese
+    const countryChannel = channels.find(c => 
+      c.channel_type === 'country' && c.country_code === countryCode
+    );
+    
+    if (countryChannel) {
+      console.log('📡 Canale trovato:', countryChannel.name);
+      // Se non sono già iscritto al canale, lo mostro nella sidebar
+      if (!subscribedChannels.includes(countryChannel.id)) {
+        console.log('🔔 Canale non ancora iscritto, mostro nella sidebar');
+      } else {
+        console.log('✅ Già iscritto al canale, attivo automaticamente');
+        setActiveChannel(countryChannel.id);
+      }
+    } else {
+      console.log('❌ Nessun canale trovato per questo paese');
+    }
+  }, [channels, subscribedChannels]);
+
   // Subscribe to channel
   const subscribeToChannel = useCallback(async (channelId: string) => {
     if (!user) return;
@@ -799,7 +823,16 @@ const CommunityPage = () => {
 
   // Send message
   const sendMessage = async () => {
-    if (!messageText.trim() || !user || !activeChannel) return;
+    if (!messageText.trim() || !user || !activeChannel) {
+      console.log('⚠️ sendMessage: Validazione fallita', { messageText: messageText.trim(), user: !!user, activeChannel });
+      return;
+    }
+    
+    console.log('📤 Invio messaggio:', { 
+      channel: activeChannel, 
+      user: user.id, 
+      text: messageText.trim().substring(0, 50) + '...' 
+    });
     
     try {
       setLoading(true);
@@ -820,11 +853,17 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
+      console.log('✅ Messaggio inviato con successo');
       setMessageText('');
       // Auto-scroll only when sending a message
       shouldAutoScroll.current = true;
+      
+      toast({
+        title: "Messaggio inviato",
+        description: "Il tuo messaggio è stato pubblicato nel canale"
+      });
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('❌ Errore invio messaggio:', error);
       toast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
@@ -930,24 +969,38 @@ const CommunityPage = () => {
   // Image upload
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !user || !activeChannel) return;
+    if (!file || !user || !activeChannel) {
+      console.log('⚠️ handleImageUpload: Validazione fallita', { file: !!file, user: !!user, activeChannel });
+      return;
+    }
+    
+    console.log('📷 Caricamento immagine:', { 
+      channel: activeChannel, 
+      user: user.id, 
+      filename: file.name,
+      size: file.size 
+    });
     
     try {
       setLoading(true);
       
-      // Upload image
+      // Upload image to channel-media bucket
       const fileName = `image_${Date.now()}.${file.name.split('.').pop()}`;
       const filePath = `${user.id}/chat-images/${fileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('pet-media')
+        .from('channel-media')
         .upload(filePath, file);
       
       if (uploadError) throw uploadError;
       
+      console.log('✅ Immagine caricata su storage:', uploadData.path);
+      
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('pet-media')
+        .from('channel-media')
         .getPublicUrl(uploadData.path);
+      
+      console.log('🔗 URL pubblico generato:', publicUrl);
       
       // Send message
       const { error } = await supabase
@@ -967,15 +1020,19 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
+      console.log('✅ Messaggio immagine inviato con successo');
       // Auto-scroll only when sending an image
       shouldAutoScroll.current = true;
       
       toast({
         title: "Immagine inviata",
-        description: "La tua immagine è stata condivisa"
+        description: "La tua immagine è stata condivisa nel canale"
       });
+      
+      // Reset file input
+      event.target.value = '';
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('❌ Errore caricamento immagine:', error);
       toast({
         title: "Errore",
         description: "Impossibile caricare l'immagine",
@@ -1283,9 +1340,9 @@ const CommunityPage = () => {
           
           <div className="flex items-center gap-2">
             {/* Country Filter */}
-            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+            <Select value={selectedCountry} onValueChange={handleCountryChange}>
               <SelectTrigger className="w-40">
-                <SelectValue />
+                <SelectValue placeholder="🌍 Seleziona paese" />
               </SelectTrigger>
               <SelectContent>
                 {COUNTRIES.map(country => (
