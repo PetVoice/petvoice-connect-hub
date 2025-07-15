@@ -646,9 +646,9 @@ const CommunityPage = () => {
 
       let channelId = existingChannel?.id;
 
-      // If no existing channel, create a temporary ID for subscription
+      // If no existing channel, generate a valid UUID for subscription
       if (!channelId) {
-        channelId = `${group.country.toLowerCase()}-${group.name.toLowerCase().replace(/\s+/g, '-')}`;
+        channelId = crypto.randomUUID();
       }
 
       // Subscribe directly without strict channel existence check
