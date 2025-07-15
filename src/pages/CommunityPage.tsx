@@ -130,36 +130,119 @@ const COUNTRIES = [
   { code: 'FR', name: 'Francia', flag: '🇫🇷' },
   { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
   { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
-  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' }
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
+  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
+  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
+  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
+  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'MX', name: 'Messico', flag: '🇲🇽' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'CL', name: 'Cile', flag: '🇨🇱' },
+  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
+  { code: 'PE', name: 'Perù', flag: '🇵🇪' },
+  { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
+  { code: 'NL', name: 'Paesi Bassi', flag: '🇳🇱' },
+  { code: 'BE', name: 'Belgio', flag: '🇧🇪' },
+  { code: 'AT', name: 'Austria', flag: '🇦🇹' },
+  { code: 'CH', name: 'Svizzera', flag: '🇨🇭' },
+  { code: 'SE', name: 'Svezia', flag: '🇸🇪' },
+  { code: 'NO', name: 'Norvegia', flag: '🇳🇴' },
+  { code: 'DK', name: 'Danimarca', flag: '🇩🇰' },
+  { code: 'FI', name: 'Finlandia', flag: '🇫🇮' },
+  { code: 'PL', name: 'Polonia', flag: '🇵🇱' },
+  { code: 'CZ', name: 'Repubblica Ceca', flag: '🇨🇿' },
+  { code: 'HU', name: 'Ungheria', flag: '🇭🇺' },
+  { code: 'SK', name: 'Slovacchia', flag: '🇸🇰' },
+  { code: 'SI', name: 'Slovenia', flag: '🇸🇮' },
+  { code: 'HR', name: 'Croazia', flag: '🇭🇷' },
+  { code: 'BG', name: 'Bulgaria', flag: '🇧🇬' },
+  { code: 'RO', name: 'Romania', flag: '🇷🇴' },
+  { code: 'GR', name: 'Grecia', flag: '🇬🇷' },
+  { code: 'TR', name: 'Turchia', flag: '🇹🇷' },
+  { code: 'EG', name: 'Egitto', flag: '🇪🇬' },
+  { code: 'ZA', name: 'Sudafrica', flag: '🇿🇦' },
+  { code: 'MA', name: 'Marocco', flag: '🇲🇦' },
+  { code: 'TN', name: 'Tunisia', flag: '🇹🇳' },
+  { code: 'DZ', name: 'Algeria', flag: '🇩🇿' },
+  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
+  { code: 'ET', name: 'Etiopia', flag: '🇪🇹' },
+  { code: 'TH', name: 'Tailandia', flag: '🇹🇭' },
+  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+  { code: 'MY', name: 'Malesia', flag: '🇲🇾' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'PH', name: 'Filippine', flag: '🇵🇭' },
+  { code: 'NZ', name: 'Nuova Zelanda', flag: '🇳🇿' },
+  { code: 'PT', name: 'Portogallo', flag: '🇵🇹' },
+  { code: 'IE', name: 'Irlanda', flag: '🇮🇪' },
+  { code: 'IS', name: 'Islanda', flag: '🇮🇸' },
+  { code: 'LU', name: 'Lussemburgo', flag: '🇱🇺' },
+  { code: 'MT', name: 'Malta', flag: '🇲🇹' },
+  { code: 'CY', name: 'Cipro', flag: '🇨🇾' },
+  { code: 'LI', name: 'Liechtenstein', flag: '🇱🇮' },
+  { code: 'MC', name: 'Monaco', flag: '🇲🇨' },
+  { code: 'AD', name: 'Andorra', flag: '🇦🇩' },
+  { code: 'SM', name: 'San Marino', flag: '🇸🇲' },
+  { code: 'VA', name: 'Vaticano', flag: '🇻🇦' }
 ];
 
 const DOG_BREEDS = [
-  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
-  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
-  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
-  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
-  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
-  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
-  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman Pinscher',
-  'English Bulldog', 'English Setter', 'Fox Terrier', 'German Shepherd', 'Golden Retriever',
-  'Great Dane', 'Greyhound', 'Havanese', 'Irish Setter', 'Jack Russell Terrier',
-  'Labrador Retriever', 'Maltese', 'Mastiff', 'Miniature Schnauzer', 'Neapolitan Mastiff',
-  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
-  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
-  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
-  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Akbash', 'Akita', 'Alaskan Klee Kai',
+  'Alaskan Malamute', 'American Bulldog', 'American Cocker Spaniel', 'American Eskimo Dog',
+  'American Foxhound', 'American Pit Bull Terrier', 'American Staffordshire Terrier', 'American Water Spaniel',
+  'Anatolian Shepherd', 'Australian Cattle Dog', 'Australian Kelpie', 'Australian Shepherd', 'Australian Terrier',
+  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bedlington Terrier', 'Belgian Malinois',
+  'Belgian Sheepdog', 'Belgian Tervuren', 'Bernese Mountain Dog', 'Bichon Frise', 'Black and Tan Coonhound',
+  'Black Russian Terrier', 'Bloodhound', 'Blue Heeler', 'Bluetick Coonhound', 'Boerboel', 'Border Collie',
+  'Border Terrier', 'Borzoi', 'Boston Terrier', 'Bouvier des Flandres', 'Boxer', 'Boykin Spaniel',
+  'Bracco Italiano', 'Brittany', 'Brussels Griffon', 'Bull Terrier', 'Bulldog', 'Bulldog Francese',
+  'Bullmastiff', 'Cairn Terrier', 'Canaan Dog', 'Cane Corso', 'Cardigan Welsh Corgi', 'Catahoula Leopard Dog',
+  'Cavalier King Charles Spaniel', 'Chesapeake Bay Retriever', 'Chihuahua', 'Chinese Crested', 'Chinese Shar-Pei',
+  'Chow Chow', 'Clumber Spaniel', 'Cocker Spaniel', 'Collie', 'Coonhound', 'Coton de Tulear',
+  'Curly-Coated Retriever', 'Dachshund', 'Dalmatian', 'Dandie Dinmont Terrier', 'Doberman Pinscher',
+  'Dogue de Bordeaux', 'Dutch Shepherd', 'English Bulldog', 'English Cocker Spaniel', 'English Foxhound',
+  'English Mastiff', 'English Setter', 'English Springer Spaniel', 'English Toy Spaniel', 'Entlebucher Mountain Dog',
+  'Field Spaniel', 'Finnish Lapphund', 'Finnish Spitz', 'Flat-Coated Retriever', 'Fox Terrier', 'French Bulldog',
+  'German Pinscher', 'German Shepherd', 'German Shorthaired Pointer', 'German Wirehaired Pointer', 'Giant Schnauzer',
+  'Glen of Imaal Terrier', 'Golden Retriever', 'Gordon Setter', 'Great Dane', 'Great Pyrenees',
+  'Greater Swiss Mountain Dog', 'Greyhound', 'Harrier', 'Havanese', 'Ibizan Hound', 'Icelandic Sheepdog',
+  'Irish Red and White Setter', 'Irish Setter', 'Irish Terrier', 'Irish Water Spaniel', 'Irish Wolfhound',
+  'Italian Greyhound', 'Jack Russell Terrier', 'Japanese Chin', 'Japanese Spitz', 'Keeshond', 'Kerry Blue Terrier',
+  'Komondor', 'Kuvasz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Lakeland Terrier', 'Lancashire Heeler',
+  'Large Munsterlander', 'Leonberger', 'Lhasa Apso', 'Lowchen', 'Maltese', 'Manchester Terrier',
+  'Maremma Sheepdog', 'Mastiff', 'Miniature Bull Terrier', 'Miniature Pinscher', 'Miniature Schnauzer',
+  'Neapolitan Mastiff', 'Newfoundland', 'Norfolk Terrier', 'Norwegian Buhund', 'Norwegian Elkhound',
+  'Norwich Terrier', 'Nova Scotia Duck Tolling Retriever', 'Old English Sheepdog', 'Otterhound', 'Papillon',
+  'Parson Russell Terrier', 'Pastore Tedesco', 'Pekingese', 'Pembroke Welsh Corgi', 'Petit Basset Griffon Vendeen',
+  'Pharaoh Hound', 'Plott', 'Pointer', 'Polish Lowland Sheepdog', 'Pomeranian', 'Poodle', 'Portuguese Water Dog',
+  'Pug', 'Puli', 'Pyrenean Shepherd', 'Redbone Coonhound', 'Rhodesian Ridgeback', 'Rottweiler', 'Rough Collie',
+  'Saint Bernard', 'Saluki', 'Samoyed', 'Schipperke', 'Schnauzer', 'Scottish Deerhound', 'Scottish Terrier',
+  'Sealyham Terrier', 'Shar Pei', 'Shetland Sheepdog', 'Shiba Inu', 'Shih Tzu', 'Siberian Husky',
+  'Silky Terrier', 'Skye Terrier', 'Smooth Collie', 'Smooth Fox Terrier', 'Soft Coated Wheaten Terrier',
+  'Spinone Italiano', 'Staffordshire Bull Terrier', 'Standard Schnauzer', 'Sussex Spaniel', 'Swedish Vallhund',
+  'Tibetan Mastiff', 'Tibetan Spaniel', 'Tibetan Terrier', 'Toy Fox Terrier', 'Treeing Walker Coonhound',
+  'Vizsla', 'Weimaraner', 'Welsh Springer Spaniel', 'Welsh Terrier', 'West Highland White Terrier',
+  'Whippet', 'Wire Fox Terrier', 'Wirehaired Pointing Griffon', 'Xoloitzcuintli', 'Yorkshire Terrier'
 ];
 
 const CAT_BREEDS = [
-  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
-  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
-  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
-  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
-  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
-  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
-  'Ragamuffin', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
-  'Selkirk Rex', 'Siamese', 'Singapura', 'Snowshoe', 'Somali', 'Sphynx',
-  'Tonkinese', 'Turkish Van'
+  'Abissino', 'American Bobtail', 'American Curl', 'American Shorthair', 'American Wirehair',
+  'Angora Turco', 'Balinese', 'Bambino', 'Bengala', 'Birman', 'Birmano', 'Bombay',
+  'British Longhair', 'British Shorthair', 'Burmese', 'Burmilla', 'California Spangled',
+  'Certosino', 'Chartreux', 'Chausie', 'Cornish Rex', 'Cymric', 'Devon Rex',
+  'Donskoy', 'Dragon Li', 'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Havana Brown',
+  'Himalayan', 'Japanese Bobtail', 'Javanese', 'Khao Manee', 'Korat', 'Kurilian Bobtail',
+  'LaPerm', 'Maine Coon', 'Manx', 'Mau Egiziano', 'Munchkin', 'Nebelung',
+  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Oriental Longhair', 'Oriental Shorthair',
+  'Persiano', 'Peterbald', 'Pixie-bob', 'Ragamuffin', 'Ragdoll', 'Russian Blue',
+  'Savannah', 'Scottish Fold', 'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura',
+  'Snowshoe', 'Sokoke', 'Somali', 'Sphynx', 'Tonkinese', 'Toyger', 'Turkish Angora',
+  'Turkish Van', 'Ukrainian Levkoy'
 ];
 
 const CommunityPage = () => {
@@ -179,7 +262,6 @@ const CommunityPage = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedPetType, setSelectedPetType] = useState<string>('');
   const [selectedBreed, setSelectedBreed] = useState<string>('');
-  const [availableChannels, setAvailableChannels] = useState<Channel[]>([]);
   const [breedOptions, setBreedOptions] = useState<string[]>([]);
   
   // Settings
@@ -190,18 +272,6 @@ const CommunityPage = () => {
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Generate stable UUID for channel
-  const generateChannelUUID = useCallback((channelId: string): string => {
-    let hash = 0;
-    for (let i = 0; i < channelId.length; i++) {
-      const char = channelId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
-  }, []);
 
   // Get breeds by animal type
   const getBreedsByAnimalType = useCallback((animalType: string) => {
@@ -214,53 +284,36 @@ const CommunityPage = () => {
     return breeds[animalType as keyof typeof breeds] || [];
   }, []);
 
-  // Generate dynamic channels based on selection
-  const generateChannels = useCallback((country: string | null, animalType: string, breed: string) => {
-    const channels = [];
+  // Filter channels based on selection
+  const getFilteredChannels = useCallback(() => {
+    let filtered = channels;
     
-    if (country) {
-      const countryData = COUNTRIES.find(c => c.code === country);
-      if (countryData) {
-        // Canale generico paese
-        channels.push({
-          id: `${country.toLowerCase()}-general`,
-          name: `${countryData.name} (Generico)`,
-          type: 'general',
-          country: country,
-          flag: countryData.flag,
-          description: `Canale generale per ${countryData.name}`,
-          channel_type: 'country' as const,
-          country_code: country,
-          emoji: countryData.flag,
-          is_active: true
-        });
-        
-        // Canale specifico
-        if (animalType && animalType !== 'all' && animalType !== '' && breed && breed !== '') {
-          const animalEmoji = animalType === 'dog' ? '🐕' : animalType === 'cat' ? '🐱' : '🐾';
-          const animalName = animalType === 'dog' ? 'Cani' : animalType === 'cat' ? 'Gatti' : 'Animali';
-          
-          channels.push({
-            id: `${country.toLowerCase()}-${animalType.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`,
-            name: `${countryData.name} → ${animalName} → ${breed}`,
-            type: 'specific',
-            country: country,
-            animalType: animalType,
-            breed: breed,
-            flag: countryData.flag,
-            description: `Canale specifico per ${breed} in ${countryData.name}`,
-            channel_type: 'breed' as const,
-            country_code: country,
-            pet_type: animalType as 'dog' | 'cat',
-            emoji: animalEmoji,
-            is_active: true
-          });
-        }
-      }
+    // Filter by country
+    if (selectedCountry) {
+      filtered = filtered.filter(channel => 
+        channel.country_code === selectedCountry || 
+        channel.channel_type === 'country' && channel.country_code === selectedCountry
+      );
     }
     
-    return channels;
-  }, []);
+    // Filter by pet type
+    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
+      filtered = filtered.filter(channel => 
+        channel.pet_type === selectedPetType || 
+        channel.channel_type === 'pet_type' && channel.pet_type === selectedPetType
+      );
+    }
+    
+    // Filter by breed
+    if (selectedBreed && selectedBreed !== '') {
+      filtered = filtered.filter(channel => 
+        channel.breed === selectedBreed || 
+        channel.channel_type === 'breed' && channel.breed === selectedBreed
+      );
+    }
+    
+    return filtered;
+  }, [channels, selectedCountry, selectedPetType, selectedBreed]);
 
   // Load channels from database
   const loadChannels = useCallback(async () => {
@@ -290,30 +343,19 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
-      // Convert UUIDs back to original channel IDs
-      const subscribedUUIDs = data?.map(sub => sub.channel_id) || [];
-      
-      // Find corresponding original channels
-      const originalChannelIds = availableChannels
-        .filter(channel => {
-          const channelUUID = generateChannelUUID(channel.id);
-          return subscribedUUIDs.includes(channelUUID);
-        })
-        .map(channel => channel.id);
-      
-      setSubscribedChannels(originalChannelIds);
+      // Use real channel IDs from database
+      const subscribedChannelIds = data?.map(sub => sub.channel_id) || [];
+      setSubscribedChannels(subscribedChannelIds);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
-  }, [user, availableChannels, generateChannelUUID]);
+  }, [user]);
 
   // Load messages
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
     try {
-      const channelUUID = generateChannelUUID(activeChannel);
-      
       const { data: messagesData, error: messagesError } = await supabase
         .from('community_messages')
         .select(`
@@ -329,7 +371,7 @@ const CommunityPage = () => {
           created_at,
           updated_at
         `)
-        .eq('channel_id', channelUUID)
+        .eq('channel_id', activeChannel)
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
@@ -358,7 +400,7 @@ const CommunityPage = () => {
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  }, [activeChannel, generateChannelUUID]);
+  }, [activeChannel]);
 
   // Handle country change
   const handleCountryChange = useCallback((countryCode: string) => {
@@ -384,14 +426,12 @@ const CommunityPage = () => {
     if (!user) return;
     
     try {
-      const channelUUID = generateChannelUUID(channelId);
-      
       // Check if user is already subscribed
       const { data: existingSubscription } = await supabase
         .from('user_channel_subscriptions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('channel_id', channelUUID)
+        .eq('channel_id', channelId)
         .maybeSingle();
       
       if (existingSubscription) {
@@ -408,7 +448,7 @@ const CommunityPage = () => {
         .from('user_channel_subscriptions')
         .insert({
           user_id: user.id,
-          channel_id: channelUUID,
+          channel_id: channelId,
           notifications_enabled: true
         });
       
@@ -429,20 +469,18 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, loadUserSubscriptions, generateChannelUUID]);
+  }, [user, loadUserSubscriptions]);
 
   // Unsubscribe from channel
   const unsubscribeFromChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
-      const channelUUID = generateChannelUUID(channelId);
-      
       const { error } = await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
-        .eq('channel_id', channelUUID);
+        .eq('channel_id', channelId);
       
       if (error) throw error;
       
@@ -464,7 +502,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, activeChannel, loadUserSubscriptions, generateChannelUUID]);
+  }, [user, activeChannel, loadUserSubscriptions]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -477,20 +515,14 @@ const CommunityPage = () => {
   }, [loadChannels]);
 
   useEffect(() => {
-    if (user && availableChannels.length > 0) {
+    if (user && channels.length > 0) {
       loadUserSubscriptions();
     }
-  }, [user, availableChannels, loadUserSubscriptions]);
+  }, [user, channels, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
   }, [loadMessages]);
-
-  // Update available channels when any filter changes
-  useEffect(() => {
-    const newChannels = generateChannels(selectedCountry, selectedPetType, selectedBreed);
-    setAvailableChannels(newChannels);
-  }, [selectedCountry, selectedPetType, selectedBreed, generateChannels]);
 
   // Update available breeds when animal type changes
   useEffect(() => {
@@ -517,8 +549,9 @@ const CommunityPage = () => {
     );
   }
 
-  const subscribedChannelsList = availableChannels.filter(channel => subscribedChannels.includes(channel.id));
-  const unsubscribedChannelsList = availableChannels.filter(channel => !subscribedChannels.includes(channel.id));
+  const filteredChannels = getFilteredChannels();
+  const subscribedChannelsList = filteredChannels.filter(channel => subscribedChannels.includes(channel.id));
+  const unsubscribedChannelsList = filteredChannels.filter(channel => !subscribedChannels.includes(channel.id));
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
