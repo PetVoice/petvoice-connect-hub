@@ -151,6 +151,132 @@ export type Database = {
           },
         ]
       }
+      community_channels: {
+        Row: {
+          breed: string | null
+          channel_type: string
+          country_code: string | null
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          pet_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          breed?: string | null
+          channel_type: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          pet_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          breed?: string | null
+          channel_type?: string
+          country_code?: string | null
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          pet_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      community_messages: {
+        Row: {
+          channel_id: string
+          content: string | null
+          created_at: string
+          file_url: string | null
+          id: string
+          is_emergency: boolean | null
+          message_type: string
+          metadata: Json | null
+          updated_at: string
+          user_id: string
+          voice_duration: number | null
+        }
+        Insert: {
+          channel_id: string
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_emergency?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id: string
+          voice_duration?: number | null
+        }
+        Update: {
+          channel_id?: string
+          content?: string | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_emergency?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+          voice_duration?: number | null
+        }
+        Relationships: []
+      }
+      community_notifications: {
+        Row: {
+          channel_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_notifications_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "community_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_notifications_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       diary_entries: {
         Row: {
           behavioral_tags: string[] | null
@@ -388,6 +514,57 @@ export type Database = {
           unit?: string | null
           user_id?: string
           value?: number
+        }
+        Relationships: []
+      }
+      local_alerts: {
+        Row: {
+          affected_species: string[] | null
+          alert_type: string
+          country_code: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          reports_count: number | null
+          severity: string
+          title: string
+          updated_at: string
+          user_id: string
+          verification_status: string
+          verified_by: string | null
+        }
+        Insert: {
+          affected_species?: string[] | null
+          alert_type: string
+          country_code: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          reports_count?: number | null
+          severity?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+          verified_by?: string | null
+        }
+        Update: {
+          affected_species?: string[] | null
+          alert_type?: string
+          country_code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          reports_count?: number | null
+          severity?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -1121,6 +1298,38 @@ export type Database = {
             columns: ["related_medication_id"]
             isOneToOne: false
             referencedRelation: "medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_channel_subscriptions: {
+        Row: {
+          channel_id: string
+          id: string
+          joined_at: string
+          notifications_enabled: boolean | null
+          user_id: string
+        }
+        Insert: {
+          channel_id: string
+          id?: string
+          joined_at?: string
+          notifications_enabled?: boolean | null
+          user_id: string
+        }
+        Update: {
+          channel_id?: string
+          id?: string
+          joined_at?: string
+          notifications_enabled?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_channel_subscriptions_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "community_channels"
             referencedColumns: ["id"]
           },
         ]

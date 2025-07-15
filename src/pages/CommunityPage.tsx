@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
   MessageSquare, 
   Globe, 
@@ -54,7 +56,11 @@ import {
   Crown,
   MapPinIcon,
   Siren,
-  Plus
+  Plus,
+  X,
+  Bell,
+  BellOff,
+  Camera
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -63,22 +69,34 @@ import { toast } from '@/hooks/use-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-// Interfaces
+// Types
+interface Channel {
+  id: string;
+  name: string;
+  description: string;
+  channel_type: 'country' | 'pet_type' | 'breed' | 'general';
+  country_code?: string;
+  pet_type?: 'dog' | 'cat' | 'other';
+  breed?: string;
+  emoji?: string;
+  is_active: boolean;
+}
+
 interface Message {
   id: string;
-  content: string;
+  content?: string;
   user_id: string;
-  channel: string;
+  channel_id: string;
+  message_type: 'text' | 'voice' | 'image';
+  is_emergency: boolean;
+  file_url?: string;
+  voice_duration?: number;
+  metadata: any;
   created_at: string;
   user_profile?: {
     display_name: string;
     avatar_url?: string;
-    expertise_badges?: string[];
   };
-  translations?: Record<string, string>;
-  message_type: 'text' | 'voice' | 'image';
-  is_emergency?: boolean;
-  metadata?: any;
 }
 
 interface LocalAlert {
@@ -87,41 +105,42 @@ interface LocalAlert {
   description: string;
   alert_type: 'health' | 'emergency' | 'environment' | 'outbreak';
   severity: 'info' | 'warning' | 'emergency';
-  location: {
-    city: string;
-    region: string;
-    coordinates?: [number, number];
-  };
-  created_at: string;
-  verified_by?: string;
-  verification_status: 'pending' | 'verified' | 'false_report';
+  country_code: string;
   affected_species?: string[];
+  verification_status: 'pending' | 'verified' | 'false_report';
   reports_count: number;
-  metadata?: any;
+  created_at: string;
+  user_profile?: {
+    display_name: string;
+  };
 }
 
-interface UserProfile {
-  id: string;
-  display_name: string;
-  avatar_url?: string;
-  expertise_badges?: string[];
-  reputation_score: number;
-  verified_professional: boolean;
-  specialization?: string;
-  location?: string;
-}
+// Country list
+const COUNTRIES = [
+  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
+  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
+  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
+  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
+  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
+  { code: 'BR', name: 'Brasile', flag: '🇧🇷' }
+];
 
-// Channel Configuration
-const CHANNELS = {
-  general: { name: '🌍 Generale', description: 'Discussioni globali' },
-  local_milano: { name: '🏠 Milano', description: 'Comunità locale Milano' },
-  local_roma: { name: '🏠 Roma', description: 'Comunità locale Roma' },
-  breed_golden: { name: '🐕 Golden Retriever', description: 'Gruppo specifico razza' },
-  breed_siamese: { name: '🐱 Siamese', description: 'Gruppo specifico razza' },
-  health: { name: '🏥 Salute', description: 'Discussioni mediche' },
-  training: { name: '🎓 Addestramento', description: 'Consigli comportamentali' },
-  emergency: { name: '🆘 Emergenze', description: 'Supporto crisi 24/7' },
-};
+// Breed lists
+const DOG_BREEDS = [
+  'Golden Retriever', 'Labrador', 'Pastore Tedesco', 'Bulldog Francese', 'Beagle',
+  'Rottweiler', 'Yorkshire Terrier', 'Boxer', 'Siberian Husky', 'Border Collie',
+  'Dalmata', 'Chihuahua', 'Dobermann', 'Cocker Spaniel', 'Jack Russell Terrier'
+];
+
+const CAT_BREEDS = [
+  'Persiano', 'Siamese', 'Maine Coon', 'British Shorthair', 'Ragdoll',
+  'Bengala', 'Abissino', 'Scottish Fold', 'Sphynx', 'Russian Blue',
+  'Norwegian Forest', 'Birmano', 'Orientale', 'Devon Rex', 'Munchkin'
+];
 
 const CommunityPage = () => {
   const { user } = useAuth();
@@ -129,33 +148,176 @@ const CommunityPage = () => {
   
   // State management
   const [activeTab, setActiveTab] = useState<'community' | 'news'>('community');
-  const [activeChannel, setActiveChannel] = useState<string>('general');
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [activeChannel, setActiveChannel] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [messageText, setMessageText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState('it');
-  const [translationEnabled, setTranslationEnabled] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [userLocation, setUserLocation] = useState<string>('Milano');
   const [loading, setLoading] = useState(false);
+  
+  // Filters
+  const [selectedCountry, setSelectedCountry] = useState<string>('IT');
+  const [selectedPetType, setSelectedPetType] = useState<string>('');
+  const [selectedBreed, setSelectedBreed] = useState<string>('');
+  
+  // Settings
+  const [showSettings, setShowSettings] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [translationEnabled, setTranslationEnabled] = useState(true);
+  
+  // Alert dialog
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertDescription, setAlertDescription] = useState('');
+  const [alertType, setAlertType] = useState<'health' | 'emergency' | 'environment' | 'outbreak'>('health');
+  const [alertSeverity, setAlertSeverity] = useState<'info' | 'warning' | 'emergency'>('info');
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
-  
-  // Real-time subscription
-  useEffect(() => {
+  const audioChunks = useRef<Blob[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load channels
+  const loadChannels = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('community_channels')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      
+      setChannels((data as Channel[]) || []);
+      
+      // Set default channel
+      if (data && data.length > 0 && !activeChannel) {
+        setActiveChannel(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error loading channels:', error);
+    }
+  }, [activeChannel]);
+
+  // Load messages for active channel
+  const loadMessages = useCallback(async () => {
+    if (!activeChannel) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('community_messages')
+        .select(`
+          *,
+          user_profile:profiles(display_name, avatar_url)
+        `)
+        .eq('channel_id', activeChannel)
+        .order('created_at', { ascending: true })
+        .limit(50);
+      
+      if (error) throw error;
+      
+      setMessages((data as any[])?.map(item => ({
+        ...item,
+        user_profile: item.user_profile || { display_name: 'Utente' }
+      })) || []);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  }, [activeChannel]);
+
+  // Load local alerts
+  const loadLocalAlerts = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('local_alerts')
+        .select(`
+          *,
+          user_profile:profiles(display_name)
+        `)
+        .eq('country_code', selectedCountry)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      
+      setLocalAlerts((data as any[])?.map(item => ({
+        ...item,
+        user_profile: item.user_profile || { display_name: 'Utente' }
+      })) || []);
+    } catch (error) {
+      console.error('Error loading alerts:', error);
+    }
+  }, [selectedCountry]);
+
+  // Subscribe to user's channels on first load
+  const subscribeToDefaultChannels = useCallback(async () => {
     if (!user) return;
     
+    try {
+      // Subscribe to general and emergency channels
+      const generalChannels = channels.filter(c => c.channel_type === 'general');
+      
+      for (const channel of generalChannels) {
+        await supabase
+          .from('user_channel_subscriptions')
+          .upsert({
+            user_id: user.id,
+            channel_id: channel.id,
+            notifications_enabled: true
+          }, {
+            onConflict: 'user_id,channel_id'
+          });
+      }
+    } catch (error) {
+      console.error('Error subscribing to channels:', error);
+    }
+  }, [user, channels]);
+
+  // Effects
+  useEffect(() => {
+    loadChannels();
+  }, [loadChannels]);
+
+  useEffect(() => {
+    if (channels.length > 0 && user) {
+      subscribeToDefaultChannels();
+    }
+  }, [channels, user, subscribeToDefaultChannels]);
+
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
+
+  useEffect(() => {
+    loadLocalAlerts();
+  }, [loadLocalAlerts]);
+
+  // Real-time subscriptions
+  useEffect(() => {
+    if (!user || !activeChannel) return;
+    
     const channel = supabase
-      .channel('community-messages')
+      .channel(`messages-${activeChannel}`)
       .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'community_messages' },
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'community_messages',
+          filter: `channel_id=eq.${activeChannel}`
+        },
         (payload) => {
-          const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
-          scrollToBottom();
+          loadMessages();
+          
+          // Show notification if not own message
+          if (payload.new.user_id !== user.id && notificationsEnabled) {
+            toast({
+              title: "Nuovo messaggio",
+              description: "Hai ricevuto un nuovo messaggio nel canale"
+            });
+          }
         }
       )
       .subscribe();
@@ -163,8 +325,8 @@ const CommunityPage = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
-  
+  }, [user, activeChannel, notificationsEnabled, loadMessages]);
+
   // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -173,63 +335,69 @@ const CommunityPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  
+
   // Send message
   const sendMessage = async () => {
-    if (!messageText.trim() || !user) return;
+    if (!messageText.trim() || !user || !activeChannel) return;
     
     try {
-      const messageData = {
-        content: messageText,
-        user_id: user.id,
-        channel: activeChannel,
-        message_type: 'text' as const,
-        is_emergency: activeChannel === 'emergency',
-        metadata: {
-          pet_id: selectedPet?.id,
-          location: userLocation,
-          timestamp: new Date().toISOString()
-        }
-      };
+      setLoading(true);
       
-      // In a real app, this would insert into a community_messages table
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
-        ...messageData,
-        created_at: new Date().toISOString(),
-        user_profile: {
-          display_name: user.email?.split('@')[0] || 'Utente',
-          expertise_badges: []
-        }
-      }]);
+      const { error } = await supabase
+        .from('community_messages')
+        .insert({
+          content: messageText,
+          user_id: user.id,
+          channel_id: activeChannel,
+          message_type: 'text',
+          is_emergency: false,
+          metadata: {
+            pet_id: selectedPet?.id,
+            timestamp: new Date().toISOString()
+          }
+        });
+      
+      if (error) throw error;
       
       setMessageText('');
-      toast({
-        title: "Messaggio inviato",
-        description: "Il tuo messaggio è stato pubblicato nella community"
-      });
     } catch (error) {
+      console.error('Error sending message:', error);
       toast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   // Voice recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorder.current = new MediaRecorder(stream);
-      setIsRecording(true);
+      audioChunks.current = [];
+      
+      mediaRecorder.current.ondataavailable = (event) => {
+        audioChunks.current.push(event.data);
+      };
+      
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+        await sendVoiceMessage(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
       
       mediaRecorder.current.start();
+      setIsRecording(true);
+      
       toast({
         title: "Registrazione avviata",
-        description: "Parla per registrare un messaggio vocale"
+        description: "Clicca di nuovo per fermare e inviare"
       });
     } catch (error) {
+      console.error('Error starting recording:', error);
       toast({
         title: "Errore",
         description: "Impossibile accedere al microfono",
@@ -242,73 +410,190 @@ const CommunityPage = () => {
     if (mediaRecorder.current && isRecording) {
       mediaRecorder.current.stop();
       setIsRecording(false);
+    }
+  };
+
+  const sendVoiceMessage = async (audioBlob: Blob) => {
+    if (!user || !activeChannel) return;
+    
+    try {
+      // Upload audio file
+      const fileName = `voice_${Date.now()}.wav`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('pet-media')
+        .upload(`voice-messages/${fileName}`, audioBlob);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('pet-media')
+        .getPublicUrl(uploadData.path);
+      
+      // Send message
+      const { error } = await supabase
+        .from('community_messages')
+        .insert({
+          user_id: user.id,
+          channel_id: activeChannel,
+          message_type: 'voice',
+          file_url: publicUrl,
+          voice_duration: 0, // Could calculate duration
+          metadata: { timestamp: new Date().toISOString() }
+        });
+      
+      if (error) throw error;
+      
       toast({
-        title: "Registrazione completata",
-        description: "Messaggio vocale inviato"
+        title: "Messaggio vocale inviato",
+        description: "Il tuo messaggio vocale è stato inviato"
+      });
+    } catch (error) {
+      console.error('Error sending voice message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile inviare il messaggio vocale",
+        variant: "destructive"
       });
     }
   };
-  
-  // Create local alert
-  const createLocalAlert = async (alertData: Partial<LocalAlert>) => {
-    if (!user) return;
+
+  // Image upload
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user || !activeChannel) return;
     
     try {
-      const newAlert: LocalAlert = {
-        id: Math.random().toString(),
-        title: alertData.title || '',
-        description: alertData.description || '',
-        alert_type: alertData.alert_type || 'health',
-        severity: alertData.severity || 'info',
-        location: {
-          city: userLocation,
-          region: 'Lombardia'
-        },
-        created_at: new Date().toISOString(),
-        verification_status: 'pending',
-        reports_count: 1,
-        affected_species: alertData.affected_species || []
-      };
+      setLoading(true);
       
-      setLocalAlerts(prev => [newAlert, ...prev]);
+      // Upload image
+      const fileName = `image_${Date.now()}.${file.name.split('.').pop()}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('pet-media')
+        .upload(`chat-images/${fileName}`, file);
+      
+      if (uploadError) throw uploadError;
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('pet-media')
+        .getPublicUrl(uploadData.path);
+      
+      // Send message
+      const { error } = await supabase
+        .from('community_messages')
+        .insert({
+          user_id: user.id,
+          channel_id: activeChannel,
+          message_type: 'image',
+          file_url: publicUrl,
+          metadata: { 
+            filename: file.name,
+            timestamp: new Date().toISOString() 
+          }
+        });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Immagine inviata",
+        description: "La tua immagine è stata condivisa"
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare l'immagine",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Create alert
+  const createAlert = async () => {
+    if (!user || !alertTitle.trim() || !alertDescription.trim()) return;
+    
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('local_alerts')
+        .insert({
+          user_id: user.id,
+          title: alertTitle,
+          description: alertDescription,
+          alert_type: alertType,
+          severity: alertSeverity,
+          country_code: selectedCountry,
+          affected_species: selectedPetType ? [selectedPetType] : [],
+          metadata: { timestamp: new Date().toISOString() }
+        });
+      
+      if (error) throw error;
+      
+      setShowAlertDialog(false);
+      setAlertTitle('');
+      setAlertDescription('');
+      loadLocalAlerts();
       
       toast({
         title: "Alert creato",
-        description: "Il tuo alert è stato segnalato alla community locale"
+        description: "Il tuo alert è stato segnalato alla community"
       });
     } catch (error) {
+      console.error('Error creating alert:', error);
       toast({
         title: "Errore",
         description: "Impossibile creare l'alert",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
-  
-  // Channel List Component
-  const ChannelList = () => (
-    <div className="space-y-2">
-      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
-        Canali
-      </div>
-      {Object.entries(CHANNELS).map(([key, channel]) => (
-        <Button
-          key={key}
-          variant={activeChannel === key ? "secondary" : "ghost"}
-          className="w-full justify-start text-left"
-          onClick={() => setActiveChannel(key)}
-        >
-          <span className="text-sm">{channel.name}</span>
-          {key === 'emergency' && (
-            <Badge variant="destructive" className="ml-auto text-xs">
-              24/7
-            </Badge>
-          )}
-        </Button>
-      ))}
-    </div>
-  );
-  
+
+  // Subscribe to channel
+  const subscribeToChannel = async (channelId: string) => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('user_channel_subscriptions')
+        .upsert({
+          user_id: user.id,
+          channel_id: channelId,
+          notifications_enabled: true
+        }, {
+          onConflict: 'user_id,channel_id'
+        });
+      
+      setActiveChannel(channelId);
+    } catch (error) {
+      console.error('Error subscribing to channel:', error);
+    }
+  };
+
+  // Filter channels
+  const filteredChannels = channels.filter(channel => {
+    if (channel.channel_type === 'general') return true;
+    if (channel.channel_type === 'country') {
+      return !selectedCountry || channel.country_code === selectedCountry;
+    }
+    if (channel.channel_type === 'pet_type') {
+      return !selectedPetType || channel.pet_type === selectedPetType;
+    }
+    if (channel.channel_type === 'breed') {
+      return (!selectedPetType || channel.pet_type === selectedPetType) &&
+             (!selectedBreed || channel.breed === selectedBreed);
+    }
+    return true;
+  });
+
+  // Get current channel info
+  const currentChannel = channels.find(c => c.id === activeChannel);
+
   // Message Component
   const MessageComponent = ({ message }: { message: Message }) => {
     const isOwnMessage = message.user_id === user?.id;
@@ -322,18 +607,11 @@ const CommunityPage = () => {
           </AvatarFallback>
         </Avatar>
         
-        <div className={`flex-1 ${isOwnMessage ? 'text-right' : ''}`}>
+        <div className={`flex-1 max-w-xs ${isOwnMessage ? 'text-right' : ''}`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-medium">
-              {message.user_profile?.display_name}
+              {message.user_profile?.display_name || 'Utente'}
             </span>
-            {message.user_profile?.expertise_badges?.map((badge) => (
-              <Badge key={badge} variant="outline" className="text-xs">
-                {badge === 'veterinarian' && <Stethoscope className="h-3 w-3 mr-1" />}
-                {badge === 'trainer' && <GraduationCap className="h-3 w-3 mr-1" />}
-                {badge}
-              </Badge>
-            ))}
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(message.created_at), { 
                 addSuffix: true, 
@@ -342,45 +620,41 @@ const CommunityPage = () => {
             </span>
           </div>
           
-          <div className={`rounded-lg p-3 max-w-xs ${
+          <div className={`rounded-lg p-3 ${
             isOwnMessage 
               ? 'bg-primary text-primary-foreground ml-auto' 
               : 'bg-muted'
           }`}>
-            {message.is_emergency && (
-              <div className="flex items-center gap-1 mb-2 text-destructive">
-                <Siren className="h-4 w-4" />
-                <span className="text-xs font-medium">EMERGENZA</span>
-              </div>
-            )}
-            
-            {message.message_type === 'voice' ? (
+            {message.message_type === 'voice' && (
               <div className="flex items-center gap-2">
                 <Volume2 className="h-4 w-4" />
                 <span className="text-sm">Messaggio vocale</span>
+                {message.file_url && (
+                  <audio controls className="max-w-full">
+                    <source src={message.file_url} type="audio/wav" />
+                  </audio>
+                )}
               </div>
-            ) : (
-              <p className="text-sm">{message.content}</p>
             )}
             
-            {translationEnabled && message.translations?.[currentLanguage] && (
-              <div className="mt-2 pt-2 border-t border-muted-foreground/20">
-                <div className="flex items-center gap-1 mb-1">
-                  <Languages className="h-3 w-3" />
-                  <span className="text-xs opacity-70">Traduzione</span>
-                </div>
-                <p className="text-sm opacity-90">
-                  {message.translations[currentLanguage]}
-                </p>
-              </div>
+            {message.message_type === 'image' && message.file_url && (
+              <img 
+                src={message.file_url} 
+                alt="Immagine condivisa" 
+                className="max-w-full rounded-md"
+              />
+            )}
+            
+            {message.message_type === 'text' && message.content && (
+              <p className="text-sm">{message.content}</p>
             )}
           </div>
         </div>
       </div>
     );
   };
-  
-  // Local Alert Component
+
+  // Alert Component
   const LocalAlertComponent = ({ alert }: { alert: LocalAlert }) => {
     const getSeverityColor = (severity: string) => {
       switch (severity) {
@@ -411,13 +685,9 @@ const CommunityPage = () => {
                 {alert.severity.toUpperCase()}
               </Badge>
             </div>
-            <Button variant="ghost" size="sm">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
           </div>
-          <CardDescription className="flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            {alert.location.city}, {alert.location.region} • 
+          <CardDescription>
+            {COUNTRIES.find(c => c.code === alert.country_code)?.name} • 
             <span className="ml-1">
               {formatDistanceToNow(new Date(alert.created_at), { 
                 addSuffix: true, 
@@ -432,53 +702,45 @@ const CommunityPage = () => {
             {alert.description}
           </p>
           
-          {alert.affected_species && alert.affected_species.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {alert.affected_species.map((species) => (
-                <Badge key={species} variant="outline" className="text-xs">
-                  {species === 'dog' && <Dog className="h-3 w-3 mr-1" />}
-                  {species === 'cat' && <Cat className="h-3 w-3 mr-1" />}
-                  {species}
-                </Badge>
-              ))}
-            </div>
-          )}
-          
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {alert.reports_count} segnalazioni
-              </span>
-              <span className="flex items-center gap-1">
-                {alert.verification_status === 'verified' ? (
-                  <>
-                    <CheckCircle className="h-3 w-3 text-green-500" />
-                    Verificato
-                  </>
-                ) : (
-                  <>
-                    <Clock className="h-3 w-3" />
-                    In verifica
-                  </>
-                )}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                <Share2 className="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Flag className="h-3 w-3" />
-              </Button>
-            </div>
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              {alert.reports_count} segnalazioni
+            </span>
+            <span className="flex items-center gap-1">
+              {alert.verification_status === 'verified' ? (
+                <>
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  Verificato
+                </>
+              ) : (
+                <>
+                  <Clock className="h-3 w-3" />
+                  In verifica
+                </>
+              )}
+            </span>
           </div>
         </CardContent>
       </Card>
     );
   };
-  
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+        <Card className="p-8 text-center">
+          <CardHeader>
+            <CardTitle>Accesso richiesto</CardTitle>
+            <CardDescription>
+              Devi essere registrato per accedere alla community
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
@@ -492,21 +754,86 @@ const CommunityPage = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <Select value={userLocation} onValueChange={setUserLocation}>
-              <SelectTrigger className="w-32">
+            {/* Country Filter */}
+            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+              <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Milano">Milano</SelectItem>
-                <SelectItem value="Roma">Roma</SelectItem>
-                <SelectItem value="Napoli">Napoli</SelectItem>
-                <SelectItem value="Torino">Torino</SelectItem>
+                {COUNTRIES.map(country => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {country.flag} {country.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4" />
-            </Button>
+            {/* Pet Type Filter */}
+            <Select value={selectedPetType} onValueChange={setSelectedPetType}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tutti</SelectItem>
+                <SelectItem value="dog">🐕 Cani</SelectItem>
+                <SelectItem value="cat">🐱 Gatti</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {/* Breed Filter */}
+            {selectedPetType && (
+              <Select value={selectedBreed} onValueChange={setSelectedBreed}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Razza" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Tutte</SelectItem>
+                  {(selectedPetType === 'dog' ? DOG_BREEDS : CAT_BREEDS).map(breed => (
+                    <SelectItem key={breed} value={breed}>{breed}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
+            {/* Settings */}
+            <Dialog open={showSettings} onOpenChange={setShowSettings}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Impostazioni Community</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="notifications">Notifiche push</Label>
+                    <Switch
+                      id="notifications"
+                      checked={notificationsEnabled}
+                      onCheckedChange={setNotificationsEnabled}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="sound">Suoni notifiche</Label>
+                    <Switch
+                      id="sound"
+                      checked={soundEnabled}
+                      onCheckedChange={setSoundEnabled}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="translation">Traduzione automatica</Label>
+                    <Switch
+                      id="translation"
+                      checked={translationEnabled}
+                      onCheckedChange={setTranslationEnabled}
+                    />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -515,27 +842,20 @@ const CommunityPage = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Channels */}
         <div className="w-64 border-r bg-muted/50 p-4 overflow-y-auto">
-          <ChannelList />
-          
-          <Separator className="my-4" />
-          
-          {/* Quick Actions */}
           <div className="space-y-2">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
-              Azioni Rapide
+              Canali
             </div>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
-              <Search className="h-4 w-4 mr-2" />
-              Cerca messaggi
-            </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
-              <Users className="h-4 w-4 mr-2" />
-              Trova esperti
-            </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
-              <Siren className="h-4 w-4 mr-2" />
-              Segnala alert
-            </Button>
+            {filteredChannels.map((channel) => (
+              <Button
+                key={channel.id}
+                variant={activeChannel === channel.id ? "secondary" : "ghost"}
+                className="w-full justify-start text-left"
+                onClick={() => subscribeToChannel(channel.id)}
+              >
+                <span className="text-sm">{channel.emoji} {channel.name}</span>
+              </Button>
+            ))}
           </div>
         </div>
         
@@ -561,19 +881,16 @@ const CommunityPage = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-semibold">
-                      {CHANNELS[activeChannel as keyof typeof CHANNELS]?.name}
+                      {currentChannel?.name || 'Seleziona un canale'}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                      {CHANNELS[activeChannel as keyof typeof CHANNELS]?.description}
+                      {currentChannel?.description}
                     </p>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm">
                       <Languages className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Filter className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -582,11 +899,9 @@ const CommunityPage = () => {
               {/* Messages Area */}
               <ScrollArea className="flex-1 p-4">
                 <div className="space-y-4">
-                  {messages
-                    .filter(msg => msg.channel === activeChannel)
-                    .map((message) => (
-                      <MessageComponent key={message.id} message={message} />
-                    ))}
+                  {messages.map((message) => (
+                    <MessageComponent key={message.id} message={message} />
+                  ))}
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
@@ -596,43 +911,50 @@ const CommunityPage = () => {
                 <div className="flex items-center gap-2">
                   <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
                     <Input
-                      placeholder={`Scrivi in ${CHANNELS[activeChannel as keyof typeof CHANNELS]?.name}...`}
+                      placeholder={`Scrivi in ${currentChannel?.name || 'questo canale'}...`}
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                      onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                       className="border-0 bg-transparent focus-visible:ring-0"
+                      disabled={!activeChannel}
                     />
                     
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onMouseDown={startRecording}
-                        onMouseUp={stopRecording}
+                        onClick={isRecording ? stopRecording : startRecording}
                         className={isRecording ? 'text-red-500' : ''}
+                        disabled={!activeChannel}
                       >
                         {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                       </Button>
                       
-                      <Button variant="ghost" size="sm">
-                        <Image className="h-4 w-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={!activeChannel}
+                      >
+                        <Camera className="h-4 w-4" />
                       </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
                     </div>
                   </div>
                   
-                  <Button onClick={sendMessage} disabled={!messageText.trim()}>
+                  <Button 
+                    onClick={sendMessage} 
+                    disabled={!messageText.trim() || loading || !activeChannel}
+                  >
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                {activeChannel === 'emergency' && (
-                  <Alert className="mt-2">
-                    <Siren className="h-4 w-4" />
-                    <AlertDescription>
-                      Canale emergenze 24/7. Per emergenze reali contatta immediatamente il veterinario.
-                    </AlertDescription>
-                  </Alert>
-                )}
               </div>
             </TabsContent>
             
@@ -644,22 +966,82 @@ const CommunityPage = () => {
                   <div>
                     <h2 className="font-semibold">News & Alert Locali</h2>
                     <p className="text-sm text-muted-foreground">
-                      Informazioni sanitarie territoriali per {userLocation}
+                      Informazioni sanitarie per {COUNTRIES.find(c => c.code === selectedCountry)?.name}
                     </p>
                   </div>
                   
-                  <Button 
-                    variant="default"
-                    onClick={() => createLocalAlert({
-                      title: 'Nuovo Alert',
-                      description: 'Descrizione dell\'alert',
-                      alert_type: 'health',
-                      severity: 'warning'
-                    })}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Segnala Alert
-                  </Button>
+                  <Dialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
+                    <DialogTrigger asChild>
+                      <Button variant="default">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Segnala Alert
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Crea nuovo alert</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="alert-type">Tipo di alert</Label>
+                          <Select value={alertType} onValueChange={(v: any) => setAlertType(v)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="health">🏥 Salute</SelectItem>
+                              <SelectItem value="emergency">🆘 Emergenza</SelectItem>
+                              <SelectItem value="environment">🌍 Ambiente</SelectItem>
+                              <SelectItem value="outbreak">⚠️ Epidemia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="alert-severity">Gravità</Label>
+                          <Select value={alertSeverity} onValueChange={(v: any) => setAlertSeverity(v)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="info">ℹ️ Informazione</SelectItem>
+                              <SelectItem value="warning">⚠️ Attenzione</SelectItem>
+                              <SelectItem value="emergency">🚨 Emergenza</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="alert-title">Titolo</Label>
+                          <Input
+                            id="alert-title"
+                            value={alertTitle}
+                            onChange={(e) => setAlertTitle(e.target.value)}
+                            placeholder="Titolo dell'alert"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="alert-description">Descrizione</Label>
+                          <Textarea
+                            id="alert-description"
+                            value={alertDescription}
+                            onChange={(e) => setAlertDescription(e.target.value)}
+                            placeholder="Descrivi dettagliatamente la situazione"
+                            rows={4}
+                          />
+                        </div>
+                        
+                        <Button 
+                          onClick={createAlert} 
+                          disabled={loading || !alertTitle.trim() || !alertDescription.trim()}
+                          className="w-full"
+                        >
+                          Crea Alert
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
               
@@ -677,7 +1059,7 @@ const CommunityPage = () => {
                         Nessun alert per la tua zona
                       </h3>
                       <p className="text-muted-foreground">
-                        Al momento non ci sono segnalazioni per {userLocation}
+                        Al momento non ci sono segnalazioni per {COUNTRIES.find(c => c.code === selectedCountry)?.name}
                       </p>
                     </div>
                   )}
