@@ -192,7 +192,7 @@ const CommunityPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   
-  // Genera UUID deterministico per i canali
+  // Genera UUID deterministico per i canali - versione migliorata
   const generateChannelUUID = useCallback((channelKey: string) => {
     let hash = 0;
     for (let i = 0; i < channelKey.length; i++) {
@@ -200,8 +200,8 @@ const CommunityPage = () => {
       hash = ((hash << 5) - hash) + char;
       hash = hash & hash;
     }
-    const hashStr = Math.abs(hash).toString(16).padStart(8, '0');
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 12)}`;
+    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
+    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
   }, []);
 
   // Get breeds by animal type
@@ -281,17 +281,31 @@ const CommunityPage = () => {
         .eq('user_id', user.id);
       
       if (error) throw error;
-      setSubscribedChannels(data?.map(sub => sub.channel_id) || []);
+      
+      // Converte gli UUID back ai channel IDs originali
+      const subscribedUUIDs = data?.map(sub => sub.channel_id) || [];
+      console.log('Subscribed UUIDs:', subscribedUUIDs);
+      
+      // Trova i canali originali corrispondenti
+      const originalChannelIds = availableChannels
+        .filter(channel => subscribedUUIDs.includes(generateChannelUUID(channel.id)))
+        .map(channel => channel.id);
+      
+      console.log('Original channel IDs:', originalChannelIds);
+      setSubscribedChannels(originalChannelIds);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
-  }, [user]);
+  }, [user, availableChannels, generateChannelUUID]);
 
   // Load messages
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
     try {
+      const channelUUID = generateChannelUUID(activeChannel);
+      console.log('Loading messages for channel:', { activeChannel, channelUUID });
+      
       const { data, error } = await supabase
         .from('community_messages')
         .select(`
@@ -311,16 +325,18 @@ const CommunityPage = () => {
             avatar_url
           )
         `)
-        .eq('channel_id', activeChannel)
+        .eq('channel_id', channelUUID)
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
       if (error) throw error;
+      
+      console.log('Messages loaded:', data);
       setMessages((data as Message[]) || []);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  }, [activeChannel]);
+  }, [activeChannel, generateChannelUUID]);
 
   // Handle country change
   const handleCountryChange = useCallback((countryCode: string) => {
@@ -346,11 +362,14 @@ const CommunityPage = () => {
     if (!user) return;
     
     try {
+      const channelUUID = generateChannelUUID(channelId);
+      console.log('Subscribing to channel:', { channelId, channelUUID });
+      
       await supabase
         .from('user_channel_subscriptions')
         .upsert({
           user_id: user.id,
-          channel_id: channelId,
+          channel_id: channelUUID,
           notifications_enabled: true
         });
       
@@ -363,19 +382,27 @@ const CommunityPage = () => {
       });
     } catch (error) {
       console.error('Error subscribing to channel:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile iscriversi al canale",
+        variant: "destructive"
+      });
     }
-  }, [user, loadUserSubscriptions]);
+  }, [user, loadUserSubscriptions, generateChannelUUID]);
 
   // Unsubscribe from channel
   const unsubscribeFromChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
+      const channelUUID = generateChannelUUID(channelId);
+      console.log('Unsubscribing from channel:', { channelId, channelUUID });
+      
       await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
-        .eq('channel_id', channelId);
+        .eq('channel_id', channelUUID);
       
       if (activeChannel === channelId) {
         setActiveChannel(null);
@@ -389,8 +416,13 @@ const CommunityPage = () => {
       });
     } catch (error) {
       console.error('Error unsubscribing from channel:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile lasciare il canale",
+        variant: "destructive"
+      });
     }
-  }, [user, activeChannel, loadUserSubscriptions]);
+  }, [user, activeChannel, loadUserSubscriptions, generateChannelUUID]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -399,10 +431,10 @@ const CommunityPage = () => {
 
   // Effects
   useEffect(() => {
-    if (user) {
+    if (user && availableChannels.length > 0) {
       loadUserSubscriptions();
     }
-  }, [user, loadUserSubscriptions]);
+  }, [user, availableChannels, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
@@ -504,92 +536,136 @@ const CommunityPage = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div className="w-80 border-r bg-muted/50 flex flex-col">
-          <div className="p-4 border-b">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Canali Disponibili
-            </div>
-          </div>
-          
           <ScrollArea className="flex-1">
-            <div className="p-4 space-y-3">
-              {availableChannels.length > 0 ? (
-                availableChannels.map((channel) => {
-                  const isJoined = subscribedChannels.includes(channel.id);
-                  const isActive = activeChannel === channel.id;
-                  
-                  return (
-                    <div
-                      key={channel.id}
-                      className={`bg-card border rounded-lg p-3 ${
-                        isActive ? 'border-primary bg-primary/5' : 'border-muted'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{channel.flag}</span>
-                          <div>
-                            <div className="text-sm font-medium">{channel.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {channel.type === 'general' ? 'Generico' : 'Specifico'}
+            {/* I tuoi canali */}
+            {subscribedChannels.length > 0 && (
+              <div className="border-b">
+                <div className="p-4 border-b">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    I tuoi canali
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  {availableChannels
+                    .filter(channel => subscribedChannels.includes(channel.id))
+                    .map((channel) => {
+                      const isActive = activeChannel === channel.id;
+                      
+                      return (
+                        <div
+                          key={channel.id}
+                          className={`bg-card border rounded-lg p-3 ${
+                            isActive ? 'border-primary bg-primary/5' : 'border-muted'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{channel.flag}</span>
+                              <div>
+                                <div className="text-sm font-medium">{channel.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {channel.type === 'general' ? 'Generico' : 'Specifico'}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant={isActive ? "default" : "outline"}
+                                onClick={() => setActiveChannel(channel.id)}
+                              >
+                                {isActive ? (
+                                  <>
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Attivo
+                                  </>
+                                ) : (
+                                  <>
+                                    <MessageSquare className="h-3 w-3 mr-1" />
+                                    Apri
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => unsubscribeFromChannel(channel.id)}
+                                title="Esci dal canale"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
                             </div>
                           </div>
+                          
+                          <p className="text-xs text-muted-foreground">
+                            {channel.description}
+                          </p>
                         </div>
-                        
-                        {isJoined ? (
-                          <div className="flex items-center gap-2">
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+            
+            {/* Canali disponibili */}
+            <div>
+              <div className="p-4 border-b">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Canali disponibili
+                </div>
+              </div>
+              <div className="p-4 space-y-3">
+                {availableChannels.filter(channel => !subscribedChannels.includes(channel.id)).length > 0 ? (
+                  availableChannels
+                    .filter(channel => !subscribedChannels.includes(channel.id))
+                    .map((channel) => {
+                      return (
+                        <div
+                          key={channel.id}
+                          className="bg-card border rounded-lg p-3 border-muted"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{channel.flag}</span>
+                              <div>
+                                <div className="text-sm font-medium">{channel.name}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {channel.type === 'general' ? 'Generico' : 'Specifico'}
+                                </div>
+                              </div>
+                            </div>
+                            
                             <Button
                               size="sm"
-                              variant={isActive ? "default" : "outline"}
-                              onClick={() => setActiveChannel(channel.id)}
+                              onClick={() => subscribeToChannel(channel.id)}
                             >
-                              {isActive ? (
-                                <>
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Attivo
-                                </>
-                              ) : (
-                                <>
-                                  <MessageSquare className="h-3 w-3 mr-1" />
-                                  Apri
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => unsubscribeFromChannel(channel.id)}
-                            >
-                              <X className="h-3 w-3" />
+                              <Users className="h-3 w-3 mr-1" />
+                              Entra
                             </Button>
                           </div>
-                        ) : (
-                          <Button
-                            size="sm"
-                            onClick={() => subscribeToChannel(channel.id)}
-                          >
-                            <Users className="h-3 w-3 mr-1" />
-                            Entra
-                          </Button>
-                        )}
-                      </div>
-                      
-                      <p className="text-xs text-muted-foreground">
-                        {channel.description}
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-8">
-                  <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">
-                    Nessun canale disponibile
-                  </h3>
-                  <p className="text-muted-foreground text-sm">
-                    Seleziona Paese, Tipo Animale e Razza per vedere i canali disponibili
-                  </p>
-                </div>
-              )}
+                          
+                          <p className="text-xs text-muted-foreground">
+                            {channel.description}
+                          </p>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">
+                      {availableChannels.length === 0 ? 'Nessun canale disponibile' : 'Nessun nuovo canale'}
+                    </h3>
+                    <p className="text-muted-foreground text-sm">
+                      {availableChannels.length === 0 
+                        ? 'Seleziona Paese, Tipo Animale e Razza per vedere i canali disponibili'
+                        : 'Sei già iscritto a tutti i canali disponibili per questa selezione'
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </ScrollArea>
         </div>

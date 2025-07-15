@@ -27,9 +27,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Genera UUID deterministico per il canale
+  // Genera UUID deterministico per il canale - versione migliorata
   const generateChannelUUID = useCallback((channelKey: string) => {
-    // Usa un hash semplice per convertire stringa in UUID-like
+    // Usa un hash migliorato per convertire stringa in UUID-like
     let hash = 0;
     for (let i = 0; i < channelKey.length; i++) {
       const char = channelKey.charCodeAt(i);
@@ -37,9 +37,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       hash = hash & hash; // Converti a 32-bit integer
     }
     
-    // Converti in formato UUID (solo per compatibilità)
-    const hashStr = Math.abs(hash).toString(16).padStart(8, '0');
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 12)}`;
+    // Converti in formato UUID più robusto
+    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
+    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
   }, []);
 
   // 1. INVIO MESSAGGI TESTO
@@ -50,7 +50,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     try {
       const channelUUID = generateChannelUUID(channelId);
       
-      const { error } = await supabase
+      console.log('Sending message:', {
+        channelId,
+        channelUUID,
+        userId: user.id,
+        messageText: messageText.trim()
+      });
+      
+      const { data, error } = await supabase
         .from('community_messages')
         .insert([{
           channel_id: channelUUID,
@@ -62,9 +69,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             channel_name: channelName,
             original_channel_id: channelId
           }
-        }]);
+        }])
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Message sent successfully:', data);
       
       setMessageText('');
       onMessageSent?.();
@@ -77,7 +90,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       console.error('Errore invio messaggio:', error);
       toast({
         title: "Errore",
-        description: "Impossibile inviare il messaggio",
+        description: `Impossibile inviare il messaggio: ${error.message}`,
         variant: "destructive"
       });
     } finally {
@@ -128,7 +141,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         
         // Salva messaggio con immagine
         const channelUUID = generateChannelUUID(channelId);
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('community_messages')
           .insert([{
             channel_id: channelUUID,
@@ -143,7 +156,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               file_name: file.name,
               file_size: file.size
             }
-          }]);
+          }])
+          .select();
         
         if (error) throw error;
         
@@ -212,7 +226,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           
           // Salva messaggio audio
           const channelUUID = generateChannelUUID(channelId);
-          const { error } = await supabase
+          const { data, error } = await supabase
             .from('community_messages')
             .insert([{
               channel_id: channelUUID,
@@ -227,7 +241,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({
                 original_channel_id: channelId,
                 file_size: blob.size
               }
-            }]);
+            }])
+            .select();
           
           if (error) throw error;
           
