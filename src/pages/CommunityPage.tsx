@@ -1251,7 +1251,7 @@ const CommunityPage = () => {
                   onClick={() => setActiveChannel(channel.id)}
                 >
                   <span className="text-sm flex items-center gap-2">
-                    {channel.emoji} {channel.name}
+                    {channel.name}
                   </span>
                 </Button>
               ))
