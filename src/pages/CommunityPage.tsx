@@ -1034,7 +1034,7 @@ const CommunityPage = () => {
                     <Input
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="text-sm"
+                      className="text-sm text-foreground bg-background"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleSaveEdit();
                         if (e.key === 'Escape') setIsEditing(false);
@@ -1393,83 +1393,83 @@ const CommunityPage = () => {
               
               {/* Messages Area */}
               {activeChannel ? (
-                <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-                  <div className="p-4 space-y-4">
-                    {messages.length === 0 ? (
-                      <div className="text-center py-8">
-                        <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          Nessun messaggio ancora. Inizia la conversazione!
-                        </p>
+                <div className="flex-1 flex flex-col">
+                  <div className="flex-1 overflow-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+                    <div className="p-4 space-y-4">
+                      {messages.length === 0 ? (
+                        <div className="text-center py-8">
+                          <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Nessun messaggio ancora. Inizia la conversazione!
+                          </p>
+                        </div>
+                      ) : (
+                        messages.map((message) => (
+                          <MessageComponent key={message.id} message={message} />
+                        ))
+                      )}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </div>
+                  
+                  {/* Message Input */}
+                  <div className="border-t p-4 bg-card">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
+                        <Input
+                          placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
+                          value={messageText}
+                          onChange={(e) => setMessageText(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                          className="border-0 bg-transparent focus-visible:ring-0"
+                          disabled={loading}
+                        />
+                        
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={isRecording ? stopRecording : startRecording}
+                            className={isRecording ? 'text-red-500' : ''}
+                            title="🎤 Audio"
+                            disabled={loading}
+                          >
+                            {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                          </Button>
+                          
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            title="📷 Foto"
+                            disabled={loading}
+                          >
+                            <Camera className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={sendMessage}
+                            disabled={!messageText.trim() || loading}
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
                       </div>
-                    ) : (
-                      messages.map((message) => (
-                        <MessageComponent key={message.id} message={message} />
-                      ))
-                    )}
-                    <div ref={messagesEndRef} />
+                    </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex-1" />
-              )}
-              
-              {/* Message Input */}
-              {activeChannel && (
-                <div className="border-t p-4 bg-card">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
-                      <Input
-                        placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                        className="border-0 bg-transparent focus-visible:ring-0"
-                        disabled={loading}
-                      />
-                      
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={isRecording ? stopRecording : startRecording}
-                          className={isRecording ? 'text-red-500' : ''}
-                          title="🎤 Audio"
-                          disabled={loading}
-                        >
-                          {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                        </Button>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => fileInputRef.current?.click()}
-                          title="📷 Foto"
-                          disabled={loading}
-                        >
-                          <Camera className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={sendMessage}
-                          disabled={!messageText.trim() || loading}
-                        >
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
-                </div>
               )}
             </TabsContent>
             
