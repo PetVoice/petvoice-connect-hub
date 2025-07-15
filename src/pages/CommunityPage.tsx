@@ -582,11 +582,11 @@ const CommunityPage = () => {
       return !selectedCountry || channel.country_code === selectedCountry;
     }
     if (channel.channel_type === 'pet_type') {
-      return !selectedPetType || channel.pet_type === selectedPetType;
+      return !selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType;
     }
     if (channel.channel_type === 'breed') {
-      return (!selectedPetType || channel.pet_type === selectedPetType) &&
-             (!selectedBreed || channel.breed === selectedBreed);
+      return (!selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType) &&
+             (!selectedBreed || selectedBreed === 'all' || channel.breed === selectedBreed);
     }
     return true;
   });
@@ -774,20 +774,20 @@ const CommunityPage = () => {
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tutti</SelectItem>
+                <SelectItem value="all">Tutti</SelectItem>
                 <SelectItem value="dog">🐕 Cani</SelectItem>
                 <SelectItem value="cat">🐱 Gatti</SelectItem>
               </SelectContent>
             </Select>
             
             {/* Breed Filter */}
-            {selectedPetType && (
+            {selectedPetType && selectedPetType !== 'all' && (
               <Select value={selectedBreed} onValueChange={setSelectedBreed}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Razza" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tutte</SelectItem>
+                  <SelectItem value="all">Tutte</SelectItem>
                   {(selectedPetType === 'dog' ? DOG_BREEDS : CAT_BREEDS).map(breed => (
                     <SelectItem key={breed} value={breed}>{breed}</SelectItem>
                   ))}
