@@ -252,6 +252,31 @@ const CommunityPage = () => {
     }
   };
   
+  const leaveAllGroups = async () => {
+    try {
+      await supabase
+        .from('user_channel_subscriptions')
+        .delete()
+        .eq('user_id', user.id);
+      
+      await loadMyGroups();
+      setActiveChat(null);
+      
+      toast({
+        title: "Uscita completata",
+        description: "Hai lasciato tutti i gruppi"
+      });
+      
+    } catch (error) {
+      console.error('Errore leave all:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile uscire da tutti i gruppi",
+        variant: "destructive"
+      });
+    }
+  };
+  
   const openChat = (groupId) => {
     setActiveChat(groupId);
   };
@@ -349,7 +374,36 @@ const CommunityPage = () => {
             
             <Card>
               <CardHeader>
-                <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
+                  {myGroups.length > 0 && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                          Esci da tutti i gruppi
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Conferma uscita da tutti i gruppi</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Sei sicuro di voler uscire da tutti i {myGroups.length} gruppi? 
+                            Non riceverai più messaggi da nessun gruppo.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={leaveAllGroups}
+                            className="bg-destructive hover:bg-destructive/90"
+                          >
+                            Esci da tutti i gruppi
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">

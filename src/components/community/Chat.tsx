@@ -130,17 +130,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         metadata: {}
       };
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('community_messages')
-        .insert([messageData])
-        .select();
+        .insert([messageData]);
 
       if (error) throw error;
-
-      // Aggiungi il messaggio alla lista locale se non arriva tramite realtime
-      if (data && data[0]) {
-        setMessages(prev => [...prev, data[0]]);
-      }
 
     } catch (error) {
       console.error('Error sending message:', error);
