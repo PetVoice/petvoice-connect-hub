@@ -1307,35 +1307,27 @@ export type Database = {
       }
       user_channel_subscriptions: {
         Row: {
-          channel_id: string
+          channel_id: string | null
           id: string
           joined_at: string
           notifications_enabled: boolean | null
           user_id: string
         }
         Insert: {
-          channel_id: string
+          channel_id?: string | null
           id?: string
           joined_at?: string
           notifications_enabled?: boolean | null
           user_id: string
         }
         Update: {
-          channel_id?: string
+          channel_id?: string | null
           id?: string
           joined_at?: string
           notifications_enabled?: boolean | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_channel_subscriptions_channel_id_fkey"
-            columns: ["channel_id"]
-            isOneToOne: false
-            referencedRelation: "community_channels"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_referrals: {
         Row: {
