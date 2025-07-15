@@ -1957,6 +1957,110 @@ const SupportPage: React.FC = () => {
                 </CardContent>
               </Card>
 
+              {/* Programma Affiliazione */}
+              <Card className="border-green-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-lg">
+                    <Award className="h-5 w-5 text-green-600" />
+                    <span>🤝 Programma Affiliazione</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
+                    <div>
+                      <h4 className="font-medium">Ottieni il tuo codice referral</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Vai nella sezione Affiliazione per trovare il tuo codice personale
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">2</div>
+                    <div>
+                      <h4 className="font-medium">Condividi con amici</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Invita amici a registrarsi usando il tuo codice referral
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
+                    <div>
+                      <h4 className="font-medium">Guadagna commissioni</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Ricevi crediti per ogni amico che si abbona al servizio
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Tier System */}
+                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                    <h5 className="font-medium text-sm mb-2">Sistema a Livelli:</h5>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span>🥉 Bronzo (0-4 conversioni):</span>
+                        <span className="font-medium">5% commissione</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>🥈 Argento (5-9 conversioni):</span>
+                        <span className="font-medium">10% commissione</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>🥇 Oro (10-19 conversioni):</span>
+                        <span className="font-medium">15% commissione</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>💎 Platino (20+ conversioni):</span>
+                        <span className="font-medium">20% commissione</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Community */}
+              <Card className="border-purple-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-lg">
+                    <Users className="h-5 w-5 text-purple-600" />
+                    <span>👥 Community</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                    <MessageSquare className="h-4 w-4 text-purple-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Chat Globale:</span> Connettiti con altri proprietari di animali
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                    <Globe className="h-4 w-4 text-purple-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Canali per Paese:</span> Discussioni locali e informazioni
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                    <Target className="h-4 w-4 text-purple-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Gruppi Specifici:</span> Canali per tipo di animale e razza
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-2 mt-3">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Messaggi:</strong> Testo, emoji, file e messaggi vocali
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Emergenze:</strong> Segnala situazioni di urgenza per aiuto immediato
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Formati Supportati */}
               <Card className="md:col-span-2 border-yellow-200">
                 <CardHeader>
