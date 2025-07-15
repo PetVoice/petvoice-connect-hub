@@ -399,6 +399,7 @@ const CAT_BREEDS = [
 ];
 
 const CommunityPage = () => {
+  console.log('CommunityPage component loaded successfully');
   const { user } = useAuth();
   const { selectedPet } = usePets();
   
@@ -946,37 +947,6 @@ const CommunityPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Genera lista dinamica dei canali da mostrare
-  const getChannelList = () => {
-    const channelSet = new Set<string>();
-    const channelList: Channel[] = [];
-    
-    // 1. Aggiungi sempre il canale del paese selezionato
-    const selectedCountryChannel = selectedCountry 
-      ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
-      : null;
-    
-    if (selectedCountryChannel) {
-      channelSet.add(selectedCountryChannel.id);
-      channelList.push(selectedCountryChannel);
-    }
-    
-    // 2. Aggiungi tutti i canali a cui sono iscritto (escludendo generali e emergenze)
-    const subscribedChannelObjects = channels.filter(channel => 
-      subscribedChannels.includes(channel.id) && 
-      channel.name !== '🌍 Generale' && 
-      channel.name !== '🆘 Emergenze' &&
-      !channelSet.has(channel.id) // Evita duplicati
-    );
-    
-    subscribedChannelObjects.forEach(channel => {
-      channelSet.add(channel.id);
-      channelList.push(channel);
-    });
-    
-    return channelList;
   };
 
   // Get selected country channel
