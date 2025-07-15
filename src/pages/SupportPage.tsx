@@ -1441,19 +1441,6 @@ const SupportPage: React.FC = () => {
                     </Button>
                   </div>
                   
-                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-                    <Phone className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">Telefono</p>
-                      <p className="text-sm text-muted-foreground">
-                        +39 02 1234 5678
-                      </p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      <PhoneCall className="h-3 w-3 mr-1" />
-                      Chiama
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
 

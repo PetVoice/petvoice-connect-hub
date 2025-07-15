@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { Send, Camera, Mic, MicOff, Upload } from 'lucide-react';
+import { Send, Camera, Mic, MicOff, Upload, Smile } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -25,7 +25,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const [recording, setRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [showEmojis, setShowEmojis] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const emojis = ['😀', '😂', '❤️', '😍', '🥺', '😊', '🙄', '😢', '😡', '🤔', '👍', '👎', '🙏', '💪', '🔥', '💯', '🎉', '❄️', '☀️', '🌟', '🐶', '🐱', '🐾', '💕', '🎁'];
 
   // 1. INVIO MESSAGGI TESTO
   const sendMessage = useCallback(async () => {
@@ -292,18 +295,54 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     }
   };
 
+  const addEmoji = (emoji: string) => {
+    setMessageText(prev => prev + emoji);
+    setShowEmojis(false);
+  };
+
   return (
     <div className="message-input-container">
       <div className="message-input-row">
-        <Input
-          type="text"
-          value={messageText}
-          onChange={(e) => setMessageText(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder={`Scrivi in ${channelName}...`}
-          disabled={sending || disabled}
-          className="message-input-field"
-        />
+        <div className="relative flex-1">
+          <Input
+            type="text"
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder={`Scrivi in ${channelName}...`}
+            disabled={sending || disabled}
+            className="message-input-field pr-10"
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+            onClick={() => setShowEmojis(!showEmojis)}
+            disabled={sending || disabled}
+          >
+            <Smile size={16} />
+          </Button>
+          
+          {showEmojis && (
+            <div className="absolute bottom-full right-0 mb-2 p-3 bg-background border border-border rounded-lg shadow-lg z-50 w-64">
+              <div className="grid grid-cols-5 gap-2">
+                {emojis.map((emoji, index) => (
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    size="sm"
+                    className="text-lg hover:bg-muted"
+                    onClick={() => addEmoji(emoji)}
+                  >
+                    {emoji}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
         <Button 
           onClick={sendMessage} 
           disabled={sending || !messageText.trim() || disabled}
