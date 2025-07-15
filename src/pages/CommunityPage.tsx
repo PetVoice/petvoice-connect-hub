@@ -14,6 +14,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { SearchableSelect } from '@/components/SearchableSelect';
+import { UniformSelect } from '@/components/UniformSelect';
+import { MessageInput } from '@/components/MessageInput';
 import { 
   MessageSquare, 
   Globe, 
@@ -188,6 +190,19 @@ const CommunityPage = () => {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  
+  // Genera UUID deterministico per i canali
+  const generateChannelUUID = useCallback((channelKey: string) => {
+    let hash = 0;
+    for (let i = 0; i < channelKey.length; i++) {
+      const char = channelKey.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const hashStr = Math.abs(hash).toString(16).padStart(8, '0');
+    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 4)}-${hashStr.substring(0, 12)}`;
+  }, []);
 
   // Get breeds by animal type
   const getBreedsByAnimalType = useCallback((animalType: string) => {
@@ -377,48 +392,10 @@ const CommunityPage = () => {
     }
   }, [user, activeChannel, loadUserSubscriptions]);
 
-  // Send message
-  const sendMessage = useCallback(async () => {
-    if (!activeChannel || !messageText.trim() || !user) return;
-    
-    try {
-      await supabase
-        .from('community_messages')
-        .insert({
-          channel_id: activeChannel,
-          user_id: user.id,
-          content: messageText.trim(),
-          message_type: 'text',
-          is_emergency: false,
-          metadata: {}
-        });
-      
-      setMessageText('');
-      await loadMessages();
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  }, [activeChannel, messageText, user, loadMessages]);
-
-  // Handle image upload
-  const handleImageUpload = useCallback(() => {
-    // Placeholder for image upload
-    toast({
-      title: "Funzione in arrivo",
-      description: "Caricamento immagini sarà disponibile presto"
-    });
-  }, []);
-
-  // Recording functions
-  const startRecording = useCallback(() => {
-    setIsRecording(true);
-    // Placeholder for recording
-  }, []);
-
-  const stopRecording = useCallback(() => {
-    setIsRecording(false);
-    // Placeholder for stopping recording
-  }, []);
+  // Message sent callback
+  const handleMessageSent = useCallback(() => {
+    loadMessages();
+  }, [loadMessages]);
 
   // Effects
   useEffect(() => {
@@ -683,48 +660,12 @@ const CommunityPage = () => {
               </div>
               
               {/* Message Input */}
-              <div className="border-t p-4">
-                <div className="flex gap-2">
-                  <Input
-                    value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
-                    placeholder={`Scrivi in ${availableChannels.find(c => c.id === activeChannel)?.name}...`}
-                    className="flex-1"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                  />
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={handleImageUpload}
-                    disabled={loading}
-                  >
-                    <Camera className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={isRecording ? stopRecording : startRecording}
-                    disabled={loading}
-                  >
-                    {isRecording ? (
-                      <MicOff className="h-4 w-4 text-red-500" />
-                    ) : (
-                      <Mic className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    onClick={sendMessage}
-                    disabled={!messageText.trim() || loading}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <MessageInput
+                channelId={activeChannel}
+                channelName={availableChannels.find(c => c.id === activeChannel)?.name || 'Canale'}
+                onMessageSent={handleMessageSent}
+                disabled={loading}
+              />
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center">
