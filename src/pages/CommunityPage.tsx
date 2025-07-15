@@ -478,26 +478,96 @@ const CommunityPage = () => {
     }
   }, [user]);
 
-  // Load messages for active channel
+  // Load messages for active channel - CRONOLOGIA COMPLETA
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
     try {
       const { data, error } = await supabase
         .from('community_messages')
-        .select('*')
+        .select(`
+          id,
+          content,
+          user_id,
+          channel_id,
+          message_type,
+          is_emergency,
+          file_url,
+          voice_duration,
+          metadata,
+          created_at,
+          updated_at,
+          profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `)
         .eq('channel_id', activeChannel)
         .is('deleted_at', null)
-        .order('created_at', { ascending: true })
-        .limit(50);
+        .order('created_at', { ascending: true });
       
       if (error) throw error;
       
+      // Carica TUTTA la cronologia del canale
       setMessages((data as Message[]) || []);
+      
+      // Auto-scroll ai messaggi più recenti
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  }, [activeChannel]);
+  // Setup realtime subscription for new messages
+  useEffect(() => {
+    if (!activeChannel || !isInActiveChannel) return;
+    
+    const channel = supabase
+      .channel(`community-${activeChannel}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'community_messages',
+        filter: `channel_id=eq.${activeChannel}`
+      }, async (payload) => {
+        // Carica il messaggio completo con il profilo utente
+        const { data: newMessage } = await supabase
+          .from('community_messages')
+          .select(`
+            id,
+            content,
+            user_id,
+            channel_id,
+            message_type,
+            is_emergency,
+            file_url,
+            voice_duration,
+            metadata,
+            created_at,
+            updated_at,
+            profiles:user_id (
+              display_name,
+              avatar_url
+            )
+          `)
+          .eq('id', payload.new.id)
+          .single();
+        
+        if (newMessage) {
+          setMessages(prev => [...prev, newMessage as Message]);
+          
+          // Auto-scroll ai nuovi messaggi
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+      })
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeChannel, isInActiveChannel]);
 
   // Load local alerts
   const loadLocalAlerts = useCallback(async () => {
@@ -957,25 +1027,23 @@ const CommunityPage = () => {
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
 
-  // Lista canali da mostrare (paese selezionato + canali in cui sono iscritto)
+  // Lista canali da mostrare - SOLO CANALI ATTIVI (dove sono iscritto)
   const visibleChannels = useMemo(() => {
-    const channelsSet = new Set<Channel>();
+    const activeChannelsOnly: Channel[] = [];
     
-    // Aggiungi canale del paese selezionato se esiste
-    if (selectedCountryChannel) {
-      channelsSet.add(selectedCountryChannel);
-    }
-    
-    // Aggiungi tutti i canali a cui sono iscritto
+    // Mostra SOLO i canali a cui sono effettivamente iscritto
     subscribedChannels.forEach(channelId => {
       const channel = channels.find(c => c.id === channelId);
       if (channel) {
-        channelsSet.add(channel);
+        activeChannelsOnly.push(channel);
       }
     });
     
-    return Array.from(channelsSet);
-  }, [selectedCountryChannel, subscribedChannels, channels]);
+    // Se ho selezionato un paese ma non sono iscritto al suo canale, NON mostrarlo
+    // L'utente deve prima cliccare "Entra" per vederlo nella lista
+    
+    return activeChannelsOnly;
+  }, [subscribedChannels, channels]);
 
   // Controlla se sono iscritto a un canale
   const isSubscribedToChannel = (channelId: string) => {
@@ -1328,15 +1396,14 @@ const CommunityPage = () => {
                 </div>
               )}
 
-              {/* Lista canali dinamica */}
+              {/* Lista canali attivi - SOLO CANALI DOVE SONO ISCRITTO */}
               {visibleChannels.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    I Tuoi Canali
+                    I Tuoi Canali Attivi ({visibleChannels.length})
                   </div>
                   <div className="space-y-2">
                     {visibleChannels.map((channel) => {
-                      const isSubscribed = subscribedChannels.includes(channel.id);
                       const isActive = activeChannel === channel.id;
                       
                       return (
@@ -1369,26 +1436,15 @@ const CommunityPage = () => {
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            {isSubscribed ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => unsubscribeFromChannel(channel.id)}
-                                className="flex-1 text-xs"
-                              >
-                                <X className="h-3 w-3 mr-1" />
-                                Esci
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                onClick={() => subscribeToChannel(channel.id)}
-                                className="flex-1 text-xs"
-                              >
-                                <Plus className="h-3 w-3 mr-1" />
-                                Entra
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => unsubscribeFromChannel(channel.id)}
+                              className="flex-1 text-xs text-red-600 hover:text-red-700"
+                            >
+                              <X className="h-3 w-3 mr-1" />
+                              Esci
+                            </Button>
                             
                             {isActive && (
                               <Button
