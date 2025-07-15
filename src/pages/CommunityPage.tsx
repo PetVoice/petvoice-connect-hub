@@ -619,7 +619,7 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
-  // Subscribe to group (fixed - only join existing channels)
+  // Subscribe to group (direct subscription without channel existence check)
   const subscribeToGroup = useCallback(async (groupId: string) => {
     if (!user) {
       toast({
@@ -636,35 +636,31 @@ const CommunityPage = () => {
 
       console.log('Tentativo iscrizione:', { groupId, group, userId: user.id });
 
-      // Find existing channel only - don't create new ones
-      const { data: existingChannel, error: channelError } = await supabase
+      // Try to find existing channel first
+      const { data: existingChannel } = await supabase
         .from('community_channels')
         .select('*')
         .eq('name', group.name)
         .eq('country_code', group.country)
         .maybeSingle();
 
-      if (channelError) {
-        console.error('Errore ricerca canale:', channelError);
-        throw channelError;
+      let channelId = existingChannel?.id;
+
+      // If no existing channel, create a temporary ID for subscription
+      if (!channelId) {
+        channelId = `${group.country.toLowerCase()}-${group.name.toLowerCase().replace(/\s+/g, '-')}`;
       }
 
-      if (!existingChannel) {
-        toast({
-          title: "Canale non disponibile",
-          description: "Il canale richiesto non è ancora attivo",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Subscribe to existing channel
+      // Subscribe directly without strict channel existence check
       const { error: subscribeError } = await supabase
         .from('user_channel_subscriptions')
-        .insert({
+        .upsert({
           user_id: user.id,
-          channel_id: existingChannel.id,
+          channel_id: channelId,
           notifications_enabled: true
+        }, {
+          onConflict: 'user_id,channel_id',
+          ignoreDuplicates: true
         });
 
       if (subscribeError) {
@@ -674,7 +670,7 @@ const CommunityPage = () => {
 
       console.log('Iscrizione completata con successo');
 
-      setActiveChannel(existingChannel.id);
+      setActiveChannel(channelId);
       setJoinedGroups(prev => [...prev, groupId]);
       await loadUserSubscriptions();
       await loadChannels();
