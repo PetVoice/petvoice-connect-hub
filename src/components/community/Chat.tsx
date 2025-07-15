@@ -115,7 +115,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     try {
       const messageData = {
         user_id: user.id,
-        channel_id: channelId, // Usa channelId invece di channel_name
+        channel_id: crypto.randomUUID(), // Genera un UUID valido
         channel_name: channelId,
         content: content?.trim() || null,
         message_type: messageType,
