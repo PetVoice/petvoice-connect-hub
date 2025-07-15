@@ -603,6 +603,7 @@ const CommunityPage = () => {
   const [availableGroups, setAvailableGroups] = useState<ChannelGroup[]>([]);
   const [joinedGroups, setJoinedGroups] = useState<string[]>([]);
   const [persistedJoinedGroups, setPersistedJoinedGroups] = useState<string[]>([]);
+  const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
   
   // Filters
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -693,22 +694,34 @@ const CommunityPage = () => {
     }
   }, []);
 
-  // Load user subscriptions
+  // Load user subscriptions - FIX: carica anche i channel_name
   const loadUserSubscriptions = useCallback(async () => {
     if (!user) return;
     
     try {
+      setIsLoadingSubscriptions(true);
+      console.log('Caricamento iscrizioni per user:', user.id);
+      
       const { data, error } = await supabase
         .from('user_channel_subscriptions')
-        .select('channel_id')
+        .select('channel_id, channel_name')
         .eq('user_id', user.id);
       
       if (error) throw error;
       
       const subscribedChannelIds = data?.map(sub => sub.channel_id) || [];
+      const subscribedChannelNames = data?.map(sub => sub.channel_name).filter(Boolean) || [];
+      
+      console.log('Iscrizioni caricate:', subscribedChannelNames);
+      
       setSubscribedChannels(subscribedChannelIds);
+      setJoinedGroups(subscribedChannelNames);
+      
     } catch (error) {
       console.error('Error loading subscriptions:', error);
+      setJoinedGroups([]);
+    } finally {
+      setIsLoadingSubscriptions(false);
     }
   }, [user]);
 
@@ -782,6 +795,83 @@ const CommunityPage = () => {
     setActiveChannel(null);
   }, []);
 
+  // Open group chat - FIX: apri chat del gruppo
+  const openGroupChat = useCallback(async (groupId: string) => {
+    console.log('Apertura chat gruppo:', groupId);
+    
+    try {
+      // Imposta canale attivo
+      setActiveChannel(groupId);
+      
+      // Carica messaggi del gruppo
+      await loadGroupMessages(groupId);
+      
+      console.log('Chat aperta per gruppo:', groupId);
+      
+    } catch (error) {
+      console.error('Errore apertura chat:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aprire la chat: " + error.message,
+        variant: "destructive"
+      });
+    }
+  }, []);
+
+  // Load messages for specific group
+  const loadGroupMessages = useCallback(async (groupId: string) => {
+    try {
+      setMessages([]); // Reset messaggi
+      
+      const { data, error } = await supabase
+        .from('community_messages')
+        .select(`
+          id,
+          content,
+          user_id,
+          channel_id,
+          message_type,
+          is_emergency,
+          file_url,
+          voice_duration,
+          metadata,
+          created_at,
+          updated_at
+        `)
+        .eq('channel_id', groupId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+
+      // Load user profiles for messages
+      const userIds = [...new Set(data?.map(msg => msg.user_id) || [])];
+      let profilesData = [];
+      
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+        profilesData = profiles || [];
+      }
+
+      // Combine messages with profiles
+      const messagesWithProfiles = data?.map(message => ({
+        ...message,
+        message_type: message.message_type as 'text' | 'voice' | 'image' | 'audio',
+        user_profile: profilesData.find(p => p.user_id === message.user_id)
+      })) || [];
+
+      console.log(`Caricati ${messagesWithProfiles.length} messaggi per gruppo:`, groupId);
+      setMessages(messagesWithProfiles as Message[]);
+      
+    } catch (error) {
+      console.error('Errore caricamento messaggi gruppo:', error);
+      setMessages([]);
+    }
+  }, []);
+
   // Subscribe to group - FIX: aggiorna subito lo stato senza ricaricamenti
   const subscribeToGroup = useCallback(async (groupId: string) => {
     if (!user) {
@@ -814,12 +904,13 @@ const CommunityPage = () => {
         channelId = crypto.randomUUID();
       }
 
-      // Subscribe directly to database
+      // Subscribe directly to database - FIX: salva anche channel_name
       const { error: subscribeError } = await supabase
         .from('user_channel_subscriptions')
         .upsert({
           user_id: user.id,
           channel_id: channelId,
+          channel_name: groupId,
           notifications_enabled: true
         }, {
           onConflict: 'user_id,channel_id',
@@ -1024,6 +1115,22 @@ const CommunityPage = () => {
     );
   }
 
+  // Loading state - aspetta che le iscrizioni siano caricate
+  if (isLoadingSubscriptions) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)]">
+        <Card className="p-8 text-center">
+          <CardHeader>
+            <CardTitle>Caricamento gruppi...</CardTitle>
+            <CardDescription>
+              Sto caricando i tuoi gruppi iscritti
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   // Get joined and available groups - usa i gruppi persistenti se disponibili
   const joinedGroupsList = availableGroups.filter(group => joinedGroups.includes(group.id));
   const persistedGroupsList = persistedJoinedGroups.map(groupId => {
@@ -1176,7 +1283,7 @@ const CommunityPage = () => {
                             <Button
                               size="sm"
                               variant={isActive ? "default" : "outline"}
-                              onClick={() => setActiveChannel(channel?.id || null)}
+                              onClick={() => openGroupChat(group.id)}
                             >
                               {isActive ? (
                                 <>

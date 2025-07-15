@@ -1308,6 +1308,7 @@ export type Database = {
       user_channel_subscriptions: {
         Row: {
           channel_id: string | null
+          channel_name: string | null
           id: string
           joined_at: string
           notifications_enabled: boolean | null
@@ -1315,6 +1316,7 @@ export type Database = {
         }
         Insert: {
           channel_id?: string | null
+          channel_name?: string | null
           id?: string
           joined_at?: string
           notifications_enabled?: boolean | null
@@ -1322,6 +1324,7 @@ export type Database = {
         }
         Update: {
           channel_id?: string | null
+          channel_name?: string | null
           id?: string
           joined_at?: string
           notifications_enabled?: boolean | null
