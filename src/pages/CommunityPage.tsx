@@ -311,6 +311,34 @@ const ImageMessage: React.FC<{ message: Message }> = ({ message }) => {
   );
 };
 
+// Delete Confirmation Modal
+const DeleteConfirmModal: React.FC<{
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}> = ({ isOpen, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-card p-6 rounded-lg max-w-md w-full mx-4 border shadow-lg">
+        <h3 className="text-lg font-semibold mb-2">Elimina messaggio</h3>
+        <p className="text-muted-foreground mb-4">
+          Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <Button variant="outline" onClick={onCancel}>
+            Annulla
+          </Button>
+          <Button variant="destructive" onClick={onConfirm}>
+            Elimina
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Audio Message Component
 const AudioMessage: React.FC<{ message: Message }> = ({ message }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -392,6 +420,7 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
   const isMyMessage = message.user_id === user?.id;
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.content || '');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   
   const handleEdit = async () => {
     if (!editText.trim()) return;
@@ -427,8 +456,6 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
   };
   
   const handleDelete = async () => {
-    if (!confirm('Eliminare questo messaggio?')) return;
-    
     try {
       const { error } = await supabase
         .from('community_messages')
@@ -438,6 +465,7 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
       
       if (error) throw error;
       
+      setShowDeleteModal(false);
       onDelete?.(message.id);
       
       toast({
@@ -532,7 +560,7 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
             <Button
               size="sm"
               variant="ghost"
-              onClick={handleDelete}
+              onClick={() => setShowDeleteModal(true)}
               className="h-6 px-2 text-xs text-destructive hover:text-destructive"
             >
               🗑️ Elimina
@@ -540,6 +568,13 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
           </div>
         )}
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };
@@ -570,6 +605,9 @@ const CommunityPage = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [translationEnabled, setTranslationEnabled] = useState(true);
+  
+  // State loading flag
+  const [stateLoaded, setStateLoaded] = useState(false);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -856,25 +894,31 @@ const CommunityPage = () => {
   
   // Salva stato nel localStorage quando cambiano i valori
   useEffect(() => {
-    const communityState = {
-      selectedCountry,
-      selectedAnimalType,
-      selectedBreed,
-      activeChannel,
-      joinedGroups,
-      notificationsEnabled,
-      soundEnabled,
-      translationEnabled
-    };
-    localStorage.setItem('communityState', JSON.stringify(communityState));
-  }, [selectedCountry, selectedAnimalType, selectedBreed, activeChannel, joinedGroups, notificationsEnabled, soundEnabled, translationEnabled]);
+    if (stateLoaded) {
+      const communityState = {
+        selectedCountry,
+        selectedAnimalType,
+        selectedBreed,
+        activeChannel,
+        joinedGroups,
+        notificationsEnabled,
+        soundEnabled,
+        translationEnabled
+      };
+      console.log('Salvataggio stato:', communityState);
+      localStorage.setItem('communityState', JSON.stringify(communityState));
+    }
+  }, [selectedCountry, selectedAnimalType, selectedBreed, activeChannel, joinedGroups, notificationsEnabled, soundEnabled, translationEnabled, stateLoaded]);
   
   // Ripristina stato dal localStorage all'avvio
   useEffect(() => {
+    console.log('Caricamento stato community...');
     const savedState = localStorage.getItem('communityState');
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
+        console.log('Stato salvato trovato:', state);
+        
         setSelectedCountry(state.selectedCountry || null);
         setSelectedAnimalType(state.selectedAnimalType || '');
         setSelectedBreed(state.selectedBreed || '');
@@ -887,6 +931,7 @@ const CommunityPage = () => {
         console.error('Errore ripristino stato community:', error);
       }
     }
+    setStateLoaded(true);
   }, []);
 
   // Effects
