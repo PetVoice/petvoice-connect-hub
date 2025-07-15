@@ -7,8 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-// Lista completa dei paesi
-const COUNTRIES = [
+// Lista completa dei paesi con flag
+const COUNTRIES_WITH_FLAGS = [
   { code: 'DZ', name: 'Algeria', flag: '🇩🇿' },
   { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
   { code: 'AU', name: 'Australia', flag: '🇦🇺' },
@@ -69,6 +69,9 @@ const COUNTRIES = [
   { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
   { code: 'VN', name: 'Vietnam', flag: '🇻🇳' }
 ];
+
+// Array semplice dei nomi dei paesi ordinato alfabeticamente (per la ricerca)
+const COUNTRIES = COUNTRIES_WITH_FLAGS.map(country => country.name).sort();
 
 // Lista completa delle razze cani
 const DOG_BREEDS = [
@@ -308,11 +311,14 @@ const CommunityPage = () => {
                       </SelectTrigger>
                       <SelectContent className="pointer-events-auto">
                         <SelectItem value="all">Tutti i paesi</SelectItem>
-                        {COUNTRIES.map(country => (
-                          <SelectItem key={country.code} value={country.name}>
-                            {country.flag} {country.name}
-                          </SelectItem>
-                        ))}
+                        {COUNTRIES.map(country => {
+                          const countryData = COUNTRIES_WITH_FLAGS.find(c => c.name === country);
+                          return (
+                            <SelectItem key={country} value={country}>
+                              {countryData?.flag} {country}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
