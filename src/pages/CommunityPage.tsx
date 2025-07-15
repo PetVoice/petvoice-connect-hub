@@ -893,18 +893,12 @@ const CommunityPage = () => {
     }
   };
 
-  // Filter channels - show only the country channel if selected, otherwise only subscribed channels
-  const filteredChannels = channels.filter(channel => {
-    // If a country is selected, show only that country's channel (regardless of subscription)
-    if (selectedCountry) {
-      return channel.channel_type === 'country' && channel.country_code === selectedCountry;
-    }
-    
-    // Otherwise, show only subscribed channels (excluding general and emergency)
-    return subscribedChannels.includes(channel.id) && 
-           channel.name !== 'Generale' && 
-           channel.name !== 'Emergenze';
-  });
+  // Filter channels to show only subscribed channels (excluding general and emergency)
+  const filteredChannels = channels.filter(channel => 
+    subscribedChannels.includes(channel.id) && 
+    channel.name !== 'Generale' && 
+    channel.name !== 'Emergenze'
+  );
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
@@ -1228,14 +1222,7 @@ const CommunityPage = () => {
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
               Canali Iscritti
             </div>
-            {selectedCountry && !subscribedChannels.includes(filteredChannels[0]?.id) ? (
-              <div className="text-center py-8 px-2">
-                <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-xs text-muted-foreground">
-                  Premi "ACCEDI AL CANALE" per unirti al canale del paese selezionato.
-                </p>
-              </div>
-            ) : filteredChannels.length === 0 ? (
+            {filteredChannels.length === 0 ? (
               <div className="text-center py-8 px-2">
                 <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-xs text-muted-foreground">
@@ -1316,7 +1303,7 @@ const CommunityPage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="font-semibold flex items-center gap-2">
-                        {currentChannel?.emoji} {currentChannel?.name}
+                        {currentChannel?.name}
                       </h2>
                       <p className="text-sm text-muted-foreground">
                         {currentChannel?.description || 'Chat attiva - Tutti gli utenti possono partecipare'}
