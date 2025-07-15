@@ -74,6 +74,7 @@ import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { LeaveGroupModal } from '@/components/ConfirmDialog';
 
 // Types
 interface Channel {
@@ -115,6 +116,7 @@ interface Message {
   metadata: any;
   created_at: string;
   updated_at: string;
+  deleted_at?: string;
   user_profile?: {
     display_name: string;
     avatar_url?: string;
@@ -609,6 +611,10 @@ const CommunityPage = () => {
   // State loading flag
   const [stateLoaded, setStateLoaded] = useState(false);
   
+  // Leave group modal
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [groupToLeave, setGroupToLeave] = useState<ChannelGroup | null>(null);
+  
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -896,6 +902,30 @@ const CommunityPage = () => {
     loadMessages();
   }, [loadMessages]);
 
+  // Message edit callback
+  const handleEditMessage = useCallback((messageId: string, newContent: string) => {
+    console.log('Modifica messaggio:', messageId, 'Nuovo contenuto:', newContent);
+    
+    // Aggiorna il messaggio nello stato locale
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, content: newContent, updated_at: new Date().toISOString() }
+        : msg
+    ));
+  }, []);
+
+  // Message delete callback
+  const handleDeleteMessage = useCallback((messageId: string) => {
+    console.log('Eliminazione messaggio:', messageId);
+    
+    // Aggiorna il messaggio nello stato locale (soft delete)
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, content: '[Messaggio eliminato]', deleted_at: new Date().toISOString() }
+        : msg
+    ));
+  }, []);
+
 
   // Effects
   useEffect(() => {
@@ -1078,7 +1108,10 @@ const CommunityPage = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => unsubscribeFromGroup(group.id)}
+                              onClick={() => {
+                                setGroupToLeave(group);
+                                setShowLeaveModal(true);
+                              }}
                               title="Esci dal gruppo"
                               className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
@@ -1197,7 +1230,13 @@ const CommunityPage = () => {
               {/* Messages */}
               <div className="flex-1 overflow-auto p-4 space-y-4">
                 {messages.map((message) => (
-                  <MessageComponent key={message.id} message={message} user={user} />
+                  <MessageComponent 
+                    key={message.id} 
+                    message={message} 
+                    user={user} 
+                    onEdit={handleEditMessage}
+                    onDelete={handleDeleteMessage}
+                  />
                 ))}
                 <div ref={messagesEndRef} />
               </div>
@@ -1225,6 +1264,23 @@ const CommunityPage = () => {
           )}
         </div>
       </div>
+      
+      {/* Leave Group Modal */}
+      {showLeaveModal && groupToLeave && (
+        <LeaveGroupModal
+          isOpen={showLeaveModal}
+          groupName={groupToLeave.name}
+          onConfirm={() => {
+            unsubscribeFromGroup(groupToLeave.id);
+            setShowLeaveModal(false);
+            setGroupToLeave(null);
+          }}
+          onCancel={() => {
+            setShowLeaveModal(false);
+            setGroupToLeave(null);
+          }}
+        />
+      )}
     </div>
   );
 };
