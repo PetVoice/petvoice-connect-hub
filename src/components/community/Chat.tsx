@@ -116,7 +116,12 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   };
 
   const sendMessage = async (content: string, messageType: string = 'text', fileUrl?: string, voiceDuration?: number) => {
-    if (!user || (!content?.trim() && !fileUrl)) return;
+    console.log('sendMessage called with:', { content, messageType, fileUrl, voiceDuration });
+    
+    if (!user || (!content?.trim() && !fileUrl)) {
+      console.log('sendMessage validation failed:', { user: !!user, content, fileUrl });
+      return;
+    }
 
     try {
       const messageData = {
@@ -130,11 +135,18 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         metadata: {}
       };
 
+      console.log('Sending message data:', messageData);
+
       const { error } = await supabase
         .from('community_messages')
         .insert([messageData]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
+
+      console.log('Message sent successfully');
 
     } catch (error) {
       console.error('Error sending message:', error);
