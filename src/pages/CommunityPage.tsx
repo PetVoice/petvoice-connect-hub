@@ -7,6 +7,128 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
+// Lista completa dei paesi
+const COUNTRIES = [
+  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
+  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
+  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
+  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
+  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
+  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
+  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
+  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
+  { code: 'RU', name: 'Russia', flag: '🇷🇺' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'MX', name: 'Messico', flag: '🇲🇽' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷' },
+  { code: 'CL', name: 'Cile', flag: '🇨🇱' },
+  { code: 'CO', name: 'Colombia', flag: '🇨🇴' },
+  { code: 'PE', name: 'Perù', flag: '🇵🇪' },
+  { code: 'VE', name: 'Venezuela', flag: '🇻🇪' },
+  { code: 'NL', name: 'Paesi Bassi', flag: '🇳🇱' },
+  { code: 'BE', name: 'Belgio', flag: '🇧🇪' },
+  { code: 'AT', name: 'Austria', flag: '🇦🇹' },
+  { code: 'CH', name: 'Svizzera', flag: '🇨🇭' },
+  { code: 'SE', name: 'Svezia', flag: '🇸🇪' },
+  { code: 'NO', name: 'Norvegia', flag: '🇳🇴' },
+  { code: 'DK', name: 'Danimarca', flag: '🇩🇰' },
+  { code: 'FI', name: 'Finlandia', flag: '🇫🇮' },
+  { code: 'PL', name: 'Polonia', flag: '🇵🇱' },
+  { code: 'CZ', name: 'Repubblica Ceca', flag: '🇨🇿' },
+  { code: 'HU', name: 'Ungheria', flag: '🇭🇺' },
+  { code: 'SK', name: 'Slovacchia', flag: '🇸🇰' },
+  { code: 'SI', name: 'Slovenia', flag: '🇸🇮' },
+  { code: 'HR', name: 'Croazia', flag: '🇭🇷' },
+  { code: 'BG', name: 'Bulgaria', flag: '🇧🇬' },
+  { code: 'RO', name: 'Romania', flag: '🇷🇴' },
+  { code: 'GR', name: 'Grecia', flag: '🇬🇷' },
+  { code: 'TR', name: 'Turchia', flag: '🇹🇷' },
+  { code: 'EG', name: 'Egitto', flag: '🇪🇬' },
+  { code: 'ZA', name: 'Sudafrica', flag: '🇿🇦' },
+  { code: 'MA', name: 'Marocco', flag: '🇲🇦' },
+  { code: 'TN', name: 'Tunisia', flag: '🇹🇳' },
+  { code: 'DZ', name: 'Algeria', flag: '🇩🇿' },
+  { code: 'NG', name: 'Nigeria', flag: '🇳🇬' },
+  { code: 'KE', name: 'Kenya', flag: '🇰🇪' },
+  { code: 'ET', name: 'Etiopia', flag: '🇪🇹' },
+  { code: 'TH', name: 'Tailandia', flag: '🇹🇭' },
+  { code: 'VN', name: 'Vietnam', flag: '🇻🇳' },
+  { code: 'MY', name: 'Malesia', flag: '🇲🇾' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'ID', name: 'Indonesia', flag: '🇮🇩' },
+  { code: 'PH', name: 'Filippine', flag: '🇵🇭' },
+  { code: 'NZ', name: 'Nuova Zelanda', flag: '🇳🇿' },
+  { code: 'PT', name: 'Portogallo', flag: '🇵🇹' },
+  { code: 'IE', name: 'Irlanda', flag: '🇮🇪' },
+  { code: 'IS', name: 'Islanda', flag: '🇮🇸' },
+  { code: 'LU', name: 'Lussemburgo', flag: '🇱🇺' },
+  { code: 'MT', name: 'Malta', flag: '🇲🇹' },
+  { code: 'CY', name: 'Cipro', flag: '🇨🇾' }
+];
+
+// Lista completa delle razze cani
+const DOG_BREEDS = [
+  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Akbash', 'Akita', 'Alaskan Klee Kai',
+  'Alaskan Malamute', 'American Bulldog', 'American Cocker Spaniel', 'American Eskimo Dog',
+  'American Foxhound', 'American Pit Bull Terrier', 'American Staffordshire Terrier', 'American Water Spaniel',
+  'Anatolian Shepherd', 'Australian Cattle Dog', 'Australian Kelpie', 'Australian Shepherd', 'Australian Terrier',
+  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bedlington Terrier', 'Belgian Malinois',
+  'Belgian Sheepdog', 'Belgian Tervuren', 'Bernese Mountain Dog', 'Bichon Frise', 'Black and Tan Coonhound',
+  'Black Russian Terrier', 'Bloodhound', 'Blue Heeler', 'Bluetick Coonhound', 'Boerboel', 'Border Collie',
+  'Border Terrier', 'Borzoi', 'Boston Terrier', 'Bouvier des Flandres', 'Boxer', 'Boykin Spaniel',
+  'Bracco Italiano', 'Brittany', 'Brussels Griffon', 'Bull Terrier', 'Bulldog', 'Bulldog Francese',
+  'Bullmastiff', 'Cairn Terrier', 'Canaan Dog', 'Cane Corso', 'Cardigan Welsh Corgi', 'Catahoula Leopard Dog',
+  'Cavalier King Charles Spaniel', 'Chesapeake Bay Retriever', 'Chihuahua', 'Chinese Crested', 'Chinese Shar-Pei',
+  'Chow Chow', 'Clumber Spaniel', 'Cocker Spaniel', 'Collie', 'Coonhound', 'Coton de Tulear',
+  'Curly-Coated Retriever', 'Dachshund', 'Dalmatian', 'Dandie Dinmont Terrier', 'Doberman Pinscher',
+  'Dogue de Bordeaux', 'Dutch Shepherd', 'English Bulldog', 'English Cocker Spaniel', 'English Foxhound',
+  'English Mastiff', 'English Setter', 'English Springer Spaniel', 'English Toy Spaniel', 'Entlebucher Mountain Dog',
+  'Field Spaniel', 'Finnish Lapphund', 'Finnish Spitz', 'Flat-Coated Retriever', 'Fox Terrier', 'French Bulldog',
+  'German Pinscher', 'German Shepherd', 'German Shorthaired Pointer', 'German Wirehaired Pointer', 'Giant Schnauzer',
+  'Glen of Imaal Terrier', 'Golden Retriever', 'Gordon Setter', 'Great Dane', 'Great Pyrenees',
+  'Greater Swiss Mountain Dog', 'Greyhound', 'Harrier', 'Havanese', 'Ibizan Hound', 'Icelandic Sheepdog',
+  'Irish Red and White Setter', 'Irish Setter', 'Irish Terrier', 'Irish Water Spaniel', 'Irish Wolfhound',
+  'Italian Greyhound', 'Jack Russell Terrier', 'Japanese Chin', 'Japanese Spitz', 'Keeshond', 'Kerry Blue Terrier',
+  'Komondor', 'Kuvasz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Lakeland Terrier', 'Lancashire Heeler',
+  'Large Munsterlander', 'Leonberger', 'Lhasa Apso', 'Lowchen', 'Maltese', 'Manchester Terrier',
+  'Maremma Sheepdog', 'Mastiff', 'Miniature Bull Terrier', 'Miniature Pinscher', 'Miniature Schnauzer',
+  'Neapolitan Mastiff', 'Newfoundland', 'Norfolk Terrier', 'Norwegian Buhund', 'Norwegian Elkhound',
+  'Norwich Terrier', 'Nova Scotia Duck Tolling Retriever', 'Old English Sheepdog', 'Otterhound', 'Papillon',
+  'Parson Russell Terrier', 'Pastore Tedesco', 'Pekingese', 'Pembroke Welsh Corgi', 'Petit Basset Griffon Vendeen',
+  'Pharaoh Hound', 'Plott', 'Pointer', 'Polish Lowland Sheepdog', 'Pomeranian', 'Poodle', 'Portuguese Water Dog',
+  'Pug', 'Puli', 'Pyrenean Shepherd', 'Redbone Coonhound', 'Rhodesian Ridgeback', 'Rottweiler', 'Rough Collie',
+  'Saint Bernard', 'Saluki', 'Samoyed', 'Schipperke', 'Schnauzer', 'Scottish Deerhound', 'Scottish Terrier',
+  'Sealyham Terrier', 'Shar Pei', 'Shetland Sheepdog', 'Shiba Inu', 'Shih Tzu', 'Siberian Husky',
+  'Silky Terrier', 'Skye Terrier', 'Smooth Collie', 'Smooth Fox Terrier', 'Soft Coated Wheaten Terrier',
+  'Spinone Italiano', 'Staffordshire Bull Terrier', 'Standard Schnauzer', 'Sussex Spaniel', 'Swedish Vallhund',
+  'Tibetan Mastiff', 'Tibetan Spaniel', 'Tibetan Terrier', 'Toy Fox Terrier', 'Treeing Walker Coonhound',
+  'Vizsla', 'Weimaraner', 'Welsh Springer Spaniel', 'Welsh Terrier', 'West Highland White Terrier',
+  'Whippet', 'Wire Fox Terrier', 'Wirehaired Pointing Griffon', 'Xoloitzcuintli', 'Yorkshire Terrier'
+];
+
+// Lista completa delle razze gatti
+const CAT_BREEDS = [
+  'Abissino', 'American Bobtail', 'American Curl', 'American Shorthair', 'American Wirehair',
+  'Angora Turco', 'Balinese', 'Bambino', 'Bengala', 'Birman', 'Birmano', 'Bombay',
+  'British Longhair', 'British Shorthair', 'Burmese', 'Burmilla', 'California Spangled',
+  'Certosino', 'Chartreux', 'Chausie', 'Cornish Rex', 'Cymric', 'Devon Rex',
+  'Donskoy', 'Dragon Li', 'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Havana Brown',
+  'Himalayan', 'Japanese Bobtail', 'Javanese', 'Khao Manee', 'Korat', 'Kurilian Bobtail',
+  'LaPerm', 'Maine Coon', 'Manx', 'Mau Egiziano', 'Munchkin', 'Nebelung',
+  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Oriental Longhair', 'Oriental Shorthair',
+  'Persiano', 'Peterbald', 'Pixie-bob', 'Ragamuffin', 'Ragdoll', 'Russian Blue',
+  'Savannah', 'Scottish Fold', 'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura',
+  'Snowshoe', 'Sokoke', 'Somali', 'Sphynx', 'Tonkinese', 'Toyger', 'Turkish Angora',
+  'Turkish Van', 'Ukrainian Levkoy'
+];
+
+// Tutte le razze (cani + gatti)
+const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
+
 // SISTEMA GRUPPI NUOVO - DA ZERO
 const CommunityPage = () => {
   const { user } = useAuth();
@@ -203,11 +325,11 @@ const CommunityPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tutti i paesi</SelectItem>
-                        <SelectItem value="Italia">Italia</SelectItem>
-                        <SelectItem value="Germania">Germania</SelectItem>
-                        <SelectItem value="Francia">Francia</SelectItem>
-                        <SelectItem value="Spagna">Spagna</SelectItem>
-                        <SelectItem value="Regno Unito">Regno Unito</SelectItem>
+                        {COUNTRIES.map(country => (
+                          <SelectItem key={country.code} value={country.name}>
+                            {country.flag} {country.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -223,16 +345,11 @@ const CommunityPage = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tutte le razze</SelectItem>
-                        <SelectItem value="Boxer">Boxer</SelectItem>
-                        <SelectItem value="Labrador">Labrador</SelectItem>
-                        <SelectItem value="Bulldog">Bulldog</SelectItem>
-                        <SelectItem value="Golden Retriever">Golden Retriever</SelectItem>
-                        <SelectItem value="Pastore Tedesco">Pastore Tedesco</SelectItem>
-                        <SelectItem value="Border Collie">Border Collie</SelectItem>
-                        <SelectItem value="Rottweiler">Rottweiler</SelectItem>
-                        <SelectItem value="Beagle">Beagle</SelectItem>
-                        <SelectItem value="Yorkshire Terrier">Yorkshire Terrier</SelectItem>
-                        <SelectItem value="Chihuahua">Chihuahua</SelectItem>
+                        {ALL_BREEDS.map(breed => (
+                          <SelectItem key={breed} value={breed}>
+                            {breed}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
