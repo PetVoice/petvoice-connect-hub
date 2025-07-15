@@ -39,9 +39,17 @@ const CommunityPage = () => {
       
       const groupIds = data?.map(item => item.channel_name) || [];
       
-      // Converte IDs in oggetti gruppo
-      const groups = groupIds.map(id => createGroupFromId(id)).filter(Boolean);
+      // Converte IDs in oggetti gruppo e rimuove duplicati
+      const groupsMap = new Map();
       
+      groupIds.forEach(id => {
+        const group = createGroupFromId(id);
+        if (group && group.name !== 'Unknown - Group') {
+          groupsMap.set(group.id, group);
+        }
+      });
+      
+      const groups = Array.from(groupsMap.values());
       setMyGroups(groups);
       console.log('I MIEI GRUPPI:', groups);
       
