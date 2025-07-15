@@ -817,15 +817,14 @@ const CommunityPage = () => {
         throw subscribeError;
       }
 
-      console.log('Iscrizione completata con successo');
-
-      // AGGIORNA SUBITO LO STATO LOCALE - NON ASPETTARE RICARICAMENTI
+      // AGGIORNA IMMEDIATAMENTE LO STATO LOCALE
       setJoinedGroups(prev => {
         const newGroups = [...new Set([...prev, groupId])];
         console.log('Nuovi gruppi iscritti:', newGroups);
         return newGroups;
       });
       
+      // AGGIORNA ANCHE subscribedChannels per evitare che l'useEffect lo resetti
       setSubscribedChannels(prev => [...new Set([...prev, channelId])]);
       setActiveChannel(channelId);
       
@@ -921,7 +920,9 @@ const CommunityPage = () => {
     }
   }, [selectedAnimalType, getBreedsByAnimalType]);
 
-  // Update joined groups based on subscriptions
+  // DISABILITO QUESTO useEffect CHE RESETTA joinedGroups
+  // IL PROBLEMA È CHE QUESTO SOVRASCRIVE L'AGGIORNAMENTO IMMEDIATO DI subscribeToGroup
+  /*
   useEffect(() => {
     const joined = availableGroups.filter(group => {
       const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
@@ -930,6 +931,7 @@ const CommunityPage = () => {
     
     setJoinedGroups(joined);
   }, [availableGroups, channels, subscribedChannels]);
+  */
 
   if (!user) {
     return (
