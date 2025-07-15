@@ -671,11 +671,7 @@ const CommunityPage = () => {
     return breeds[animalType as keyof typeof breeds] || [];
   }, []);
 
-  // Update groups when ANY selection changes
-  useEffect(() => {
-    const newGroups = generateChannelGroups(selectedCountry, selectedAnimalType, selectedBreed);
-    setAvailableGroups(newGroups);
-  }, [selectedCountry, selectedAnimalType, selectedBreed, generateChannelGroups]);
+  // NON GENERARE PIÙ GRUPPI AUTOMATICAMENTE - SOLO QUELLI DELL'UTENTE
 
   // Load channels from database
   const loadChannels = useCallback(async () => {
@@ -693,7 +689,7 @@ const CommunityPage = () => {
     }
   }, []);
 
-  // Load user subscriptions - FIX: carica anche i channel_name
+  // Load user subscriptions e genera i gruppi dell'utente corrente
   const loadUserSubscriptions = useCallback(async () => {
     if (!user) return;
     
@@ -716,9 +712,49 @@ const CommunityPage = () => {
       setSubscribedChannels(subscribedChannelIds);
       setJoinedChannels(subscribedChannelNames);
       
+      // GENERA I GRUPPI SOLO DELL'UTENTE CORRENTE
+      const userGroups = subscribedChannelNames.map(groupId => {
+        // Ricostruisci oggetto gruppo da ID
+        if (groupId.includes('-general')) {
+          const countryCode = groupId.replace('-general', '').toUpperCase();
+          const country = COUNTRIES.find(c => c.code === countryCode);
+          
+          return {
+            id: groupId,
+            name: country?.name || countryCode,
+            type: 'country' as const,
+            country: countryCode,
+            flag: country?.flag || '🌐',
+            description: `Community ${(country?.name || countryCode).toLowerCase()}`
+          };
+        } else {
+          // Gruppo specifico razza
+          const parts = groupId.split('-');
+          const countryCode = parts[0].toUpperCase();
+          const country = COUNTRIES.find(c => c.code === countryCode);
+          const breed = parts.slice(1).join(' ').split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ');
+          
+          return {
+            id: groupId,
+            name: `${country?.name || countryCode} - ${breed}`,
+            type: 'breed' as const,
+            country: countryCode,
+            breed: breed,
+            flag: country?.flag || '🌐',
+            description: `Community ${(country?.name || countryCode).toLowerCase()} specializzata in ${breed}`
+          };
+        }
+      });
+      
+      setAvailableGroups(userGroups);
+      console.log('GRUPPI UTENTE GENERATI:', userGroups);
+      
     } catch (error) {
       console.error('Error loading subscriptions:', error);
       setJoinedChannels([]);
+      setAvailableGroups([]);
     } finally {
       setIsLoadingSubscriptions(false);
     }
@@ -1168,9 +1204,10 @@ const CommunityPage = () => {
     );
   }
 
-  // Get joined and available groups
-  const joinedGroupsList = availableGroups.filter(group => joinedChannels.includes(group.id));
-  const availableGroupsList = availableGroups.filter(group => !joinedChannels.includes(group.id));
+  // MOSTRA SOLO I GRUPPI DELL'UTENTE CORRENTE
+  const joinedGroupsList = availableGroups; // Ora availableGroups contiene solo i gruppi dell'utente
+  const availableGroupsList = generateChannelGroups(selectedCountry, selectedAnimalType, selectedBreed)
+    .filter(group => !joinedChannels.includes(group.id)); // Gruppi disponibili da unire
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
