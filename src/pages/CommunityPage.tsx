@@ -848,54 +848,72 @@ const CommunityPage = () => {
     }
   }, [user, availableGroups]);
 
-  // Unsubscribe from group
+  // Unsubscribe from group - FIX: funziona con qualsiasi gruppo
   const unsubscribeFromGroup = useCallback(async (groupId: string) => {
     if (!user) return;
     
     try {
-      const group = availableGroups.find(g => g.id === groupId);
-      if (!group) return;
-
-      // Find channel by name and country
-      const { data: channel } = await supabase
-        .from('community_channels')
-        .select('*')
-        .eq('name', group.name)
-        .eq('country_code', group.country)
-        .maybeSingle();
-
-      if (!channel) return;
-
-      const { error } = await supabase
-        .from('user_channel_subscriptions')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('channel_id', channel.id);
-      
-      if (error) throw error;
-      
-      if (activeChannel === channel.id) {
-        setActiveChannel(null);
+      const group = joinedGroups.find(g => g === groupId);
+      if (!group) {
+        console.log('Gruppo non trovato in joinedGroups:', groupId);
+        return;
       }
       
-      // Aggiorna immediatamente lo stato locale
-      setJoinedGroups(prev => prev.filter(id => id !== groupId));
-      setSubscribedChannels(prev => prev.filter(id => id !== channel.id));
-      await loadUserSubscriptions();
+      console.log('Uscita dal gruppo:', groupId, 'User:', user.id);
+
+      // Trova il gruppo nei dati disponibili
+      const groupData = availableGroups.find(g => g.id === groupId);
+      if (!groupData) {
+        console.log('Dati gruppo non trovati:', groupId);
+        return;
+      }
+
+      // Trova il canale corrispondente
+      const channel = channels.find(c => c.name === groupData.name && c.country_code === groupData.country);
+      
+      if (channel) {
+        // Se il canale esiste nel database, elimina la subscription
+        const { error } = await supabase
+          .from('user_channel_subscriptions')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('channel_id', channel.id);
+        
+        if (error) {
+          console.error('Errore eliminazione subscription:', error);
+        } else {
+          console.log('Subscription eliminata per channel:', channel.id);
+        }
+        
+        if (activeChannel === channel.id) {
+          setActiveChannel(null);
+        }
+        
+        // Aggiorna subscribedChannels
+        setSubscribedChannels(prev => prev.filter(id => id !== channel.id));
+      }
+      
+      // Aggiorna SEMPRE lo stato locale
+      setJoinedGroups(prev => {
+        const updated = prev.filter(id => id !== groupId);
+        console.log('Gruppi aggiornati dopo uscita:', updated);
+        return updated;
+      });
       
       toast({
-        title: "Disiscrizione completata",
-        description: `Hai lasciato ${group.name}`
+        title: "Uscita completata",
+        description: `Hai lasciato ${groupData.name}`
       });
+      
     } catch (error) {
       console.error('Error unsubscribing from group:', error);
       toast({
         title: "Errore",
-        description: "Impossibile lasciare il gruppo",
+        description: "Impossibile lasciare il gruppo: " + error.message,
         variant: "destructive"
       });
     }
-  }, [user, availableGroups, activeChannel, loadUserSubscriptions]);
+  }, [user, joinedGroups, availableGroups, channels, activeChannel]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -914,16 +932,12 @@ const CommunityPage = () => {
     ));
   }, []);
 
-  // Message delete callback
+  // Message delete callback - FIX: rimuove immediatamente dalla vista
   const handleDeleteMessage = useCallback((messageId: string) => {
     console.log('Eliminazione messaggio:', messageId);
     
-    // Aggiorna il messaggio nello stato locale (soft delete)
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId 
-        ? { ...msg, content: '[Messaggio eliminato]', deleted_at: new Date().toISOString() }
-        : msg
-    ));
+    // Rimuovi il messaggio immediatamente dalla vista
+    setMessages(prev => prev.filter(msg => msg.id !== messageId));
   }, []);
 
 
@@ -952,19 +966,21 @@ const CommunityPage = () => {
     }
   }, [selectedAnimalType, getBreedsByAnimalType]);
 
-  // Sincronizza joinedGroups con subscribedChannels (solo se joinedGroups è vuoto)
+  // Sincronizza joinedGroups con subscribedChannels - SEMPRE, per persistere i gruppi
   useEffect(() => {
-    if (joinedGroups.length === 0 && subscribedChannels.length > 0) {
+    if (subscribedChannels.length > 0 && availableGroups.length > 0 && channels.length > 0) {
       const joined = availableGroups.filter(group => {
         const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
         return channel && subscribedChannels.includes(channel.id);
       }).map(group => group.id);
       
+      console.log('Sincronizzazione gruppi:', { joined, subscribedChannels, availableGroups: availableGroups.length });
+      
       if (joined.length > 0) {
         setJoinedGroups(joined);
       }
     }
-  }, [availableGroups, channels, subscribedChannels, joinedGroups.length]);
+  }, [availableGroups, channels, subscribedChannels]);
 
   if (!user) {
     return (
