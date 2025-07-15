@@ -459,14 +459,21 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
   
   const handleDelete = async () => {
     try {
+      console.log('Eliminazione messaggio:', message.id, 'User:', user.id);
+      
+      // HARD DELETE - elimina completamente il messaggio
       const { error } = await supabase
         .from('community_messages')
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .eq('id', message.id)
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Errore eliminazione:', error);
+        throw error;
+      }
       
+      console.log('Messaggio eliminato con successo');
       setShowDeleteModal(false);
       onDelete?.(message.id);
       
@@ -479,7 +486,7 @@ const MessageComponent: React.FC<{ message: Message; user: any; onEdit?: (id: st
       console.error('Error deleting message:', error);
       toast({
         title: "Errore",
-        description: "Impossibile eliminare il messaggio",
+        description: "Impossibile eliminare il messaggio: " + error.message,
         variant: "destructive"
       });
     }
@@ -595,6 +602,7 @@ const CommunityPage = () => {
   const [loading, setLoading] = useState(false);
   const [availableGroups, setAvailableGroups] = useState<ChannelGroup[]>([]);
   const [joinedGroups, setJoinedGroups] = useState<string[]>([]);
+  const [persistedJoinedGroups, setPersistedJoinedGroups] = useState<string[]>([]);
   
   // Filters
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -968,19 +976,38 @@ const CommunityPage = () => {
 
   // Sincronizza joinedGroups con subscribedChannels - SEMPRE, per persistere i gruppi
   useEffect(() => {
-    if (subscribedChannels.length > 0 && availableGroups.length > 0 && channels.length > 0) {
-      const joined = availableGroups.filter(group => {
-        const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
-        return channel && subscribedChannels.includes(channel.id);
-      }).map(group => group.id);
+    if (subscribedChannels.length > 0 && channels.length > 0) {
+      // Trova tutti i gruppi iscritti dal database
+      const allJoinedGroups: string[] = [];
       
-      console.log('Sincronizzazione gruppi:', { joined, subscribedChannels, availableGroups: availableGroups.length });
+      // Controlla tutti i tipi di gruppi possibili
+      COUNTRIES.forEach(country => {
+        // Gruppo country generale
+        const countryChannel = channels.find(c => c.country_code === country.code && c.channel_type === 'country');
+        if (countryChannel && subscribedChannels.includes(countryChannel.id)) {
+          allJoinedGroups.push(`${country.code.toLowerCase()}-general`);
+        }
+        
+        // Gruppi breed per ogni animale
+        [...DOG_BREEDS, ...CAT_BREEDS].forEach(breed => {
+          const breedChannel = channels.find(c => 
+            c.country_code === country.code && 
+            c.breed === breed
+          );
+          if (breedChannel && subscribedChannels.includes(breedChannel.id)) {
+            allJoinedGroups.push(`${country.code.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`);
+          }
+        });
+      });
       
-      if (joined.length > 0) {
-        setJoinedGroups(joined);
+      console.log('Gruppi trovati nel database:', allJoinedGroups);
+      
+      if (allJoinedGroups.length > 0) {
+        setJoinedGroups(allJoinedGroups);
+        setPersistedJoinedGroups(allJoinedGroups);
       }
     }
-  }, [availableGroups, channels, subscribedChannels]);
+  }, [channels, subscribedChannels]);
 
   if (!user) {
     return (
@@ -997,8 +1024,50 @@ const CommunityPage = () => {
     );
   }
 
-  // Get joined and available groups
+  // Get joined and available groups - usa i gruppi persistenti se disponibili
   const joinedGroupsList = availableGroups.filter(group => joinedGroups.includes(group.id));
+  const persistedGroupsList = persistedJoinedGroups.map(groupId => {
+    // Ricrea i gruppi dai dati persistenti
+    const countryMatch = groupId.match(/^([a-z]{2})-general$/);
+    const breedMatch = groupId.match(/^([a-z]{2})-(.+)$/);
+    
+    if (countryMatch) {
+      const countryCode = countryMatch[1].toUpperCase();
+      const country = COUNTRIES.find(c => c.code === countryCode);
+      if (country) {
+        return {
+          id: groupId,
+          name: country.name,
+          type: 'country' as const,
+          country: countryCode,
+          flag: country.flag,
+          description: `Community ${country.name.toLowerCase()}`
+        };
+      }
+    } else if (breedMatch) {
+      const countryCode = breedMatch[1].toUpperCase();
+      const breedSlug = breedMatch[2];
+      const breed = [...DOG_BREEDS, ...CAT_BREEDS].find(b => 
+        b.toLowerCase().replace(/\s+/g, '-') === breedSlug
+      );
+      const country = COUNTRIES.find(c => c.code === countryCode);
+      
+      if (country && breed) {
+        return {
+          id: groupId,
+          name: `${country.name} - ${breed}`,
+          type: 'breed' as const,
+          country: countryCode,
+          breed: breed,
+          flag: country.flag,
+          description: `Community ${country.name.toLowerCase()} specializzata in ${breed}`
+        };
+      }
+    }
+    return null;
+  }).filter(Boolean) as ChannelGroup[];
+  
+  const finalJoinedGroups = joinedGroupsList.length > 0 ? joinedGroupsList : persistedGroupsList;
   const availableGroupsList = availableGroups.filter(group => !joinedGroups.includes(group.id));
 
   return (
@@ -1072,7 +1141,7 @@ const CommunityPage = () => {
         <div className="w-80 border-r bg-muted/50 flex flex-col">
           <ScrollArea className="flex-1">
             {/* I tuoi gruppi */}
-            {joinedGroupsList.length > 0 && (
+            {finalJoinedGroups.length > 0 && (
               <div className="border-b">
                 <div className="p-4 border-b">
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -1080,7 +1149,7 @@ const CommunityPage = () => {
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
-                  {joinedGroupsList.map((group) => {
+                  {finalJoinedGroups.map((group) => {
                     const channel = channels.find(c => c.name === group.name && c.country_code === group.country);
                     const isActive = activeChannel === channel?.id;
                     
