@@ -518,6 +518,16 @@ const CommunityPage = () => {
     } catch (error) {
       console.error('Error loading messages:', error);
     }
+  }, [activeChannel]);
+
+  // Controlla se sono iscritto a un canale
+  const isSubscribedToChannel = (channelId: string) => {
+    return subscribedChannels.includes(channelId);
+  };
+
+  // Controlla se sono nel canale attivo
+  const isInActiveChannel = activeChannel ? isSubscribedToChannel(activeChannel) : false;
+
   // Setup realtime subscription for new messages
   useEffect(() => {
     if (!activeChannel || !isInActiveChannel) return;
@@ -1044,14 +1054,6 @@ const CommunityPage = () => {
     
     return activeChannelsOnly;
   }, [subscribedChannels, channels]);
-
-  // Controlla se sono iscritto a un canale
-  const isSubscribedToChannel = (channelId: string) => {
-    return subscribedChannels.includes(channelId);
-  };
-
-  // Controlla se sono nel canale attivo
-  const isInActiveChannel = activeChannel ? isSubscribedToChannel(activeChannel) : false;
 
   // Message Component
   const MessageComponent = ({ message }: { message: Message }) => {
@@ -1790,7 +1792,6 @@ const CommunityPage = () => {
       </div>
     </div>
   );
-  console.log('Component rendered successfully');
 };
 
 export default CommunityPage;
