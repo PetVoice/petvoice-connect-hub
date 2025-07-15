@@ -17,6 +17,7 @@ import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
 import PlaceholderPage from "@/components/PlaceholderPage";
 import StatsPage from "@/pages/StatsPage";
+import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
@@ -91,12 +92,7 @@ const App = () => (
               <Route path="/community" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Community"
-                      description="Connettiti con altri proprietari"
-                      icon={<Users className="h-6 w-6 text-white" />}
-                      features={["Forum discussioni", "Gruppi locali", "Condivisione esperienze", "Consigli esperti"]}
-                    />
+                    <CommunityPage />
                   </Layout>
                 </ProtectedRoute>
               } />
