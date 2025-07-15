@@ -198,6 +198,7 @@ export type Database = {
           channel_id: string
           content: string | null
           created_at: string
+          deleted_at: string | null
           file_url: string | null
           id: string
           is_emergency: boolean | null
@@ -211,6 +212,7 @@ export type Database = {
           channel_id: string
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null
@@ -224,6 +226,7 @@ export type Database = {
           channel_id?: string
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null

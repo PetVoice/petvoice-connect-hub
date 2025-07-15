@@ -405,6 +405,7 @@ const CommunityPage = () => {
   // State management
   const [activeTab, setActiveTab] = useState<'community' | 'news'>('community');
   const [channels, setChannels] = useState<Channel[]>([]);
+  const [subscribedChannels, setSubscribedChannels] = useState<string[]>([]);
   const [activeChannel, setActiveChannel] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
@@ -458,6 +459,24 @@ const CommunityPage = () => {
     }
   }, [activeChannel]);
 
+  // Load user subscriptions
+  const loadUserSubscriptions = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_channel_subscriptions')
+        .select('channel_id')
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setSubscribedChannels(data?.map(sub => sub.channel_id) || []);
+    } catch (error) {
+      console.error('Error loading subscriptions:', error);
+    }
+  }, [user]);
+
   // Load messages for active channel
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
@@ -465,20 +484,15 @@ const CommunityPage = () => {
     try {
       const { data, error } = await supabase
         .from('community_messages')
-        .select(`
-          *,
-          user_profile:profiles(display_name, avatar_url)
-        `)
+        .select('*')
         .eq('channel_id', activeChannel)
+        .is('deleted_at', null)
         .order('created_at', { ascending: true })
         .limit(50);
       
       if (error) throw error;
       
-      setMessages((data as any[])?.map(item => ({
-        ...item,
-        user_profile: item.user_profile || { display_name: 'Utente' }
-      })) || []);
+      setMessages((data as Message[]) || []);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -489,48 +503,113 @@ const CommunityPage = () => {
     try {
       const { data, error } = await supabase
         .from('local_alerts')
-        .select(`
-          *,
-          user_profile:profiles(display_name)
-        `)
+        .select('*')
         .eq('country_code', selectedCountry)
         .order('created_at', { ascending: false })
         .limit(20);
       
       if (error) throw error;
       
-      setLocalAlerts((data as any[])?.map(item => ({
-        ...item,
-        user_profile: item.user_profile || { display_name: 'Utente' }
-      })) || []);
+      setLocalAlerts((data as LocalAlert[]) || []);
     } catch (error) {
       console.error('Error loading alerts:', error);
     }
   }, [selectedCountry]);
 
-  // Subscribe to user's channels on first load
-  const subscribeToDefaultChannels = useCallback(async () => {
+  // Subscribe to channel
+  const subscribeToChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
-      // Subscribe to general and emergency channels
-      const generalChannels = channels.filter(c => c.channel_type === 'general');
+      const { error } = await supabase
+        .from('user_channel_subscriptions')
+        .upsert({
+          user_id: user.id,
+          channel_id: channelId,
+          notifications_enabled: true
+        }, {
+          onConflict: 'user_id,channel_id'
+        });
       
-      for (const channel of generalChannels) {
-        await supabase
-          .from('user_channel_subscriptions')
-          .upsert({
-            user_id: user.id,
-            channel_id: channel.id,
-            notifications_enabled: true
-          }, {
-            onConflict: 'user_id,channel_id'
-          });
-      }
+      if (error) throw error;
+      
+      setActiveChannel(channelId);
+      await loadUserSubscriptions();
+      
+      toast({
+        title: "Iscrizione completata",
+        description: "Ora puoi chattare in questo canale!"
+      });
     } catch (error) {
-      console.error('Error subscribing to channels:', error);
+      console.error('Error subscribing to channel:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile iscriversi al canale",
+        variant: "destructive"
+      });
     }
-  }, [user, channels]);
+  }, [user, loadUserSubscriptions]);
+
+  // Edit message
+  const editMessage = useCallback(async (messageId: string, newContent: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ 
+          content: newContent,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      await loadMessages();
+      toast({
+        title: "Messaggio modificato",
+        description: "Il messaggio è stato aggiornato"
+      });
+    } catch (error) {
+      console.error('Error editing message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile modificare il messaggio",
+        variant: "destructive"
+      });
+    }
+  }, [user, loadMessages]);
+
+  // Delete message (soft delete)
+  const deleteMessage = useCallback(async (messageId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ 
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      await loadMessages();
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato rimosso"
+      });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  }, [user, loadMessages]);
 
   // Effects
   useEffect(() => {
@@ -538,10 +617,10 @@ const CommunityPage = () => {
   }, [loadChannels]);
 
   useEffect(() => {
-    if (channels.length > 0 && user) {
-      subscribeToDefaultChannels();
+    if (user) {
+      loadUserSubscriptions();
     }
-  }, [channels, user, subscribeToDefaultChannels]);
+  }, [user, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
@@ -810,42 +889,10 @@ const CommunityPage = () => {
     }
   };
 
-  // Subscribe to channel
-  const subscribeToChannel = async (channelId: string) => {
-    if (!user) return;
-    
-    try {
-      await supabase
-        .from('user_channel_subscriptions')
-        .upsert({
-          user_id: user.id,
-          channel_id: channelId,
-          notifications_enabled: true
-        }, {
-          onConflict: 'user_id,channel_id'
-        });
-      
-      setActiveChannel(channelId);
-    } catch (error) {
-      console.error('Error subscribing to channel:', error);
-    }
-  };
-
-  // Filter channels
-  const filteredChannels = channels.filter(channel => {
-    if (channel.channel_type === 'general') return true;
-    if (channel.channel_type === 'country') {
-      return !selectedCountry || channel.country_code === selectedCountry;
-    }
-    if (channel.channel_type === 'pet_type') {
-      return !selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType;
-    }
-    if (channel.channel_type === 'breed') {
-      return (!selectedPetType || selectedPetType === 'all' || channel.pet_type === selectedPetType) &&
-             (!selectedBreed || selectedBreed === 'all' || channel.breed === selectedBreed);
-    }
-    return true;
-  });
+  // Filter channels to show only subscribed ones
+  const filteredChannels = channels.filter(channel => 
+    subscribedChannels.includes(channel.id)
+  );
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
@@ -853,20 +900,36 @@ const CommunityPage = () => {
   // Message Component
   const MessageComponent = ({ message }: { message: Message }) => {
     const isOwnMessage = message.user_id === user?.id;
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState(message.content || '');
+    const [showDropdown, setShowDropdown] = useState(false);
     
+    const handleSaveEdit = async () => {
+      if (editContent.trim()) {
+        await editMessage(message.id, editContent.trim());
+        setIsEditing(false);
+      }
+    };
+
+    const handleDeleteMessage = async () => {
+      if (confirm('Sei sicuro di voler eliminare questo messaggio?')) {
+        await deleteMessage(message.id);
+      }
+      setShowDropdown(false);
+    };
+
     return (
-      <div className={`flex gap-3 p-3 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+      <div className={`group flex gap-3 p-3 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
         <Avatar className="h-8 w-8">
-          <AvatarImage src={message.user_profile?.avatar_url} />
           <AvatarFallback>
-            {message.user_profile?.display_name?.charAt(0) || 'U'}
+            {user?.email?.charAt(0).toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
         
         <div className={`flex-1 max-w-xs ${isOwnMessage ? 'text-right' : ''}`}>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-medium">
-              {message.user_profile?.display_name || 'Utente'}
+              {isOwnMessage ? 'Tu' : 'Utente'}
             </span>
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(message.created_at), { 
@@ -874,6 +937,37 @@ const CommunityPage = () => {
                 locale: it 
               })}
             </span>
+            {isOwnMessage && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                >
+                  <MoreVertical className="h-3 w-3" />
+                </Button>
+                {showDropdown && (
+                  <div className="absolute right-0 top-8 z-10 bg-background border rounded-lg shadow-lg py-1 min-w-[120px]">
+                    <button
+                      className="w-full px-3 py-1 text-sm text-left hover:bg-muted flex items-center gap-2"
+                      onClick={() => {
+                        setIsEditing(true);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      ✏️ Modifica
+                    </button>
+                    <button
+                      className="w-full px-3 py-1 text-sm text-left hover:bg-muted flex items-center gap-2 text-destructive"
+                      onClick={handleDeleteMessage}
+                    >
+                      🗑️ Elimina
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           
           <div className={`rounded-lg p-3 ${
@@ -902,7 +996,27 @@ const CommunityPage = () => {
             )}
             
             {message.message_type === 'text' && message.content && (
-              <p className="text-sm">{message.content}</p>
+              <>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <Input
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="text-sm"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') setIsEditing(false);
+                      }}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleSaveEdit}>Salva</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>Annulla</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm">{message.content}</p>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -1100,21 +1214,30 @@ const CommunityPage = () => {
         <div className="w-64 border-r bg-muted/50 p-4 overflow-y-auto">
           <div className="space-y-2">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">
-              Canali
+              Canali Iscritti
             </div>
-            {filteredChannels.map((channel) => (
+            {filteredChannels.length === 0 ? (
+              <div className="text-center py-8 px-2">
+                <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-xs text-muted-foreground">
+                  Nessun canale iscritto. Seleziona un paese dal menu per unirti a un canale.
+                </p>
+              </div>
+            ) : (
+              filteredChannels.map((channel) => (
                 <Button
                   key={channel.id}
                   variant={activeChannel === channel.id ? "secondary" : "ghost"}
                   className="w-full justify-start text-left"
-                  onClick={() => subscribeToChannel(channel.id)}
+                  onClick={() => setActiveChannel(channel.id)}
                 >
                   <span className="text-sm flex items-center gap-2">
-                    {channel.emoji && <span>{channel.emoji}</span>}
+                    {channel.emoji}
                     {channel.name}
                   </span>
                 </Button>
-            ))}
+              ))
+            )}
           </div>
         </div>
         
