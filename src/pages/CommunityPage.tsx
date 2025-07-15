@@ -6,6 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { Chat } from '@/components/community/Chat';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -414,19 +415,15 @@ const CommunityPage = () => {
               <CardHeader>
                 <CardTitle>Chat Community</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="h-96 flex items-center justify-center bg-muted/20 rounded-lg">
+              <CardContent className="p-0">
+                <div className="h-[600px]">
                   {activeChat ? (
-                    <div className="text-center">
-                      <div className="text-lg font-semibold mb-2">
-                        Chat attiva: {myGroups.find(g => g.id === activeChat)?.name || activeChat}
-                      </div>
-                      <div className="text-muted-foreground">
-                        Funzionalità chat in sviluppo...
-                      </div>
-                    </div>
+                    <Chat 
+                      channelId={activeChat} 
+                      channelName={myGroups.find(g => g.id === activeChat)?.name || activeChat}
+                    />
                   ) : (
-                    <div className="text-center text-muted-foreground">
+                    <div className="text-center text-muted-foreground flex items-center justify-center h-full">
                       Seleziona un gruppo per iniziare a chattare
                     </div>
                   )}
