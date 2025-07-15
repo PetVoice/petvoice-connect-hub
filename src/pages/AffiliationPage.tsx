@@ -128,17 +128,25 @@ export default function AffiliationPage() {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
 
   // Load data
-  const loadReferralData = useCallback(async () => {
+  const loadReferralData = useCallback(async (isRealTimeUpdate = false) => {
     if (!user) return;
     
-    setLoading(true);
+    // Solo mostra loading per il caricamento iniziale, non per gli aggiornamenti real-time
+    if (!isRealTimeUpdate) {
+      setLoading(true);
+    }
+    
     try {
-      // Load or create referral profile
-      let { data: profile } = await supabase
+      // Load or create referral profile - usa maybeSingle() per evitare errori
+      let { data: profile, error: profileError } = await supabase
         .from('user_referrals')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error loading profile:', profileError);
+      }
 
       if (!profile) {
         // Create new referral profile
@@ -150,11 +158,13 @@ export default function AffiliationPage() {
             referral_code: referralCode
           })
           .select()
-          .single();
+          .maybeSingle();
         profile = newProfile;
       }
 
-      setReferralProfile(profile);
+      if (profile) {
+        setReferralProfile(profile);
+      }
 
       // Load referrals
       const { data: referralData } = await supabase
@@ -208,7 +218,7 @@ export default function AffiliationPage() {
         .in('status', ['registered', 'converted'])
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (myReferralData) {
         // Get referrer info
@@ -216,7 +226,7 @@ export default function AffiliationPage() {
           .from('user_referrals')
           .select('user_id, referral_code')
           .eq('user_id', myReferralData.referrer_id)
-          .single();
+          .maybeSingle();
 
         if (referrerInfo) {
           // Get referrer profile info
@@ -224,7 +234,7 @@ export default function AffiliationPage() {
             .from('profiles')
             .select('display_name, user_id')
             .eq('user_id', referrerInfo.user_id)
-            .single();
+            .maybeSingle();
 
           setMyReferrer({
             user_id: referrerInfo.user_id,
@@ -233,6 +243,8 @@ export default function AffiliationPage() {
             referral_date: myReferralData.created_at
           });
         }
+      } else {
+        setMyReferrer(null);
       }
 
     } catch (error) {
@@ -243,7 +255,10 @@ export default function AffiliationPage() {
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      // Solo nascondi loading per il caricamento iniziale
+      if (!isRealTimeUpdate) {
+        setLoading(false);
+      }
     }
   }, [user, toast]);
 
@@ -408,7 +423,8 @@ export default function AffiliationPage() {
         },
         (payload) => {
           console.log('🔄 Real-time update - user_referrals:', payload);
-          loadReferralData();
+          // Passa true per indicare che è un aggiornamento real-time
+          loadReferralData(true);
         }
       )
       .on(
@@ -421,7 +437,7 @@ export default function AffiliationPage() {
         },
         (payload) => {
           console.log('🔄 Real-time update - referrals:', payload);
-          loadReferralData();
+          loadReferralData(true);
         }
       )
       .on(
@@ -434,7 +450,7 @@ export default function AffiliationPage() {
         },
         (payload) => {
           console.log('🔄 Real-time update - referral_credits:', payload);
-          loadReferralData();
+          loadReferralData(true);
         }
       )
       .subscribe((status) => {
