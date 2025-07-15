@@ -662,14 +662,20 @@ const CommunityPage = () => {
     };
   }, [user, activeChannel, notificationsEnabled, loadMessages]);
 
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Auto-scroll to bottom - only when sending new messages
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, []);
+  
+  // Track if user should auto-scroll (only when sending messages)
+  const shouldAutoScroll = useRef(false);
   
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (shouldAutoScroll.current) {
+      scrollToBottom();
+      shouldAutoScroll.current = false;
+    }
+  }, [messages, scrollToBottom]);
 
   // Send message
   const sendMessage = async () => {
@@ -695,6 +701,8 @@ const CommunityPage = () => {
       if (error) throw error;
       
       setMessageText('');
+      // Auto-scroll only when sending a message
+      shouldAutoScroll.current = true;
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -782,6 +790,9 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
+      // Auto-scroll only when sending a voice message
+      shouldAutoScroll.current = true;
+      
       toast({
         title: "Messaggio vocale inviato",
         description: "Il tuo messaggio vocale è stato inviato"
@@ -835,6 +846,9 @@ const CommunityPage = () => {
         });
       
       if (error) throw error;
+      
+      // Auto-scroll only when sending an image
+      shouldAutoScroll.current = true;
       
       toast({
         title: "Immagine inviata",
@@ -1374,8 +1388,8 @@ const CommunityPage = () => {
               
               {/* Messages Area */}
               {activeChannel ? (
-                <ScrollArea className="flex-1 p-4">
-                  <div className="space-y-4">
+                <ScrollArea className="flex-1 p-4 overflow-y-auto">
+                  <div className="space-y-4 min-h-0">
                     {messages.length === 0 ? (
                       <div className="text-center py-8">
                         <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
