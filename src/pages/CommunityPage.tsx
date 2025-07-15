@@ -129,30 +129,25 @@ const CAT_BREEDS = [
 // Tutte le razze (cani + gatti)
 const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 
-// SISTEMA GRUPPI NUOVO - DA ZERO
 const CommunityPage = () => {
   const { user } = useAuth();
   
-  // STATI SEMPLICI
   const [myGroups, setMyGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
   
-  // CARICA I MIEI GRUPPI SEMPRE ALL'INIZIO
   useEffect(() => {
     if (user?.id) {
       loadMyGroups();
     }
   }, [user?.id]);
   
-  // GENERA GRUPPI DISPONIBILI QUANDO CAMBIANO I MENU
   useEffect(() => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
   
-  // FUNZIONE 1: CARICA GRUPPI UTENTE DAL DATABASE
   const loadMyGroups = async () => {
     try {
       const { data } = await supabase
@@ -162,7 +157,6 @@ const CommunityPage = () => {
       
       const groupIds = data?.map(item => item.channel_name) || [];
       
-      // Converte IDs in oggetti gruppo e rimuove duplicati
       const groupsMap = new Map();
       
       groupIds.forEach(id => {
@@ -181,12 +175,10 @@ const CommunityPage = () => {
     }
   };
   
-  // FUNZIONE 2: GENERA GRUPPI DISPONIBILI
   const generateAvailableGroups = () => {
     const groups = [];
     
     if (selectedCountry && selectedCountry !== 'all') {
-      // Gruppo generico paese
       groups.push({
         id: `${selectedCountry.toLowerCase()}-general`,
         name: selectedCountry,
@@ -194,7 +186,6 @@ const CommunityPage = () => {
         country: selectedCountry
       });
       
-      // Gruppo specifico razza
       if (selectedBreed && selectedBreed !== 'all') {
         groups.push({
           id: `${selectedCountry.toLowerCase()}-${selectedBreed.toLowerCase().replace(/\s+/g, '-')}`,
@@ -209,7 +200,6 @@ const CommunityPage = () => {
     setAvailableGroups(groups);
   };
   
-  // FUNZIONE 3: CREA OGGETTO GRUPPO DA ID
   const createGroupFromId = (groupId) => {
     if (groupId.endsWith('-general')) {
       const country = groupId.replace('-general', '');
@@ -237,14 +227,12 @@ const CommunityPage = () => {
     return null;
   };
   
-  // FUNZIONE 4: ENTRA IN GRUPPO
   const joinGroup = async (groupId) => {
     try {
       await supabase
         .from('user_channel_subscriptions')
         .insert({ user_id: user.id, channel_name: groupId });
       
-      // Ricarica i miei gruppi
       await loadMyGroups();
       
       toast({
@@ -264,7 +252,6 @@ const CommunityPage = () => {
     }
   };
   
-  // FUNZIONE 5: ESCI DA GRUPPO
   const leaveGroup = async (groupId) => {
     try {
       await supabase
@@ -273,10 +260,8 @@ const CommunityPage = () => {
         .eq('user_id', user.id)
         .eq('channel_name', groupId);
       
-      // Ricarica i miei gruppi
       await loadMyGroups();
       
-      // Chiudi chat se era attiva
       if (activeChat === groupId) {
         setActiveChat(null);
       }
@@ -296,7 +281,6 @@ const CommunityPage = () => {
     }
   };
   
-  // FUNZIONE 6: APRI CHAT
   const openChat = (groupId) => {
     setActiveChat(groupId);
   };
@@ -306,7 +290,6 @@ const CommunityPage = () => {
       <div className="container mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* MENU A TENDINA */}
           <div className="lg:col-span-3">
             <Card>
               <CardHeader>
@@ -358,10 +341,7 @@ const CommunityPage = () => {
             </Card>
           </div>
           
-          {/* SIDEBAR */}
           <div className="lg:col-span-1 space-y-4">
-            
-            {/* GRUPPI DISPONIBILI */}
             <Card>
               <CardHeader>
                 <CardTitle>Gruppi Disponibili</CardTitle>
@@ -396,7 +376,6 @@ const CommunityPage = () => {
               </CardContent>
             </Card>
             
-            {/* I MIEI GRUPPI */}
             <Card>
               <CardHeader>
                 <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
@@ -460,7 +439,6 @@ const CommunityPage = () => {
             </Card>
           </div>
           
-          {/* AREA CHAT */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
