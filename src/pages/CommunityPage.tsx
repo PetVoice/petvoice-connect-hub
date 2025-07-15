@@ -1047,16 +1047,34 @@ const CommunityPage = () => {
   }, [user?.id]);
 
   const loadMyGroups = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setIsLoadingSubscriptions(false);
+      return;
+    }
     
-    const { data } = await supabase
-      .from('user_channel_subscriptions')
-      .select('channel_name')
-      .eq('user_id', user.id);
+    setIsLoadingSubscriptions(true);
+    console.log('Caricamento gruppi per utente:', user.id);
     
-    const groups = data?.map(d => d.channel_name) || [];
-    setJoinedChannels(groups);
-    console.log('GRUPPI CARICATI:', groups);
+    try {
+      const { data, error } = await supabase
+        .from('user_channel_subscriptions')
+        .select('channel_name')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Errore caricamento gruppi:', error);
+        setJoinedChannels([]);
+      } else {
+        const groups = data?.map(d => d.channel_name) || [];
+        setJoinedChannels(groups);
+        console.log('GRUPPI CARICATI:', groups);
+      }
+    } catch (error) {
+      console.error('Errore:', error);
+      setJoinedChannels([]);
+    } finally {
+      setIsLoadingSubscriptions(false);
+    }
   };
   
   // FUNZIONE APERTURA CHAT - FIX DEFINITIVO
