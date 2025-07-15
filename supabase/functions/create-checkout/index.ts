@@ -41,8 +41,8 @@ serve(async (req) => {
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { plan } = await req.json();
-    if (!plan || plan !== 'premium') {
-      throw new Error('Only premium plan is available');
+    if (!plan || !['premium', 'family'].includes(plan)) {
+      throw new Error('Invalid plan type. Only premium and family plans are available');
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -57,17 +57,22 @@ serve(async (req) => {
       logStep("Creating new customer");
     }
 
-    // Only Premium plan available - NO TRIAL
+    // Available plans - NO TRIAL
     const planConfig = {
       premium: {
         name: "PetVoice Premium",
         amount: 97, // €0.97 in cents
         features: "Pet illimitati, analisi illimitate, AI insights avanzati, supporto prioritario"
+      },
+      family: {
+        name: "PetVoice Family",
+        amount: 197, // €1.97 in cents
+        features: "Tutto di Premium + fino a 6 dispositivi + condivisione familiare"
       }
     };
 
-    const selectedPlan = planConfig.premium;
-    logStep("Premium plan selected", { selectedPlan });
+    const selectedPlan = planConfig[plan as keyof typeof planConfig];
+    logStep(`${plan} plan selected`, { selectedPlan });
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
     
@@ -93,7 +98,7 @@ serve(async (req) => {
       cancel_url: `${origin}/subscription`,
       subscription_data: {
         metadata: {
-          plan_type: 'premium',
+          plan_type: plan,
           user_id: user.id
         }
       },
