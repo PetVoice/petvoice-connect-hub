@@ -1790,6 +1790,7 @@ const CommunityPage = () => {
       </div>
     </div>
   );
+  console.log('Component rendered successfully');
 };
 
 export default CommunityPage;
