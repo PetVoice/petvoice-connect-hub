@@ -901,9 +901,16 @@ export default function AffiliationPage() {
                   <span>Registrazioni</span>
                   <div className="flex items-center gap-2">
                     <div className="w-32 h-2 bg-muted rounded-full">
-                      <div className="w-1/2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div 
+                        className="h-2 bg-yellow-500 rounded-full"
+                        style={{ 
+                          width: `${referralProfile.total_referrals > 0 
+                            ? (referralProfile.total_referrals / referralProfile.total_referrals) * 100 
+                            : 0}%` 
+                        }}
+                      ></div>
                     </div>
-                    <span className="text-sm font-medium">{Math.round(referralProfile.total_referrals * 0.5)}</span>
+                    <span className="text-sm font-medium">{referralProfile.total_referrals}</span>
                   </div>
                 </div>
                 
