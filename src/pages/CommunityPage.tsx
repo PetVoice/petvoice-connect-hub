@@ -1,20 +1,75 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { SearchableSelect } from '@/components/SearchableSelect';
+import { UniformSelect } from '@/components/UniformSelect';
 import { MessageInput } from '@/components/MessageInput';
 import { 
   MessageSquare, 
-  CheckCircle,
+  Globe, 
+  MapPin, 
+  Heart, 
+  GraduationCap,
+  AlertTriangle,
+  Send,
+  Search,
+  Filter,
+  MoreVertical,
+  Shield,
+  UserCheck,
+  Stethoscope,
+  Dog,
+  Cat,
+  Volume2,
+  VolumeX,
+  Image,
+  Clock,
   Users,
-  X
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  Phone,
+  Share2,
+  Flag,
+  Settings,
+  Star,
+  ThumbsUp,
+  MessageCircle,
+  BookmarkIcon,
+  EyeOff,
+  Ban,
+  ChevronDown,
+  Mic,
+  MicOff,
+  Languages,
+  Zap,
+  Crown,
+  MapPinIcon,
+  Siren,
+  Plus,
+  X,
+  Bell,
+  BellOff,
+  Camera
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 // Types
@@ -28,6 +83,10 @@ interface Channel {
   breed?: string;
   emoji?: string;
   is_active: boolean;
+  flag?: string;
+  type?: string;
+  country?: string;
+  animalType?: string;
 }
 
 interface Message {
@@ -48,18 +107,160 @@ interface Message {
   };
 }
 
+interface LocalAlert {
+  id: string;
+  title: string;
+  description: string;
+  alert_type: 'health' | 'emergency' | 'environment' | 'outbreak';
+  severity: 'info' | 'warning' | 'emergency';
+  country_code: string;
+  affected_species?: string[];
+  verification_status: 'pending' | 'verified' | 'false_report';
+  reports_count: number;
+  created_at: string;
+  user_profile?: {
+    display_name: string;
+  };
+}
+
+// Complete country list
+const COUNTRIES = [
+  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
+  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
+  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
+  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
+  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' }
+];
+
+const DOG_BREEDS = [
+  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
+  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
+  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
+  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
+  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman Pinscher',
+  'English Bulldog', 'English Setter', 'Fox Terrier', 'German Shepherd', 'Golden Retriever',
+  'Great Dane', 'Greyhound', 'Havanese', 'Irish Setter', 'Jack Russell Terrier',
+  'Labrador Retriever', 'Maltese', 'Mastiff', 'Miniature Schnauzer', 'Neapolitan Mastiff',
+  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
+  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
+  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
+  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+];
+
+const CAT_BREEDS = [
+  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
+  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
+  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
+  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
+  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
+  'Ragamuffin', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
+  'Selkirk Rex', 'Siamese', 'Singapura', 'Snowshoe', 'Somali', 'Sphynx',
+  'Tonkinese', 'Turkish Van'
+];
+
 const CommunityPage = () => {
   const { user } = useAuth();
+  const { selectedPet } = usePets();
   
   // State management
+  const [activeTab, setActiveTab] = useState<'community' | 'news'>('community');
   const [channels, setChannels] = useState<Channel[]>([]);
   const [subscribedChannels, setSubscribedChannels] = useState<string[]>([]);
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Filters
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [selectedPetType, setSelectedPetType] = useState<string>('');
+  const [selectedBreed, setSelectedBreed] = useState<string>('');
+  const [availableChannels, setAvailableChannels] = useState<Channel[]>([]);
+  const [breedOptions, setBreedOptions] = useState<string[]>([]);
+  
+  // Settings
+  const [showSettings, setShowSettings] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [translationEnabled, setTranslationEnabled] = useState(true);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Generate stable UUID for channel
+  const generateChannelUUID = useCallback((channelId: string): string => {
+    let hash = 0;
+    for (let i = 0; i < channelId.length; i++) {
+      const char = channelId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
+    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
+  }, []);
+
+  // Get breeds by animal type
+  const getBreedsByAnimalType = useCallback((animalType: string) => {
+    const breeds = {
+      'dog': DOG_BREEDS,
+      'cat': CAT_BREEDS,
+      'all': [],
+      '': []
+    };
+    return breeds[animalType as keyof typeof breeds] || [];
+  }, []);
+
+  // Generate dynamic channels based on selection
+  const generateChannels = useCallback((country: string | null, animalType: string, breed: string) => {
+    const channels = [];
+    
+    if (country) {
+      const countryData = COUNTRIES.find(c => c.code === country);
+      if (countryData) {
+        // Canale generico paese
+        channels.push({
+          id: `${country.toLowerCase()}-general`,
+          name: `${countryData.name} (Generico)`,
+          type: 'general',
+          country: country,
+          flag: countryData.flag,
+          description: `Canale generale per ${countryData.name}`,
+          channel_type: 'country' as const,
+          country_code: country,
+          emoji: countryData.flag,
+          is_active: true
+        });
+        
+        // Canale specifico
+        if (animalType && animalType !== 'all' && animalType !== '' && breed && breed !== '') {
+          const animalEmoji = animalType === 'dog' ? '🐕' : animalType === 'cat' ? '🐱' : '🐾';
+          const animalName = animalType === 'dog' ? 'Cani' : animalType === 'cat' ? 'Gatti' : 'Animali';
+          
+          channels.push({
+            id: `${country.toLowerCase()}-${animalType.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`,
+            name: `${countryData.name} → ${animalName} → ${breed}`,
+            type: 'specific',
+            country: country,
+            animalType: animalType,
+            breed: breed,
+            flag: countryData.flag,
+            description: `Canale specifico per ${breed} in ${countryData.name}`,
+            channel_type: 'breed' as const,
+            country_code: country,
+            pet_type: animalType as 'dog' | 'cat',
+            emoji: animalEmoji,
+            is_active: true
+          });
+        }
+      }
+    }
+    
+    return channels;
+  }, []);
 
   // Load channels from database
   const loadChannels = useCallback(async () => {
@@ -89,18 +290,30 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
-      const subscribedChannelIds = data?.map(sub => sub.channel_id) || [];
-      setSubscribedChannels(subscribedChannelIds);
+      // Convert UUIDs back to original channel IDs
+      const subscribedUUIDs = data?.map(sub => sub.channel_id) || [];
+      
+      // Find corresponding original channels
+      const originalChannelIds = availableChannels
+        .filter(channel => {
+          const channelUUID = generateChannelUUID(channel.id);
+          return subscribedUUIDs.includes(channelUUID);
+        })
+        .map(channel => channel.id);
+      
+      setSubscribedChannels(originalChannelIds);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
-  }, [user]);
+  }, [user, availableChannels, generateChannelUUID]);
 
   // Load messages
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
     try {
+      const channelUUID = generateChannelUUID(activeChannel);
+      
       const { data: messagesData, error: messagesError } = await supabase
         .from('community_messages')
         .select(`
@@ -116,14 +329,11 @@ const CommunityPage = () => {
           created_at,
           updated_at
         `)
-        .eq('channel_id', activeChannel)
+        .eq('channel_id', channelUUID)
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
-      if (messagesError) {
-        console.error('Error loading messages:', messagesError);
-        throw messagesError;
-      }
+      if (messagesError) throw messagesError;
 
       // Load user profiles for messages
       const userIds = [...new Set(messagesData?.map(msg => msg.user_id) || [])];
@@ -148,19 +358,40 @@ const CommunityPage = () => {
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  }, [activeChannel]);
+  }, [activeChannel, generateChannelUUID]);
+
+  // Handle country change
+  const handleCountryChange = useCallback((countryCode: string) => {
+    setSelectedCountry(countryCode);
+    setActiveChannel(null);
+  }, []);
+
+  // Handle pet type change
+  const handlePetTypeChange = useCallback((petType: string) => {
+    setSelectedPetType(petType);
+    setSelectedBreed('');
+    setActiveChannel(null);
+  }, []);
+
+  // Handle breed change
+  const handleBreedChange = useCallback((breed: string) => {
+    setSelectedBreed(breed);
+    setActiveChannel(null);
+  }, []);
 
   // Subscribe to channel
   const subscribeToChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
+      const channelUUID = generateChannelUUID(channelId);
+      
       // Check if user is already subscribed
       const { data: existingSubscription } = await supabase
         .from('user_channel_subscriptions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('channel_id', channelId)
+        .eq('channel_id', channelUUID)
         .maybeSingle();
       
       if (existingSubscription) {
@@ -177,7 +408,7 @@ const CommunityPage = () => {
         .from('user_channel_subscriptions')
         .insert({
           user_id: user.id,
-          channel_id: channelId,
+          channel_id: channelUUID,
           notifications_enabled: true
         });
       
@@ -198,18 +429,20 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, loadUserSubscriptions]);
+  }, [user, loadUserSubscriptions, generateChannelUUID]);
 
   // Unsubscribe from channel
   const unsubscribeFromChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
+      const channelUUID = generateChannelUUID(channelId);
+      
       const { error } = await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
-        .eq('channel_id', channelId);
+        .eq('channel_id', channelUUID);
       
       if (error) throw error;
       
@@ -231,7 +464,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, activeChannel, loadUserSubscriptions]);
+  }, [user, activeChannel, loadUserSubscriptions, generateChannelUUID]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -244,14 +477,30 @@ const CommunityPage = () => {
   }, [loadChannels]);
 
   useEffect(() => {
-    if (user) {
+    if (user && availableChannels.length > 0) {
       loadUserSubscriptions();
     }
-  }, [user, loadUserSubscriptions]);
+  }, [user, availableChannels, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
   }, [loadMessages]);
+
+  // Update available channels when any filter changes
+  useEffect(() => {
+    const newChannels = generateChannels(selectedCountry, selectedPetType, selectedBreed);
+    setAvailableChannels(newChannels);
+  }, [selectedCountry, selectedPetType, selectedBreed, generateChannels]);
+
+  // Update available breeds when animal type changes
+  useEffect(() => {
+    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
+      const availableBreeds = getBreedsByAnimalType(selectedPetType);
+      setBreedOptions(availableBreeds);
+    } else {
+      setBreedOptions([]);
+    }
+  }, [selectedPetType, getBreedsByAnimalType]);
 
   if (!user) {
     return (
@@ -268,20 +517,71 @@ const CommunityPage = () => {
     );
   }
 
-  const subscribedChannelsList = channels.filter(channel => subscribedChannels.includes(channel.id));
-  const availableChannelsList = channels.filter(channel => !subscribedChannels.includes(channel.id));
+  const subscribedChannelsList = availableChannels.filter(channel => subscribedChannels.includes(channel.id));
+  const unsubscribedChannelsList = availableChannels.filter(channel => !subscribedChannels.includes(channel.id));
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
-      {/* Header */}
+      {/* Header with filters */}
       <div className="border-b bg-card p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">Community PetVoice</h1>
             <p className="text-muted-foreground">
               Connettiti con proprietari e esperti di tutto il mondo
             </p>
           </div>
+        </div>
+        
+        {/* Filters */}
+        <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedCountry || ""} onValueChange={handleCountryChange}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Seleziona paese" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map(country => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {country.flag} {country.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Dog className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedPetType} onValueChange={handlePetTypeChange}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Animale" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tutti</SelectItem>
+                <SelectItem value="dog">🐕 Cani</SelectItem>
+                <SelectItem value="cat">🐱 Gatti</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {selectedPetType && selectedPetType !== 'all' && selectedPetType !== '' && (
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-muted-foreground" />
+              <Select value={selectedBreed} onValueChange={handleBreedChange}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Seleziona razza" />
+                </SelectTrigger>
+                <SelectContent>
+                  {breedOptions.map(breed => (
+                    <SelectItem key={breed} value={breed}>
+                      {breed}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
       </div>
       
@@ -311,11 +611,11 @@ const CommunityPage = () => {
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{channel.emoji || '🌐'}</span>
+                            <span className="text-lg">{channel.emoji || channel.flag || '🌐'}</span>
                             <div>
                               <div className="text-sm font-medium">{channel.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {channel.channel_type}
+                                {channel.type || channel.channel_type}
                               </div>
                             </div>
                           </div>
@@ -368,8 +668,8 @@ const CommunityPage = () => {
                 </div>
               </div>
               <div className="p-4 space-y-3">
-                {availableChannelsList.length > 0 ? (
-                  availableChannelsList.map((channel) => {
+                {unsubscribedChannelsList.length > 0 ? (
+                  unsubscribedChannelsList.map((channel) => {
                     return (
                       <div
                         key={channel.id}
@@ -377,11 +677,11 @@ const CommunityPage = () => {
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{channel.emoji || '🌐'}</span>
+                            <span className="text-lg">{channel.emoji || channel.flag || '🌐'}</span>
                             <div>
                               <div className="text-sm font-medium">{channel.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {channel.channel_type}
+                                {channel.type || channel.channel_type}
                               </div>
                             </div>
                           </div>
@@ -405,12 +705,12 @@ const CommunityPage = () => {
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
-                      {channels.length === 0 ? 'Caricamento canali...' : 'Nessun nuovo canale'}
+                      {!selectedCountry ? 'Seleziona un paese' : 'Nessun canale disponibile'}
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      {channels.length === 0 
-                        ? 'Sto caricando i canali disponibili...'
-                        : 'Sei già iscritto a tutti i canali disponibili'
+                      {!selectedCountry 
+                        ? 'Usa i filtri sopra per trovare i canali della tua zona'
+                        : 'Crea una nuova selezione o prova altri filtri'
                       }
                     </p>
                   </div>
