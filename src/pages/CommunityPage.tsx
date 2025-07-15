@@ -986,6 +986,8 @@ const CommunityPage = () => {
   const selectedCountryChannel = selectedCountry 
     ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
     : null;
+    
+  console.log('Debug - selectedCountryChannel:', selectedCountryChannel, 'selectedCountry:', selectedCountry);
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
