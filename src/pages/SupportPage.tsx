@@ -1777,7 +1777,7 @@ const SupportPage: React.FC = () => {
                     Chiudi
                   </Button>
                   <Button 
-                    onClick={addFeatureComment}
+                    onClick={() => addFeatureComment()}
                     disabled={!newComment.trim()}
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
