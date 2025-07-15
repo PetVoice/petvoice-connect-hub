@@ -306,7 +306,7 @@ const CommunityPage = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona paese" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="pointer-events-auto">
                         <SelectItem value="all">Tutti i paesi</SelectItem>
                         {COUNTRIES.map(country => (
                           <SelectItem key={country.code} value={country.name}>
@@ -326,7 +326,7 @@ const CommunityPage = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona razza" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="pointer-events-auto">
                         <SelectItem value="all">Tutte le razze</SelectItem>
                         {ALL_BREEDS.map(breed => (
                           <SelectItem key={breed} value={breed}>
