@@ -57,6 +57,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         messageText: messageText.trim()
       });
       
+      // Prima verifica se l'utente è iscritto al canale
+      const { data: subscription } = await supabase
+        .from('user_channel_subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('channel_id', channelUUID)
+        .maybeSingle();
+      
+      if (!subscription) {
+        throw new Error('Devi essere iscritto al canale per inviare messaggi');
+      }
+      
       const { data, error } = await supabase
         .from('community_messages')
         .insert([{

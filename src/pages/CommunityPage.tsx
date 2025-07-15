@@ -286,10 +286,16 @@ const CommunityPage = () => {
       // Converte gli UUID back ai channel IDs originali
       const subscribedUUIDs = data?.map(sub => sub.channel_id) || [];
       console.log('Subscribed UUIDs:', subscribedUUIDs);
+      console.log('Available channels:', availableChannels);
       
       // Trova i canali originali corrispondenti
       const originalChannelIds = availableChannels
-        .filter(channel => subscribedUUIDs.includes(generateChannelUUID(channel.id)))
+        .filter(channel => {
+          const channelUUID = generateChannelUUID(channel.id);
+          const isSubscribed = subscribedUUIDs.includes(channelUUID);
+          console.log(`Channel ${channel.id} -> UUID ${channelUUID} -> Subscribed: ${isSubscribed}`);
+          return isSubscribed;
+        })
         .map(channel => channel.id);
       
       console.log('Original channel IDs:', originalChannelIds);
@@ -384,13 +390,34 @@ const CommunityPage = () => {
       const channelUUID = generateChannelUUID(channelId);
       console.log('Subscribing to channel:', { channelId, channelUUID });
       
-      await supabase
+      // Prima verifica se l'utente è già iscritto
+      const { data: existingSubscription } = await supabase
         .from('user_channel_subscriptions')
-        .upsert({
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('channel_id', channelUUID)
+        .maybeSingle();
+      
+      if (existingSubscription) {
+        console.log('User already subscribed to this channel');
+        setActiveChannel(channelId);
+        await loadUserSubscriptions();
+        toast({
+          title: "Già iscritto",
+          description: "Sei già iscritto a questo canale!"
+        });
+        return;
+      }
+      
+      const { error } = await supabase
+        .from('user_channel_subscriptions')
+        .insert({
           user_id: user.id,
           channel_id: channelUUID,
           notifications_enabled: true
         });
+      
+      if (error) throw error;
       
       setActiveChannel(channelId);
       await loadUserSubscriptions();
@@ -417,11 +444,13 @@ const CommunityPage = () => {
       const channelUUID = generateChannelUUID(channelId);
       console.log('Unsubscribing from channel:', { channelId, channelUUID });
       
-      await supabase
+      const { error } = await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
         .eq('channel_id', channelUUID);
+      
+      if (error) throw error;
       
       if (activeChannel === channelId) {
         setActiveChannel(null);
