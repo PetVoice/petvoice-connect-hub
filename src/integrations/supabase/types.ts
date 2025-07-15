@@ -1217,6 +1217,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_convert_pending_referrals: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       calculate_referral_tier: {
         Args: { converted_count: number }
         Returns: Json
@@ -1236,6 +1240,10 @@ export type Database = {
       delete_user_account: {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
+      }
+      force_convert_all_now: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_referral_code: {
         Args: Record<PropertyKey, never> | { user_email: string }
