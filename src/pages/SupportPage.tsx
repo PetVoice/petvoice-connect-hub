@@ -347,17 +347,68 @@ const SupportPage: React.FC = () => {
     setChatInput('');
     setIsTyping(true);
 
-    // Simula una risposta del chatbot
-    setTimeout(() => {
+    try {
+      // Simula l'intelligenza artificiale per l'assistenza
+      const aiResponse = await getAIResponse(chatInput);
+      
       const botResponse = {
-        text: "Grazie per il tuo messaggio! Sto analizzando la tua richiesta e ti fornirò assistenza nel modo migliore possibile. Per questioni urgenti, puoi aprire un ticket di supporto.",
+        text: aiResponse,
         sender: 'bot' as const,
         timestamp: new Date()
       };
       
       setChatMessages(prev => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      const errorResponse = {
+        text: "Mi dispiace, sto avendo dei problemi tecnici. Puoi riprovare o aprire un ticket di supporto per assistenza personalizzata.",
+        sender: 'bot' as const,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, errorResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
+  };
+
+  const getAIResponse = async (userMessage: string): Promise<string> => {
+    // Logica di AI semplificata per rispondere alle domande comuni
+    const message = userMessage.toLowerCase();
+    
+    if (message.includes('prezzo') || message.includes('costo') || message.includes('piano')) {
+      return "Il piano premium di PetVoice costa solo 0,97€ al mese e include analisi comportamentali avanzate, supporto prioritario, calendari intelligenti e molto altro. Vuoi sapere di più sui vantaggi del piano premium?";
+    }
+    
+    if (message.includes('ticket') || message.includes('problema') || message.includes('bug')) {
+      return "Per problemi tecnici o richieste specifiche, ti consiglio di aprire un ticket di supporto. Il nostro team risponde entro 24 ore. Posso aiutarti a identificare quale categoria di ticket è più adatta?";
+    }
+    
+    if (message.includes('analisi') || message.includes('comportamento') || message.includes('emozione')) {
+      return "Le analisi comportamentali di PetVoice utilizzano AI avanzata per interpretare le emozioni del tuo pet. Puoi caricare audio, video o foto per ottenere insights dettagliati. Hai bisogno di aiuto con l'upload dei file?";
+    }
+    
+    if (message.includes('calendario') || message.includes('appuntamento') || message.includes('veterinario')) {
+      return "Il calendario intelligente di PetVoice può aiutarti a programmare visite veterinarie, trattamenti e attività. Puoi anche impostare promemoria automatici. Vuoi che ti spieghi come utilizzare questa funzione?";
+    }
+    
+    if (message.includes('diario') || message.includes('registrazione') || message.includes('giornaliero')) {
+      return "Il diario digitale ti permette di tracciare l'umore, i comportamenti e la salute del tuo pet quotidianamente. Puoi aggiungere foto, note vocali e tag comportamentali. Ti serve aiuto per iniziare?";
+    }
+    
+    if (message.includes('referral') || message.includes('invita') || message.includes('amici')) {
+      return "Con il programma referral di PetVoice puoi invitare amici e guadagnare crediti! Ogni amico che si iscrive ti fa guadagnare bonus e vantaggi esclusivi. Vuoi il tuo codice referral?";
+    }
+    
+    if (message.includes('emergenza') || message.includes('urgente') || message.includes('aiuto')) {
+      return "Per emergenze relative alla salute del tuo pet, contatta immediatamente il tuo veterinario. Per supporto tecnico urgente, usa il supporto di emergenza 24/7 nella sezione contatti. Posso aiutarti con qualcos'altro?";
+    }
+    
+    if (message.includes('premium') || message.includes('abbonamento') || message.includes('pagamento')) {
+      return "Il piano premium costa 0,97€/mese e offre analisi illimitate, supporto prioritario, backup cloud e funzioni esclusive. Puoi disdire in qualsiasi momento. Vuoi vedere tutti i vantaggi?";
+    }
+    
+    // Risposta generica per altre domande
+    return "Ciao! Sono l'assistente virtuale di PetVoice. Posso aiutarti con informazioni sui nostri servizi, prezzi, funzioni e problemi tecnici. Se non riesco a rispondere alla tua domanda, ti suggerirò di aprire un ticket per supporto personalizzato. Come posso aiutarti oggi?";
   };
 
   const getPriorityColor = (priority: string) => {
@@ -491,10 +542,9 @@ const SupportPage: React.FC = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="faq" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="tickets">I Miei Ticket</TabsTrigger>
-            <TabsTrigger value="knowledge">Knowledge Base</TabsTrigger>
             <TabsTrigger value="features">Richieste</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
             <TabsTrigger value="analytics">Statistiche</TabsTrigger>
@@ -772,73 +822,6 @@ const SupportPage: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* Knowledge Base Tab */}
-          <TabsContent value="knowledge" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Book className="h-5 w-5" />
-                  <span>Base di Conoscenza</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Cerca nella knowledge base..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-
-                  {/* Knowledge Base Items */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredKnowledgeBase.map((kb) => (
-                      <Card key={kb.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-medium">{kb.title}</h3>
-                            <Badge variant="secondary">{kb.category}</Badge>
-                          </div>
-                          
-                          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                            {kb.content}
-                          </p>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              {kb.tags.map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            
-                            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                              <Eye className="h-3 w-3" />
-                              {kb.view_count}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {filteredKnowledgeBase.length === 0 && (
-                    <div className="text-center py-8">
-                      <Book className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Nessun articolo trovato per la tua ricerca
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Feature Requests Tab */}
           <TabsContent value="features" className="space-y-6">
@@ -1011,52 +994,156 @@ const SupportPage: React.FC = () => {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Ticket Risolti */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5" />
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center space-x-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
                     <span>Ticket Risolti</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">95%</div>
+                  <div className="text-2xl font-bold text-green-600">1,247</div>
                   <p className="text-sm text-muted-foreground">
-                    Tasso di risoluzione mensile
+                    97.3% tasso di risoluzione
                   </p>
-                  <Progress value={95} className="mt-2" />
+                  <Progress value={97} className="mt-2" />
                 </CardContent>
               </Card>
 
+              {/* Tempo di Risposta */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Timer className="h-5 w-5" />
-                    <span>Tempo Medio</span>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center space-x-2 text-sm">
+                    <Timer className="h-4 w-4 text-blue-600" />
+                    <span>Tempo Risposta</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">2.5h</div>
+                  <div className="text-2xl font-bold text-blue-600">1.8h</div>
                   <p className="text-sm text-muted-foreground">
-                    Tempo di prima risposta
+                    Tempo medio prima risposta
+                  </p>
+                  <Progress value={88} className="mt-2" />
+                </CardContent>
+              </Card>
+
+              {/* Soddisfazione Cliente */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center space-x-2 text-sm">
+                    <Star className="h-4 w-4 text-yellow-600" />
+                    <span>Soddisfazione</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-yellow-600">4.9/5</div>
+                  <p className="text-sm text-muted-foreground">
+                    Media da 2,456 feedback
+                  </p>
+                  <Progress value={98} className="mt-2" />
+                </CardContent>
+              </Card>
+
+              {/* Utenti Attivi */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center space-x-2 text-sm">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    <span>Utenti Attivi</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-purple-600">12,893</div>
+                  <p className="text-sm text-muted-foreground">
+                    +18% questo mese
                   </p>
                   <Progress value={85} className="mt-2" />
                 </CardContent>
               </Card>
 
-              <Card>
+              {/* Ticket per Categoria */}
+              <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Star className="h-5 w-5" />
-                    <span>Soddisfazione</span>
+                    <BarChart3 className="h-5 w-5" />
+                    <span>Distribuzione Ticket per Categoria</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-yellow-600">4.8/5</div>
-                  <p className="text-sm text-muted-foreground">
-                    Valutazione media clienti
-                  </p>
-                  <Progress value={96} className="mt-2" />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Settings className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm">Tecnico</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={45} className="w-20" />
+                        <span className="text-sm font-medium">45%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <BarChart3 className="h-4 w-4 text-green-500" />
+                        <span className="text-sm">Fatturazione</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={25} className="w-20" />
+                        <span className="text-sm font-medium">25%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Heart className="h-4 w-4 text-red-500" />
+                        <span className="text-sm">Medico</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={20} className="w-20" />
+                        <span className="text-sm font-medium">20%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <HelpCircle className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">Generale</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Progress value={10} className="w-20" />
+                        <span className="text-sm font-medium">10%</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Performance Mensile */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Performance Mensile</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold text-green-600">342</div>
+                      <div className="text-sm text-muted-foreground">Ticket chiusi</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold text-blue-600">28</div>
+                      <div className="text-sm text-muted-foreground">Ticket aperti</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold text-orange-600">15</div>
+                      <div className="text-sm text-muted-foreground">In lavorazione</div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/50 rounded-lg">
+                      <div className="text-lg font-bold text-purple-600">5.2h</div>
+                      <div className="text-sm text-muted-foreground">Tempo medio risoluzione</div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
