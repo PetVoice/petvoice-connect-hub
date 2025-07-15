@@ -127,13 +127,32 @@ const COUNTRIES = [
 ];
 
 const DOG_BREEDS = [
-  'Labrador Retriever', 'Golden Retriever', 'Boxer', 'American Pit Bull Terrier',
-  'Rottweiler', 'German Shepherd', 'Bulldog', 'Poodle', 'Beagle'
+  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
+  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
+  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
+  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
+  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman Pinscher',
+  'English Bulldog', 'English Setter', 'Fox Terrier', 'German Shepherd', 'Golden Retriever',
+  'Great Dane', 'Greyhound', 'Havanese', 'Irish Setter', 'Jack Russell Terrier',
+  'Labrador Retriever', 'Maltese', 'Mastiff', 'Miniature Schnauzer', 'Neapolitan Mastiff',
+  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
+  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
+  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
+  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
 ];
 
 const CAT_BREEDS = [
-  'Persiano', 'Maine Coon', 'Siamese', 'British Shorthair', 
-  'Ragdoll', 'Bengala', 'Sphynx', 'Russian Blue'
+  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
+  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
+  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
+  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
+  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
+  'Ragamuffin', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
+  'Selkirk Rex', 'Siamese', 'Singapura', 'Snowshoe', 'Somali', 'Sphynx',
+  'Tonkinese', 'Turkish Van'
 ];
 
 const CommunityPage = () => {
