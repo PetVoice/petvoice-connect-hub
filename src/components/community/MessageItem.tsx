@@ -89,7 +89,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         <div
           className={`rounded-lg p-3 ${
             isOwn
-              ? 'bg-primary/80 text-primary-foreground'
+              ? 'bg-accent text-accent-foreground'
               : 'bg-muted'
           } ${isSelectionMode && isOwn ? 'flex-1' : ''}`}
         >
@@ -108,10 +108,10 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     className="bg-background text-foreground"
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={handleEdit}>
+                    <Button size="sm" variant="default" onClick={handleEdit}>
                       Salva
                     </Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                    <Button size="sm" variant="secondary" onClick={handleCancelEdit}>
                       Annulla
                     </Button>
                   </div>
@@ -179,7 +179,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           )}
 
           {/* Timestamp */}
-          <div className={`text-xs mt-2 ${isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+          <div className={`text-xs mt-2 ${isOwn ? 'text-accent-foreground/70' : 'text-muted-foreground'}`}>
             {formatDistanceToNow(new Date(message.created_at), { 
               addSuffix: true, 
               locale: it 
