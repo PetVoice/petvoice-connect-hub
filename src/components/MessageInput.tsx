@@ -54,13 +54,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       const { data, error } = await supabase
         .from('community_messages')
         .insert([{
-          channel_id: channelId,
+          channel_id: channelId,  // Mantieni come è per ora
           user_id: user.id,
           content: messageText.trim(),
           message_type: 'text',
           is_emergency: false,
           metadata: {
-            channel_name: channelName
+            channel_name: channelName,
+            group_id: channelId  // Aggiungi il group_id per identificare il gruppo
           }
         }])
         .select();
