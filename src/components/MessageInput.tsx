@@ -27,42 +27,24 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Genera UUID deterministico per il canale - versione migliorata
-  const generateChannelUUID = useCallback((channelKey: string) => {
-    // Usa un hash migliorato per convertire stringa in UUID-like
-    let hash = 0;
-    for (let i = 0; i < channelKey.length; i++) {
-      const char = channelKey.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Converti a 32-bit integer
-    }
-    
-    // Converti in formato UUID più robusto
-    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
-  }, []);
-
   // 1. INVIO MESSAGGI TESTO
   const sendMessage = useCallback(async () => {
     if (!messageText.trim() || !channelId || !user?.id || sending || disabled) return;
     
     setSending(true);
     try {
-      const channelUUID = generateChannelUUID(channelId);
-      
       console.log('Sending message:', {
         channelId,
-        channelUUID,
         userId: user.id,
         messageText: messageText.trim()
       });
       
-      // Prima verifica se l'utente è iscritto al canale
+      // Verifica se l'utente è iscritto al canale
       const { data: subscription } = await supabase
         .from('user_channel_subscriptions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('channel_id', channelUUID)
+        .eq('channel_id', channelId)
         .maybeSingle();
       
       if (!subscription) {
@@ -72,14 +54,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       const { data, error } = await supabase
         .from('community_messages')
         .insert([{
-          channel_id: channelUUID,
+          channel_id: channelId,
           user_id: user.id,
           content: messageText.trim(),
           message_type: 'text',
           is_emergency: false,
           metadata: {
-            channel_name: channelName,
-            original_channel_id: channelId
+            channel_name: channelName
           }
         }])
         .select();
@@ -108,7 +89,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     } finally {
       setSending(false);
     }
-  }, [channelId, channelName, messageText, user, sending, disabled, onMessageSent, generateChannelUUID]);
+  }, [channelId, channelName, messageText, user, sending, disabled, onMessageSent]);
 
   // 2. UPLOAD IMMAGINI
   const uploadImage = useCallback(async () => {
@@ -152,11 +133,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           .getPublicUrl(fileName);
         
         // Salva messaggio con immagine
-        const channelUUID = generateChannelUUID(channelId);
         const { data, error } = await supabase
           .from('community_messages')
           .insert([{
-            channel_id: channelUUID,
+            channel_id: channelId,
             user_id: user.id,
             content: `📷 Immagine condivisa`,
             message_type: 'image',
@@ -164,7 +144,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             is_emergency: false,
             metadata: {
               channel_name: channelName,
-              original_channel_id: channelId,
               file_name: file.name,
               file_size: file.size
             }
@@ -191,7 +170,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     };
     
     input.click();
-  }, [channelId, channelName, user, disabled, onMessageSent, generateChannelUUID]);
+  }, [channelId, channelName, user, disabled, onMessageSent]);
 
   // 3. REGISTRAZIONE AUDIO
   const startRecording = useCallback(async () => {
@@ -237,11 +216,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             .getPublicUrl(fileName);
           
           // Salva messaggio audio
-          const channelUUID = generateChannelUUID(channelId);
           const { data, error } = await supabase
             .from('community_messages')
             .insert([{
-              channel_id: channelUUID,
+              channel_id: channelId,
               user_id: user.id,
               content: `🎤 Messaggio vocale`,
               message_type: 'voice',
@@ -250,7 +228,6 @@ export const MessageInput: React.FC<MessageInputProps> = ({
               is_emergency: false,
               metadata: {
                 channel_name: channelName,
-                original_channel_id: channelId,
                 file_size: blob.size
               }
             }])
@@ -296,7 +273,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         variant: "destructive"
       });
     }
-  }, [channelId, channelName, user, disabled, onMessageSent, generateChannelUUID]);
+  }, [channelId, channelName, user, disabled, onMessageSent]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {

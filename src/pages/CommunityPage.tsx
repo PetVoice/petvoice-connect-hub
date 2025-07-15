@@ -1,75 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { SearchableSelect } from '@/components/SearchableSelect';
-import { UniformSelect } from '@/components/UniformSelect';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageInput } from '@/components/MessageInput';
 import { 
   MessageSquare, 
-  Globe, 
-  MapPin, 
-  Heart, 
-  GraduationCap,
-  AlertTriangle,
-  Send,
-  Search,
-  Filter,
-  MoreVertical,
-  Shield,
-  UserCheck,
-  Stethoscope,
-  Dog,
-  Cat,
-  Volume2,
-  VolumeX,
-  Image,
-  Clock,
-  Users,
-  TrendingUp,
-  AlertCircle,
   CheckCircle,
-  FileText,
-  Phone,
-  Share2,
-  Flag,
-  Settings,
-  Star,
-  ThumbsUp,
-  MessageCircle,
-  BookmarkIcon,
-  EyeOff,
-  Ban,
-  ChevronDown,
-  Mic,
-  MicOff,
-  Languages,
-  Zap,
-  Crown,
-  MapPinIcon,
-  Siren,
-  Plus,
-  X,
-  Bell,
-  BellOff,
-  Camera
+  Users,
+  X
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
 // Types
@@ -103,159 +48,20 @@ interface Message {
   };
 }
 
-interface LocalAlert {
-  id: string;
-  title: string;
-  description: string;
-  alert_type: 'health' | 'emergency' | 'environment' | 'outbreak';
-  severity: 'info' | 'warning' | 'emergency';
-  country_code: string;
-  affected_species?: string[];
-  verification_status: 'pending' | 'verified' | 'false_report';
-  reports_count: number;
-  created_at: string;
-  user_profile?: {
-    display_name: string;
-  };
-}
-
-// Complete country list
-const COUNTRIES = [
-  { code: 'IT', name: 'Italia', flag: '🇮🇹' },
-  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
-  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
-  { code: 'ES', name: 'Spagna', flag: '🇪🇸' },
-  { code: 'GB', name: 'Regno Unito', flag: '🇬🇧' },
-  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' }
-];
-
-const DOG_BREEDS = [
-  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
-  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
-  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
-  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
-  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
-  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
-  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman Pinscher',
-  'English Bulldog', 'English Setter', 'Fox Terrier', 'German Shepherd', 'Golden Retriever',
-  'Great Dane', 'Greyhound', 'Havanese', 'Irish Setter', 'Jack Russell Terrier',
-  'Labrador Retriever', 'Maltese', 'Mastiff', 'Miniature Schnauzer', 'Neapolitan Mastiff',
-  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
-  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
-  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
-  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
-];
-
-const CAT_BREEDS = [
-  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
-  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
-  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
-  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
-  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
-  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
-  'Ragamuffin', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
-  'Selkirk Rex', 'Siamese', 'Singapura', 'Snowshoe', 'Somali', 'Sphynx',
-  'Tonkinese', 'Turkish Van'
-];
-
 const CommunityPage = () => {
   const { user } = useAuth();
-  const { selectedPet } = usePets();
   
   // State management
-  const [activeTab, setActiveTab] = useState<'community' | 'news'>('community');
   const [channels, setChannels] = useState<Channel[]>([]);
   const [subscribedChannels, setSubscribedChannels] = useState<string[]>([]);
   const [activeChannel, setActiveChannel] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [localAlerts, setLocalAlerts] = useState<LocalAlert[]>([]);
-  const [messageText, setMessageText] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const [loading, setLoading] = useState(false);
-  
-  // Filters with dynamic channel generation
-  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [selectedPetType, setSelectedPetType] = useState<string>('');
-  const [selectedBreed, setSelectedBreed] = useState<string>('');
-  const [availableChannels, setAvailableChannels] = useState<any[]>([]);
-  const [breedOptions, setBreedOptions] = useState<string[]>([]);
-  
-  // Settings
-  const [showSettings, setShowSettings] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [translationEnabled, setTranslationEnabled] = useState(true);
   
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  
-  // Genera UUID deterministico per i canali - versione migliorata
-  const generateChannelUUID = useCallback((channelKey: string) => {
-    let hash = 0;
-    for (let i = 0; i < channelKey.length; i++) {
-      const char = channelKey.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-    const hashStr = Math.abs(hash).toString(16).padStart(12, '0');
-    return `${hashStr.substring(0, 8)}-${hashStr.substring(0, 4)}-4${hashStr.substring(1, 4)}-8${hashStr.substring(1, 4)}-${hashStr.substring(0, 12)}`;
-  }, []);
-
-  // Get breeds by animal type
-  const getBreedsByAnimalType = useCallback((animalType: string) => {
-    const breeds = {
-      'dog': DOG_BREEDS,
-      'cat': CAT_BREEDS,
-      'all': [],
-      '': []
-    };
-    return breeds[animalType as keyof typeof breeds] || [];
-  }, []);
-
-  // Generate dynamic channels based on selection
-  const generateChannels = useCallback((country: string | null, animalType: string, breed: string) => {
-    const channels = [];
-    
-    if (country) {
-      const countryData = COUNTRIES.find(c => c.code === country);
-      if (countryData) {
-        // Canale generico paese
-        channels.push({
-          id: `${country.toLowerCase()}-general`,
-          name: `${countryData.name} (Generico)`,
-          type: 'general',
-          country: country,
-          flag: countryData.flag,
-          description: `Canale generale per ${countryData.name}`
-        });
-        
-        // Canale specifico
-        if (animalType && animalType !== 'all' && animalType !== '' && breed && breed !== '') {
-          const animalEmoji = animalType === 'dog' ? '🐕' : animalType === 'cat' ? '🐱' : '🐾';
-          const animalName = animalType === 'dog' ? 'Cani' : animalType === 'cat' ? 'Gatti' : 'Animali';
-          
-          channels.push({
-            id: `${country.toLowerCase()}-${animalType.toLowerCase()}-${breed.toLowerCase().replace(/\s+/g, '-')}`,
-            name: `${countryData.name} → ${animalName} → ${breed}`,
-            type: 'specific',
-            country: country,
-            animalType: animalType,
-            breed: breed,
-            flag: countryData.flag,
-            description: `Canale specifico per ${breed} in ${countryData.name}`
-          });
-        }
-      }
-    }
-    
-    return channels;
-  }, []);
-
-  // Load channels (placeholder)
+  // Load channels from database
   const loadChannels = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -283,36 +89,18 @@ const CommunityPage = () => {
       
       if (error) throw error;
       
-      // Converte gli UUID back ai channel IDs originali
-      const subscribedUUIDs = data?.map(sub => sub.channel_id) || [];
-      console.log('Subscribed UUIDs:', subscribedUUIDs);
-      console.log('Available channels:', availableChannels);
-      
-      // Trova i canali originali corrispondenti
-      const originalChannelIds = availableChannels
-        .filter(channel => {
-          const channelUUID = generateChannelUUID(channel.id);
-          const isSubscribed = subscribedUUIDs.includes(channelUUID);
-          console.log(`Channel ${channel.id} -> UUID ${channelUUID} -> Subscribed: ${isSubscribed}`);
-          return isSubscribed;
-        })
-        .map(channel => channel.id);
-      
-      console.log('Original channel IDs:', originalChannelIds);
-      setSubscribedChannels(originalChannelIds);
+      const subscribedChannelIds = data?.map(sub => sub.channel_id) || [];
+      setSubscribedChannels(subscribedChannelIds);
     } catch (error) {
       console.error('Error loading subscriptions:', error);
     }
-  }, [user, availableChannels, generateChannelUUID]);
+  }, [user]);
 
   // Load messages
   const loadMessages = useCallback(async () => {
     if (!activeChannel) return;
     
     try {
-      const channelUUID = generateChannelUUID(activeChannel);
-      console.log('Loading messages for channel:', { activeChannel, channelUUID });
-      
       const { data: messagesData, error: messagesError } = await supabase
         .from('community_messages')
         .select(`
@@ -328,7 +116,7 @@ const CommunityPage = () => {
           created_at,
           updated_at
         `)
-        .eq('channel_id', channelUUID)
+        .eq('channel_id', activeChannel)
         .is('deleted_at', null)
         .order('created_at', { ascending: true });
       
@@ -337,7 +125,7 @@ const CommunityPage = () => {
         throw messagesError;
       }
 
-      // Carica i profili per i messaggi
+      // Load user profiles for messages
       const userIds = [...new Set(messagesData?.map(msg => msg.user_id) || [])];
       let profilesData = [];
       
@@ -349,57 +137,33 @@ const CommunityPage = () => {
         profilesData = profiles || [];
       }
 
-      // Combina messaggi con profili
+      // Combine messages with profiles
       const messagesWithProfiles = messagesData?.map(message => ({
         ...message,
         message_type: message.message_type as 'text' | 'voice' | 'image',
         user_profile: profilesData.find(p => p.user_id === message.user_id)
       })) || [];
 
-      console.log('Messages loaded:', messagesWithProfiles);
       setMessages(messagesWithProfiles as Message[]);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
-  }, [activeChannel, generateChannelUUID]);
-
-  // Handle country change
-  const handleCountryChange = useCallback((countryCode: string) => {
-    setSelectedCountry(countryCode);
-    setActiveChannel(null);
-  }, []);
-
-  // Handle pet type change
-  const handlePetTypeChange = useCallback((petType: string) => {
-    setSelectedPetType(petType);
-    setSelectedBreed('');
-    setActiveChannel(null);
-  }, []);
-
-  // Handle breed change
-  const handleBreedChange = useCallback((breed: string) => {
-    setSelectedBreed(breed);
-    setActiveChannel(null);
-  }, []);
+  }, [activeChannel]);
 
   // Subscribe to channel
   const subscribeToChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
-      const channelUUID = generateChannelUUID(channelId);
-      console.log('Subscribing to channel:', { channelId, channelUUID });
-      
-      // Prima verifica se l'utente è già iscritto
+      // Check if user is already subscribed
       const { data: existingSubscription } = await supabase
         .from('user_channel_subscriptions')
         .select('id')
         .eq('user_id', user.id)
-        .eq('channel_id', channelUUID)
+        .eq('channel_id', channelId)
         .maybeSingle();
       
       if (existingSubscription) {
-        console.log('User already subscribed to this channel');
         setActiveChannel(channelId);
         await loadUserSubscriptions();
         toast({
@@ -413,7 +177,7 @@ const CommunityPage = () => {
         .from('user_channel_subscriptions')
         .insert({
           user_id: user.id,
-          channel_id: channelUUID,
+          channel_id: channelId,
           notifications_enabled: true
         });
       
@@ -434,21 +198,18 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, loadUserSubscriptions, generateChannelUUID]);
+  }, [user, loadUserSubscriptions]);
 
   // Unsubscribe from channel
   const unsubscribeFromChannel = useCallback(async (channelId: string) => {
     if (!user) return;
     
     try {
-      const channelUUID = generateChannelUUID(channelId);
-      console.log('Unsubscribing from channel:', { channelId, channelUUID });
-      
       const { error } = await supabase
         .from('user_channel_subscriptions')
         .delete()
         .eq('user_id', user.id)
-        .eq('channel_id', channelUUID);
+        .eq('channel_id', channelId);
       
       if (error) throw error;
       
@@ -470,7 +231,7 @@ const CommunityPage = () => {
         variant: "destructive"
       });
     }
-  }, [user, activeChannel, loadUserSubscriptions, generateChannelUUID]);
+  }, [user, activeChannel, loadUserSubscriptions]);
 
   // Message sent callback
   const handleMessageSent = useCallback(() => {
@@ -479,31 +240,18 @@ const CommunityPage = () => {
 
   // Effects
   useEffect(() => {
-    if (user && availableChannels.length > 0) {
+    loadChannels();
+  }, [loadChannels]);
+
+  useEffect(() => {
+    if (user) {
       loadUserSubscriptions();
     }
-  }, [user, availableChannels, loadUserSubscriptions]);
+  }, [user, loadUserSubscriptions]);
 
   useEffect(() => {
     loadMessages();
   }, [loadMessages]);
-
-  // Aggiorna canali disponibili quando cambia qualsiasi filtro
-  useEffect(() => {
-    const newChannels = generateChannels(selectedCountry, selectedPetType, selectedBreed);
-    setAvailableChannels(newChannels);
-  }, [selectedCountry, selectedPetType, selectedBreed, generateChannels]);
-
-  // Aggiorna razze disponibili quando cambia tipo animale
-  useEffect(() => {
-    if (selectedPetType && selectedPetType !== 'all' && selectedPetType !== '') {
-      const availableBreeds = getBreedsByAnimalType(selectedPetType);
-      setBreedOptions(availableBreeds);
-    } else {
-      setBreedOptions([]);
-    }
-    setSelectedBreed('');
-  }, [selectedPetType, getBreedsByAnimalType]);
 
   if (!user) {
     return (
@@ -520,6 +268,9 @@ const CommunityPage = () => {
     );
   }
 
+  const subscribedChannelsList = channels.filter(channel => subscribedChannels.includes(channel.id));
+  const availableChannelsList = channels.filter(channel => !subscribedChannels.includes(channel.id));
+
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
@@ -531,52 +282,6 @@ const CommunityPage = () => {
               Connettiti con proprietari e esperti di tutto il mondo
             </p>
           </div>
-          
-          <div className="flex items-center gap-2">
-            {/* Country Filter */}
-            <SearchableSelect
-              value={selectedCountry || ''}
-              onValueChange={handleCountryChange}
-              placeholder="Paese"
-              searchPlaceholder="Cerca paese..."
-              className="w-40"
-              options={COUNTRIES.map(country => ({
-                value: country.code,
-                label: country.name,
-                flag: country.flag
-              }))}
-            />
-            
-            {/* Pet Type Filter */}
-            <SearchableSelect
-              value={selectedPetType || ''}
-              onValueChange={handlePetTypeChange}
-              placeholder="Tutti"
-              searchPlaceholder="Cerca tipo..."
-              className="w-32"
-              options={[
-                { value: 'all', label: 'Tutti', flag: '🐾' },
-                { value: 'dog', label: 'Cani', flag: '🐕' },
-                { value: 'cat', label: 'Gatti', flag: '🐱' }
-              ]}
-            />
-            
-            {/* Breed Filter */}
-            {selectedPetType && selectedPetType !== 'all' && selectedPetType !== '' && breedOptions.length > 0 && (
-              <SearchableSelect
-                value={selectedBreed || ''}
-                onValueChange={handleBreedChange}
-                placeholder="Razza"
-                searchPlaceholder="Cerca razza..."
-                className="w-40"
-                options={breedOptions.map(breed => ({
-                  value: breed,
-                  label: breed,
-                  flag: selectedPetType === 'dog' ? '🐕' : '🐱'
-                }))}
-              />
-            )}
-          </div>
         </div>
       </div>
       
@@ -586,7 +291,7 @@ const CommunityPage = () => {
         <div className="w-80 border-r bg-muted/50 flex flex-col">
           <ScrollArea className="flex-1">
             {/* I tuoi canali */}
-            {subscribedChannels.length > 0 && (
+            {subscribedChannelsList.length > 0 && (
               <div className="border-b">
                 <div className="p-4 border-b">
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -594,65 +299,63 @@ const CommunityPage = () => {
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
-                  {availableChannels
-                    .filter(channel => subscribedChannels.includes(channel.id))
-                    .map((channel) => {
-                      const isActive = activeChannel === channel.id;
-                      
-                      return (
-                        <div
-                          key={channel.id}
-                          className={`bg-card border rounded-lg p-3 ${
-                            isActive ? 'border-primary bg-primary/5' : 'border-muted'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">{channel.flag}</span>
-                              <div>
-                                <div className="text-sm font-medium">{channel.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {channel.type === 'general' ? 'Generico' : 'Specifico'}
-                                </div>
+                  {subscribedChannelsList.map((channel) => {
+                    const isActive = activeChannel === channel.id;
+                    
+                    return (
+                      <div
+                        key={channel.id}
+                        className={`bg-card border rounded-lg p-3 ${
+                          isActive ? 'border-primary bg-primary/5' : 'border-muted'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{channel.emoji || '🌐'}</span>
+                            <div>
+                              <div className="text-sm font-medium">{channel.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {channel.channel_type}
                               </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant={isActive ? "default" : "outline"}
-                                onClick={() => setActiveChannel(channel.id)}
-                              >
-                                {isActive ? (
-                                  <>
-                                    <CheckCircle className="h-3 w-3 mr-1" />
-                                    Attivo
-                                  </>
-                                ) : (
-                                  <>
-                                    <MessageSquare className="h-3 w-3 mr-1" />
-                                    Apri
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => unsubscribeFromChannel(channel.id)}
-                                title="Esci dal canale"
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
                             </div>
                           </div>
                           
-                          <p className="text-xs text-muted-foreground">
-                            {channel.description}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant={isActive ? "default" : "outline"}
+                              onClick={() => setActiveChannel(channel.id)}
+                            >
+                              {isActive ? (
+                                <>
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Attivo
+                                </>
+                              ) : (
+                                <>
+                                  <MessageSquare className="h-3 w-3 mr-1" />
+                                  Apri
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => unsubscribeFromChannel(channel.id)}
+                              title="Esci dal canale"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
-                      );
-                    })}
+                        
+                        <p className="text-xs text-muted-foreground">
+                          {channel.description}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -665,51 +368,49 @@ const CommunityPage = () => {
                 </div>
               </div>
               <div className="p-4 space-y-3">
-                {availableChannels.filter(channel => !subscribedChannels.includes(channel.id)).length > 0 ? (
-                  availableChannels
-                    .filter(channel => !subscribedChannels.includes(channel.id))
-                    .map((channel) => {
-                      return (
-                        <div
-                          key={channel.id}
-                          className="bg-card border rounded-lg p-3 border-muted"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">{channel.flag}</span>
-                              <div>
-                                <div className="text-sm font-medium">{channel.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {channel.type === 'general' ? 'Generico' : 'Specifico'}
-                                </div>
+                {availableChannelsList.length > 0 ? (
+                  availableChannelsList.map((channel) => {
+                    return (
+                      <div
+                        key={channel.id}
+                        className="bg-card border rounded-lg p-3 border-muted"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{channel.emoji || '🌐'}</span>
+                            <div>
+                              <div className="text-sm font-medium">{channel.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {channel.channel_type}
                               </div>
                             </div>
-                            
-                            <Button
-                              size="sm"
-                              onClick={() => subscribeToChannel(channel.id)}
-                            >
-                              <Users className="h-3 w-3 mr-1" />
-                              Entra
-                            </Button>
                           </div>
                           
-                          <p className="text-xs text-muted-foreground">
-                            {channel.description}
-                          </p>
+                          <Button
+                            size="sm"
+                            onClick={() => subscribeToChannel(channel.id)}
+                          >
+                            <Users className="h-3 w-3 mr-1" />
+                            Entra
+                          </Button>
                         </div>
-                      );
-                    })
+                        
+                        <p className="text-xs text-muted-foreground">
+                          {channel.description}
+                        </p>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">
-                      {availableChannels.length === 0 ? 'Nessun canale disponibile' : 'Nessun nuovo canale'}
+                      {channels.length === 0 ? 'Caricamento canali...' : 'Nessun nuovo canale'}
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      {availableChannels.length === 0 
-                        ? 'Seleziona Paese, Tipo Animale e Razza per vedere i canali disponibili'
-                        : 'Sei già iscritto a tutti i canali disponibili per questa selezione'
+                      {channels.length === 0 
+                        ? 'Sto caricando i canali disponibili...'
+                        : 'Sei già iscritto a tutti i canali disponibili'
                       }
                     </p>
                   </div>
@@ -728,14 +429,14 @@ const CommunityPage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="text-lg">
-                      {availableChannels.find(c => c.id === activeChannel)?.flag}
+                      {channels.find(c => c.id === activeChannel)?.emoji || '🌐'}
                     </div>
                     <div>
                       <h3 className="font-medium">
-                        {availableChannels.find(c => c.id === activeChannel)?.name}
+                        {channels.find(c => c.id === activeChannel)?.name}
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        {availableChannels.find(c => c.id === activeChannel)?.description}
+                        {channels.find(c => c.id === activeChannel)?.description}
                       </p>
                     </div>
                   </div>
@@ -787,7 +488,7 @@ const CommunityPage = () => {
               {/* Message Input */}
               <MessageInput
                 channelId={activeChannel}
-                channelName={availableChannels.find(c => c.id === activeChannel)?.name || 'Canale'}
+                channelName={channels.find(c => c.id === activeChannel)?.name || 'Canale'}
                 onMessageSent={handleMessageSent}
                 disabled={loading}
               />
