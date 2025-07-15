@@ -875,6 +875,8 @@ export type Database = {
       referral_credits: {
         Row: {
           amount: number
+          billing_period_end: string | null
+          billing_period_start: string | null
           created_at: string
           credit_type: string
           description: string | null
@@ -887,6 +889,8 @@ export type Database = {
         }
         Insert: {
           amount: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           created_at?: string
           credit_type: string
           description?: string | null
@@ -899,6 +903,8 @@ export type Database = {
         }
         Update: {
           amount?: number
+          billing_period_end?: string | null
+          billing_period_start?: string | null
           created_at?: string
           credit_type?: string
           description?: string | null
@@ -1012,6 +1018,8 @@ export type Database = {
           cancellation_effective_date: string | null
           cancellation_type: string | null
           created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
           email: string | null
           id: string
           is_cancelled: boolean | null
@@ -1030,6 +1038,8 @@ export type Database = {
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
           created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email?: string | null
           id?: string
           is_cancelled?: boolean | null
@@ -1048,6 +1058,8 @@ export type Database = {
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
           created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
           email?: string | null
           id?: string
           is_cancelled?: boolean | null
@@ -1205,6 +1217,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_referral_tier: {
+        Args: { converted_count: number }
+        Returns: Json
+      }
       cancel_user_subscription: {
         Args: { p_user_id: string; p_immediate?: boolean }
         Returns: boolean
