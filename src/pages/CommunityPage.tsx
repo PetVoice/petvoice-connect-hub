@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -979,18 +979,41 @@ const CommunityPage = () => {
     return channelList;
   };
 
-  // Lista dinamica dei canali da mostrare
-  const filteredChannels = getChannelList();
-
-  // Trova il canale del paese selezionato
+  // Get selected country channel
   const selectedCountryChannel = selectedCountry 
     ? channels.find(c => c.channel_type === 'country' && c.country_code === selectedCountry)
     : null;
-    
-  console.log('Debug - selectedCountryChannel:', selectedCountryChannel, 'selectedCountry:', selectedCountry);
 
   // Get current channel info
   const currentChannel = channels.find(c => c.id === activeChannel);
+
+  // Lista canali da mostrare (paese selezionato + canali in cui sono iscritto)
+  const visibleChannels = useMemo(() => {
+    const channelsSet = new Set<Channel>();
+    
+    // Aggiungi canale del paese selezionato se esiste
+    if (selectedCountryChannel) {
+      channelsSet.add(selectedCountryChannel);
+    }
+    
+    // Aggiungi tutti i canali a cui sono iscritto
+    subscribedChannels.forEach(channelId => {
+      const channel = channels.find(c => c.id === channelId);
+      if (channel) {
+        channelsSet.add(channel);
+      }
+    });
+    
+    return Array.from(channelsSet);
+  }, [selectedCountryChannel, subscribedChannels, channels]);
+
+  // Controlla se sono iscritto a un canale
+  const isSubscribedToChannel = (channelId: string) => {
+    return subscribedChannels.includes(channelId);
+  };
+
+  // Controlla se sono nel canale attivo
+  const isInActiveChannel = activeChannel ? isSubscribedToChannel(activeChannel) : false;
 
   // Message Component
   const MessageComponent = ({ message }: { message: Message }) => {
@@ -1336,13 +1359,13 @@ const CommunityPage = () => {
               )}
 
               {/* Lista canali dinamica */}
-              {filteredChannels.length > 0 && (
+              {visibleChannels.length > 0 && (
                 <div>
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                     I Tuoi Canali
                   </div>
                   <div className="space-y-2">
-                    {filteredChannels.map((channel) => {
+                    {visibleChannels.map((channel) => {
                       const isSubscribed = subscribedChannels.includes(channel.id);
                       const isActive = activeChannel === channel.id;
                       
@@ -1416,7 +1439,7 @@ const CommunityPage = () => {
               )}
 
               {/* Messaggio quando non ci sono canali */}
-              {filteredChannels.length === 0 && !selectedCountryChannel && (
+              {visibleChannels.length === 0 && !selectedCountryChannel && (
                 <div className="text-center py-8 px-2">
                   <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                   <p className="text-xs text-muted-foreground">
@@ -1493,6 +1516,17 @@ const CommunityPage = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      {isInActiveChannel && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => unsubscribeFromChannel(activeChannel)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Esci dal Canale
+                        </Button>
+                      )}
                       <Button variant="outline" size="sm">
                         <Languages className="h-4 w-4" />
                       </Button>
@@ -1504,79 +1538,113 @@ const CommunityPage = () => {
               {/* Messages Area */}
               {activeChannel ? (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 overflow-y-auto">
-                    <div className="p-4 space-y-4">
-                      {messages.length === 0 ? (
-                        <div className="text-center py-8">
-                          <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                          <p className="text-sm text-muted-foreground">
-                            Nessun messaggio ancora. Inizia la conversazione!
+                  {/* Controllo accesso al canale */}
+                  {!isInActiveChannel ? (
+                    <div className="flex-1 flex items-center justify-center p-8">
+                      <div className="text-center max-w-md">
+                        <div className="mb-6">
+                          <Shield className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-semibold mb-2">
+                            Accesso Richiesto
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Per vedere i messaggi e partecipare alle discussioni in{' '}
+                            <span className="font-medium">
+                              {currentChannel?.country_code && 
+                                COUNTRIES.find(c => c.code === currentChannel.country_code)?.flag
+                              }{' '}
+                              {currentChannel?.name}
+                            </span>
+                            , devi prima unirti al canale.
                           </p>
                         </div>
-                      ) : (
-                        messages.map((message) => (
-                          <MessageComponent key={message.id} message={message} />
-                        ))
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  </div>
-                  
-                  {/* Message Input - Sempre visibile */}
-                  <div className="border-t p-4 bg-card flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
-                        <Input
-                          placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
-                          value={messageText}
-                          onChange={(e) => setMessageText(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                          className="border-0 bg-transparent focus-visible:ring-0"
-                          disabled={loading}
-                        />
                         
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={isRecording ? stopRecording : startRecording}
-                            className={isRecording ? 'text-red-500' : ''}
-                            title="🎤 Audio"
-                            disabled={loading}
-                          >
-                            {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                          </Button>
-                          
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => fileInputRef.current?.click()}
-                            title="📷 Foto"
-                            disabled={loading}
-                          >
-                            <Camera className="h-4 w-4" />
-                          </Button>
-                          
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={sendMessage}
-                            disabled={!messageText.trim() || loading}
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
+                        <Button
+                          onClick={() => subscribeToChannel(activeChannel)}
+                          className="w-full"
+                          size="lg"
+                        >
+                          🚪 ENTRA NEL CANALE {currentChannel?.name?.toUpperCase()}
+                        </Button>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="flex-1 overflow-y-auto">
+                        <div className="p-4 space-y-4">
+                          {messages.length === 0 ? (
+                            <div className="text-center py-8">
+                              <MessageCircle className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                              <p className="text-sm text-muted-foreground">
+                                Nessun messaggio ancora. Inizia la conversazione!
+                              </p>
+                            </div>
+                          ) : (
+                            messages.map((message) => (
+                              <MessageComponent key={message.id} message={message} />
+                            ))
+                          )}
+                          <div ref={messagesEndRef} />
+                        </div>
+                      </div>
+                      
+                      {/* Message Input - Solo se nel canale */}
+                      <div className="border-t p-4 bg-card flex-shrink-0">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-2 bg-background border rounded-lg p-2">
+                            <Input
+                              placeholder={`💬 Scrivi in ${currentChannel?.name || 'questo canale'}...`}
+                              value={messageText}
+                              onChange={(e) => setMessageText(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+                              className="border-0 bg-transparent focus-visible:ring-0"
+                              disabled={loading}
+                            />
+                            
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={isRecording ? stopRecording : startRecording}
+                                className={isRecording ? 'text-red-500' : ''}
+                                title="🎤 Audio"
+                                disabled={loading}
+                              >
+                                {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                              </Button>
+                              
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => fileInputRef.current?.click()}
+                                title="📷 Foto"
+                                disabled={loading}
+                              >
+                                <Camera className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={sendMessage}
+                                disabled={!messageText.trim() || loading}
+                              >
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="flex-1" />
