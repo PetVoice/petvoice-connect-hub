@@ -193,7 +193,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
             type="button"
             size="sm"
             variant="ghost"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted/50 transition-colors flex items-center justify-center"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted/50 transition-colors flex items-center justify-center hover:shadow-none"
             onClick={() => setShowEmojis(!showEmojis)}
             disabled={uploading}
           >
