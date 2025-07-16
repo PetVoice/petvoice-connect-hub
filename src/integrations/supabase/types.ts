@@ -1193,6 +1193,7 @@ export type Database = {
           converted_at: string | null
           created_at: string | null
           id: string
+          is_active: boolean
           referral_code: string
           referred_email: string
           referred_user_id: string | null
@@ -1204,6 +1205,7 @@ export type Database = {
           converted_at?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean
           referral_code: string
           referred_email: string
           referred_user_id?: string | null
@@ -1215,6 +1217,7 @@ export type Database = {
           converted_at?: string | null
           created_at?: string | null
           id?: string
+          is_active?: boolean
           referral_code?: string
           referred_email?: string
           referred_user_id?: string | null
