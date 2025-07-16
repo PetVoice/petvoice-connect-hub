@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,6 +31,40 @@ serve(async (req) => {
     if (!user) throw new Error("User not found");
 
     console.log(`Starting account deletion for user: ${user.id}`);
+
+    // First, get subscriber info to cancel Stripe subscription if exists
+    const { data: subscriberData } = await supabaseClient
+      .from('subscribers')
+      .select('stripe_customer_id')
+      .eq('user_id', user.id)
+      .single();
+
+    // Cancel Stripe subscription if customer exists
+    if (subscriberData?.stripe_customer_id) {
+      try {
+        const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+        if (stripeKey) {
+          const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
+          
+          // Get all active subscriptions for this customer
+          const subscriptions = await stripe.subscriptions.list({
+            customer: subscriberData.stripe_customer_id,
+            status: 'active'
+          });
+
+          // Cancel all active subscriptions
+          for (const subscription of subscriptions.data) {
+            await stripe.subscriptions.cancel(subscription.id);
+            console.log(`Cancelled Stripe subscription: ${subscription.id}`);
+          }
+
+          console.log(`Cancelled Stripe subscriptions for customer: ${subscriberData.stripe_customer_id}`);
+        }
+      } catch (stripeError) {
+        console.error("Error cancelling Stripe subscription:", stripeError);
+        // Continue with account deletion even if Stripe cancellation fails
+      }
+    }
 
     // Delete all user-related data in order
     const deletionPromises = [
