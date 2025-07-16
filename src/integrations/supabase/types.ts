@@ -110,47 +110,6 @@ export type Database = {
         }
         Relationships: []
       }
-      challenge_participations: {
-        Row: {
-          challenge_id: string
-          completed_at: string | null
-          created_at: string
-          id: string
-          is_completed: boolean | null
-          referrals_count: number | null
-          reward_claimed: boolean | null
-          user_id: string
-        }
-        Insert: {
-          challenge_id: string
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          is_completed?: boolean | null
-          referrals_count?: number | null
-          reward_claimed?: boolean | null
-          user_id: string
-        }
-        Update: {
-          challenge_id?: string
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          is_completed?: boolean | null
-          referrals_count?: number | null
-          reward_claimed?: boolean | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "challenge_participations_challenge_id_fkey"
-            columns: ["challenge_id"]
-            isOneToOne: false
-            referencedRelation: "referral_challenges"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       community_channels: {
         Row: {
           breed: string | null
@@ -1184,248 +1143,120 @@ export type Database = {
         }
         Relationships: []
       }
-      referral_analytics: {
-        Row: {
-          clicks: number | null
-          conversions: number | null
-          created_at: string
-          credits_earned: number | null
-          date: string
-          geographic_data: Json | null
-          id: string
-          registrations: number | null
-          top_channel: string | null
-          user_id: string
-        }
-        Insert: {
-          clicks?: number | null
-          conversions?: number | null
-          created_at?: string
-          credits_earned?: number | null
-          date: string
-          geographic_data?: Json | null
-          id?: string
-          registrations?: number | null
-          top_channel?: string | null
-          user_id: string
-        }
-        Update: {
-          clicks?: number | null
-          conversions?: number | null
-          created_at?: string
-          credits_earned?: number | null
-          date?: string
-          geographic_data?: Json | null
-          id?: string
-          registrations?: number | null
-          top_channel?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      referral_badges: {
-        Row: {
-          badge_description: string | null
-          badge_name: string
-          badge_type: string
-          earned_at: string
-          icon_name: string | null
-          id: string
-          user_id: string
-        }
-        Insert: {
-          badge_description?: string | null
-          badge_name: string
-          badge_type: string
-          earned_at?: string
-          icon_name?: string | null
-          id?: string
-          user_id: string
-        }
-        Update: {
-          badge_description?: string | null
-          badge_name?: string
-          badge_type?: string
-          earned_at?: string
-          icon_name?: string | null
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      referral_challenges: {
-        Row: {
-          challenge_name: string
-          created_at: string
-          description: string | null
-          end_date: string
-          id: string
-          is_active: boolean | null
-          reward_credits: number
-          start_date: string
-          target_referrals: number
-        }
-        Insert: {
-          challenge_name: string
-          created_at?: string
-          description?: string | null
-          end_date: string
-          id?: string
-          is_active?: boolean | null
-          reward_credits: number
-          start_date: string
-          target_referrals: number
-        }
-        Update: {
-          challenge_name?: string
-          created_at?: string
-          description?: string | null
-          end_date?: string
-          id?: string
-          is_active?: boolean | null
-          reward_credits?: number
-          start_date?: string
-          target_referrals?: number
-        }
-        Relationships: []
-      }
-      referral_credits: {
+      referral_commissions: {
         Row: {
           amount: number
           billing_period_end: string | null
           billing_period_start: string | null
-          created_at: string
-          credit_type: string
-          description: string | null
-          expires_at: string | null
+          commission_rate: number
+          commission_type: string
+          created_at: string | null
           id: string
-          redeemed_at: string | null
-          referral_id: string | null
-          status: string | null
-          user_id: string
+          referred_user_id: string
+          referrer_id: string
+          status: string
+          subscription_amount: number
+          tier: string
         }
         Insert: {
           amount: number
           billing_period_end?: string | null
           billing_period_start?: string | null
-          created_at?: string
-          credit_type: string
-          description?: string | null
-          expires_at?: string | null
+          commission_rate: number
+          commission_type: string
+          created_at?: string | null
           id?: string
-          redeemed_at?: string | null
-          referral_id?: string | null
-          status?: string | null
-          user_id: string
+          referred_user_id: string
+          referrer_id: string
+          status?: string
+          subscription_amount: number
+          tier: string
         }
         Update: {
           amount?: number
           billing_period_end?: string | null
           billing_period_start?: string | null
-          created_at?: string
-          credit_type?: string
-          description?: string | null
-          expires_at?: string | null
+          commission_rate?: number
+          commission_type?: string
+          created_at?: string | null
           id?: string
-          redeemed_at?: string | null
-          referral_id?: string | null
-          status?: string | null
-          user_id?: string
+          referred_user_id?: string
+          referrer_id?: string
+          status?: string
+          subscription_amount?: number
+          tier?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "referral_credits_referral_id_fkey"
-            columns: ["referral_id"]
-            isOneToOne: false
-            referencedRelation: "referrals"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       referrals: {
         Row: {
-          channel: string | null
-          conversion_date: string | null
-          created_at: string
-          credits_awarded: number | null
-          device_fingerprint: string | null
+          converted_at: string | null
+          created_at: string | null
           id: string
-          ip_address: unknown | null
           referral_code: string
           referred_email: string
           referred_user_id: string | null
           referrer_id: string
-          status: string | null
-          updated_at: string
-          utm_campaign: string | null
-          utm_medium: string | null
-          utm_source: string | null
+          registered_at: string | null
+          status: string
         }
         Insert: {
-          channel?: string | null
-          conversion_date?: string | null
-          created_at?: string
-          credits_awarded?: number | null
-          device_fingerprint?: string | null
+          converted_at?: string | null
+          created_at?: string | null
           id?: string
-          ip_address?: unknown | null
           referral_code: string
           referred_email: string
           referred_user_id?: string | null
           referrer_id: string
-          status?: string | null
-          updated_at?: string
-          utm_campaign?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
+          registered_at?: string | null
+          status?: string
         }
         Update: {
-          channel?: string | null
-          conversion_date?: string | null
-          created_at?: string
-          credits_awarded?: number | null
-          device_fingerprint?: string | null
+          converted_at?: string | null
+          created_at?: string | null
           id?: string
-          ip_address?: unknown | null
           referral_code?: string
           referred_email?: string
           referred_user_id?: string | null
           referrer_id?: string
-          status?: string | null
-          updated_at?: string
-          utm_campaign?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
+          registered_at?: string | null
+          status?: string
         }
         Relationships: []
       }
-      sharing_templates: {
+      referrer_stats: {
         Row: {
-          content: string
-          created_at: string
-          id: string
-          is_active: boolean | null
-          platform: string
-          template_name: string
-          variables: Json | null
+          available_credits: number | null
+          current_tier: string | null
+          referral_code: string
+          tier_progress: number | null
+          total_conversions: number | null
+          total_credits_earned: number | null
+          total_registrations: number | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          platform: string
-          template_name: string
-          variables?: Json | null
+          available_credits?: number | null
+          current_tier?: string | null
+          referral_code: string
+          tier_progress?: number | null
+          total_conversions?: number | null
+          total_credits_earned?: number | null
+          total_registrations?: number | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          platform?: string
-          template_name?: string
-          variables?: Json | null
+          available_credits?: number | null
+          current_tier?: string | null
+          referral_code?: string
+          tier_progress?: number | null
+          total_conversions?: number | null
+          total_credits_earned?: number | null
+          total_registrations?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2122,48 +1953,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_referrals: {
-        Row: {
-          consecutive_months: number | null
-          created_at: string
-          current_tier: string | null
-          id: string
-          is_leaderboard_visible: boolean | null
-          referral_code: string
-          successful_conversions: number | null
-          total_credits_earned: number | null
-          total_referrals: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          consecutive_months?: number | null
-          created_at?: string
-          current_tier?: string | null
-          id?: string
-          is_leaderboard_visible?: boolean | null
-          referral_code: string
-          successful_conversions?: number | null
-          total_credits_earned?: number | null
-          total_referrals?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          consecutive_months?: number | null
-          created_at?: string
-          current_tier?: string | null
-          id?: string
-          is_leaderboard_visible?: boolean | null
-          referral_code?: string
-          successful_conversions?: number | null
-          total_credits_earned?: number | null
-          total_referrals?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       veterinarians: {
         Row: {
           address: string | null
@@ -2214,14 +2003,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      auto_convert_pending_referrals: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      bulletproof_referral_conversion_manual: {
-        Args: { p_user_id: string; p_email: string }
-        Returns: undefined
-      }
       calculate_referral_tier: {
         Args: { converted_count: number }
         Returns: Json
@@ -2237,10 +2018,6 @@ export type Database = {
       check_email_exists: {
         Args: { email_to_check: string }
         Returns: boolean
-      }
-      convert_missed_referrals: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       convert_referral_on_payment: {
         Args: { user_email: string }
@@ -2276,14 +2053,6 @@ export type Database = {
       reactivate_user_subscription: {
         Args: { p_user_id: string }
         Returns: boolean
-      }
-      simple_convert_all_pending: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      update_all_referral_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
     }
     Enums: {
