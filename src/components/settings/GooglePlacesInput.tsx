@@ -71,12 +71,48 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
         
         const formattedSuggestions: Suggestion[] = data.map((item: any) => {
           const address = item.address || {};
-          const streetNumber = address.house_number || '';
-          const streetName = address.road || '';
+          
+          // Log per debug
+          console.log('🔍 Nominatim address data:', address);
+          console.log('🔍 Full item:', item);
+          
+          let streetNumber = address.house_number || '';
+          let streetName = address.road || '';
+          
+          // Se il numero civico non è in house_number, prova a estrarlo dalla road
+          if (!streetNumber && streetName) {
+            const roadMatch = streetName.match(/^(.+?)\s+(\d+[a-zA-Z]?)$/);
+            if (roadMatch) {
+              streetName = roadMatch[1];
+              streetNumber = roadMatch[2];
+            }
+          }
+          
+          // Se ancora non troviamo il numero, prova a estrarlo dal display_name
+          if (!streetNumber) {
+            const displayMatch = item.display_name.match(/(\d+[a-zA-Z]?)\s+(.+)/);
+            if (displayMatch) {
+              streetNumber = displayMatch[1];
+              // Non sovrascrivere streetName se già presente
+              if (!streetName) {
+                streetName = displayMatch[2].split(',')[0];
+              }
+            }
+          }
+          
           const city = address.city || address.town || address.village || '';
           const province = address.state || address.province || '';
           const country = address.country || 'Italia';
           const postalCode = address.postcode || '';
+          
+          console.log('🔍 Parsed values:', {
+            streetName,
+            streetNumber,
+            city,
+            province,
+            country,
+            postalCode
+          });
           
           return {
             id: item.place_id,
