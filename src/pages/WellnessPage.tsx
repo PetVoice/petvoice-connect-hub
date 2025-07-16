@@ -131,18 +131,26 @@ interface Insurance {
 // Helper function to translate metric types to Italian
 const translateMetricType = (type: string): string => {
   const translations: Record<string, string> = {
-    'weight': 'Peso',
-    'temperature': 'Temperatura',
-    'heart_rate': 'Battito Cardiaco',
-    'appetite': 'Appetito',
-    'sleep': 'Sonno',
-    'activity': 'Attività',
-    'behavior': 'Comportamento',
+    'temperature': 'Temperatura Corporea',
+    'heart_rate': 'Frequenza Cardiaca', 
+    'respiration': 'Respirazione',
+    'gum_color': 'Colore Gengive',
     'checkup': 'Controllo',
     'blood_pressure': 'Pressione Sanguigna',
     'respiratory_rate': 'Frequenza Respiratoria'
   };
   return translations[type] || type;
+};
+
+// Helper function to convert gum color numeric values to text
+const getGumColorText = (value: number): string => {
+  const colorMap: Record<number, string> = {
+    1: 'Rosa',
+    2: 'Pallide', 
+    3: 'Blu/Viola',
+    4: 'Gialle'
+  };
+  return colorMap[value] || 'Sconosciuto';
 };
 
 // Helper function to translate record types to Italian
@@ -1262,8 +1270,8 @@ const WellnessPage = () => {
       return;
     }
 
-    // Validate numeric value
-    if (isNaN(parseFloat(newMetric.value))) {
+    // Validate numeric value (except for gum_color)
+    if (newMetric.metric_type !== 'gum_color' && isNaN(parseFloat(newMetric.value))) {
       toast({
         title: "Errore",
         description: "Il valore deve essere un numero valido",
@@ -1273,11 +1281,22 @@ const WellnessPage = () => {
     }
 
     try {
+      // Mappa i colori delle gengive a valori numerici per il database
+      const getGumColorValue = (color: string) => {
+        const colorMap = {
+          'Rosa': 1,
+          'Pallide': 2,
+          'Blu/Viola': 3,
+          'Gialle': 4
+        };
+        return colorMap[color] || 1;
+      };
+
       const metricData = {
         user_id: user.id,
         pet_id: selectedPet.id,
         metric_type: newMetric.metric_type.toLowerCase().trim(),
-        value: parseFloat(newMetric.value),
+        value: newMetric.metric_type === 'gum_color' ? getGumColorValue(newMetric.value) : parseFloat(newMetric.value),
         unit: newMetric.unit?.trim() || null,
         notes: newMetric.notes?.trim() || null,
         // Per le modifiche, mantieni la data originale; per nuove metriche, usa la data corrente
@@ -2383,9 +2402,11 @@ const WellnessPage = () => {
                            <div className="flex items-center gap-2">
                              <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
                            </div>
-                           <p className="text-sm text-muted-foreground">
-                             {metric.value} {metric.unit}
-                           </p>
+                            <p className="text-sm text-muted-foreground">
+                              {metric.metric_type === 'gum_color' 
+                                ? getGumColorText(metric.value) 
+                                : `${metric.value} ${metric.unit}`}
+                            </p>
                            <p className="text-sm text-muted-foreground">
                              {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
                            </p>
@@ -2396,12 +2417,14 @@ const WellnessPage = () => {
                              variant="ghost"
                              onClick={() => {
                                setEditingMetric(metric);
-                               setNewMetric({
-                                 metric_type: metric.metric_type,
-                                 value: metric.value.toString(),
-                                 unit: metric.unit || '',
-                                 notes: metric.notes || ''
-                               });
+                                setNewMetric({
+                                  metric_type: metric.metric_type,
+                                  value: metric.metric_type === 'gum_color' 
+                                    ? getGumColorText(metric.value) 
+                                    : metric.value.toString(),
+                                  unit: metric.unit || '',
+                                  notes: metric.notes || ''
+                                });
                                setShowAddMetric(true);
                              }}
                            >
@@ -2954,18 +2977,16 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 onValueChange={(value) => {
                   // Auto-imposta l'unità di misura in base al tipo
                   const units = {
-                    'weight': 'kg',
                     'temperature': '°C',
                     'heart_rate': 'bpm',
-                    'appetite': '/10',
-                    'sleep': 'ore',
-                    'activity': '/10',
-                    'behavior': '/10'
+                    'respiration': 'resp/min',
+                    'gum_color': ''
                   };
                   setNewMetric(prev => ({ 
                     ...prev, 
                     metric_type: value,
-                    unit: units[value] || ''
+                    unit: units[value] || '',
+                    value: value === 'gum_color' ? '' : prev.value // Reset valore per colore gengive
                   }));
                 }}
               >
@@ -2973,36 +2994,56 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="weight">Peso</SelectItem>
-                  <SelectItem value="temperature">Temperatura</SelectItem>
-                  <SelectItem value="heart_rate">Battito Cardiaco</SelectItem>
-                  <SelectItem value="appetite">Appetito</SelectItem>
-                  <SelectItem value="sleep">Sonno</SelectItem>
-                  <SelectItem value="activity">Attività</SelectItem>
-                  <SelectItem value="behavior">Comportamento</SelectItem>
+                  <SelectItem value="temperature">Temperatura Corporea</SelectItem>
+                  <SelectItem value="heart_rate">Frequenza Cardiaca</SelectItem>
+                  <SelectItem value="respiration">Respirazione</SelectItem>
+                  <SelectItem value="gum_color">Colore Gengive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="value">Valore *</Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.1"
-                value={newMetric.value}
-                onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
-                placeholder="es. 38.5"
-              />
+              {newMetric.metric_type === 'gum_color' ? (
+                <Select 
+                  value={newMetric.value} 
+                  onValueChange={(value) => setNewMetric(prev => ({ ...prev, value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona colore" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Rosa">Rosa</SelectItem>
+                    <SelectItem value="Pallide">Pallide</SelectItem>
+                    <SelectItem value="Blu/Viola">Blu/Viola</SelectItem>
+                    <SelectItem value="Gialle">Gialle</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="value"
+                  type="number"
+                  step="0.1"
+                  value={newMetric.value}
+                  onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
+                  placeholder={
+                    newMetric.metric_type === 'temperature' ? 'es. 38.5' :
+                    newMetric.metric_type === 'heart_rate' ? 'es. 80' :
+                    newMetric.metric_type === 'respiration' ? 'es. 20' : 'Inserisci valore'
+                  }
+                />
+              )}
             </div>
-            <div>
-              <Label htmlFor="unit">Unità di Misura</Label>
-              <Input
-                id="unit"
-                value={newMetric.unit}
-                onChange={(e) => setNewMetric(prev => ({ ...prev, unit: e.target.value }))}
-                placeholder="es. °C, kg, bpm"
-              />
-            </div>
+            {newMetric.metric_type !== 'gum_color' && (
+              <div>
+                <Label htmlFor="unit">Unità di Misura</Label>
+                <Input
+                  id="unit"
+                  value={newMetric.unit}
+                  disabled
+                  placeholder="Automatica"
+                />
+              </div>
+            )}
             <div>
               <Label htmlFor="metric_notes">Note</Label>
               <Textarea
