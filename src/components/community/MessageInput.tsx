@@ -181,26 +181,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
     <div className="border-t p-4">
       <div className="flex gap-2 items-end">
         <div className="flex-1 relative">
-          <div className="flex">
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Scrivi un messaggio..."
-              disabled={uploading}
-              className="resize-none flex-1"
-            />
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              className="h-8 w-8 p-0 ml-1 hover:bg-muted/50 transition-colors flex-shrink-0"
-              onClick={() => setShowEmojis(!showEmojis)}
-              disabled={uploading}
-            >
-              <Smile size={16} />
-            </Button>
-          </div>
+          <Input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Scrivi un messaggio..."
+            disabled={uploading}
+            className="resize-none"
+          />
           
           {showEmojis && (
             <div className="absolute bottom-full right-0 mb-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] w-80 max-h-64 overflow-y-auto">
@@ -220,6 +208,17 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
             </div>
           )}
         </div>
+
+        {/* Emoji button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowEmojis(!showEmojis)}
+          disabled={uploading}
+          className="p-2 hover:bg-muted/50 transition-colors"
+        >
+          <Smile className="h-4 w-4" />
+        </Button>
 
         {/* Image upload */}
         <Button
