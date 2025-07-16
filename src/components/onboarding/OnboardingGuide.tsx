@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
-import { InteractiveGuide } from './InteractiveGuide';
+import { OnboardingOverlay } from './OnboardingOverlay';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
 
 export function OnboardingGuide() {
-  const { state } = useOnboarding();
+  const { state, currentStepData, nextStep } = useOnboarding();
   const { user } = useAuth();
   const { subscription } = useSubscription();
+  const location = useLocation();
 
   // Check if user should see onboarding
   useEffect(() => {
@@ -70,5 +72,114 @@ export function OnboardingGuide() {
     checkOnboardingStatus();
   }, [user, subscription]);
 
-  return <InteractiveGuide />;
+  // Handle automatic navigation for certain steps
+  useEffect(() => {
+    if (!state.isActive || !currentStepData) return;
+
+    // Auto-navigate to analysis page for step 3
+    if (currentStepData.id === 3 && location.pathname !== '/analysis') {
+      window.location.href = '/analysis';
+    }
+  }, [state.isActive, currentStepData, location]);
+
+  // Handle element interaction tracking
+  useEffect(() => {
+    if (!state.isActive || !currentStepData) return;
+
+    const handleElementInteraction = (e: Event) => {
+      const target = e.target as HTMLElement;
+      
+      // Check if the clicked element matches the target selector
+      if (target.matches(currentStepData.targetSelector) || 
+          target.closest(currentStepData.targetSelector)) {
+        
+        // Mark action as completed and auto-advance
+        if (currentStepData.action === 'click') {
+          setTimeout(() => {
+            nextStep();
+          }, 500);
+        }
+      }
+    };
+
+    // Add event listeners for tracking user interactions
+    document.addEventListener('click', handleElementInteraction);
+    document.addEventListener('change', handleElementInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleElementInteraction);
+      document.removeEventListener('change', handleElementInteraction);
+    };
+  }, [state.isActive, currentStepData]);
+
+  // Add data attributes to key elements for targeting
+  useEffect(() => {
+    if (!state.isActive) return;
+
+    const addDataAttributes = () => {
+      // Helper function to find button by text content
+      const findButtonByText = (text: string) => {
+        const buttons = document.querySelectorAll('button');
+        return Array.from(buttons).find(button => 
+          button.textContent?.includes(text)
+        );
+      };
+
+      // Helper function to find link by text content
+      const findLinkByText = (text: string) => {
+        const links = document.querySelectorAll('a');
+        return Array.from(links).find(link => 
+          link.textContent?.includes(text)
+        );
+      };
+
+      // Add data attributes to key elements
+      const addPetButton = document.querySelector('[data-testid="add-pet-button"]') || 
+                           findButtonByText('Aggiungi Pet') ||
+                           document.querySelector('[href*="pets"]');
+      if (addPetButton) {
+        addPetButton.setAttribute('data-onboarding', 'add-pet');
+      }
+
+      const analysisMenu = document.querySelector('[href*="analysis"]') ||
+                          findLinkByText('Analisi');
+      if (analysisMenu) {
+        analysisMenu.setAttribute('data-onboarding', 'analysis-menu');
+      }
+
+      const fileUpload = document.querySelector('input[type="file"]') ||
+                        document.querySelector('[type="file"]');
+      if (fileUpload) {
+        fileUpload.setAttribute('data-onboarding', 'file-upload');
+      }
+
+      const analyzeButton = findButtonByText('Analizza') ||
+                           document.querySelector('[data-testid="analyze-button"]');
+      if (analyzeButton) {
+        analyzeButton.setAttribute('data-onboarding', 'analyze-button');
+      }
+
+      const results = document.querySelector('[data-testid="analysis-results"]') ||
+                     document.querySelector('.analysis-results');
+      if (results) {
+        results.setAttribute('data-onboarding', 'analysis-results');
+      }
+
+      const saveDiary = findButtonByText('Salva') ||
+                       document.querySelector('[data-testid="save-diary"]');
+      if (saveDiary) {
+        saveDiary.setAttribute('data-onboarding', 'save-diary');
+      }
+    };
+
+    addDataAttributes();
+    
+    // Re-run on DOM changes
+    const observer = new MutationObserver(addDataAttributes);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [state.isActive]);
+
+  return <OnboardingOverlay />;
 }
