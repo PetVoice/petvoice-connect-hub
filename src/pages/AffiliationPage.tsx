@@ -731,6 +731,64 @@ export default function AffiliationPage() {
                       ).reduce((sum, c) => sum + c.amount, 0).toFixed(2)}
                     </span>
                   </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  {/* Referral Mensili */}
+                  <div>
+                    <h4 className="font-medium mb-3">Referral di questo mese</h4>
+                    {(() => {
+                      const monthlyReferrals = referrals.filter(r => 
+                        new Date(r.created_at) >= startOfMonth(new Date())
+                      );
+                      
+                      if (monthlyReferrals.length === 0) {
+                        return (
+                          <div className="text-center py-4 text-sm text-muted-foreground">
+                            <Users className="h-8 w-8 mx-auto mb-2" />
+                            <p>Nessun referral questo mese</p>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {monthlyReferrals.map((referral) => (
+                            <div key={referral.id} className="flex items-center justify-between p-2 border rounded text-sm">
+                              <div className="flex-1">
+                                <p className="font-medium">{referral.referred_email}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {format(new Date(referral.created_at), 'dd MMM', { locale: it })} · 
+                                  {referral.is_active === false ? ' Account eliminato' : ' Referral diretto'}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Badge 
+                                  variant={
+                                    referral.status === 'converted' ? 'default' : 
+                                    referral.status === 'registered' ? 'secondary' : 
+                                    referral.status === 'user_deleted' ? 'destructive' :
+                                    'outline'
+                                  }
+                                  className="text-xs"
+                                >
+                                  {referral.status === 'converted' ? 'Convertito' :
+                                   referral.status === 'registered' ? 'Registrato' : 
+                                   referral.status === 'user_deleted' ? 'Eliminato' :
+                                   'In attesa'}
+                                </Badge>
+                                {referral.status === 'converted' && !referral.is_active && (
+                                  <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
+                                    Sospeso
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </CardContent>
             </Card>
