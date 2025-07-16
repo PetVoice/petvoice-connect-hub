@@ -1280,7 +1280,8 @@ const WellnessPage = () => {
         value: parseFloat(newMetric.value),
         unit: newMetric.unit?.trim() || null,
         notes: newMetric.notes?.trim() || null,
-        recorded_at: new Date().toISOString()
+        // Per le modifiche, mantieni la data originale; per nuove metriche, usa la data corrente
+        recorded_at: editingMetric ? editingMetric.recorded_at : new Date().toISOString()
       };
 
       if (editingMetric) {
