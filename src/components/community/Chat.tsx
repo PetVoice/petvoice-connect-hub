@@ -76,6 +76,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   };
 
   const setupRealtimeSubscription = () => {
+    console.log('🔄 Setting up real-time subscription for channel:', channelId);
+    
     const channel = supabase
       .channel(`chat-${channelId}`)
       .on(
@@ -87,8 +89,18 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           filter: `channel_name=eq.${channelId}`
         },
         (payload) => {
+          console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => {
+            // Evita duplicati controllando se il messaggio esiste già
+            const exists = prev.some(msg => msg.id === newMessage.id);
+            if (exists) {
+              console.log('⚠️ Message already exists, skipping:', newMessage.id);
+              return prev;
+            }
+            console.log('✅ Adding new message to state:', newMessage.id);
+            return [...prev, newMessage];
+          });
         }
       )
       .on(
@@ -100,6 +112,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           filter: `channel_name=eq.${channelId}`
         },
         (payload) => {
+          console.log('📝 Message updated via real-time:', payload.new);
           const updatedMessage = payload.new as Message;
           setMessages(prev => 
             prev.map(msg => 
@@ -108,9 +121,12 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           );
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Subscription status for', channelId, ':', status);
+      });
 
     return () => {
+      console.log('🔌 Removing real-time subscription for channel:', channelId);
       supabase.removeChannel(channel);
     };
   };
