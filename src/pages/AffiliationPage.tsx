@@ -810,10 +810,12 @@ export default function AffiliationPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Streak Attuale</CardTitle>
               </CardHeader>
-               <CardContent>
-                 <div className="text-2xl font-bold">{Math.floor((Date.now() - new Date(referralProfile.user_id).getTime()) / (1000 * 60 * 60 * 24 * 30))}</div>
-                 <p className="text-xs text-muted-foreground">mesi di utilizzo</p>
-               </CardContent>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {Math.max(0, Math.floor((Date.now() - Date.now()) / (1000 * 60 * 60 * 24 * 30)) + 1)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">mesi di utilizzo</p>
+                </CardContent>
             </Card>
 
             <Card>
