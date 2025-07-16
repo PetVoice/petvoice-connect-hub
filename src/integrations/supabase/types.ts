@@ -1125,6 +1125,7 @@ export type Database = {
           display_name: string | null
           id: string
           language: string | null
+          location: string | null
           notifications_enabled: boolean | null
           referral_code: string | null
           referral_count: number | null
@@ -1139,6 +1140,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           language?: string | null
+          location?: string | null
           notifications_enabled?: boolean | null
           referral_code?: string | null
           referral_count?: number | null
@@ -1153,6 +1155,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           language?: string | null
+          location?: string | null
           notifications_enabled?: boolean | null
           referral_code?: string | null
           referral_count?: number | null
