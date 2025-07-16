@@ -617,11 +617,10 @@ export default function AffiliationPage() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="credits">Crediti</TabsTrigger>
-          <TabsTrigger value="settings">Impostazioni</TabsTrigger>
         </TabsList>
 
         {/* Dashboard Tab */}
@@ -1156,126 +1155,6 @@ export default function AffiliationPage() {
           </Card>
         </TabsContent>
 
-
-        {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Impostazioni Privacy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="leaderboard">Mostra nella Leaderboard</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Permetti di essere visibile nella classifica pubblica
-                  </p>
-                </div>
-                 <Switch 
-                   id="leaderboard"
-                   checked={false}
-                   disabled
-                 />
-              </div>
-            </CardContent>
-          </Card>
-
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Supporto</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => {
-                  window.open('mailto:support@petvoice.com?subject=Supporto Programma Affiliazione', '_blank');
-                }}
-              >
-                <Headphones className="h-4 w-4 mr-2" />
-                Contatta il Supporto
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => {
-                  // Create PDF report
-                  const doc = new jsPDF();
-                  
-                  // Header
-                  doc.setFontSize(20);
-                  doc.text('REPORT AFFILIAZIONE PETVOICE', 20, 30);
-                  
-                  doc.setFontSize(12);
-                  doc.text('='.repeat(50), 20, 40);
-                  
-                  // Info
-                  let yPos = 55;
-                  doc.text(`Data: ${format(new Date(), 'dd/MM/yyyy')}`, 20, yPos);
-                  yPos += 10;
-                  doc.text(`Utente: ${user?.email || 'N/A'}`, 20, yPos);
-                  yPos += 10;
-                  doc.text(`Codice Referral: ${referralProfile.referral_code}`, 20, yPos);
-                  yPos += 20;
-                  
-                  // Statistics
-                  doc.setFontSize(14);
-                  doc.text('STATISTICHE:', 20, yPos);
-                  yPos += 15;
-                  
-                  doc.setFontSize(12);
-                   doc.text(`• Referral Totali: ${referralProfile.total_registrations}`, 25, yPos);
-                   yPos += 10;
-                   doc.text(`• Conversioni: ${referralProfile.total_conversions}`, 25, yPos);
-                  yPos += 10;
-                  doc.text(`• Crediti Totali Guadagnati: €${referralProfile.total_credits_earned.toFixed(2)}`, 25, yPos);
-                  yPos += 10;
-                  doc.text(`• Crediti Attivi: €${activeCreditsBalance.toFixed(2)}`, 25, yPos);
-                  yPos += 10;
-                  doc.text(`• Tier Attuale: ${getTierDisplayName(referralProfile.current_tier)}`, 25, yPos);
-                  yPos += 20;
-                  
-                  // Referral Details
-                  doc.setFontSize(14);
-                  doc.text('DETTAGLI REFERRAL:', 20, yPos);
-                  yPos += 15;
-                  
-                  doc.setFontSize(10);
-                  if (referrals.length === 0) {
-                    doc.text('Nessun referral ancora', 25, yPos);
-                  } else {
-                    referrals.forEach((referral, index) => {
-                      if (yPos > 270) { // New page if needed
-                        doc.addPage();
-                        yPos = 20;
-                      }
-                      doc.text(`• ${referral.referred_email} (${referral.status}) - ${referral.status === 'converted' ? 'Commissioni attive' : 'In attesa'}`, 25, yPos);
-                      yPos += 8;
-                    });
-                  }
-                  
-                  // Footer
-                  yPos += 20;
-                  doc.setFontSize(8);
-                  doc.text('Report generato automaticamente da PetVoice - Programma Affiliazione', 20, yPos);
-                  
-                  // Save PDF
-                  doc.save(`report-affiliazione-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-                  
-                  toast({
-                    title: "Report PDF Scaricato",
-                    description: "Il report dettagliato è stato scaricato in formato PDF",
-                  });
-                }}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Scarica Report Dettagliato
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
 
       {/* Share Dialog */}
