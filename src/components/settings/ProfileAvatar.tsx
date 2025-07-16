@@ -174,7 +174,10 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
           />
           
           {/* Overlay hover */}
-          <div className="absolute inset-0 w-24 h-24 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+          <div 
+            className="absolute inset-0 w-24 h-24 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            onClick={handleAvatarClick}
+          >
             <span className="text-white text-2xl">
               {isRandomAvatar ? <Camera className="w-6 h-6" /> : "✏️"}
             </span>
