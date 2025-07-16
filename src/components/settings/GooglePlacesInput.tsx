@@ -1,9 +1,19 @@
 import React, { useState, useCallback } from 'react';
 import { MapPin } from 'lucide-react';
 
+interface AddressDetails {
+  street_address: string;
+  postal_code: string;
+  city: string;
+  province: string;
+  country: string;
+  full_address: string;
+}
+
 interface GooglePlacesInputProps {
   value: string;
   onChange: (value: string) => void;
+  onAddressSelect?: (details: AddressDetails) => void;
   placeholder?: string;
 }
 
@@ -12,6 +22,7 @@ interface Suggestion {
   display_name: string;
   main_text: string;
   secondary_text: string;
+  address_details: AddressDetails;
 }
 
 // Funzione debounce
@@ -30,6 +41,7 @@ function debounce(func: (...args: any[]) => void, wait: number) {
 export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({ 
   value, 
   onChange, 
+  onAddressSelect,
   placeholder = "Inizia a digitare un indirizzo..." 
 }) => {
   const [inputValue, setInputValue] = useState(value || '');
@@ -56,12 +68,29 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
         
         const data = await response.json();
         
-        const formattedSuggestions: Suggestion[] = data.map((item: any) => ({
-          id: item.place_id,
-          display_name: item.display_name,
-          main_text: item.address?.road || item.address?.village || item.address?.town || item.address?.city || 'Indirizzo',
-          secondary_text: `${item.address?.postcode || ''} ${item.address?.city || item.address?.town || ''}, ${item.address?.country || 'Italia'}`.trim()
-        }));
+        const formattedSuggestions: Suggestion[] = data.map((item: any) => {
+          const address = item.address || {};
+          const streetAddress = `${address.house_number || ''} ${address.road || ''}`.trim();
+          const city = address.city || address.town || address.village || '';
+          const province = address.state || address.province || '';
+          const country = address.country || 'Italia';
+          const postalCode = address.postcode || '';
+          
+          return {
+            id: item.place_id,
+            display_name: item.display_name,
+            main_text: streetAddress || city || 'Indirizzo',
+            secondary_text: `${postalCode} ${city}, ${country}`.trim(),
+            address_details: {
+              street_address: streetAddress,
+              postal_code: postalCode,
+              city: city,
+              province: province,
+              country: country,
+              full_address: item.display_name
+            }
+          };
+        });
         
         setSuggestions(formattedSuggestions);
         
@@ -90,6 +119,12 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
   const selectSuggestion = (suggestion: Suggestion) => {
     setInputValue(suggestion.display_name);
     onChange(suggestion.display_name);
+    
+    // Chiama onAddressSelect con i dettagli dell'indirizzo
+    if (onAddressSelect) {
+      onAddressSelect(suggestion.address_details);
+    }
+    
     setSuggestions([]);
     setShowSuggestions(false);
   };

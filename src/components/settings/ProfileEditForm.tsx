@@ -17,7 +17,12 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
   const [formData, setFormData] = useState({
     display_name: '',
     bio: '',
-    location: ''
+    location: '',
+    street_address: '',
+    postal_code: '',
+    city: '',
+    province: '',
+    country: ''
   });
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
@@ -29,7 +34,12 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
     setFormData({
       display_name: user.user_metadata?.display_name || '',
       bio: user.user_metadata?.bio || '',
-      location: user.user_metadata?.location || ''
+      location: user.user_metadata?.location || '',
+      street_address: user.user_metadata?.street_address || '',
+      postal_code: user.user_metadata?.postal_code || '',
+      city: user.user_metadata?.city || '',
+      province: user.user_metadata?.province || '',
+      country: user.user_metadata?.country || ''
     });
   }, [user]);
   
@@ -46,7 +56,12 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
         data: {
           display_name: formData.display_name,
           bio: formData.bio,
-          location: formData.location
+          location: formData.location,
+          street_address: formData.street_address,
+          postal_code: formData.postal_code,
+          city: formData.city,
+          province: formData.province,
+          country: formData.country
         }
       });
       
@@ -59,6 +74,11 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           user_id: user.id,
           display_name: formData.display_name,
           location: formData.location,
+          street_address: formData.street_address,
+          postal_code: formData.postal_code,
+          city: formData.city,
+          province: formData.province,
+          country: formData.country,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
@@ -117,7 +137,76 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
         <GooglePlacesInput
           value={formData.location}
           onChange={(location) => setFormData(prev => ({...prev, location}))}
+          onAddressSelect={(details) => {
+            setFormData(prev => ({
+              ...prev,
+              street_address: details.street_address,
+              postal_code: details.postal_code,
+              city: details.city,
+              province: details.province,
+              country: details.country
+            }));
+          }}
           placeholder="Dove vivi?"
+        />
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="street_address">Via e numero civico</Label>
+          <Input
+            id="street_address"
+            type="text"
+            value={formData.street_address}
+            onChange={(e) => setFormData(prev => ({...prev, street_address: e.target.value}))}
+            placeholder="Via Roma 123"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="postal_code">CAP</Label>
+          <Input
+            id="postal_code"
+            type="text"
+            value={formData.postal_code}
+            onChange={(e) => setFormData(prev => ({...prev, postal_code: e.target.value}))}
+            placeholder="00100"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="city">Città</Label>
+          <Input
+            id="city"
+            type="text"
+            value={formData.city}
+            onChange={(e) => setFormData(prev => ({...prev, city: e.target.value}))}
+            placeholder="Roma"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="province">Provincia</Label>
+          <Input
+            id="province"
+            type="text"
+            value={formData.province}
+            onChange={(e) => setFormData(prev => ({...prev, province: e.target.value}))}
+            placeholder="RM"
+          />
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="country">Paese</Label>
+        <Input
+          id="country"
+          type="text"
+          value={formData.country}
+          onChange={(e) => setFormData(prev => ({...prev, country: e.target.value}))}
+          placeholder="Italia"
         />
       </div>
       
