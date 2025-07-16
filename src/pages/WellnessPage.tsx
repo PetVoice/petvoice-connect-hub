@@ -224,6 +224,28 @@ const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, select
       }
     }
     
+    // Colore gengive: controlla dai health_metrics
+    const gumColorMetrics = healthMetrics.filter(m => m.metric_type === 'gum_color');
+    if (gumColorMetrics.length > 0) {
+      const lastGumColor = gumColorMetrics[0];
+      if (lastGumColor.value === 1) { // Rosa - normale
+        vitalScore += 5;
+      } else if (lastGumColor.value === 2) { // Pallide - warning
+        vitalScore -= 3;
+      } else if (lastGumColor.value === 3 || lastGumColor.value === 4) { // Blu/Viola o Gialle - critico
+        vitalScore -= 10;
+      }
+    }
+    
+    // Respirazione: controlla dai health_metrics
+    const respirationMetrics = healthMetrics.filter(m => m.metric_type === 'respiration');
+    if (respirationMetrics.length > 0) {
+      const lastRespiration = respirationMetrics[0];
+      if (lastRespiration.value >= 15 && lastRespiration.value <= 30) {
+        vitalScore += 5; // respirazione normale
+      }
+    }
+    
     totalScore += Math.min(25, vitalScore);
     
     // 🟢 ATTIVITÀ E COMPORTAMENTO (20 punti max)
@@ -452,6 +474,28 @@ const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selecte
       const lastHeart = heartMetrics[0];
       if (lastHeart.value >= 60 && lastHeart.value <= 120) {
         vitalScore += 5; // battito normale
+      }
+    }
+    
+    // Colore gengive: controlla dai health_metrics
+    const gumColorMetrics = healthMetrics.filter(m => m.metric_type === 'gum_color');
+    if (gumColorMetrics.length > 0) {
+      const lastGumColor = gumColorMetrics[0];
+      if (lastGumColor.value === 1) { // Rosa - normale
+        vitalScore += 5;
+      } else if (lastGumColor.value === 2) { // Pallide - warning
+        vitalScore -= 3;
+      } else if (lastGumColor.value === 3 || lastGumColor.value === 4) { // Blu/Viola o Gialle - critico
+        vitalScore -= 10;
+      }
+    }
+    
+    // Respirazione: controlla dai health_metrics
+    const respirationMetrics = healthMetrics.filter(m => m.metric_type === 'respiration');
+    if (respirationMetrics.length > 0) {
+      const lastRespiration = respirationMetrics[0];
+      if (lastRespiration.value >= 15 && lastRespiration.value <= 30) {
+        vitalScore += 5; // respirazione normale
       }
     }
     

@@ -99,6 +99,35 @@ const VITAL_PARAMETERS_RANGES = {
   }
 };
 
+// Helper function to translate metric types to Italian
+const translateMetricType = (type: string): string => {
+  const translations: Record<string, string> = {
+    'temperature': 'Temperatura Corporea',
+    'heart_rate': 'Frequenza Cardiaca', 
+    'respiration': 'Respirazione',
+    'breathing_rate': 'Respirazione',
+    'respiratory_rate': 'Respirazione',
+    'gum_color': 'Colore Gengive',
+    'weight': 'Peso',
+    'behavior': 'Comportamento',
+    'appetite': 'Appetito',
+    'sleep': 'Sonno',
+    'activity': 'Attività'
+  };
+  return translations[type] || type;
+};
+
+// Helper function to convert gum color numeric values to text
+const getGumColorText = (value: number): string => {
+  const colorMap: Record<number, string> = {
+    1: 'Rosa',
+    2: 'Pallide', 
+    3: 'Blu/Viola',
+    4: 'Gialle'
+  };
+  return colorMap[value] || 'Sconosciuto';
+};
+
 // Funzione per valutare se un parametro vitale è critico
 const evaluateVitalParameter = (metricType: string, value: number, petType?: string): { 
   status: 'normal' | 'warning' | 'critical', 
@@ -190,8 +219,39 @@ const evaluateVitalParameter = (metricType: string, value: number, petType?: str
       }
       return { status: 'normal', message: `Respirazione normale: ${value} atti/min` };
 
+    case 'gum_color':
+      const gumColorText = getGumColorText(value);
+      switch (value) {
+        case 1: // Rosa
+          return { 
+            status: 'normal', 
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'Gengive normali - buona circolazione sanguigna'
+          };
+        case 2: // Pallide
+          return {
+            status: 'warning',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'Gengive pallide possono indicare anemia o shock. Consulta il veterinario'
+          };
+        case 3: // Blu/Viola
+          return {
+            status: 'critical',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'EMERGENZA - Gengive cianotiche indicano mancanza di ossigeno. Vai immediatamente dal veterinario!'
+          };
+        case 4: // Gialle
+          return {
+            status: 'critical',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'CRITICO - Gengive gialle possono indicare ittero o problemi epatici. Consulta urgentemente il veterinario'
+          };
+        default:
+          return { status: 'normal', message: `Colore Gengive: ${gumColorText}` };
+      }
+
     default:
-      return { status: 'normal', message: `${metricType}: ${value}` };
+      return { status: 'normal', message: `${translateMetricType(metricType)}: ${value}` };
   }
 };
 
@@ -432,6 +492,7 @@ export default function StatsPage() {
           const criticalCount = recentHealthData.filter(h => {
             if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
             if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
+            if (h.metric_type === 'gum_color' && (h.value === 3 || h.value === 4)) return true; // Blu/Viola o Gialle
             return false;
           }).length;
           
@@ -1055,8 +1116,8 @@ export default function StatsPage() {
                         return (
                           <div key={metric.id} className={`p-3 border rounded-lg ${statusColors[evaluation.status]}`}>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium capitalize">
-                                {metric.metric_type.replace('_', ' ')}
+                              <span className="font-medium">
+                                {translateMetricType(metric.metric_type)}
                               </span>
                               <Badge variant={evaluation.status === 'critical' ? 'destructive' : evaluation.status === 'warning' ? 'secondary' : 'default'}>
                                 {evaluation.status === 'critical' ? 'CRITICO' : evaluation.status === 'warning' ? 'ATTENZIONE' : 'NORMALE'}
