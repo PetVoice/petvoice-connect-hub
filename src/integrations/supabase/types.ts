@@ -2218,6 +2218,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      bulletproof_referral_conversion_manual: {
+        Args: { p_user_id: string; p_email: string }
+        Returns: undefined
+      }
       calculate_referral_tier: {
         Args: { converted_count: number }
         Returns: Json
@@ -2233,6 +2237,10 @@ export type Database = {
       check_email_exists: {
         Args: { email_to_check: string }
         Returns: boolean
+      }
+      convert_missed_referrals: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       convert_referral_on_payment: {
         Args: { user_email: string }
