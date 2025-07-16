@@ -146,11 +146,29 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         metadata: {}
       };
 
-      const { error } = await supabase
-        .from('community_messages')
-        .insert([messageData]);
+      console.log('🚀 Sending message:', messageData);
 
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('community_messages')
+        .insert([messageData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error sending message:', error);
+        throw error;
+      }
+
+      console.log('✅ Message sent successfully:', data);
+      
+      // Aggiungi il messaggio immediatamente allo stato locale per feedback immediato
+      if (data) {
+        setMessages(prev => {
+          const exists = prev.some(msg => msg.id === data.id);
+          if (exists) return prev;
+          return [...prev, data as Message];
+        });
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
