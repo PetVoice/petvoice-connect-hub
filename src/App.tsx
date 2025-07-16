@@ -21,10 +21,9 @@ import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
-import TutorialPage from "@/pages/TutorialPage";
 import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
-import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
+import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, HeadphonesIcon, Settings } from "lucide-react";
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 
@@ -117,13 +116,6 @@ const App = () => (
                 <ProtectedRoute>
                   <Layout>
                     <AffiliationPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/tutorial" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <TutorialPage />
                   </Layout>
                 </ProtectedRoute>
               } />
