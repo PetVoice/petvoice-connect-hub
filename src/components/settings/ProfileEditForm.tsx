@@ -169,7 +169,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="street_number">Numero civico</Label>
+          <Label htmlFor="street_number">N. Civico</Label>
           <Input
             id="street_number"
             type="text"
