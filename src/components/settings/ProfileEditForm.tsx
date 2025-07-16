@@ -23,6 +23,9 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
   const { toast } = useToast();
   
   useEffect(() => {
+    console.log('🔍 User metadata:', user.user_metadata);
+    console.log('🔍 Full user object:', user);
+    
     setFormData({
       display_name: user.user_metadata?.display_name || '',
       bio: user.user_metadata?.bio || '',
@@ -32,6 +35,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
   
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('💾 Saving form data:', formData);
     
     try {
       setSaving(true);
@@ -61,8 +66,12 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
       
       if (profileError) throw profileError;
       
+      console.log('✅ Profile saved successfully to database');
+      
       // Forza refresh dell'utente
       await supabase.auth.refreshSession();
+      
+      console.log('🔄 Session refreshed');
       
       onProfileUpdate();
       
