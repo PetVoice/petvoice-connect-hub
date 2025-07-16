@@ -34,15 +34,25 @@ export function OnboardingOverlay() {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    // Position arrow pointing to the center of the target element
-    // Arrow positioned to the left of the element pointing right
-    const arrowX = rect.left - 80; // 80px to the left of element
-    const arrowY = centerY - 20; // Centered vertically
+    // Position arrow pointing to the target element
+    // Check if there's space above, otherwise position below
+    let arrowX = centerX;
+    let arrowY = rect.top - 80; // Above the element
+    let rotation = 180; // Point down
+    
+    // If arrow would be too high, position it below
+    if (arrowY < 50) {
+      arrowY = rect.bottom + 20; // Below the element
+      rotation = 0; // Point up
+    }
+    
+    // Ensure arrow stays within viewport
+    arrowX = Math.max(50, Math.min(arrowX, window.innerWidth - 50));
     
     setArrowPosition({
       x: arrowX,
       y: arrowY,
-      rotation: 90 // Point right towards the element
+      rotation: rotation
     });
   };
 
