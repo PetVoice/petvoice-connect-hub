@@ -2019,6 +2019,10 @@ export type Database = {
         Args: { email_to_check: string }
         Returns: boolean
       }
+      convert_referral: {
+        Args: { p_user_id: string; p_email: string }
+        Returns: Json
+      }
       convert_referral_on_payment: {
         Args: { user_email: string }
         Returns: Json
