@@ -1085,32 +1085,6 @@ export default function StatsPage() {
                   </Alert>
                 )}
 
-                {/* Link alla Guida di Primo Soccorso */}
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-blue-800">
-                        Guida Primo Soccorso Veterinario
-                      </p>
-                      <p className="text-xs text-blue-600">
-                        Consulta i parametri vitali normali e le procedure di emergenza
-                      </p>
-                    </div>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         // Naviga alla pagina wellness e apri la guida
-                         window.location.href = '/wellness';
-                         localStorage.setItem('openFirstAidGuide', 'true');
-                       }}
-                       className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                     >
-                       <Heart className="h-4 w-4 mr-1" />
-                       Apri Guida
-                     </Button>
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
