@@ -56,35 +56,11 @@ export function OnboardingOverlay() {
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dark overlay with spotlight effect using mask */}
+      {/* Dark overlay with spotlight effect - NO pointer events */}
       <div 
-        className="absolute inset-0 bg-black/60 pointer-events-auto"
+        className="absolute inset-0 bg-black/60 pointer-events-none"
         style={overlayStyle}
-        onClick={(e) => {
-          // Block all clicks on the overlay
-          e.preventDefault();
-          e.stopPropagation();
-        }}
       />
-      
-      {/* Invisible clickable area exactly over target element */}
-      {targetElement && (
-        <div 
-          className="absolute pointer-events-auto bg-transparent"
-          style={{
-            left: targetElement.getBoundingClientRect().left,
-            top: targetElement.getBoundingClientRect().top,
-            width: targetElement.getBoundingClientRect().width,
-            height: targetElement.getBoundingClientRect().height,
-            zIndex: 10001
-          }}
-          onClick={(e) => {
-            // Forward click to the actual target element
-            e.stopPropagation();
-            targetElement.click();
-          }}
-        />
-      )}
       
       {/* Glowing ring around target element */}
       {targetElement && (
