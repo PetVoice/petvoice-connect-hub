@@ -6,7 +6,12 @@ import { OnboardingTooltip } from './OnboardingTooltip';
 export function OnboardingOverlay() {
   const { state, currentStepData } = useOnboarding();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
-  const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
+  const [targetPosition, setTargetPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!state.isActive || !currentStepData) return;
@@ -15,33 +20,79 @@ export function OnboardingOverlay() {
       const element = document.querySelector(currentStepData.targetSelector) as HTMLElement;
       if (element) {
         setTargetElement(element);
-        updateOverlayStyle(element);
+        updateTargetPosition(element);
+        disableAllInteractions(element);
       } else if (currentStepData.waitForElement) {
-        // Retry finding element after a delay
         setTimeout(findTargetElement, 500);
       }
     };
 
     findTargetElement();
+    
+    return () => {
+      enableAllInteractions();
+    };
   }, [state.isActive, currentStepData]);
 
-  const updateOverlayStyle = (element: HTMLElement) => {
+  const updateTargetPosition = (element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
-    const spotlightRadius = Math.max(rect.width, rect.height) * 0.6 + 20;
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    setOverlayStyle({
-      maskImage: `radial-gradient(circle ${spotlightRadius}px at ${centerX}px ${centerY}px, transparent 40%, rgba(0,0,0,0.8) 70%)`,
-      WebkitMaskImage: `radial-gradient(circle ${spotlightRadius}px at ${centerX}px ${centerY}px, transparent 40%, rgba(0,0,0,0.8) 70%)`
+    setTargetPosition({
+      top: rect.top + window.scrollY,
+      left: rect.left + window.scrollX,
+      width: rect.width,
+      height: rect.height
     });
+  };
+
+  const disableAllInteractions = (targetElement: HTMLElement) => {
+    // Block all clicks on the page
+    document.addEventListener('click', blockAllClicks, true);
+    document.addEventListener('mousedown', blockAllClicks, true);
+    document.addEventListener('touchstart', blockAllClicks, true);
+    
+    // Disable pointer events on everything
+    document.body.style.pointerEvents = 'none';
+    
+    // Re-enable only on target
+    if (targetElement) {
+      targetElement.style.pointerEvents = 'auto';
+      targetElement.style.position = 'relative';
+      targetElement.style.zIndex = '9999';
+    }
+  };
+
+  const enableAllInteractions = () => {
+    // Remove event listeners
+    document.removeEventListener('click', blockAllClicks, true);
+    document.removeEventListener('mousedown', blockAllClicks, true);
+    document.removeEventListener('touchstart', blockAllClicks, true);
+    
+    // Re-enable everything
+    document.body.style.pointerEvents = 'auto';
+    
+    // Reset target styles
+    if (targetElement) {
+      targetElement.style.pointerEvents = '';
+      targetElement.style.position = '';
+      targetElement.style.zIndex = '';
+    }
+  };
+
+  const blockAllClicks = (event: Event) => {
+    // Block all clicks except on target
+    if (targetElement && !targetElement.contains(event.target as Node)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return false;
+    }
   };
 
   // Update overlay position on scroll and resize
   useEffect(() => {
     if (!targetElement) return;
 
-    const updatePosition = () => updateOverlayStyle(targetElement);
+    const updatePosition = () => updateTargetPosition(targetElement);
     
     window.addEventListener('scroll', updatePosition);
     window.addEventListener('resize', updatePosition);
@@ -52,36 +103,85 @@ export function OnboardingOverlay() {
     };
   }, [targetElement]);
 
-  if (!state.isActive || !currentStepData) return null;
+  if (!state.isActive || !currentStepData || !targetPosition) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dark overlay with spotlight effect that blocks clicks everywhere except target */}
+    <div className="fixed inset-0 z-[9998] pointer-events-none">
+      {/* Overlay with hole - TOP */}
       <div 
-        className="absolute inset-0 bg-black/60 pointer-events-auto"
-        style={overlayStyle}
+        className="absolute bg-black/70 pointer-events-auto cursor-not-allowed"
+        style={{
+          top: 0,
+          left: 0,
+          right: 0,
+          height: targetPosition.top
+        }}
         onClick={(e) => {
-          // Block clicks on the overlay
           e.preventDefault();
           e.stopPropagation();
         }}
       />
       
-      {/* Glowing ring around target element */}
-      {targetElement && (
-        <div 
-          className="absolute pointer-events-none"
-          style={{
-            left: targetElement.getBoundingClientRect().left - 4,
-            top: targetElement.getBoundingClientRect().top - 4,
-            width: targetElement.getBoundingClientRect().width + 8,
-            height: targetElement.getBoundingClientRect().height + 8,
-            borderRadius: '12px',
-            boxShadow: '0 0 0 2px hsl(var(--primary)), 0 0 20px hsl(var(--primary) / 0.5)',
-            animation: 'pulse 2s infinite'
-          }}
-        />
-      )}
+      {/* Overlay with hole - LEFT */}
+      <div 
+        className="absolute bg-black/70 pointer-events-auto cursor-not-allowed"
+        style={{
+          top: targetPosition.top,
+          left: 0,
+          width: targetPosition.left,
+          height: targetPosition.height
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+      
+      {/* Overlay with hole - RIGHT */}
+      <div 
+        className="absolute bg-black/70 pointer-events-auto cursor-not-allowed"
+        style={{
+          top: targetPosition.top,
+          left: targetPosition.left + targetPosition.width,
+          right: 0,
+          height: targetPosition.height
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+      
+      {/* Overlay with hole - BOTTOM */}
+      <div 
+        className="absolute bg-black/70 pointer-events-auto cursor-not-allowed"
+        style={{
+          top: targetPosition.top + targetPosition.height,
+          left: 0,
+          right: 0,
+          bottom: 0
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
+      
+      {/* Highlight around target element */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          top: targetPosition.top - 4,
+          left: targetPosition.left - 4,
+          width: targetPosition.width + 8,
+          height: targetPosition.height + 8,
+          borderRadius: '12px',
+          border: '3px solid hsl(var(--primary))',
+          boxShadow: '0 0 20px hsl(var(--primary) / 0.5)',
+          animation: 'pulse 2s infinite',
+          zIndex: 9999
+        }}
+      />
 
       {/* Tooltip */}
       <OnboardingTooltip targetElement={targetElement} />
