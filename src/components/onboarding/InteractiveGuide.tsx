@@ -21,64 +21,16 @@ export function InteractiveGuide() {
     const findElement = () => {
       let element: HTMLElement | null = null;
       
-      // Different strategies to find elements based on step
-      switch (currentStepData.id) {
-        case 1:
-          // Welcome step - no specific target
-          element = document.body;
-          break;
-        
-        case 2:
-          // Find "I Miei Pet" button or similar
-          element = document.querySelector('[href="/pets"]') as HTMLElement ||
-                   document.querySelector('a[href*="pets"]') as HTMLElement ||
-                   Array.from(document.querySelectorAll('a')).find(a => 
-                     a.textContent?.includes('Pet') || a.textContent?.includes('Miei Pet')
-                   ) as HTMLElement;
-          break;
-        
-        case 3:
-          // Find "Analisi" link
-          element = document.querySelector('[href="/analysis"]') as HTMLElement ||
-                   document.querySelector('a[href*="analysis"]') as HTMLElement ||
-                   Array.from(document.querySelectorAll('a')).find(a => 
-                     a.textContent?.includes('Analisi')
-                   ) as HTMLElement;
-          break;
-        
-        case 4:
-          // Find file upload input
-          element = document.querySelector('input[type="file"]') as HTMLElement ||
-                   document.querySelector('[type="file"]') as HTMLElement;
-          break;
-        
-        case 5:
-          // Find analyze button
-          element = Array.from(document.querySelectorAll('button')).find(btn => 
-            btn.textContent?.includes('Analizza')
-          ) as HTMLElement;
-          break;
-        
-        case 6:
-          // Find results area
-          element = document.querySelector('.analysis-results') as HTMLElement ||
-                   document.querySelector('[data-testid="analysis-results"]') as HTMLElement;
-          break;
-        
-        case 7:
-          // Find save button
-          element = Array.from(document.querySelectorAll('button')).find(btn => 
-            btn.textContent?.includes('Salva')
-          ) as HTMLElement;
-          break;
-        
-        default:
-          element = document.body;
+      // Use data-onboarding attributes from the step definitions
+      if (currentStepData.targetSelector !== 'body') {
+        element = document.querySelector(currentStepData.targetSelector) as HTMLElement;
+      } else {
+        element = document.body;
       }
 
       if (element) {
         setTargetElement(element);
-        setIsWaitingForAction(['click', 'upload', 'navigate'].includes(currentStepData.action));
+        setIsWaitingForAction(['click', 'upload'].includes(currentStepData.action));
       } else if (currentStepData.waitForElement) {
         // Retry if element not found
         setTimeout(findElement, 500);
@@ -88,17 +40,17 @@ export function InteractiveGuide() {
     findElement();
   }, [state.isActive, currentStepData, location.pathname]);
 
-  // Handle automatic navigation
+  // Handle navigation for step 3 (Analysis)
   useEffect(() => {
     if (!state.isActive || !currentStepData) return;
 
-    // Auto-navigate for step 3 (Analysis)
     if (currentStepData.id === 3 && location.pathname !== '/analysis') {
       setTimeout(() => {
         navigate('/analysis');
+        setTimeout(() => nextStep(), 500);
       }, 1000);
     }
-  }, [state.isActive, currentStepData, location.pathname, navigate]);
+  }, [state.isActive, currentStepData, location.pathname, navigate, nextStep]);
 
   // Handle user interactions
   useEffect(() => {
@@ -114,20 +66,15 @@ export function InteractiveGuide() {
         // Different behaviors based on step
         switch (currentStepData.id) {
           case 2:
-            // For "I Miei Pet" - just advance, don't interfere with navigation
+            // For "I Miei Pet" - advance and let natural navigation happen
             setTimeout(() => nextStep(), 300);
-            break;
-          
-          case 3:
-            // For "Analisi" - advance after navigation
-            setTimeout(() => nextStep(), 500);
             break;
           
           case 4:
             // For file upload - wait for file selection
             const fileInput = target as HTMLInputElement;
-            if (fileInput.files && fileInput.files.length > 0) {
-              setTimeout(() => nextStep(), 300);
+            if (fileInput.type === 'file' && fileInput.files && fileInput.files.length > 0) {
+              setTimeout(() => nextStep(), 500);
             }
             break;
           
@@ -151,18 +98,21 @@ export function InteractiveGuide() {
       const target = e.target as HTMLInputElement;
       if (target.type === 'file' && target.files && target.files.length > 0) {
         setIsWaitingForAction(false);
-        setTimeout(() => nextStep(), 300);
+        setTimeout(() => nextStep(), 500);
       }
     };
 
-    document.addEventListener('click', handleClick);
-    document.addEventListener('change', handleFileChange);
+    // Only add listeners if we're waiting for action
+    if (isWaitingForAction) {
+      document.addEventListener('click', handleClick);
+      document.addEventListener('change', handleFileChange);
+    }
 
     return () => {
       document.removeEventListener('click', handleClick);
       document.removeEventListener('change', handleFileChange);
     };
-  }, [state.isActive, currentStepData, targetElement, nextStep]);
+  }, [state.isActive, currentStepData, targetElement, nextStep, isWaitingForAction]);
 
   // Auto-advance for certain steps
   useEffect(() => {
@@ -207,7 +157,7 @@ export function InteractiveGuide() {
       )}
 
       {/* Animated pointer */}
-      {targetElement && targetElement !== document.body && (
+      {targetElement && targetElement !== document.body && isWaitingForAction && (
         <div
           className="absolute pointer-events-none"
           style={{
