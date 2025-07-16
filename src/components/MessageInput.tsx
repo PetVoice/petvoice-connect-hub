@@ -317,11 +317,11 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             type="button"
             size="sm"
             variant="ghost"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
             onClick={() => setShowEmojis(!showEmojis)}
             disabled={sending || disabled}
           >
-            <Smile size={16} className="text-gray-500 hover:text-primary" />
+            <Smile size={16} className="text-muted-foreground hover:text-primary" />
           </Button>
           
           {showEmojis && (

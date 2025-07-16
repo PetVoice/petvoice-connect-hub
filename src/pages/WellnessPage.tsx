@@ -128,6 +128,23 @@ interface Insurance {
   is_active: boolean;
 }
 
+// Helper function to translate metric types to Italian
+const translateMetricType = (type: string): string => {
+  const translations: Record<string, string> = {
+    'weight': 'Peso',
+    'temperature': 'Temperatura',
+    'heart_rate': 'Battito Cardiaco',
+    'appetite': 'Appetito',
+    'sleep': 'Sonno',
+    'activity': 'Attività',
+    'behavior': 'Comportamento',
+    'checkup': 'Controllo',
+    'blood_pressure': 'Pressione Sanguigna',
+    'respiratory_rate': 'Frequenza Respiratoria'
+  };
+  return translations[type] || type;
+};
+
 // Helper function to translate record types to Italian
 const translateRecordType = (type: string): string => {
   const translations: Record<string, string> = {
@@ -2363,7 +2380,7 @@ const WellnessPage = () => {
                        <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border">
                          <div className="flex-1">
                            <div className="flex items-center gap-2">
-                             <p className="font-medium capitalize">{metric.metric_type}</p>
+                             <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
                            </div>
                            <p className="text-sm text-muted-foreground">
                              {metric.value} {metric.unit}
@@ -2371,6 +2388,31 @@ const WellnessPage = () => {
                            <p className="text-sm text-muted-foreground">
                              {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
                            </p>
+                         </div>
+                         <div className="flex gap-1">
+                           <Button 
+                             size="sm" 
+                             variant="ghost"
+                             onClick={() => {
+                               setEditingMetric(metric);
+                               setNewMetric({
+                                 metric_type: metric.metric_type,
+                                 value: metric.value.toString(),
+                                 unit: metric.unit || '',
+                                 notes: metric.notes || ''
+                               });
+                               setShowAddMetric(true);
+                             }}
+                           >
+                             <Edit className="h-4 w-4" />
+                           </Button>
+                           <Button 
+                             size="sm" 
+                             variant="ghost"
+                             onClick={() => handleDeleteMetric(metric.id, translateMetricType(metric.metric_type))}
+                           >
+                             <Trash2 className="h-4 w-4 text-destructive" />
+                           </Button>
                          </div>
                        </div>
                      ))}
@@ -2599,15 +2641,15 @@ const WellnessPage = () => {
                     Chiama Veterinario
                   </Button>
                   
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setShowFirstAidGuide(true)}
-                    data-testid="first-aid-guide-button"
-                  >
-                    <Heart className="h-4 w-4 mr-2" />
-                    Guida Primo Soccorso
-                  </Button>
+                   <Button 
+                     variant="outline" 
+                     className="w-full justify-start"
+                     onClick={() => setShowFirstAidGuide(true)}
+                     data-testid="first-aid-guide-button"
+                   >
+                     <Heart className="h-4 w-4 mr-2" />
+                     Guida Primo Soccorso Veterinario
+                   </Button>
                   
                   <Button 
                     variant="outline" 
@@ -2906,7 +2948,26 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
           <div className="space-y-4">
             <div>
               <Label htmlFor="metric_type">Tipo Metrica *</Label>
-              <Select value={newMetric.metric_type} onValueChange={(value) => setNewMetric(prev => ({ ...prev, metric_type: value }))}>
+              <Select 
+                value={newMetric.metric_type} 
+                onValueChange={(value) => {
+                  // Auto-imposta l'unità di misura in base al tipo
+                  const units = {
+                    'weight': 'kg',
+                    'temperature': '°C',
+                    'heart_rate': 'bpm',
+                    'appetite': '/10',
+                    'sleep': 'ore',
+                    'activity': '/10',
+                    'behavior': '/10'
+                  };
+                  setNewMetric(prev => ({ 
+                    ...prev, 
+                    metric_type: value,
+                    unit: units[value] || ''
+                  }));
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
