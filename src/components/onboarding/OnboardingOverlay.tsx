@@ -56,70 +56,16 @@ export function OnboardingOverlay() {
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Create 4 overlay sections that leave target element uncovered */}
-      {targetElement && (
-        <>
-          {/* Top section */}
-          <div 
-            className="absolute bg-black/60 pointer-events-auto"
-            style={{
-              left: 0,
-              top: 0,
-              right: 0,
-              height: targetElement.getBoundingClientRect().top
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-          
-          {/* Left section */}
-          <div 
-            className="absolute bg-black/60 pointer-events-auto"
-            style={{
-              left: 0,
-              top: targetElement.getBoundingClientRect().top,
-              width: targetElement.getBoundingClientRect().left,
-              height: targetElement.getBoundingClientRect().height
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-          
-          {/* Right section */}
-          <div 
-            className="absolute bg-black/60 pointer-events-auto"
-            style={{
-              left: targetElement.getBoundingClientRect().right,
-              top: targetElement.getBoundingClientRect().top,
-              right: 0,
-              height: targetElement.getBoundingClientRect().height
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-          
-          {/* Bottom section */}
-          <div 
-            className="absolute bg-black/60 pointer-events-auto"
-            style={{
-              left: 0,
-              top: targetElement.getBoundingClientRect().bottom,
-              right: 0,
-              bottom: 0
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          />
-        </>
-      )}
+      {/* Dark overlay with spotlight effect that blocks clicks everywhere except target */}
+      <div 
+        className="absolute inset-0 bg-black/60 pointer-events-auto"
+        style={overlayStyle}
+        onClick={(e) => {
+          // Block clicks on the overlay
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      />
       
       {/* Glowing ring around target element */}
       {targetElement && (
