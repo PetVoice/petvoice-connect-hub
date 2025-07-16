@@ -40,8 +40,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   const scrollToBottom = () => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    }, 300);
   };
 
   useEffect(() => {
@@ -65,8 +65,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
       setMessages(data || []);
-      // Scorri in fondo dopo aver caricato i messaggi
-      setTimeout(() => scrollToBottom(), 200);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
