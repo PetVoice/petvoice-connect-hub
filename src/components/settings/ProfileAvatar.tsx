@@ -1,24 +1,46 @@
 import React, { useState } from 'react';
-import { Camera, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Camera, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileAvatarProps {
   user: any;
-  onAvatarChange: (url: string) => void;
+  onAvatarChange: (url: string | null) => void;
 }
 
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChange }) => {
   const [uploading, setUploading] = useState(false);
+  const [showRemoveOption, setShowRemoveOption] = useState(false);
   const { toast } = useToast();
   
+  // Genera avatar casuale basato su user ID
+  const getRandomAvatar = (userId: string) => {
+    const avatarStyles = ['adventurer', 'avataaars', 'big-smile', 'bottts', 'fun-emoji'];
+    const style = avatarStyles[userId.charCodeAt(0) % avatarStyles.length];
+    const seed = userId.slice(0, 8);
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&size=96`;
+  };
+  
+  const currentAvatar = user.user_metadata?.avatar_url || getRandomAvatar(user.id);
+  const isRandomAvatar = !user.user_metadata?.avatar_url;
+  
   const handleAvatarClick = () => {
+    if (isRandomAvatar) {
+      // Se è avatar casuale, carica direttamente
+      openFileSelector();
+    } else {
+      // Se è avatar personalizzato, mostra opzioni
+      setShowRemoveOption(!showRemoveOption);
+    }
+  };
+  
+  const openFileSelector = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = handleFileSelect;
     input.click();
+    setShowRemoveOption(false);
   };
   
   const handleFileSelect = async (e: Event) => {
@@ -26,7 +48,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
     const file = target.files?.[0];
     if (!file) return;
     
-    // Validazione file
+    // Validazione
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Errore",
@@ -48,8 +70,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
     try {
       setUploading(true);
       
-      // Upload su Supabase Storage
-      const fileName = `${user.id}/${Date.now()}.${file.name.split('.').pop()}`;
+      const fileName = `avatar_${user.id}_${Date.now()}.${file.name.split('.').pop()}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
@@ -60,19 +81,17 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
       
       if (uploadError) throw uploadError;
       
-      // Ottieni URL pubblico
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
       
-      // Aggiorna metadata utente
+      // Aggiorna utente
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
       
       if (updateError) throw updateError;
       
-      // Aggiorna anche nella tabella profiles se esiste
       await supabase
         .from('profiles')
         .upsert({
@@ -84,14 +103,52 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
       onAvatarChange(publicUrl);
       toast({
         title: "Successo",
-        description: "Avatar aggiornato con successo!"
+        description: "Avatar aggiornato!"
       });
       
     } catch (error: any) {
       console.error('Errore upload avatar:', error);
       toast({
         title: "Errore",
-        description: `Errore aggiornamento avatar: ${error.message}`,
+        description: "Errore aggiornamento avatar",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  const removeAvatar = async () => {
+    try {
+      setUploading(true);
+      
+      // Rimuovi avatar URL dall'utente
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: null }
+      });
+      
+      if (updateError) throw updateError;
+      
+      await supabase
+        .from('profiles')
+        .upsert({
+          user_id: user.id,
+          avatar_url: null,
+          updated_at: new Date().toISOString()
+        });
+      
+      onAvatarChange(null);
+      setShowRemoveOption(false);
+      toast({
+        title: "Successo",
+        description: "Avatar rimosso!"
+      });
+      
+    } catch (error: any) {
+      console.error('Errore rimozione avatar:', error);
+      toast({
+        title: "Errore",
+        description: "Errore rimozione avatar",
         variant: "destructive"
       });
     } finally {
@@ -102,41 +159,53 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
   return (
     <div className="flex flex-col items-center space-y-4">
       <div className="relative">
-        <img 
-          src={user.user_metadata?.avatar_url || '/default-avatar.png'}
-          alt="Avatar"
-          className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-lg"
-        />
-        
-        {/* Camera overlay */}
-        <button
-          onClick={handleAvatarClick}
-          disabled={uploading}
-          className="absolute inset-0 w-24 h-24 rounded-full bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity disabled:opacity-50"
-        >
-          <Camera className="w-6 h-6 text-white" />
-        </button>
-      </div>
-      
-      <Button 
-        onClick={handleAvatarClick}
-        disabled={uploading}
-        variant="outline"
-        size="sm"
-        className="min-w-[120px]"
-      >
-        {uploading ? (
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
-            <span>Caricamento...</span>
+        <div className="relative group">
+          <img 
+            src={currentAvatar}
+            alt="Avatar"
+            className="w-24 h-24 rounded-full object-cover cursor-pointer border-2 border-muted transition-all group-hover:border-primary"
+            onClick={handleAvatarClick}
+          />
+          
+          {/* Overlay hover */}
+          <div className="absolute inset-0 w-24 h-24 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+            <span className="text-white text-2xl">
+              {isRandomAvatar ? <Camera className="w-6 h-6" /> : "✏️"}
+            </span>
           </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <Upload className="w-4 h-4" />
-            <span>Cambia Avatar</span>
+          
+          {uploading && (
+            <div className="absolute inset-0 w-24 h-24 rounded-full bg-black/70 flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        
+        {/* Menu opzioni per avatar personalizzato */}
+        {showRemoveOption && !isRandomAvatar && (
+          <div className="absolute top-0 left-28 bg-background border rounded-lg shadow-lg p-2 z-10">
+            <button 
+              onClick={openFileSelector}
+              className="block w-full text-left px-3 py-2 hover:bg-muted rounded text-sm"
+            >
+              <Camera className="w-4 h-4 inline mr-2" />
+              Cambia Foto
+            </button>
+            <button 
+              onClick={removeAvatar}
+              disabled={uploading}
+              className="block w-full text-left px-3 py-2 hover:bg-muted rounded text-sm text-destructive"
+            >
+              <Trash2 className="w-4 h-4 inline mr-2" />
+              Rimuovi Avatar
+            </button>
           </div>
         )}
-      </Button>
+      </div>
+      
+      <p className="text-xs text-muted-foreground text-center">
+        {isRandomAvatar ? 'Clicca per caricare foto' : 'Clicca per opzioni'}
+      </p>
     </div>
   );
 };

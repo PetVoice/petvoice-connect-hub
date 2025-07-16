@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, User, MapPin, FileText } from 'lucide-react';
+import { GooglePlacesInput } from './GooglePlacesInput';
 
 interface ProfileEditFormProps {
   user: any;
@@ -101,13 +102,10 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           <MapPin className="w-4 h-4" />
           <span>Località</span>
         </Label>
-        <Input
-          id="location"
-          type="text"
+        <GooglePlacesInput
           value={formData.location}
-          onChange={(e) => setFormData(prev => ({...prev, location: e.target.value}))}
+          onChange={(location) => setFormData(prev => ({...prev, location}))}
           placeholder="Dove vivi?"
-          className="w-full"
         />
       </div>
       

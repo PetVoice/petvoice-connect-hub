@@ -20,9 +20,53 @@ export const ChangePasswordForm: React.FC = () => {
   const [updating, setUpdating] = useState(false);
   const { toast } = useToast();
   
+  // Traduzioni errori Supabase
+  const translateError = (error: any) => {
+    const translations: { [key: string]: string } = {
+      'Password should be at least 6 characters': 'La password deve essere di almeno 6 caratteri',
+      'Password is too weak': 'La password è troppo debole. Usa almeno 8 caratteri con lettere, numeri e simboli',
+      'New password should be different from the old password': 'La nuova password deve essere diversa da quella attuale',
+      'Password should contain at least one uppercase letter': 'La password deve contenere almeno una lettera maiuscola',
+      'Password should contain at least one lowercase letter': 'La password deve contenere almeno una lettera minuscola',
+      'Password should contain at least one number': 'La password deve contenere almeno un numero',
+      'Password should contain at least one special character': 'La password deve contenere almeno un carattere speciale',
+      'Same password': 'Non puoi usare la stessa password attuale'
+    };
+    
+    return translations[error.message] || error.message;
+  };
+  
+  // Validazione password lato client
+  const validatePassword = (password: string) => {
+    const errors = [];
+    
+    if (password.length < 8) {
+      errors.push('Minimo 8 caratteri');
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Almeno una lettera maiuscola');
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      errors.push('Almeno una lettera minuscola');
+    }
+    
+    if (!/[0-9]/.test(password)) {
+      errors.push('Almeno un numero');
+    }
+    
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      errors.push('Almeno un carattere speciale');
+    }
+    
+    return errors;
+  };
+  
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validazioni lato client
     if (passwords.new !== passwords.confirm) {
       toast({
         title: "Errore",
@@ -32,10 +76,20 @@ export const ChangePasswordForm: React.FC = () => {
       return;
     }
     
-    if (passwords.new.length < 6) {
+    const validationErrors = validatePassword(passwords.new);
+    if (validationErrors.length > 0) {
       toast({
         title: "Errore",
-        description: "La password deve essere di almeno 6 caratteri",
+        description: "Password troppo debole: " + validationErrors.join(', '),
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (passwords.new === passwords.current) {
+      toast({
+        title: "Errore",
+        description: "La nuova password deve essere diversa da quella attuale",
         variant: "destructive"
       });
       return;
@@ -44,12 +98,15 @@ export const ChangePasswordForm: React.FC = () => {
     try {
       setUpdating(true);
       
-      // Aggiorna password in Supabase
       const { error } = await supabase.auth.updateUser({
         password: passwords.new
       });
       
-      if (error) throw error;
+      if (error) {
+        // Traduci errore in italiano
+        const italianError = translateError(error);
+        throw new Error(italianError);
+      }
       
       toast({
         title: "Successo",
@@ -62,13 +119,25 @@ export const ChangePasswordForm: React.FC = () => {
       console.error('Errore cambio password:', error);
       toast({
         title: "Errore",
-        description: `Errore aggiornamento password: ${error.message}`,
+        description: error.message,
         variant: "destructive"
       });
     } finally {
       setUpdating(false);
     }
   };
+  
+  // Indicatore forza password
+  const getPasswordStrength = (password: string) => {
+    const errors = validatePassword(password);
+    if (password.length === 0) return { level: 0, text: '', color: 'hsl(var(--muted-foreground))' };
+    if (errors.length > 3) return { level: 1, text: 'Molto debole', color: 'hsl(var(--destructive))' };
+    if (errors.length > 2) return { level: 2, text: 'Debole', color: '#f97316' };
+    if (errors.length > 0) return { level: 3, text: 'Media', color: '#eab308' };
+    return { level: 4, text: 'Forte', color: 'hsl(var(--primary))' };
+  };
+  
+  const passwordStrength = getPasswordStrength(passwords.new);
   
   const togglePasswordVisibility = (field: 'current' | 'new' | 'confirm') => {
     setShowPasswords(prev => ({
@@ -140,6 +209,32 @@ export const ChangePasswordForm: React.FC = () => {
             )}
           </Button>
         </div>
+        
+        {/* Indicatore forza password */}
+        {passwords.new && (
+          <div className="mt-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-muted rounded-full h-2">
+                <div 
+                  className="h-2 rounded-full transition-all"
+                  style={{
+                    width: `${(passwordStrength.level / 4) * 100}%`,
+                    backgroundColor: passwordStrength.color
+                  }}
+                />
+              </div>
+              <span className="text-sm" style={{ color: passwordStrength.color }}>
+                {passwordStrength.text}
+              </span>
+            </div>
+            
+            {passwordStrength.level < 4 && (
+              <div className="mt-1 text-xs text-muted-foreground">
+                Mancano: {validatePassword(passwords.new).join(', ')}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">
@@ -172,11 +267,15 @@ export const ChangePasswordForm: React.FC = () => {
             )}
           </Button>
         </div>
+        
+        {passwords.confirm && passwords.new !== passwords.confirm && (
+          <p className="text-sm text-destructive mt-1">Le password non corrispondono</p>
+        )}
       </div>
       
       <Button 
         type="submit" 
-        disabled={updating}
+        disabled={updating || passwordStrength.level < 3 || passwords.new !== passwords.confirm}
         className="w-full"
       >
         {updating ? (
