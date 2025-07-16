@@ -587,6 +587,155 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_paths: {
+        Row: {
+          color: string
+          created_at: string
+          description: string
+          estimated_time_minutes: number
+          icon_name: string
+          id: string
+          is_active: boolean
+          level: string
+          sort_order: number
+          title: string
+          total_lessons: number
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          description: string
+          estimated_time_minutes?: number
+          icon_name: string
+          id?: string
+          is_active?: boolean
+          level: string
+          sort_order?: number
+          title: string
+          total_lessons?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string
+          estimated_time_minutes?: number
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          level?: string
+          sort_order?: number
+          title?: string
+          total_lessons?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_completions: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          learning_path_id: string
+          lesson_id: string
+          notes: string | null
+          score: number | null
+          time_spent_minutes: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          learning_path_id: string
+          lesson_id: string
+          notes?: string | null
+          score?: number | null
+          time_spent_minutes?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          learning_path_id?: string
+          lesson_id?: string
+          notes?: string | null
+          score?: number | null
+          time_spent_minutes?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_completions_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_completions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          content: Json
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_required: boolean
+          learning_path_id: string
+          lesson_type: string
+          prerequisites: Json | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_required?: boolean
+          learning_path_id: string
+          lesson_type: string
+          prerequisites?: Json | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_required?: boolean
+          learning_path_id?: string
+          lesson_type?: string
+          prerequisites?: Json | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       local_alerts: {
         Row: {
           affected_species: string[] | null
@@ -1855,6 +2004,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_learning_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_lesson_id: string | null
+          id: string
+          is_completed: boolean
+          last_accessed_at: string
+          learning_path_id: string
+          progress_percentage: number
+          started_at: string
+          total_time_spent_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_lesson_id?: string | null
+          id?: string
+          is_completed?: boolean
+          last_accessed_at?: string
+          learning_path_id: string
+          progress_percentage?: number
+          started_at?: string
+          total_time_spent_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_lesson_id?: string | null
+          id?: string
+          is_completed?: boolean
+          last_accessed_at?: string
+          learning_path_id?: string
+          progress_percentage?: number
+          started_at?: string
+          total_time_spent_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_learning_progress_current_lesson_id_fkey"
+            columns: ["current_lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_learning_progress_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_referrals: {
         Row: {
