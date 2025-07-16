@@ -2277,6 +2277,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: boolean
       }
+      simple_convert_all_pending: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       update_all_referral_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
