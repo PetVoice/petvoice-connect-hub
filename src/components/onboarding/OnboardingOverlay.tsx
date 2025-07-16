@@ -6,7 +6,11 @@ import { OnboardingTooltip } from './OnboardingTooltip';
 export function OnboardingOverlay() {
   const { state, currentStepData } = useOnboarding();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
-  const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
+  const [arrowPosition, setArrowPosition] = useState<{
+    x: number;
+    y: number;
+    rotation: number;
+  }>({ x: 0, y: 0, rotation: 0 });
 
   useEffect(() => {
     if (!state.isActive || !currentStepData) return;
@@ -15,7 +19,7 @@ export function OnboardingOverlay() {
       const element = document.querySelector(currentStepData.targetSelector) as HTMLElement;
       if (element) {
         setTargetElement(element);
-        updateOverlayStyle(element);
+        updateArrowPosition(element);
       } else if (currentStepData.waitForElement) {
         // Retry finding element after a delay
         setTimeout(findTargetElement, 500);
@@ -25,23 +29,27 @@ export function OnboardingOverlay() {
     findTargetElement();
   }, [state.isActive, currentStepData]);
 
-  const updateOverlayStyle = (element: HTMLElement) => {
+  const updateArrowPosition = (element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
-    const spotlightRadius = Math.max(rect.width, rect.height) * 0.6 + 20;
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-
-    setOverlayStyle({
-      maskImage: `radial-gradient(circle ${spotlightRadius}px at ${centerX}px ${centerY}px, transparent 40%, rgba(0,0,0,0.8) 70%)`,
-      WebkitMaskImage: `radial-gradient(circle ${spotlightRadius}px at ${centerX}px ${centerY}px, transparent 40%, rgba(0,0,0,0.8) 70%)`
+    
+    // Position arrow above the element
+    const arrowX = centerX;
+    const arrowY = rect.top - 60; // 60px above the element
+    
+    setArrowPosition({
+      x: arrowX,
+      y: arrowY,
+      rotation: 180 // Point down
     });
   };
 
-  // Update overlay position on scroll and resize
+  // Update arrow position on scroll and resize
   useEffect(() => {
     if (!targetElement) return;
 
-    const updatePosition = () => updateOverlayStyle(targetElement);
+    const updatePosition = () => updateArrowPosition(targetElement);
     
     window.addEventListener('scroll', updatePosition);
     window.addEventListener('resize', updatePosition);
@@ -56,16 +64,26 @@ export function OnboardingOverlay() {
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dark overlay with spotlight effect that blocks clicks everywhere except target */}
-      <div 
-        className="absolute inset-0 bg-black/60 pointer-events-auto"
-        style={overlayStyle}
-        onClick={(e) => {
-          // Block clicks on the overlay
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      />
+      {/* Animated arrow pointing to target element */}
+      {targetElement && (
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            left: arrowPosition.x - 15, // Center the arrow
+            top: arrowPosition.y,
+            transform: `rotate(${arrowPosition.rotation}deg)`,
+            animation: 'bounce 2s infinite'
+          }}
+        >
+          <div 
+            className="w-8 h-8 border-l-4 border-b-4 border-primary"
+            style={{
+              transform: 'rotate(-45deg)',
+              filter: 'drop-shadow(0 0 10px hsl(var(--primary) / 0.5))'
+            }}
+          />
+        </div>
+      )}
       
       {/* Glowing ring around target element */}
       {targetElement && (
