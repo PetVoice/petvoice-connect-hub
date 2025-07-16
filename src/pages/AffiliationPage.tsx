@@ -46,6 +46,7 @@ interface ReferralData {
   status: string;
   created_at: string;
   converted_at?: string;
+  is_active?: boolean;
 }
 
 interface CreditTransaction {
@@ -750,28 +751,50 @@ export default function AffiliationPage() {
                 <div className="space-y-3">
                   {referrals.slice(0, 5).map((referral) => (
                     <div key={referral.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium">{referral.referred_email}</p>
-                         <p className="text-sm text-muted-foreground">
-                           {format(new Date(referral.created_at), 'dd MMM yyyy', { locale: it })} · Referral diretto
-                         </p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
+                          {referral.is_active === false ? ' Utente eliminato' : ' Referral diretto'}
+                        </p>
+                        {referral.converted_at && (
+                          <p className="text-xs text-green-600">
+                            Convertito il {format(new Date(referral.converted_at), 'dd MMM yyyy', { locale: it })}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={
                           referral.status === 'converted' ? 'default' : 
-                          referral.status === 'registered' ? 'secondary' : 'outline'
+                          referral.status === 'registered' ? 'secondary' : 
+                          referral.status === 'user_deleted' ? 'destructive' :
+                          'outline'
                         }>
                           {referral.status === 'converted' ? 'Convertito' :
-                           referral.status === 'registered' ? 'Registrato' : 'In attesa'}
+                           referral.status === 'registered' ? 'Registrato' : 
+                           referral.status === 'user_deleted' ? 'Eliminato' :
+                           'In attesa'}
                         </Badge>
-                         {referral.status === 'converted' && (
-                           <Badge variant="secondary">
-                             Commissions attive
-                           </Badge>
-                         )}
+                        {referral.status === 'converted' && referral.is_active && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            Commissioni attive
+                          </Badge>
+                        )}
+                        {referral.status === 'converted' && !referral.is_active && (
+                          <Badge variant="outline" className="bg-gray-100 text-gray-600">
+                            Commissioni sospese
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+              {referrals.length > 5 && (
+                <div className="text-center pt-4">
+                  <Button variant="outline" onClick={() => setActiveTab('analytics')}>
+                    Vedi tutti i {referrals.length} referral
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -893,6 +916,63 @@ export default function AffiliationPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* All Referrals History */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Tutti i Referral ({referrals.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {referrals.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-4" />
+                  <p>Nessun referral ancora. Inizia a condividere il tuo codice!</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {referrals.map((referral) => (
+                    <div key={referral.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex-1">
+                        <p className="font-medium">{referral.referred_email}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
+                          {referral.is_active === false ? ' Utente eliminato' : ' Referral diretto'}
+                        </p>
+                        {referral.converted_at && (
+                          <p className="text-xs text-green-600">
+                            Convertito il {format(new Date(referral.converted_at), 'dd MMM yyyy', { locale: it })}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={
+                          referral.status === 'converted' ? 'default' : 
+                          referral.status === 'registered' ? 'secondary' : 
+                          referral.status === 'user_deleted' ? 'destructive' :
+                          'outline'
+                        }>
+                          {referral.status === 'converted' ? 'Convertito' :
+                           referral.status === 'registered' ? 'Registrato' : 
+                           referral.status === 'user_deleted' ? 'Eliminato' :
+                           'In attesa'}
+                        </Badge>
+                        {referral.status === 'converted' && referral.is_active && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800">
+                            Commissioni attive
+                          </Badge>
+                        )}
+                        {referral.status === 'converted' && !referral.is_active && (
+                          <Badge variant="outline" className="bg-gray-100 text-gray-600">
+                            Commissioni sospese
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
 
@@ -968,10 +1048,17 @@ export default function AffiliationPage() {
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                 </div>
+               )}
+               {credits.length > 10 && (
+                 <div className="text-center pt-4">
+                   <p className="text-sm text-muted-foreground">
+                     Sono mostrate le ultime 10 transazioni di {credits.length} totali
+                   </p>
+                 </div>
+               )}
+             </CardContent>
+           </Card>
 
           {/* Credit Management Actions */}
           <Card>
