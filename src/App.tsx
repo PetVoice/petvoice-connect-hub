@@ -25,6 +25,7 @@ import TutorialPage from "@/pages/TutorialPage";
 import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
 import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
+import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -134,12 +135,7 @@ const App = () => (
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <Layout>
-                    <PlaceholderPage
-                      title="Impostazioni"
-                      description="Personalizza la tua esperienza"
-                      icon={<Settings className="h-6 w-6 text-white" />}
-                      features={["Profilo utente", "Preferenze", "Notifiche", "Privacy"]}
-                    />
+                    <SettingsPage />
                   </Layout>
                 </ProtectedRoute>
               } />
