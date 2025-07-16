@@ -18,7 +18,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
     display_name: '',
     bio: '',
     location: '',
-    street_address: '',
+    street_name: '',
+    street_number: '',
     postal_code: '',
     city: '',
     province: '',
@@ -35,7 +36,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
       display_name: user.user_metadata?.display_name || '',
       bio: user.user_metadata?.bio || '',
       location: user.user_metadata?.location || '',
-      street_address: user.user_metadata?.street_address || '',
+      street_name: user.user_metadata?.street_name || '',
+      street_number: user.user_metadata?.street_number || '',
       postal_code: user.user_metadata?.postal_code || '',
       city: user.user_metadata?.city || '',
       province: user.user_metadata?.province || '',
@@ -57,7 +59,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           display_name: formData.display_name,
           bio: formData.bio,
           location: formData.location,
-          street_address: formData.street_address,
+          street_name: formData.street_name,
+          street_number: formData.street_number,
           postal_code: formData.postal_code,
           city: formData.city,
           province: formData.province,
@@ -74,7 +77,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           user_id: user.id,
           display_name: formData.display_name,
           location: formData.location,
-          street_address: formData.street_address,
+          street_name: formData.street_name,
+          street_number: formData.street_number,
           postal_code: formData.postal_code,
           city: formData.city,
           province: formData.province,
@@ -140,7 +144,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           onAddressSelect={(details) => {
             setFormData(prev => ({
               ...prev,
-              street_address: details.street_address,
+              street_name: details.street_name,
+              street_number: details.street_number,
               postal_code: details.postal_code,
               city: details.city,
               province: details.province,
@@ -151,15 +156,26 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
         />
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="street_address">Via e numero civico</Label>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2 col-span-2">
+          <Label htmlFor="street_name">Via</Label>
           <Input
-            id="street_address"
+            id="street_name"
             type="text"
-            value={formData.street_address}
-            onChange={(e) => setFormData(prev => ({...prev, street_address: e.target.value}))}
-            placeholder="Via Roma 123"
+            value={formData.street_name}
+            onChange={(e) => setFormData(prev => ({...prev, street_name: e.target.value}))}
+            placeholder="Via Roma"
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="street_number">Numero civico</Label>
+          <Input
+            id="street_number"
+            type="text"
+            value={formData.street_number}
+            onChange={(e) => setFormData(prev => ({...prev, street_number: e.target.value}))}
+            placeholder="123"
           />
         </div>
         

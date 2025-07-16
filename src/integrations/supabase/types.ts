@@ -1134,7 +1134,8 @@ export type Database = {
           referral_code: string | null
           referral_count: number | null
           referred_by: string | null
-          street_address: string | null
+          street_name: string | null
+          street_number: string | null
           theme: string | null
           updated_at: string
           user_id: string
@@ -1154,7 +1155,8 @@ export type Database = {
           referral_code?: string | null
           referral_count?: number | null
           referred_by?: string | null
-          street_address?: string | null
+          street_name?: string | null
+          street_number?: string | null
           theme?: string | null
           updated_at?: string
           user_id: string
@@ -1174,7 +1176,8 @@ export type Database = {
           referral_code?: string | null
           referral_count?: number | null
           referred_by?: string | null
-          street_address?: string | null
+          street_name?: string | null
+          street_number?: string | null
           theme?: string | null
           updated_at?: string
           user_id?: string

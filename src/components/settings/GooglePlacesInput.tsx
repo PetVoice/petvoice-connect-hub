@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { MapPin } from 'lucide-react';
 
 interface AddressDetails {
-  street_address: string;
+  street_name: string;
+  street_number: string;
   postal_code: string;
   city: string;
   province: string;
@@ -70,7 +71,8 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
         
         const formattedSuggestions: Suggestion[] = data.map((item: any) => {
           const address = item.address || {};
-          const streetAddress = `${address.house_number || ''} ${address.road || ''}`.trim();
+          const streetNumber = address.house_number || '';
+          const streetName = address.road || '';
           const city = address.city || address.town || address.village || '';
           const province = address.state || address.province || '';
           const country = address.country || 'Italia';
@@ -79,10 +81,11 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
           return {
             id: item.place_id,
             display_name: item.display_name,
-            main_text: streetAddress || city || 'Indirizzo',
+            main_text: `${streetName} ${streetNumber}`.trim() || city || 'Indirizzo',
             secondary_text: `${postalCode} ${city}, ${country}`.trim(),
             address_details: {
-              street_address: streetAddress,
+              street_name: streetName,
+              street_number: streetNumber,
               postal_code: postalCode,
               city: city,
               province: province,
