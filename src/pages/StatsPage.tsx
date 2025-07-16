@@ -192,32 +192,38 @@ const evaluateVitalParameter = (metricType: string, value: number, petType?: str
 
     case 'breathing_rate':
     case 'respiratory_rate':
+    case 'respiration':  // Aggiunto il tipo 'respiration'
       if (value < VITAL_PARAMETERS_RANGES.breathing_rate.critical_low) {
         return {
           status: 'critical',
           message: `Respirazione critica lenta: ${value} atti/min`,
-          recommendation: 'EMERGENZA - Possibili problemi respiratori gravi'
+          recommendation: 'EMERGENZA - Possibili problemi respiratori gravi. Contatta immediatamente il veterinario!'
         };
       }
       if (value > VITAL_PARAMETERS_RANGES.breathing_rate.critical_high) {
         return {
           status: 'critical',
           message: `Respirazione critica veloce: ${value} atti/min`,
-          recommendation: 'EMERGENZA - Possibile distress respiratorio o dolore'
+          recommendation: 'EMERGENZA - Possibile distress respiratorio o dolore. Vai immediatamente dal veterinario!'
         };
       }
+      
+      // Determina il range corretto basato sul tipo di animale
       const breathingRange = petType === 'gatto' || petType === 'cat' 
-        ? VITAL_PARAMETERS_RANGES.breathing_rate.cats
-        : VITAL_PARAMETERS_RANGES.breathing_rate.dogs;
+        ? VITAL_PARAMETERS_RANGES.breathing_rate.cats  // Gatti: 20-30 atti/min
+        : VITAL_PARAMETERS_RANGES.breathing_rate.dogs;  // Cani: 10-30 atti/min
       
       if (value < breathingRange.min || value > breathingRange.max) {
         return {
           status: 'warning',
-          message: `Respirazione anomala: ${value} atti/min`,
-          recommendation: 'Monitora e considera una visita veterinaria'
+          message: `Respirazione anomala: ${value} atti/min (normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})`,
+          recommendation: 'Monitora attentamente e considera una visita veterinaria se persiste'
         };
       }
-      return { status: 'normal', message: `Respirazione normale: ${value} atti/min` };
+      return { 
+        status: 'normal', 
+        message: `Respirazione normale: ${value} atti/min (range normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})` 
+      };
 
     case 'gum_color':
       const gumColorText = getGumColorText(value);
