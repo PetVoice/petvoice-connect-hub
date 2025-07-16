@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -70,19 +68,6 @@ interface Tutorial {
 const TutorialPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [activeTab, setActiveTab] = useState('paths');
-  const [completedTutorials, setCompletedTutorials] = useState<Set<string>>(new Set(['1']));
-  const [bookmarkedTutorials, setBookmarkedTutorials] = useState<Set<string>>(new Set());
-  const [userProgress, setUserProgress] = useState({
-    totalWatchTime: 12,
-    currentStreak: 3,
-    totalPoints: 150,
-    level: 'Principiante',
-    nextLevelProgress: 25
-  });
-  
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   const learningPaths: LearningPath[] = [
     {
@@ -221,121 +206,14 @@ const TutorialPage: React.FC = () => {
     { id: '4', title: 'Community Helper', description: 'Aiutato 3 utenti nella community', icon: <Heart className="h-4 w-4" />, earned: false }
   ];
 
-  // Funzioni per gestire le interazioni
-  const handleStartLearningPath = (pathId: string) => {
-    toast({
-      title: "Percorso Iniziato",
-      description: "Benvenuto nel tuo percorso di apprendimento!",
-    });
-    // Simula l'avvio del percorso
-    setTimeout(() => {
-      navigate('/tutorial');
-    }, 1000);
-  };
-
-  const handleWatchTutorial = (tutorialId: string) => {
-    toast({
-      title: "Tutorial Avviato",
-      description: "Il tutorial si sta caricando...",
-    });
-    
-    // Simula la visualizzazione del tutorial
-    setTimeout(() => {
-      setCompletedTutorials(prev => new Set([...prev, tutorialId]));
-      setUserProgress(prev => ({
-        ...prev,
-        totalWatchTime: prev.totalWatchTime + 8,
-        totalPoints: prev.totalPoints + 25,
-        nextLevelProgress: Math.min(prev.nextLevelProgress + 5, 100)
-      }));
-      
-      toast({
-        title: "Tutorial Completato!",
-        description: "Hai guadagnato 25 punti!",
-      });
-    }, 2000);
-  };
-
-  const handleBookmarkTutorial = (tutorialId: string) => {
-    setBookmarkedTutorials(prev => {
-      const newBookmarks = new Set(prev);
-      if (newBookmarks.has(tutorialId)) {
-        newBookmarks.delete(tutorialId);
-        toast({
-          title: "Rimosso dai Segnalibri",
-          description: "Tutorial rimosso dai tuoi segnalibri",
-        });
-      } else {
-        newBookmarks.add(tutorialId);
-        toast({
-          title: "Aggiunto ai Segnalibri",
-          description: "Tutorial salvato nei tuoi segnalibri",
-        });
-      }
-      return newBookmarks;
-    });
-  };
-
-  const handleNavigateToPets = () => {
-    navigate('/pets');
-  };
-
-  const handleNavigateToAnalysis = () => {
-    navigate('/analysis');
-  };
-
-  const handleStartGuide = (guideTitle: string) => {
-    toast({
-      title: "Guida Avviata",
-      description: `Iniziando: ${guideTitle}`,
-    });
-  };
-
-  const handleStartExercise = (exerciseTitle: string) => {
-    toast({
-      title: "Esercizio Avviato",
-      description: `Avviando: ${exerciseTitle}`,
-    });
-  };
-
-  const handleJoinCommunity = () => {
-    navigate('/community');
-  };
-
-  const handleDownloadCertificate = () => {
-    toast({
-      title: "Download Iniziato",
-      description: "Il certificato verrà scaricato a breve...",
-    });
-  };
-
-  // Filtra i tutorial in base alla ricerca e ai filtri
-  const filteredTutorials = featuredTutorials.filter(tutorial => {
-    const matchesSearch = tutorial.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tutorial.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tutorial.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesFilter = selectedFilter === 'all' || tutorial.type === selectedFilter;
-    
-    return matchesSearch && matchesFilter;
-  });
-
-  // Aggiorna le statistiche utente
   const userStats = {
-    totalWatchTime: `${userProgress.totalWatchTime} min`,
-    completedTutorials: completedTutorials.size,
-    currentStreak: userProgress.currentStreak,
-    totalPoints: userProgress.totalPoints,
-    level: userProgress.level,
-    nextLevelProgress: userProgress.nextLevelProgress
+    totalWatchTime: '0 min',
+    completedTutorials: 0,
+    currentStreak: 0,
+    totalPoints: 0,
+    level: 'Principiante',
+    nextLevelProgress: 0
   };
-
-  // Aggiorna i percorsi di apprendimento con progresso
-  const updatedLearningPaths = learningPaths.map(path => ({
-    ...path,
-    progress: path.id === '1' ? 25 : 0,
-    completedLessons: path.id === '1' ? 2 : 0
-  }));
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -412,18 +290,18 @@ const TutorialPage: React.FC = () => {
 
       <Tabs defaultValue="paths" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="paths" onClick={() => setActiveTab('paths')}>Percorsi di Apprendimento</TabsTrigger>
-          <TabsTrigger value="library" onClick={() => setActiveTab('library')}>Libreria Video</TabsTrigger>
-          <TabsTrigger value="guides" onClick={() => setActiveTab('guides')}>Guide</TabsTrigger>
-          <TabsTrigger value="practice" onClick={() => setActiveTab('practice')}>Pratica</TabsTrigger>
-          <TabsTrigger value="community" onClick={() => setActiveTab('community')}>Community</TabsTrigger>
+          <TabsTrigger value="paths">Percorsi di Apprendimento</TabsTrigger>
+          <TabsTrigger value="library">Libreria Video</TabsTrigger>
+          <TabsTrigger value="guides">Guide</TabsTrigger>
+          <TabsTrigger value="practice">Pratica</TabsTrigger>
+          <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
         {/* Learning Paths Tab */}
         <TabsContent value="paths" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {updatedLearningPaths.map((path) => (
-              <Card key={path.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => handleStartLearningPath(path.id)}>
+            {learningPaths.map((path) => (
+              <Card key={path.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className={`p-2 rounded-lg ${path.color} text-white w-fit`}>
@@ -451,11 +329,8 @@ const TutorialPage: React.FC = () => {
                       <Clock className="h-3 w-3" />
                       <span>{path.estimatedTime}</span>
                     </div>
-                    <Button size="sm" className="h-8" onClick={(e) => {
-                      e.stopPropagation();
-                      handleStartLearningPath(path.id);
-                    }}>
-                      {path.progress > 0 ? 'Continua' : 'Inizia'}
+                    <Button size="sm" className="h-8">
+                      Inizia
                       <ChevronRight className="h-3 w-3 ml-1" />
                     </Button>
                   </div>
@@ -478,7 +353,7 @@ const TutorialPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mb-3">
                   Aggiungi più dettagli per ottenere risultati di analisi migliori
                 </p>
-                <Button size="sm" variant="outline" onClick={handleNavigateToPets}>
+                <Button size="sm" variant="outline">
                   Vai ai Pet <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
@@ -487,7 +362,7 @@ const TutorialPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mb-3">
                   Carica una foto o video per l'analisi comportamentale
                 </p>
-                <Button size="sm" variant="outline" onClick={handleNavigateToAnalysis}>
+                <Button size="sm" variant="outline">
                   Inizia Analisi <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
@@ -498,17 +373,13 @@ const TutorialPage: React.FC = () => {
         {/* Video Library Tab */}
         <TabsContent value="library" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTutorials.map((tutorial) => {
-              const isCompleted = completedTutorials.has(tutorial.id);
-              const isBookmarked = bookmarkedTutorials.has(tutorial.id);
-              
-              return (
+            {featuredTutorials.map((tutorial) => (
               <Card key={tutorial.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative aspect-video bg-muted">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                     <PlayCircle className="h-12 w-12 text-primary" />
                   </div>
-                  {isCompleted && (
+                  {tutorial.isCompleted && (
                     <div className="absolute top-2 right-2">
                       <CheckCircle className="h-5 w-5 text-green-500 bg-white rounded-full" />
                     </div>
@@ -543,21 +414,17 @@ const TutorialPage: React.FC = () => {
                     ))}
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" className="flex-1" onClick={() => handleWatchTutorial(tutorial.id)}>
-                      <Play className="h-3 w-3 mr-1" />
-                      {isCompleted ? 'Riguarda' : 'Guarda'}
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={isBookmarked ? "default" : "outline"}
-                      onClick={() => handleBookmarkTutorial(tutorial.id)}
-                    >
+                  <Button size="sm" className="flex-1">
+                    <Play className="h-3 w-3 mr-1" />
+                    Guarda
+                  </Button>
+                    <Button size="sm" variant="outline">
                       <BookmarkPlus className="h-3 w-3" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            )})}
+            ))}
           </div>
         </TabsContent>
 
@@ -579,11 +446,7 @@ const TutorialPage: React.FC = () => {
                   'Gestione di cartelle mediche e appuntamenti',
                   'Interpretazione dei punteggi e trend di benessere'
                 ].map((guide, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => handleStartGuide(guide)}
-                  >
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-medium text-sm">
                         {index + 1}
@@ -615,7 +478,7 @@ const TutorialPage: React.FC = () => {
                       <h4 className="text-sm font-medium">{resource.title}</h4>
                       <p className="text-xs text-muted-foreground">{resource.type} • {resource.size}</p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={handleDownloadCertificate}>
+                    <Button size="sm" variant="outline">
                       <Download className="h-3 w-3" />
                     </Button>
                   </div>
@@ -639,7 +502,7 @@ const TutorialPage: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Try features in a safe sandbox environment with demo data
                 </p>
-                <Button className="w-full" onClick={() => handleStartExercise('Demo Environment')}>Launch Demo Environment</Button>
+                <Button className="w-full">Launch Demo Environment</Button>
               </CardContent>
             </Card>
 
@@ -654,7 +517,7 @@ const TutorialPage: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Test your knowledge with interactive quizzes and get personalized feedback
                 </p>
-                <Button className="w-full" variant="outline" onClick={() => handleStartExercise('Skill Assessment')}>Start Assessment</Button>
+                <Button className="w-full" variant="outline">Start Assessment</Button>
               </CardContent>
             </Card>
 
@@ -669,7 +532,7 @@ const TutorialPage: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Work through real-world scenarios and learn best practices
                 </p>
-                <Button className="w-full" variant="outline" onClick={() => handleStartExercise('Practice Scenarios')}>Browse Scenarios</Button>
+                <Button className="w-full" variant="outline">Browse Scenarios</Button>
               </CardContent>
             </Card>
           </div>
@@ -701,7 +564,7 @@ const TutorialPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Connect with other users learning similar topics
                   </p>
-                  <Button size="sm" variant="outline" className="w-full" onClick={handleJoinCommunity}>
+                  <Button size="sm" variant="outline" className="w-full">
                     Find Study Group
                   </Button>
                 </div>
@@ -721,11 +584,11 @@ const TutorialPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mb-3">
                     Create and share tutorials with the community
                   </p>
-                  <Button size="sm" variant="outline" className="w-full" onClick={() => handleStartExercise('Create Tutorial')}>
+                  <Button size="sm" variant="outline" className="w-full">
                     Create Tutorial
                   </Button>
                 </div>
-                <div className="p-4 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors" onClick={handleJoinCommunity}>
+                <div className="p-4 border rounded-lg">
                   <h4 className="font-medium mb-2">Top Community Tutorials</h4>
                   <p className="text-sm text-muted-foreground">
                     Browse the best user-created content
@@ -782,7 +645,7 @@ const TutorialPage: React.FC = () => {
                 <h3 className="font-medium">Need Help?</h3>
                 <p className="text-sm text-muted-foreground">Get support from our team</p>
               </div>
-              <Button variant="outline" onClick={() => navigate('/support')}>Contact Support</Button>
+              <Button variant="outline">Contact Support</Button>
             </div>
           </CardContent>
         </Card>
@@ -797,12 +660,7 @@ const TutorialPage: React.FC = () => {
                 <h3 className="font-medium">Share Progress</h3>
                 <p className="text-sm text-muted-foreground">Show your achievements</p>
               </div>
-              <Button variant="outline" onClick={() => {
-                toast({
-                  title: "Progress Shared!",
-                  description: "Your achievements have been shared successfully",
-                });
-              }}>Share</Button>
+              <Button variant="outline">Share</Button>
             </div>
           </CardContent>
         </Card>
