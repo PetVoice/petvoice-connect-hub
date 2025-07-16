@@ -6,9 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PetProvider } from "@/contexts/PetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { OnboardingProvider } from "@/contexts/OnboardingContext";
-import { OnboardingGuide } from "@/components/onboarding/OnboardingGuide";
-import { useOnboardingTrigger } from "@/hooks/useOnboardingTrigger";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
@@ -18,7 +15,7 @@ import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
-import PlaceholderPage from "@/components/PlaceholderPage";
+
 import StatsPage from "@/pages/StatsPage";
 import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
@@ -26,14 +23,13 @@ import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
-import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, HeadphonesIcon, Settings } from "lucide-react";
+
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
-  useOnboardingTrigger();
   return (
     <BrowserRouter>
       <Routes>
@@ -131,7 +127,6 @@ function AppContent() {
         } />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <OnboardingGuide />
     </BrowserRouter>
   );
 }
@@ -141,13 +136,11 @@ const App = () => (
     <AuthProvider>
       <PetProvider>
         <ThemeProvider>
-          <OnboardingProvider>
-            <TooltipProvider>
-              <AppContent />
-              <Toaster />
-              <Sonner />
-            </TooltipProvider>
-          </OnboardingProvider>
+          <TooltipProvider>
+            <AppContent />
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
         </ThemeProvider>
       </PetProvider>
     </AuthProvider>
