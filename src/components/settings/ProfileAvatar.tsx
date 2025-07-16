@@ -25,11 +25,17 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
   const isRandomAvatar = !user.user_metadata?.avatar_url;
   
   const handleAvatarClick = () => {
+    console.log('🖼️ Avatar clicked - isRandomAvatar:', isRandomAvatar);
+    console.log('🖼️ showRemoveOption:', showRemoveOption);
+    console.log('🖼️ user.user_metadata?.avatar_url:', user.user_metadata?.avatar_url);
+    
     if (isRandomAvatar) {
       // Se è avatar casuale, carica direttamente
+      console.log('🖼️ Opening file selector for random avatar');
       openFileSelector();
     } else {
       // Se è avatar personalizzato, mostra opzioni
+      console.log('🖼️ Toggling remove option menu');
       setShowRemoveOption(!showRemoveOption);
     }
   };
