@@ -67,21 +67,28 @@ export function OnboardingOverlay() {
       {/* Animated arrow pointing to target element */}
       {targetElement && (
         <div
-          className="absolute pointer-events-none"
+          className="absolute pointer-events-none z-[10001]"
           style={{
-            left: arrowPosition.x - 15, // Center the arrow
-            top: arrowPosition.y,
+            left: arrowPosition.x - 20, // Center the arrow
+            top: Math.max(arrowPosition.y, 20), // Ensure arrow is visible
             transform: `rotate(${arrowPosition.rotation}deg)`,
             animation: 'bounce 2s infinite'
           }}
         >
-          <div 
-            className="w-8 h-8 border-l-4 border-b-4 border-primary"
-            style={{
-              transform: 'rotate(-45deg)',
-              filter: 'drop-shadow(0 0 10px hsl(var(--primary) / 0.5))'
-            }}
-          />
+          {/* Arrow with white background for visibility */}
+          <div className="relative">
+            <div 
+              className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center"
+            >
+              <div 
+                className="w-6 h-6 border-l-4 border-b-4"
+                style={{
+                  borderColor: 'hsl(var(--primary))',
+                  transform: 'rotate(-45deg)',
+                }}
+              />
+            </div>
+          </div>
         </div>
       )}
       
