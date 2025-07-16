@@ -76,9 +76,9 @@ const TutorialPage: React.FC = () => {
       description: 'Impara le basi di PetVoice e configura il tuo primo animale domestico',
       level: 'Beginner',
       icon: <Zap className="h-5 w-5" />,
-      progress: 75,
+      progress: 0,
       totalLessons: 8,
-      completedLessons: 6,
+      completedLessons: 0,
       estimatedTime: '2 ore',
       color: 'bg-green-500'
     },
@@ -88,9 +88,9 @@ const TutorialPage: React.FC = () => {
       description: 'Diventa esperto nell\'analisi comportamentale e nell\'interpretazione dei risultati',
       level: 'Intermediate',
       icon: <Brain className="h-5 w-5" />,
-      progress: 45,
+      progress: 0,
       totalLessons: 12,
-      completedLessons: 5,
+      completedLessons: 0,
       estimatedTime: '4 ore',
       color: 'bg-blue-500'
     },
@@ -100,9 +100,9 @@ const TutorialPage: React.FC = () => {
       description: 'Padroneggia il diario digitale e il tracking dell\'umore del tuo pet',
       level: 'Intermediate',
       icon: <BookOpen className="h-5 w-5" />,
-      progress: 20,
+      progress: 0,
       totalLessons: 10,
-      completedLessons: 2,
+      completedLessons: 0,
       estimatedTime: '3 ore',
       color: 'bg-purple-500'
     },
@@ -136,9 +136,9 @@ const TutorialPage: React.FC = () => {
       description: 'Partecipa efficacemente alla community e aiuta altri utenti',
       level: 'Intermediate',
       icon: <Users className="h-5 w-5" />,
-      progress: 10,
+      progress: 0,
       totalLessons: 8,
-      completedLessons: 1,
+      completedLessons: 0,
       estimatedTime: '3 ore',
       color: 'bg-cyan-500'
     }
@@ -207,12 +207,12 @@ const TutorialPage: React.FC = () => {
   ];
 
   const userStats = {
-    totalWatchTime: '2h 34m',
-    completedTutorials: 12,
-    currentStreak: 5,
-    totalPoints: 2450,
-    level: 'Intermediate',
-    nextLevelProgress: 65
+    totalWatchTime: '0 min',
+    completedTutorials: 0,
+    currentStreak: 0,
+    totalPoints: 0,
+    level: 'Principiante',
+    nextLevelProgress: 0
   };
 
   return (
@@ -223,40 +223,40 @@ const TutorialPage: React.FC = () => {
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
               <GraduationCap className="h-8 w-8" />
-              Learning Academy
+              Accademia di Apprendimento
             </h1>
             <p className="text-white/90 text-lg mb-4">
-              Master PetVoice with our comprehensive learning platform
+              Padroneggia PetVoice con la nostra piattaforma di apprendimento completa
             </p>
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>{userStats.totalWatchTime} watched</span>
+                <span>{userStats.totalWatchTime} guardati</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4" />
-                <span>{userStats.completedTutorials} completed</span>
+                <span>{userStats.completedTutorials} completati</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4" />
-                <span>{userStats.currentStreak} day streak</span>
+                <span>{userStats.currentStreak} giorni consecutivi</span>
               </div>
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4" />
-                <span>{userStats.totalPoints} points</span>
+                <span>{userStats.totalPoints} punti</span>
               </div>
             </div>
           </div>
           <div className="bg-white/10 rounded-lg p-4 min-w-[200px]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Level Progress</span>
+              <span className="text-sm font-medium">Progresso Livello</span>
               <Badge variant="secondary" className="bg-white/20 text-white">
                 {userStats.level}
               </Badge>
             </div>
             <Progress value={userStats.nextLevelProgress} className="mb-2" />
             <p className="text-xs text-white/80">
-              {100 - userStats.nextLevelProgress}% to next level
+              {100 - userStats.nextLevelProgress}% al prossimo livello
             </p>
           </div>
         </div>
@@ -290,10 +290,10 @@ const TutorialPage: React.FC = () => {
 
       <Tabs defaultValue="paths" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="paths">Learning Paths</TabsTrigger>
-          <TabsTrigger value="library">Video Library</TabsTrigger>
-          <TabsTrigger value="guides">Guides</TabsTrigger>
-          <TabsTrigger value="practice">Practice</TabsTrigger>
+          <TabsTrigger value="paths">Percorsi di Apprendimento</TabsTrigger>
+          <TabsTrigger value="library">Libreria Video</TabsTrigger>
+          <TabsTrigger value="guides">Guide</TabsTrigger>
+          <TabsTrigger value="practice">Pratica</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
@@ -310,7 +310,7 @@ const TutorialPage: React.FC = () => {
                     <Badge 
                       variant={path.level === 'Beginner' ? 'default' : path.level === 'Intermediate' ? 'secondary' : 'destructive'}
                     >
-                      {path.level}
+                      {path.level === 'Beginner' ? 'Principiante' : path.level === 'Intermediate' ? 'Intermedio' : 'Avanzato'}
                     </Badge>
                   </div>
                   <CardTitle className="text-lg">{path.title}</CardTitle>
@@ -330,7 +330,7 @@ const TutorialPage: React.FC = () => {
                       <span>{path.estimatedTime}</span>
                     </div>
                     <Button size="sm" className="h-8">
-                      {path.progress > 0 ? 'Continua' : 'Inizia'}
+                      Inizia
                       <ChevronRight className="h-3 w-3 ml-1" />
                     </Button>
                   </div>
@@ -344,26 +344,26 @@ const TutorialPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5" />
-                Recommended Next Steps
+                Prossimi Passi Consigliati
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">Complete Your Pet Profile</h4>
+                <h4 className="font-medium mb-2">Completa il Profilo del tuo Pet</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Add more details to get better analysis results
+                  Aggiungi più dettagli per ottenere risultati di analisi migliori
                 </p>
                 <Button size="sm" variant="outline">
-                  Go to Pets <ChevronRight className="h-3 w-3 ml-1" />
+                  Vai ai Pet <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
               <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">Try Your First Analysis</h4>
+                <h4 className="font-medium mb-2">Prova la tua Prima Analisi</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Upload a photo or video for behavior analysis
+                  Carica una foto o video per l'analisi comportamentale
                 </p>
                 <Button size="sm" variant="outline">
-                  Start Analysis <ChevronRight className="h-3 w-3 ml-1" />
+                  Inizia Analisi <ChevronRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
             </CardContent>
@@ -414,10 +414,10 @@ const TutorialPage: React.FC = () => {
                     ))}
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button size="sm" className="flex-1">
-                      <Play className="h-3 w-3 mr-1" />
-                      Watch
-                    </Button>
+                  <Button size="sm" className="flex-1">
+                    <Play className="h-3 w-3 mr-1" />
+                    Guarda
+                  </Button>
                     <Button size="sm" variant="outline">
                       <BookmarkPlus className="h-3 w-3" />
                     </Button>
@@ -435,16 +435,16 @@ const TutorialPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  Step-by-Step Guides
+                  Guide Passo-passo
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
-                  'Setting up your pet profile for optimal results',
-                  'Understanding behavioral analysis reports',
-                  'Creating effective diary entries',
-                  'Managing medical records and appointments',
-                  'Interpreting wellness scores and trends'
+                  'Configurazione del profilo pet per risultati ottimali',
+                  'Comprensione dei report di analisi comportamentale',
+                  'Creazione di voci del diario efficaci',
+                  'Gestione di cartelle mediche e appuntamenti',
+                  'Interpretazione dei punteggi e trend di benessere'
                 ].map((guide, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
