@@ -34,14 +34,15 @@ export function OnboardingOverlay() {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
-    // Position arrow above the element
-    const arrowX = centerX;
-    const arrowY = rect.top - 60; // 60px above the element
+    // Position arrow pointing to the center of the target element
+    // Arrow positioned to the left of the element pointing right
+    const arrowX = rect.left - 80; // 80px to the left of element
+    const arrowY = centerY - 20; // Centered vertically
     
     setArrowPosition({
       x: arrowX,
       y: arrowY,
-      rotation: 180 // Point down
+      rotation: 90 // Point right towards the element
     });
   };
 
