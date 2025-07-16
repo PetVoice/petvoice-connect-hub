@@ -23,7 +23,7 @@ import {
   Link, 
   CreditCard, 
   Users, 
-  Settings as SettingsIcon,
+  Cog as SettingsIcon,
   Accessibility,
   HeadphonesIcon,
   FileText,
