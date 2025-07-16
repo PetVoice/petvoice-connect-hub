@@ -64,6 +64,11 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ProfileAvatar } from '@/components/settings/ProfileAvatar';
+import { ProfileEditForm } from '@/components/settings/ProfileEditForm';
+import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
+import { EmailManagement } from '@/components/settings/EmailManagement';
+import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 
 interface UserProfile {
   id: string;
@@ -279,6 +284,8 @@ const SettingsPage: React.FC = () => {
     voiceCommands: false
   });
 
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     loadUserProfile();
   }, []);
@@ -287,6 +294,8 @@ const SettingsPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setUser(user);
+        
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -307,6 +316,14 @@ const SettingsPage: React.FC = () => {
     } catch (error) {
       console.error('Error loading profile:', error);
     }
+  };
+
+  const handleAvatarChange = (url: string) => {
+    loadUserProfile(); // Refresh user data
+  };
+
+  const handleProfileUpdate = () => {
+    loadUserProfile(); // Refresh user data
   };
 
   const handleProfileSave = async () => {
@@ -558,78 +575,26 @@ const SettingsPage: React.FC = () => {
                   Informazioni Profilo
                 </CardTitle>
                 <CardDescription>
-                  Gestisci le informazioni del tuo profilo personale
+                  Gestisci le tue informazioni personali e preferenze
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="relative">
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white text-2xl font-bold">
-                      {profile.display_name ? profile.display_name.charAt(0).toUpperCase() : 'U'}
-                    </div>
-                    <Button size="sm" variant="outline" className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0">
-                      <Camera className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium">{profile.display_name || 'Nome non impostato'}</h3>
-                    <p className="text-sm text-muted-foreground">Foto profilo</p>
-                    <Button variant="link" size="sm" className="p-0 h-auto text-xs">
-                      Cambia avatar
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="displayName">Nome visualizzato</Label>
-                      <Input
-                        id="displayName"
-                        value={profile.display_name}
-                        onChange={(e) => setProfile(prev => prev ? {...prev, display_name: e.target.value} : null)}
-                        disabled={!isEditing}
+              <CardContent className="space-y-6">
+                {user && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-1">
+                      <ProfileAvatar 
+                        user={user} 
+                        onAvatarChange={handleAvatarChange}
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="location">Località</Label>
-                      <Input
-                        id="location"
-                        placeholder="Milano, Italia"
-                        disabled={!isEditing}
+                    <div className="md:col-span-2">
+                      <ProfileEditForm 
+                        user={user} 
+                        onProfileUpdate={handleProfileUpdate}
                       />
                     </div>
                   </div>
-
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      placeholder="Racconta qualcosa di te..."
-                      disabled={!isEditing}
-                      rows={3}
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    {isEditing ? (
-                      <>
-                        <Button onClick={handleProfileSave} className="flex items-center gap-2">
-                          <Save className="h-4 w-4" />
-                          Salva
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsEditing(false)}>
-                          Annulla
-                        </Button>
-                      </>
-                    ) : (
-                      <Button onClick={() => setIsEditing(true)} variant="outline" className="flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Modifica
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -644,47 +609,8 @@ const SettingsPage: React.FC = () => {
                   Cambia il tuo indirizzo email con verifica di sicurezza
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Email attuale</Label>
-                  <Input value="user@example.com" disabled className="bg-muted" />
-                </div>
-
-                {emailVerificationSent ? (
-                  <Alert>
-                    <Mail className="h-4 w-4" />
-                    <AlertDescription>
-                      Email di verifica inviata. Controlla la tua nuova casella di posta e clicca sul link per completare il cambio.
-                    </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="newEmail">Nuova email</Label>
-                      <Input
-                        id="newEmail"
-                        type="email"
-                        value={newEmail}
-                        onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="nuova@email.com"
-                      />
-                    </div>
-                    <Button onClick={handleEmailChange} disabled={!newEmail} className="w-full">
-                      Cambia Email
-                    </Button>
-                  </div>
-                )}
-
-                <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
-                  <strong>Processo di cambio email:</strong>
-                  <ol className="list-decimal list-inside mt-2 space-y-1">
-                    <li>Inserisci la nuova email</li>
-                    <li>Riceverai un'email di conferma</li>
-                    <li>Clicca sul link di verifica</li>
-                    <li>Tutte le sessioni verranno invalidate</li>
-                    <li>Dovrai accedere con la nuova email</li>
-                  </ol>
-                </div>
+              <CardContent>
+                {user && <EmailManagement user={user} />}
               </CardContent>
             </Card>
 
@@ -699,38 +625,9 @@ const SettingsPage: React.FC = () => {
                   Aggiorna la tua password per mantenere l'account sicuro
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="currentPassword">Password attuale</Label>
-                  <Input id="currentPassword" type="password" />
-                </div>
-
-                <div>
-                  <Label htmlFor="newPassword">Nuova password</Label>
-                  <Input 
-                    id="newPassword" 
-                    type="password"
-                    onChange={(e) => setPasswordStrength(calculatePasswordStrength(e.target.value))}
-                  />
-                  <div className="mt-2">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Sicurezza password</span>
-                      <span>{passwordStrength}%</span>
-                    </div>
-                    <Progress value={passwordStrength} className="h-2" />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="confirmPassword">Conferma password</Label>
-                  <Input id="confirmPassword" type="password" />
-                </div>
-
-                <Button className="w-full">
-                  Aggiorna Password
-                </Button>
-
-                <Alert>
+              <CardContent>
+                <ChangePasswordForm />
+                <Alert className="mt-4">
                   <Shield className="h-4 w-4" />
                   <AlertDescription>
                     Cambiando la password, tutte le altre sessioni attive verranno disconnesse per sicurezza.
@@ -750,26 +647,8 @@ const SettingsPage: React.FC = () => {
                   Elimina permanentemente il tuo account e tutti i dati associati
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    Questa azione è irreversibile. Tutti i tuoi dati, inclusi profili pet, analisi, diario e impostazioni verranno eliminati permanentemente.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Prima di eliminare il tuo account:</h4>
-                  <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Esporta i tuoi dati se vuoi conservarli</li>
-                    <li>• Annulla eventuali abbonamenti attivi</li>
-                    <li>• Salva informazioni importanti sui tuoi pet</li>
-                  </ul>
-                </div>
-
-                <Button variant="destructive" onClick={handleAccountDeletion} className="w-full">
-                  Elimina Account Permanentemente
-                </Button>
+              <CardContent>
+                {user && <DeleteAccountSection user={user} />}
               </CardContent>
             </Card>
           </div>
