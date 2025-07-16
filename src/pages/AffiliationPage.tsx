@@ -743,16 +743,25 @@ export default function AffiliationPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span>Referral inviati</span>
-                    <span className="font-bold">{referrals.filter(r => 
+                    <span>Registrazioni mensili</span>
+                    <span className="font-bold text-blue-600">{referrals.filter(r => 
                       new Date(r.created_at) >= startOfMonth(new Date())
                     ).length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Conversioni</span>
+                    <span>Conversioni mensili</span>
                     <span className="font-bold text-green-600">
                       {referrals.filter(r => 
                         r.status === 'converted' && 
+                        new Date(r.created_at) >= startOfMonth(new Date())
+                      ).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>In attesa di pagamento</span>
+                    <span className="font-bold text-orange-600">
+                      {referrals.filter(r => 
+                        r.status === 'registered' && 
                         new Date(r.created_at) >= startOfMonth(new Date())
                       ).length}
                     </span>
