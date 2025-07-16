@@ -39,9 +39,16 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
-    }, 300);
+    // Forza lo scroll immediatamente e con backup
+    const scrollElement = messagesEndRef.current;
+    if (scrollElement) {
+      scrollElement.scrollIntoView({ behavior: 'instant', block: 'end' });
+      // Backup: forza scroll del parent container
+      const chatContainer = scrollElement.closest('.overflow-y-auto, .overflow-auto');
+      if (chatContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
@@ -50,7 +57,10 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   }, [channelId]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Delay per permettere al DOM di renderizzare
+    setTimeout(() => {
+      scrollToBottom();
+    }, 500);
   }, [messages]);
 
   const loadMessages = async () => {
@@ -361,17 +371,18 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           )}
         </div>
         
-        <MessageList 
-          messages={messages}
-          currentUserId={user?.id || ''}
-          onDeleteMessage={deleteMessage}
-          onEditMessage={editMessage}
-          isSelectionMode={isSelectionMode}
-          selectedMessages={selectedMessages}
-          onToggleSelection={toggleMessageSelection}
-        />
-        
-        <div ref={messagesEndRef} />
+        <div className="flex-1 overflow-y-auto">
+          <MessageList 
+            messages={messages}
+            currentUserId={user?.id || ''}
+            onDeleteMessage={deleteMessage}
+            onEditMessage={editMessage}
+            isSelectionMode={isSelectionMode}
+            selectedMessages={selectedMessages}
+            onToggleSelection={toggleMessageSelection}
+          />
+          <div ref={messagesEndRef} className="h-1" />
+        </div>
       </div>
       
       <MessageInput onSendMessage={sendMessage} />
