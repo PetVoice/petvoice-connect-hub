@@ -26,6 +26,7 @@ import SupportPage from "@/pages/SupportPage";
 
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
+import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 
 const queryClient = new QueryClient();
 
@@ -136,11 +137,13 @@ const App = () => (
     <AuthProvider>
       <PetProvider>
         <ThemeProvider>
-          <TooltipProvider>
-            <AppContent />
-            <Toaster />
-            <Sonner />
-          </TooltipProvider>
+          <NotificationEventsProvider>
+            <TooltipProvider>
+              <AppContent />
+              <Toaster />
+              <Sonner />
+            </TooltipProvider>
+          </NotificationEventsProvider>
         </ThemeProvider>
       </PetProvider>
     </AuthProvider>
