@@ -2579,10 +2579,35 @@ const WellnessPage = () => {
                 <CardTitle className="text-sm">Pattern Stagionali</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Primavera</div>
-                <p className="text-sm text-muted-foreground">
-                  Periodo con maggior numero di controlli preventivi
-                </p>
+                {(() => {
+                  const seasonalData = medicalRecords.reduce((acc, record) => {
+                    const month = new Date(record.record_date).getMonth();
+                    const season = month >= 2 && month <= 4 ? 'Primavera' :
+                                 month >= 5 && month <= 7 ? 'Estate' :
+                                 month >= 8 && month <= 10 ? 'Autunno' : 'Inverno';
+                    acc[season] = (acc[season] || 0) + 1;
+                    return acc;
+                  }, {} as Record<string, number>);
+                  
+                  const mostActiveSeason = Object.entries(seasonalData)
+                    .sort(([,a], [,b]) => b - a)[0];
+                  
+                  return mostActiveSeason ? (
+                    <>
+                      <div className="text-2xl font-bold">{mostActiveSeason[0]}</div>
+                      <p className="text-sm text-muted-foreground">
+                        Periodo con maggior numero di controlli ({mostActiveSeason[1]} visite)
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-lg text-muted-foreground">Non disponibile</div>
+                      <p className="text-sm text-muted-foreground">
+                        Aggiungi più visite per vedere i pattern stagionali
+                      </p>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
 
@@ -2591,10 +2616,34 @@ const WellnessPage = () => {
                 <CardTitle className="text-sm">Efficacia Farmaci</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">92%</div>
-                <p className="text-sm text-muted-foreground">
-                  Tasso di successo delle terapie farmacologiche
-                </p>
+                {(() => {
+                  const totalMedications = medications.length;
+                  const completedMedications = medications.filter(m => 
+                    !m.is_active && m.end_date
+                  ).length;
+                  
+                  if (totalMedications === 0) {
+                    return (
+                      <>
+                        <div className="text-lg text-muted-foreground">Non disponibile</div>
+                        <p className="text-sm text-muted-foreground">
+                          Aggiungi farmaci per vedere l'efficacia delle terapie
+                        </p>
+                      </>
+                    );
+                  }
+                  
+                  const successRate = Math.round((completedMedications / totalMedications) * 100);
+                  
+                  return (
+                    <>
+                      <div className="text-2xl font-bold">{successRate}%</div>
+                      <p className="text-sm text-muted-foreground">
+                        Tasso di completamento delle terapie farmacologiche ({completedMedications}/{totalMedications})
+                      </p>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
