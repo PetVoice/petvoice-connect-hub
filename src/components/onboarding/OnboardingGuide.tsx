@@ -117,16 +117,32 @@ export function OnboardingGuide() {
     if (!state.isActive) return;
 
     const addDataAttributes = () => {
+      // Helper function to find button by text content
+      const findButtonByText = (text: string) => {
+        const buttons = document.querySelectorAll('button');
+        return Array.from(buttons).find(button => 
+          button.textContent?.includes(text)
+        );
+      };
+
+      // Helper function to find link by text content
+      const findLinkByText = (text: string) => {
+        const links = document.querySelectorAll('a');
+        return Array.from(links).find(link => 
+          link.textContent?.includes(text)
+        );
+      };
+
       // Add data attributes to key elements
       const addPetButton = document.querySelector('[data-testid="add-pet-button"]') || 
-                           document.querySelector('button:contains("Aggiungi Pet")') ||
+                           findButtonByText('Aggiungi Pet') ||
                            document.querySelector('[href*="pets"]');
       if (addPetButton) {
         addPetButton.setAttribute('data-onboarding', 'add-pet');
       }
 
       const analysisMenu = document.querySelector('[href*="analysis"]') ||
-                          document.querySelector('a:contains("Analisi")');
+                          findLinkByText('Analisi');
       if (analysisMenu) {
         analysisMenu.setAttribute('data-onboarding', 'analysis-menu');
       }
@@ -137,7 +153,7 @@ export function OnboardingGuide() {
         fileUpload.setAttribute('data-onboarding', 'file-upload');
       }
 
-      const analyzeButton = document.querySelector('button:contains("Analizza")') ||
+      const analyzeButton = findButtonByText('Analizza') ||
                            document.querySelector('[data-testid="analyze-button"]');
       if (analyzeButton) {
         analyzeButton.setAttribute('data-onboarding', 'analyze-button');
@@ -149,7 +165,7 @@ export function OnboardingGuide() {
         results.setAttribute('data-onboarding', 'analysis-results');
       }
 
-      const saveDiary = document.querySelector('button:contains("Salva")') ||
+      const saveDiary = findButtonByText('Salva') ||
                        document.querySelector('[data-testid="save-diary"]');
       if (saveDiary) {
         saveDiary.setAttribute('data-onboarding', 'save-diary');
