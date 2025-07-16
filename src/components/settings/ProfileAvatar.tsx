@@ -76,7 +76,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
     try {
       setUploading(true);
       
-      const fileName = `avatar_${user.id}_${Date.now()}.${file.name.split('.').pop()}`;
+      const fileName = `${user.id}/${Date.now()}.${file.name.split('.').pop()}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('avatars')
