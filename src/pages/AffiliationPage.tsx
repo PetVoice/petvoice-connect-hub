@@ -404,11 +404,17 @@ export default function AffiliationPage() {
       .reduce((sum, credit) => sum + credit.amount, 0);
   };
 
-  // Setup real-time updates per TUTTE le tabelle dei referral
+  // Setup real-time updates e polling automatico
   useEffect(() => {
     loadReferralData();
     
     if (!user?.id) return;
+    
+    // Polling automatico ogni 10 secondi per verificare nuovi referral
+    const pollingInterval = setInterval(() => {
+      console.log('🔄 Auto-refresh referral data...');
+      loadReferralData(true);
+    }, 10000);
     
     // Canale per aggiornamenti real-time su TUTTE le tabelle referral
     const channel = supabase
@@ -456,7 +462,9 @@ export default function AffiliationPage() {
       .subscribe((status) => {
         console.log('📡 Real-time subscription status:', status);
       });
+    
     return () => {
+      clearInterval(pollingInterval);
       supabase.removeChannel(channel);
     };
   }, [loadReferralData, user?.id]);
