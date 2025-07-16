@@ -29,24 +29,34 @@ export function OnboardingTooltip({ targetElement }: OnboardingTooltipProps) {
 
     const rect = targetElement.getBoundingClientRect();
     const tooltipWidth = 320;
-    const tooltipHeight = 200;
+    const tooltipHeight = 250; // Increased for better estimation
     
     let x = rect.left + rect.width / 2 - tooltipWidth / 2;
     let y = rect.bottom + 20;
 
-    // Adjust position if tooltip goes off-screen
-    if (x + tooltipWidth > window.innerWidth) {
+    // Adjust horizontal position if tooltip goes off-screen
+    if (x + tooltipWidth > window.innerWidth - 20) {
       x = window.innerWidth - tooltipWidth - 20;
     }
     if (x < 20) {
       x = 20;
     }
-    if (y + tooltipHeight > window.innerHeight) {
+    
+    // Adjust vertical position if tooltip goes off-screen
+    if (y + tooltipHeight > window.innerHeight - 20) {
       y = rect.top - tooltipHeight - 20;
+    }
+    
+    // If still off-screen at the top, position it below but closer to element
+    if (y < 20) {
+      y = rect.bottom + 10;
+      if (y + tooltipHeight > window.innerHeight - 20) {
+        y = Math.max(20, window.innerHeight - tooltipHeight - 20);
+      }
     }
 
     setTooltipPosition({ x, y });
-  }, [targetElement, currentStepData]);
+  }, [targetElement, currentStepData, window.innerWidth, window.innerHeight]);
 
   useEffect(() => {
     // Auto-advance for certain steps

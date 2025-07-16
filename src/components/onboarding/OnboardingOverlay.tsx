@@ -55,19 +55,29 @@ export function OnboardingOverlay() {
   if (!state.isActive || !currentStepData) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
+    <div className="fixed inset-0 z-[9999]">
       {/* Dark overlay with spotlight effect */}
       <div 
-        className="absolute inset-0 bg-black/60 pointer-events-auto"
+        className="absolute inset-0 bg-black/60 pointer-events-none"
         style={overlayStyle}
+      />
+      
+      {/* Clickable area that allows clicks only on target element */}
+      <div 
+        className="absolute inset-0 pointer-events-auto"
         onClick={(e) => {
-          // Only allow clicks on the highlighted element
-          if (targetElement && targetElement.contains(e.target as Node)) {
+          // Allow clicks to pass through to target element
+          if (targetElement && (
+            e.target === targetElement || 
+            targetElement.contains(e.target as Node)
+          )) {
             return;
           }
+          // Block other clicks
           e.preventDefault();
           e.stopPropagation();
         }}
+        style={{ pointerEvents: 'auto' }}
       />
       
       {/* Glowing ring around target element */}
