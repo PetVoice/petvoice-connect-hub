@@ -645,6 +645,13 @@ const WellnessPage = () => {
       setShowFirstAidGuide(true);
     };
     
+    // Controlla se deve aprire la guida dal localStorage
+    const shouldOpenGuide = localStorage.getItem('openFirstAidGuide');
+    if (shouldOpenGuide === 'true') {
+      setShowFirstAidGuide(true);
+      localStorage.removeItem('openFirstAidGuide');
+    }
+    
     window.addEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
     
     return () => {
@@ -2352,46 +2359,21 @@ const WellnessPage = () => {
                   <p className="text-muted-foreground text-center py-4">Nessuna metrica registrata</p>
                 ) : (
                   <div className="space-y-3">
-                    {healthMetrics.slice(0, 5).map(metric => (
-                      <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium capitalize">{metric.metric_type}</p>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {metric.value} {metric.unit}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
-                          </p>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => {
-                              setEditingMetric(metric);
-                              setNewMetric({
-                                metric_type: metric.metric_type,
-                                value: metric.value.toString(),
-                                unit: metric.unit,
-                                notes: metric.notes || ''
-                              });
-                              setShowAddMetric(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            onClick={() => handleDeleteMetric(metric.id, metric.metric_type)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                     {healthMetrics.slice(0, 5).map(metric => (
+                       <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border">
+                         <div className="flex-1">
+                           <div className="flex items-center gap-2">
+                             <p className="font-medium capitalize">{metric.metric_type}</p>
+                           </div>
+                           <p className="text-sm text-muted-foreground">
+                             {metric.value} {metric.unit}
+                           </p>
+                           <p className="text-sm text-muted-foreground">
+                             {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
+                           </p>
+                         </div>
+                       </div>
+                     ))}
                   </div>
                 )}
               </CardContent>

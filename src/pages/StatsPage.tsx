@@ -1096,18 +1096,19 @@ export default function StatsPage() {
                         Consulta i parametri vitali normali e le procedure di emergenza
                       </p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // Evento personalizzato per aprire la guida primo soccorso
-                        window.dispatchEvent(new CustomEvent('open-first-aid-guide'));
-                      }}
-                      className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                    >
-                      <Heart className="h-4 w-4 mr-1" />
-                      Apri Guida
-                    </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         // Naviga alla pagina wellness e apri la guida
+                         window.location.href = '/wellness';
+                         localStorage.setItem('openFirstAidGuide', 'true');
+                       }}
+                       className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                     >
+                       <Heart className="h-4 w-4 mr-1" />
+                       Apri Guida
+                     </Button>
                   </div>
                 </div>
               </CardContent>
