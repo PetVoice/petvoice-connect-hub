@@ -1857,7 +1857,19 @@ const SupportPage: React.FC = () => {
                   <div className="flex items-center space-x-3 p-2 bg-orange-50 rounded-lg">
                     <BarChart3 className="h-4 w-4 text-orange-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Wellness:</span> Monitora la salute e il benessere
+                      <span className="font-medium">Wellness:</span> Monitora salute con parametri vitali
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-red-50 rounded-lg">
+                    <Heart className="h-4 w-4 text-red-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Primo Soccorso:</span> Guida di emergenza veterinaria
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-teal-50 rounded-lg">
+                    <Users className="h-4 w-4 text-teal-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Community:</span> Chat con altri proprietari di pet
                     </div>
                   </div>
                 </CardContent>
@@ -1887,13 +1899,19 @@ const SupportPage: React.FC = () => {
                   <div className="flex items-start space-x-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <p className="text-sm text-muted-foreground">
-                      <strong>Analisi regolari:</strong> Carica contenuti regolarmente per monitoraggi migliori
+                      <strong>Parametri Vitali:</strong> Registra temperatura, respirazione e battito per valutazioni accurate
                     </p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                     <p className="text-sm text-muted-foreground">
-                      <strong>Backup:</strong> I tuoi dati sono al sicuro nel cloud
+                      <strong>Analytics Reali:</strong> I grafici si aggiornano automaticamente con i tuoi dati
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Emergenze:</strong> Consulta sempre la guida di primo soccorso per valori critici
                     </p>
                   </div>
                 </CardContent>
@@ -1916,16 +1934,23 @@ const SupportPage: React.FC = () => {
                   </div>
                   <Separator />
                   <div className="space-y-2">
-                    <h5 className="font-medium text-sm">Analisi imprecisa?</h5>
+                    <h5 className="font-medium text-sm">Parametri vitali critici?</h5>
                     <p className="text-xs text-muted-foreground">
-                      Usa video di almeno 10 secondi con buona illuminazione
+                      Se vedi valori anomali (es. respirazione 5), consulta immediatamente il veterinario
                     </p>
                   </div>
                   <Separator />
                   <div className="space-y-2">
-                    <h5 className="font-medium text-sm">Non vedi i dati?</h5>
+                    <h5 className="font-medium text-sm">Analytics non mostra dati?</h5>
                     <p className="text-xs text-muted-foreground">
-                      Aggiorna la pagina o contatta il supporto se il problema persiste
+                      Aggiungi più metriche di salute e visite mediche per vedere i grafici
+                    </p>
+                  </div>
+                  <Separator />
+                  <div className="space-y-2">
+                    <h5 className="font-medium text-sm">Guida primo soccorso?</h5>
+                    <p className="text-xs text-muted-foreground">
+                      Disponibile nella sezione Benessere - Emergenze per consultazioni rapide
                     </p>
                   </div>
                   <Button 

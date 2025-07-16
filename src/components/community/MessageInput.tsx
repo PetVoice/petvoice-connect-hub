@@ -193,7 +193,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
             type="button"
             size="sm"
             variant="ghost"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted/50 transition-colors"
             onClick={() => setShowEmojis(!showEmojis)}
             disabled={uploading}
           >
@@ -225,7 +225,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
           size="sm"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="p-2"
+          className="p-2 hover:bg-muted/50 transition-colors"
         >
           <Image className="h-4 w-4" />
         </Button>
@@ -236,7 +236,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
           size="sm"
           onClick={handleVoiceToggle}
           disabled={uploading}
-          className={`p-2 ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
+          className={`p-2 hover:bg-muted/50 transition-colors ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
         >
           {isRecording ? (
             <MicOff className="h-4 w-4" />
