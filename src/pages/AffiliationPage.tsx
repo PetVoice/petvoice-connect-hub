@@ -454,6 +454,9 @@ export default function AffiliationPage() {
 
   const tierInfo = getCurrentTierInfo();
   const activeCreditsBalance = getActiveCredits();
+  
+  // Debug log to check variables
+  console.log('Debug variables check:', { referralProfile, tierInfo, activeCreditsBalance, activeTab });
 
   return (
     <div className="container mx-auto p-6 space-y-6">
