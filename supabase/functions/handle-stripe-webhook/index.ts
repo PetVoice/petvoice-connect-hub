@@ -78,15 +78,12 @@ serve(async (req) => {
             let userId = session.metadata?.user_id || null;
             
             if (!userId && customerEmail) {
-              // Try to find user by email in auth.users (via profile lookup)
-              const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('user_id')
-                .eq('user_id', (await supabaseClient.auth.admin.getUserByEmail(customerEmail)).data.user?.id)
-                .single();
+              // Find user by email using service role
+              const { data: authUsers } = await supabaseClient.auth.admin.listUsers();
+              const user = authUsers.users.find(u => u.email === customerEmail);
               
-              if (profile) {
-                userId = profile.user_id;
+              if (user) {
+                userId = user.id;
               }
             }
 
