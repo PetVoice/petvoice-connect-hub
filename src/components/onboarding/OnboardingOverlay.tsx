@@ -56,51 +56,69 @@ export function OnboardingOverlay() {
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dark overlay with spotlight effect */}
-      <div 
-        className="absolute inset-0 bg-black/60 pointer-events-auto"
-        style={overlayStyle}
-        onClick={(e) => {
-          // Allow clicks to pass through to target element
-          if (targetElement && (
-            e.target === targetElement || 
-            targetElement.contains(e.target as Node)
-          )) {
-            return;
-          }
-          // Block other clicks
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      />
-      
-      {/* Clickable area over target element to allow clicks */}
+      {/* Dark overlay with cutout for target element */}
       {targetElement && (
-        <div 
-          className="absolute pointer-events-auto"
-          style={{
-            left: targetElement.getBoundingClientRect().left,
-            top: targetElement.getBoundingClientRect().top,
-            width: targetElement.getBoundingClientRect().width,
-            height: targetElement.getBoundingClientRect().height,
-            zIndex: 1
-          }}
-          onClick={(e) => {
-            // Pass click through to target element
-            const rect = targetElement.getBoundingClientRect();
-            const x = rect.left + rect.width / 2;
-            const y = rect.top + rect.height / 2;
-            
-            // Create and dispatch click event at target element
-            const clickEvent = new MouseEvent('click', {
-              bubbles: true,
-              cancelable: true,
-              clientX: x,
-              clientY: y
-            });
-            targetElement.dispatchEvent(clickEvent);
-          }}
-        />
+        <>
+          {/* Top overlay */}
+          <div 
+            className="absolute bg-black/60 pointer-events-auto"
+            style={{
+              left: 0,
+              top: 0,
+              right: 0,
+              height: targetElement.getBoundingClientRect().top
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+          
+          {/* Left overlay */}
+          <div 
+            className="absolute bg-black/60 pointer-events-auto"
+            style={{
+              left: 0,
+              top: targetElement.getBoundingClientRect().top,
+              width: targetElement.getBoundingClientRect().left,
+              height: targetElement.getBoundingClientRect().height
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+          
+          {/* Right overlay */}
+          <div 
+            className="absolute bg-black/60 pointer-events-auto"
+            style={{
+              left: targetElement.getBoundingClientRect().right,
+              top: targetElement.getBoundingClientRect().top,
+              right: 0,
+              height: targetElement.getBoundingClientRect().height
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+          
+          {/* Bottom overlay */}
+          <div 
+            className="absolute bg-black/60 pointer-events-auto"
+            style={{
+              left: 0,
+              top: targetElement.getBoundingClientRect().bottom,
+              right: 0,
+              bottom: 0
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          />
+        </>
       )}
       
       {/* Glowing ring around target element */}
