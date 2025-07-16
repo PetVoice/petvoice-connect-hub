@@ -29,10 +29,10 @@ export function OnboardingTooltip({ targetElement }: OnboardingTooltipProps) {
 
     const rect = targetElement.getBoundingClientRect();
     const tooltipWidth = 320;
-    const tooltipHeight = 250; // Increased for better estimation
+    const tooltipHeight = 250;
     
     let x = rect.left + rect.width / 2 - tooltipWidth / 2;
-    let y = rect.bottom + 20;
+    let y = rect.bottom + 40; // More space below element
 
     // Adjust horizontal position if tooltip goes off-screen
     if (x + tooltipWidth > window.innerWidth - 20) {
@@ -42,17 +42,33 @@ export function OnboardingTooltip({ targetElement }: OnboardingTooltipProps) {
       x = 20;
     }
     
-    // Adjust vertical position if tooltip goes off-screen
+    // If tooltip would go off-screen at the bottom, try positioning it to the side
     if (y + tooltipHeight > window.innerHeight - 20) {
-      y = rect.top - tooltipHeight - 20;
-    }
-    
-    // If still off-screen at the top, position it below but closer to element
-    if (y < 20) {
-      y = rect.bottom + 10;
-      if (y + tooltipHeight > window.innerHeight - 20) {
-        y = Math.max(20, window.innerHeight - tooltipHeight - 20);
+      // Try positioning to the right of the element
+      if (rect.right + tooltipWidth + 20 <= window.innerWidth) {
+        x = rect.right + 20;
+        y = rect.top + rect.height / 2 - tooltipHeight / 2;
+      } 
+      // Try positioning to the left of the element
+      else if (rect.left - tooltipWidth - 20 >= 0) {
+        x = rect.left - tooltipWidth - 20;
+        y = rect.top + rect.height / 2 - tooltipHeight / 2;
       }
+      // Last resort: position above the element with more space
+      else {
+        y = rect.top - tooltipHeight - 40;
+        if (y < 20) {
+          y = 20;
+        }
+      }
+    }
+
+    // Final check to ensure tooltip doesn't go off-screen vertically
+    if (y + tooltipHeight > window.innerHeight - 20) {
+      y = window.innerHeight - tooltipHeight - 20;
+    }
+    if (y < 20) {
+      y = 20;
     }
 
     setTooltipPosition({ x, y });
