@@ -2039,6 +2039,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_tier_info: {
+        Args: { conversions: number }
+        Returns: {
+          tier: string
+          rate: number
+          min_conversions: number
+          max_conversions: number
+        }[]
+      }
       get_user_subscription: {
         Args: { p_user_id: string }
         Returns: {
@@ -2053,6 +2062,14 @@ export type Database = {
       reactivate_user_subscription: {
         Args: { p_user_id: string }
         Returns: boolean
+      }
+      register_referral: {
+        Args: {
+          p_referrer_id: string
+          p_referred_email: string
+          p_referral_code: string
+        }
+        Returns: string
       }
     }
     Enums: {
