@@ -56,16 +56,52 @@ export function OnboardingOverlay() {
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] pointer-events-none">
-      {/* Dark overlay with spotlight effect that blocks clicks everywhere except target */}
+      {/* Dark overlay with spotlight effect */}
       <div 
         className="absolute inset-0 bg-black/60 pointer-events-auto"
         style={overlayStyle}
         onClick={(e) => {
-          // Block clicks on the overlay
+          // Allow clicks to pass through to target element
+          if (targetElement && (
+            e.target === targetElement || 
+            targetElement.contains(e.target as Node)
+          )) {
+            return;
+          }
+          // Block other clicks
           e.preventDefault();
           e.stopPropagation();
         }}
       />
+      
+      {/* Clickable area over target element to allow clicks */}
+      {targetElement && (
+        <div 
+          className="absolute pointer-events-auto"
+          style={{
+            left: targetElement.getBoundingClientRect().left,
+            top: targetElement.getBoundingClientRect().top,
+            width: targetElement.getBoundingClientRect().width,
+            height: targetElement.getBoundingClientRect().height,
+            zIndex: 1
+          }}
+          onClick={(e) => {
+            // Pass click through to target element
+            const rect = targetElement.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            // Create and dispatch click event at target element
+            const clickEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              clientX: x,
+              clientY: y
+            });
+            targetElement.dispatchEvent(clickEvent);
+          }}
+        />
+      )}
       
       {/* Glowing ring around target element */}
       {targetElement && (
