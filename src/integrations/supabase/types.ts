@@ -1260,6 +1260,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sharing_templates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          template_name: string
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          template_name: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          template_name?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           cancellation_date: string | null
@@ -2062,6 +2092,14 @@ export type Database = {
           max_pets_allowed: number
           cancellation_effective_date: string
         }[]
+      }
+      process_all_payments: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      process_recurring_commissions: {
+        Args: { p_user_id: string }
+        Returns: Json
       }
       reactivate_user_subscription: {
         Args: { p_user_id: string }

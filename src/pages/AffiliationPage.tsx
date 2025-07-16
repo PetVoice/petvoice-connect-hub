@@ -29,55 +29,34 @@ import { it } from 'date-fns/locale';
 
 // Types
 interface ReferralProfile {
-  id: string;
+  user_id: string;
   referral_code: string;
-  total_referrals: number;
-  successful_conversions: number;
+  total_registrations: number;
+  total_conversions: number;
   total_credits_earned: number;
+  available_credits: number;
   current_tier: string;
-  consecutive_months: number;
-  is_leaderboard_visible: boolean;
+  tier_progress: number;
 }
 
 interface ReferralData {
   id: string;
   referred_email: string;
+  referred_user_id?: string;
   status: string;
-  channel: string;
-  credits_awarded: number;
   created_at: string;
-  conversion_date?: string;
+  converted_at?: string;
 }
 
 interface CreditTransaction {
   id: string;
-  credit_type: string;
+  commission_type: string;
   amount: number;
-  description: string;
+  tier: string;
   status: string;
   created_at: string;
-  expires_at?: string;
-}
-
-interface Badge {
-  id: string;
-  badge_type: string;
-  badge_name: string;
-  badge_description: string;
-  icon_name: string;
-  earned_at: string;
-}
-
-interface Challenge {
-  id: string;
-  challenge_name: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  target_referrals: number;
-  reward_credits: number;
-  user_progress?: number;
-  is_completed?: boolean;
+  billing_period_start?: string;
+  billing_period_end?: string;
 }
 
 interface SharingTemplate {
@@ -89,19 +68,10 @@ interface SharingTemplate {
 }
 
 const TIER_CONFIG = {
-  Bronzo: { minReferrals: 0, color: 'bg-amber-600', next: 'Argento', nextTarget: 5, commission: 0.05 },
-  Argento: { minReferrals: 5, color: 'bg-gray-400', next: 'Oro', nextTarget: 20, commission: 0.10 },
-  Oro: { minReferrals: 20, color: 'bg-yellow-500', next: 'Platino', nextTarget: 50, commission: 0.15 },
-  Platino: { minReferrals: 50, color: 'bg-purple-500', next: null, nextTarget: null, commission: 0.20 }
-};
-
-const BADGE_ICONS = {
-  primo_referral: Trophy,
-  streak_5: Zap,
-  tier_platino: Crown,
-  campione_mese: Star,
-  condivisore_social: Share2,
-  early_adopter: Sparkles
+  Bronzo: { minConversions: 0, color: 'bg-amber-600', next: 'Argento', nextTarget: 5, commission: 0.05 },
+  Argento: { minConversions: 5, color: 'bg-gray-400', next: 'Oro', nextTarget: 10, commission: 0.10 },
+  Oro: { minConversions: 10, color: 'bg-yellow-500', next: 'Platino', nextTarget: 20, commission: 0.15 },
+  Platino: { minConversions: 20, color: 'bg-purple-500', next: null, nextTarget: null, commission: 0.20 }
 };
 
 export default function AffiliationPage() {
@@ -113,11 +83,7 @@ export default function AffiliationPage() {
   const [referralProfile, setReferralProfile] = useState<ReferralProfile | null>(null);
   const [referrals, setReferrals] = useState<ReferralData[]>([]);
   const [credits, setCredits] = useState<CreditTransaction[]>([]);
-  const [badges, setBadges] = useState<Badge[]>([]);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
-  const [analytics, setAnalytics] = useState<any>({});
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [myReferrer, setMyReferrer] = useState<any>(null);
   
   // UI State
@@ -137,9 +103,9 @@ export default function AffiliationPage() {
     }
     
     try {
-      // Load or create referral profile - usa maybeSingle() per evitare errori
+      // Load or create referral profile from referrer_stats
       let { data: profile, error: profileError } = await supabase
-        .from('user_referrals')
+        .from('referrer_stats')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -152,10 +118,16 @@ export default function AffiliationPage() {
         // Create new referral profile
         const referralCode = await generateReferralCode(user.email || '');
         const { data: newProfile } = await supabase
-          .from('user_referrals')
+          .from('referrer_stats')
           .insert({
             user_id: user.id,
-            referral_code: referralCode
+            referral_code: referralCode,
+            total_registrations: 0,
+            total_conversions: 0,
+            total_credits_earned: 0,
+            available_credits: 0,
+            current_tier: 'Bronzo',
+            tier_progress: 0
           })
           .select()
           .maybeSingle();
@@ -175,32 +147,14 @@ export default function AffiliationPage() {
 
       setReferrals(referralData || []);
 
-      // Load credits
+      // Load credits (commissions)
       const { data: creditData } = await supabase
-        .from('referral_credits')
+        .from('referral_commissions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('referrer_id', user.id)
         .order('created_at', { ascending: false });
 
       setCredits(creditData || []);
-
-      // Load badges
-      const { data: badgeData } = await supabase
-        .from('referral_badges')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('earned_at', { ascending: false });
-
-      setBadges(badgeData || []);
-
-      // Load challenges
-      const { data: challengeData } = await supabase
-        .from('referral_challenges')
-        .select('*')
-        .eq('is_active', true)
-        .order('end_date', { ascending: true });
-
-      setChallenges(challengeData || []);
 
       // Load sharing templates
       const { data: templateData } = await supabase
@@ -223,7 +177,7 @@ export default function AffiliationPage() {
       if (myReferralData) {
         // Get referrer info
         const { data: referrerInfo } = await supabase
-          .from('user_referrals')
+          .from('referrer_stats')
           .select('user_id, referral_code')
           .eq('user_id', myReferralData.referrer_id)
           .maybeSingle();
@@ -360,14 +314,14 @@ export default function AffiliationPage() {
   const getCurrentTierInfo = () => {
     if (!referralProfile) return null;
     
-    const conversions = referralProfile.successful_conversions;
-    console.log('Debug - successful_conversions:', conversions);
+    const conversions = referralProfile.total_conversions;
+    console.log('Debug - total_conversions:', conversions);
     
-    // Calculate tier based on successful conversions
+    // Calculate tier based on total conversions
     let currentTierName = 'Bronzo';
-    if (conversions >= 50) {
+    if (conversions >= 20) {
       currentTierName = 'Platino';
-    } else if (conversions >= 20) {
+    } else if (conversions >= 10) {
       currentTierName = 'Oro';
     } else if (conversions >= 5) {
       currentTierName = 'Argento';
@@ -383,25 +337,25 @@ export default function AffiliationPage() {
     if (!tier) {
       console.error('CRITICAL: tier is undefined!');
       return {
-        minReferrals: 0,
+        minConversions: 0,
         color: 'bg-amber-600',
         next: 'Argento',
         nextTarget: 5,
         commission: 0.05,
         progress: 0,
+        remaining: 5,
         currentTierName: 'Bronzo'
       };
     }
     
+    const remaining = tier.nextTarget ? Math.max(0, tier.nextTarget - conversions) : 0;
     const progress = tier.nextTarget ? 
       Math.min(100, (conversions / tier.nextTarget) * 100) : 100;
-    return { ...tier, progress, currentTierName };
+    return { ...tier, progress, remaining, currentTierName };
   };
 
   const getActiveCredits = () => {
-    return credits
-      .filter(credit => credit.status === 'active')
-      .reduce((sum, credit) => sum + credit.amount, 0);
+    return referralProfile?.available_credits || 0;
   };
 
   // Setup real-time updates e polling automatico
@@ -424,11 +378,11 @@ export default function AffiliationPage() {
         {
           event: '*',
           schema: 'public',
-          table: 'user_referrals',
+          table: 'referrer_stats',
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('🔄 Real-time update - user_referrals:', payload);
+          console.log('🔄 Real-time update - referrer_stats:', payload);
           // Passa true per indicare che è un aggiornamento real-time
           loadReferralData(true);
         }
@@ -451,11 +405,11 @@ export default function AffiliationPage() {
         {
           event: '*',
           schema: 'public',
-          table: 'referral_credits',
-          filter: `user_id=eq.${user.id}`
+          table: 'referral_commissions',
+          filter: `referrer_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('🔄 Real-time update - referral_credits:', payload);
+          console.log('🔄 Real-time update - referral_commissions:', payload);
           loadReferralData(true);
         }
       )
@@ -619,9 +573,9 @@ export default function AffiliationPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{referralProfile.successful_conversions}</div>
+            <div className="text-2xl font-bold">{referralProfile.total_conversions}</div>
             <p className="text-xs text-muted-foreground">
-              Su {referralProfile.total_referrals} referral totali
+              Su {referralProfile.total_registrations} referral totali
             </p>
           </CardContent>
         </Card>
@@ -639,7 +593,7 @@ export default function AffiliationPage() {
               <div className="mt-2">
                 <Progress value={tierInfo.progress} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {tierInfo.nextTarget - referralProfile.successful_conversions} per {tierInfo.next}
+                  {tierInfo.remaining} conversioni per {tierInfo.next}
                 </p>
               </div>
             )}
@@ -648,30 +602,24 @@ export default function AffiliationPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Badges</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Commissione Tier</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{badges.length}</div>
-            <div className="flex gap-1 mt-2">
-              {badges.slice(0, 3).map((badge) => {
-                const IconComponent = BADGE_ICONS[badge.badge_type as keyof typeof BADGE_ICONS] || Star;
-                return (
-                  <IconComponent key={badge.id} className="h-4 w-4 text-yellow-500" />
-                );
-              })}
-            </div>
+            <div className="text-2xl font-bold">{(tierInfo?.commission || 0.05) * 100}%</div>
+            <p className="text-xs text-muted-foreground">
+              Su ogni abbonamento premium
+            </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="credits">Crediti</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
           <TabsTrigger value="settings">Impostazioni</TabsTrigger>
         </TabsList>
 
@@ -804,9 +752,9 @@ export default function AffiliationPage() {
                     <div key={referral.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-medium">{referral.referred_email}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(referral.created_at), 'dd MMM yyyy', { locale: it })} · {getChannelDisplayName(referral.channel)}
-                        </p>
+                         <p className="text-sm text-muted-foreground">
+                           {format(new Date(referral.created_at), 'dd MMM yyyy', { locale: it })} · Referral diretto
+                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant={
@@ -816,11 +764,11 @@ export default function AffiliationPage() {
                           {referral.status === 'converted' ? 'Convertito' :
                            referral.status === 'registered' ? 'Registrato' : 'In attesa'}
                         </Badge>
-                        {referral.credits_awarded > 0 && (
-                          <Badge variant="secondary">
-                            +€{referral.credits_awarded}
-                          </Badge>
-                        )}
+                         {referral.status === 'converted' && (
+                           <Badge variant="secondary">
+                             Commissions attive
+                           </Badge>
+                         )}
                       </div>
                     </div>
                   ))}
@@ -839,11 +787,11 @@ export default function AffiliationPage() {
                 <CardTitle className="text-sm">Tasso Conversione</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {referralProfile.total_referrals > 0 
-                    ? Math.round((referralProfile.successful_conversions / referralProfile.total_referrals) * 100)
-                    : 0}%
-                </div>
+                 <div className="text-2xl font-bold">
+                   {referralProfile.total_registrations > 0 
+                     ? Math.round((referralProfile.total_conversions / referralProfile.total_registrations) * 100)
+                     : 0}%
+                 </div>
               </CardContent>
             </Card>
 
@@ -851,28 +799,21 @@ export default function AffiliationPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Miglior Canale</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-lg font-medium">
-                  {referrals.length > 0 ? (() => {
-                    const channelCounts = referrals.reduce((acc, curr) => {
-                      acc[curr.channel] = (acc[curr.channel] || 0) + 1;
-                      return acc;
-                    }, {} as Record<string, number>);
-                    const topChannel = Object.entries(channelCounts).sort(([,a], [,b]) => b - a)[0];
-                    return topChannel ? getChannelDisplayName(topChannel[0]) : 'N/A';
-                  })() : 'N/A'}
-                </div>
-              </CardContent>
+               <CardContent>
+                 <div className="text-lg font-medium">
+                   Referral Diretto
+                 </div>
+               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Streak Attuale</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{referralProfile.consecutive_months}</div>
-                <p className="text-xs text-muted-foreground">mesi consecutivi</p>
-              </CardContent>
+               <CardContent>
+                 <div className="text-2xl font-bold">{Math.floor((Date.now() - new Date(referralProfile.user_id).getTime()) / (1000 * 60 * 60 * 24 * 30))}</div>
+                 <p className="text-xs text-muted-foreground">mesi di utilizzo</p>
+               </CardContent>
             </Card>
 
             <Card>
@@ -900,7 +841,7 @@ export default function AffiliationPage() {
                     <div className="w-32 h-2 bg-muted rounded-full">
                       <div className="w-full h-2 bg-blue-500 rounded-full"></div>
                     </div>
-                    <span className="text-sm font-medium">{referralProfile.total_referrals}</span>
+                     <span className="text-sm font-medium">{referralProfile.total_registrations}</span>
                   </div>
                 </div>
                 
@@ -910,7 +851,7 @@ export default function AffiliationPage() {
                     <div className="w-32 h-2 bg-muted rounded-full">
                       <div className="w-3/4 h-2 bg-green-500 rounded-full"></div>
                     </div>
-                    <span className="text-sm font-medium">{Math.round(referralProfile.total_referrals * 0.75)}</span>
+                    <span className="text-sm font-medium">{Math.round(referralProfile.total_registrations * 0.75)}</span>
                   </div>
                 </div>
                 
@@ -920,14 +861,14 @@ export default function AffiliationPage() {
                     <div className="w-32 h-2 bg-muted rounded-full">
                       <div 
                         className="h-2 bg-yellow-500 rounded-full"
-                        style={{ 
-                          width: `${referralProfile.total_referrals > 0 
-                            ? (referralProfile.total_referrals / referralProfile.total_referrals) * 100 
-                            : 0}%` 
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium">{referralProfile.total_referrals}</span>
+                         style={{ 
+                           width: `${referralProfile.total_registrations > 0 
+                             ? (referralProfile.total_registrations / referralProfile.total_registrations) * 100 
+                             : 0}%` 
+                         }}
+                       ></div>
+                     </div>
+                     <span className="text-sm font-medium">{referralProfile.total_registrations}</span>
                   </div>
                 </div>
                 
@@ -937,14 +878,14 @@ export default function AffiliationPage() {
                     <div className="w-32 h-2 bg-muted rounded-full">
                       <div 
                         className="h-2 bg-purple-500 rounded-full"
-                        style={{ 
-                          width: `${referralProfile.total_referrals > 0 
-                            ? (referralProfile.successful_conversions / referralProfile.total_referrals) * 100 
-                            : 0}%` 
-                        }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium">{referralProfile.successful_conversions}</span>
+                         style={{ 
+                           width: `${referralProfile.total_registrations > 0 
+                             ? (referralProfile.total_conversions / referralProfile.total_registrations) * 100 
+                             : 0}%` 
+                         }}
+                       ></div>
+                     </div>
+                     <span className="text-sm font-medium">{referralProfile.total_conversions}</span>
                   </div>
                 </div>
               </div>
@@ -1003,14 +944,14 @@ export default function AffiliationPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {credits.map((credit) => (
-                    <div key={credit.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{credit.description}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(credit.created_at), 'dd MMM yyyy HH:mm')} · {credit.credit_type}
-                        </p>
-                      </div>
+                   {credits.map((credit) => (
+                     <div key={credit.id} className="flex items-center justify-between p-3 border rounded-lg">
+                       <div>
+                         <p className="font-medium">Commissione {credit.commission_type} - Tier {credit.tier}</p>
+                         <p className="text-sm text-muted-foreground">
+                           {format(new Date(credit.created_at), 'dd MMM yyyy HH:mm')} · {credit.commission_type}
+                         </p>
+                       </div>
                       <div className="text-right">
                         <p className={`font-bold ${credit.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {credit.amount > 0 ? '+' : ''}€{credit.amount.toFixed(2)}
@@ -1068,40 +1009,6 @@ export default function AffiliationPage() {
           </Card>
         </TabsContent>
 
-        {/* Badges Tab */}
-        <TabsContent value="badges" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {badges.map((badge) => {
-              const IconComponent = BADGE_ICONS[badge.badge_type as keyof typeof BADGE_ICONS] || Star;
-              return (
-                <Card key={badge.id} className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="mx-auto w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mb-4">
-                      <IconComponent className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="font-bold">{badge.badge_name}</h3>
-                    <p className="text-sm text-muted-foreground">{badge.badge_description}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Ottenuto il {format(new Date(badge.earned_at), 'dd MMM yyyy')}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          {badges.length === 0 && (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Award className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">Nessun Badge Ancora</h3>
-                <p className="text-muted-foreground">
-                  Inizia a invitare amici per sbloccare i tuoi primi badge!
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
 
         {/* Settings Tab */}
         <TabsContent value="settings" className="space-y-6">
@@ -1117,17 +1024,11 @@ export default function AffiliationPage() {
                     Permetti di essere visibile nella classifica pubblica
                   </p>
                 </div>
-                <Switch 
-                  id="leaderboard"
-                  checked={referralProfile.is_leaderboard_visible}
-                  onCheckedChange={async (checked) => {
-                    await supabase
-                      .from('user_referrals')
-                      .update({ is_leaderboard_visible: checked })
-                      .eq('user_id', user!.id);
-                    setReferralProfile(prev => prev ? { ...prev, is_leaderboard_visible: checked } : null);
-                  }}
-                />
+                 <Switch 
+                   id="leaderboard"
+                   checked={false}
+                   disabled
+                 />
               </div>
             </CardContent>
           </Card>
@@ -1178,9 +1079,9 @@ export default function AffiliationPage() {
                   yPos += 15;
                   
                   doc.setFontSize(12);
-                  doc.text(`• Referral Totali: ${referralProfile.total_referrals}`, 25, yPos);
-                  yPos += 10;
-                  doc.text(`• Conversioni: ${referralProfile.successful_conversions}`, 25, yPos);
+                   doc.text(`• Referral Totali: ${referralProfile.total_registrations}`, 25, yPos);
+                   yPos += 10;
+                   doc.text(`• Conversioni: ${referralProfile.total_conversions}`, 25, yPos);
                   yPos += 10;
                   doc.text(`• Crediti Totali Guadagnati: €${referralProfile.total_credits_earned.toFixed(2)}`, 25, yPos);
                   yPos += 10;
@@ -1203,7 +1104,7 @@ export default function AffiliationPage() {
                         doc.addPage();
                         yPos = 20;
                       }
-                      doc.text(`• ${referral.referred_email} (${referral.status}) - €${(referral.credits_awarded || 0).toFixed(2)}`, 25, yPos);
+                      doc.text(`• ${referral.referred_email} (${referral.status}) - ${referral.status === 'converted' ? 'Commissioni attive' : 'In attesa'}`, 25, yPos);
                       yPos += 8;
                     });
                   }
