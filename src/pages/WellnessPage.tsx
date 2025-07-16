@@ -128,31 +128,6 @@ interface Insurance {
   is_active: boolean;
 }
 
-// Helper function to translate metric types to Italian
-const translateMetricType = (type: string): string => {
-  const translations: Record<string, string> = {
-    'temperature': 'Temperatura Corporea',
-    'heart_rate': 'Frequenza Cardiaca', 
-    'respiration': 'Respirazione',
-    'gum_color': 'Colore Gengive',
-    'checkup': 'Controllo',
-    'blood_pressure': 'Pressione Sanguigna',
-    'respiratory_rate': 'Frequenza Respiratoria'
-  };
-  return translations[type] || type;
-};
-
-// Helper function to convert gum color numeric values to text
-const getGumColorText = (value: number): string => {
-  const colorMap: Record<number, string> = {
-    1: 'Rosa',
-    2: 'Pallide', 
-    3: 'Blu/Viola',
-    4: 'Gialle'
-  };
-  return colorMap[value] || 'Sconosciuto';
-};
-
 // Helper function to translate record types to Italian
 const translateRecordType = (type: string): string => {
   const translations: Record<string, string> = {
@@ -221,28 +196,6 @@ const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, select
       const lastHeart = heartMetrics[0];
       if (lastHeart.value >= 60 && lastHeart.value <= 120) {
         vitalScore += 5; // battito normale
-      }
-    }
-    
-    // Colore gengive: controlla dai health_metrics
-    const gumColorMetrics = healthMetrics.filter(m => m.metric_type === 'gum_color');
-    if (gumColorMetrics.length > 0) {
-      const lastGumColor = gumColorMetrics[0];
-      if (lastGumColor.value === 1) { // Rosa - normale
-        vitalScore += 5;
-      } else if (lastGumColor.value === 2) { // Pallide - warning
-        vitalScore -= 3;
-      } else if (lastGumColor.value === 3 || lastGumColor.value === 4) { // Blu/Viola o Gialle - critico
-        vitalScore -= 10;
-      }
-    }
-    
-    // Respirazione: controlla dai health_metrics
-    const respirationMetrics = healthMetrics.filter(m => m.metric_type === 'respiration');
-    if (respirationMetrics.length > 0) {
-      const lastRespiration = respirationMetrics[0];
-      if (lastRespiration.value >= 15 && lastRespiration.value <= 30) {
-        vitalScore += 5; // respirazione normale
       }
     }
     
@@ -477,28 +430,6 @@ const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selecte
       }
     }
     
-    // Colore gengive: controlla dai health_metrics
-    const gumColorMetrics = healthMetrics.filter(m => m.metric_type === 'gum_color');
-    if (gumColorMetrics.length > 0) {
-      const lastGumColor = gumColorMetrics[0];
-      if (lastGumColor.value === 1) { // Rosa - normale
-        vitalScore += 5;
-      } else if (lastGumColor.value === 2) { // Pallide - warning
-        vitalScore -= 3;
-      } else if (lastGumColor.value === 3 || lastGumColor.value === 4) { // Blu/Viola o Gialle - critico
-        vitalScore -= 10;
-      }
-    }
-    
-    // Respirazione: controlla dai health_metrics
-    const respirationMetrics = healthMetrics.filter(m => m.metric_type === 'respiration');
-    if (respirationMetrics.length > 0) {
-      const lastRespiration = respirationMetrics[0];
-      if (lastRespiration.value >= 15 && lastRespiration.value <= 30) {
-        vitalScore += 5; // respirazione normale
-      }
-    }
-    
     totalScore += Math.min(25, vitalScore);
     
     // 🟢 ATTIVITÀ E COMPORTAMENTO (20 punti max)
@@ -707,26 +638,6 @@ const WellnessPage = () => {
   const [showAddContact, setShowAddContact] = useState(false);
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
-  
-  // Listener per aprire la guida primo soccorso da altre pagine
-  useEffect(() => {
-    const handleOpenFirstAidGuide = () => {
-      setShowFirstAidGuide(true);
-    };
-    
-    // Controlla se deve aprire la guida dal localStorage
-    const shouldOpenGuide = localStorage.getItem('openFirstAidGuide');
-    if (shouldOpenGuide === 'true') {
-      setShowFirstAidGuide(true);
-      localStorage.removeItem('openFirstAidGuide');
-    }
-    
-    window.addEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
-    
-    return () => {
-      window.removeEventListener('open-first-aid-guide', handleOpenFirstAidGuide);
-    };
-  }, []);
   
   // Confirm dialog states
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -1314,8 +1225,8 @@ const WellnessPage = () => {
       return;
     }
 
-    // Validate numeric value (except for gum_color)
-    if (newMetric.metric_type !== 'gum_color' && isNaN(parseFloat(newMetric.value))) {
+    // Validate numeric value
+    if (isNaN(parseFloat(newMetric.value))) {
       toast({
         title: "Errore",
         description: "Il valore deve essere un numero valido",
@@ -1325,26 +1236,14 @@ const WellnessPage = () => {
     }
 
     try {
-      // Mappa i colori delle gengive a valori numerici per il database
-      const getGumColorValue = (color: string) => {
-        const colorMap = {
-          'Rosa': 1,
-          'Pallide': 2,
-          'Blu/Viola': 3,
-          'Gialle': 4
-        };
-        return colorMap[color] || 1;
-      };
-
       const metricData = {
         user_id: user.id,
         pet_id: selectedPet.id,
         metric_type: newMetric.metric_type.toLowerCase().trim(),
-        value: newMetric.metric_type === 'gum_color' ? getGumColorValue(newMetric.value) : parseFloat(newMetric.value),
+        value: parseFloat(newMetric.value),
         unit: newMetric.unit?.trim() || null,
         notes: newMetric.notes?.trim() || null,
-        // Per le modifiche, mantieni la data originale; per nuove metriche, usa la data corrente
-        recorded_at: editingMetric ? editingMetric.recorded_at : new Date().toISOString()
+        recorded_at: new Date().toISOString()
       };
 
       if (editingMetric) {
@@ -2440,50 +2339,46 @@ const WellnessPage = () => {
                   <p className="text-muted-foreground text-center py-4">Nessuna metrica registrata</p>
                 ) : (
                   <div className="space-y-3">
-                     {healthMetrics.slice(0, 5).map(metric => (
-                       <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border">
-                         <div className="flex-1">
-                           <div className="flex items-center gap-2">
-                             <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
-                           </div>
-                            <p className="text-sm text-muted-foreground">
-                              {metric.metric_type === 'gum_color' 
-                                ? getGumColorText(metric.value) 
-                                : `${metric.value} ${metric.unit}`}
-                            </p>
-                           <p className="text-sm text-muted-foreground">
-                             {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
-                           </p>
-                         </div>
-                         <div className="flex gap-1">
-                           <Button 
-                             size="sm" 
-                             variant="ghost"
-                             onClick={() => {
-                               setEditingMetric(metric);
-                                setNewMetric({
-                                  metric_type: metric.metric_type,
-                                  value: metric.metric_type === 'gum_color' 
-                                    ? getGumColorText(metric.value) 
-                                    : metric.value.toString(),
-                                  unit: metric.unit || '',
-                                  notes: metric.notes || ''
-                                });
-                               setShowAddMetric(true);
-                             }}
-                           >
-                             <Edit className="h-4 w-4" />
-                           </Button>
-                           <Button 
-                             size="sm" 
-                             variant="ghost"
-                             onClick={() => handleDeleteMetric(metric.id, translateMetricType(metric.metric_type))}
-                           >
-                             <Trash2 className="h-4 w-4 text-destructive" />
-                           </Button>
-                         </div>
-                       </div>
-                     ))}
+                    {healthMetrics.slice(0, 5).map(metric => (
+                      <div key={metric.id} className="flex items-center justify-between p-3 rounded-lg border">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium capitalize">{metric.metric_type}</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {metric.value} {metric.unit}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => {
+                              setEditingMetric(metric);
+                              setNewMetric({
+                                metric_type: metric.metric_type,
+                                value: metric.value.toString(),
+                                unit: metric.unit,
+                                notes: metric.notes || ''
+                              });
+                              setShowAddMetric(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            onClick={() => handleDeleteMetric(metric.id, metric.metric_type)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>
@@ -2579,35 +2474,10 @@ const WellnessPage = () => {
                 <CardTitle className="text-sm">Pattern Stagionali</CardTitle>
               </CardHeader>
               <CardContent>
-                {(() => {
-                  const seasonalData = medicalRecords.reduce((acc, record) => {
-                    const month = new Date(record.record_date).getMonth();
-                    const season = month >= 2 && month <= 4 ? 'Primavera' :
-                                 month >= 5 && month <= 7 ? 'Estate' :
-                                 month >= 8 && month <= 10 ? 'Autunno' : 'Inverno';
-                    acc[season] = (acc[season] || 0) + 1;
-                    return acc;
-                  }, {} as Record<string, number>);
-                  
-                  const mostActiveSeason = Object.entries(seasonalData)
-                    .sort(([,a], [,b]) => b - a)[0];
-                  
-                  return mostActiveSeason ? (
-                    <>
-                      <div className="text-2xl font-bold">{mostActiveSeason[0]}</div>
-                      <p className="text-sm text-muted-foreground">
-                        Periodo con maggior numero di controlli ({mostActiveSeason[1]} visite)
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-lg text-muted-foreground">Non disponibile</div>
-                      <p className="text-sm text-muted-foreground">
-                        Aggiungi più visite per vedere i pattern stagionali
-                      </p>
-                    </>
-                  );
-                })()}
+                <div className="text-2xl font-bold">Primavera</div>
+                <p className="text-sm text-muted-foreground">
+                  Periodo con maggior numero di controlli preventivi
+                </p>
               </CardContent>
             </Card>
 
@@ -2616,34 +2486,10 @@ const WellnessPage = () => {
                 <CardTitle className="text-sm">Efficacia Farmaci</CardTitle>
               </CardHeader>
               <CardContent>
-                {(() => {
-                  const totalMedications = medications.length;
-                  const completedMedications = medications.filter(m => 
-                    !m.is_active && m.end_date
-                  ).length;
-                  
-                  if (totalMedications === 0) {
-                    return (
-                      <>
-                        <div className="text-lg text-muted-foreground">Non disponibile</div>
-                        <p className="text-sm text-muted-foreground">
-                          Aggiungi farmaci per vedere l'efficacia delle terapie
-                        </p>
-                      </>
-                    );
-                  }
-                  
-                  const successRate = Math.round((completedMedications / totalMedications) * 100);
-                  
-                  return (
-                    <>
-                      <div className="text-2xl font-bold">{successRate}%</div>
-                      <p className="text-sm text-muted-foreground">
-                        Tasso di completamento delle terapie farmacologiche ({completedMedications}/{totalMedications})
-                      </p>
-                    </>
-                  );
-                })()}
+                <div className="text-2xl font-bold">92%</div>
+                <p className="text-sm text-muted-foreground">
+                  Tasso di successo delle terapie farmacologiche
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -2758,15 +2604,14 @@ const WellnessPage = () => {
                     Chiama Veterinario
                   </Button>
                   
-                   <Button 
-                     variant="outline" 
-                     className="w-full justify-start"
-                     onClick={() => setShowFirstAidGuide(true)}
-                     data-testid="first-aid-guide-button"
-                   >
-                     <Heart className="h-4 w-4 mr-2" />
-                     Guida Primo Soccorso Veterinario
-                   </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setShowFirstAidGuide(true)}
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    Guida Primo Soccorso
+                  </Button>
                   
                   <Button 
                     variant="outline" 
@@ -3065,78 +2910,41 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
           <div className="space-y-4">
             <div>
               <Label htmlFor="metric_type">Tipo Metrica *</Label>
-              <Select 
-                value={newMetric.metric_type} 
-                onValueChange={(value) => {
-                  // Auto-imposta l'unità di misura in base al tipo
-                  const units = {
-                    'temperature': '°C',
-                    'heart_rate': 'bpm',
-                    'respiration': 'resp/min',
-                    'gum_color': ''
-                  };
-                  setNewMetric(prev => ({ 
-                    ...prev, 
-                    metric_type: value,
-                    unit: units[value] || '',
-                    value: value === 'gum_color' ? '' : prev.value // Reset valore per colore gengive
-                  }));
-                }}
-              >
+              <Select value={newMetric.metric_type} onValueChange={(value) => setNewMetric(prev => ({ ...prev, metric_type: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="temperature">Temperatura Corporea</SelectItem>
-                  <SelectItem value="heart_rate">Frequenza Cardiaca</SelectItem>
-                  <SelectItem value="respiration">Respirazione</SelectItem>
-                  <SelectItem value="gum_color">Colore Gengive</SelectItem>
+                  <SelectItem value="weight">Peso</SelectItem>
+                  <SelectItem value="temperature">Temperatura</SelectItem>
+                  <SelectItem value="heart_rate">Battito Cardiaco</SelectItem>
+                  <SelectItem value="appetite">Appetito</SelectItem>
+                  <SelectItem value="sleep">Sonno</SelectItem>
+                  <SelectItem value="activity">Attività</SelectItem>
+                  <SelectItem value="behavior">Comportamento</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="value">Valore *</Label>
-              {newMetric.metric_type === 'gum_color' ? (
-                <Select 
-                  value={newMetric.value} 
-                  onValueChange={(value) => setNewMetric(prev => ({ ...prev, value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona colore" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Rosa">Rosa</SelectItem>
-                    <SelectItem value="Pallide">Pallide</SelectItem>
-                    <SelectItem value="Blu/Viola">Blu/Viola</SelectItem>
-                    <SelectItem value="Gialle">Gialle</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  id="value"
-                  type="number"
-                  step="0.1"
-                  value={newMetric.value}
-                  onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
-                  placeholder={
-                    newMetric.metric_type === 'temperature' ? 'es. 38.5' :
-                    newMetric.metric_type === 'heart_rate' ? 'es. 80' :
-                    newMetric.metric_type === 'respiration' ? 'es. 20' : 'Inserisci valore'
-                  }
-                />
-              )}
+              <Input
+                id="value"
+                type="number"
+                step="0.1"
+                value={newMetric.value}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
+                placeholder="es. 38.5"
+              />
             </div>
-            {newMetric.metric_type !== 'gum_color' && (
-              <div>
-                <Label htmlFor="unit">Unità di Misura</Label>
-                <Input
-                  id="unit"
-                  value={newMetric.unit}
-                  disabled
-                  placeholder="Automatica"
-                />
-              </div>
-            )}
+            <div>
+              <Label htmlFor="unit">Unità di Misura</Label>
+              <Input
+                id="unit"
+                value={newMetric.unit}
+                onChange={(e) => setNewMetric(prev => ({ ...prev, unit: e.target.value }))}
+                placeholder="es. °C, kg, bpm"
+              />
+            </div>
             <div>
               <Label htmlFor="metric_notes">Note</Label>
               <Textarea

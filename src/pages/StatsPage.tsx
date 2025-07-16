@@ -76,191 +76,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceInDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-// Range di riferimento dalla guida di primo soccorso per valutare i parametri vitali
-const VITAL_PARAMETERS_RANGES = {
-  temperature: {
-    dogs: { min: 38.0, max: 39.2, unit: '°C' },
-    cats: { min: 38.1, max: 39.2, unit: '°C' },
-    critical_low: 37.5,
-    critical_high: 40.0
-  },
-  heart_rate: {
-    dogs_large: { min: 60, max: 100, unit: 'bpm' },
-    dogs_small: { min: 100, max: 140, unit: 'bpm' },
-    cats: { min: 140, max: 220, unit: 'bpm' },
-    critical_low: 50,
-    critical_high: 240
-  },
-  breathing_rate: {
-    dogs: { min: 10, max: 30, unit: 'atti/min' },
-    cats: { min: 20, max: 30, unit: 'atti/min' },
-    critical_low: 8,
-    critical_high: 40
-  }
-};
-
-// Helper function to translate metric types to Italian
-const translateMetricType = (type: string): string => {
-  const translations: Record<string, string> = {
-    'temperature': 'Temperatura Corporea',
-    'heart_rate': 'Frequenza Cardiaca', 
-    'respiration': 'Respirazione',
-    'breathing_rate': 'Respirazione',
-    'respiratory_rate': 'Respirazione',
-    'gum_color': 'Colore Gengive',
-    'weight': 'Peso',
-    'behavior': 'Comportamento',
-    'appetite': 'Appetito',
-    'sleep': 'Sonno',
-    'activity': 'Attività'
-  };
-  return translations[type] || type;
-};
-
-// Helper function to convert gum color numeric values to text
-const getGumColorText = (value: number): string => {
-  const colorMap: Record<number, string> = {
-    1: 'Rosa',
-    2: 'Pallide', 
-    3: 'Blu/Viola',
-    4: 'Gialle'
-  };
-  return colorMap[value] || 'Sconosciuto';
-};
-
-// Funzione per valutare se un parametro vitale è critico
-const evaluateVitalParameter = (metricType: string, value: number, petType?: string): { 
-  status: 'normal' | 'warning' | 'critical', 
-  message: string,
-  recommendation?: string 
-} => {
-  switch (metricType) {
-    case 'temperature':
-      if (value < VITAL_PARAMETERS_RANGES.temperature.critical_low) {
-        return {
-          status: 'critical',
-          message: `Temperatura critica bassa: ${value}°C`,
-          recommendation: 'Contatta immediatamente il veterinario - possibile ipotermia'
-        };
-      }
-      if (value > VITAL_PARAMETERS_RANGES.temperature.critical_high) {
-        return {
-          status: 'critical',
-          message: `Temperatura critica alta: ${value}°C`,
-          recommendation: 'EMERGENZA - Possibile colpo di calore. Raffredda gradualmente e vai dal veterinario'
-        };
-      }
-      if (value < 38.0 || value > 39.2) {
-        return {
-          status: 'warning',
-          message: `Temperatura fuori norma: ${value}°C`,
-          recommendation: 'Monitora attentamente e considera una visita veterinaria'
-        };
-      }
-      return { status: 'normal', message: `Temperatura normale: ${value}°C` };
-
-    case 'heart_rate':
-      if (value < VITAL_PARAMETERS_RANGES.heart_rate.critical_low) {
-        return {
-          status: 'critical',
-          message: `Battito cardiaco critico basso: ${value} bpm`,
-          recommendation: 'EMERGENZA - Contatta immediatamente il veterinario'
-        };
-      }
-      if (value > VITAL_PARAMETERS_RANGES.heart_rate.critical_high) {
-        return {
-          status: 'critical',
-          message: `Battito cardiaco critico alto: ${value} bpm`,
-          recommendation: 'EMERGENZA - Possibile stress grave o patologia cardiaca'
-        };
-      }
-      // Valutazione basata sulla taglia (semplificata)
-      const normalRange = petType === 'gatto' || petType === 'cat' 
-        ? VITAL_PARAMETERS_RANGES.heart_rate.cats
-        : value > 120 
-          ? VITAL_PARAMETERS_RANGES.heart_rate.dogs_small 
-          : VITAL_PARAMETERS_RANGES.heart_rate.dogs_large;
-      
-      if (value < normalRange.min || value > normalRange.max) {
-        return {
-          status: 'warning',
-          message: `Battito cardiaco anomalo: ${value} bpm`,
-          recommendation: 'Monitora e consulta il veterinario se persiste'
-        };
-      }
-      return { status: 'normal', message: `Battito cardiaco normale: ${value} bpm` };
-
-    case 'breathing_rate':
-    case 'respiratory_rate':
-    case 'respiration':  // Aggiunto il tipo 'respiration'
-      if (value < VITAL_PARAMETERS_RANGES.breathing_rate.critical_low) {
-        return {
-          status: 'critical',
-          message: `Respirazione critica lenta: ${value} atti/min`,
-          recommendation: 'EMERGENZA - Possibili problemi respiratori gravi. Contatta immediatamente il veterinario!'
-        };
-      }
-      if (value > VITAL_PARAMETERS_RANGES.breathing_rate.critical_high) {
-        return {
-          status: 'critical',
-          message: `Respirazione critica veloce: ${value} atti/min`,
-          recommendation: 'EMERGENZA - Possibile distress respiratorio o dolore. Vai immediatamente dal veterinario!'
-        };
-      }
-      
-      // Determina il range corretto basato sul tipo di animale
-      const breathingRange = petType === 'gatto' || petType === 'cat' 
-        ? VITAL_PARAMETERS_RANGES.breathing_rate.cats  // Gatti: 20-30 atti/min
-        : VITAL_PARAMETERS_RANGES.breathing_rate.dogs;  // Cani: 10-30 atti/min
-      
-      if (value < breathingRange.min || value > breathingRange.max) {
-        return {
-          status: 'warning',
-          message: `Respirazione anomala: ${value} atti/min (normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})`,
-          recommendation: 'Monitora attentamente e considera una visita veterinaria se persiste'
-        };
-      }
-      return { 
-        status: 'normal', 
-        message: `Respirazione normale: ${value} atti/min (range normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})` 
-      };
-
-    case 'gum_color':
-      const gumColorText = getGumColorText(value);
-      switch (value) {
-        case 1: // Rosa
-          return { 
-            status: 'normal', 
-            message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'Gengive normali - buona circolazione sanguigna'
-          };
-        case 2: // Pallide
-          return {
-            status: 'warning',
-            message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'Gengive pallide possono indicare anemia o shock. Consulta il veterinario'
-          };
-        case 3: // Blu/Viola
-          return {
-            status: 'critical',
-            message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'EMERGENZA - Gengive cianotiche indicano mancanza di ossigeno. Vai immediatamente dal veterinario!'
-          };
-        case 4: // Gialle
-          return {
-            status: 'critical',
-            message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'CRITICO - Gengive gialle possono indicare ittero o problemi epatici. Consulta urgentemente il veterinario'
-          };
-        default:
-          return { status: 'normal', message: `Colore Gengive: ${gumColorText}` };
-      }
-
-    default:
-      return { status: 'normal', message: `${translateMetricType(metricType)}: ${value}` };
-  }
-};
-
 interface AnalysisData {
   id: string;
   created_at: string;
@@ -498,7 +313,6 @@ export default function StatsPage() {
           const criticalCount = recentHealthData.filter(h => {
             if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
             if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
-            if (h.metric_type === 'gum_color' && (h.value === 3 || h.value === 4)) return true; // Blu/Viola o Gialle
             return false;
           }).length;
           
@@ -607,11 +421,10 @@ export default function StatsPage() {
       lastWeekMetrics: healthData.filter(h => 
         new Date(h.recorded_at) >= subDays(new Date(), 7)
       ).length,
-      // Usa la funzione di valutazione basata sulla guida primo soccorso
       criticalValues: healthData.filter(h => {
-        const petType = selectedPets.length === 1 ? pets.find(p => p.id === selectedPets[0])?.type : undefined;
-        const evaluation = evaluateVitalParameter(h.metric_type, h.value, petType);
-        return evaluation.status === 'critical' || evaluation.status === 'warning';
+        if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
+        if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
+        return false;
       }).length
     };
 
@@ -1070,7 +883,7 @@ export default function StatsPage() {
                   Parametri Vitali
                 </CardTitle>
                 <CardDescription>
-                  Riassunto delle metriche di salute monitorate con analisi critica
+                  Riassunto delle metriche di salute monitorate
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1092,66 +905,15 @@ export default function StatsPage() {
                     <div className="text-sm text-muted-foreground">Valori Critici</div>
                   </div>
                 </div>
-
-                {/* Analisi Parametri Vitali basata su Guida Primo Soccorso */}
-                {healthData.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Heart className="h-4 w-4" />
-                      Analisi Ultimi Parametri
-                    </h4>
-                    {(() => {
-                      // Raggruppa le metriche per tipo e prendi l'ultima misurazione
-                      const latestMetrics = healthData.reduce((acc, metric) => {
-                        if (!acc[metric.metric_type] || new Date(metric.recorded_at) > new Date(acc[metric.metric_type].recorded_at)) {
-                          acc[metric.metric_type] = metric;
-                        }
-                        return acc;
-                      }, {} as Record<string, HealthData>);
-
-                      const petType = selectedPets.length === 1 ? pets.find(p => p.id === selectedPets[0])?.type : undefined;
-
-                      return Object.values(latestMetrics).map(metric => {
-                        const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, petType);
-                        const statusColors = {
-                          normal: 'bg-green-50 border-green-200 text-green-800',
-                          warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                          critical: 'bg-red-50 border-red-200 text-red-800'
-                        };
-
-                        return (
-                          <div key={metric.id} className={`p-3 border rounded-lg ${statusColors[evaluation.status]}`}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium">
-                                {translateMetricType(metric.metric_type)}
-                              </span>
-                              <Badge variant={evaluation.status === 'critical' ? 'destructive' : evaluation.status === 'warning' ? 'secondary' : 'default'}>
-                                {evaluation.status === 'critical' ? 'CRITICO' : evaluation.status === 'warning' ? 'ATTENZIONE' : 'NORMALE'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm mb-1">{evaluation.message}</p>
-                            {evaluation.recommendation && (
-                              <p className="text-sm font-medium">{evaluation.recommendation}</p>
-                            )}
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Misurato il {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm', { locale: it })}
-                            </p>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
                 
                 {displayAnalytics.healthMetricsSummary.totalMetrics === 0 && (
                   <Alert>
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
-                      Nessun parametro vitale registrato. Inizia a monitorare peso, temperatura e battito cardiaco per vedere i trend di salute e ricevere avvisi se i valori sono critici secondo la guida di primo soccorso.
+                      Nessun parametro vitale registrato. Inizia a monitorare peso, temperatura e battito cardiaco per vedere i trend di salute.
                     </AlertDescription>
                   </Alert>
                 )}
-
               </CardContent>
             </Card>
 

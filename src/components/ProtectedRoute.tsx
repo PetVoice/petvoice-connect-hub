@@ -34,6 +34,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
+  // Allow access to subscription page even without premium
+  if (location.pathname === '/subscription') {
+    return <>{children}</>;
+  }
 
   const handleSubscribe = async () => {
     if (!user) return;
@@ -65,17 +69,51 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     // Determine if user is cancelled or new
     const isCancelledUser = subscription.is_cancelled || subscription.cancellation_date !== null;
     
-    // Show modal for ALL pages including subscription page
+    // Show modal for dashboard and other pages
+    if (location.pathname !== '/subscription') {
+      return (
+        <>
+          {children}
+          <SubscriptionBlockModal
+            isOpen={true}
+            onSubscribe={handleSubscribe}
+            isLoading={subscribeLoading}
+            isCancelledUser={isCancelledUser}
+          />
+        </>
+      );
+    }
+    
+    // For subscription page, show normal blocking UI
     return (
-      <>
-        {children}
-        <SubscriptionBlockModal
-          isOpen={true}
-          onSubscribe={handleSubscribe}
-          isLoading={subscribeLoading}
-          isCancelledUser={isCancelledUser}
-        />
-      </>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="petvoice-card max-w-md w-full border-2 border-destructive">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-6">
+              <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-destructive" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-xl font-bold">🚫 ACCESSO BLOCCATO</h2>
+                <p className="text-muted-foreground">
+                  Per utilizzare PetVoice devi avere un abbonamento Premium attivo.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Non esiste piano gratuito.</strong><br/>
+                  L'accesso è consentito solo con abbonamento Premium a €0,97/mese.
+                </p>
+              </div>
+              <Button 
+                onClick={() => window.location.href = '/subscription'}
+                className="w-full petvoice-button"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Attiva Premium Ora
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

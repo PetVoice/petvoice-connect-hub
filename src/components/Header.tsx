@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Moon, Sun, LogOut, Settings, User, Plus, X, ExternalLink } from 'lucide-react';
+import { Bell, Moon, Sun, LogOut, Settings, User, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -27,7 +27,6 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { useNotifications } from '@/hooks/useNotifications';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -35,14 +34,10 @@ const Header: React.FC = () => {
   const { pets, selectedPetId, setSelectedPetId, loading: loadingPets } = usePets();
   const navigate = useNavigate();
   const [language, setLanguage] = useState('it');
-  const { 
-    notifications, 
-    unreadCount, 
-    loading: notificationsLoading,
-    markAsRead,
-    markAllAsRead,
-    clearAllNotifications 
-  } = useNotifications();
+  const [unreadNotifications, setUnreadNotifications] = useState(() => {
+    const saved = localStorage.getItem('petvoice-unread-notifications');
+    return saved ? parseInt(saved, 10) : 3;
+  });
 
   const currentPet = pets.find(pet => pet.id === selectedPetId);
 
@@ -56,36 +51,9 @@ const Header: React.FC = () => {
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
-    markAsRead(notification.id);
-    if (notification.action_url) {
-      navigate(notification.action_url);
-    }
-  };
-
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const notificationTime = new Date(timestamp);
-    const diffMs = now.getTime() - notificationTime.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 0) {
-      return `${diffDays} giorno${diffDays > 1 ? 'i' : ''} fa`;
-    } else if (diffHours > 0) {
-      return `${diffHours} ora${diffHours > 1 ? 'e' : ''} fa`;
-    } else {
-      return 'Ora';
-    }
-  };
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'success': return '✅';
-      case 'warning': return '⚠️';
-      case 'error': return '❌';
-      default: return '📢';
-    }
+  const markNotificationsAsRead = () => {
+    setUnreadNotifications(0);
+    localStorage.setItem('petvoice-unread-notifications', '0');
   };
 
   const toggleTheme = () => {
@@ -190,88 +158,39 @@ const Header: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 relative"
+                onClick={markNotificationsAsRead}
               >
                 <Bell className="h-4 w-4" />
-                {unreadCount > 0 && (
+                {unreadNotifications > 0 && (
                   <Badge 
                     variant="destructive" 
                     className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
                   >
-                    {unreadCount}
+                    {unreadNotifications}
                   </Badge>
                 )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0 shadow-elegant" align="end">
-              <div className="p-4 border-b flex items-center justify-between">
+              <div className="p-4 border-b">
                 <h4 className="font-semibold">Notifiche</h4>
-                <div className="flex items-center gap-2">
-                  {unreadCount > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={markAllAsRead}
-                      className="text-xs h-6 px-2"
-                    >
-                      Segna tutte
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAllNotifications}
-                    className="text-xs h-6 px-2"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
               </div>
               <div className="max-h-64 overflow-y-auto">
-                {notificationsLoading ? (
-                  <div className="p-4 text-center">
-                    <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin mx-auto" />
-                  </div>
-                ) : notifications.length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground">
-                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Nessuna notifica</p>
-                  </div>
-                ) : (
-                  notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`p-4 border-b cursor-pointer hover:bg-muted/50 transition-colors ${
-                        !notification.read ? 'bg-azure/5' : ''
-                      }`}
-                      onClick={() => handleNotificationClick(notification)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-sm mt-0.5">
-                          {getNotificationIcon(notification.type)}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <div className="text-sm font-medium flex items-center gap-1">
-                              {notification.title}
-                              {!notification.read && (
-                                <div className="w-2 h-2 bg-azure rounded-full" />
-                              )}
-                            </div>
-                            {notification.action_url && (
-                              <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {notification.message}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {formatTimeAgo(notification.timestamp)}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+                <div className="p-4 border-b">
+                  <div className="text-sm font-medium">Nuovo diario aggiunto</div>
+                  <div className="text-xs text-muted-foreground mt-1">Il tuo pet ha una nuova voce nel diario</div>
+                  <div className="text-xs text-muted-foreground mt-1">2 ore fa</div>
+                </div>
+                <div className="p-4 border-b">
+                  <div className="text-sm font-medium">Analisi completata</div>
+                  <div className="text-xs text-muted-foreground mt-1">L'analisi comportamentale è pronta</div>
+                  <div className="text-xs text-muted-foreground mt-1">1 giorno fa</div>
+                </div>
+                <div className="p-4">
+                  <div className="text-sm font-medium">Promemoria wellness</div>
+                  <div className="text-xs text-muted-foreground mt-1">È ora di aggiornare il punteggio benessere</div>
+                  <div className="text-xs text-muted-foreground mt-1">3 giorni fa</div>
+                </div>
               </div>
             </PopoverContent>
           </Popover>

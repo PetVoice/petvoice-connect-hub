@@ -712,7 +712,7 @@ const DiaryPage: React.FC = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} variant="default">
+              <Button onClick={resetForm} variant="default" className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
                 Nuova Voce
               </Button>
@@ -1407,9 +1407,10 @@ const DiaryPage: React.FC = () => {
                   <Button
                     size="sm"
                     variant="default"
+                    className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
-                      resetForm();
                       setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
+                      resetForm();
                       setDayEntriesModal({ ...dayEntriesModal, open: false });
                       setIsDialogOpen(true);
                     }}
@@ -1518,6 +1519,7 @@ const DiaryPage: React.FC = () => {
                   </p>
                   <Button
                     variant="default"
+                    className="bg-blue-600 hover:bg-blue-700"
                     onClick={() => {
                       setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       resetForm();
