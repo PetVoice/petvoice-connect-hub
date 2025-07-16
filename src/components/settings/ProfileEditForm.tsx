@@ -54,6 +54,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
           user_id: user.id,
           display_name: formData.display_name,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
       
       if (profileError) throw profileError;
