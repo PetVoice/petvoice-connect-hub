@@ -2065,6 +2065,42 @@ export type Database = {
           },
         ]
       }
+      user_onboarding: {
+        Row: {
+          completed_date: string | null
+          created_at: string
+          current_step: number
+          id: string
+          onboarding_completed: boolean
+          plan_type: string
+          skipped_steps: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_date?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          onboarding_completed?: boolean
+          plan_type: string
+          skipped_steps?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_date?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          onboarding_completed?: boolean
+          plan_type?: string
+          skipped_steps?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_referrals: {
         Row: {
           consecutive_months: number | null
