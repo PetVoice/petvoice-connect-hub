@@ -4,6 +4,7 @@ import { useOnboarding } from '@/contexts/OnboardingContext';
 import { OnboardingTooltip } from './OnboardingTooltip';
 
 export function OnboardingOverlay() {
+  console.log('OnboardingOverlay render - no arrowPosition variable');
   const { state, currentStepData } = useOnboarding();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
 
