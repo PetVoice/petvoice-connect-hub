@@ -15,152 +15,135 @@ import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
 import AuthPage from "@/pages/AuthPage";
-import PlaceholderPage from "@/components/PlaceholderPage";
+
 import StatsPage from "@/pages/StatsPage";
+import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import AffiliationPage from "@/pages/AffiliationPage";
-import { Microscope, BookOpen, Calendar, Heart, BarChart3, Users, CreditCard, Handshake, GraduationCap, HeadphonesIcon, Settings } from "lucide-react";
+import SupportPage from "@/pages/SupportPage";
+
+import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
+import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 
 const queryClient = new QueryClient();
+
+function AppContent() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pets" element={
+          <ProtectedRoute>
+            <Layout>
+              <PetsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/analysis" element={
+          <ProtectedRoute>
+            <Layout>
+              <AnalysisPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/diary" element={
+          <ProtectedRoute>
+            <Layout>
+              <DiaryPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/calendar" element={
+          <ProtectedRoute>
+            <Layout>
+              <CalendarPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/wellness" element={
+          <ProtectedRoute>
+            <Layout>
+              <WellnessPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/stats" element={
+          <ProtectedRoute>
+            <Layout>
+              <StatsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/community" element={
+          <ProtectedRoute>
+            <Layout>
+              <CommunityPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/subscription" element={
+          <ProtectedRoute>
+            <Layout>
+              <SubscriptionPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/subscription-success" element={
+          <ProtectedRoute>
+            <Layout>
+              <SubscriptionSuccessPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/affiliate" element={
+          <ProtectedRoute>
+            <Layout>
+              <AffiliationPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/support" element={
+          <ProtectedRoute>
+            <SupportPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <SettingsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <PetProvider>
         <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/register" element={<AuthPage />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/pets" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PetsPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/analysis" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <AnalysisPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/diary" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <DiaryPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/calendar" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <CalendarPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/wellness" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <WellnessPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/stats" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <StatsPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/community" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PlaceholderPage
-                      title="Community"
-                      description="Connettiti con altri proprietari"
-                      icon={<Users className="h-6 w-6 text-white" />}
-                      features={["Forum discussioni", "Gruppi locali", "Condivisione esperienze", "Consigli esperti"]}
-                    />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/subscription" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <SubscriptionPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/subscription-success" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <SubscriptionSuccessPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/affiliate" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <AffiliationPage />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/tutorial" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PlaceholderPage
-                      title="Tutorial"
-                      description="Impara ad usare PetVoice"
-                      icon={<GraduationCap className="h-6 w-6 text-white" />}
-                      features={["Video guide", "Documentazione", "FAQ", "Best practices"]}
-                    />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/support" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PlaceholderPage
-                      title="Supporto"
-                      description="Ottieni aiuto quando ne hai bisogno"
-                      icon={<HeadphonesIcon className="h-6 w-6 text-white" />}
-                      features={["Chat live", "Ticket support", "Knowledge base", "Contatti diretti"]}
-                    />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <PlaceholderPage
-                      title="Impostazioni"
-                      description="Personalizza la tua esperienza"
-                      icon={<Settings className="h-6 w-6 text-white" />}
-                      features={["Profilo utente", "Preferenze", "Notifiche", "Privacy"]}
-                    />
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+          <NotificationEventsProvider>
+            <TooltipProvider>
+              <AppContent />
+              <Toaster />
+              <Sonner />
+            </TooltipProvider>
+          </NotificationEventsProvider>
         </ThemeProvider>
       </PetProvider>
     </AuthProvider>

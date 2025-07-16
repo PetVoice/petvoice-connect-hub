@@ -671,7 +671,7 @@ const CalendarPage: React.FC = () => {
           
           <Dialog open={isEventDialogOpen} onOpenChange={setIsEventDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} variant="default" className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={resetForm} variant="default">
                 <Plus className="h-4 w-4 mr-2" />
                 Nuovo Evento
               </Button>
@@ -965,7 +965,7 @@ const CalendarPage: React.FC = () => {
                     Elimina Tutti
                   </Button>
                 )}
-                <Button onClick={handleCreateNewEventForDay} size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleCreateNewEventForDay} size="sm" variant="default">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuovo Evento
                 </Button>
@@ -1068,8 +1068,7 @@ const CalendarPage: React.FC = () => {
                   <Button
                     onClick={handleCreateNewEventForDay}
                     variant="default"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
+                    >
                     <Plus className="h-4 w-4 mr-2" />
                     Crea Nuovo Evento
                   </Button>

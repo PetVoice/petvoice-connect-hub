@@ -10,7 +10,6 @@ import {
   Users, 
   CreditCard, 
   Handshake, 
-  GraduationCap, 
   HeadphonesIcon, 
   Settings 
 } from 'lucide-react';
@@ -45,7 +44,6 @@ const communityItems = [
 ];
 
 const supportItems = [
-  { title: 'Tutorial', url: '/tutorial', icon: GraduationCap },
   { title: 'Supporto', url: '/support', icon: HeadphonesIcon },
   { title: 'Impostazioni', url: '/settings', icon: Settings },
 ];

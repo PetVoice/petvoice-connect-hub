@@ -90,6 +90,251 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
+/* ================================================================
+   STILI UNIFORMI PER TUTTI I MENU A TENDINA
+   ================================================================ */
+
+/* Trigger uniforme per tutti i Select */
+.select-trigger-uniform {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 44px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.select-trigger-uniform:hover {
+  border-color: hsl(var(--border)) brightness(0.8);
+  background: hsl(var(--muted) / 0.3);
+}
+
+.select-trigger-uniform:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+  outline: none;
+}
+
+.select-trigger-uniform[data-placeholder] {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Content del menu */
+.select-content-uniform {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px hsl(var(--shadow) / 0.1), 0 2px 4px -1px hsl(var(--shadow) / 0.06);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 50;
+  padding: 0;
+}
+
+/* Container ricerca */
+.search-container {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 8px;
+  background: hsl(var(--muted) / 0.1);
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: hsl(var(--muted-foreground));
+  z-index: 1;
+}
+
+.search-input {
+  padding-left: 36px !important;
+  font-size: 14px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  background: hsl(var(--background));
+}
+
+.search-input:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.search-indicator {
+  padding: 4px 8px;
+  margin-top: 4px;
+  background: hsl(var(--muted) / 0.5);
+  border-radius: 4px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+/* Container opzioni */
+.options-container {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Opzioni del menu */
+.select-item-uniform {
+  padding: 12px 16px;
+  color: hsl(var(--foreground));
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 0;
+  margin: 0;
+}
+
+.select-item-uniform:hover {
+  background: hsl(var(--muted) / 0.8);
+}
+
+.select-item-uniform[data-highlighted] {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.select-item-uniform[data-selected] {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* Nessun risultato */
+.no-results {
+  padding: 16px;
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ================================================================
+   STILI PER MESSAGE INPUT
+   ================================================================ */
+
+.message-input-container {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 16px;
+  box-shadow: 0 2px 4px hsl(var(--shadow) / 0.1);
+}
+
+.message-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.message-input-field {
+  flex: 1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  transition: all 0.2s ease;
+}
+
+.message-input-field:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.message-input-media {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.message-input-media button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.message-input-media button:hover {
+  transform: translateY(-1px);
+}
+
+/* ================================================================
+   RESPONSIVE DESIGN
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .select-trigger-uniform {
+    padding: 10px 12px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+  
+  .select-item-uniform {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .message-input-container {
+    padding: 10px;
+  }
+  
+  .message-input-field {
+    padding: 10px 12px;
+  }
+  
+  .message-input-media {
+    flex-wrap: wrap;
+  }
+  
+  .message-input-media button {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+
+/* ================================================================
+   DARK MODE SUPPORT
+   ================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .select-trigger-uniform {
+    border-color: hsl(var(--border));
+    background: hsl(var(--background));
+  }
+  
+  .select-content-uniform {
+    border-color: hsl(var(--border));
+    background: hsl(var(--background));
+  }
+  
+  .search-input {
+    background: hsl(var(--background));
+    border-color: hsl(var(--border));
+  }
+  
+  .message-input-container {
+    background: hsl(var(--background));
+    border-color: hsl(var(--border));
+  }
+}
+
   .dark {
     /* Dark Theme - Azure & Navy */
     --background: var(--navy);
