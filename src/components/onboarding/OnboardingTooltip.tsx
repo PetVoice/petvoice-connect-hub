@@ -140,7 +140,7 @@ export function OnboardingTooltip({ targetElement }: OnboardingTooltipProps) {
                 <X className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent style={{ zIndex: 10001 }}>
               <AlertDialogHeader>
                 <AlertDialogTitle>Chiudere la guida?</AlertDialogTitle>
                 <AlertDialogDescription>

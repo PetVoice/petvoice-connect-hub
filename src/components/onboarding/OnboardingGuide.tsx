@@ -4,13 +4,14 @@ import { OnboardingOverlay } from './OnboardingOverlay';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export function OnboardingGuide() {
   const { state, currentStepData, nextStep } = useOnboarding();
   const { user } = useAuth();
   const { subscription } = useSubscription();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check if user should see onboarding
   useEffect(() => {
@@ -78,9 +79,10 @@ export function OnboardingGuide() {
 
     // Auto-navigate to analysis page for step 3
     if (currentStepData.id === 3 && location.pathname !== '/analysis') {
-      window.location.href = '/analysis';
+      // Use React Router navigate instead of window.location.href to avoid page reload
+      navigate('/analysis');
     }
-  }, [state.isActive, currentStepData, location]);
+  }, [state.isActive, currentStepData, location, navigate]);
 
   // Handle element interaction tracking
   useEffect(() => {
@@ -95,6 +97,11 @@ export function OnboardingGuide() {
         
         // Mark action as completed and auto-advance
         if (currentStepData.action === 'click') {
+          // For step 2 (add pet), don't auto-advance - let the user navigate manually
+          if (currentStepData.id === 2) {
+            // Just wait for the page to load, don't auto-advance
+            return;
+          }
           setTimeout(() => {
             nextStep();
           }, 500);
