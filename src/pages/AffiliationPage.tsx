@@ -986,13 +986,19 @@ export default function AffiliationPage() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={
-                            referral.status === 'converted' ? 'default' : 
-                            referral.status === 'registered' ? 'secondary' : 
-                            referral.status === 'cancelled' ? 'destructive' :
-                            referral.status === 'user_deleted' ? 'destructive' :
-                            'outline'
-                          }>
+                          <Badge 
+                            variant={
+                              referral.status === 'converted' ? 'default' : 
+                              referral.status === 'registered' ? 'secondary' : 
+                              referral.status === 'cancelled' ? 'destructive' :
+                              referral.status === 'user_deleted' ? 'destructive' :
+                              'outline'
+                            }
+                            className={`${
+                              referral.status === 'converted' ? 'bg-green-100 text-green-800 border-green-200' :
+                              referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
+                            }`}
+                          >
                              {referral.status === 'converted' ? 'Attivo' :
                               referral.status === 'registered' ? 'Registrato' : 
                               referral.status === 'cancelled' ? 'Annullato' :
