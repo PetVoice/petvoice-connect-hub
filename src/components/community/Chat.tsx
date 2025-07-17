@@ -27,6 +27,7 @@ export interface Message {
   voice_duration: number | null;
   metadata: any;
   is_emergency: boolean | null;
+  reply_to_id: string | null;
   reply_to?: {
     id: string;
     content: string | null;
