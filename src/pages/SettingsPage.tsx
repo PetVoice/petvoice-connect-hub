@@ -1405,39 +1405,7 @@ Continuare?
 
         {/* Privacy Tab */}
         <TabsContent value="privacy" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Profile Visibility */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Visibilità Profilo
-                </CardTitle>
-                <CardDescription>
-                  Controlla chi può vedere le tue informazioni
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <RadioGroup 
-                  value={privacy.profileVisibility} 
-                  onValueChange={(value) => setPrivacy(prev => ({...prev, profileVisibility: value}))}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="private" id="private" />
-                    <Label htmlFor="private">Privato - Solo tu</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="friends" id="friends" />
-                    <Label htmlFor="friends">Amici - Utenti che segui</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="public" id="public" />
-                    <Label htmlFor="public">Pubblico - Tutti gli utenti</Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 gap-6">{/* removed lg:grid-cols-2 since we removed profile visibility */}
             {/* Data Sharing */}
             <Card>
               <CardHeader>
@@ -1504,8 +1472,61 @@ Continuare?
               </CardContent>
             </Card>
 
+            {/* Data Management (GDPR) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Gestione Dati (GDPR)
+                </CardTitle>
+                <CardDescription>
+                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataExport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Esporta JSON
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Importazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataImport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Importa JSON
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <Alert className="mt-4">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+
             {/* Legal & Compliance */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -1566,59 +1587,6 @@ Continuare?
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Data Management (GDPR) */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Gestione Dati (GDPR)
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataExport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta JSON
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <h4 className="font-medium mb-3">Importazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataImport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Importa JSON
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <Alert className="mt-4">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
-                  </AlertDescription>
-                </Alert>
               </CardContent>
             </Card>
           </div>
