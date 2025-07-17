@@ -130,11 +130,12 @@ serve(async (req) => {
       subscription_status: hasActiveSub ? 'active' : 'inactive',
       subscription_plan: subscriptionTier || 'free',
       subscription_end_date: subscriptionEnd,
-      // Preserve existing cancellation data if subscription is still active
-      is_cancelled: existingSubscriber?.is_cancelled || false,
-      cancellation_type: existingSubscriber?.cancellation_type || null,
-      cancellation_date: existingSubscriber?.cancellation_date || null,
-      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
+      // Reset cancellation data if there's an active subscription (new payment after cancellation)
+      // Only preserve cancellation data if subscription is inactive
+      is_cancelled: hasActiveSub ? false : (existingSubscriber?.is_cancelled || false),
+      cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
+      cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
+      cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
 
@@ -145,10 +146,11 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier || 'free',
       subscription_end: subscriptionEnd,
-      is_cancelled: existingSubscriber?.is_cancelled || false,
-      cancellation_type: existingSubscriber?.cancellation_type || null,
-      cancellation_date: existingSubscriber?.cancellation_date || null,
-      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
+      // Return the updated cancellation status (reset to false if has active subscription)
+      is_cancelled: hasActiveSub ? false : (existingSubscriber?.is_cancelled || false),
+      cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
+      cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
+      cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
       usage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
