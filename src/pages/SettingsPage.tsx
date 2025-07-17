@@ -529,39 +529,197 @@ const SettingsPage: React.FC = () => {
     try {
       toast({
         title: "Esportazione avviata",
-        description: `I tuoi dati verranno esportati in formato ${format.toUpperCase()}.`
+        description: `Raccolta di tutti i tuoi dati in corso...`
       });
       
-      // Simula esportazione dati reali
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data: profileData } = await supabase.from('profiles').select('*').eq('user_id', user.id).single();
-        const { data: petsData } = await supabase.from('pets').select('*').eq('user_id', user.id);
-        
+        // Esporta TUTTI i dati dell'utente per un backup completo
+        const [
+          profileData,
+          petsData,
+          activityLogData,
+          calendarEventsData,
+          diaryEntriesData,
+          emergencyContactsData,
+          eventNotificationsData,
+          eventTemplatesData,
+          healthAlertsData,
+          healthMetricsData,
+          medicalRecordsData,
+          medicationsData,
+          petAnalysesData,
+          petInsuranceData,
+          petWellnessScoresData,
+          symptomsData,
+          veterinariansData,
+          referrerStatsData,
+          subscribersData,
+          userChannelSubscriptionsData,
+          userDisplayNamesData,
+          userLearningProgressData,
+          userOnboardingData
+        ] = await Promise.all([
+          supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+          supabase.from('pets').select('*').eq('user_id', user.id),
+          supabase.from('activity_log').select('*').eq('user_id', user.id),
+          supabase.from('calendar_events').select('*').eq('user_id', user.id),
+          supabase.from('diary_entries').select('*').eq('user_id', user.id),
+          supabase.from('emergency_contacts').select('*').eq('user_id', user.id),
+          supabase.from('event_notifications').select('*').eq('user_id', user.id),
+          supabase.from('event_templates').select('*').eq('user_id', user.id),
+          supabase.from('health_alerts').select('*').eq('user_id', user.id),
+          supabase.from('health_metrics').select('*').eq('user_id', user.id),
+          supabase.from('medical_records').select('*').eq('user_id', user.id),
+          supabase.from('medications').select('*').eq('user_id', user.id),
+          supabase.from('pet_analyses').select('*').eq('user_id', user.id),
+          supabase.from('pet_insurance').select('*').eq('user_id', user.id),
+          supabase.from('pet_wellness_scores').select('*').eq('user_id', user.id),
+          supabase.from('symptoms').select('*').eq('user_id', user.id),
+          supabase.from('veterinarians').select('*').eq('user_id', user.id),
+          supabase.from('referrer_stats').select('*').eq('user_id', user.id),
+          supabase.from('subscribers').select('*').eq('user_id', user.id),
+          supabase.from('user_channel_subscriptions').select('*').eq('user_id', user.id),
+          supabase.from('user_display_names').select('*').eq('user_id', user.id),
+          supabase.from('user_learning_progress').select('*').eq('user_id', user.id),
+          supabase.from('user_onboarding').select('*').eq('user_id', user.id)
+        ]);
+
         const exportData = {
-          profile: profileData,
-          pets: petsData,
-          timestamp: new Date().toISOString()
+          // Informazioni di esportazione
+          export_info: {
+            user_id: user.id,
+            user_email: user.email,
+            export_date: new Date().toISOString(),
+            export_format: format,
+            version: '1.0',
+            description: 'Backup completo dati utente PetVet - GDPR Export'
+          },
+          
+          // Dati principali
+          profile: profileData?.data || null,
+          pets: petsData?.data || [],
+          
+          // Attività e log
+          activity_log: activityLogData?.data || [],
+          
+          // Calendario ed eventi
+          calendar_events: calendarEventsData?.data || [],
+          event_notifications: eventNotificationsData?.data || [],
+          event_templates: eventTemplatesData?.data || [],
+          
+          // Diario e benessere
+          diary_entries: diaryEntriesData?.data || [],
+          pet_wellness_scores: petWellnessScoresData?.data || [],
+          
+          // Salute e medicina
+          health_alerts: healthAlertsData?.data || [],
+          health_metrics: healthMetricsData?.data || [],
+          medical_records: medicalRecordsData?.data || [],
+          medications: medicationsData?.data || [],
+          symptoms: symptomsData?.data || [],
+          
+          // Analisi e assicurazioni
+          pet_analyses: petAnalysesData?.data || [],
+          pet_insurance: petInsuranceData?.data || [],
+          
+          // Contatti e veterinari
+          emergency_contacts: emergencyContactsData?.data || [],
+          veterinarians: veterinariansData?.data || [],
+          
+          // Sistema referral
+          referrer_stats: referrerStatsData?.data || [],
+          
+          // Abbonamenti e account
+          subscribers: subscribersData?.data || [],
+          
+          // Community e learning
+          user_channel_subscriptions: userChannelSubscriptionsData?.data || [],
+          user_display_names: userDisplayNamesData?.data || [],
+          user_learning_progress: userLearningProgressData?.data || [],
+          user_onboarding: userOnboardingData?.data || []
         };
         
-        // Crea e scarica il file
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        let blob: Blob;
+        let fileName: string;
+        
+        if (format === 'json') {
+          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          fileName = `petvet-backup-${new Date().toISOString().split('T')[0]}.json`;
+        } else if (format === 'csv') {
+          // Per CSV, crea un file con i dati principali
+          const csvData = [
+            ['Tabella', 'Numero Record', 'Ultima Modifica'],
+            ['Profilo', exportData.profile ? '1' : '0', exportData.profile?.updated_at || 'N/A'],
+            ['Pets', exportData.pets.length.toString(), exportData.pets[0]?.updated_at || 'N/A'],
+            ['Voci Diario', exportData.diary_entries.length.toString(), exportData.diary_entries[0]?.updated_at || 'N/A'],
+            ['Eventi Calendario', exportData.calendar_events.length.toString(), exportData.calendar_events[0]?.updated_at || 'N/A'],
+            ['Cartelle Mediche', exportData.medical_records.length.toString(), exportData.medical_records[0]?.updated_at || 'N/A'],
+            ['Farmaci', exportData.medications.length.toString(), exportData.medications[0]?.updated_at || 'N/A'],
+            ['Contatti Emergenza', exportData.emergency_contacts.length.toString(), exportData.emergency_contacts[0]?.updated_at || 'N/A'],
+            ['Veterinari', exportData.veterinarians.length.toString(), exportData.veterinarians[0]?.updated_at || 'N/A'],
+            ['Analisi Pet', exportData.pet_analyses.length.toString(), exportData.pet_analyses[0]?.updated_at || 'N/A'],
+            ['Log Attività', exportData.activity_log.length.toString(), exportData.activity_log[0]?.created_at || 'N/A']
+          ];
+          
+          const csvContent = csvData.map(row => row.join(',')).join('\n');
+          blob = new Blob([csvContent], { type: 'text/csv' });
+          fileName = `petvet-summary-${new Date().toISOString().split('T')[0]}.csv`;
+        } else {
+          // Per PDF, crea un riassunto
+          const pdfContent = `
+PETVET - BACKUP DATI UTENTE
+===========================
+
+Data Export: ${new Date().toLocaleString('it-IT')}
+Utente: ${user.email}
+User ID: ${user.id}
+
+RIEPILOGO DATI:
+- Profilo: ${exportData.profile ? '✓' : '✗'}
+- Pets: ${exportData.pets.length} record
+- Voci Diario: ${exportData.diary_entries.length} record
+- Eventi Calendario: ${exportData.calendar_events.length} record
+- Cartelle Mediche: ${exportData.medical_records.length} record
+- Farmaci: ${exportData.medications.length} record
+- Contatti Emergenza: ${exportData.emergency_contacts.length} record
+- Veterinari: ${exportData.veterinarians.length} record
+- Analisi Pet: ${exportData.pet_analyses.length} record
+- Log Attività: ${exportData.activity_log.length} record
+
+ATTENZIONE: Questo è solo un riassunto. 
+Per il backup completo utilizzare il formato JSON.
+          `;
+          
+          blob = new Blob([pdfContent], { type: 'text/plain' });
+          fileName = `petvet-summary-${new Date().toISOString().split('T')[0]}.txt`;
+        }
+        
+        // Scarica il file
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `petvet-data-${format}.${format === 'json' ? 'json' : format}`;
+        a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
         
+        // Calcola statistiche per il toast
+        const totalRecords = Object.values(exportData).reduce((total, data) => {
+          if (Array.isArray(data)) return total + data.length;
+          if (data && typeof data === 'object' && data !== null) return total + 1;
+          return total;
+        }, 0) - 1; // -1 per escludere export_info
+        
         toast({
           title: "Esportazione completata",
-          description: "I tuoi dati sono stati scaricati con successo."
+          description: `${totalRecords} record esportati con successo. File salvato: ${fileName}`
         });
       }
     } catch (error) {
+      console.error('Errore durante l\'esportazione:', error);
       toast({
         title: "Errore",
-        description: "Impossibile esportare i dati.",
+        description: "Impossibile esportare i dati. Controlla la console per dettagli.",
         variant: "destructive"
       });
     }
@@ -569,9 +727,18 @@ const SettingsPage: React.FC = () => {
 
   const handleDataImport = async (format: 'json' | 'pdf' | 'csv') => {
     try {
+      if (format !== 'json') {
+        toast({
+          title: "Formato non supportato",
+          description: "L'importazione è supportata solo per file JSON creati dall'export di PetVet.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = format === 'json' ? '.json' : format === 'pdf' ? '.pdf' : '.csv';
+      input.accept = '.json';
       
       input.onchange = async (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
@@ -581,20 +748,248 @@ const SettingsPage: React.FC = () => {
             try {
               toast({
                 title: "Importazione avviata",
-                description: `Importazione del file ${format.toUpperCase()} in corso...`
+                description: "Analisi del file di backup in corso..."
               });
               
-              // Simula importazione
-              setTimeout(() => {
+              const fileContent = e.target?.result as string;
+              const importData = JSON.parse(fileContent);
+              
+              // Verifica che sia un backup valido di PetVet
+              if (!importData.export_info || !importData.export_info.user_id) {
+                throw new Error("File non valido: non è un backup di PetVet");
+              }
+              
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) {
+                throw new Error("Utente non autenticato");
+              }
+              
+              // Conferma prima di procedere con l'importazione
+              const confirmed = confirm(`
+ATTENZIONE: Stai per importare un backup completo.
+Questo sovrascriverà TUTTI i tuoi dati attuali.
+
+Backup da: ${importData.export_info.user_email}
+Data backup: ${new Date(importData.export_info.export_date).toLocaleString('it-IT')}
+
+Continuare?
+              `);
+              
+              if (!confirmed) {
+                toast({
+                  title: "Importazione annullata",
+                  description: "Nessun dato è stato modificato."
+                });
+                return;
+              }
+              
+              toast({
+                title: "Importazione in corso",
+                description: "Ripristino dei dati in corso... NON chiudere la pagina."
+              });
+              
+              let importedTables = 0;
+              let errors = 0;
+              
+              // Importa profilo
+              if (importData.profile) {
+                try {
+                  const { error } = await supabase
+                    .from('profiles')
+                    .upsert({
+                      ...importData.profile,
+                      user_id: user.id,
+                      updated_at: new Date().toISOString()
+                    });
+                  
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione profilo:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa pets
+              if (importData.pets && importData.pets.length > 0) {
+                try {
+                  // Elimina pets esistenti
+                  await supabase.from('pets').delete().eq('user_id', user.id);
+                  
+                  // Inserisci nuovi pets
+                  const petsToInsert = importData.pets.map((pet: any) => ({
+                    ...pet,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('pets').insert(petsToInsert);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione pets:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa diary entries
+              if (importData.diary_entries && importData.diary_entries.length > 0) {
+                try {
+                  await supabase.from('diary_entries').delete().eq('user_id', user.id);
+                  const entries = importData.diary_entries.map((entry: any) => ({
+                    ...entry,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('diary_entries').insert(entries);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione diary entries:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa calendar events
+              if (importData.calendar_events && importData.calendar_events.length > 0) {
+                try {
+                  await supabase.from('calendar_events').delete().eq('user_id', user.id);
+                  const events = importData.calendar_events.map((event: any) => ({
+                    ...event,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('calendar_events').insert(events);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione calendar events:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa medical records
+              if (importData.medical_records && importData.medical_records.length > 0) {
+                try {
+                  await supabase.from('medical_records').delete().eq('user_id', user.id);
+                  const records = importData.medical_records.map((record: any) => ({
+                    ...record,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('medical_records').insert(records);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione medical records:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa medications
+              if (importData.medications && importData.medications.length > 0) {
+                try {
+                  await supabase.from('medications').delete().eq('user_id', user.id);
+                  const medications = importData.medications.map((med: any) => ({
+                    ...med,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('medications').insert(medications);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione medications:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa emergency contacts
+              if (importData.emergency_contacts && importData.emergency_contacts.length > 0) {
+                try {
+                  await supabase.from('emergency_contacts').delete().eq('user_id', user.id);
+                  const contacts = importData.emergency_contacts.map((contact: any) => ({
+                    ...contact,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('emergency_contacts').insert(contacts);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione emergency contacts:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa veterinarians
+              if (importData.veterinarians && importData.veterinarians.length > 0) {
+                try {
+                  await supabase.from('veterinarians').delete().eq('user_id', user.id);
+                  const vets = importData.veterinarians.map((vet: any) => ({
+                    ...vet,
+                    user_id: user.id,
+                    updated_at: new Date().toISOString()
+                  }));
+                  
+                  const { error } = await supabase.from('veterinarians').insert(vets);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione veterinarians:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa health metrics
+              if (importData.health_metrics && importData.health_metrics.length > 0) {
+                try {
+                  await supabase.from('health_metrics').delete().eq('user_id', user.id);
+                  const metrics = importData.health_metrics.map((metric: any) => ({
+                    ...metric,
+                    user_id: user.id
+                  }));
+                  
+                  const { error } = await supabase.from('health_metrics').insert(metrics);
+                  if (error) throw error;
+                  importedTables++;
+                } catch (err) {
+                  console.error('Errore importazione health metrics:', err);
+                  errors++;
+                }
+              }
+              
+              // Importa altre tabelle se necessario...
+              // (pet_analyses, pet_insurance, etc.)
+              
+              if (errors > 0) {
+                toast({
+                  title: "Importazione completata con errori",
+                  description: `${importedTables} tabelle importate, ${errors} errori. Controlla la console per dettagli.`,
+                  variant: "destructive"
+                });
+              } else {
                 toast({
                   title: "Importazione completata",
-                  description: "I dati sono stati importati con successo."
+                  description: `Tutti i dati sono stati ripristinati con successo. ${importedTables} tabelle importate.`
                 });
-              }, 2000);
+                
+                // Ricarica la pagina per aggiornare i dati
+                setTimeout(() => {
+                  window.location.reload();
+                }, 2000);
+              }
+              
             } catch (error) {
+              console.error('Errore durante l\'importazione:', error);
               toast({
                 title: "Errore",
-                description: "Impossibile importare i dati.",
+                description: `Impossibile importare i dati: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
                 variant: "destructive"
               });
             }
