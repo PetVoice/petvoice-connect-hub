@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -82,11 +83,16 @@ interface ProcessingState {
 }
 
 const AnalysisPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { toast } = useToast();
   const { subscription } = useSubscription();
   const { checkAnalysisLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
-  const [activeTab, setActiveTab] = useState('upload');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Leggi il parametro tab dall'URL, default a 'upload'
+    const tab = searchParams.get('tab');
+    return ['upload', 'results', 'history'].includes(tab || '') ? tab || 'upload' : 'upload';
+  });
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<AnalysisData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -112,6 +118,14 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       loadAnalyses();
     }
   }, [selectedPet]);
+
+  // Handle tab parameter from URL
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['upload', 'results', 'history'].includes(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, activeTab]);
 
   // Apply filters
   useEffect(() => {
