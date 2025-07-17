@@ -1153,8 +1153,11 @@ export type Database = {
           created_at: string | null
           id: string
           is_cancelled: boolean | null
-          referred_user_id: string
-          referrer_id: string
+          is_historical: boolean | null
+          referred_email: string | null
+          referred_user_id: string | null
+          referrer_email: string | null
+          referrer_id: string | null
           status: string
           subscription_amount: number
           tier: string
@@ -1168,8 +1171,11 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_cancelled?: boolean | null
-          referred_user_id: string
-          referrer_id: string
+          is_historical?: boolean | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          referrer_email?: string | null
+          referrer_id?: string | null
           status?: string
           subscription_amount: number
           tier: string
@@ -1183,8 +1189,11 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_cancelled?: boolean | null
-          referred_user_id?: string
-          referrer_id?: string
+          is_historical?: boolean | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          referrer_email?: string | null
+          referrer_id?: string | null
           status?: string
           subscription_amount?: number
           tier?: string
@@ -1197,10 +1206,12 @@ export type Database = {
           created_at: string | null
           id: string
           is_active: boolean
+          is_historical: boolean | null
           referral_code: string
           referred_email: string
           referred_user_id: string | null
-          referrer_id: string
+          referrer_email: string | null
+          referrer_id: string | null
           registered_at: string | null
           status: string
         }
@@ -1209,10 +1220,12 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean
+          is_historical?: boolean | null
           referral_code: string
           referred_email: string
           referred_user_id?: string | null
-          referrer_id: string
+          referrer_email?: string | null
+          referrer_id?: string | null
           registered_at?: string | null
           status?: string
         }
@@ -1221,10 +1234,12 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_active?: boolean
+          is_historical?: boolean | null
           referral_code?: string
           referred_email?: string
           referred_user_id?: string | null
-          referrer_id?: string
+          referrer_email?: string | null
+          referrer_id?: string | null
           registered_at?: string | null
           status?: string
         }

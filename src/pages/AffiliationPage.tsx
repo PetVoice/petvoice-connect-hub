@@ -146,20 +146,20 @@ export default function AffiliationPage() {
         setReferralProfile(profile);
       }
 
-      // Load referrals
+      // Load referrals (inclusi quelli storici dopo eliminazione utente)
       const { data: referralData } = await supabase
         .from('referrals')
         .select('*')
-        .eq('referrer_id', user.id)
+        .or(`referrer_id.eq.${user.id},and(referrer_id.is.null,is_historical.eq.true,referral_code.eq.${profile?.referral_code})`)
         .order('created_at', { ascending: false });
 
       setReferrals(referralData || []);
 
-      // Load credits (commissions)
+      // Load credits (commissions) incluse quelle storiche
       const { data: creditData } = await supabase
         .from('referral_commissions')
         .select('*')
-        .eq('referrer_id', user.id)
+        .or(`referrer_id.eq.${user.id},and(referrer_id.is.null,is_historical.eq.true)`)
         .order('created_at', { ascending: false });
 
       setCredits(creditData || []);
