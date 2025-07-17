@@ -1,37 +1,49 @@
-
 import { useEffect } from 'react';
-import { useNotifications } from './useNotifications';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotifications } from './useNotifications';
 
 export function useCommunityNotifications() {
-  const { addNotification } = useNotifications();
   const { user } = useAuth();
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     if (!user) return;
 
-    // Simula notifiche per nuovi messaggi nella community
-    const checkCommunityMessages = () => {
-      // Qui dovrebbe esserci la logica per controllare nuovi messaggi
-      // Per ora aggiungiamo solo un esempio di notifica
-      const hasNewMessages = Math.random() > 0.9; // Simula raramente nuovi messaggi
-      
-      if (hasNewMessages) {
-        addNotification({
-          title: 'Nuovi messaggi nella community',
-          message: 'Ci sono nuovi messaggi nei tuoi canali seguiti',
-          type: 'info',
-          read: false,
-          action_url: '/community'
-        });
-      }
+    // Subscription per nuovi messaggi nei gruppi dell'utente
+    const messagesSubscription = supabase
+      .channel('community-messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'community_messages'
+        },
+        async (payload) => {
+          // Verifica se l'utente è iscritto al canale del messaggio
+          const { data: subscriptions } = await supabase
+            .from('user_channel_subscriptions')
+            .select('channel_name')
+            .eq('user_id', user.id)
+            .eq('channel_name', payload.new.channel_name);
+
+          if (subscriptions && subscriptions.length > 0 && payload.new.user_id !== user.id) {
+            // L'utente è iscritto al canale e il messaggio non è suo
+            addNotification({
+              title: 'Nuovo messaggio community',
+              message: `Nuovo messaggio nel gruppo ${payload.new.channel_name}`,
+              type: 'info',
+              read: false,
+              action_url: '/community'
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(messagesSubscription);
     };
-
-    // Controlla ogni 5 minuti
-    const interval = setInterval(checkCommunityMessages, 5 * 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, [addNotification, user]);
-
-  return null;
+  }, [user, addNotification]);
 }
