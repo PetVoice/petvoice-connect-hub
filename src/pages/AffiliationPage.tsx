@@ -769,20 +769,23 @@ export default function AffiliationPage() {
                                 </p>
                               </div>
                               <div className="flex items-center gap-1">
-                                <Badge 
-                                  variant={
-                                    referral.status === 'converted' ? 'default' : 
-                                    referral.status === 'registered' ? 'secondary' : 
-                                    referral.status === 'user_deleted' ? 'destructive' :
-                                    'outline'
-                                  }
-                                  className="text-xs"
-                                >
-                                  {referral.status === 'converted' ? 'Convertito' :
-                                   referral.status === 'registered' ? 'Registrato' : 
-                                   referral.status === 'user_deleted' ? 'Eliminato' :
-                                   'In attesa'}
-                                </Badge>
+                        <Badge 
+                          variant={
+                            referral.status === 'converted' ? 'default' : 
+                            referral.status === 'registered' ? 'secondary' : 
+                            referral.status === 'user_deleted' ? 'destructive' :
+                            'outline'
+                          }
+                          className={`text-xs ${
+                            referral.status === 'converted' ? 'bg-green-100 text-green-800 border-green-200' :
+                            referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
+                          }`}
+                        >
+                          {referral.status === 'converted' ? 'Convertito' :
+                           referral.status === 'registered' ? 'Registrato' : 
+                           referral.status === 'user_deleted' ? 'Eliminato' :
+                           'In attesa'}
+                        </Badge>
                                 {referral.status === 'converted' && !referral.is_active && (
                                   <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
                                     Sospeso
@@ -828,13 +831,19 @@ export default function AffiliationPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={
-                          referral.status === 'converted' ? 'default' : 
-                          referral.status === 'registered' ? 'secondary' : 
-                          referral.status === 'user_deleted' ? 'destructive' :
-                          referral.status === 'cancelled' ? 'destructive' :
-                          'outline'
-                        }>
+                        <Badge 
+                          variant={
+                            referral.status === 'converted' ? 'default' : 
+                            referral.status === 'registered' ? 'secondary' : 
+                            referral.status === 'user_deleted' ? 'destructive' :
+                            referral.status === 'cancelled' ? 'destructive' :
+                            'outline'
+                          }
+                          className={`${
+                            referral.status === 'converted' ? 'bg-green-100 text-green-800 border-green-200' :
+                            referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
+                          }`}
+                        >
                           {referral.status === 'converted' ? 'Convertito' :
                            referral.status === 'registered' ? 'Registrato' : 
                            referral.status === 'user_deleted' ? 'Eliminato' :
@@ -1191,11 +1200,16 @@ export default function AffiliationPage() {
                         }`}>
                           {credit.amount > 0 ? '+' : ''}€{credit.amount.toFixed(2)}
                         </p>
-                        <Badge variant={
-                          credit.is_cancelled ? 'destructive' :
-                          credit.status === 'active' ? 'default' :
-                          credit.status === 'redeemed' ? 'secondary' : 'outline'
-                        }>
+                        <Badge 
+                          variant={
+                            credit.is_cancelled ? 'destructive' :
+                            credit.status === 'active' ? 'default' :
+                            credit.status === 'redeemed' ? 'secondary' : 'outline'
+                          }
+                          className={`${
+                            credit.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''
+                          }`}
+                        >
                           {credit.is_cancelled ? 'Annullata' :
                            credit.status === 'active' ? 'Attivo' :
                            credit.status === 'redeemed' ? 'Utilizzato' : 'Scaduto'}

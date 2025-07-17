@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Lock } from 'lucide-react';
+import { Crown, Lock, Check, Sparkles, Heart, Brain, Calendar, BarChart3 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -23,38 +23,72 @@ export const SubscriptionBlockModal: React.FC<SubscriptionBlockModalProps> = ({
   isLoading,
   isCancelledUser = false
 }) => {
+  const features = [
+    {
+      icon: Heart,
+      title: "Analisi Emozionale AI",
+      description: "Comprendi le emozioni del tuo pet con l'intelligenza artificiale"
+    },
+    {
+      icon: Brain,
+      title: "Comportamento Avanzato",
+      description: "Insights dettagliati sul comportamento e consigli personalizzati"
+    },
+    {
+      icon: Calendar,
+      title: "Calendario Smart",
+      description: "Promemoria automatici per visite vet, medicinali e attività"
+    },
+    {
+      icon: BarChart3,
+      title: "Statistiche Complete",
+      description: "Analisi dettagliate della salute e benessere del tuo pet"
+    }
+  ];
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}} modal={true}>
-      <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent className="max-w-lg" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-              <Lock className="w-6 h-6 text-destructive" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/30 flex items-center justify-center">
+              <Crown className="w-6 h-6 text-primary" />
             </div>
-            <DialogTitle className="text-xl">🔒 ACCESSO BLOCCATO</DialogTitle>
+            <div>
+              <DialogTitle className="text-xl flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                PetVoice Premium
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {isCancelledUser 
+                  ? "Riattiva per continuare ad usare tutte le funzionalità" 
+                  : "Sblocca tutte le funzionalità avanzate"
+                }
+              </p>
+            </div>
           </div>
-          <DialogDescription className="text-left">
+          
+          <DialogDescription asChild>
             <div className="space-y-4">
-              <Card className="petvoice-card">
-                <CardContent className="p-4 text-center">
-                  <p className="font-medium text-foreground mb-2">
-                    {isCancelledUser 
-                      ? "Il tuo abbonamento è stato cancellato" 
-                      : "Abbonamento Premium richiesto"
-                    }
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {isCancelledUser 
-                      ? "Per continuare ad usare PetVoice devi riattivare l'abbonamento Premium"
-                      : "Per utilizzare PetVoice devi attivare l'abbonamento Premium"
-                    }
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 gap-3">
+                {features.map((feature, index) => (
+                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <feature.icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm text-foreground">{feature.title}</h4>
+                      <p className="text-xs text-muted-foreground mt-1">{feature.description}</p>
+                    </div>
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-1" />
+                  </div>
+                ))}
+              </div>
               
-              <div className="text-center space-y-2">
-                <div className="text-2xl font-bold text-primary">€0,97</div>
-                <div className="text-sm text-muted-foreground">/mese</div>
+              <div className="text-center p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                <div className="text-3xl font-bold text-primary">€0,97</div>
+                <div className="text-sm text-muted-foreground">/mese · Cancella quando vuoi</div>
+                <div className="text-xs text-primary mt-1">✨ Accesso immediato a tutte le funzionalità</div>
               </div>
             </div>
           </DialogDescription>
