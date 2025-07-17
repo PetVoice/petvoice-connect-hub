@@ -881,48 +881,6 @@ export type Database = {
           },
         ]
       }
-      message_reports: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          message_id: string
-          reason: string
-          reported_user_id: string
-          reporter_user_id: string
-          reviewed_at: string | null
-          reviewed_by: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          message_id: string
-          reason: string
-          reported_user_id: string
-          reporter_user_id: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          message_id?: string
-          reason?: string
-          reported_user_id?: string
-          reporter_user_id?: string
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       pet_analyses: {
         Row: {
           analysis_duration: unknown | null

@@ -122,20 +122,8 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
   
-  const [deletedChats, setDeletedChats] = useState(() => {
-    const saved = localStorage.getItem('deletedChats');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
-
-  // Salva deletedChats nel localStorage quando cambia
-  useEffect(() => {
-    localStorage.setItem('deletedChats', JSON.stringify(Array.from(deletedChats)));
-  }, [deletedChats]);
-  
-  const loadPrivateChats = async (excludeUserId = null) => {
+  const loadPrivateChats = async () => {
     try {
-      console.log('Caricando chat private... Deleted chats:', Array.from(deletedChats), 'Exclude:', excludeUserId);
-      
       const { data, error } = await supabase
         .from('private_messages')
         .select('*')
@@ -148,48 +136,19 @@ const CommunityPage = () => {
 
       // Raggruppa per conversazione (con l'altro utente)
       const conversations = {};
-      const userIds = new Set();
-      
       data?.forEach(msg => {
         const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
-        
-        console.log('Processando messaggio con utente:', otherUserId, 'Deleted?', deletedChats.has(otherUserId), 'Exclude?', otherUserId === excludeUserId);
-        
-        // Salta le conversazioni eliminate localmente O quella appena eliminata
-        if (deletedChats.has(otherUserId) || otherUserId === excludeUserId) {
-          console.log('Saltando conversazione eliminata:', otherUserId);
-          return;
-        }
-        
-        userIds.add(otherUserId);
         
         if (!conversations[otherUserId]) {
           conversations[otherUserId] = {
             userId: otherUserId,
-            userName: 'Caricamento...', // Verrà aggiornato dopo
+            userName: 'Utente sconosciuto', // TODO: recuperare nome
+            lastMessage: msg.content,
             lastMessageTime: msg.created_at,
             unreadCount: 0
           };
         }
       });
-
-      console.log('Conversazioni trovate:', Object.keys(conversations));
-
-      // Carica i nomi degli utenti
-      if (userIds.size > 0) {
-        const { data: userData, error: userError } = await supabase
-          .from('user_display_names')
-          .select('user_id, display_name')
-          .in('user_id', Array.from(userIds) as string[]);
-
-        if (!userError && userData) {
-          userData.forEach(user => {
-            if (conversations[user.user_id]) {
-              conversations[user.user_id].userName = user.display_name || 'Utente sconosciuto';
-            }
-          });
-        }
-      }
 
       setPrivateChats(Object.values(conversations));
     } catch (error) {
@@ -199,24 +158,26 @@ const CommunityPage = () => {
 
   const deletePrivateChat = async (otherUserId) => {
     try {
-      console.log('Eliminando chat con utente:', otherUserId);
-      
-      // Aggiungi l'utente alla lista delle chat eliminate localmente
-      setDeletedChats(prev => new Set([...prev, otherUserId]));
+      // Marca tutti i messaggi di questa conversazione come eliminati per l'utente corrente
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: user.id === otherUserId ? false : true,
+          deleted_by_recipient: user.id !== otherUserId ? false : true
+        })
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`);
 
-      console.log('Chat eliminata localmente');
+      if (error) throw error;
 
-      // Ricarica la lista delle chat private escludendo la conversazione eliminata
-      await loadPrivateChats(otherUserId);
+      await loadPrivateChats();
       
-      // Chiudi la chat se è quella attiva
       if (activeChat === `private_${otherUserId}`) {
         setActiveChat(null);
       }
       
       toast({
         title: "Chat eliminata",
-        description: "La conversazione è stata rimossa dalla tua lista"
+        description: "La conversazione è stata eliminata"
       });
       
     } catch (error) {
@@ -587,9 +548,12 @@ const CommunityPage = () => {
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {privateChats.map(chat => (
                     <div key={chat.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                       <div className="flex-1">
-                         <div className="font-medium">{chat.userName}</div>
-                       </div>
+                      <div className="flex-1">
+                        <div className="font-medium">{chat.userName}</div>
+                        <div className="text-sm text-muted-foreground truncate">
+                          {chat.lastMessage}
+                        </div>
+                      </div>
                       <div className="flex gap-2">
                         <Button 
                           size="sm" 

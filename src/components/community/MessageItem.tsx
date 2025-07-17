@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MoreVertical, Edit, Trash2, Download, Play, Pause, Reply, MessageCircle, User, Flag } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Download, Play, Pause, Reply, MessageCircle, User } from 'lucide-react';
 import { Message } from './Chat';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -103,12 +103,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           {!isOwn && (
             <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
               <User className="h-3 w-3" />
-              <button
-                onClick={() => onContactUser(message.user_id, userName)}
-                className="hover:text-primary hover:underline cursor-pointer"
-              >
-                {userName}
-              </button>
+              {userName}
             </div>
           )}
           
@@ -241,49 +236,18 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                   <Reply className="h-4 w-4 mr-2" />
                   Rispondi
                 </DropdownMenuItem>
+                {!isOwn && (
+                  <DropdownMenuItem onClick={() => onContactUser(message.user_id, userName)}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Contatta in privato
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={() => setShowDeleteDialog(true)}
                   className="text-destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Elimina
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Actions menu for other users' messages */}
-        {!isOwn && !isSelectionMode && (
-          <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mt-1`}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 opacity-50 hover:opacity-100"
-                >
-                  <MoreVertical className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align={isOwn ? "end" : "start"}>
-                <DropdownMenuItem onClick={() => onContactUser(message.user_id, userName)}>
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Contatta in privato
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onReply(message.id, userName)}>
-                  <Reply className="h-4 w-4 mr-2" />
-                  Rispondi
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => {
-                    // TODO: Implementare segnalazione messaggio
-                    console.log('Segnala messaggio:', message.id);
-                  }}
-                  className="text-destructive"
-                >
-                  <Flag className="h-4 w-4 mr-2" />
-                  Segnala messaggio
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

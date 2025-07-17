@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
@@ -28,7 +27,6 @@ export interface Message {
   voice_duration: number | null;
   metadata: any;
   is_emergency: boolean | null;
-  reply_to_id?: string | null;
   reply_to?: {
     id: string;
     content: string | null;
@@ -38,10 +36,8 @@ export interface Message {
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
-  const [privateUserName, setPrivateUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -63,13 +59,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   };
 
   useEffect(() => {
-    loadUserNames().then(() => {
-      loadMessages();
-      // Se è una chat privata, carica il nome dell'utente
-      if (channelName.startsWith('private_')) {
-        loadPrivateUserName();
-      }
-    });
+    loadMessages();
+    loadUserNames();
     setupRealtimeSubscription();
   }, [channelId]);
 
@@ -127,48 +118,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
-  const processMessageReply = async (message: Message): Promise<Message> => {
-    if (!message.reply_to_id) {
-      return message;
-    }
-
-    // Cerca prima nei messaggi già caricati
-    const existingReplyMessage = messages.find(m => m.id === message.reply_to_id);
-    if (existingReplyMessage) {
-      return {
-        ...message,
-        reply_to: {
-          id: existingReplyMessage.id,
-          content: existingReplyMessage.content,
-          user_name: userNames[existingReplyMessage.user_id] || 'Utente sconosciuto'
-        }
-      };
-    }
-
-    // Se non trovato, carica dal database
-    try {
-      const { data, error } = await supabase
-        .from('community_messages')
-        .select('id, content, user_id')
-        .eq('id', message.reply_to_id)
-        .single();
-
-      if (error) throw error;
-
-      return {
-        ...message,
-        reply_to: {
-          id: data.id,
-          content: data.content,
-          user_name: userNames[data.user_id] || 'Utente sconosciuto'
-        }
-      };
-    } catch (error) {
-      console.error('Error loading reply message:', error);
-      return message;
-    }
-  };
-
   const loadUserNames = async () => {
     try {
       const { data, error } = await supabase
@@ -187,28 +136,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
-  const loadPrivateUserName = async () => {
-    if (!channelName.startsWith('private_')) return;
-    
-    // Estrai l'ID utente dal channelName
-    const otherUserId = channelName.replace('private_', '');
-    
-    try {
-      const { data, error } = await supabase
-        .from('user_display_names')
-        .select('display_name')
-        .eq('user_id', otherUserId)
-        .single();
-
-      if (error) throw error;
-      
-      setPrivateUserName(data?.display_name || 'Utente sconosciuto');
-    } catch (error) {
-      console.error('Error loading private user name:', error);
-      setPrivateUserName('Utente sconosciuto');
-    }
-  };
-
   const setupRealtimeSubscription = () => {
     console.log('🔄 Setting up real-time subscription for channel:', channelId);
     
@@ -222,13 +149,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           table: 'community_messages',
           filter: `channel_name=eq.${channelId}`
         },
-        async (payload) => {
+        (payload) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
-          
-          // Processa il messaggio per includere reply_to con user_name se necessario
-          const processedMessage = await processMessageReply(newMessage);
-          
           setMessages(prev => {
             // Evita duplicati controllando se il messaggio esiste già
             const exists = prev.some(msg => msg.id === newMessage.id);
@@ -237,7 +160,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
               return prev;
             }
             console.log('✅ Adding new message to state:', newMessage.id);
-            return [...prev, processedMessage];
+            return [...prev, newMessage];
           });
         }
       )
@@ -335,7 +258,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   const handleContactUser = (userId: string, userName: string) => {
     // Navigare alla pagina dei messaggi privati con questo utente
-    navigate(`/private-messages/${userId}`);
+    // Per ora mostriamo un toast per indicare la funzionalità
+    toast({
+      title: "Messaggi privati",
+      description: `Contatto con ${userName} - Funzionalità in sviluppo`,
+    });
   };
 
   const deleteMessage = async (messageId: string) => {
@@ -463,12 +390,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         <div className="py-2 border-b bg-muted/20">
           {!isSelectionMode ? (
             <div className="flex items-center justify-between px-4">
-              <div className="font-semibold">
-                {channelName.startsWith('private_') ? 
-                  (privateUserName || 'Chat privata') : 
-                  `Chat: ${channelName}`
-                }
-              </div>
+              <div className="font-semibold">Chat: {channelName}</div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -527,8 +449,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             messages={messages}
             currentUserId={user?.id || ''}
             userNames={userNames}
-            privateUserName={privateUserName}
-            isPrivateChat={channelName.startsWith('private_')}
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
             onReply={handleReply}
