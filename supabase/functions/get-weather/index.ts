@@ -31,11 +31,11 @@ serve(async (req) => {
   }
 
   try {
-    const { location } = await req.json();
+    const { location, latitude, longitude } = await req.json();
     
-    if (!location) {
+    if (!location && (!latitude || !longitude)) {
       return new Response(
-        JSON.stringify({ error: 'Location is required' }),
+        JSON.stringify({ error: 'Location or coordinates are required' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -56,10 +56,17 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Fetching weather for location: ${location}`);
+    // Costruisci la query in base ai parametri forniti
+    let query = location;
+    if (latitude && longitude) {
+      query = `${latitude},${longitude}`;
+      console.log(`Fetching weather for coordinates: ${latitude}, ${longitude}`);
+    } else {
+      console.log(`Fetching weather for location: ${location}`);
+    }
 
     // Call WeatherAPI
-    const weatherUrl = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${encodeURIComponent(location)}&aqi=no`;
+    const weatherUrl = `https://api.weatherapi.com/v1/current.json?key=${weatherApiKey}&q=${encodeURIComponent(query)}&aqi=no`;
     
     const response = await fetch(weatherUrl);
     

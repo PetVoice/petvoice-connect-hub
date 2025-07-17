@@ -87,37 +87,60 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
   };
 
   useEffect(() => {
-    checkUserLocation();
+    getUserLocation();
   }, [user]);
 
-  const checkUserLocation = async () => {
+  const getUserLocation = async () => {
     if (!user) return;
     
-    // Controlla se l'utente ha una località impostata
-    const userLocation = user.user_metadata?.location || user.user_metadata?.city;
-    const userCity = user.user_metadata?.city;
-    const userCountry = user.user_metadata?.country;
-    
-    if (!userLocation && !userCity) {
+    try {
+      setIsLoading(true);
+      
+      // Chiede la geolocalizzazione al browser
+      const position = await getCurrentPosition();
+      const { latitude, longitude } = position.coords;
+      
+      setHasLocation(true);
+      setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+      await fetchWeatherAndPrediction(latitude, longitude);
+      
+    } catch (error) {
+      console.error('Error getting location:', error);
       setHasLocation(false);
-      return;
+      toast.error('Impossibile ottenere la posizione. Abilita la geolocalizzazione.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setHasLocation(true);
-    const fullLocation = userCountry ? `${userCity || userLocation}, ${userCountry}` : (userCity || userLocation);
-    setLocation(fullLocation);
-    await fetchWeatherAndPrediction(fullLocation);
   };
 
-  const fetchWeatherAndPrediction = async (locationQuery: string) => {
+  const getCurrentPosition = (): Promise<GeolocationPosition> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser.'));
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        reject,
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minuti
+        }
+      );
+    });
+  };
+
+  const fetchWeatherAndPrediction = async (latitude: number, longitude: number) => {
     setIsLoading(true);
     
     try {
-      console.log('Fetching weather for:', locationQuery);
+      console.log('Fetching weather for coordinates:', { latitude, longitude });
       
       // Chiamata all'edge function per ottenere dati meteo reali
       const { data: weatherData, error } = await supabase.functions.invoke('get-weather', {
-        body: { location: locationQuery }
+        body: { latitude, longitude }
       });
 
       if (error) {
@@ -132,6 +155,7 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
       console.log('Weather data received:', weatherData);
       
       setWeatherData(weatherData);
+      setLocation(weatherData.location);
       
       // Genera previsioni comportamentali basate sul meteo reale
       const behaviorPredictions = generateBehaviorPredictions(weatherData);
@@ -298,7 +322,7 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
     return 'bg-green-100 text-green-800';
   };
 
-  // Se l'utente non ha una località impostata, mostra un messaggio
+  // Se la geolocalizzazione non è disponibile, mostra un messaggio
   if (!hasLocation) {
     return (
       <Card className="border-orange-200 bg-orange-50">
@@ -307,10 +331,19 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
             <AlertCircle className="h-5 w-5 text-orange-600" />
           </div>
           <div>
-            <p className="text-orange-800 font-medium">Località non configurata</p>
+            <p className="text-orange-800 font-medium">Geolocalizzazione non disponibile</p>
             <p className="text-orange-600 text-sm">
-              Imposta la tua località nelle impostazioni per utilizzare Weather Mood Predictor
+              Abilita la geolocalizzazione nel browser per utilizzare Weather Mood Predictor
             </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={getUserLocation}
+              className="mt-2"
+            >
+              <MapPin className="h-4 w-4 mr-2" />
+              Riprova
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -407,7 +440,7 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => fetchWeatherAndPrediction(location)}
+                onClick={getUserLocation}
                 disabled={isLoading}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
