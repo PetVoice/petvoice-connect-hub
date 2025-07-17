@@ -1576,58 +1576,29 @@ Continuare?
                   Legale e Conformità
                 </CardTitle>
                 <CardDescription>
-                  Gestisci consensi e visualizza documenti legali
+                  Visualizza e scarica documenti legali
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Consensi Attivi</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Termini di Servizio</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Privacy Policy</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Cookie Policy</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Documenti Legali</h4>
-                    <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Termini di Servizio
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Privacy Policy
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Cookie Policy
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Accordo Trattamento Dati
-                      </Button>
-                    </div>
+                <div className="space-y-4">
+                  <h4 className="font-medium">Documenti Legali</h4>
+                  <div className="space-y-2">
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Termini di Servizio
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Privacy Policy
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Cookie Policy
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Accordo Trattamento Dati
+                    </Button>
                   </div>
                 </div>
               </CardContent>
