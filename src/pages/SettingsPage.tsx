@@ -220,15 +220,8 @@ const SettingsPage: React.FC = () => {
   });
 
 
-  // Accessibility State
-  const [accessibility, setAccessibility] = useState({
-    screenReader: false,
-    highContrast: false,
-    fontSize: 'medium',
-    motionSensitivity: false,
-    keyboardNavigation: true,
-    voiceCommands: false
-  });
+  // Accessibility State managed by useAccessibility hook
+  const { accessibility, voiceState, updateSetting, resetSettings, announceToScreenReader } = useAccessibility();
 
   const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
@@ -1928,9 +1921,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={accessibility.screenReader}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, screenReader: checked}))
-                    }
+                    onCheckedChange={(checked) => updateSetting('screenReader', checked)}
                   />
                 </div>
 
@@ -1941,9 +1932,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={accessibility.highContrast}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, highContrast: checked}))
-                    }
+                    onCheckedChange={(checked) => updateSetting('highContrast', checked)}
                   />
                 </div>
 
@@ -1951,7 +1940,7 @@ Continuare?
                   <Label>Dimensione font</Label>
                   <Select 
                     value={accessibility.fontSize} 
-                    onValueChange={(value) => setAccessibility(prev => ({...prev, fontSize: value}))}
+                    onValueChange={(value) => updateSetting('fontSize', value)}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -1986,9 +1975,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={accessibility.motionSensitivity}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, motionSensitivity: checked}))
-                    }
+                    onCheckedChange={(checked) => updateSetting('motionSensitivity', checked)}
                   />
                 </div>
 
@@ -1999,22 +1986,23 @@ Continuare?
                   </div>
                   <Switch
                     checked={accessibility.keyboardNavigation}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, keyboardNavigation: checked}))
-                    }
+                    onCheckedChange={(checked) => updateSetting('keyboardNavigation', checked)}
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Comandi vocali</Label>
-                    <p className="text-sm text-muted-foreground">Abilita controllo vocale dell'app</p>
+                    <p className="text-sm text-muted-foreground">
+                      Abilita controllo vocale dell'app
+                      {!voiceState.isSupported && " (non supportato in questo browser)"}
+                      {voiceState.isListening && " (in ascolto...)"}
+                    </p>
                   </div>
                   <Switch
                     checked={accessibility.voiceCommands}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, voiceCommands: checked}))
-                    }
+                    disabled={!voiceState.isSupported}
+                    onCheckedChange={(checked) => updateSetting('voiceCommands', checked)}
                   />
                 </div>
               </CardContent>
@@ -2074,6 +2062,26 @@ Continuare?
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Voice Commands Indicator */}
+      {voiceState.isListening && (
+        <div className="voice-listening-indicator">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            In ascolto...
+          </div>
+        </div>
+      )}
+      
+      {/* Accessibility Controls */}
+      <div className="sr-only">
+        <button 
+          onClick={() => resetSettings()}
+          className="skip-link"
+        >
+          Reset impostazioni accessibilità
+        </button>
+      </div>
       
       {/* Legal Document Modal */}
       {showDocumentView && (
