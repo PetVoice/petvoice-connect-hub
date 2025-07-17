@@ -120,6 +120,14 @@ const SubscriptionPage = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
+                  onClick={() => window.location.href = '/'}
+                  size="lg"
+                  className="flex-1 sm:flex-none petvoice-button"
+                >
+                  🏠 Vai alla Dashboard
+                </Button>
+                
+                <Button
                   onClick={() => handleCancelSubscription('immediate')}
                   variant="destructive"
                   size="lg"
