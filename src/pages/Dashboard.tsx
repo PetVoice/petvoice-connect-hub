@@ -516,7 +516,7 @@ const Dashboard: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <WeatherMoodPredictor />
+            <WeatherMoodPredictor user={user} />
           </CardContent>
         </Card>
       )}

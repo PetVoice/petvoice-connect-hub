@@ -28,12 +28,17 @@ interface PlaylistSuggestion {
   mood_alignment: number;
 }
 
-export const WeatherMoodPredictor = () => {
+interface WeatherMoodPredictorProps {
+  user: any;
+}
+
+export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [moodPrediction, setMoodPrediction] = useState<MoodPrediction | null>(null);
   const [playlistSuggestions, setPlaylistSuggestions] = useState<PlaylistSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState<string>('');
+  const [hasLocation, setHasLocation] = useState(false);
 
   // Simulated weather data
   const mockWeatherData: WeatherData = {
@@ -80,10 +85,27 @@ export const WeatherMoodPredictor = () => {
   ];
 
   useEffect(() => {
-    // Simulate getting user location
-    setLocation('Milano, IT');
-    fetchWeatherAndPrediction();
-  }, []);
+    checkUserLocation();
+  }, [user]);
+
+  const checkUserLocation = async () => {
+    if (!user) return;
+    
+    // Controlla se l'utente ha una località impostata
+    const userLocation = user.user_metadata?.location || user.user_metadata?.city;
+    const userCity = user.user_metadata?.city;
+    const userCountry = user.user_metadata?.country;
+    
+    if (!userLocation && !userCity) {
+      setHasLocation(false);
+      return;
+    }
+    
+    setHasLocation(true);
+    const fullLocation = userCountry ? `${userCity || userLocation}, ${userCountry}` : (userCity || userLocation);
+    setLocation(fullLocation);
+    await fetchWeatherAndPrediction();
+  };
 
   const fetchWeatherAndPrediction = async () => {
     setIsLoading(true);
@@ -127,6 +149,25 @@ export const WeatherMoodPredictor = () => {
     };
     return colors[mood as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
+
+  // Se l'utente non ha una località impostata, mostra un messaggio
+  if (!hasLocation) {
+    return (
+      <Card className="border-orange-200 bg-orange-50">
+        <CardContent className="flex items-center space-x-3 p-6">
+          <div className="flex-shrink-0">
+            <Cloud className="h-5 w-5 text-orange-600" />
+          </div>
+          <div>
+            <p className="text-orange-800 font-medium">Località non configurata</p>
+            <p className="text-orange-600 text-sm">
+              Imposta la tua località nelle impostazioni per utilizzare Weather Mood Predictor
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (
