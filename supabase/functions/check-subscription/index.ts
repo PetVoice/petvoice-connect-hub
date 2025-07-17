@@ -130,15 +130,13 @@ serve(async (req) => {
       subscription_status: hasActiveSub ? 'active' : 'inactive',
       subscription_plan: subscriptionTier || 'free',
       subscription_end_date: subscriptionEnd,
-      // Reset cancellation data if there's an active subscription (new payment after cancellation)
-      // Only preserve cancellation data if subscription is inactive
-      is_cancelled: hasActiveSub ? false : (existingSubscriber?.is_cancelled || false),
-      cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
-      cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
-      cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
-      // Reset reactivation fields for new active subscription
-      can_reactivate: hasActiveSub ? true : (existingSubscriber?.can_reactivate !== false),
-      immediate_cancellation_after_period_end: hasActiveSub ? false : (existingSubscriber?.immediate_cancellation_after_period_end || false),
+      // MANTIENI SEMPRE i dati di cancellazione dal database (non resetare!)
+      is_cancelled: existingSubscriber?.is_cancelled || false,
+      cancellation_type: existingSubscriber?.cancellation_type || null,
+      cancellation_date: existingSubscriber?.cancellation_date || null,
+      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
+      can_reactivate: existingSubscriber?.can_reactivate !== false,
+      immediate_cancellation_after_period_end: existingSubscriber?.immediate_cancellation_after_period_end || false,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
 
@@ -149,14 +147,13 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier || 'free',
       subscription_end: subscriptionEnd,
-      // Return the updated cancellation status (reset to false if has active subscription)
-      is_cancelled: hasActiveSub ? false : (existingSubscriber?.is_cancelled || false),
-      cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
-      cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
-      cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
-      // Return reactivation fields
-      can_reactivate: hasActiveSub ? true : (existingSubscriber?.can_reactivate !== false),
-      immediate_cancellation_after_period_end: hasActiveSub ? false : (existingSubscriber?.immediate_cancellation_after_period_end || false),
+      // MANTIENI SEMPRE i dati di cancellazione reali dal database
+      is_cancelled: existingSubscriber?.is_cancelled || false,
+      cancellation_type: existingSubscriber?.cancellation_type || null,
+      cancellation_date: existingSubscriber?.cancellation_date || null,
+      cancellation_effective_date: existingSubscriber?.cancellation_effective_date || null,
+      can_reactivate: existingSubscriber?.can_reactivate !== false,
+      immediate_cancellation_after_period_end: existingSubscriber?.immediate_cancellation_after_period_end || false,
       usage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
