@@ -75,6 +75,16 @@ const PrivateMessagesPage: React.FC = () => {
     if (!userId || !user) return;
     
     try {
+      // Controlla se la conversazione è stata eliminata localmente
+      const savedDeletedChats = localStorage.getItem('deletedChats');
+      const deletedChats = savedDeletedChats ? new Set(JSON.parse(savedDeletedChats)) : new Set();
+      
+      if (deletedChats.has(userId)) {
+        console.log('Conversazione eliminata, reindirizzo alla community');
+        navigate('/community');
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('private_messages')
         .select('*')

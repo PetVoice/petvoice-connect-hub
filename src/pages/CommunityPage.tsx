@@ -122,7 +122,15 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
   
-  const [deletedChats, setDeletedChats] = useState(new Set());
+  const [deletedChats, setDeletedChats] = useState(() => {
+    const saved = localStorage.getItem('deletedChats');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  // Salva deletedChats nel localStorage quando cambia
+  useEffect(() => {
+    localStorage.setItem('deletedChats', JSON.stringify(Array.from(deletedChats)));
+  }, [deletedChats]);
   
   const loadPrivateChats = async (excludeUserId = null) => {
     try {
