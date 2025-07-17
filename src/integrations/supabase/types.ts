@@ -1152,6 +1152,7 @@ export type Database = {
           commission_type: string
           created_at: string | null
           id: string
+          is_cancelled: boolean | null
           referred_user_id: string
           referrer_id: string
           status: string
@@ -1166,6 +1167,7 @@ export type Database = {
           commission_type: string
           created_at?: string | null
           id?: string
+          is_cancelled?: boolean | null
           referred_user_id: string
           referrer_id: string
           status?: string
@@ -1180,6 +1182,7 @@ export type Database = {
           commission_type?: string
           created_at?: string | null
           id?: string
+          is_cancelled?: boolean | null
           referred_user_id?: string
           referrer_id?: string
           status?: string
