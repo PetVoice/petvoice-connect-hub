@@ -412,64 +412,6 @@ const CommunityPage = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Messaggi Privati ({privateChats.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-60 overflow-y-auto">
-                  {privateChats.map(chat => (
-                    <div key={chat.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                      <div className="flex-1">
-                        <div className="font-medium">{chat.userName}</div>
-                        <div className="text-sm text-muted-foreground truncate">
-                          {chat.lastMessage}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => openPrivateChat(chat.userId)}
-                        >
-                          Apri
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="destructive">
-                              Elimina
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Elimina conversazione</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Sei sicuro di voler eliminare la conversazione con {chat.userName}? 
-                                La cronologia verrà eliminata definitivamente.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annulla</AlertDialogCancel>
-                              <AlertDialogAction 
-                                onClick={() => deletePrivateChat(chat.userId)}
-                                className="bg-destructive hover:bg-destructive/90"
-                              >
-                                Elimina conversazione
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  ))}
-                  {privateChats.length === 0 && (
-                    <div className="text-center py-4 text-muted-foreground">
-                      Nessun messaggio privato
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
           </div>
           
           <div className="lg:col-span-1 space-y-4">
@@ -592,6 +534,65 @@ const CommunityPage = () => {
                   {myGroups.length === 0 && (
                     <div className="text-center py-4 text-muted-foreground">
                       Non sei iscritto a nessun gruppo
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Messaggi Privati ({privateChats.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {privateChats.map(chat => (
+                    <div key={chat.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div className="flex-1">
+                        <div className="font-medium">{chat.userName}</div>
+                        <div className="text-sm text-muted-foreground truncate">
+                          {chat.lastMessage}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => openPrivateChat(chat.userId)}
+                        >
+                          Apri
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="destructive">
+                              Elimina
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Elimina conversazione</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Sei sicuro di voler eliminare la conversazione con {chat.userName}? 
+                                La cronologia verrà eliminata definitivamente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annulla</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => deletePrivateChat(chat.userId)}
+                                className="bg-destructive hover:bg-destructive/90"
+                              >
+                                Elimina conversazione
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                  {privateChats.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Nessun messaggio privato
                     </div>
                   )}
                 </div>
