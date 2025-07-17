@@ -123,9 +123,15 @@ const SubscriptionPage = () => {
 
               {isEndOfPeriodCancellation && (
                 <Card className="petvoice-card border-warning">
-                  <CardContent className="p-4 text-center">
-                    <p className="text-sm text-warning">
-                      ⚠️ Cancellato - Attivo fino al {cancellationEffectiveDate}
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-warning">
+                      <AlertTriangle className="w-5 h-5" />
+                      ⚠️ ABBONAMENTO IN CANCELLAZIONE
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
                     </p>
                   </CardContent>
                 </Card>
