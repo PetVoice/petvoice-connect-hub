@@ -12,7 +12,8 @@ import {
   Pause, 
   SkipForward, 
   SkipBack, 
-  Volume2, 
+  Square,
+  Volume2,
   Heart, 
   Brain,
   Moon,
@@ -248,6 +249,53 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
   };
 
+  const handleStop = () => {
+    if (!currentSession) return;
+    
+    // Ferma tutto e porta a 0:00
+    stopAudio();
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setSessionProgress(0);
+    
+    toast({
+      title: "Riproduzione fermata",
+      description: "Sessione interrotta e portata a 0:00",
+    });
+  };
+
+  const updateVolume = (newVolume: number[]) => {
+    setVolume(newVolume);
+    
+    // Aggiorna il volume in tempo reale se sta suonando
+    if (audioContextRef.current && oscillatorsRef.current.length > 0) {
+      const gainNodes = audioContextRef.current.createGain();
+      const vol = (newVolume[0] / 100) * 0.1;
+      gainNodes.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
+    }
+  };
+
+  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!currentSession) return;
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = Math.floor(percentage * currentSession.duration * 60);
+    
+    setCurrentTime(newTime);
+    setSessionProgress(percentage * 100);
+    
+    toast({
+      title: "Posizione aggiornata",
+      description: `Spostato a ${formatTime(newTime)}`,
+    });
+  };
+
   const handlePlayPause = () => {
     if (!currentSession) {
       toast({
@@ -449,10 +497,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           <CardContent className="space-y-4">
             {/* Progress Bar */}
             <div className="space-y-2">
-              <Progress 
-                value={sessionProgress} 
-                className="h-2"
-              />
+              <div 
+                className="cursor-pointer"
+                onClick={handleProgressClick}
+              >
+                <Progress 
+                  value={sessionProgress} 
+                  className="h-2"
+                />
+              </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(currentSession.duration * 60)}</span>
@@ -465,7 +518,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-3">
               <Button 
                 variant="outline" 
                 size="icon"
@@ -491,6 +544,14 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               <Button 
                 variant="outline" 
                 size="icon"
+                onClick={handleStop}
+                disabled={!currentSession || isGenerating}
+              >
+                <Square className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
                 onClick={() => handleSkip('forward')}
                 disabled={!currentSession || isGenerating}
               >
@@ -503,7 +564,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               <Volume2 className="h-4 w-4" />
               <Slider
                 value={volume}
-                onValueChange={setVolume}
+                onValueChange={updateVolume}
                 max={100}
                 step={1}
                 className="flex-1"
