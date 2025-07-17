@@ -153,6 +153,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
+  // Seleziona automaticamente l'analisi più recente quando cambiano le analisi
+  useEffect(() => {
+    if (analyses.length > 0) {
+      // Se non c'è analisi selezionata o la nuova lista ha un'analisi più recente
+      if (!selectedAnalysis || (analyses[0] && new Date(analyses[0].created_at) > new Date(selectedAnalysis.created_at))) {
+        setSelectedAnalysis(analyses[0]);
+      }
+    } else {
+      setSelectedAnalysis(null);
+    }
+  }, [analyses]);
+
   useEffect(() => {
     loadSharingTemplates();
   }, []);
