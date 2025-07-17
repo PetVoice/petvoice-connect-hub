@@ -535,7 +535,7 @@ const Dashboard: React.FC = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full mt-2"
-                  onClick={() => navigate('/analysis?tab=history')}
+                  onClick={() => navigate('/analysis?tab=results')}
                 >
                   Vedi tutte le analisi
                 </Button>
@@ -644,7 +644,7 @@ const Dashboard: React.FC = () => {
                   className="w-full"
                   onClick={() => navigate('/analysis?tab=history')}
                 >
-                  Vedi Cronologia Completa
+                  Vedi cronologia completa
                 </Button>
               </div>
             ) : (

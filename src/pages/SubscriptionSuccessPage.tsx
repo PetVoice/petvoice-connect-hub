@@ -75,21 +75,14 @@ const SubscriptionSuccessPage = () => {
           {window.opener ? (
             <div className="space-y-3">
               <Button 
-                onClick={() => window.close()} 
-                variant="default"
-                className="w-full"
-              >
-                Chiudi Tab
-              </Button>
-              <Button 
                 onClick={() => { 
                   window.opener.postMessage({ type: 'NAVIGATE_TO_DASHBOARD' }, '*'); 
                   window.close(); 
                 }} 
-                variant="outline"
+                variant="default"
                 className="w-full"
               >
-                Vai alla Dashboard
+                🏠 Vai alla Dashboard
               </Button>
             </div>
           ) : (
