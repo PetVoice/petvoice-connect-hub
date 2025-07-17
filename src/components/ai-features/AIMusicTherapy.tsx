@@ -546,6 +546,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 size="icon"
                 onClick={handleStop}
                 disabled={!currentSession || isGenerating}
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
               >
                 <Square className="h-4 w-4" />
               </Button>
