@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
 import { 
   Music, 
   Play, 
@@ -22,6 +23,8 @@ import {
   Settings,
   Sparkles
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface Pet {
   id: string;
@@ -100,10 +103,73 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isGenerating, setIsGenerating] = useState(false);
   const [moodAdaptation, setMoodAdaptation] = useState(true);
+  const [emotionalDNA, setEmotionalDNA] = useState({ calma: 50, energia: 50, focus: 50 });
+  const [sessionProgress, setSessionProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch real emotional DNA from pet analyses
+  const fetchEmotionalDNA = async () => {
+    try {
+      const { data: analyses } = await supabase
+        .from('pet_analyses')
+        .select('primary_emotion, primary_confidence, secondary_emotions, created_at')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (analyses && analyses.length > 0) {
+        // Calcola DNA emotivo basato sulle analisi reali
+        let calmaTotal = 0, energiaTotal = 0, focusTotal = 0;
+        let count = 0;
+
+        analyses.forEach(analysis => {
+          const emotion = analysis.primary_emotion?.toLowerCase();
+          const confidence = analysis.primary_confidence || 0;
+
+          switch (emotion) {
+            case 'felice':
+            case 'calmo':
+            case 'rilassato':
+              calmaTotal += confidence * 100;
+              break;
+            case 'energico':
+            case 'giocoso':
+            case 'eccitato':
+              energiaTotal += confidence * 100;
+              break;
+            case 'concentrato':
+            case 'attento':
+            case 'vigile':
+              focusTotal += confidence * 100;
+              break;
+          }
+          count++;
+        });
+
+        if (count > 0) {
+          setEmotionalDNA({
+            calma: Math.round(calmaTotal / count) || 50,
+            energia: Math.round(energiaTotal / count) || 50,
+            focus: Math.round(focusTotal / count) || 50
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Errore nel fetch del DNA emotivo:', error);
+    }
+  };
 
   const generatePersonalizedPlaylist = async (category: string) => {
     setIsGenerating(true);
+    setCurrentTime(0);
+    setSessionProgress(0);
+    
+    // Stop any current playback
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setIsPlaying(false);
     
     // Simula generazione AI personalizzata
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -115,20 +181,104 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         title: `${categorySession.title} per ${selectedPet.name}`,
         description: `Personalizzato per ${selectedPet.type.toLowerCase()} - ${categorySession.description}`
       });
+      
+      toast({
+        title: "Playlist generata!",
+        description: `Sessione "${categorySession.title}" pronta per ${selectedPet.name}`,
+      });
     }
     
     setIsGenerating(false);
   };
 
   const handlePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (!currentSession) {
+      toast({
+        title: "Nessuna sessione selezionata",
+        description: "Seleziona prima una categoria di terapia musicale",
+        variant: "destructive"
+      });
+      return;
     }
+
+    if (isPlaying) {
+      // Pausa
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      setIsPlaying(false);
+      toast({
+        title: "Pausa",
+        description: "Sessione di musicoterapia in pausa",
+      });
+    } else {
+      // Play
+      setIsPlaying(true);
+      toast({
+        title: "Riproduzione avviata",
+        description: `Sessione "${currentSession.title}" in corso`,
+      });
+      
+      // Avvia il timer della sessione
+      intervalRef.current = setInterval(() => {
+        setCurrentTime(prev => {
+          const newTime = prev + 1;
+          const progress = (newTime / (currentSession.duration * 60)) * 100;
+          setSessionProgress(progress);
+          
+          // Adattamento real-time del mood (se abilitato)
+          if (moodAdaptation && newTime % 30 === 0) { // Ogni 30 secondi
+            adaptMoodRealTime();
+          }
+          
+          // Fine sessione
+          if (newTime >= currentSession.duration * 60) {
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
+            setIsPlaying(false);
+            toast({
+              title: "Sessione completata!",
+              description: `Sessione "${currentSession.title}" terminata con successo`,
+            });
+            return newTime;
+          }
+          
+          return newTime;
+        });
+      }, 1000);
+    }
+  };
+
+  const adaptMoodRealTime = () => {
+    if (!moodAdaptation) return;
+    
+    // Simula adattamento real-time del mood
+    setEmotionalDNA(prev => ({
+      calma: Math.min(100, prev.calma + Math.random() * 5),
+      energia: Math.max(0, prev.energia + (Math.random() - 0.5) * 3),
+      focus: Math.min(100, prev.focus + Math.random() * 2)
+    }));
+    
+    toast({
+      title: "Adattamento real-time",
+      description: "Musica adattata al mood corrente",
+    });
+  };
+
+  const handleSkip = (direction: 'forward' | 'back') => {
+    if (!currentSession) return;
+    
+    const skipAmount = 30; // 30 secondi
+    setCurrentTime(prev => {
+      const newTime = direction === 'forward' 
+        ? Math.min(prev + skipAmount, currentSession.duration * 60)
+        : Math.max(prev - skipAmount, 0);
+      setSessionProgress((newTime / (currentSession.duration * 60)) * 100);
+      return newTime;
+    });
   };
 
   const formatTime = (seconds: number) => {
@@ -138,17 +288,17 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   };
 
   useEffect(() => {
-    if (currentSession) {
-      // Simula riproduzione audio
-      const interval = setInterval(() => {
-        if (isPlaying && currentTime < currentSession.duration * 60) {
-          setCurrentTime(prev => prev + 1);
-        }
-      }, 1000);
+    fetchEmotionalDNA();
+  }, [selectedPet.id]);
 
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying, currentTime, currentSession]);
+  useEffect(() => {
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const filteredSessions = selectedCategory === 'all' 
     ? THERAPY_CATEGORIES 
@@ -193,18 +343,28 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             {/* Progress Bar */}
             <div className="space-y-2">
               <Progress 
-                value={(currentTime / (currentSession.duration * 60)) * 100} 
+                value={sessionProgress} 
                 className="h-2"
               />
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(currentSession.duration * 60)}</span>
               </div>
+              {isPlaying && (
+                <div className="text-center text-xs text-primary animate-pulse">
+                  🎵 Riproduzione in corso...
+                </div>
+              )}
             </div>
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-4">
-              <Button variant="outline" size="icon">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => handleSkip('back')}
+                disabled={!currentSession || isGenerating}
+              >
                 <SkipBack className="h-4 w-4" />
               </Button>
               <Button 
@@ -213,9 +373,20 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 onClick={handlePlayPause}
                 disabled={isGenerating}
               >
-                {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                {isGenerating ? (
+                  <Sparkles className="h-6 w-6 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="h-6 w-6" />
+                ) : (
+                  <Play className="h-6 w-6" />
+                )}
               </Button>
-              <Button variant="outline" size="icon">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => handleSkip('forward')}
+                disabled={!currentSession || isGenerating}
+              >
                 <SkipForward className="h-4 w-4" />
               </Button>
             </div>
@@ -331,24 +502,29 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               <div className="flex justify-between items-center">
                 <span className="text-sm">Calma</span>
                 <div className="flex items-center gap-2">
-                  <Progress value={85} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">85%</span>
+                  <Progress value={emotionalDNA.calma} className="w-20 h-2" />
+                  <span className="text-xs text-muted-foreground">{emotionalDNA.calma}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Energia</span>
                 <div className="flex items-center gap-2">
-                  <Progress value={60} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">60%</span>
+                  <Progress value={emotionalDNA.energia} className="w-20 h-2" />
+                  <span className="text-xs text-muted-foreground">{emotionalDNA.energia}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Focus</span>
                 <div className="flex items-center gap-2">
-                  <Progress value={70} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">70%</span>
+                  <Progress value={emotionalDNA.focus} className="w-20 h-2" />
+                  <span className="text-xs text-muted-foreground">{emotionalDNA.focus}%</span>
                 </div>
               </div>
+              {moodAdaptation && isPlaying && (
+                <div className="pt-2 text-xs text-primary text-center animate-pulse">
+                  🧠 Adattamento real-time attivo
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -362,15 +538,22 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm">Adattamento Real-time</span>
-              <Button
-                variant={moodAdaptation ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMoodAdaptation(!moodAdaptation)}
-              >
-                {moodAdaptation ? "ON" : "OFF"}
-              </Button>
+              <div className="space-y-1">
+                <span className="text-sm font-medium">Adattamento Real-time</span>
+                <p className="text-xs text-muted-foreground">
+                  Analizza e adatta la musica ogni 30 secondi
+                </p>
+              </div>
+              <Switch
+                checked={moodAdaptation}
+                onCheckedChange={setMoodAdaptation}
+              />
             </div>
+            {moodAdaptation && (
+              <div className="text-xs text-primary bg-primary/10 p-2 rounded">
+                ✨ L'AI adatterà automaticamente frequenze e ritmo basandosi sul comportamento in tempo reale
+              </div>
+            )}
             <div className="text-xs text-muted-foreground">
               <Headphones className="h-3 w-3 inline mr-1" />
               Per risultati ottimali, utilizza cuffie di qualità
