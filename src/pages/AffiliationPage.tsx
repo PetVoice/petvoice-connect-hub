@@ -24,7 +24,6 @@ import {
   DollarSign, Clock, Shield, AlertTriangle, CheckCircle, 
   ArrowUp, ArrowDown, Globe, Headphones, RefreshCw, Sparkles
 } from 'lucide-react';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -944,32 +943,22 @@ export default function AffiliationPage() {
                 
                 return (
                   <div className="h-80">
-                    <ChartContainer
-                      config={{
-                        value: { label: "Valore", color: "hsl(var(--primary))" }
-                      }}
-                      className="h-full w-full"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            dataKey="value"
-                            label={({ name, value }) => `${name}: ${value}`}
-                          >
-                            {pieData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <ChartTooltip 
-                            content={<ChartTooltipContent />}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          dataKey="value"
+                          label={({ name, value }) => `${name}: ${value}`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
                 );
               })()}
