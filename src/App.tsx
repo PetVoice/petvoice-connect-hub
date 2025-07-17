@@ -27,6 +27,7 @@ import SupportPage from "@/pages/SupportPage";
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
+import { NotificationManager } from '@/components/NotificationManager';
 
 const queryClient = new QueryClient();
 
@@ -139,6 +140,7 @@ const App = () => (
         <ThemeProvider>
           <NotificationEventsProvider>
             <TooltipProvider>
+              <NotificationManager />
               <AppContent />
               <Toaster />
               <Sonner />
