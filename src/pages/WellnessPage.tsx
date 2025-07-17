@@ -2532,7 +2532,6 @@ const WellnessPage = () => {
           </div>
         </TabsContent>
 
-        {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Health Trend */}
@@ -2544,15 +2543,33 @@ const WellnessPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={generateHealthTrendData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
+                {(() => {
+                  const trendData = generateHealthTrendData();
+                  const hasData = trendData.some(d => d.score !== null);
+                  
+                  if (!hasData) {
+                    return (
+                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                        <div className="text-center">
+                          <div className="text-lg font-medium mb-2">Nessun dato disponibile</div>
+                          <p className="text-sm">Aggiungi metriche sanitarie per vedere il trend della salute</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={trendData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
               </CardContent>
             </Card>
 
@@ -2565,25 +2582,42 @@ const WellnessPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={generateVisitDistribution()}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {generateVisitDistribution().map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {(() => {
+                  const visitData = generateVisitDistribution();
+                  
+                  if (visitData.length === 0) {
+                    return (
+                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                        <div className="text-center">
+                          <div className="text-lg font-medium mb-2">Nessuna visita registrata</div>
+                          <p className="text-sm">Aggiungi visite mediche per vedere la distribuzione</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={visitData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {visitData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
