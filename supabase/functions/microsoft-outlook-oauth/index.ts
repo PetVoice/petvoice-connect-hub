@@ -48,7 +48,8 @@ serve(async (req) => {
           client_secret: Deno.env.get('MICROSOFT_CLIENT_SECRET') ?? '',
           code,
           grant_type: 'authorization_code',
-          redirect_uri: `${Deno.env.get('SUPABASE_URL')}/functions/v1/microsoft-outlook-oauth`
+          redirect_uri: `${Deno.env.get('SUPABASE_URL')}/functions/v1/microsoft-outlook-oauth`,
+          scope: 'https://graph.microsoft.com/calendars.read https://graph.microsoft.com/calendars.readwrite'
         }),
       });
 

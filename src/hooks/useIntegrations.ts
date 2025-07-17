@@ -73,27 +73,39 @@ export function useIntegrations() {
       }
 
       if (provider === 'apple') {
-        // Apple integrations use local device access
-        const { error } = await supabase.functions.invoke(functionName, {
-          body: {
-            [type === 'calendar' ? 'calendarData' : 'healthData']: {
-              enabled: true,
-              sync_type: 'local'
-            }
-          },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
-        });
+        // Apple integrations use local device access - simpler approach
+        try {
+          const { error } = await supabase
+            .from('user_integrations')
+            .upsert({
+              user_id: user.id,
+              integration_type: type,
+              provider: 'apple',
+              access_token: null,
+              refresh_token: null,
+              token_expires_at: null,
+              is_active: true,
+              settings: {
+                sync_enabled: true,
+                data_source: 'local',
+                last_sync: new Date().toISOString()
+              }
+            }, {
+              onConflict: 'user_id,integration_type,provider'
+            });
 
-        if (error) {
+          if (error) {
+            console.error('Error connecting to Apple service:', error);
+            toast.error(`Errore nella connessione con Apple ${type === 'calendar' ? 'Calendar' : 'Health'}`);
+            return;
+          }
+
+          toast.success(`Apple ${type === 'calendar' ? 'Calendar' : 'Health'} connesso con successo!`);
+          await loadIntegrations();
+        } catch (error) {
           console.error('Error connecting to Apple service:', error);
           toast.error(`Errore nella connessione con Apple ${type === 'calendar' ? 'Calendar' : 'Health'}`);
-          return;
         }
-
-        toast.success(`Apple ${type === 'calendar' ? 'Calendar' : 'Health'} connesso con successo!`);
-        await loadIntegrations();
         return;
       }
 
