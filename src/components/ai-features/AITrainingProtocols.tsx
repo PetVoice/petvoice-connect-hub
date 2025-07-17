@@ -1,0 +1,404 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  Brain, 
+  Target, 
+  TrendingUp, 
+  Calendar, 
+  PlayCircle, 
+  PauseCircle, 
+  RotateCcw,
+  CheckCircle,
+  AlertCircle,
+  Video,
+  Star,
+  Clock
+} from 'lucide-react';
+
+interface TrainingProtocol {
+  id: string;
+  name: string;
+  description: string;
+  duration: number; // days
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  targetBehaviors: string[];
+  currentDay: number;
+  successRate: number;
+  status: 'active' | 'completed' | 'paused';
+  phases: TrainingPhase[];
+}
+
+interface TrainingPhase {
+  id: string;
+  name: string;
+  dayRange: [number, number];
+  objectives: string[];
+  techniques: string[];
+  successCriteria: string[];
+  isCompleted: boolean;
+}
+
+interface TrainingSession {
+  id: string;
+  date: string;
+  duration: number;
+  exercises: string[];
+  successRate: number;
+  notes: string;
+  videoAnalysis?: {
+    posture: number;
+    engagement: number;
+    stress: number;
+    recommendations: string[];
+  };
+}
+
+const mockProtocols: TrainingProtocol[] = [
+  {
+    id: '1',
+    name: 'Anxiety Relief Protocol',
+    description: 'Programma 21 giorni per ridurre ansia e stress',
+    duration: 21,
+    difficulty: 'intermediate',
+    targetBehaviors: ['ansia', 'stress', 'iperattivazione'],
+    currentDay: 8,
+    successRate: 78,
+    status: 'active',
+    phases: [
+      {
+        id: '1',
+        name: 'Foundation Building',
+        dayRange: [1, 7],
+        objectives: ['Stabilire routine', 'Breathing exercises', 'Basic relaxation'],
+        techniques: ['Desensibilizzazione graduale', 'Rinforzo positivo'],
+        successCriteria: ['Riduzione 30% episodi ansia', 'Maggiore calma durante trigger'],
+        isCompleted: true
+      },
+      {
+        id: '2',
+        name: 'Skill Development',
+        dayRange: [8, 14],
+        objectives: ['Advanced coping strategies', 'Trigger management'],
+        techniques: ['Controllo cognitivo', 'Gestione trigger ambientali'],
+        successCriteria: ['Autoregolazione durante stress', 'Risposta più veloce ai comandi'],
+        isCompleted: false
+      },
+      {
+        id: '3',
+        name: 'Mastery & Maintenance',
+        dayRange: [15, 21],
+        objectives: ['Consolidamento skills', 'Prevenzione recidive'],
+        techniques: ['Maintenance training', 'Generalization'],
+        successCriteria: ['Comportamento stabile', 'Indipendenza nella gestione'],
+        isCompleted: false
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Socialization Boost',
+    description: 'Miglioramento interazioni sociali e comportamento pubblico',
+    duration: 14,
+    difficulty: 'beginner',
+    targetBehaviors: ['timidezza', 'aggressività', 'paura sociale'],
+    currentDay: 14,
+    successRate: 92,
+    status: 'completed',
+    phases: [
+      {
+        id: '1',
+        name: 'Introduction Phase',
+        dayRange: [1, 5],
+        objectives: ['Comfort in new environments', 'Basic social cues'],
+        techniques: ['Gradual exposure', 'Positive reinforcement'],
+        successCriteria: ['Calm in public spaces', 'Appropriate greetings'],
+        isCompleted: true
+      },
+      {
+        id: '2',
+        name: 'Interaction Training',
+        dayRange: [6, 10],
+        objectives: ['Controlled interactions', 'Impulse control'],
+        techniques: ['Leash training', 'Command reinforcement'],
+        successCriteria: ['Polite greetings', 'Calm around strangers'],
+        isCompleted: true
+      },
+      {
+        id: '3',
+        name: 'Real-world Application',
+        dayRange: [11, 14],
+        objectives: ['Confident public behavior', 'Stress management'],
+        techniques: ['Real-world practice', 'Maintenance protocols'],
+        successCriteria: ['Confident in crowds', 'Stable behavior'],
+        isCompleted: true
+      }
+    ]
+  }
+];
+
+const mockSessions: TrainingSession[] = [
+  {
+    id: '1',
+    date: '2024-01-15',
+    duration: 25,
+    exercises: ['Breathing exercises', 'Trigger desensitization', 'Relaxation commands'],
+    successRate: 85,
+    notes: 'Excellent progress on breathing exercises. Still working on trigger response.',
+    videoAnalysis: {
+      posture: 82,
+      engagement: 78,
+      stress: 35,
+      recommendations: [
+        'Increase session frequency for trigger work',
+        'Add more positive reinforcement',
+        'Consider shorter sessions to maintain focus'
+      ]
+    }
+  },
+  {
+    id: '2',
+    date: '2024-01-14',
+    duration: 30,
+    exercises: ['Basic commands', 'Calm positioning', 'Stress indicators recognition'],
+    successRate: 72,
+    notes: 'Good response to basic commands. Need to work more on stress recognition.',
+    videoAnalysis: {
+      posture: 75,
+      engagement: 80,
+      stress: 45,
+      recommendations: [
+        'Focus on stress indicator training',
+        'Shorter training intervals',
+        'Increase reward frequency'
+      ]
+    }
+  }
+];
+
+export const AITrainingProtocols: React.FC = () => {
+  const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
+  const [activeTab, setActiveTab] = useState('protocols');
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'beginner': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
+      case 'advanced': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'paused': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5" />
+            AI Training Protocols
+          </CardTitle>
+          <CardDescription>
+            Programmi di modificazione comportamentale personalizzati con AI
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="protocols">Protocolli Attivi</TabsTrigger>
+              <TabsTrigger value="sessions">Sessioni</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="protocols" className="mt-4">
+              <div className="grid gap-4">
+                {mockProtocols.map((protocol) => (
+                  <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
+                        onClick={() => setSelectedProtocol(protocol)}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold">{protocol.name}</h3>
+                            <Badge className={getDifficultyColor(protocol.difficulty)}>
+                              {protocol.difficulty}
+                            </Badge>
+                            <Badge className={getStatusColor(protocol.status)}>
+                              {protocol.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {protocol.description}
+                          </p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              Giorno {protocol.currentDay}/{protocol.duration}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <TrendingUp className="h-4 w-4" />
+                              {protocol.successRate}% successo
+                            </span>
+                          </div>
+                          <div className="mt-3">
+                            <div className="flex items-center justify-between text-sm mb-1">
+                              <span>Progresso</span>
+                              <span>{Math.round((protocol.currentDay / protocol.duration) * 100)}%</span>
+                            </div>
+                            <Progress value={(protocol.currentDay / protocol.duration) * 100} />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          {protocol.status === 'active' && (
+                            <Button size="sm" variant="outline">
+                              <PauseCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {protocol.status === 'paused' && (
+                            <Button size="sm" variant="outline">
+                              <PlayCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline">
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="sessions" className="mt-4">
+              <div className="space-y-4">
+                {mockSessions.map((session) => (
+                  <Card key={session.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold">Sessione {session.date}</h3>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              {session.duration} min
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Star className="h-4 w-4" />
+                              {session.successRate}% successo
+                            </span>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="outline">
+                          <Video className="h-4 w-4 mr-2" />
+                          Analisi Video
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <h4 className="text-sm font-medium mb-1">Esercizi</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {session.exercises.map((exercise, index) => (
+                              <Badge key={index} variant="secondary">{exercise}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-sm font-medium mb-1">Note</h4>
+                          <p className="text-sm text-muted-foreground">{session.notes}</p>
+                        </div>
+                        
+                        {session.videoAnalysis && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-2">Analisi Video AI</h4>
+                            <div className="grid grid-cols-3 gap-4 mb-3">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-blue-600">{session.videoAnalysis.posture}%</div>
+                                <div className="text-xs text-muted-foreground">Postura</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-green-600">{session.videoAnalysis.engagement}%</div>
+                                <div className="text-xs text-muted-foreground">Engagement</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-red-600">{session.videoAnalysis.stress}%</div>
+                                <div className="text-xs text-muted-foreground">Stress</div>
+                              </div>
+                            </div>
+                            <div>
+                              <h5 className="text-sm font-medium mb-1">Raccomandazioni AI</h5>
+                              <ul className="text-sm text-muted-foreground space-y-1">
+                                {session.videoAnalysis.recommendations.map((rec, index) => (
+                                  <li key={index} className="flex items-center gap-2">
+                                    <AlertCircle className="h-3 w-3" />
+                                    {rec}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="mt-4">
+              <div className="grid gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Performance Analytics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-blue-600">3</div>
+                        <div className="text-sm text-muted-foreground">Protocolli Attivi</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-green-600">85%</div>
+                        <div className="text-sm text-muted-foreground">Successo Medio</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-purple-600">24h</div>
+                        <div className="text-sm text-muted-foreground">Tempo Totale</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-orange-600">12</div>
+                        <div className="text-sm text-muted-foreground">Sessioni Completate</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>AI Insight:</strong> Il protocollo "Anxiety Relief" sta mostrando progressi eccellenti. 
+                    Considera di aumentare la frequenza delle sessioni per ottimizzare i risultati.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
