@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowLeft, Send, User, Reply } from 'lucide-react';
+import { ArrowLeft, Send, User } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -24,12 +24,6 @@ interface PrivateMessage {
   voice_duration: number | null;
   deleted_by_sender: boolean;
   deleted_by_recipient: boolean;
-  reply_to_id?: string | null;
-  reply_to?: {
-    id: string;
-    content: string | null;
-    user_name: string | null;
-  } | null;
 }
 
 interface UserProfile {
@@ -45,15 +39,12 @@ const PrivateMessagesPage: React.FC = () => {
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
-  const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (userId) {
-      loadUserNames().then(() => {
-        loadMessages();
-        loadOtherUser();
-      });
+      loadMessages();
+      loadOtherUser();
       setupRealtimeSubscription();
     }
   }, [userId]);
@@ -80,59 +71,18 @@ const PrivateMessagesPage: React.FC = () => {
     }
   };
 
-  const loadUserNames = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_display_names')
-        .select('user_id, display_name');
-
-      if (error) throw error;
-      
-      const namesMap: Record<string, string> = {};
-      data?.forEach(item => {
-        namesMap[item.user_id] = item.display_name;
-      });
-      setUserNames(namesMap);
-    } catch (error) {
-      console.error('Error loading user names:', error);
-    }
-  };
-
   const loadMessages = async () => {
     if (!userId || !user) return;
     
     try {
       const { data, error } = await supabase
         .from('private_messages')
-        .select(`
-          *,
-          reply_to:private_messages!reply_to_id (
-            id,
-            content,
-            sender_id
-          )
-        `)
-        .or(`sender_id.eq.${user.id},sender_id.eq.${userId}`)
-        .or(`recipient_id.eq.${userId},recipient_id.eq.${user.id}`)
+        .select('*')
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      
-      // Processa i messaggi per includere reply_to con user_name
-      const processedMessages = data?.map(msg => {
-        const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
-        
-        return {
-          ...msg,
-          reply_to: replyToData ? {
-            id: replyToData.id,
-            content: replyToData.content,
-            user_name: userNames[replyToData.sender_id] || 'Utente sconosciuto'
-          } : null
-        };
-      }) || [];
-      
-      setMessages(processedMessages);
+      setMessages(data || []);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -150,18 +100,17 @@ const PrivateMessagesPage: React.FC = () => {
 
     const channel = supabase
       .channel(`private-messages-${userId}`)
-        .on(
+      .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'private_messages',
-          filter: `sender_id.in.(${user.id},${userId}),recipient_id.in.(${user.id},${userId})`
+          filter: `or(and(sender_id.eq.${user.id},recipient_id.eq.${userId}),and(sender_id.eq.${userId},recipient_id.eq.${user.id}))`
         },
-        async (payload) => {
+        (payload) => {
           const newMessage = payload.new as PrivateMessage;
-          const processedMessage = await processMessageReply(newMessage);
-          setMessages(prev => [...prev, processedMessage]);
+          setMessages(prev => [...prev, newMessage]);
         }
       )
       .subscribe();
@@ -169,48 +118,6 @@ const PrivateMessagesPage: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  };
-
-  const processMessageReply = async (message: PrivateMessage): Promise<PrivateMessage> => {
-    if (!message.reply_to_id) {
-      return message;
-    }
-
-    // Cerca prima nei messaggi già caricati
-    const existingReplyMessage = messages.find(m => m.id === message.reply_to_id);
-    if (existingReplyMessage) {
-      return {
-        ...message,
-        reply_to: {
-          id: existingReplyMessage.id,
-          content: existingReplyMessage.content,
-          user_name: userNames[existingReplyMessage.sender_id] || 'Utente sconosciuto'
-        }
-      };
-    }
-
-    // Se non trovato, carica dal database
-    try {
-      const { data, error } = await supabase
-        .from('private_messages')
-        .select('id, content, sender_id')
-        .eq('id', message.reply_to_id)
-        .single();
-
-      if (error) throw error;
-
-      return {
-        ...message,
-        reply_to: {
-          id: data.id,
-          content: data.content,
-          user_name: userNames[data.sender_id] || 'Utente sconosciuto'
-        }
-      };
-    } catch (error) {
-      console.error('Error loading reply message:', error);
-      return message;
-    }
   };
 
   const sendMessage = async () => {
@@ -302,25 +209,6 @@ const PrivateMessagesPage: React.FC = () => {
                         : 'bg-muted'
                     }`}
                   >
-                    {/* Nome utente sopra il messaggio se non è proprio */}
-                    {message.sender_id !== user?.id && (
-                      <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {userNames[message.sender_id] || 'Utente sconosciuto'}
-                      </div>
-                    )}
-                    
-                    {/* Messaggio a cui si sta rispondendo */}
-                    {message.reply_to && (
-                      <div className="text-xs text-muted-foreground mb-2 p-2 bg-muted/50 rounded border-l-2 border-primary/30">
-                        <div className="flex items-center gap-1 mb-1">
-                          <Reply className="h-3 w-3" />
-                          Risposta a: {message.reply_to.user_name || 'Utente sconosciuto'}
-                        </div>
-                        <div className="truncate italic">"{message.reply_to.content || 'Messaggio multimediale'}"</div>
-                      </div>
-                    )}
-                    
                     <div className="break-words">{message.content}</div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {formatDistanceToNow(new Date(message.created_at), { 
