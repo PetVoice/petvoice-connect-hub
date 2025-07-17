@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -91,6 +92,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
       
+      // Prima carica i nomi utente se non li abbiamo già
+      if (Object.keys(userNames).length === 0) {
+        await loadUserNames();
+      }
+      
       // Processa i messaggi per includere reply_to con user_name
       const processedMessages = await Promise.all(
         (data || []).map(async (msg) => {
@@ -99,7 +105,27 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           
           if (replyToData) {
             // Ottieni il nome utente per il messaggio di risposta
-            const replyUserName = userNames[replyToData.user_id] || 'Utente sconosciuto';
+            let replyUserName = userNames[replyToData.user_id];
+            
+            // Se non abbiamo il nome utente, caricalo dal database
+            if (!replyUserName) {
+              const { data: userData, error: userError } = await supabase
+                .from('user_display_names')
+                .select('display_name')
+                .eq('user_id', replyToData.user_id)
+                .single();
+              
+              if (!userError && userData) {
+                replyUserName = userData.display_name;
+                // Aggiorna il cache locale
+                setUserNames(prev => ({
+                  ...prev,
+                  [replyToData.user_id]: userData.display_name
+                }));
+              } else {
+                replyUserName = 'Utente sconosciuto';
+              }
+            }
             
             return {
               ...msg,
@@ -144,8 +170,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         namesMap[item.user_id] = item.display_name;
       });
       setUserNames(namesMap);
+      
+      return namesMap;
     } catch (error) {
       console.error('Error loading user names:', error);
+      return {};
     }
   };
 
@@ -176,10 +205,33 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
                 .single();
               
               if (!replyError && replyData) {
+                // Ottieni il nome utente per il messaggio di risposta
+                let replyUserName = userNames[replyData.user_id];
+                
+                // Se non abbiamo il nome utente, caricalo dal database
+                if (!replyUserName) {
+                  const { data: userData, error: userError } = await supabase
+                    .from('user_display_names')
+                    .select('display_name')
+                    .eq('user_id', replyData.user_id)
+                    .single();
+                  
+                  if (!userError && userData) {
+                    replyUserName = userData.display_name;
+                    // Aggiorna il cache locale
+                    setUserNames(prev => ({
+                      ...prev,
+                      [replyData.user_id]: userData.display_name
+                    }));
+                  } else {
+                    replyUserName = 'Utente sconosciuto';
+                  }
+                }
+                
                 newMessage.reply_to = {
                   id: replyData.id,
                   content: replyData.content,
-                  user_name: userNames[replyData.user_id] || 'Utente sconosciuto'
+                  user_name: replyUserName
                 };
               }
             } catch (error) {
