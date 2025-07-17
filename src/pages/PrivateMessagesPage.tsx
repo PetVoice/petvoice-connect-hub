@@ -176,16 +176,19 @@ const PrivateMessagesPage: React.FC = () => {
           Torna alla community
         </Button>
         {otherUser && (
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10 ring-2 ring-primary/20">
               <AvatarImage src={otherUser.avatar_url || undefined} />
-              <AvatarFallback>
-                <User className="h-4 w-4" />
+              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-accent/10 text-primary font-medium">
+                {otherUser.display_name?.charAt(0)?.toUpperCase() || <User className="h-5 w-5" />}
               </AvatarFallback>
             </Avatar>
-            <h1 className="text-xl font-semibold">
-              Chat con {otherUser.display_name}
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="text-xl font-semibold text-foreground">
+                {otherUser.display_name}
+              </h1>
+              <p className="text-sm text-muted-foreground">Messaggi privati</p>
+            </div>
           </div>
         )}
       </div>
