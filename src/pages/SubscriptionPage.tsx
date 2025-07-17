@@ -65,6 +65,18 @@ const SubscriptionPage = () => {
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
     : '';
 
+  // Debug logging per troubleshooting
+  console.log('🔍 Subscription Debug:', {
+    subscribed: subscription.subscribed,
+    is_cancelled: subscription.is_cancelled,
+    cancellation_type: subscription.cancellation_type,
+    can_reactivate: subscription.can_reactivate,
+    isCancelled,
+    isEndOfPeriodCancellation,
+    canReactivate,
+    shouldShowReactivationSection: isEndOfPeriodCancellation
+  });
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8 text-center">
