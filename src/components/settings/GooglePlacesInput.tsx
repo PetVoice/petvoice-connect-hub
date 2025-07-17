@@ -63,6 +63,17 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
       setShowSuggestions(true);
       
       try {
+        // Estrai numero civico dalla query dell'utente se presente
+        const userInputMatch = query.match(/^(.+?)\s+(\d+[a-zA-Z]?)\s*(.*)$/);
+        const userStreetNumber = userInputMatch ? userInputMatch[2] : '';
+        const queryWithoutNumber = userInputMatch ? `${userInputMatch[1]} ${userInputMatch[3]}`.trim() : query;
+        
+        console.log('🔍 User input analysis:', {
+          originalQuery: query,
+          extractedNumber: userStreetNumber,
+          queryForSearch: queryWithoutNumber
+        });
+        
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}&countrycodes=it&accept-language=it`
         );
@@ -100,12 +111,19 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
             }
           }
           
+          // IMPORTANTE: Se l'utente ha inserito un numero civico specifico e non l'abbiamo trovato nei dati di Nominatim,
+          // usiamo quello che ha inserito l'utente
+          if (!streetNumber && userStreetNumber) {
+            streetNumber = userStreetNumber;
+            console.log('🏠 Using user provided street number:', streetNumber);
+          }
+          
           const city = address.city || address.town || address.village || '';
           const province = address.state || address.province || '';
           const country = address.country || 'Italia';
           const postalCode = address.postcode || '';
           
-          console.log('🔍 Parsed values:', {
+          console.log('🔍 Final parsed values:', {
             streetName,
             streetNumber,
             city,
@@ -114,9 +132,14 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
             postalCode
           });
           
+          // Componi l'indirizzo completo includendo il numero civico dell'utente se presente
+          const fullAddressWithNumber = streetNumber ? 
+            `${streetName} ${streetNumber}, ${postalCode} ${city}, ${country}`.trim() :
+            item.display_name;
+          
           return {
             id: item.place_id,
-            display_name: item.display_name,
+            display_name: fullAddressWithNumber,
             main_text: `${streetName} ${streetNumber}`.trim() || city || 'Indirizzo',
             secondary_text: `${postalCode} ${city}, ${country}`.trim(),
             address_details: {
@@ -126,7 +149,7 @@ export const GooglePlacesInput: React.FC<GooglePlacesInputProps> = ({
               city: city,
               province: province,
               country: country,
-              full_address: item.display_name
+              full_address: fullAddressWithNumber
             }
           };
         });
