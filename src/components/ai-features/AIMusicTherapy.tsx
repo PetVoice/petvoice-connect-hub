@@ -333,10 +333,35 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         audioContextRef.current = audioContext;
         
-        // Estrai frequenza dalla sessione
+        // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
-        const mainFreq = parseFloat(frequency.split('Hz')[0]);
-        const beatFreq = frequency.includes('+') ? parseFloat(frequency.split('+')[1].replace('Hz', '').trim()) : 0;
+        let mainFreq = 440; // Frequenza di base
+        let beatFreq = 10;  // Frequenza binaural di default
+        
+        if (frequency.includes('+')) {
+          // Formato: "528Hz + 8Hz"
+          mainFreq = parseFloat(frequency.split('Hz')[0]);
+          beatFreq = parseFloat(frequency.split('+')[1].replace('Hz', '').trim());
+        } else if (frequency.includes('-')) {
+          // Formato: "10-13Hz" - usa la frequenza media
+          const range = frequency.replace('Hz', '').split('-');
+          const min = parseFloat(range[0]);
+          const max = parseFloat(range[1]);
+          mainFreq = 220; // Frequenza carrier per range bassi
+          beatFreq = (min + max) / 2;
+        } else {
+          // Formato: "40Hz" - frequenza singola
+          const singleFreq = parseFloat(frequency.replace('Hz', ''));
+          if (singleFreq < 100) {
+            // Frequenza bassa - usa come binaural beat
+            mainFreq = 220;
+            beatFreq = singleFreq;
+          } else {
+            // Frequenza alta - usa come carrier
+            mainFreq = singleFreq;
+            beatFreq = 10;
+          }
+        }
         
         // Crea oscillatori per binaural beats
         const oscillator1 = audioContext.createOscillator();
