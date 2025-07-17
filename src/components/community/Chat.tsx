@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -256,15 +257,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
-  const handleContactUser = (userId: string, userName: string) => {
-    // Navigare alla pagina dei messaggi privati con questo utente
-    // Per ora mostriamo un toast per indicare la funzionalità
-    toast({
-      title: "Messaggi privati",
-      description: `Contatto con ${userName} - Funzionalità in sviluppo`,
-    });
-  };
-
   const deleteMessage = async (messageId: string) => {
     try {
       const { error } = await supabase
@@ -452,7 +444,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
             onReply={handleReply}
-            onContactUser={handleContactUser}
             isSelectionMode={isSelectionMode}
             selectedMessages={selectedMessages}
             onToggleSelection={toggleMessageSelection}

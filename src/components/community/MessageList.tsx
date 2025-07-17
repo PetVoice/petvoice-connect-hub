@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { MessageItem } from './MessageItem';
 import { Message } from './Chat';
@@ -9,7 +10,6 @@ interface MessageListProps {
   onDeleteMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
   onReply: (messageId: string, userName: string) => void;
-  onContactUser: (userId: string, userName: string) => void;
   isSelectionMode?: boolean;
   selectedMessages?: string[];
   onToggleSelection?: (messageId: string) => void;
@@ -22,7 +22,6 @@ export const MessageList: React.FC<MessageListProps> = ({
   onDeleteMessage,
   onEditMessage,
   onReply,
-  onContactUser,
   isSelectionMode = false,
   selectedMessages = [],
   onToggleSelection
@@ -43,7 +42,6 @@ export const MessageList: React.FC<MessageListProps> = ({
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
             onReply={onReply}
-            onContactUser={onContactUser}
             isSelectionMode={isSelectionMode}
             isSelected={selectedMessages.includes(message.id)}
             onToggleSelection={() => onToggleSelection?.(message.id)}
