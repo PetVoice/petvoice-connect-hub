@@ -165,20 +165,9 @@ const SubscriptionPage = () => {
                   </>
                 )}
 
-                {/* STATO CANCEL_AT_PERIOD_END: Sostituisce "Cancella Immediatamente" con "Riattiva" */}
+                {/* STATO CANCEL_AT_PERIOD_END: Solo pulsante "Riattiva" */}
                 {isEndOfPeriodCancellation && (
                   <>
-                    <Button
-                      onClick={() => handleCancelSubscription('end_of_period')}
-                      variant="outline"
-                      size="lg"
-                      disabled={cancelLoading}
-                      className="flex-1 sm:flex-none"
-                    >
-                      <Calendar className="w-5 h-5 mr-2" />
-                      📅 Cancella a Fine Periodo
-                    </Button>
-                    
                     {canReactivate && (
                       <Button 
                         onClick={() => setShowReactivationModal(true)}
