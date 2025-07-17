@@ -37,10 +37,7 @@ const SubscriptionSuccessPage = () => {
           console.log('Could not communicate with parent window');
         }
         
-        // Chiudi la tab dopo un breve delay
-        setTimeout(() => {
-          window.close();
-        }, 3000);
+        // Non chiudere automaticamente la tab - lasciare che l'utente scelga
       }
     }
   }, [sessionId, checkSubscription]);
@@ -77,15 +74,22 @@ const SubscriptionSuccessPage = () => {
           {/* Mostra messaggio diverso se siamo in una nuova tab */}
           {window.opener ? (
             <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Questa tab si chiuderà automaticamente tra pochi secondi...
-              </p>
               <Button 
                 onClick={() => window.close()} 
-                variant="outline"
+                variant="default"
                 className="w-full"
               >
                 Chiudi Tab
+              </Button>
+              <Button 
+                onClick={() => { 
+                  window.opener.postMessage({ type: 'NAVIGATE_TO_DASHBOARD' }, '*'); 
+                  window.close(); 
+                }} 
+                variant="outline"
+                className="w-full"
+              >
+                Vai alla Dashboard
               </Button>
             </div>
           ) : (
