@@ -219,7 +219,7 @@ const SettingsPage: React.FC = () => {
   });
 
   // Integration State with useIntegrations hook
-  const { connectIntegration, disconnectIntegration, getIntegrationStatus, loading: integrationsLoading } = useIntegrations();
+  const { integrations, connectIntegration, disconnectIntegration, getIntegrationStatus, loading: integrationsLoading } = useIntegrations();
 
   // Accessibility State
   const [accessibility, setAccessibility] = useState({

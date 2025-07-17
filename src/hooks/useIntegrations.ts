@@ -171,12 +171,25 @@ export function useIntegrations() {
     };
   };
 
+  // Return legacy integrations object for backward compatibility
+  const legacyIntegrations = {
+    calendar: {
+      google: getIntegrationStatus('calendar', 'google').connected,
+      apple: getIntegrationStatus('calendar', 'apple').connected,
+      outlook: getIntegrationStatus('calendar', 'microsoft').connected
+    },
+    health: {
+      appleHealth: getIntegrationStatus('health', 'apple').connected,
+      googleFit: getIntegrationStatus('health', 'google').connected
+    }
+  };
+
   useEffect(() => {
     loadIntegrations();
   }, [user]);
 
   return {
-    integrations,
+    integrations: legacyIntegrations,
     loading,
     connectIntegration,
     disconnectIntegration,
