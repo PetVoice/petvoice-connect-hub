@@ -32,6 +32,7 @@ export interface Message {
     id: string;
     content: string | null;
     user_name: string | null;
+    user_id: string;
   } | null;
 }
 
@@ -47,11 +48,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    // Forza lo scroll immediatamente e con backup
     const scrollElement = messagesEndRef.current;
     if (scrollElement) {
       scrollElement.scrollIntoView({ behavior: 'instant', block: 'end' });
-      // Backup: forza scroll del parent container
       const chatContainer = scrollElement.closest('.overflow-y-auto, .overflow-auto');
       if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -66,7 +65,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   }, [channelId]);
 
   useEffect(() => {
-    // Delay per permettere al DOM di renderizzare
     setTimeout(() => {
       scrollToBottom();
     }, 500);
@@ -74,7 +72,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   const loadMessages = async () => {
     try {
-      // Prima carica i nomi utente
       const userNamesMap = await loadUserNames();
       
       const { data, error } = await supabase
@@ -94,7 +91,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
       
-      // Processa i messaggi per includere reply_to con user_name
       const processedMessages = (data || []).map((msg) => {
         const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
         
@@ -106,7 +102,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             reply_to: {
               id: replyToData.id,
               content: replyToData.content,
-              user_name: replyUserName
+              user_name: replyUserName,
+              user_id: replyToData.user_id
             }
           };
         }
@@ -168,7 +165,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
           
-          // Se il messaggio ha una reply_to_id, carica i dati del messaggio di risposta
           if (newMessage.reply_to_id) {
             try {
               const { data: replyData, error: replyError } = await supabase
@@ -178,10 +174,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
                 .single();
               
               if (!replyError && replyData) {
-                // Ottieni il nome utente per il messaggio di risposta
                 let replyUserName = userNames[replyData.user_id];
                 
-                // Se non abbiamo il nome utente, caricalo dal database
                 if (!replyUserName) {
                   const { data: userData, error: userError } = await supabase
                     .from('user_display_names')
@@ -191,7 +185,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
                   
                   if (!userError && userData) {
                     replyUserName = userData.display_name;
-                    // Aggiorna il cache locale
                     setUserNames(prev => ({
                       ...prev,
                       [replyData.user_id]: userData.display_name
@@ -204,7 +197,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
                 newMessage.reply_to = {
                   id: replyData.id,
                   content: replyData.content,
-                  user_name: replyUserName
+                  user_name: replyUserName,
+                  user_id: replyData.user_id
                 };
               }
             } catch (error) {
@@ -213,7 +207,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           }
           
           setMessages(prev => {
-            // Evita duplicati controllando se il messaggio esiste già
             const exists = prev.some(msg => msg.id === newMessage.id);
             if (exists) {
               console.log('⚠️ Message already exists, skipping:', newMessage.id);
@@ -258,7 +251,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     try {
       const messageData = {
         user_id: user.id,
-        channel_id: crypto.randomUUID(), // Generiamo un UUID temporaneo per compatibilità
+        channel_id: crypto.randomUUID(),
         channel_name: channelId,
         content: content?.trim() || null,
         message_type: messageType,
@@ -283,19 +276,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       console.log('✅ Message sent successfully:', data);
       
-      // Resetta reply
       setReplyTo(null);
       
-      // Aggiungi il messaggio immediatamente allo stato locale per feedback immediato
       if (data) {
         let processedMessage = data as Message;
         
-        // Se il messaggio ha una reply_to_id, aggiungi i dati del reply
         if (data.reply_to_id && replyTo) {
           processedMessage.reply_to = {
             id: replyTo.id,
             content: replyTo.content,
-            user_name: replyTo.userName
+            user_name: replyTo.userName,
+            user_id: user.id
           };
         }
         
@@ -337,7 +328,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
 
-      // Remove from local state
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
 
       toast({
@@ -418,7 +408,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
 
-      // Remove from local state
       setMessages(prev => prev.filter(msg => !selectedMessages.includes(msg.id)));
       setSelectedMessages([]);
       setIsSelectionMode(false);
@@ -522,7 +511,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         </div>
       </div>
       
-      {/* Reply indicator */}
       {replyTo && (
         <div className="px-4 py-2 bg-muted/50 border-t">
           <div className="flex items-center justify-between">
@@ -545,7 +533,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       
       <MessageInput onSendMessage={sendMessage} />
 
-      {/* Bulk delete confirmation dialog */}
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

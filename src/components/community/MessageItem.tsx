@@ -13,6 +13,7 @@ interface MessageItemProps {
   message: Message;
   isOwn: boolean;
   userName: string;
+  currentUserId: string;
   onDelete: () => void;
   onEdit: (newContent: string) => void;
   onReply: (messageId: string, userName: string) => void;
@@ -25,6 +26,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   message,
   isOwn,
   userName,
+  currentUserId,
   onDelete,
   onEdit,
   onReply,
@@ -52,6 +54,12 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       setEditContent(message.content || '');
     }
   };
+
+  // Determina se mostrare il quote
+  const shouldShowQuote = message.reply_to && (
+    isOwn || // Se è il mio messaggio di risposta
+    message.reply_to.user_id === currentUserId // Se è una risposta al mio messaggio
+  );
 
   const renderMessageContent = () => {
     if (message.message_type === 'image') {
@@ -115,7 +123,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
     return (
       <div className="mt-1">
-        {message.reply_to && (
+        {shouldShowQuote && (
           <div className="mb-2 p-2 bg-muted/50 rounded-md border-l-2 border-primary">
             <div className="text-xs text-muted-foreground">
               Risposta a {message.reply_to.user_name}:
