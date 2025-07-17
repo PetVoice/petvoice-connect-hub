@@ -184,7 +184,7 @@ const SubscriptionPage = () => {
                         onClick={() => setShowReactivationModal(true)}
                         size="lg"
                         disabled={cancelLoading}
-                        className="flex-1 sm:flex-none petvoice-button"
+                        className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Shield className="w-5 h-5 mr-2" />
                         🔄 Riattiva Abbonamento
@@ -283,43 +283,6 @@ const SubscriptionPage = () => {
         )}
       </div>
 
-      {/* Reactivation Section - Solo se cancellato a fine periodo E può riattivare */}
-      {isEndOfPeriodCancellation && (
-        <Card className="petvoice-card border-warning mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-warning">
-              <AlertTriangle className="w-5 h-5" />
-              ⚠️ ABBONAMENTO IN CANCELLAZIONE
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
-            </p>
-            
-            {/* Mostra pulsante riattiva SOLO se can_reactivate è true */}
-            {canReactivate ? (
-              <Button 
-                onClick={() => setShowReactivationModal(true)}
-                className="w-full petvoice-button"
-                disabled={cancelLoading}
-              >
-                {cancelLoading ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
-              </Button>
-            ) : (
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                <p className="text-sm text-destructive font-medium">
-                  ❌ Riattivazione non più disponibile
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  L'abbonamento è stato cancellato definitivamente. 
-                  Per riprendere il servizio Premium, sottoscrivi un nuovo abbonamento.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       <CancellationModal
         isOpen={showCancellationModal}
