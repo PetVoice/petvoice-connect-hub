@@ -18,44 +18,40 @@ export function useAccessibility() {
   });
 
 
-  // Carica le impostazioni dal localStorage al mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('accessibility-settings');
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        setAccessibility(parsed);
-        // Applica immediatamente le impostazioni dopo il caricamento
-        setTimeout(() => {
-          applyAccessibilitySettings(parsed);
-        }, 0);
-      } catch (error) {
-        console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
+  // Migliora il supporto per screen reader
+  const enhanceScreenReaderSupport = useCallback(() => {
+    // Aggiungi attributi ARIA dove mancanti
+    const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
+    buttons.forEach((button) => {
+      const text = button.textContent?.trim();
+      if (text) {
+        button.setAttribute('aria-label', text);
       }
+    });
+
+    // Aggiungi role ai componenti interattivi
+    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown]');
+    interactiveElements.forEach((element) => {
+      if (!element.getAttribute('role')) {
+        element.setAttribute('role', 'button');
+      }
+    });
+
+    // Aggiungi live regions per notifiche
+    let liveRegion = document.getElementById('accessibility-live-region');
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'accessibility-live-region';
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.style.position = 'absolute';
+      liveRegion.style.left = '-10000px';
+      liveRegion.style.width = '1px';
+      liveRegion.style.height = '1px';
+      liveRegion.style.overflow = 'hidden';
+      document.body.appendChild(liveRegion);
     }
   }, []);
-
-  // Salva le impostazioni nel localStorage quando cambiano
-  useEffect(() => {
-    localStorage.setItem('accessibility-settings', JSON.stringify(accessibility));
-  }, [accessibility]);
-
-  // Applica le impostazioni al DOM
-  useEffect(() => {
-    applyAccessibilitySettings();
-  }, [accessibility]);
-
-  // Annuncia messaggi agli screen reader
-  const announceToScreenReader = useCallback((message: string) => {
-    const liveRegion = document.getElementById('accessibility-live-region');
-    if (liveRegion) {
-      liveRegion.textContent = message;
-      setTimeout(() => {
-        liveRegion.textContent = '';
-      }, 1000);
-    }
-  }, []);
-
 
   // Applica le impostazioni di accessibilità al DOM
   const applyAccessibilitySettings = useCallback((settings?: AccessibilitySettings) => {
@@ -126,40 +122,43 @@ export function useAccessibility() {
       enhanceScreenReaderSupport();
     }
 
-  }, []);
+  }, [accessibility, enhanceScreenReaderSupport]);
 
-  // Migliora il supporto per screen reader
-  const enhanceScreenReaderSupport = useCallback(() => {
-    // Aggiungi attributi ARIA dove mancanti
-    const buttons = document.querySelectorAll('button:not([aria-label]):not([aria-labelledby])');
-    buttons.forEach((button) => {
-      const text = button.textContent?.trim();
-      if (text) {
-        button.setAttribute('aria-label', text);
+  // Carica le impostazioni dal localStorage al mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('accessibility-settings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setAccessibility(parsed);
+        // Applica immediatamente le impostazioni dopo il caricamento
+        setTimeout(() => {
+          applyAccessibilitySettings(parsed);
+        }, 0);
+      } catch (error) {
+        console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
       }
-    });
+    }
+  }, [applyAccessibilitySettings]);
 
-    // Aggiungi role ai componenti interattivi
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown]');
-    interactiveElements.forEach((element) => {
-      if (!element.getAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
+  // Salva le impostazioni nel localStorage quando cambiano
+  useEffect(() => {
+    localStorage.setItem('accessibility-settings', JSON.stringify(accessibility));
+  }, [accessibility]);
 
-    // Aggiungi live regions per notifiche
-    let liveRegion = document.getElementById('accessibility-live-region');
-    if (!liveRegion) {
-      liveRegion = document.createElement('div');
-      liveRegion.id = 'accessibility-live-region';
-      liveRegion.setAttribute('aria-live', 'polite');
-      liveRegion.setAttribute('aria-atomic', 'true');
-      liveRegion.style.position = 'absolute';
-      liveRegion.style.left = '-10000px';
-      liveRegion.style.width = '1px';
-      liveRegion.style.height = '1px';
-      liveRegion.style.overflow = 'hidden';
-      document.body.appendChild(liveRegion);
+  // Applica le impostazioni al DOM
+  useEffect(() => {
+    applyAccessibilitySettings();
+  }, [applyAccessibilitySettings]);
+
+  // Annuncia messaggi agli screen reader
+  const announceToScreenReader = useCallback((message: string) => {
+    const liveRegion = document.getElementById('accessibility-live-region');
+    if (liveRegion) {
+      liveRegion.textContent = message;
+      setTimeout(() => {
+        liveRegion.textContent = '';
+      }, 1000);
     }
   }, []);
 
