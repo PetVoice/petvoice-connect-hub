@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths, addDays, addWeeks, subWeeks, isSameDay, isSameMonth, parseISO, addHours, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useNotifications } from '@/hooks/useNotifications';
 
 // Types
 interface CalendarEvent {
@@ -111,6 +112,7 @@ const RECURRING_PATTERNS = [
 const CalendarPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
+  const { addNotification } = useNotifications();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -365,6 +367,15 @@ const CalendarPage: React.FC = () => {
 
         if (error) throw error;
         toast({ title: "Evento aggiornato con successo!" });
+        
+        // Notifica per modifica evento
+        addNotification({
+          title: 'Evento modificato',
+          message: `L'evento "${formData.title}" per ${activePet.name} è stato aggiornato`,
+          type: 'info',
+          read: false,
+          action_url: '/calendar'
+        });
       } else {
         const { error } = await supabase
           .from('calendar_events')
@@ -372,6 +383,15 @@ const CalendarPage: React.FC = () => {
 
         if (error) throw error;
         toast({ title: "Evento creato con successo!" });
+        
+        // Notifica per nuovo evento
+        addNotification({
+          title: 'Nuovo evento creato',
+          message: `Evento "${formData.title}" creato per ${activePet.name}`,
+          type: 'success',
+          read: false,
+          action_url: '/calendar'
+        });
       }
 
       resetForm();

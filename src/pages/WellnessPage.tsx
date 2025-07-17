@@ -59,6 +59,7 @@ import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import jsPDF from 'jspdf';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface HealthMetric {
   id: string;
@@ -182,12 +183,13 @@ const translateRecordType = (type: string): string => {
 };
 
 // Health Score Components
-const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, selectedPet, user }: {
+const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, selectedPet, user, addNotification }: {
   healthMetrics: HealthMetric[];
   medicalRecords: MedicalRecord[];
   medications: Medication[];
   selectedPet: any;
   user: any;
+  addNotification: (notification: any) => void;
 }) => {
   const [healthScore, setHealthScore] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -382,6 +384,24 @@ const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, select
     // Assicurati che il punteggio sia tra 0 e 100
     const finalScore = Math.min(100, Math.max(0, Math.round(totalScore)));
     
+    // Invia notifica se il punteggio è basso (solo una volta per evitare spam)
+    if (finalScore < 50 && finalScore > 0) {
+      const lastAlertKey = `wellness-alert-${selectedPet.id}`;
+      const lastAlert = localStorage.getItem(lastAlertKey);
+      const now = new Date().getTime();
+      
+      if (!lastAlert || (now - parseInt(lastAlert)) > (24 * 60 * 60 * 1000)) {
+        addNotification({
+          title: 'Punteggio wellness basso',
+          message: `Il punteggio di benessere di ${selectedPet.name} è di ${finalScore}/100. Considera di contattare il veterinario.`,
+          type: 'warning',
+          read: false,
+          action_url: '/wellness'
+        });
+        localStorage.setItem(lastAlertKey, now.toString());
+      }
+    }
+    
     return finalScore;
   };
   
@@ -436,12 +456,13 @@ const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, select
   );
 };
 
-const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selectedPet, user }: {
+const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selectedPet, user, addNotification }: {
   healthMetrics: HealthMetric[];
   medicalRecords: MedicalRecord[];
   medications: Medication[];
   selectedPet: any;
   user: any;
+  addNotification: (notification: any) => void;
 }) => {
   const [healthScore, setHealthScore] = React.useState<number | null>(null);
   
@@ -686,6 +707,7 @@ const HealthScoreCircle = ({ healthMetrics, medicalRecords, medications, selecte
 const WellnessPage = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
+  const { addNotification } = useNotifications();
   
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -1838,13 +1860,14 @@ const WellnessPage = () => {
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <HealthScoreDisplay 
-                    healthMetrics={healthMetrics}
-                    medicalRecords={medicalRecords}
-                    medications={medications}
-                    selectedPet={selectedPet}
-                    user={user}
-                  />
+                <HealthScoreDisplay 
+                  healthMetrics={healthMetrics}
+                  medicalRecords={medicalRecords}
+                  medications={medications}
+                  selectedPet={selectedPet}
+                  user={user}
+                  addNotification={addNotification}
+                />
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
@@ -1866,13 +1889,14 @@ const WellnessPage = () => {
                   </div>
                 </div>
                 
-                <HealthScoreCircle 
-                  healthMetrics={healthMetrics}
-                  medicalRecords={medicalRecords}
-                  medications={medications}
-                  selectedPet={selectedPet}
-                  user={user}
-                />
+              <HealthScoreCircle 
+                healthMetrics={healthMetrics}
+                medicalRecords={medicalRecords}
+                medications={medications}
+                selectedPet={selectedPet}
+                user={user}
+                addNotification={addNotification}
+              />
               </div>
             </CardContent>
           </Card>

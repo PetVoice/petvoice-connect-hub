@@ -76,6 +76,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface SupportTicket {
   id: string;
@@ -178,6 +179,7 @@ const SupportPage: React.FC = () => {
     tags: []
   });
   const { toast } = useToast();
+  const { addNotification } = useNotifications();
 
   // Carica i dati iniziali
   useEffect(() => {
@@ -295,6 +297,15 @@ const SupportPage: React.FC = () => {
       toast({
         title: "Ticket creato",
         description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
+      });
+
+      // Notifica per nuovo ticket
+      addNotification({
+        title: 'Ticket di supporto creato',
+        message: `Il tuo ticket "${newTicket.subject}" è stato inviato al supporto`,
+        type: 'success',
+        read: false,
+        action_url: '/support'
       });
 
       // Reset form

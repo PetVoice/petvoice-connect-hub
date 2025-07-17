@@ -25,6 +25,7 @@ import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface Pet {
   id: string;
@@ -92,6 +93,7 @@ const PetsPage: React.FC = () => {
   const { pets, loading, updatePet, deletePet, addPet } = usePets();
   const navigate = useNavigate();
   const { checkPetLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
+  const { addNotification } = useNotifications();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -175,9 +177,18 @@ const PetsPage: React.FC = () => {
 
       if (editingPet) {
         await updatePet(editingPet.id, petData);
+        // Notifica per modifica pet
+        addNotification({
+          title: 'Pet aggiornato',
+          message: `Le informazioni di ${formData.name} sono state aggiornate`,
+          type: 'success',
+          read: false,
+          action_url: '/pets'
+        });
       } else {
         // Aggiunta nuovo pet tramite context - il context gestisce automaticamente la selezione
         await addPet(petData);
+        // La notifica per nuovo pet è già gestita nel hook useNotificationEvents
       }
       
       resetForm();
@@ -219,7 +230,20 @@ const PetsPage: React.FC = () => {
 
   const handleDelete = async (petId: string) => {
     try {
+      const petToDelete = pets.find(p => p.id === petId);
       await deletePet(petId);
+      
+      // Notifica per eliminazione pet
+      if (petToDelete) {
+        addNotification({
+          title: 'Pet eliminato',
+          message: `${petToDelete.name} è stato rimosso dalla tua famiglia`,
+          type: 'info',
+          read: false,
+          action_url: '/pets'
+        });
+      }
+      
       setDeletingPet(null);
     } catch (error) {
       console.error('Error deleting pet:', error);
