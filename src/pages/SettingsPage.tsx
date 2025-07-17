@@ -221,7 +221,7 @@ const SettingsPage: React.FC = () => {
 
 
   // Accessibility State managed by useAccessibility hook
-  const { accessibility, voiceState, updateSetting, resetSettings, announceToScreenReader } = useAccessibility();
+  const { accessibility, updateSetting, resetSettings, announceToScreenReader } = useAccessibility();
 
   const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
@@ -1956,57 +1956,6 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* Motor Accessibility */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <SettingsIcon className="h-5 w-5" />
-                  Accessibilità Motoria
-                </CardTitle>
-                <CardDescription>
-                  Facilitazioni per l'interazione con l'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Sensibilità al movimento</Label>
-                    <p className="text-sm text-muted-foreground">Riduce animazioni e movimenti</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.motionSensitivity}
-                    onCheckedChange={(checked) => updateSetting('motionSensitivity', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Navigazione da tastiera</Label>
-                    <p className="text-sm text-muted-foreground">Ottimizza la navigazione con tastiera</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.keyboardNavigation}
-                    onCheckedChange={(checked) => updateSetting('keyboardNavigation', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Comandi vocali</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Abilita controllo vocale dell'app
-                      {!voiceState.isSupported && " (non supportato in questo browser)"}
-                      {voiceState.isListening && " (in ascolto...)"}
-                    </p>
-                  </div>
-                  <Switch
-                    checked={accessibility.voiceCommands}
-                    disabled={!voiceState.isSupported}
-                    onCheckedChange={(checked) => updateSetting('voiceCommands', checked)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Accessibility Help */}
             <Card className="lg:col-span-2">
@@ -2027,14 +1976,6 @@ Continuare?
                       <Button variant="outline" className="w-full justify-start">
                         <FileText className="h-4 w-4 mr-2" />
                         Guida Screen Reader
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Shortcuts Tastiera
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Comandi Vocali
                       </Button>
                     </div>
                   </div>
@@ -2062,16 +2003,6 @@ Continuare?
           </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Voice Commands Indicator */}
-      {voiceState.isListening && (
-        <div className="voice-listening-indicator">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            In ascolto...
-          </div>
-        </div>
-      )}
       
       {/* Accessibility Controls */}
       <div className="sr-only">

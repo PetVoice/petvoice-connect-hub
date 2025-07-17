@@ -33,41 +33,6 @@
   font-size: calc(var(--base-font-size, 16px) * 1.25);
 }
 
-/* Reduced Motion */
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
-
-.reduce-motion [data-animated="true"] {
-  animation: none !important;
-}
-
-/* Enhanced Keyboard Navigation */
-.keyboard-navigation *:focus {
-  outline: 2px solid hsl(var(--primary)) !important;
-  outline-offset: 2px !important;
-  box-shadow: 0 0 0 2px hsl(var(--primary)) !important;
-}
-
-.keyboard-navigation .focus-visible {
-  outline: 2px solid hsl(var(--primary)) !important;
-  outline-offset: 2px !important;
-}
-
-.keyboard-navigation button:focus,
-.keyboard-navigation input:focus,
-.keyboard-navigation select:focus,
-.keyboard-navigation textarea:focus,
-.keyboard-navigation [role="button"]:focus,
-.keyboard-navigation [tabindex]:focus {
-  background-color: hsl(var(--primary) / 0.1) !important;
-  border-color: hsl(var(--primary)) !important;
-}
 
 /* Screen Reader Enhancements */
 .sr-only {
@@ -110,32 +75,6 @@
   top: 6px;
 }
 
-/* Voice Commands Indicator */
-.voice-listening-indicator {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
 
 /* Focus Management */
 .focus-trap {
@@ -161,17 +100,6 @@
   border: 1px solid hsl(var(--foreground)) !important;
 }
 
-/* Interactive Elements Enhancements */
-.keyboard-navigation [role="button"]:hover,
-.keyboard-navigation button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.keyboard-navigation [role="button"]:active,
-.keyboard-navigation button:active {
-  transform: translateY(0);
-}
 
 /* Screen Reader Announcements */
 #accessibility-live-region {
@@ -180,15 +108,4 @@
   width: 1px !important;
   height: 1px !important;
   overflow: hidden !important;
-}
-
-/* Motion Sensitivity Overrides */
-@media (prefers-reduced-motion: reduce) {
-  .reduce-motion *,
-  .reduce-motion *::before,
-  .reduce-motion *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
 }
