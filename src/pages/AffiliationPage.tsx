@@ -27,6 +27,7 @@ import {
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
+import PerformanceSection from '@/components/affiliate/PerformanceSection';
 
 // Types
 interface ReferralProfile {
@@ -700,105 +701,11 @@ export default function AffiliationPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                  Performance Mensile
+                  Performance
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Registrazioni mensili</span>
-                    <span className="font-bold text-blue-600">{referrals.filter(r => 
-                      new Date(r.created_at) >= startOfMonth(new Date())
-                    ).length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Conversioni mensili</span>
-                    <span className="font-bold text-green-600">
-                      {referrals.filter(r => 
-                        r.status === 'converted' && 
-                        new Date(r.created_at) >= startOfMonth(new Date())
-                      ).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>In attesa di pagamento</span>
-                    <span className="font-bold text-orange-600">
-                      {referrals.filter(r => 
-                        r.status === 'registered' && 
-                        new Date(r.created_at) >= startOfMonth(new Date())
-                      ).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Crediti guadagnati</span>
-                    <span className="font-bold text-blue-600">
-                      €{credits.filter(c => 
-                        new Date(c.created_at) >= startOfMonth(new Date())
-                      ).reduce((sum, c) => sum + c.amount, 0).toFixed(2)}
-                    </span>
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  {/* Referral Mensili */}
-                  <div>
-                    <h4 className="font-medium mb-3">Referral di questo mese</h4>
-                     {(() => {
-                       const monthlyReferrals = referrals.filter(r => 
-                         new Date(r.created_at) >= startOfMonth(new Date())
-                       );
-                      
-                      if (monthlyReferrals.length === 0) {
-                        return (
-                          <div className="text-center py-4 text-sm text-muted-foreground">
-                            <Users className="h-8 w-8 mx-auto mb-2" />
-                            <p>Nessun referral questo mese</p>
-                          </div>
-                        );
-                      }
-                      
-                      return (
-                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {monthlyReferrals.map((referral) => (
-                            <div key={referral.id} className="flex items-center justify-between p-2 border rounded text-sm">
-                              <div className="flex-1">
-                                <p className="font-medium">{referral.referred_email}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {format(new Date(referral.created_at), 'dd MMM', { locale: it })} · 
-                                  {referral.is_active === false ? ' Account eliminato' : ' Referral diretto'}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-1">
-                        <Badge 
-                          variant={
-                            referral.status === 'converted' ? 'default' : 
-                            referral.status === 'registered' ? 'secondary' : 
-                            referral.status === 'user_deleted' ? 'destructive' :
-                            'outline'
-                          }
-                          className={`text-xs ${
-                            referral.status === 'converted' ? 'bg-green-100 text-green-800 border-green-200' :
-                            referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
-                          }`}
-                        >
-                          {referral.status === 'converted' ? 'Convertito' :
-                           referral.status === 'registered' ? 'Registrato' : 
-                           referral.status === 'user_deleted' ? 'Eliminato' :
-                           'In attesa'}
-                        </Badge>
-                                {referral.status === 'converted' && !referral.is_active && (
-                                  <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600">
-                                    Sospeso
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
+                <PerformanceSection referrals={referrals} credits={credits} />
               </CardContent>
             </Card>
           </div>
