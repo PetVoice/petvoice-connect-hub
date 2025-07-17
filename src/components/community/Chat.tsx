@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,6 +74,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   const loadMessages = async () => {
     try {
+      // Prima carica i nomi utente
+      const userNamesMap = await loadUserNames();
+      
       const { data, error } = await supabase
         .from('community_messages')
         .select(`
@@ -92,57 +94,28 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
       
-      // Prima carica i nomi utente se non li abbiamo già
-      if (Object.keys(userNames).length === 0) {
-        await loadUserNames();
-      }
-      
       // Processa i messaggi per includere reply_to con user_name
-      const processedMessages = await Promise.all(
-        (data || []).map(async (msg) => {
-          // reply_to può essere un array, prendiamo il primo elemento
-          const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
-          
-          if (replyToData) {
-            // Ottieni il nome utente per il messaggio di risposta
-            let replyUserName = userNames[replyToData.user_id];
-            
-            // Se non abbiamo il nome utente, caricalo dal database
-            if (!replyUserName) {
-              const { data: userData, error: userError } = await supabase
-                .from('user_display_names')
-                .select('display_name')
-                .eq('user_id', replyToData.user_id)
-                .single();
-              
-              if (!userError && userData) {
-                replyUserName = userData.display_name;
-                // Aggiorna il cache locale
-                setUserNames(prev => ({
-                  ...prev,
-                  [replyToData.user_id]: userData.display_name
-                }));
-              } else {
-                replyUserName = 'Utente sconosciuto';
-              }
-            }
-            
-            return {
-              ...msg,
-              reply_to: {
-                id: replyToData.id,
-                content: replyToData.content,
-                user_name: replyUserName
-              }
-            };
-          }
+      const processedMessages = (data || []).map((msg) => {
+        const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
+        
+        if (replyToData) {
+          const replyUserName = userNamesMap[replyToData.user_id] || 'Utente sconosciuto';
           
           return {
             ...msg,
-            reply_to: null
+            reply_to: {
+              id: replyToData.id,
+              content: replyToData.content,
+              user_name: replyUserName
+            }
           };
-        })
-      );
+        }
+        
+        return {
+          ...msg,
+          reply_to: null
+        };
+      });
       
       setMessages(processedMessages);
     } catch (error) {
