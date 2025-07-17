@@ -103,7 +103,7 @@ export default function PerformanceSection({ referrals, credits }: PerformanceSe
         </div>
         <div className="flex justify-between">
           <span>In attesa di pagamento</span>
-          <span className="font-bold text-orange-600">{data.pending}</span>
+          <span className="font-bold text-orange-500">{data.pending}</span>
         </div>
         <div className="flex justify-between">
           <span>Abbonamenti sottoscritti</span>
