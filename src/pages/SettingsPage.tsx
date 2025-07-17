@@ -71,6 +71,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIntegrations } from '@/hooks/useIntegrations';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAppearance } from '@/contexts/AppearanceContext';
@@ -217,23 +218,8 @@ const SettingsPage: React.FC = () => {
     }
   });
 
-  // Integration State
-  const [integrations, setIntegrations] = useState({
-    calendar: {
-      google: false,
-      apple: false,
-      outlook: false
-    },
-    smartHome: {
-      alexa: false,
-      googleHome: false,
-      homeKit: false
-    },
-    health: {
-      appleHealth: false,
-      googleFit: false
-    }
-  });
+  // Integration State with useIntegrations hook
+  const { connectIntegration, disconnectIntegration, getIntegrationStatus, loading: integrationsLoading } = useIntegrations();
 
   // Accessibility State
   const [accessibility, setAccessibility] = useState({
@@ -1970,13 +1956,17 @@ Continuare?
                     </div>
                   </div>
                   <Switch
-                    checked={integrations.calendar.google}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, google: checked}
-                      }))
-                    }
+                    checked={getIntegrationStatus('calendar', 'google').connected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        connectIntegration('calendar', 'google');
+                      } else {
+                        const integration = getIntegrationStatus('calendar', 'google').integration;
+                        if (integration) {
+                          disconnectIntegration(integration.id);
+                        }
+                      }
+                    }}
                   />
                 </div>
 
@@ -1991,13 +1981,17 @@ Continuare?
                     </div>
                   </div>
                   <Switch
-                    checked={integrations.calendar.apple}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, apple: checked}
-                      }))
-                    }
+                    checked={getIntegrationStatus('calendar', 'apple').connected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        connectIntegration('calendar', 'apple');
+                      } else {
+                        const integration = getIntegrationStatus('calendar', 'apple').integration;
+                        if (integration) {
+                          disconnectIntegration(integration.id);
+                        }
+                      }
+                    }}
                   />
                 </div>
 
@@ -2012,94 +2006,22 @@ Continuare?
                     </div>
                   </div>
                   <Switch
-                    checked={integrations.calendar.outlook}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, outlook: checked}
-                      }))
-                    }
+                    checked={getIntegrationStatus('calendar', 'microsoft').connected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        connectIntegration('calendar', 'microsoft');
+                      } else {
+                        const integration = getIntegrationStatus('calendar', 'microsoft').integration;
+                        if (integration) {
+                          disconnectIntegration(integration.id);
+                        }
+                      }
+                    }}
                   />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Smart Home */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Home className="h-5 w-5" />
-                  Casa Intelligente
-                </CardTitle>
-                <CardDescription>
-                  Integra con i tuoi dispositivi smart home
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-cyan-100 rounded-lg">
-                      <Volume2 className="h-4 w-4 text-cyan-600" />
-                    </div>
-                    <div>
-                      <Label>Amazon Alexa</Label>
-                      <p className="text-sm text-muted-foreground">Comandi vocali per PetVoice</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.alexa}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, alexa: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <Label>Google Home</Label>
-                      <p className="text-sm text-muted-foreground">Controllo vocale Google</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.googleHome}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, googleHome: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Home className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <Label>Apple HomeKit</Label>
-                      <p className="text-sm text-muted-foreground">Integrazione HomeKit</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.homeKit}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, homeKit: checked}
-                      }))
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Health Apps */}
             <Card>
@@ -2124,13 +2046,17 @@ Continuare?
                     </div>
                   </div>
                   <Switch
-                    checked={integrations.health.appleHealth}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        health: {...prev.health, appleHealth: checked}
-                      }))
-                    }
+                    checked={getIntegrationStatus('health', 'apple').connected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        connectIntegration('health', 'apple');
+                      } else {
+                        const integration = getIntegrationStatus('health', 'apple').integration;
+                        if (integration) {
+                          disconnectIntegration(integration.id);
+                        }
+                      }
+                    }}
                   />
                 </div>
 
@@ -2145,13 +2071,17 @@ Continuare?
                     </div>
                   </div>
                   <Switch
-                    checked={integrations.health.googleFit}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        health: {...prev.health, googleFit: checked}
-                      }))
-                    }
+                    checked={getIntegrationStatus('health', 'google').connected}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        connectIntegration('health', 'google');
+                      } else {
+                        const integration = getIntegrationStatus('health', 'google').integration;
+                        if (integration) {
+                          disconnectIntegration(integration.id);
+                        }
+                      }
+                    }}
                   />
                 </div>
 

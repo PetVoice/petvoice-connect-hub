@@ -521,6 +521,56 @@ export type Database = {
         }
         Relationships: []
       }
+      health_data_sync: {
+        Row: {
+          created_at: string
+          data_type: string
+          data_value: Json | null
+          external_data_id: string | null
+          id: string
+          integration_id: string
+          last_synced_at: string | null
+          pet_id: string
+          recorded_at: string | null
+          sync_status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          data_value?: Json | null
+          external_data_id?: string | null
+          id?: string
+          integration_id: string
+          last_synced_at?: string | null
+          pet_id: string
+          recorded_at?: string | null
+          sync_status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          data_value?: Json | null
+          external_data_id?: string | null
+          id?: string
+          integration_id?: string
+          last_synced_at?: string | null
+          pet_id?: string
+          recorded_at?: string | null
+          sync_status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_data_sync_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "user_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       health_metrics: {
         Row: {
           created_at: string
@@ -2011,6 +2061,54 @@ export type Database = {
           },
         ]
       }
+      synced_calendar_events: {
+        Row: {
+          calendar_event_id: string | null
+          created_at: string
+          external_event_id: string
+          id: string
+          integration_id: string
+          last_synced_at: string | null
+          sync_status: string | null
+          user_id: string
+        }
+        Insert: {
+          calendar_event_id?: string | null
+          created_at?: string
+          external_event_id: string
+          id?: string
+          integration_id: string
+          last_synced_at?: string | null
+          sync_status?: string | null
+          user_id: string
+        }
+        Update: {
+          calendar_event_id?: string | null
+          created_at?: string
+          external_event_id?: string
+          id?: string
+          integration_id?: string
+          last_synced_at?: string | null
+          sync_status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "synced_calendar_events_calendar_event_id_fkey"
+            columns: ["calendar_event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "synced_calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "user_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_channel_subscriptions: {
         Row: {
           channel_id: string | null
@@ -2060,6 +2158,48 @@ export type Database = {
           display_name?: string
           is_online?: boolean | null
           last_seen?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_integrations: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          id: string
+          integration_type: string
+          is_active: boolean | null
+          provider: string
+          refresh_token: string | null
+          settings: Json | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          integration_type: string
+          is_active?: boolean | null
+          provider: string
+          refresh_token?: string | null
+          settings?: Json | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          integration_type?: string
+          is_active?: boolean | null
+          provider?: string
+          refresh_token?: string | null
+          settings?: Json | null
+          token_expires_at?: string | null
           updated_at?: string
           user_id?: string
         }
