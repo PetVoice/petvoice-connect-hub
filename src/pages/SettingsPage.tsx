@@ -403,13 +403,11 @@ const SettingsPage: React.FC = () => {
   const handleOpenDocument = (documentType: string) => {
     setOpenDocument(documentType);
     setShowDocumentView(true);
-    setActiveTab('legal-document');
   };
 
   const handleCloseDocument = () => {
     setOpenDocument(null);
     setShowDocumentView(false);
-    setActiveTab('privacy');
   };
 
   const renderDocument = () => {
@@ -1190,26 +1188,8 @@ Continuare?
             <Accessibility className="h-4 w-4" />
             Accessibilità
           </TabsTrigger>
-          <TabsTrigger value="legal-document" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Documento
-          </TabsTrigger>
         </TabsList>
 
-        {/* Legal Document View */}
-        <TabsContent value="legal-document" className="space-y-6">
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="outline" 
-              onClick={handleCloseDocument}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Torna alle Impostazioni
-            </Button>
-          </div>
-          {renderDocument()}
-        </TabsContent>
 
         {/* Account Management Tab */}
         <TabsContent value="account" className="space-y-6">
@@ -2093,6 +2073,28 @@ Continuare?
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Legal Document Modal */}
+      {showDocumentView && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background max-w-4xl max-h-[90vh] w-full mx-4 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold">Documento Legale</h2>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleCloseDocument}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {renderDocument()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
