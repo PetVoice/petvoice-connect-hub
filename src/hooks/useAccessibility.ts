@@ -4,7 +4,6 @@ import { useToast } from '@/hooks/use-toast';
 export interface AccessibilitySettings {
   screenReader: boolean;
   highContrast: boolean;
-  fontSize: 'small' | 'medium' | 'large' | 'extra-large';
 }
 
 export function useAccessibility() {
@@ -23,8 +22,7 @@ export function useAccessibility() {
     }
     return {
       screenReader: false,
-      highContrast: false,
-      fontSize: 'medium' as const
+      highContrast: false
     };
   });
 
@@ -111,32 +109,7 @@ export function useAccessibility() {
       root.style.removeProperty('--secondary-foreground');
     }
 
-    // 2. Dimensione font
-    const fontSizeClasses = {
-      small: 'text-sm',
-      medium: 'text-base',
-      large: 'text-lg',
-      'extra-large': 'text-xl'
-    };
-    
-    // Rimuovi tutte le classi di dimensione font
-    Object.values(fontSizeClasses).forEach(cls => {
-      root.classList.remove(cls);
-    });
-    
-    // Applica la nuova dimensione
-    root.classList.add(fontSizeClasses[settings.fontSize]);
-    
-    // Applica anche via CSS custom properties
-    const fontSizes = {
-      small: '14px',
-      medium: '16px',
-      large: '18px',
-      'extra-large': '20px'
-    };
-    root.style.setProperty('--base-font-size', fontSizes[settings.fontSize]);
-
-    // 3. Screen reader - migliora attributi ARIA
+    // 2. Screen reader - migliora attributi ARIA
     if (settings.screenReader) {
       enhanceScreenReaderSupport();
     }
@@ -178,8 +151,7 @@ export function useAccessibility() {
   const resetSettings = useCallback(() => {
     setAccessibility({
       screenReader: false,
-      highContrast: false,
-      fontSize: 'medium'
+      highContrast: false
     });
     
     toast({

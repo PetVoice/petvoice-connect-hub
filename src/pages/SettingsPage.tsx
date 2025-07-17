@@ -1940,23 +1940,6 @@ Continuare?
                   />
                 </div>
 
-                <div>
-                  <Label>Dimensione font</Label>
-                  <Select 
-                    value={accessibility.fontSize} 
-                    onValueChange={(value) => updateSetting('fontSize', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="small">Piccolo</SelectItem>
-                      <SelectItem value="medium">Medio</SelectItem>
-                      <SelectItem value="large">Grande</SelectItem>
-                      <SelectItem value="extra-large">Extra Large</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </CardContent>
             </Card>
 
