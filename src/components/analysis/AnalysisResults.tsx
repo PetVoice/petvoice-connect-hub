@@ -22,7 +22,8 @@ import {
   Target,
   Activity,
   Zap,
-  BarChart3
+  BarChart3,
+  Music
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -82,6 +83,56 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
   triste: '😢',
   aggressivo: '😠',
   giocoso: '😄'
+};
+
+// Playlist recommendations based on emotions
+const getRecommendedPlaylist = (emotion: string) => {
+  const playlistMap: Record<string, { name: string; description: string; frequency: string; duration: number }> = {
+    felice: {
+      name: "Energia Positiva",
+      description: "Mantieni il buon umore con frequenze che stimolano la gioia",
+      frequency: "40Hz + 10Hz",
+      duration: 15
+    },
+    calmo: {
+      name: "Relax Profondo",
+      description: "Rafforza lo stato di calma con onde theta rilassanti",
+      frequency: "6-8Hz",
+      duration: 20
+    },
+    ansioso: {
+      name: "Riduzione Stress",
+      description: "Calma l'ansia con frequenze che promuovono la tranquillità",
+      frequency: "528Hz + 6Hz",
+      duration: 25
+    },
+    eccitato: {
+      name: "Bilanciamento Energia",
+      description: "Riequilibra l'energia eccessiva con toni calmanti",
+      frequency: "10-13Hz",
+      duration: 18
+    },
+    triste: {
+      name: "Sollievo Emotivo",
+      description: "Solleva l'umore con frequenze che stimolano la serotonina",
+      frequency: "40Hz + 8Hz",
+      duration: 22
+    },
+    aggressivo: {
+      name: "Pacificazione",
+      description: "Riduce l'aggressività con onde calmanti e stabilizzanti",
+      frequency: "4-7Hz",
+      duration: 30
+    },
+    giocoso: {
+      name: "Energia Bilanciata",
+      description: "Mantieni lo spirito giocoso in modo equilibrato",
+      frequency: "12-15Hz",
+      duration: 15
+    }
+  };
+
+  return playlistMap[emotion] || playlistMap.calmo;
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
@@ -592,6 +643,46 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* AI Music Therapy Recommendations */}
+                <div className="mt-6">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <Music className="h-4 w-4" />
+                    Playlist IA Music Therapy Consigliata
+                  </h4>
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                        <Music className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
+                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion).name}
+                        </h5>
+                        <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
+                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion).description}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
+                          <span>🎵 {getRecommendedPlaylist(selectedAnalysis.primary_emotion).frequency}</span>
+                          <span>⏱️ {getRecommendedPlaylist(selectedAnalysis.primary_emotion).duration} min</span>
+                          <span>🎯 Confidenza: {selectedAnalysis.primary_confidence}%</span>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          onClick={() => {
+                            const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion);
+                            const playlistData = encodeURIComponent(JSON.stringify(playlist));
+                            window.location.href = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}`;
+                          }}
+                        >
+                          <Music className="h-3 w-3 mr-1" />
+                          Inizia Sessione Musicoterapia
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
