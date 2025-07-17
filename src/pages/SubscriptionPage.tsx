@@ -132,7 +132,8 @@ const SubscriptionPage = () => {
               )}
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {!isCancelled ? (
+                {/* STATO ACTIVE: Entrambi i pulsanti di cancellazione */}
+                {!isCancelled && (
                   <>
                     <Button
                       onClick={() => handleCancelSubscription('immediate')}
@@ -156,17 +157,35 @@ const SubscriptionPage = () => {
                       📅 Cancella a Fine Periodo
                     </Button>
                   </>
-                ) : isEndOfPeriodCancellation && canReactivate ? (
-                  <Button 
-                    onClick={() => setShowReactivationModal(true)}
-                    size="lg"
-                    disabled={cancelLoading}
-                    className="flex-1 sm:flex-none petvoice-button"
-                  >
-                    <Shield className="w-5 h-5 mr-2" />
-                    🔄 Riattiva Abbonamento
-                  </Button>
-                ) : null}
+                )}
+
+                {/* STATO CANCEL_AT_PERIOD_END: Sostituisce "Cancella Immediatamente" con "Riattiva" */}
+                {isEndOfPeriodCancellation && (
+                  <>
+                    <Button
+                      onClick={() => handleCancelSubscription('end_of_period')}
+                      variant="outline"
+                      size="lg"
+                      disabled={cancelLoading}
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Calendar className="w-5 h-5 mr-2" />
+                      📅 Cancella a Fine Periodo
+                    </Button>
+                    
+                    {canReactivate && (
+                      <Button 
+                        onClick={() => setShowReactivationModal(true)}
+                        size="lg"
+                        disabled={cancelLoading}
+                        className="flex-1 sm:flex-none petvoice-button"
+                      >
+                        <Shield className="w-5 h-5 mr-2" />
+                        🔄 Riattiva Abbonamento
+                      </Button>
+                    )}
+                  </>
+                )}
                 
                 <Button
                   onClick={handleOpenCustomerPortal}
