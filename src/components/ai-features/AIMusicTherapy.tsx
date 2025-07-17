@@ -332,20 +332,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setCurrentTime(newTime);
     setSessionProgress(percentage * 100);
     
-    // Se sta suonando, riavvia dalla nuova posizione
-    if (isPlaying) {
-      stopAudio();
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      
-      // Riavvia da questo punto
-      setTimeout(() => {
-        handlePlayPause();
-      }, 100);
-    }
-    
     toast({
       title: "Posizione aggiornata",
       description: `Spostato a ${formatTime(newTime)}`,
