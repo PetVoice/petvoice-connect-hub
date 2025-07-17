@@ -85,54 +85,60 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
   giocoso: '😄'
 };
 
-// Playlist recommendations based on emotions
-const getRecommendedPlaylist = (emotion: string) => {
-  const playlistMap: Record<string, { name: string; description: string; frequency: string; duration: number }> = {
-    felice: {
-      name: "Energia Positiva",
-      description: "Mantieni il buon umore con frequenze che stimolano la gioia",
-      frequency: "40Hz + 10Hz",
-      duration: 15
-    },
-    calmo: {
-      name: "Relax Profondo",
-      description: "Rafforza lo stato di calma con onde theta rilassanti",
-      frequency: "6-8Hz",
-      duration: 20
-    },
-    ansioso: {
-      name: "Riduzione Stress",
-      description: "Calma l'ansia con frequenze che promuovono la tranquillità",
-      frequency: "528Hz + 6Hz",
-      duration: 25
-    },
-    eccitato: {
-      name: "Bilanciamento Energia",
-      description: "Riequilibra l'energia eccessiva con toni calmanti",
-      frequency: "10-13Hz",
-      duration: 18
-    },
-    triste: {
-      name: "Sollievo Emotivo",
-      description: "Solleva l'umore con frequenze che stimolano la serotonina",
-      frequency: "40Hz + 8Hz",
-      duration: 22
-    },
-    aggressivo: {
-      name: "Pacificazione",
-      description: "Riduce l'aggressività con onde calmanti e stabilizzanti",
-      frequency: "4-7Hz",
-      duration: 30
-    },
-    giocoso: {
-      name: "Energia Bilanciata",
-      description: "Mantieni lo spirito giocoso in modo equilibrato",
-      frequency: "12-15Hz",
-      duration: 15
-    }
-  };
+// Usa la stessa logica del hook usePlaylistRecommendations per garantire coerenza
+const getRecommendedPlaylist = (emotion: string, confidence: number) => {
+  const emotionLower = emotion.toLowerCase();
+  
+  switch (emotionLower) {
+    case 'ansioso':
+    case 'stressato':
+      return {
+        name: "Calma Profonda",
+        description: "Frequenze specifiche per ridurre ansia e stress basate sull'analisi emotiva",
+        frequency: "528Hz + 8Hz",
+        duration: 25,
+        reasoning: `Rilevato stato di ${emotion} con confidenza ${confidence}%`
+      };
 
-  return playlistMap[emotion] || playlistMap.calmo;
+    case 'agitato':
+    case 'iperattivo':
+      return {
+        name: "Relax Guidato", 
+        description: "Sequenze per calmare l'iperattivazione basate sul profilo emotivo",
+        frequency: "10-13Hz",
+        duration: 20,
+        reasoning: `Stato di agitazione rilevato - necessario rilassamento graduale`
+      };
+
+    case 'triste':
+    case 'depresso':
+      return {
+        name: "Energia Positiva",
+        description: "Stimolazione dolce per migliorare l'umore",
+        frequency: "40Hz + 10Hz", 
+        duration: 15,
+        reasoning: `Umore basso rilevato - stimolazione energetica necessaria`
+      };
+
+    case 'felice':
+    case 'giocoso':
+      return {
+        name: "Mantenimento Benessere",
+        description: "Frequenze per mantenere lo stato positivo",
+        frequency: "40Hz",
+        duration: 10,
+        reasoning: `Stato emotivo positivo - consolidamento del benessere`
+      };
+
+    default:
+      return {
+        name: "Equilibrio Generale",
+        description: "Sessione bilanciata per stabilità emotiva",
+        frequency: "528Hz + 10Hz",
+        duration: 15,
+        reasoning: `Stato emotivo neutro - mantenimento equilibrio`
+      };
+  }
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
@@ -659,21 +665,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       </div>
                       <div className="flex-1">
                         <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
-                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion).name}
+                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).name}
                         </h5>
                         <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
-                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion).description}
+                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).description}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
-                          <span>🎵 {getRecommendedPlaylist(selectedAnalysis.primary_emotion).frequency}</span>
-                          <span>⏱️ {getRecommendedPlaylist(selectedAnalysis.primary_emotion).duration} min</span>
+                          <span>🎵 {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).frequency}</span>
+                          <span>⏱️ {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).duration} min</span>
                           <span>🎯 Confidenza: {selectedAnalysis.primary_confidence}%</span>
                         </div>
                         <Button 
                           size="sm" 
                           className="bg-purple-600 hover:bg-purple-700 text-white"
                           onClick={() => {
-                            const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion);
+                            const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
                             const playlistData = encodeURIComponent(JSON.stringify(playlist));
                             window.location.href = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}`;
                           }}
