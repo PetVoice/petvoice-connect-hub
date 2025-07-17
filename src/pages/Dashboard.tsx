@@ -24,6 +24,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
+import PlaylistRecommendationCard from '@/components/dashboard/PlaylistRecommendationCard';
+import { usePlaylistRecommendations } from '@/hooks/usePlaylistRecommendations';
 
 interface Pet {
   id: string;
@@ -71,6 +73,10 @@ const Dashboard: React.FC = () => {
     totalAnalyses: 0
   });
   const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([]);
+  const [weatherData, setWeatherData] = useState<any>(null);
+  
+  // Hook per le raccomandazioni playlist
+  const { recommendations, loading: playlistLoading, generateRecommendations } = usePlaylistRecommendations(activePet?.id);
 
   // Mappa delle emozioni per calcolare il wellness score
   const emotionScores: Record<string, number> = {
@@ -260,6 +266,13 @@ const Dashboard: React.FC = () => {
 
     fetchPetAnalyses();
   }, [activePet]);
+
+  // Genera raccomandazioni quando cambia il pet attivo
+  useEffect(() => {
+    if (activePet) {
+      generateRecommendations(weatherData);
+    }
+  }, [activePet, generateRecommendations, weatherData]);
 
   // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
@@ -516,9 +529,24 @@ const Dashboard: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <WeatherMoodPredictor user={user} />
+            <WeatherMoodPredictor 
+              user={user} 
+              onWeatherUpdate={(data) => {
+                setWeatherData(data);
+                generateRecommendations(data);
+              }}
+            />
           </CardContent>
         </Card>
+      )}
+
+      {/* Playlist Recommendations - Sistema Unificato */}
+      {activePet && (
+        <PlaylistRecommendationCard
+          recommendations={recommendations}
+          loading={playlistLoading}
+          petId={activePet.id}
+        />
       )}
 
       {/* Recent Activities */}

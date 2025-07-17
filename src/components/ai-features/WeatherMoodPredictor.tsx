@@ -49,9 +49,10 @@ interface MoodPlaylist {
 
 interface WeatherMoodPredictorProps {
   user: any;
+  onWeatherUpdate?: (data: WeatherData) => void;
 }
 
-export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
+export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredictorProps) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [predictions, setPredictions] = useState<BehaviorPrediction[]>([]);
   const [playlist, setPlaylist] = useState<MoodPlaylist | null>(null);
@@ -164,6 +165,9 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
       // Genera playlist suggerita basata sul meteo reale
       const suggestedPlaylist = generatePlaylistSuggestion(weatherData);
       setPlaylist(suggestedPlaylist);
+      
+      // Notifica il parent component con i dati meteo
+      onWeatherUpdate?.(weatherData);
       
       toast.success('Previsione meteo-comportamentale aggiornata!');
       
