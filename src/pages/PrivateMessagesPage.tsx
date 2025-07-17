@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Send, User, Reply } from 'lucide-react';
@@ -47,6 +48,26 @@ const PrivateMessagesPage: React.FC = () => {
   const [otherUser, setOtherUser] = useState<UserProfile | null>(null);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    if (userId) {
+      const draft = localStorage.getItem(`private_message_draft_${userId}`);
+      if (draft) {
+        setNewMessage(draft);
+      }
+    }
+  }, [userId]);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (userId && newMessage) {
+      const timer = setTimeout(() => {
+        localStorage.setItem(`private_message_draft_${userId}`, newMessage);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [newMessage, userId]);
 
   useEffect(() => {
     if (userId) {
@@ -214,7 +235,24 @@ const PrivateMessagesPage: React.FC = () => {
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !userId || !user) return;
+    const trimmedMessage = newMessage.trim();
+    
+    // Validazione
+    if (!trimmedMessage || !userId || !user) return;
+    if (trimmedMessage.length > 1000) {
+      toast({
+        title: "Errore",
+        description: "Il messaggio è troppo lungo (max 1000 caratteri)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Loading state
+    const sendingToast = toast({
+      title: "Invio in corso...",
+      description: "Sto inviando il messaggio"
+    });
 
     try {
       const { data, error } = await supabase
@@ -222,7 +260,7 @@ const PrivateMessagesPage: React.FC = () => {
         .insert([{
           sender_id: user.id,
           recipient_id: userId,
-          content: newMessage.trim(),
+          content: trimmedMessage,
           message_type: 'text'
         }])
         .select()
@@ -231,12 +269,26 @@ const PrivateMessagesPage: React.FC = () => {
       if (error) throw error;
 
       setNewMessage('');
-      setMessages(prev => [...prev, data]);
+      // Clear localStorage draft
+      localStorage.removeItem(`private_message_draft_${userId}`);
+      
+      // Aggiunge il messaggio alla lista se non è già presente (real-time potrebbe averlo già aggiunto)
+      setMessages(prev => {
+        const exists = prev.find(m => m.id === data.id);
+        return exists ? prev : [...prev, data];
+      });
+
+      // Success feedback
+      toast({
+        title: "Messaggio inviato",
+        description: "Il tuo messaggio è stato inviato con successo"
+      });
+
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
         title: "Errore",
-        description: "Impossibile inviare il messaggio",
+        description: "Impossibile inviare il messaggio. Riprova più tardi.",
         variant: "destructive"
       });
     }
@@ -334,17 +386,45 @@ const PrivateMessagesPage: React.FC = () => {
             </div>
           </ScrollArea>
 
-          <div className="flex gap-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Scrivi un messaggio..."
-              className="flex-1"
-            />
-            <Button onClick={sendMessage} disabled={!newMessage.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
+          <div className="space-y-2">
+            {/* Character count */}
+            <div className="text-xs text-muted-foreground text-right">
+              {newMessage.length}/1000 caratteri
+              {newMessage.length > 900 && (
+                <span className="text-destructive ml-2">
+                  ({1000 - newMessage.length} rimanenti)
+                </span>
+              )}
+            </div>
+            
+            <div className="flex gap-2 items-end">
+              <div className="flex-1 space-y-1">
+                <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  placeholder="Scrivi un messaggio... (Enter per inviare, Shift+Enter per andare a capo)"
+                  className="min-h-[60px] max-h-[120px] resize-none"
+                  maxLength={1000}
+                />
+                <div className="text-xs text-muted-foreground">
+                  💡 Tip: Premi Enter per inviare, Shift+Enter per andare a capo
+                </div>
+              </div>
+              
+              <Button 
+                onClick={sendMessage} 
+                disabled={!newMessage.trim() || newMessage.length > 1000}
+                size="lg"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
