@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -92,19 +91,31 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       if (error) throw error;
       
       // Processa i messaggi per includere reply_to con user_name
-      const processedMessages = data?.map(msg => {
-        // reply_to può essere un array, prendiamo il primo elemento
-        const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
-        
-        return {
-          ...msg,
-          reply_to: replyToData ? {
-            id: replyToData.id,
-            content: replyToData.content,
-            user_name: userNames[replyToData.user_id] || 'Utente sconosciuto'
-          } : null
-        };
-      }) || [];
+      const processedMessages = await Promise.all(
+        (data || []).map(async (msg) => {
+          // reply_to può essere un array, prendiamo il primo elemento
+          const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
+          
+          if (replyToData) {
+            // Ottieni il nome utente per il messaggio di risposta
+            const replyUserName = userNames[replyToData.user_id] || 'Utente sconosciuto';
+            
+            return {
+              ...msg,
+              reply_to: {
+                id: replyToData.id,
+                content: replyToData.content,
+                user_name: replyUserName
+              }
+            };
+          }
+          
+          return {
+            ...msg,
+            reply_to: null
+          };
+        })
+      );
       
       setMessages(processedMessages);
     } catch (error) {
@@ -150,9 +161,31 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           table: 'community_messages',
           filter: `channel_name=eq.${channelId}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
+          
+          // Se il messaggio ha una reply_to_id, carica i dati del messaggio di risposta
+          if (newMessage.reply_to_id) {
+            try {
+              const { data: replyData, error: replyError } = await supabase
+                .from('community_messages')
+                .select('id, content, user_id')
+                .eq('id', newMessage.reply_to_id)
+                .single();
+              
+              if (!replyError && replyData) {
+                newMessage.reply_to = {
+                  id: replyData.id,
+                  content: replyData.content,
+                  user_name: userNames[replyData.user_id] || 'Utente sconosciuto'
+                };
+              }
+            } catch (error) {
+              console.error('Error loading reply data:', error);
+            }
+          }
+          
           setMessages(prev => {
             // Evita duplicati controllando se il messaggio esiste già
             const exists = prev.some(msg => msg.id === newMessage.id);
@@ -229,10 +262,21 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       
       // Aggiungi il messaggio immediatamente allo stato locale per feedback immediato
       if (data) {
+        let processedMessage = data as Message;
+        
+        // Se il messaggio ha una reply_to_id, aggiungi i dati del reply
+        if (data.reply_to_id && replyTo) {
+          processedMessage.reply_to = {
+            id: replyTo.id,
+            content: replyTo.content,
+            user_name: replyTo.userName
+          };
+        }
+        
         setMessages(prev => {
-          const exists = prev.some(msg => msg.id === data.id);
+          const exists = prev.some(msg => msg.id === processedMessage.id);
           if (exists) return prev;
-          return [...prev, data as Message];
+          return [...prev, processedMessage];
         });
       }
 
