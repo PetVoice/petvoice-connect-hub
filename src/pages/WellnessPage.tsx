@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -3432,6 +3433,14 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                 onChange={(e) => setNewVet(prev => ({ ...prev, specialization: e.target.value }))}
                 placeholder="es. Cardiologia, Neurologia"
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_primary"
+                checked={newVet.is_primary}
+                onCheckedChange={(checked) => setNewVet(prev => ({ ...prev, is_primary: !!checked }))}
+              />
+              <Label htmlFor="is_primary">Veterinario primario (per emergenze)</Label>
             </div>
           </div>
           <div className="flex gap-2 pt-4">
