@@ -115,6 +115,17 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
     return (
       <div className="mt-1">
+        {message.reply_to && (
+          <div className="mb-2 p-2 bg-muted/50 rounded-md border-l-2 border-primary">
+            <div className="text-xs text-muted-foreground">
+              Risposta a {message.reply_to.user_name}:
+            </div>
+            <div className="text-sm italic">
+              "{message.reply_to.content || 'Messaggio multimediale'}"
+            </div>
+          </div>
+        )}
+        
         {message.content && (
           <p className="text-sm break-words">{message.content}</p>
         )}
