@@ -178,22 +178,39 @@ const CommunityPage = () => {
     try {
       console.log('Eliminando chat con utente:', otherUserId);
       
-      // Marco tutti i messaggi come eliminati da entrambi gli utenti
-      const { data: updatedData, error } = await supabase
+      // Prima query: marco come eliminati i messaggi dove sono il sender
+      const { error: senderError } = await supabase
         .from('private_messages')
         .update({ 
           deleted_by_sender: true,
           deleted_by_recipient: true 
         })
-        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`)
-        .select();
+        .eq('sender_id', user.id)
+        .eq('recipient_id', otherUserId);
 
-      if (error) {
-        console.error('Errore UPDATE:', error);
-        throw error;
+      if (senderError) {
+        console.error('Errore UPDATE sender:', senderError);
       }
 
-      console.log('Messaggi marcati come eliminati:', updatedData?.length || 0);
+      // Seconda query: marco come eliminati i messaggi dove sono il recipient  
+      const { error: recipientError } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_by_recipient: true 
+        })
+        .eq('sender_id', otherUserId)
+        .eq('recipient_id', user.id);
+
+      if (recipientError) {
+        console.error('Errore UPDATE recipient:', recipientError);
+      }
+
+      if (senderError && recipientError) {
+        throw new Error('Impossibile aggiornare i messaggi');
+      }
+
+      console.log('Messaggi marcati come eliminati');
 
       // Ricarica la lista delle chat private
       await loadPrivateChats();
