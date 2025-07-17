@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -31,9 +31,16 @@ export const usePlaylistRecommendations = (petId?: string) => {
   const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<PlaylistRecommendation[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lastGeneratedFor, setLastGeneratedFor] = useState<string>('');
 
-  const generateRecommendations = async (weatherData?: WeatherData) => {
+  const generateRecommendations = useCallback(async (weatherData?: WeatherData) => {
     if (!user || !petId) return;
+
+    // Evita rigenerazioni multiple per lo stesso pet/weather
+    const cacheKey = `${petId}-${weatherData?.temperature || 'no-weather'}`;
+    if (cacheKey === lastGeneratedFor && recommendations.length > 0) {
+      return;
+    }
 
     setLoading(true);
     try {
@@ -93,12 +100,13 @@ export const usePlaylistRecommendations = (petId?: string) => {
         .slice(0, 3); // Massimo 3 raccomandazioni
 
       setRecommendations(sortedRecommendations);
+      setLastGeneratedFor(cacheKey);
     } catch (error) {
       console.error('Error generating recommendations:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, petId, lastGeneratedFor, recommendations.length]);
 
   const generateEmotionalPlaylist = (analysis: Analysis): Omit<PlaylistRecommendation, 'priority' | 'source'> | null => {
     const emotion = analysis.primary_emotion.toLowerCase();

@@ -267,12 +267,16 @@ const Dashboard: React.FC = () => {
     fetchPetAnalyses();
   }, [activePet]);
 
-  // Genera raccomandazioni quando cambia il pet attivo
+  // Genera raccomandazioni quando cambia il pet attivo (con debounce)
   useEffect(() => {
     if (activePet) {
-      generateRecommendations(weatherData);
+      const timer = setTimeout(() => {
+        generateRecommendations(weatherData);
+      }, 500); // Debounce di 500ms
+
+      return () => clearTimeout(timer);
     }
-  }, [activePet, generateRecommendations, weatherData]);
+  }, [activePet?.id]); // Solo l'ID del pet, non l'oggetto completo
 
   // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
