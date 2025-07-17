@@ -2088,6 +2088,10 @@ export type Database = {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
         Returns: undefined
       }
+      execute_affiliation_reset: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       force_convert_all_now: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2139,6 +2143,10 @@ export type Database = {
           p_referral_code: string
         }
         Returns: string
+      }
+      reset_affiliation_system: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
     }
     Enums: {
