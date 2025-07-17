@@ -28,6 +28,7 @@ export interface Message {
   voice_duration: number | null;
   metadata: any;
   is_emergency: boolean | null;
+  reply_to_id?: string | null;
   reply_to?: {
     id: string;
     content: string | null;
@@ -61,8 +62,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   };
 
   useEffect(() => {
-    loadMessages();
-    loadUserNames();
+    loadUserNames().then(() => {
+      loadMessages();
+    });
     setupRealtimeSubscription();
   }, [channelId]);
 
@@ -120,6 +122,48 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
+  const processMessageReply = async (message: Message): Promise<Message> => {
+    if (!message.reply_to_id) {
+      return message;
+    }
+
+    // Cerca prima nei messaggi già caricati
+    const existingReplyMessage = messages.find(m => m.id === message.reply_to_id);
+    if (existingReplyMessage) {
+      return {
+        ...message,
+        reply_to: {
+          id: existingReplyMessage.id,
+          content: existingReplyMessage.content,
+          user_name: userNames[existingReplyMessage.user_id] || 'Utente sconosciuto'
+        }
+      };
+    }
+
+    // Se non trovato, carica dal database
+    try {
+      const { data, error } = await supabase
+        .from('community_messages')
+        .select('id, content, user_id')
+        .eq('id', message.reply_to_id)
+        .single();
+
+      if (error) throw error;
+
+      return {
+        ...message,
+        reply_to: {
+          id: data.id,
+          content: data.content,
+          user_name: userNames[data.user_id] || 'Utente sconosciuto'
+        }
+      };
+    } catch (error) {
+      console.error('Error loading reply message:', error);
+      return message;
+    }
+  };
+
   const loadUserNames = async () => {
     try {
       const { data, error } = await supabase
@@ -151,9 +195,13 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           table: 'community_messages',
           filter: `channel_name=eq.${channelId}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
+          
+          // Processa il messaggio per includere reply_to con user_name se necessario
+          const processedMessage = await processMessageReply(newMessage);
+          
           setMessages(prev => {
             // Evita duplicati controllando se il messaggio esiste già
             const exists = prev.some(msg => msg.id === newMessage.id);
@@ -162,7 +210,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
               return prev;
             }
             console.log('✅ Adding new message to state:', newMessage.id);
-            return [...prev, newMessage];
+            return [...prev, processedMessage];
           });
         }
       )

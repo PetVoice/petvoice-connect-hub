@@ -25,6 +25,7 @@ import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
 
 import SettingsPage from './pages/SettingsPage';
+import PrivateMessagesPage from './pages/PrivateMessagesPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
@@ -124,6 +125,20 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <SettingsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/private-messages" element={
+          <ProtectedRoute>
+            <Layout>
+              <PrivateMessagesPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/private-messages/:userId" element={
+          <ProtectedRoute>
+            <Layout>
+              <PrivateMessagesPage />
             </Layout>
           </ProtectedRoute>
         } />
