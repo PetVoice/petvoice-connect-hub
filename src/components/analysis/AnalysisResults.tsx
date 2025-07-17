@@ -23,7 +23,7 @@ import {
   Activity,
   Zap,
   BarChart3,
-  Music
+  AudioLines
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -649,13 +649,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 {/* AI Music Therapy Recommendations */}
                 <div className="mt-6">
                   <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <Music className="h-4 w-4" />
+                    <AudioLines className="h-4 w-4" />
                     Playlist IA Music Therapy Consigliata
                   </h4>
                   <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                        <Music className="h-5 w-5 text-purple-600" />
+                        <AudioLines className="h-5 w-5 text-purple-600" />
                       </div>
                       <div className="flex-1">
                         <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
@@ -678,7 +678,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             window.location.href = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}`;
                           }}
                         >
-                          <Music className="h-3 w-3 mr-1" />
+                          <AudioLines className="h-3 w-3 mr-1" />
                           Inizia Sessione Musicoterapia
                         </Button>
                       </div>
