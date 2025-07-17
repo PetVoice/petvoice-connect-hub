@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,6 +38,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,6 +49,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
+    }
+  };
+
+  const scrollToMessage = (messageId: string) => {
+    const messageElement = document.getElementById(`message-${messageId}`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      messageElement.classList.add('bg-yellow-200', 'dark:bg-yellow-900');
+      setTimeout(() => {
+        messageElement.classList.remove('bg-yellow-200', 'dark:bg-yellow-900');
+      }, 2000);
     }
   };
 
@@ -180,7 +191,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         message_type: messageType,
         file_url: fileUrl || null,
         voice_duration: voiceDuration || null,
-        reply_to_id: null,
+        reply_to_id: replyToMessage?.id || null,
         metadata: {}
       };
 
@@ -206,6 +217,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           return [...prev, data];
         });
       }
+
+      // Clear reply after sending
+      setReplyToMessage(null);
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -270,6 +284,14 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleReply = (message: Message) => {
+    setReplyToMessage(message);
+  };
+
+  const cancelReply = () => {
+    setReplyToMessage(null);
   };
 
   const toggleSelectionMode = () => {
@@ -401,6 +423,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             userNames={userNames}
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
+            onReply={handleReply}
+            onScrollToMessage={scrollToMessage}
             isSelectionMode={isSelectionMode}
             selectedMessages={selectedMessages}
             onToggleSelection={toggleMessageSelection}
@@ -409,7 +433,12 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         </div>
       </div>
       
-      <MessageInput onSendMessage={sendMessage} />
+      <MessageInput 
+        onSendMessage={sendMessage} 
+        replyToMessage={replyToMessage}
+        onCancelReply={cancelReply}
+        userNames={userNames}
+      />
 
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
