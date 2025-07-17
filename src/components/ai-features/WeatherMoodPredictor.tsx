@@ -487,32 +487,6 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
         </Card>
       )}
 
-      {/* Playlist Suggestion */}
-      {playlist && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Music className="h-5 w-5" />
-              Playlist Suggerita
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="p-4 border rounded-lg">
-              <h4 className="font-medium mb-2">{playlist.name}</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                {playlist.description}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {playlist.tracks.map((track, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {track}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
