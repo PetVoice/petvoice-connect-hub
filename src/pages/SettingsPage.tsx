@@ -1699,6 +1699,7 @@ Continuare?
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
+          {notifications && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Push Notifications */}
             <Card>
@@ -1712,7 +1713,7 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(notifications.push).map(([key, value]) => (
+                {notifications.push && Object.entries(notifications.push).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
                       <Label>{key === 'healthAlerts' ? 'Avvisi Salute' : 
@@ -1754,7 +1755,7 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {Object.entries(notifications.email).map(([key, value]) => (
+                {notifications.email && Object.entries(notifications.email).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
                       <Label>{key === 'healthAlerts' ? 'Avvisi Salute' : 
@@ -1780,6 +1781,7 @@ Continuare?
             </Card>
 
           </div>
+          )}
         </TabsContent>
 
         {/* Appearance Tab */}
