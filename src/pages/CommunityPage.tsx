@@ -176,16 +176,21 @@ const CommunityPage = () => {
 
   const deletePrivateChat = async (otherUserId) => {
     try {
+      console.log('Eliminando chat con utente:', otherUserId);
+      
       // Elimina fisicamente tutti i messaggi della conversazione
-      const { error } = await supabase
+      const { data: deletedData, error } = await supabase
         .from('private_messages')
         .delete()
-        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`);
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`)
+        .select();
 
       if (error) {
         console.error('Errore DELETE:', error);
         throw error;
       }
+
+      console.log('Messaggi eliminati:', deletedData?.length || 0);
 
       // Ricarica la lista delle chat private
       await loadPrivateChats();
