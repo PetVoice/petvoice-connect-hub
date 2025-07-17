@@ -1313,6 +1313,7 @@ export type Database = {
       }
       subscribers: {
         Row: {
+          can_reactivate: boolean | null
           cancellation_date: string | null
           cancellation_effective_date: string | null
           cancellation_type: string | null
@@ -1321,6 +1322,7 @@ export type Database = {
           current_period_start: string | null
           email: string | null
           id: string
+          immediate_cancellation_after_period_end: boolean | null
           is_cancelled: boolean | null
           max_pets_allowed: number | null
           stripe_customer_id: string | null
@@ -1333,6 +1335,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          can_reactivate?: boolean | null
           cancellation_date?: string | null
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
@@ -1341,6 +1344,7 @@ export type Database = {
           current_period_start?: string | null
           email?: string | null
           id?: string
+          immediate_cancellation_after_period_end?: boolean | null
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
           stripe_customer_id?: string | null
@@ -1353,6 +1357,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          can_reactivate?: boolean | null
           cancellation_date?: string | null
           cancellation_effective_date?: string | null
           cancellation_type?: string | null
@@ -1361,6 +1366,7 @@ export type Database = {
           current_period_start?: string | null
           email?: string | null
           id?: string
+          immediate_cancellation_after_period_end?: boolean | null
           is_cancelled?: boolean | null
           max_pets_allowed?: number | null
           stripe_customer_id?: string | null

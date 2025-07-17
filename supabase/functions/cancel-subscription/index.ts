@@ -96,22 +96,35 @@ serve(async (req) => {
     let effectiveDate = now;
 
     if (cancellation_type === 'immediate') {
+      // CANCELLAZIONE IMMEDIATA - Controlla se era già cancellato a fine periodo
+      const wasEndOfPeriod = subscriber.is_cancelled && 
+                             subscriber.cancellation_type === 'end_of_period';
+      
       // Cancel immediately on Stripe
       await stripe.subscriptions.cancel(stripeSubscription.id);
       logStep("Cancelled subscription immediately on Stripe");
 
+      const updateData: any = {
+        subscription_status: 'cancelled',
+        subscription_plan: 'free',
+        is_cancelled: true,
+        cancellation_type: 'immediate',
+        cancellation_date: now,
+        cancellation_effective_date: now,
+        updated_at: now,
+      };
+
+      // Se era già cancellato a fine periodo, DISTRUGGI possibilità riattivazione
+      if (wasEndOfPeriod) {
+        updateData.can_reactivate = false;
+        updateData.immediate_cancellation_after_period_end = true;
+        logStep("Destroying reactivation capability - was period end cancellation");
+      }
+
       // Update database - immediate cancellation
       await supabaseClient
         .from("subscribers")
-        .update({
-          subscription_status: 'cancelled',
-          subscription_plan: 'free',
-          is_cancelled: true,
-          cancellation_type: 'immediate',
-          cancellation_date: now,
-          cancellation_effective_date: now,
-          updated_at: now,
-        })
+        .update(updateData)
         .eq("user_id", user.id);
 
       // Delete extra pets (keep only the first one)
@@ -130,8 +143,13 @@ serve(async (req) => {
         logStep("Deleted extra pets", { deletedCount: petsToDelete.length });
       }
 
+      logStep("Cancelled subscription immediately", { 
+        wasEndOfPeriod, 
+        canReactivate: !wasEndOfPeriod 
+      });
+
     } else {
-      // End of period cancellation
+      // CANCELLAZIONE A FINE PERIODO - Mantiene can_reactivate = true
       effectiveDate = new Date(stripeSubscription.current_period_end * 1000).toISOString();
       
       // Cancel at period end on Stripe
@@ -148,9 +166,17 @@ serve(async (req) => {
           cancellation_type: 'end_of_period',
           cancellation_date: now,
           cancellation_effective_date: effectiveDate,
+          can_reactivate: true, // MANTIENE possibilità riattivazione
+          immediate_cancellation_after_period_end: false, // Reset per nuova cancellazione
           updated_at: now,
         })
         .eq("user_id", user.id);
+
+      logStep("Updated database with cancellation info", { 
+        cancellation_type: "end_of_period", 
+        effective_date: effectiveDate,
+        can_reactivate: true
+      });
     }
 
     logStep("Updated database with cancellation info", { 

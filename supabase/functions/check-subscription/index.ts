@@ -120,7 +120,7 @@ serve(async (req) => {
     // Get current subscriber data to check cancellation status
     const { data: existingSubscriber } = await supabaseClient
       .from("subscribers")
-      .select("is_cancelled, cancellation_type, cancellation_date, cancellation_effective_date")
+      .select("is_cancelled, cancellation_type, cancellation_date, cancellation_effective_date, can_reactivate, immediate_cancellation_after_period_end")
       .eq("user_id", user.id)
       .single();
 
@@ -136,6 +136,9 @@ serve(async (req) => {
       cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
       cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
       cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
+      // Reset reactivation fields for new active subscription
+      can_reactivate: hasActiveSub ? true : (existingSubscriber?.can_reactivate !== false),
+      immediate_cancellation_after_period_end: hasActiveSub ? false : (existingSubscriber?.immediate_cancellation_after_period_end || false),
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' });
 
@@ -151,6 +154,9 @@ serve(async (req) => {
       cancellation_type: hasActiveSub ? null : (existingSubscriber?.cancellation_type || null),
       cancellation_date: hasActiveSub ? null : (existingSubscriber?.cancellation_date || null),
       cancellation_effective_date: hasActiveSub ? null : (existingSubscriber?.cancellation_effective_date || null),
+      // Return reactivation fields
+      can_reactivate: hasActiveSub ? true : (existingSubscriber?.can_reactivate !== false),
+      immediate_cancellation_after_period_end: hasActiveSub ? false : (existingSubscriber?.immediate_cancellation_after_period_end || false),
       usage
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

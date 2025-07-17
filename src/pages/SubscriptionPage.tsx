@@ -60,6 +60,7 @@ const SubscriptionPage = () => {
   // Check if subscription is cancelled but still active
   const isCancelled = subscription.is_cancelled;
   const isEndOfPeriodCancellation = isCancelled && subscription.cancellation_type === 'end_of_period';
+  const canReactivate = subscription.can_reactivate !== false; // Default true se non specificato
   const cancellationEffectiveDate = subscription.cancellation_effective_date 
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
     : '';
@@ -231,7 +232,7 @@ const SubscriptionPage = () => {
         )}
       </div>
 
-      {/* Reactivation Section */}
+      {/* Reactivation Section - Solo se cancellato a fine periodo E può riattivare */}
       {isEndOfPeriodCancellation && (
         <Card className="petvoice-card border-warning mt-8">
           <CardHeader>
@@ -244,13 +245,27 @@ const SubscriptionPage = () => {
             <p className="text-sm text-muted-foreground">
               Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
             </p>
-            <Button 
-              onClick={() => setShowReactivationModal(true)}
-              className="w-full petvoice-button"
-              disabled={cancelLoading}
-            >
-              {cancelLoading ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
-            </Button>
+            
+            {/* Mostra pulsante riattiva SOLO se can_reactivate è true */}
+            {canReactivate ? (
+              <Button 
+                onClick={() => setShowReactivationModal(true)}
+                className="w-full petvoice-button"
+                disabled={cancelLoading}
+              >
+                {cancelLoading ? 'Elaborazione...' : 'RIATTIVA ABBONAMENTO'}
+              </Button>
+            ) : (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <p className="text-sm text-destructive font-medium">
+                  ❌ Riattivazione non più disponibile
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  L'abbonamento è stato cancellato definitivamente. 
+                  Per riprendere il servizio Premium, sottoscrivi un nuovo abbonamento.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

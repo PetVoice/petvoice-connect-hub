@@ -11,6 +11,8 @@ export interface SubscriptionData {
   cancellation_type: 'immediate' | 'end_of_period' | null;
   cancellation_date: string | null;
   cancellation_effective_date: string | null;
+  can_reactivate?: boolean; // Se può riattivare l'abbonamento (default: true)
+  immediate_cancellation_after_period_end?: boolean; // Se ha cancellato immediatamente dopo period_end
   usage?: {
     analyses_this_month: number;
     total_pets: number;
