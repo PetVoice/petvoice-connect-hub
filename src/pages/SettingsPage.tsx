@@ -255,6 +255,7 @@ const SettingsPage: React.FC = () => {
 
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
+  const [activeDocument, setActiveDocument] = useState<string | null>(null);
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
 
   useEffect(() => {
@@ -998,7 +999,689 @@ Continuare?
                 variant: "destructive"
               });
             }
-          };
+  };
+
+  const handleCommunityParticipation = async (enabled: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ notifications_enabled: enabled })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setPrivacy(prev => ({ ...prev, communityParticipation: enabled }));
+      toast({
+        title: enabled ? "Partecipazione community attivata" : "Partecipazione community disattivata",
+        description: enabled ? "Ora puoi partecipare alle discussioni della community" : "Non parteciperai più alle discussioni della community"
+      });
+    } catch (error) {
+      console.error('Errore aggiornamento partecipazione community:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare le preferenze",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleAnalyticsContribution = async (enabled: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Salva la preferenza nel database
+      const { error } = await supabase
+        .from('activity_log')
+        .insert({
+          user_id: user.id,
+          activity_type: 'privacy_settings_updated',
+          activity_description: `Analytics contribution ${enabled ? 'enabled' : 'disabled'}`,
+          metadata: { analytics_contribution: enabled }
+        });
+
+      if (error) throw error;
+
+      setPrivacy(prev => ({ ...prev, analyticsContribution: enabled }));
+      toast({
+        title: enabled ? "Contributo analytics attivato" : "Contributo analytics disattivato",
+        description: enabled ? "I tuoi dati anonimi aiuteranno a migliorare l'app" : "I tuoi dati non verranno più utilizzati per migliorare l'app"
+      });
+    } catch (error) {
+      console.error('Errore aggiornamento contributo analytics:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare le preferenze",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleMarketingCommunications = async (enabled: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Salva la preferenza nel database
+      const { error } = await supabase
+        .from('activity_log')
+        .insert({
+          user_id: user.id,
+          activity_type: 'privacy_settings_updated',
+          activity_description: `Marketing communications ${enabled ? 'enabled' : 'disabled'}`,
+          metadata: { marketing_communications: enabled }
+        });
+
+      if (error) throw error;
+
+      setPrivacy(prev => ({ ...prev, marketingCommunications: enabled }));
+      toast({
+        title: enabled ? "Comunicazioni marketing attivate" : "Comunicazioni marketing disattivate",
+        description: enabled ? "Riceverai email promozionali e offerte speciali" : "Non riceverai più email promozionali"
+      });
+    } catch (error) {
+      console.error('Errore aggiornamento comunicazioni marketing:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare le preferenze",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleThirdPartySharing = async (enabled: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Salva la preferenza nel database
+      const { error } = await supabase
+        .from('activity_log')
+        .insert({
+          user_id: user.id,
+          activity_type: 'privacy_settings_updated',
+          activity_description: `Third party sharing ${enabled ? 'enabled' : 'disabled'}`,
+          metadata: { third_party_sharing: enabled }
+        });
+
+      if (error) throw error;
+
+      setPrivacy(prev => ({ ...prev, thirdPartySharing: enabled }));
+      toast({
+        title: enabled ? "Condivisione terze parti attivata" : "Condivisione terze parti disattivata",
+        description: enabled ? "I tuoi dati potranno essere condivisi con partner selezionati" : "I tuoi dati non verranno più condivisi con terze parti"
+      });
+    } catch (error) {
+      console.error('Errore aggiornamento condivisione terze parti:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare le preferenze",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleOpenDocument = (documentType: string) => {
+    setActiveDocument(documentType);
+  };
+
+  const renderDocumentContent = (documentType: string) => {
+    const documents = {
+      'terms': {
+        title: 'Termini di Servizio',
+        content: `
+# Termini di Servizio di PetVet
+
+**Ultimo aggiornamento: 15 gennaio 2024**
+
+## 1. Accettazione dei Termini
+
+Benvenuto in PetVet. L'utilizzo della nostra applicazione è soggetto ai seguenti termini e condizioni. Utilizzando PetVet, accetti questi termini nella loro interezza.
+
+## 2. Descrizione del Servizio
+
+PetVet è un'applicazione per la gestione della salute e del benessere degli animali domestici che offre:
+- Gestione cartelle cliniche
+- Analisi comportamentali
+- Diario del pet
+- Calendario appuntamenti
+- Community per proprietari di animali
+
+## 3. Registrazione e Account
+
+Per utilizzare PetVet è necessario:
+- Fornire informazioni accurate e complete
+- Mantenere la sicurezza delle credenziali
+- Essere responsabili di tutte le attività svolte con il proprio account
+
+## 4. Utilizzo del Servizio
+
+Gli utenti si impegnano a:
+- Utilizzare il servizio solo per scopi legali
+- Non violare i diritti di terzi
+- Non compromettere la sicurezza del sistema
+- Rispettare le linee guida della community
+
+## 5. Privacy e Dati
+
+Il trattamento dei dati personali è regolato dalla nostra Privacy Policy. I dati relativi ai pet sono protetti con la massima sicurezza.
+
+## 6. Responsabilità
+
+PetVet non sostituisce il parere veterinario professionale. Le informazioni fornite sono solo a scopo informativo.
+
+## 7. Modifiche ai Termini
+
+Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. Le modifiche saranno comunicate agli utenti.
+
+## 8. Contatti
+
+Per qualsiasi domanda sui presenti termini, contattaci all'indirizzo: legal@petvet.com
+        `
+      },
+      'privacy': {
+        title: 'Privacy Policy',
+        content: `
+# Privacy Policy di PetVet
+
+**Ultimo aggiornamento: 15 gennaio 2024**
+
+## 1. Introduzione
+
+La presente Privacy Policy descrive come PetVet raccoglie, utilizza e protegge i dati personali degli utenti in conformità al GDPR.
+
+## 2. Titolare del Trattamento
+
+PetVet S.r.l.
+Via delle Innovazioni 123, 20121 Milano
+Email: privacy@petvet.com
+PEC: petvet@pec.it
+
+## 3. Dati Raccolti
+
+### 3.1 Dati dell'Utente
+- Informazioni di registrazione (nome, email, password)
+- Dati del profilo (foto, preferenze, ubicazione)
+- Cronologia di utilizzo dell'app
+
+### 3.2 Dati del Pet
+- Informazioni anagrafiche del pet
+- Cartelle cliniche e medical records
+- Analisi comportamentali
+- Foto e video
+
+## 4. Finalità del Trattamento
+
+I dati vengono trattati per:
+- Fornire i servizi dell'applicazione
+- Migliorare l'esperienza utente
+- Comunicazioni relative al servizio
+- Conformità agli obblighi legali
+
+## 5. Base Giuridica
+
+Il trattamento si basa su:
+- Consenso dell'interessato
+- Esecuzione del contratto
+- Legittimo interesse del titolare
+- Adempimento di obblighi legali
+
+## 6. Condivisione dei Dati
+
+I dati possono essere condivisi con:
+- Fornitori di servizi terzi (con adeguate garanzie)
+- Autorità competenti (quando richiesto dalla legge)
+- Non vengono mai venduti a terzi
+
+## 7. Conservazione dei Dati
+
+I dati vengono conservati per il tempo necessario alle finalità di trattamento o come richiesto dalla legge.
+
+## 8. Diritti dell'Interessato
+
+Hai il diritto di:
+- Accedere ai tuoi dati personali
+- Rettificare dati inesatti
+- Cancellare i dati (diritto all'oblio)
+- Limitare il trattamento
+- Portabilità dei dati
+- Opposizione al trattamento
+
+## 9. Sicurezza
+
+Implementiamo misure di sicurezza appropriate per proteggere i dati da accessi non autorizzati, alterazioni o distruzioni.
+
+## 10. Modifiche alla Privacy Policy
+
+Eventuali modifiche verranno comunicate tramite l'app e pubblicare sul nostro sito web.
+
+## 11. Contatti
+
+Per esercitare i tuoi diritti o per domande sulla privacy:
+Email: privacy@petvet.com
+Data Protection Officer: dpo@petvet.com
+        `
+      },
+      'cookies': {
+        title: 'Cookie Policy',
+        content: `
+# Cookie Policy di PetVet
+
+**Ultimo aggiornamento: 15 gennaio 2024**
+
+## 1. Cosa sono i Cookie
+
+I cookie sono piccoli file di testo che vengono memorizzati sul dispositivo dell'utente durante la navigazione di un sito web o l'utilizzo di un'applicazione.
+
+## 2. Tipi di Cookie Utilizzati
+
+### 2.1 Cookie Tecnici
+- **Session Cookie**: Necessari per il funzionamento dell'app
+- **Authentication Cookie**: Per mantenere la sessione di login
+- **Preference Cookie**: Per ricordare le impostazioni dell'utente
+
+### 2.2 Cookie Analitici
+- **Google Analytics**: Per analizzare l'utilizzo dell'app (anonimizzati)
+- **Performance Cookie**: Per monitorare le prestazioni dell'app
+
+### 2.3 Cookie di Marketing
+- **Advertising Cookie**: Per mostrare pubblicità personalizzata (solo con consenso)
+
+## 3. Finalità d'Uso
+
+I cookie vengono utilizzati per:
+- Garantire il corretto funzionamento dell'app
+- Migliorare l'esperienza utente
+- Analizzare il traffico e l'utilizzo
+- Personalizzare i contenuti
+- Fornire pubblicità pertinente
+
+## 4. Base Giuridica
+
+- Cookie tecnici: Legittimo interesse
+- Cookie analitici: Consenso dell'utente
+- Cookie di marketing: Consenso esplicito
+
+## 5. Durata dei Cookie
+
+- **Session Cookie**: Eliminati alla chiusura dell'app
+- **Persistent Cookie**: Conservati fino alla scadenza o cancellazione manuale
+- **Third-party Cookie**: Soggetti alle policy dei rispettivi fornitori
+
+## 6. Gestione dei Cookie
+
+### 6.1 Nelle Impostazioni dell'App
+Puoi gestire i cookie direttamente nelle impostazioni di PetVet:
+- Impostazioni → Privacy → Cookie
+
+### 6.2 Nelle Impostazioni del Browser
+Puoi anche gestire i cookie tramite le impostazioni del browser:
+- Chrome: Impostazioni → Privacy e sicurezza → Cookie
+- Firefox: Impostazioni → Privacy e sicurezza
+- Safari: Preferenze → Privacy
+
+## 7. Cookie di Terze Parti
+
+Utilizziamo servizi di terze parti che potrebbero installare cookie:
+- Google Analytics
+- Firebase Analytics
+- Advertising Networks (solo con consenso)
+
+## 8. Aggiornamenti
+
+La presente Cookie Policy può essere aggiornata periodicamente. Le modifiche saranno comunicate nell'app.
+
+## 9. Contatti
+
+Per domande sui cookie:
+Email: privacy@petvet.com
+Privacy Officer: privacy@petvet.com
+        `
+      },
+      'data-processing': {
+        title: 'Accordo Trattamento Dati',
+        content: `
+# Accordo per il Trattamento dei Dati - PetVet
+
+**Ultimo aggiornamento: 15 gennaio 2024**
+
+## 1. Definizioni
+
+- **Titolare**: PetVet S.r.l.
+- **Interessato**: L'utente proprietario dei dati
+- **Dati Personali**: Qualsiasi informazione relativa a persona fisica identificata o identificabile
+- **Trattamento**: Qualsiasi operazione sui dati personali
+
+## 2. Finalità del Trattamento
+
+Il trattamento dei dati personali è finalizzato a:
+
+### 2.1 Finalità Primarie
+- Registrazione e gestione dell'account utente
+- Erogazione dei servizi dell'applicazione
+- Gestione delle cartelle cliniche dei pet
+- Analisi comportamentali e di benessere
+- Comunicazioni relative al servizio
+
+### 2.2 Finalità Secondarie (con consenso)
+- Invio di newsletter e comunicazioni marketing
+- Analisi statistiche per migliorare il servizio
+- Ricerche di mercato e sondaggi
+- Pubblicità personalizzata
+
+## 3. Categorie di Dati Trattati
+
+### 3.1 Dati dell'Utente
+- Dati anagrafici (nome, cognome, email)
+- Dati di contatto (telefono, indirizzo)
+- Dati di login e navigazione
+- Preferenze e impostazioni
+
+### 3.2 Dati del Pet
+- Informazioni anagrafiche del pet
+- Dati sanitari e cartelle cliniche
+- Foto e video
+- Analisi comportamentali
+- Cronologia degli appuntamenti
+
+## 4. Base Giuridica del Trattamento
+
+Il trattamento è basato su:
+- **Art. 6.1.a GDPR**: Consenso dell'interessato
+- **Art. 6.1.b GDPR**: Esecuzione del contratto
+- **Art. 6.1.c GDPR**: Adempimento di obblighi legali
+- **Art. 6.1.f GDPR**: Legittimo interesse del titolare
+
+## 5. Modalità di Trattamento
+
+### 5.1 Trattamento Automatizzato
+- Elaborazione tramite sistemi informatici
+- Algoritmi di analisi comportamentale
+- Sistemi di backup automatici
+
+### 5.2 Trattamento Manuale
+- Supporto clienti
+- Verifiche di sicurezza
+- Controlli di qualità
+
+## 6. Comunicazione e Diffusione
+
+### 6.1 Comunicazione a Terzi
+I dati possono essere comunicati a:
+- Fornitori di servizi cloud (AWS, Google Cloud)
+- Servizi di analisi (Google Analytics)
+- Servizi di pagamento (Stripe)
+- Autorità competenti (su richiesta legale)
+
+### 6.2 Trasferimento Extra-UE
+Eventuali trasferimenti verso paesi extra-UE avvengono con adeguate garanzie:
+- Decisioni di adeguatezza della Commissione Europea
+- Clausole contrattuali standard
+- Binding Corporate Rules
+
+## 7. Conservazione dei Dati
+
+### 7.1 Criteri di Conservazione
+- Dati account: fino alla cancellazione dell'account
+- Dati clinici: 10 anni dalla fine del rapporto
+- Dati di navigazione: 24 mesi
+- Dati marketing: fino alla revoca del consenso
+
+### 7.2 Cancellazione
+I dati vengono cancellati:
+- Automaticamente alla scadenza
+- Su richiesta dell'interessato
+- Quando non più necessari
+
+## 8. Diritti dell'Interessato
+
+### 8.1 Diritti Garantiti
+- Accesso ai dati (Art. 15 GDPR)
+- Rettifica (Art. 16 GDPR)
+- Cancellazione (Art. 17 GDPR)
+- Limitazione del trattamento (Art. 18 GDPR)
+- Portabilità (Art. 20 GDPR)
+- Opposizione (Art. 21 GDPR)
+
+### 8.2 Modalità di Esercizio
+I diritti possono essere esercitati:
+- Tramite le impostazioni dell'app
+- Inviando email a: privacy@petvet.com
+- Contattando il DPO: dpo@petvet.com
+
+## 9. Sicurezza dei Dati
+
+### 9.1 Misure Tecniche
+- Crittografia dei dati
+- Controlli di accesso
+- Firewall e antivirus
+- Backup regolari
+
+### 9.2 Misure Organizzative
+- Formazione del personale
+- Procedure di sicurezza
+- Controlli di accesso fisico
+- Incident response plan
+
+## 10. Modifiche all'Accordo
+
+Eventuali modifiche saranno comunicate tramite:
+- Notifica in-app
+- Email agli utenti registrati
+- Pubblicazione sul sito web
+
+## 11. Contatti
+
+**Titolare del Trattamento**
+PetVet S.r.l.
+Via delle Innovazioni 123, 20121 Milano
+Email: privacy@petvet.com
+
+**Data Protection Officer**
+Email: dpo@petvet.com
+Tel: +39 02 1234567
+
+**Autorità di Controllo**
+Garante per la protezione dei dati personali
+Email: garante@gpdp.it
+        `
+      },
+      'gdpr-rights': {
+        title: 'Diritti GDPR',
+        content: `
+# I Tuoi Diritti secondo il GDPR
+
+**Regolamento Generale sulla Protezione dei Dati (GDPR)**
+
+## 1. Introduzione
+
+Il Regolamento Generale sulla Protezione dei Dati (GDPR) ti garantisce specifici diritti riguardo ai tuoi dati personali. Questa pagina spiega i tuoi diritti e come esercitarli.
+
+## 2. Diritto di Accesso (Art. 15)
+
+### Cosa Significa
+Hai il diritto di sapere se stiamo trattando i tuoi dati personali e, in caso affermativo, di ottenere:
+- Copia dei tuoi dati personali
+- Informazioni sulle finalità del trattamento
+- Categorie di dati trattati
+- Destinatari dei dati
+- Periodo di conservazione
+
+### Come Esercitarlo
+- Tramite le impostazioni dell'app: Privacy → Esporta Dati
+- Inviando email a: privacy@petvet.com
+
+## 3. Diritto di Rettifica (Art. 16)
+
+### Cosa Significa
+Hai il diritto di ottenere la correzione dei dati personali inesatti e l'integrazione di quelli incompleti.
+
+### Come Esercitarlo
+- Tramite le impostazioni dell'app: Account → Modifica Profilo
+- Contattando il supporto: support@petvet.com
+
+## 4. Diritto di Cancellazione (Art. 17)
+
+### Cosa Significa
+Hai il diritto di ottenere la cancellazione dei tuoi dati personali quando:
+- Non sono più necessari
+- Revochi il consenso
+- Ti opponi al trattamento
+- Sono stati trattati illecitamente
+
+### Come Esercitarlo
+- Tramite le impostazioni dell'app: Account → Elimina Account
+- Inviando richiesta a: privacy@petvet.com
+
+## 5. Diritto di Limitazione (Art. 18)
+
+### Cosa Significa
+Hai il diritto di ottenere la limitazione del trattamento quando:
+- Contesti l'esattezza dei dati
+- Il trattamento è illecito ma non vuoi la cancellazione
+- Hai bisogno dei dati per una causa legale
+- Hai esercitato il diritto di opposizione
+
+### Come Esercitarlo
+- Inviando richiesta a: privacy@petvet.com
+
+## 6. Diritto alla Portabilità (Art. 20)
+
+### Cosa Significa
+Hai il diritto di:
+- Ricevere i tuoi dati in formato strutturato e leggibile
+- Trasmetterli ad un altro titolare del trattamento
+
+### Come Esercitarlo
+- Tramite le impostazioni dell'app: Privacy → Esporta Dati (JSON)
+- Inviando richiesta a: privacy@petvet.com
+
+## 7. Diritto di Opposizione (Art. 21)
+
+### Cosa Significa
+Hai il diritto di opporti al trattamento dei tuoi dati personali per:
+- Motivi legittimi
+- Finalità di marketing diretto
+- Profilazione
+
+### Come Esercitarlo
+- Tramite le impostazioni dell'app: Privacy → Condivisione Dati
+- Inviando richiesta a: privacy@petvet.com
+
+## 8. Diritto di Reclamo
+
+### Cosa Significa
+Hai il diritto di presentare reclamo all'autorità di controllo se ritieni che il trattamento violi il GDPR.
+
+### Come Esercitarlo
+**Garante per la protezione dei dati personali**
+- Sito web: www.garanteprivacy.it
+- Email: garante@gpdp.it
+- Tel: 06 696771
+
+## 9. Tempi di Risposta
+
+Ci impegniamo a rispondere alle tue richieste:
+- **Entro 30 giorni** dalla ricezione
+- **Entro 72 ore** per richieste urgenti
+- **Comunicazione immediata** in caso di violazione dei dati
+
+## 10. Identificazione
+
+Per esercitare i tuoi diritti, potremmo richiederti di fornire:
+- Documento di identità
+- Informazioni aggiuntive per verificare la tua identità
+- Dettagli specifici sulla richiesta
+
+## 11. Gratuità
+
+L'esercizio dei diritti è generalmente gratuito, salvo casi di:
+- Richieste manifestamente infondate
+- Richieste eccessive
+- Richieste ripetitive
+
+## 12. Limitazioni
+
+Alcuni diritti potrebbero essere limitati per:
+- Sicurezza nazionale
+- Ordine pubblico
+- Prevenzione di reati
+- Libertà di espressione
+- Ricerca scientifica
+
+## 13. Contatti per l'Esercizio dei Diritti
+
+**Privacy Officer**
+Email: privacy@petvet.com
+Tel: +39 02 1234567
+
+**Data Protection Officer**
+Email: dpo@petvet.com
+
+**Indirizzo Postale**
+PetVet S.r.l.
+Ufficio Privacy
+Via delle Innovazioni 123
+20121 Milano, Italia
+
+## 14. Moduli di Richiesta
+
+Per facilitare l'esercizio dei tuoi diritti, puoi utilizzare i moduli disponibili:
+- Sul nostro sito web: www.petvet.com/privacy
+- Tramite email richiedendo il modulo appropriato
+
+## 15. Aggiornamenti
+
+Questa pagina viene aggiornata periodicamente per riflettere eventuali modifiche normative o delle nostre procedure.
+
+**Ultimo aggiornamento: 15 gennaio 2024**
+        `
+      }
+    };
+
+    const document = documents[documentType as keyof typeof documents];
+    if (!document) return null;
+
+    return (
+      <div className="max-w-4xl mx-auto p-6 bg-background">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">{document.title}</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveDocument(null)}
+          >
+            <X className="h-4 w-4" />
+            Chiudi
+          </Button>
+        </div>
+        
+        <div className="prose prose-sm max-w-none">
+          <div className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
+            {document.content}
+          </div>
+        </div>
+        
+        <div className="mt-8 pt-6 border-t">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              PetVet S.r.l. - Via delle Innovazioni 123, 20121 Milano
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveDocument(null)}
+            >
+              Torna alle Impostazioni
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
           reader.readAsText(file);
         }
       };
@@ -1536,69 +2219,56 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* Data Sharing */}
-            <Card>
+            {/* Data Management (GDPR) */}
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  Condivisione Dati
+                  <Database className="h-5 w-5" />
+                  Dati (GDPR)
                 </CardTitle>
                 <CardDescription>
-                  Gestisci la condivisione dei tuoi dati
+                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+              <CardContent>
+                <div className="space-y-6">
                   <div>
-                    <Label>Partecipazione Community</Label>
-                    <p className="text-sm text-muted-foreground">Partecipa alle discussioni e condividi esperienze</p>
+                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataExport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Esporta JSON
+                      </Button>
+                    </div>
                   </div>
-                  <Switch
-                    checked={privacy.communityParticipation}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, communityParticipation: checked}))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
+                  
+                  <Separator />
+                  
                   <div>
-                    <Label>Contributo Analytics</Label>
-                    <p className="text-sm text-muted-foreground">Aiuta a migliorare l'app con dati anonimi</p>
+                    <h4 className="font-medium mb-3">Importazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataImport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Importa JSON
+                      </Button>
+                    </div>
                   </div>
-                  <Switch
-                    checked={privacy.analyticsContribution}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, analyticsContribution: checked}))
-                    }
-                  />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Comunicazioni Marketing</Label>
-                    <p className="text-sm text-muted-foreground">Ricevi email promozionali e offerte</p>
-                  </div>
-                  <Switch
-                    checked={privacy.marketingCommunications}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, marketingCommunications: checked}))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Condivisione Terze Parti</Label>
-                    <p className="text-sm text-muted-foreground">Condividi dati con partner selezionati</p>
-                  </div>
-                  <Switch
-                    checked={privacy.thirdPartySharing}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, thirdPartySharing: checked}))
-                    }
-                  />
-                </div>
+                
+                <Alert className="mt-4">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
+                  </AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
 
@@ -1610,58 +2280,53 @@ Continuare?
                   Legale e Conformità
                 </CardTitle>
                 <CardDescription>
-                  Gestisci consensi e visualizza documenti legali
+                  Documenti legali e informazioni sui tuoi diritti
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Consensi Attivi</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Termini di Servizio</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Privacy Policy</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Cookie Policy</p>
-                          <p className="text-sm text-muted-foreground">Accettato il 15/01/2024</p>
-                        </div>
-                        <Badge variant="default">Attivo</Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Documenti Legali</h4>
-                    <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Termini di Servizio
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Privacy Policy
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Cookie Policy
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Accordo Trattamento Dati
-                      </Button>
-                    </div>
+                <div className="space-y-4">
+                  <h4 className="font-medium">Documenti Legali</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => handleOpenDocument('terms')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Termini di Servizio
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => handleOpenDocument('privacy')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Privacy Policy
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => handleOpenDocument('cookies')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Cookie Policy
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => handleOpenDocument('data-processing')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Accordo Trattamento Dati
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => handleOpenDocument('gdpr-rights')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Diritti GDPR
+                    </Button>
                   </div>
                 </div>
               </CardContent>
