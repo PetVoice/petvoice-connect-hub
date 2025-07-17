@@ -746,7 +746,7 @@ export default function AffiliationPage() {
                             referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
                           }`}
                         >
-                           {referral.status === 'converted' ? 'Attivo' :
+                           {referral.status === 'converted' ? 'Sottoscritto' :
                             referral.status === 'registered' ? 'Registrato' : 
                             referral.status === 'user_deleted' ? 'Eliminato' :
                             referral.status === 'cancelled' ? 'Annullato' :
@@ -999,7 +999,7 @@ export default function AffiliationPage() {
                               referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
                             }`}
                           >
-                             {referral.status === 'converted' ? 'Attivo' :
+                             {referral.status === 'converted' ? 'Sottoscritto' :
                               referral.status === 'registered' ? 'Registrato' : 
                               referral.status === 'cancelled' ? 'Annullato' :
                               referral.status === 'user_deleted' ? 'Eliminato' :
