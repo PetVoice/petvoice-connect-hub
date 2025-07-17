@@ -48,7 +48,8 @@ import {
   Star,
   Target,
   Zap,
-  Gauge
+  Gauge,
+  Music
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,6 +62,7 @@ import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import jsPDF from 'jspdf';
 import { useNotifications } from '@/hooks/useNotifications';
+import { AIMusicTherapy } from '@/components/ai-features/AIMusicTherapy';
 
 interface HealthMetric {
   id: string;
@@ -1818,7 +1820,7 @@ const WellnessPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">
             <Activity className="h-4 w-4 mr-2" />
             Dashboard
@@ -1838,6 +1840,10 @@ const WellnessPage = () => {
           <TabsTrigger value="analytics">
             <TrendingUp className="h-4 w-4 mr-2" />
             Analytics
+          </TabsTrigger>
+          <TabsTrigger value="music-therapy">
+            <Music className="h-4 w-4 mr-2" />
+            AI Music Therapy
           </TabsTrigger>
           <TabsTrigger value="emergency">
             <Siren className="h-4 w-4 mr-2" />
@@ -2831,6 +2837,11 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* AI Music Therapy Tab */}
+        <TabsContent value="music-therapy" className="space-y-6">
+          <AIMusicTherapy selectedPet={selectedPet} />
         </TabsContent>
       </Tabs>
 
