@@ -62,7 +62,11 @@ import {
   Share2,
   Fingerprint,
   Wifi,
-  Upload
+  Upload,
+  ArrowLeft,
+  Cookie,
+  Scale,
+  UserCheck
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,6 +75,15 @@ import { ProfileEditForm } from '@/components/settings/ProfileEditForm';
 import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 import { EmailManagement } from '@/components/settings/EmailManagement';
 import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
+import { 
+  TermsOfService, 
+  PrivacyPolicy, 
+  CookiePolicy, 
+  DataProcessingAgreement, 
+  UserRights, 
+  CancellationPolicy, 
+  LicenseAgreement 
+} from '@/components/legal/LegalDocuments';
 
 interface UserProfile {
   id: string;
@@ -256,6 +269,8 @@ const SettingsPage: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
+  const [openDocument, setOpenDocument] = useState<string | null>(null);
+  const [showDocumentView, setShowDocumentView] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('settings-active-tab', activeTab);
@@ -423,6 +438,43 @@ const SettingsPage: React.FC = () => {
         description: "Impossibile salvare le modifiche. Riprova.",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleOpenDocument = (documentType: string) => {
+    setOpenDocument(documentType);
+    setShowDocumentView(true);
+    setActiveTab('legal-document');
+  };
+
+  const handleCloseDocument = () => {
+    setOpenDocument(null);
+    setShowDocumentView(false);
+    setActiveTab('privacy');
+  };
+
+  const renderDocument = () => {
+    if (!openDocument) return null;
+    
+    const props = { onClose: handleCloseDocument };
+    
+    switch (openDocument) {
+      case 'terms':
+        return <TermsOfService {...props} />;
+      case 'privacy':
+        return <PrivacyPolicy {...props} />;
+      case 'cookies':
+        return <CookiePolicy {...props} />;
+      case 'data-processing':
+        return <DataProcessingAgreement {...props} />;
+      case 'user-rights':
+        return <UserRights {...props} />;
+      case 'cancellation':
+        return <CancellationPolicy {...props} />;
+      case 'license':
+        return <LicenseAgreement {...props} />;
+      default:
+        return null;
     }
   };
 
@@ -1154,7 +1206,7 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
@@ -1187,7 +1239,26 @@ Continuare?
             <Accessibility className="h-4 w-4" />
             Accessibilità
           </TabsTrigger>
+          <TabsTrigger value="legal-document" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Documento
+          </TabsTrigger>
         </TabsList>
+
+        {/* Legal Document View */}
+        <TabsContent value="legal-document" className="space-y-6">
+          <div className="flex items-center gap-4 mb-6">
+            <Button 
+              variant="outline" 
+              onClick={handleCloseDocument}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Torna alle Impostazioni
+            </Button>
+          </div>
+          {renderDocument()}
+        </TabsContent>
 
         {/* Account Management Tab */}
         <TabsContent value="account" className="space-y-6">
@@ -1582,22 +1653,62 @@ Continuare?
               <CardContent>
                 <div className="space-y-4">
                   <h4 className="font-medium">Documenti Legali</h4>
-                  <div className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('terms')}
+                    >
                       <FileText className="h-4 w-4 mr-2" />
                       Termini di Servizio
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <FileText className="h-4 w-4 mr-2" />
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('privacy')}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
                       Privacy Policy
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <FileText className="h-4 w-4 mr-2" />
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('cookies')}
+                    >
+                      <Cookie className="h-4 w-4 mr-2" />
                       Cookie Policy
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <FileText className="h-4 w-4 mr-2" />
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('data-processing')}
+                    >
+                      <Database className="h-4 w-4 mr-2" />
                       Accordo Trattamento Dati
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('user-rights')}
+                    >
+                      <UserCheck className="h-4 w-4 mr-2" />
+                      Diritti dell'Utente
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('cancellation')}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Condizioni di Cancellazione
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="justify-start"
+                      onClick={() => handleOpenDocument('license')}
+                    >
+                      <Scale className="h-4 w-4 mr-2" />
+                      Licenza d'Uso
                     </Button>
                   </div>
                 </div>
