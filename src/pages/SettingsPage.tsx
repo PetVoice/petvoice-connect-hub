@@ -3295,6 +3295,8 @@ Questa pagina viene aggiornata periodicamente per riflettere eventuali modifiche
       </Tabs>
     </div>
   );
-};
+}; // Close SettingsPage component
 
 export default SettingsPage;
+
+}
