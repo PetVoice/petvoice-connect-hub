@@ -60,16 +60,35 @@ export function useAccessibility() {
     // 1. Alto contrasto
     if (accessibility.highContrast) {
       root.classList.add('high-contrast');
-      root.style.setProperty('--background', '0 0% 0%');
-      root.style.setProperty('--foreground', '0 0% 100%');
-      root.style.setProperty('--muted', '0 0% 20%');
-      root.style.setProperty('--border', '0 0% 50%');
+      // Uso colori ad alto contrasto ma non estremi per mantenere la leggibilità
+      root.style.setProperty('--background', '0 0% 8%');  // Grigio molto scuro invece di nero puro
+      root.style.setProperty('--foreground', '0 0% 95%'); // Bianco sporco invece di bianco puro
+      root.style.setProperty('--muted', '0 0% 25%');      // Grigio per testo secondario
+      root.style.setProperty('--muted-foreground', '0 0% 75%'); // Testo secondario leggibile
+      root.style.setProperty('--border', '0 0% 40%');     // Bordi visibili
+      root.style.setProperty('--input', '0 0% 12%');      // Sfondo input
+      root.style.setProperty('--ring', '0 0% 80%');       // Anelli di focus
+      root.style.setProperty('--card', '0 0% 10%');       // Sfondo card
+      root.style.setProperty('--popover', '0 0% 10%');    // Sfondo popover
+      root.style.setProperty('--accent', '0 0% 15%');     // Accent color
+      root.style.setProperty('--accent-foreground', '0 0% 90%'); // Testo su accent
+      root.style.setProperty('--secondary', '0 0% 20%');  // Secondario
+      root.style.setProperty('--secondary-foreground', '0 0% 90%'); // Testo secondario
     } else {
       root.classList.remove('high-contrast');
       root.style.removeProperty('--background');
       root.style.removeProperty('--foreground');
       root.style.removeProperty('--muted');
+      root.style.removeProperty('--muted-foreground');
       root.style.removeProperty('--border');
+      root.style.removeProperty('--input');
+      root.style.removeProperty('--ring');
+      root.style.removeProperty('--card');
+      root.style.removeProperty('--popover');
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--secondary');
+      root.style.removeProperty('--secondary-foreground');
     }
 
     // 2. Dimensione font

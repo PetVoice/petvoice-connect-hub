@@ -18,18 +18,39 @@ textarea:focus,
 
 /* High Contrast Mode */
 .high-contrast {
-  filter: contrast(150%) brightness(1.2);
+  /* Rimuovo il filtro aggressivo che rendeva tutto illeggibile */
 }
 
 .high-contrast button {
-  border: 2px solid currentColor !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 .high-contrast input,
 .high-contrast select,
 .high-contrast textarea {
-  border: 2px solid currentColor !important;
-  background-color: var(--background) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--input)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.high-contrast .bg-card {
+  background-color: hsl(var(--card)) !important;
+}
+
+.high-contrast .bg-popover {
+  background-color: hsl(var(--popover)) !important;
+}
+
+.high-contrast .bg-secondary {
+  background-color: hsl(var(--secondary)) !important;
+  color: hsl(var(--secondary-foreground)) !important;
+}
+
+.high-contrast .bg-accent {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }
 
 /* Font Size Scaling */
@@ -69,16 +90,29 @@ textarea:focus,
 
 /* Contrast Improvements */
 .high-contrast .text-muted-foreground {
-  color: hsl(var(--foreground)) !important;
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 .high-contrast .border {
-  border-color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 .high-contrast .bg-muted {
-  background-color: hsl(var(--background)) !important;
-  border: 1px solid hsl(var(--foreground)) !important;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.high-contrast a {
+  color: hsl(var(--foreground)) !important;
+  text-decoration: underline !important;
+}
+
+.high-contrast .text-primary {
+  color: hsl(var(--foreground)) !important;
+}
+
+.high-contrast .text-secondary {
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 
