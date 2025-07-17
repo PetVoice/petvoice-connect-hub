@@ -44,6 +44,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { UpgradeModal } from '@/components/UpgradeModal';
@@ -88,6 +89,7 @@ const AnalysisPage: React.FC = () => {
   const { toast } = useToast();
   const { subscription } = useSubscription();
   const { checkAnalysisLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
+  const { triggerAnalysisCompleted } = useNotificationEventsContext();
   const [activeTab, setActiveTab] = useState(() => {
     // Leggi il parametro tab dall'URL, default a 'upload'
     const tab = searchParams.get('tab');
@@ -295,6 +297,9 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       });
 
     if (dbError) throw dbError;
+
+    // Trigger notification for completed analysis
+    triggerAnalysisCompleted(selectedPet!.name);
 
     setProcessing(prev => ({
       ...prev,

@@ -29,39 +29,8 @@ export function useNotifications() {
       
       if (stored) {
         loadedNotifications = JSON.parse(stored);
-      } else {
-        // Crea alcune notifiche di esempio se non ce ne sono
-        loadedNotifications = [
-          {
-            id: 'welcome',
-            title: 'Benvenuto in PetVoice!',
-            message: 'Inizia aggiungendo il tuo primo pet per analizzare le sue emozioni',
-            type: 'info',
-            timestamp: new Date().toISOString(),
-            read: false,
-            action_url: '/pets'
-          },
-          {
-            id: 'first-analysis',
-            title: 'Prova l\'analisi emotiva',
-            message: 'Registra un video o audio del tuo pet per capire il suo stato emotivo',
-            type: 'info',
-            timestamp: new Date(Date.now() - 3600000).toISOString(),
-            read: false,
-            action_url: '/analysis'
-          },
-          {
-            id: 'diary-reminder',
-            title: 'Aggiorna il diario',
-            message: 'Non dimenticare di aggiornare il diario del tuo pet oggi',
-            type: 'warning',
-            timestamp: new Date(Date.now() - 7200000).toISOString(),
-            read: false,
-            action_url: '/diary'
-          }
-        ];
-        localStorage.setItem(`notifications-${user.id}`, JSON.stringify(loadedNotifications));
       }
+      // Non creiamo più notifiche fake - solo notifiche reali
       
       setNotifications(loadedNotifications);
       setUnreadCount(loadedNotifications.filter(n => !n.read).length);

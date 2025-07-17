@@ -15,6 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
+import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, startOfWeek, endOfWeek, addDays, addWeeks, subWeeks, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -97,6 +98,7 @@ const DIARY_CATEGORIES = {
 
 const DiaryPage: React.FC = () => {
   const { pets, selectedPet } = usePets();
+  const { triggerDiaryAdded } = useNotificationEventsContext();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
@@ -348,6 +350,11 @@ const DiaryPage: React.FC = () => {
 
         if (error) throw error;
         toast({ title: "Nuova voce salvata!" });
+        
+        // Trigger notification for new diary entry
+        if (selectedPet) {
+          triggerDiaryAdded(selectedPet.name);
+        }
       }
 
       setIsDialogOpen(false);

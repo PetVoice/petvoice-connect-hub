@@ -213,17 +213,9 @@ const Header: React.FC = () => {
                       onClick={markAllAsRead}
                       className="text-xs h-6 px-2"
                     >
-                      Segna tutte
+                      Segna tutte come lette
                     </Button>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAllNotifications}
-                    className="text-xs h-6 px-2"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
                 </div>
               </div>
               <div className="max-h-64 overflow-y-auto">

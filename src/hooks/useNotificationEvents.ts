@@ -24,13 +24,13 @@ export function useNotificationEvents() {
     previousPetsCount.current = pets.length;
   }, [pets.length, addNotification]);
 
-  // Genera notifiche promemoria periodiche
+  // Genera notifiche promemoria periodiche (solo una volta al giorno)
   useEffect(() => {
-    if (!user) return;
+    if (!user || pets.length === 0) return;
 
-    const generatePeriodicReminders = () => {
+    const generateDailyReminders = () => {
       const now = new Date();
-      const lastReminderKey = `last-reminder-${user.id}`;
+      const lastReminderKey = `last-daily-reminder-${user.id}`;
       const lastReminder = localStorage.getItem(lastReminderKey);
       
       // Genera promemoria solo una volta al giorno
@@ -42,34 +42,24 @@ export function useNotificationEvents() {
         if (daysDiff < 1) return;
       }
 
-      // Promemoria per aggiornamento diario
-      if (pets.length > 0) {
+      // Solo promemoria diario - una volta al giorno se l'utente non ha aggiornato il diario nelle ultime 24h
+      const lastDiaryCheck = localStorage.getItem(`last-diary-${user.id}`);
+      if (!lastDiaryCheck || (now.getTime() - new Date(lastDiaryCheck).getTime()) > (24 * 60 * 60 * 1000)) {
         addNotification({
-          title: 'Aggiorna il diario del tuo pet',
-          message: `Non dimenticare di registrare come sta oggi ${pets[0].name}`,
+          title: 'Promemoria diario',
+          message: `Non dimenticare di aggiornare il diario di ${pets[0].name} oggi`,
           type: 'warning',
           read: false,
           action_url: '/diary'
         });
       }
 
-      // Promemoria per analisi emotiva
-      if (pets.length > 0) {
-        addNotification({
-          title: 'Analizza le emozioni del tuo pet',
-          message: 'Fai un\'analisi emotiva per capire meglio il comportamento del tuo pet',
-          type: 'info',
-          read: false,
-          action_url: '/analysis'
-        });
-      }
-
       localStorage.setItem(lastReminderKey, now.toISOString());
     };
 
-    // Genera promemoria dopo 5 secondi (per demo)
-    const timer = setTimeout(generatePeriodicReminders, 5000);
-    return () => clearTimeout(timer);
+    // Controlla una volta al minuto se è ora di inviare promemoria giornalieri
+    const interval = setInterval(generateDailyReminders, 60000);
+    return () => clearInterval(interval);
   }, [user, pets, addNotification]);
 
   // Simula notifiche per eventi dell'app
