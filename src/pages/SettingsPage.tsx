@@ -287,6 +287,16 @@ const SettingsPage: React.FC = () => {
             language: profile.language || 'it',
             notifications_enabled: profile.notifications_enabled
           });
+
+          // Load privacy preferences from database
+          setPrivacy({
+            profileVisibility: 'private', // This will remain local state for now
+            communityParticipation: profile.community_participation ?? true,
+            dataSharing: false, // This will remain local state for now  
+            analyticsContribution: profile.analytics_contribution ?? true,
+            marketingCommunications: profile.marketing_communications ?? false,
+            thirdPartySharing: profile.third_party_sharing ?? false
+          });
         }
       }
     } catch (error) {
@@ -725,6 +735,47 @@ Per il backup completo utilizzare il formato JSON.
       toast({
         title: "Errore",
         description: "Impossibile esportare i dati. Controlla la console per dettagli.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const updatePrivacySetting = async (field: keyof typeof privacy, value: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Map frontend fields to database columns
+        const dbFieldMapping = {
+          communityParticipation: 'community_participation',
+          analyticsContribution: 'analytics_contribution', 
+          marketingCommunications: 'marketing_communications',
+          thirdPartySharing: 'third_party_sharing'
+        };
+
+        const dbField = dbFieldMapping[field as keyof typeof dbFieldMapping];
+        
+        if (dbField) {
+          const { error } = await supabase
+            .from('profiles')
+            .update({ [dbField]: value })
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+
+          toast({
+            title: "Preferenza aggiornata",
+            description: "Le tue preferenze privacy sono state salvate."
+          });
+        }
+
+        // Update local state
+        setPrivacy(prev => ({ ...prev, [field]: value }));
+      }
+    } catch (error) {
+      console.error('Error updating privacy setting:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare la preferenza. Riprova.",
         variant: "destructive"
       });
     }
@@ -1425,9 +1476,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={privacy.communityParticipation}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, communityParticipation: checked}))
-                    }
+                    onCheckedChange={(checked) => updatePrivacySetting('communityParticipation', checked)}
                   />
                 </div>
 
@@ -1438,9 +1487,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={privacy.analyticsContribution}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, analyticsContribution: checked}))
-                    }
+                    onCheckedChange={(checked) => updatePrivacySetting('analyticsContribution', checked)}
                   />
                 </div>
 
@@ -1451,9 +1498,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={privacy.marketingCommunications}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, marketingCommunications: checked}))
-                    }
+                    onCheckedChange={(checked) => updatePrivacySetting('marketingCommunications', checked)}
                   />
                 </div>
 
@@ -1464,9 +1509,7 @@ Continuare?
                   </div>
                   <Switch
                     checked={privacy.thirdPartySharing}
-                    onCheckedChange={(checked) => 
-                      setPrivacy(prev => ({...prev, thirdPartySharing: checked}))
-                    }
+                    onCheckedChange={(checked) => updatePrivacySetting('thirdPartySharing', checked)}
                   />
                 </div>
               </CardContent>

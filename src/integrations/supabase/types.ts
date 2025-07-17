@@ -1149,14 +1149,17 @@ export type Database = {
       }
       profiles: {
         Row: {
+          analytics_contribution: boolean | null
           avatar_url: string | null
           city: string | null
+          community_participation: boolean | null
           country: string | null
           created_at: string
           display_name: string | null
           id: string
           language: string | null
           location: string | null
+          marketing_communications: boolean | null
           notifications_enabled: boolean | null
           postal_code: string | null
           province: string | null
@@ -1166,18 +1169,22 @@ export type Database = {
           street_name: string | null
           street_number: string | null
           theme: string | null
+          third_party_sharing: boolean | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          analytics_contribution?: boolean | null
           avatar_url?: string | null
           city?: string | null
+          community_participation?: boolean | null
           country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
           language?: string | null
           location?: string | null
+          marketing_communications?: boolean | null
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
@@ -1187,18 +1194,22 @@ export type Database = {
           street_name?: string | null
           street_number?: string | null
           theme?: string | null
+          third_party_sharing?: boolean | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          analytics_contribution?: boolean | null
           avatar_url?: string | null
           city?: string | null
+          community_participation?: boolean | null
           country?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
           language?: string | null
           location?: string | null
+          marketing_communications?: boolean | null
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
@@ -1208,6 +1219,7 @@ export type Database = {
           street_name?: string | null
           street_number?: string | null
           theme?: string | null
+          third_party_sharing?: boolean | null
           updated_at?: string
           user_id?: string
         }
