@@ -178,19 +178,22 @@ const CommunityPage = () => {
     try {
       console.log('Eliminando chat con utente:', otherUserId);
       
-      // Elimina fisicamente tutti i messaggi della conversazione
-      const { data: deletedData, error } = await supabase
+      // Marco tutti i messaggi come eliminati da entrambi gli utenti
+      const { data: updatedData, error } = await supabase
         .from('private_messages')
-        .delete()
+        .update({ 
+          deleted_by_sender: true,
+          deleted_by_recipient: true 
+        })
         .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`)
         .select();
 
       if (error) {
-        console.error('Errore DELETE:', error);
+        console.error('Errore UPDATE:', error);
         throw error;
       }
 
-      console.log('Messaggi eliminati:', deletedData?.length || 0);
+      console.log('Messaggi marcati come eliminati:', updatedData?.length || 0);
 
       // Ricarica la lista delle chat private
       await loadPrivateChats();
