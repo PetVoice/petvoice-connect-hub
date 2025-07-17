@@ -1,31 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Cloud, Sun, CloudRain, Music, TrendingUp, Sparkles } from 'lucide-react';
+import { 
+  Cloud, 
+  Sun, 
+  CloudRain, 
+  Zap, 
+  Thermometer, 
+  Wind, 
+  Droplets, 
+  Eye,
+  Music,
+  TrendingUp,
+  Sparkles,
+  RefreshCw,
+  MapPin,
+  AlertCircle 
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WeatherData {
   condition: string;
   temperature: number;
   humidity: number;
+  windSpeed: number;
   pressure: number;
-  description: string;
+  uvIndex: number;
+  location: string;
+  description?: string;
 }
 
-interface MoodPrediction {
-  predicted_mood: string;
-  confidence: number;
-  factors: string[];
-  recommendations: string[];
+interface BehaviorPrediction {
+  behavior: string;
+  probability: number;
+  reasoning: string;
+  recommendation: string;
 }
 
-interface PlaylistSuggestion {
+interface MoodPlaylist {
   name: string;
   description: string;
   tracks: string[];
-  mood_alignment: number;
 }
 
 interface WeatherMoodPredictorProps {
@@ -34,55 +53,38 @@ interface WeatherMoodPredictorProps {
 
 export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
-  const [moodPrediction, setMoodPrediction] = useState<MoodPrediction | null>(null);
-  const [playlistSuggestions, setPlaylistSuggestions] = useState<PlaylistSuggestion[]>([]);
+  const [predictions, setPredictions] = useState<BehaviorPrediction[]>([]);
+  const [playlist, setPlaylist] = useState<MoodPlaylist | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState<string>('');
   const [hasLocation, setHasLocation] = useState(false);
 
-  // Simulated weather data
+  // Dati di fallback in caso di errore API
   const mockWeatherData: WeatherData = {
     condition: 'sunny',
     temperature: 22,
     humidity: 65,
+    windSpeed: 8,
     pressure: 1013,
-    description: 'Giornata soleggiata e piacevole'
+    uvIndex: 6,
+    location: 'Simulato',
+    description: 'Dati simulati - errore API'
   };
 
-  // Simulated mood prediction
-  const mockMoodPrediction: MoodPrediction = {
-    predicted_mood: 'energico',
-    confidence: 0.87,
-    factors: ['Temperatura ideale', 'Buona luminosità', 'Bassa umidità', 'Pressione stabile'],
-    recommendations: [
-      'Perfetto per attività all\'aperto',
-      'Ideale per giochi interattivi',
-      'Buon momento per socializzazione',
-      'Energia elevata prevista'
-    ]
-  };
-
-  // Simulated playlist suggestions
-  const mockPlaylists: PlaylistSuggestion[] = [
+  const mockPredictions: BehaviorPrediction[] = [
     {
-      name: 'Sunny Day Vibes',
-      description: 'Musica energica per giornate soleggiate',
-      tracks: ['Upbeat Jazz', 'Classical Energetic', 'Nature Sounds'],
-      mood_alignment: 0.92
-    },
-    {
-      name: 'Active Pet Session',
-      description: 'Ritmi perfetti per il gioco attivo',
-      tracks: ['Playful Piano', 'Energetic Strings', 'Happy Melodies'],
-      mood_alignment: 0.88
-    },
-    {
-      name: 'Outdoor Adventure',
-      description: 'Accompagnamento per avventure all\'aperto',
-      tracks: ['Adventure Theme', 'Nature Symphony', 'Uplifting Orchestra'],
-      mood_alignment: 0.85
+      behavior: 'Comportamento normale',
+      probability: 75,
+      reasoning: 'Dati simulati - impossibile ottenere previsioni accurate',
+      recommendation: 'Controlla manualmente il comportamento del tuo animale'
     }
   ];
+
+  const mockPlaylist: MoodPlaylist = {
+    name: 'Playlist Generica',
+    description: 'Musica di default - dati meteo non disponibili',
+    tracks: ['Suoni della natura', 'Musica rilassante', 'Ambiente calmo']
+  };
 
   useEffect(() => {
     checkUserLocation();
@@ -104,25 +106,171 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
     setHasLocation(true);
     const fullLocation = userCountry ? `${userCity || userLocation}, ${userCountry}` : (userCity || userLocation);
     setLocation(fullLocation);
-    await fetchWeatherAndPrediction();
+    await fetchWeatherAndPrediction(fullLocation);
   };
 
-  const fetchWeatherAndPrediction = async () => {
+  const fetchWeatherAndPrediction = async (locationQuery: string) => {
     setIsLoading(true);
     
     try {
-      // Simulate API calls
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Fetching weather for:', locationQuery);
       
-      setWeatherData(mockWeatherData);
-      setMoodPrediction(mockMoodPrediction);
-      setPlaylistSuggestions(mockPlaylists);
+      // Chiamata all'edge function per ottenere dati meteo reali
+      const { data: weatherData, error } = await supabase.functions.invoke('get-weather', {
+        body: { location: locationQuery }
+      });
+
+      if (error) {
+        console.error('Error calling weather function:', error);
+        throw new Error('Failed to fetch weather data');
+      }
+
+      if (!weatherData) {
+        throw new Error('No weather data received');
+      }
+
+      console.log('Weather data received:', weatherData);
+      
+      setWeatherData(weatherData);
+      
+      // Genera previsioni comportamentali basate sul meteo reale
+      const behaviorPredictions = generateBehaviorPredictions(weatherData);
+      setPredictions(behaviorPredictions);
+      
+      // Genera playlist suggerita basata sul meteo reale
+      const suggestedPlaylist = generatePlaylistSuggestion(weatherData);
+      setPlaylist(suggestedPlaylist);
       
       toast.success('Previsione meteo-comportamentale aggiornata!');
+      
     } catch (error) {
-      toast.error('Errore nel caricamento dei dati meteo');
+      console.error('Error fetching weather:', error);
+      
+      // Fallback a dati simulati in caso di errore
+      console.log('Using fallback mock data');
+      setWeatherData(mockWeatherData);
+      setPredictions(mockPredictions);
+      setPlaylist(mockPlaylist);
+      
+      toast.error('Errore nel caricamento dati meteo - usando dati simulati');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const generateBehaviorPredictions = (weather: WeatherData): BehaviorPrediction[] => {
+    const predictions = [];
+    
+    // Previsioni basate sulla temperatura
+    if (weather.temperature > 25) {
+      predictions.push({
+        behavior: 'Ricerca ombra',
+        probability: 85,
+        reasoning: 'Temperature elevate spingono gli animali a cercare refrigerio',
+        recommendation: 'Assicurati che abbia accesso a zone fresche e acqua fresca'
+      });
+      
+      predictions.push({
+        behavior: 'Aumento sete',
+        probability: 90,
+        reasoning: 'Il calore incrementa notevolmente il fabbisogno idrico',
+        recommendation: 'Controlla frequentemente la ciotola dell\'acqua'
+      });
+    } else if (weather.temperature < 10) {
+      predictions.push({
+        behavior: 'Ricerca calore',
+        probability: 80,
+        reasoning: 'Temperature basse spingono gli animali a cercare fonti di calore',
+        recommendation: 'Prepara un posto caldo e accogliente'
+      });
+    }
+    
+    // Previsioni basate sulle condizioni meteo
+    if (weather.condition === 'sunny') {
+      predictions.push({
+        behavior: 'Iperattività',
+        probability: 75,
+        reasoning: 'Le giornate soleggiate aumentano l\'energia e la voglia di giocare',
+        recommendation: 'Programma attività fisica extra e giochi all\'aperto'
+      });
+    } else if (weather.condition === 'rainy') {
+      predictions.push({
+        behavior: 'Letargia',
+        probability: 70,
+        reasoning: 'La pioggia tende a rendere gli animali più calmi e pigri',
+        recommendation: 'Attività indoor e coccole sono l\'ideale'
+      });
+    } else if (weather.condition === 'stormy') {
+      predictions.push({
+        behavior: 'Ansia',
+        probability: 85,
+        reasoning: 'Temporali e tuoni possono causare stress e paura',
+        recommendation: 'Crea un ambiente sicuro e rassicurante'
+      });
+    }
+    
+    // Previsioni basate sulla pressione
+    if (weather.pressure < 1000) {
+      predictions.push({
+        behavior: 'Irrequietezza',
+        probability: 65,
+        reasoning: 'La bassa pressione può influire sul comportamento',
+        recommendation: 'Monitora eventuali cambiamenti comportamentali'
+      });
+    }
+    
+    return predictions;
+  };
+
+  const generatePlaylistSuggestion = (weather: WeatherData): MoodPlaylist => {
+    if (weather.condition === 'sunny') {
+      return {
+        name: 'Giornata Soleggiata',
+        description: 'Musica energica per giornate luminose e calde',
+        tracks: [
+          'Upbeat Nature Sounds',
+          'Happy Dog Park',
+          'Sunny Day Adventure',
+          'Playful Afternoon',
+          'Birds & Sunshine'
+        ]
+      };
+    } else if (weather.condition === 'rainy') {
+      return {
+        name: 'Relax Piovoso',
+        description: 'Suoni rilassanti per giornate piovose',
+        tracks: [
+          'Gentle Rain Sounds',
+          'Cozy Indoor Vibes',
+          'Peaceful Piano',
+          'Calm & Cuddles',
+          'Soft Classical'
+        ]
+      };
+    } else if (weather.condition === 'stormy') {
+      return {
+        name: 'Calma la Tempesta',
+        description: 'Musica rassicurante per temporali',
+        tracks: [
+          'Soothing Melodies',
+          'Anti-Anxiety Music',
+          'Peaceful Nature',
+          'Comfort Sounds',
+          'Calming Frequencies'
+        ]
+      };
+    } else {
+      return {
+        name: 'Giornata Tranquilla',
+        description: 'Musica equilibrata per giornate nuvolose',
+        tracks: [
+          'Balanced Rhythms',
+          'Moderate Energy',
+          'Cloudy Day Comfort',
+          'Gentle Activities',
+          'Neutral Vibes'
+        ]
+      };
     }
   };
 
@@ -134,20 +282,20 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
         return <Cloud className="h-6 w-6 text-gray-500" />;
       case 'rainy':
         return <CloudRain className="h-6 w-6 text-blue-500" />;
+      case 'stormy':
+        return <Zap className="h-6 w-6 text-purple-500" />;
+      case 'snowy':
+        return <Cloud className="h-6 w-6 text-blue-300" />;
       default:
         return <Cloud className="h-6 w-6 text-gray-500" />;
     }
   };
 
-  const getMoodColor = (mood: string) => {
-    const colors = {
-      'energico': 'bg-yellow-100 text-yellow-800',
-      'calmo': 'bg-blue-100 text-blue-800',
-      'rilassato': 'bg-green-100 text-green-800',
-      'attivo': 'bg-orange-100 text-orange-800',
-      'sonnolento': 'bg-purple-100 text-purple-800'
-    };
-    return colors[mood as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  const getProbabilityColor = (probability: number) => {
+    if (probability >= 80) return 'bg-red-100 text-red-800';
+    if (probability >= 60) return 'bg-orange-100 text-orange-800';
+    if (probability >= 40) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-green-100 text-green-800';
   };
 
   // Se l'utente non ha una località impostata, mostra un messaggio
@@ -156,7 +304,7 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
       <Card className="border-orange-200 bg-orange-50">
         <CardContent className="flex items-center space-x-3 p-6">
           <div className="flex-shrink-0">
-            <Cloud className="h-5 w-5 text-orange-600" />
+            <AlertCircle className="h-5 w-5 text-orange-600" />
           </div>
           <div>
             <p className="text-orange-800 font-medium">Località non configurata</p>
@@ -175,13 +323,16 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            Previsione Meteo-Comportamentale
+            Weather Mood Predictor
           </CardTitle>
+          <CardDescription>
+            Previsioni comportamentali basate sul meteo
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
               <p className="text-sm text-muted-foreground">Analizzando condizioni meteo...</p>
             </div>
           </div>
@@ -197,8 +348,11 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            Previsione Meteo-Comportamentale
+            Weather Mood Predictor
           </CardTitle>
+          <CardDescription>
+            Previsioni comportamentali basate sul meteo reale
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -207,26 +361,56 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
                 {weatherData && getWeatherIcon(weatherData.condition)}
               </div>
               <div className="text-2xl font-bold">{weatherData?.temperature}°C</div>
-              <div className="text-sm text-muted-foreground">{location}</div>
+              <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {location}
+              </div>
+              {weatherData?.description && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {weatherData.description}
+                </div>
+              )}
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm">Umidità:</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <Droplets className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm">Umidità:</span>
+                </div>
                 <span className="text-sm font-medium">{weatherData?.humidity}%</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Pressione:</span>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <Thermometer className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm">Pressione:</span>
+                </div>
                 <span className="text-sm font-medium">{weatherData?.pressure} hPa</span>
               </div>
-              <div className="text-sm text-muted-foreground">
-                {weatherData?.description}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <Wind className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm">Vento:</span>
+                </div>
+                <span className="text-sm font-medium">{weatherData?.windSpeed} km/h</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <Eye className="h-4 w-4 text-yellow-500" />
+                  <span className="text-sm">UV Index:</span>
+                </div>
+                <span className="text-sm font-medium">{weatherData?.uvIndex}</span>
               </div>
             </div>
             
             <div className="flex justify-center">
-              <Button variant="outline" size="sm" onClick={fetchWeatherAndPrediction}>
-                <TrendingUp className="h-4 w-4 mr-2" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fetchWeatherAndPrediction(location)}
+                disabled={isLoading}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Aggiorna
               </Button>
             </div>
@@ -234,90 +418,60 @@ export const WeatherMoodPredictor = ({ user }: WeatherMoodPredictorProps) => {
         </CardContent>
       </Card>
 
-      {/* Mood Prediction */}
-      {moodPrediction && (
+      {/* Behavior Predictions */}
+      {predictions.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
-              Previsione Comportamentale
+              Previsioni Comportamentali
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Badge className={getMoodColor(moodPrediction.predicted_mood)}>
-                    {moodPrediction.predicted_mood}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {Math.round(moodPrediction.confidence * 100)}% confidenza
-                  </span>
+              {predictions.map((prediction, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium">{prediction.behavior}</h4>
+                    <Badge className={getProbabilityColor(prediction.probability)}>
+                      {prediction.probability}%
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {prediction.reasoning}
+                  </p>
+                  <div className="bg-blue-50 p-2 rounded text-sm">
+                    <strong>Raccomandazione:</strong> {prediction.recommendation}
+                  </div>
                 </div>
-                <Progress value={moodPrediction.confidence * 100} className="w-24" />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2">Fattori Influenti:</h4>
-                  <ul className="space-y-1">
-                    {moodPrediction.factors.map((factor, index) => (
-                      <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-primary"></div>
-                        {factor}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium mb-2">Raccomandazioni:</h4>
-                  <ul className="space-y-1">
-                    {moodPrediction.recommendations.map((rec, index) => (
-                      <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-green-500"></div>
-                        {rec}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Playlist Suggestions */}
-      {playlistSuggestions.length > 0 && (
+      {/* Playlist Suggestion */}
+      {playlist && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Music className="h-5 w-5" />
-              Playlist Suggerite
+              Playlist Suggerita
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {playlistSuggestions.map((playlist, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{playlist.name}</h4>
-                    <Badge variant="outline">
-                      {Math.round(playlist.mood_alignment * 100)}% match
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {playlist.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {playlist.tracks.map((track, trackIndex) => (
-                      <Badge key={trackIndex} variant="secondary" className="text-xs">
-                        {track}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
+            <div className="p-4 border rounded-lg">
+              <h4 className="font-medium mb-2">{playlist.name}</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                {playlist.description}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {playlist.tracks.map((track, index) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {track}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
