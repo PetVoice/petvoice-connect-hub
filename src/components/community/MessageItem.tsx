@@ -55,7 +55,21 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     }
   };
 
-  // Determina se mostrare il quote
+  // Debug logging per capire cosa sta succedendo
+  console.log('MessageItem Debug:', {
+    messageId: message.id,
+    isOwn,
+    currentUserId,
+    userName,
+    hasReplyTo: !!message.reply_to,
+    replyToUserId: message.reply_to?.user_id,
+    replyToUserName: message.reply_to?.user_name,
+    shouldShowQuote: message.reply_to && (isOwn || message.reply_to.user_id === currentUserId)
+  });
+
+  // LOGICA CORRETTA: mostra il quote solo se:
+  // 1. Il messaggio è una risposta (ha reply_to)
+  // 2. E se è il mio messaggio di risposta OR se è una risposta al mio messaggio
   const shouldShowQuote = message.reply_to && (
     isOwn || // Se è il mio messaggio di risposta
     message.reply_to.user_id === currentUserId // Se è una risposta al mio messaggio
