@@ -1942,11 +1942,12 @@ Continuare?
             </Card>
           </div>
         </TabsContent>
-        </TabsContent>
 
         {/* Integrations Tab */}
-            {/* Storage Usage */}
-            <Card className="lg:col-span-2">
+        <TabsContent value="integrations" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Calendar Integration */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Database className="h-5 w-5" />
