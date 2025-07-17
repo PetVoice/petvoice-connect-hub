@@ -1202,10 +1202,6 @@ Continuare?
             <Palette className="h-4 w-4" />
             Aspetto
           </TabsTrigger>
-          <TabsTrigger value="data" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Dati
-          </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-2">
             <Link className="h-4 w-4" />
             Integrazioni
@@ -1796,7 +1792,7 @@ Continuare?
               <CardContent className="space-y-4">
                 <RadioGroup 
                   value={theme} 
-                  onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
+                  onValueChange={(value) => setTheme(value as 'light' | 'dark')}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="light" id="light" />
@@ -1810,13 +1806,6 @@ Continuare?
                     <Label htmlFor="dark" className="flex items-center gap-2">
                       <Moon className="h-4 w-4" />
                       Scuro
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="system" id="system" />
-                    <Label htmlFor="system" className="flex items-center gap-2">
-                      <Monitor className="h-4 w-4" />
-                      Automatico
                     </Label>
                   </div>
                 </RadioGroup>
@@ -1953,10 +1942,9 @@ Continuare?
             </Card>
           </div>
         </TabsContent>
+        </TabsContent>
 
-        {/* Data Tab */}
-        <TabsContent value="data" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Integrations Tab */}
             {/* Storage Usage */}
             <Card className="lg:col-span-2">
               <CardHeader>

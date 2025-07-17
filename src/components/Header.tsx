@@ -90,7 +90,7 @@ const Header: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark';
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
   };
 
@@ -179,8 +179,6 @@ const Header: React.FC = () => {
           >
             {theme === 'dark' ? (
               <Sun className="h-4 w-4" />
-            ) : theme === 'light' ? (
-              <Moon className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
             )}
