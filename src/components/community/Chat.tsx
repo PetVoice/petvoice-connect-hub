@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
@@ -36,6 +37,7 @@ export interface Message {
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -258,11 +260,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   const handleContactUser = (userId: string, userName: string) => {
     // Navigare alla pagina dei messaggi privati con questo utente
-    // Per ora mostriamo un toast per indicare la funzionalità
-    toast({
-      title: "Messaggi privati",
-      description: `Contatto con ${userName} - Funzionalità in sviluppo`,
-    });
+    navigate(`/private-messages/${userId}`);
   };
 
   const deleteMessage = async (messageId: string) => {
