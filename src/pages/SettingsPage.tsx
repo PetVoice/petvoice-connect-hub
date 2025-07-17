@@ -740,40 +740,57 @@ const SettingsPage: React.FC = () => {
 
         {/* Account Management Tab */}
         <TabsContent value="account" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Profile Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Informazioni Profilo
-                </CardTitle>
-                <CardDescription>
-                  Gestisci le tue informazioni personali e preferenze
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {user && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-1">
-                      <ProfileAvatar 
-                        user={user} 
-                        onAvatarChange={handleAvatarChange}
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <ProfileEditForm 
-                        user={user} 
-                        onProfileUpdate={handleProfileUpdate}
-                      />
+          {/* Profile Information - Full Width */}
+          <Card className="w-full">
+            <CardHeader className="pb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <User className="h-6 w-6" />
+                    Informazioni Profilo
+                  </CardTitle>
+                  <CardDescription className="mt-2">
+                    Gestisci le tue informazioni personali e preferenze del profilo
+                  </CardDescription>
+                </div>
+                <Badge variant="outline" className="flex items-center gap-2">
+                  <CheckCircle className="h-3 w-3" />
+                  Profilo Verificato
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {user && (
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                  {/* Avatar Section */}
+                  <div className="xl:col-span-1 flex flex-col items-center space-y-4">
+                    <ProfileAvatar 
+                      user={user} 
+                      onAvatarChange={handleAvatarChange}
+                    />
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Clicca sull'avatar per cambiarlo
+                      </p>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  
+                  {/* Profile Form Section */}
+                  <div className="xl:col-span-3">
+                    <ProfileEditForm 
+                      user={user} 
+                      onProfileUpdate={handleProfileUpdate}
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
+          {/* Account Management Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Email Management */}
-            <Card>
+            <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-5 w-5" />
@@ -788,23 +805,76 @@ const SettingsPage: React.FC = () => {
               </CardContent>
             </Card>
 
-
-            {/* Account Deletion */}
-            <Card className="border-destructive">
+            {/* Account Status */}
+            <Card className="h-fit">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <Trash2 className="h-5 w-5" />
-                  Eliminazione Account
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Stato Account
                 </CardTitle>
                 <CardDescription>
-                  Elimina permanentemente il tuo account e tutti i dati associati
+                  Informazioni sul tuo account e livello di sicurezza
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                {user && <DeleteAccountSection user={user} />}
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
+                      {user?.email_confirmed_at ? '✓' : '✗'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Email</div>
+                  </div>
+                  <div className="text-center p-3 bg-muted/50 rounded-lg">
+                    <div className="text-2xl font-bold text-primary">
+                      {user?.created_at ? '✓' : '✗'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Attivo</div>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Membro dal:</span>
+                    <span className="font-medium">
+                      {user?.created_at ? new Date(user.created_at).toLocaleDateString('it-IT') : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm mt-2">
+                    <span className="text-muted-foreground">Ultimo accesso:</span>
+                    <span className="font-medium">
+                      {user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('it-IT') : 'N/A'}
+                    </span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Danger Zone */}
+          <Card className="border-destructive/50 bg-destructive/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-5 w-5" />
+                Zona Pericolosa
+              </CardTitle>
+              <CardDescription>
+                Azioni irreversibili che potrebbero causare la perdita permanente dei dati
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-background border border-destructive/20 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                  <div>
+                    <h4 className="font-medium text-destructive">Eliminazione Account</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Elimina permanentemente il tuo account e tutti i dati associati
+                    </p>
+                  </div>
+                </div>
+                {user && <DeleteAccountSection user={user} />}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Security Tab */}
