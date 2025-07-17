@@ -24,6 +24,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -32,9 +33,9 @@ import { useNotifications } from '@/hooks/useNotifications';
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
   const { pets, selectedPetId, setSelectedPetId, loading: loadingPets } = usePets();
   const navigate = useNavigate();
-  const [language, setLanguage] = useState('it');
   const { 
     notifications, 
     unreadCount, 
@@ -89,7 +90,7 @@ const Header: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    const newTheme = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark';
     setTheme(newTheme);
   };
 
@@ -178,6 +179,8 @@ const Header: React.FC = () => {
           >
             {theme === 'dark' ? (
               <Sun className="h-4 w-4" />
+            ) : theme === 'light' ? (
+              <Moon className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
             )}

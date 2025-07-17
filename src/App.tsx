@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PetProvider } from "@/contexts/PetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
@@ -138,14 +140,18 @@ const App = () => (
     <AuthProvider>
       <PetProvider>
         <ThemeProvider>
-          <NotificationEventsProvider>
-            <TooltipProvider>
-              <NotificationManager />
-              <AppContent />
-              <Toaster />
-              <Sonner />
-            </TooltipProvider>
-          </NotificationEventsProvider>
+          <LanguageProvider>
+            <AppearanceProvider>
+              <NotificationEventsProvider>
+                <TooltipProvider>
+                  <NotificationManager />
+                  <AppContent />
+                  <Toaster />
+                  <Sonner />
+                </TooltipProvider>
+              </NotificationEventsProvider>
+            </AppearanceProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </PetProvider>
     </AuthProvider>

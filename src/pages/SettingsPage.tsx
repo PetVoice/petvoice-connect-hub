@@ -70,6 +70,10 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAppearance } from '@/contexts/AppearanceContext';
 import { ProfileAvatar } from '@/components/settings/ProfileAvatar';
 import { ProfileEditForm } from '@/components/settings/ProfileEditForm';
 import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
@@ -143,6 +147,10 @@ interface NotificationSettings {
 
 const SettingsPage: React.FC = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
+  const { appearance, updateAppearance } = useAppearance();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -179,16 +187,7 @@ const SettingsPage: React.FC = () => {
     frequency: 'realtime'
   });
 
-  // Appearance State
-  const [appearance, setAppearance] = useState({
-    theme: 'system',
-    language: 'it',
-    timezone: 'Europe/Rome',
-    dateFormat: 'DD/MM/YYYY',
-    timeFormat: '24h',
-    currency: 'EUR',
-    units: 'metric'
-  });
+  // Appearance State managed by context
 
   // Privacy State
   const [privacy, setPrivacy] = useState({
@@ -246,7 +245,6 @@ const SettingsPage: React.FC = () => {
     voiceCommands: false
   });
 
-  const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
   const [openDocument, setOpenDocument] = useState<string | null>(null);
@@ -263,10 +261,7 @@ const SettingsPage: React.FC = () => {
 
   const loadUserProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setUser(user);
-        
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
@@ -1800,8 +1795,8 @@ Continuare?
               </CardHeader>
               <CardContent className="space-y-4">
                 <RadioGroup 
-                  value={appearance.theme} 
-                  onValueChange={(value) => setAppearance(prev => ({...prev, theme: value}))}
+                  value={theme} 
+                  onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="light" id="light" />
@@ -1818,8 +1813,8 @@ Continuare?
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="auto" id="auto" />
-                    <Label htmlFor="auto" className="flex items-center gap-2">
+                    <RadioGroupItem value="system" id="system" />
+                    <Label htmlFor="system" className="flex items-center gap-2">
                       <Monitor className="h-4 w-4" />
                       Automatico
                     </Label>
@@ -1840,7 +1835,7 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Select value={appearance.language} onValueChange={(value) => setAppearance(prev => ({...prev, language: value}))}>
+                <Select value={language} onValueChange={(value) => setLanguage(value as 'it' | 'en' | 'es')}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -1848,8 +1843,6 @@ Continuare?
                     <SelectItem value="it">Italiano</SelectItem>
                     <SelectItem value="en">English</SelectItem>
                     <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
                   </SelectContent>
                 </Select>
               </CardContent>
