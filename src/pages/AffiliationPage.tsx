@@ -751,11 +751,11 @@ export default function AffiliationPage() {
                             referral.status === 'registered' ? 'bg-orange-100 text-orange-800 border-orange-200' : ''
                           }`}
                         >
-                          {referral.status === 'converted' ? 'Convertito' :
-                           referral.status === 'registered' ? 'Registrato' : 
-                           referral.status === 'user_deleted' ? 'Eliminato' :
-                           referral.status === 'cancelled' ? 'Annullato' :
-                           'In attesa'}
+                           {referral.status === 'converted' ? 'Attivo' :
+                            referral.status === 'registered' ? 'Registrato' : 
+                            referral.status === 'user_deleted' ? 'Eliminato' :
+                            referral.status === 'cancelled' ? 'Annullato' :
+                            'In attesa'}
                         </Badge>
                         {referral.status === 'converted' && referral.is_active && (
                           <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -1003,11 +1003,11 @@ export default function AffiliationPage() {
                             referral.status === 'user_deleted' ? 'destructive' :
                             'outline'
                           }>
-                            {referral.status === 'converted' ? 'Convertito' :
-                             referral.status === 'registered' ? 'Registrato' : 
-                             referral.status === 'cancelled' ? 'Annullato' :
-                             referral.status === 'user_deleted' ? 'Eliminato' :
-                             'In attesa'}
+                             {referral.status === 'converted' ? 'Attivo' :
+                              referral.status === 'registered' ? 'Registrato' : 
+                              referral.status === 'cancelled' ? 'Annullato' :
+                              referral.status === 'user_deleted' ? 'Eliminato' :
+                              'In attesa'}
                           </Badge>
                           {referral.status === 'converted' && referral.is_active !== false && (
                             <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -1101,26 +1101,12 @@ export default function AffiliationPage() {
                          </p>
                        </div>
                       <div className="text-right">
-                        <p className={`font-bold ${
-                          credit.is_cancelled ? 'text-gray-500 line-through' :
-                          credit.amount > 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {credit.amount > 0 ? '+' : ''}€{credit.amount.toFixed(2)}
-                        </p>
-                        <Badge 
-                          variant={
-                            credit.is_cancelled ? 'destructive' :
-                            credit.status === 'active' ? 'default' :
-                            credit.status === 'redeemed' ? 'secondary' : 'outline'
-                          }
-                          className={`${
-                            credit.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' : ''
-                          }`}
-                        >
-                          {credit.is_cancelled ? 'Annullata' :
-                           credit.status === 'active' ? 'Attivo' :
-                           credit.status === 'redeemed' ? 'Utilizzato' : 'Scaduto'}
-                        </Badge>
+                         <p className={`font-bold ${
+                           credit.is_cancelled ? 'text-gray-500 line-through' :
+                           credit.amount > 0 ? 'text-green-600' : 'text-red-600'
+                         }`}>
+                           {credit.amount > 0 ? '+' : ''}€{credit.amount.toFixed(2)}
+                         </p>
                       </div>
                     </div>
                   ))}
