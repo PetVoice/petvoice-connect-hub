@@ -1,15 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Image, Mic, MicOff, Camera, Smile } from 'lucide-react';
+import { Send, Image, Mic, MicOff, Camera, Smile, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Message } from './Chat';
 
 interface MessageInputProps {
   onSendMessage: (content: string, messageType?: string, fileUrl?: string, voiceDuration?: number) => void;
+  replyToMessage?: Message | null;
+  onCancelReply?: () => void;
+  userNames: Record<string, string>;
 }
 
-export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
+export const MessageInput: React.FC<MessageInputProps> = ({ 
+  onSendMessage, 
+  replyToMessage, 
+  onCancelReply,
+  userNames 
+}) => {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -177,99 +187,144 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => 
     setShowEmojis(false);
   };
 
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   return (
-    <div className="border-t p-4">
-      <div className="flex gap-2 items-end">
-        <div className="flex-1 relative">
-          <Input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Scrivi un messaggio..."
-            disabled={uploading}
-            className="resize-none"
-          />
-          
-          {showEmojis && (
-            <div className="absolute bottom-full right-0 mb-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] w-80 max-h-64 overflow-y-auto">
-              <div className="grid grid-cols-8 gap-2">
-                {emojis.map((emoji, index) => (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    size="sm"
-                    className="text-lg hover:bg-gray-100 dark:hover:bg-gray-700 p-1 h-8 w-8 flex items-center justify-center"
-                    onClick={() => addEmoji(emoji)}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
+    <div className="border-t">
+      {/* Reply Box */}
+      {replyToMessage && (
+        <div className="px-4 py-2 bg-muted/50 border-b">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <Avatar className="h-4 w-4">
+                  <AvatarFallback className="text-xs">
+                    {(userNames[replyToMessage.user_id] || 'U').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Rispondi a {userNames[replyToMessage.user_id] || 'Utente'}
+                </span>
+              </div>
+              <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded border-l-2 border-primary">
+                {replyToMessage.message_type === 'image' ? (
+                  <span className="italic">📷 Immagine</span>
+                ) : replyToMessage.message_type === 'voice' ? (
+                  <span className="italic">🎤 Messaggio vocale</span>
+                ) : (
+                  truncateText(replyToMessage.content || '', 100)
+                )}
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Emoji button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowEmojis(!showEmojis)}
-          disabled={uploading}
-          className="p-2 hover:bg-muted/50 transition-colors"
-        >
-          <Smile className="h-4 w-4" />
-        </Button>
-
-        {/* Image upload */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="p-2 hover:bg-muted/50 transition-colors"
-        >
-          <Image className="h-4 w-4" />
-        </Button>
-
-        {/* Voice recording */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleVoiceToggle}
-          disabled={uploading}
-          className={`p-2 hover:bg-muted/50 transition-colors ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
-        >
-          {isRecording ? (
-            <MicOff className="h-4 w-4" />
-          ) : (
-            <Mic className="h-4 w-4" />
-          )}
-        </Button>
-
-        {/* Send button */}
-        <Button
-          onClick={handleSendText}
-          disabled={!message.trim() || uploading}
-          size="sm"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImageUpload}
-        accept="image/*"
-        className="hidden"
-      />
-
-      {uploading && (
-        <div className="text-center text-sm text-muted-foreground mt-2">
-          Caricamento in corso...
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancelReply}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
       )}
+
+      {/* Input Area */}
+      <div className="p-4">
+        <div className="flex gap-2 items-end">
+          <div className="flex-1 relative">
+            <Input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={replyToMessage ? "Rispondi al messaggio..." : "Scrivi un messaggio..."}
+              disabled={uploading}
+              className="resize-none"
+            />
+            
+            {showEmojis && (
+              <div className="absolute bottom-full right-0 mb-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] w-80 max-h-64 overflow-y-auto">
+                <div className="grid grid-cols-8 gap-2">
+                  {emojis.map((emoji, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="sm"
+                      className="text-lg hover:bg-gray-100 dark:hover:bg-gray-700 p-1 h-8 w-8 flex items-center justify-center"
+                      onClick={() => addEmoji(emoji)}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Emoji button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowEmojis(!showEmojis)}
+            disabled={uploading}
+            className="p-2 hover:bg-muted/50 transition-colors"
+          >
+            <Smile className="h-4 w-4" />
+          </Button>
+
+          {/* Image upload */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="p-2 hover:bg-muted/50 transition-colors"
+          >
+            <Image className="h-4 w-4" />
+          </Button>
+
+          {/* Voice recording */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleVoiceToggle}
+            disabled={uploading}
+            className={`p-2 hover:bg-muted/50 transition-colors ${isRecording ? 'bg-destructive text-destructive-foreground' : ''}`}
+          >
+            {isRecording ? (
+              <MicOff className="h-4 w-4" />
+            ) : (
+              <Mic className="h-4 w-4" />
+            )}
+          </Button>
+
+          {/* Send button */}
+          <Button
+            onClick={handleSendText}
+            disabled={!message.trim() || uploading}
+            size="sm"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageUpload}
+          accept="image/*"
+          className="hidden"
+        />
+
+        {uploading && (
+          <div className="text-center text-sm text-muted-foreground mt-2">
+            Caricamento in corso...
+          </div>
+        )}
+      </div>
     </div>
   );
 };
