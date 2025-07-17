@@ -254,7 +254,12 @@ const SettingsPage: React.FC = () => {
   });
 
   const [user, setUser] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
+
+  useEffect(() => {
+    localStorage.setItem('settings-active-tab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     loadUserProfile();
@@ -1097,7 +1102,7 @@ Continuare?
         </Badge>
       </div>
 
-      <Tabs defaultValue="account" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -1456,7 +1461,7 @@ Continuare?
                 <div className="space-y-6">
                   <div>
                     <h4 className="font-medium mb-3">Esportazione Dati</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <Button 
                         variant="outline" 
                         onClick={() => handleDataExport('json')}
@@ -1465,22 +1470,6 @@ Continuare?
                         <Download className="h-4 w-4" />
                         Esporta JSON
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataExport('pdf')}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta PDF
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataExport('csv')}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta CSV
-                      </Button>
                     </div>
                   </div>
                   
@@ -1488,7 +1477,7 @@ Continuare?
                   
                   <div>
                     <h4 className="font-medium mb-3">Importazione Dati</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                       <Button 
                         variant="outline" 
                         onClick={() => handleDataImport('json')}
@@ -1496,22 +1485,6 @@ Continuare?
                       >
                         <Upload className="h-4 w-4" />
                         Importa JSON
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataImport('pdf')}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Importa PDF
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataImport('csv')}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Importa CSV
                       </Button>
                     </div>
                   </div>
@@ -2229,43 +2202,17 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="border rounded-lg p-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <FileText className="h-5 w-5 text-primary" />
                       <h4 className="font-medium">Formato JSON</h4>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Ideale per sviluppatori e backup completi
+                      Ideale per backup completi e ripristino totale dei dati
                     </p>
                     <Button variant="outline" onClick={() => handleDataExport('json')} className="w-full">
                       Esporta JSON
-                    </Button>
-                  </div>
-
-                  <div className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      <h4 className="font-medium">Formato PDF</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Perfetto per stampa e condivisione
-                    </p>
-                    <Button variant="outline" onClick={() => handleDataExport('pdf')} className="w-full">
-                      Esporta PDF
-                    </Button>
-                  </div>
-
-                  <div className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      <h4 className="font-medium">Formato CSV</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Compatibile con Excel e fogli di calcolo
-                    </p>
-                    <Button variant="outline" onClick={() => handleDataExport('csv')} className="w-full">
-                      Esporta CSV
                     </Button>
                   </div>
                 </div>
