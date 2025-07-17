@@ -164,6 +164,7 @@ export type Database = {
           is_emergency: boolean | null
           message_type: string
           metadata: Json | null
+          reply_to_id: string | null
           updated_at: string
           user_id: string
           voice_duration: number | null
@@ -179,6 +180,7 @@ export type Database = {
           is_emergency?: boolean | null
           message_type?: string
           metadata?: Json | null
+          reply_to_id?: string | null
           updated_at?: string
           user_id: string
           voice_duration?: number | null
@@ -194,11 +196,20 @@ export type Database = {
           is_emergency?: boolean | null
           message_type?: string
           metadata?: Json | null
+          reply_to_id?: string | null
           updated_at?: string
           user_id?: string
           voice_duration?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "community_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_notifications: {
         Row: {

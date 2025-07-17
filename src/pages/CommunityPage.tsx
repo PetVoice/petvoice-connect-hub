@@ -108,10 +108,13 @@ const CommunityPage = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
+  const [privateChats, setPrivateChats] = useState([]);
+  const [activeChatType, setActiveChatType] = useState('group'); // 'group' or 'private'
   
   useEffect(() => {
     if (user?.id) {
       loadMyGroups();
+      loadPrivateChats();
     }
   }, [user?.id]);
   
@@ -119,6 +122,79 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
   
+  const loadPrivateChats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('private_messages')
+        .select('*')
+        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
+        .eq('deleted_by_sender', false)
+        .eq('deleted_by_recipient', false)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Raggruppa per conversazione (con l'altro utente)
+      const conversations = {};
+      data?.forEach(msg => {
+        const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+        
+        if (!conversations[otherUserId]) {
+          conversations[otherUserId] = {
+            userId: otherUserId,
+            userName: 'Utente sconosciuto', // TODO: recuperare nome
+            lastMessage: msg.content,
+            lastMessageTime: msg.created_at,
+            unreadCount: 0
+          };
+        }
+      });
+
+      setPrivateChats(Object.values(conversations));
+    } catch (error) {
+      console.error('Errore caricamento chat private:', error);
+    }
+  };
+
+  const deletePrivateChat = async (otherUserId) => {
+    try {
+      // Marca tutti i messaggi di questa conversazione come eliminati per l'utente corrente
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: user.id === otherUserId ? false : true,
+          deleted_by_recipient: user.id !== otherUserId ? false : true
+        })
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`);
+
+      if (error) throw error;
+
+      await loadPrivateChats();
+      
+      if (activeChat === `private_${otherUserId}`) {
+        setActiveChat(null);
+      }
+      
+      toast({
+        title: "Chat eliminata",
+        description: "La conversazione è stata eliminata"
+      });
+      
+    } catch (error) {
+      console.error('Errore eliminazione chat:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la conversazione",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openPrivateChat = (userId) => {
+    setActiveChat(`private_${userId}`);
+    setActiveChatType('private');
+  };
+
   const loadMyGroups = async () => {
     try {
       const { data } = await supabase
@@ -279,6 +355,7 @@ const CommunityPage = () => {
   
   const openChat = (groupId) => {
     setActiveChat(groupId);
+    setActiveChatType('group');
   };
   
   return (
@@ -332,6 +409,64 @@ const CommunityPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Messaggi Privati ({privateChats.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {privateChats.map(chat => (
+                    <div key={chat.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                      <div className="flex-1">
+                        <div className="font-medium">{chat.userName}</div>
+                        <div className="text-sm text-muted-foreground truncate">
+                          {chat.lastMessage}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => openPrivateChat(chat.userId)}
+                        >
+                          Apri
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="destructive">
+                              Elimina
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Elimina conversazione</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Sei sicuro di voler eliminare la conversazione con {chat.userName}? 
+                                La cronologia verrà eliminata definitivamente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annulla</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => deletePrivateChat(chat.userId)}
+                                className="bg-destructive hover:bg-destructive/90"
+                              >
+                                Elimina conversazione
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                  {privateChats.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Nessun messaggio privato
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
