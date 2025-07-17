@@ -74,7 +74,7 @@ const Header: React.FC = () => {
     if (diffDays > 0) {
       return `${diffDays} giorno${diffDays > 1 ? 'i' : ''} fa`;
     } else if (diffHours > 0) {
-      return `${diffHours} ora${diffHours > 1 ? 'e' : ''} fa`;
+      return `${diffHours} ${diffHours > 1 ? 'ore' : 'ora'} fa`;
     } else {
       return 'Ora';
     }
