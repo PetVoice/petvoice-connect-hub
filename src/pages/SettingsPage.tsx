@@ -1187,67 +1187,21 @@ Continuare?
             </CardContent>
           </Card>
 
-          {/* Account Management Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Email Management */}
-            <Card className="h-fit">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Gestione Email
-                </CardTitle>
-                <CardDescription>
-                  Cambia il tuo indirizzo email con verifica di sicurezza
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {user && <EmailManagement user={user} />}
-              </CardContent>
-            </Card>
-
-            {/* Account Status */}
-            <Card className="h-fit">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Stato Account
-                </CardTitle>
-                <CardDescription>
-                  Informazioni sul tuo account e livello di sicurezza
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">
-                      {user?.email_confirmed_at ? '✓' : '✗'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Email</div>
-                  </div>
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">
-                      {user?.created_at ? '✓' : '✗'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Attivo</div>
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Membro dal:</span>
-                    <span className="font-medium">
-                      {user?.created_at ? new Date(user.created_at).toLocaleDateString('it-IT') : 'N/A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-muted-foreground">Ultimo accesso:</span>
-                    <span className="font-medium">
-                      {user?.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('it-IT') : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Email Management */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Gestione Email
+              </CardTitle>
+              <CardDescription>
+                Cambia il tuo indirizzo email con verifica di sicurezza
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {user && <EmailManagement user={user} />}
+            </CardContent>
+          </Card>
 
           {/* Danger Zone */}
           <Card className="border-destructive/50 bg-destructive/5">
@@ -1446,58 +1400,6 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* Data Management (GDPR) */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Dati (GDPR)
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataExport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta JSON
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <h4 className="font-medium mb-3">Importazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataImport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Importa JSON
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <Alert className="mt-4">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
 
@@ -1664,6 +1566,59 @@ Continuare?
                     </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Management (GDPR) */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5" />
+                  Gestione Dati (GDPR)
+                </CardTitle>
+                <CardDescription>
+                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataExport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Esporta JSON
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Importazione Dati</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => handleDataImport('json')}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="h-4 w-4" />
+                        Importa JSON
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                <Alert className="mt-4">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
+                  </AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
           </div>
