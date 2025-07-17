@@ -91,14 +91,19 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       if (error) throw error;
       
       // Processa i messaggi per includere reply_to con user_name
-      const processedMessages = data?.map(msg => ({
-        ...msg,
-        reply_to: msg.reply_to ? {
-          id: msg.reply_to.id,
-          content: msg.reply_to.content,
-          user_name: userNames[msg.reply_to.user_id] || 'Utente sconosciuto'
-        } : null
-      })) || [];
+      const processedMessages = data?.map(msg => {
+        // reply_to può essere un array, prendiamo il primo elemento
+        const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
+        
+        return {
+          ...msg,
+          reply_to: replyToData ? {
+            id: replyToData.id,
+            content: replyToData.content,
+            user_name: userNames[replyToData.user_id] || 'Utente sconosciuto'
+          } : null
+        };
+      }) || [];
       
       setMessages(processedMessages);
     } catch (error) {
