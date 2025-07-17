@@ -63,12 +63,11 @@ export function useAccessibility() {
   }, []);
 
   // Applica le impostazioni di accessibilità al DOM
-  const applyAccessibilitySettings = useCallback((settings?: AccessibilitySettings) => {
-    const currentSettings = settings || accessibility;
+  const applyAccessibilitySettings = useCallback(() => {
     const root = document.documentElement;
     
     // 1. Alto contrasto
-    if (currentSettings.highContrast) {
+    if (accessibility.highContrast) {
       root.classList.add('high-contrast');
       // Uso colori ad alto contrasto ma non estremi per mantenere la leggibilità
       root.style.setProperty('--background', '0 0% 8%');  // Grigio molto scuro invece di nero puro
@@ -115,7 +114,7 @@ export function useAccessibility() {
     });
     
     // Applica la nuova dimensione
-    root.classList.add(fontSizeClasses[currentSettings.fontSize]);
+    root.classList.add(fontSizeClasses[accessibility.fontSize]);
     
     // Applica anche via CSS custom properties
     const fontSizes = {
@@ -124,10 +123,10 @@ export function useAccessibility() {
       large: '18px',
       'extra-large': '20px'
     };
-    root.style.setProperty('--base-font-size', fontSizes[currentSettings.fontSize]);
+    root.style.setProperty('--base-font-size', fontSizes[accessibility.fontSize]);
 
     // 3. Screen reader - migliora attributi ARIA
-    if (currentSettings.screenReader) {
+    if (accessibility.screenReader) {
       enhanceScreenReaderSupport();
     }
 
@@ -140,25 +139,21 @@ export function useAccessibility() {
       try {
         const parsed = JSON.parse(savedSettings);
         setAccessibility(parsed);
-        // Applica immediatamente le impostazioni dopo il caricamento
-        setTimeout(() => {
-          applyAccessibilitySettings(parsed);
-        }, 0);
       } catch (error) {
         console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
       }
     }
-  }, [applyAccessibilitySettings]);
+  }, []);
 
   // Salva le impostazioni nel localStorage quando cambiano
   useEffect(() => {
     localStorage.setItem('accessibility-settings', JSON.stringify(accessibility));
   }, [accessibility]);
 
-  // Applica le impostazioni al DOM
+  // Applica le impostazioni al DOM quando cambiano
   useEffect(() => {
     applyAccessibilitySettings();
-  }, [applyAccessibilitySettings]);
+  }, [accessibility, applyAccessibilitySettings]);
 
   // Aggiorna una singola impostazione
   const updateSetting = useCallback((key: keyof AccessibilitySettings, value: any) => {
