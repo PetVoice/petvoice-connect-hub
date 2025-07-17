@@ -136,19 +136,37 @@ const CommunityPage = () => {
 
       // Raggruppa per conversazione (con l'altro utente)
       const conversations = {};
+      const userIds = new Set();
+      
       data?.forEach(msg => {
         const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+        userIds.add(otherUserId);
         
         if (!conversations[otherUserId]) {
           conversations[otherUserId] = {
             userId: otherUserId,
-            userName: 'Utente sconosciuto', // TODO: recuperare nome
-            lastMessage: msg.content,
+            userName: 'Caricamento...', // Verrà aggiornato dopo
             lastMessageTime: msg.created_at,
             unreadCount: 0
           };
         }
       });
+
+      // Carica i nomi degli utenti
+      if (userIds.size > 0) {
+        const { data: userData, error: userError } = await supabase
+          .from('user_display_names')
+          .select('user_id, display_name')
+          .in('user_id', Array.from(userIds) as string[]);
+
+        if (!userError && userData) {
+          userData.forEach(user => {
+            if (conversations[user.user_id]) {
+              conversations[user.user_id].userName = user.display_name || 'Utente sconosciuto';
+            }
+          });
+        }
+      }
 
       setPrivateChats(Object.values(conversations));
     } catch (error) {
@@ -548,12 +566,9 @@ const CommunityPage = () => {
                 <div className="space-y-3 max-h-60 overflow-y-auto">
                   {privateChats.map(chat => (
                     <div key={chat.userId} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                      <div className="flex-1">
-                        <div className="font-medium">{chat.userName}</div>
-                        <div className="text-sm text-muted-foreground truncate">
-                          {chat.lastMessage}
-                        </div>
-                      </div>
+                       <div className="flex-1">
+                         <div className="font-medium">{chat.userName}</div>
+                       </div>
                       <div className="flex gap-2">
                         <Button 
                           size="sm" 
