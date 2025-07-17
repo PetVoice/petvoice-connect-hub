@@ -9,7 +9,6 @@ interface MessageListProps {
   userNames: Record<string, string>;
   onDeleteMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
-  onReply: (messageId: string, userName: string) => void;
   isSelectionMode?: boolean;
   selectedMessages?: string[];
   onToggleSelection?: (messageId: string) => void;
@@ -21,7 +20,6 @@ export const MessageList: React.FC<MessageListProps> = ({
   userNames,
   onDeleteMessage,
   onEditMessage,
-  onReply,
   isSelectionMode = false,
   selectedMessages = [],
   onToggleSelection
@@ -42,7 +40,6 @@ export const MessageList: React.FC<MessageListProps> = ({
             currentUserId={currentUserId}
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
-            onReply={onReply}
             isSelectionMode={isSelectionMode}
             isSelected={selectedMessages.includes(message.id)}
             onToggleSelection={() => onToggleSelection?.(message.id)}

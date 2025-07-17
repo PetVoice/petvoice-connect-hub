@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { MoreVertical, Edit, Trash2, Reply, Check, X } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
 import { Message } from './Chat';
 
 interface MessageItemProps {
@@ -16,7 +16,6 @@ interface MessageItemProps {
   currentUserId: string;
   onDelete: () => void;
   onEdit: (newContent: string) => void;
-  onReply: (messageId: string, userName: string) => void;
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
@@ -29,7 +28,6 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   currentUserId,
   onDelete,
   onEdit,
-  onReply,
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection
@@ -54,26 +52,6 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       setEditContent(message.content || '');
     }
   };
-
-  // Debug logging per capire cosa sta succedendo
-  console.log('MessageItem Debug:', {
-    messageId: message.id,
-    isOwn,
-    currentUserId,
-    userName,
-    hasReplyTo: !!message.reply_to,
-    replyToUserId: message.reply_to?.user_id,
-    replyToUserName: message.reply_to?.user_name,
-    shouldShowQuote: message.reply_to && (isOwn || message.reply_to.user_id === currentUserId)
-  });
-
-  // LOGICA CORRETTA: mostra il quote solo se:
-  // 1. Il messaggio è una risposta (ha reply_to)
-  // 2. E se è il mio messaggio di risposta OR se è una risposta al mio messaggio
-  const shouldShowQuote = message.reply_to && (
-    isOwn || // Se è il mio messaggio di risposta
-    message.reply_to.user_id === currentUserId // Se è una risposta al mio messaggio
-  );
 
   const renderMessageContent = () => {
     if (message.message_type === 'image') {
@@ -137,17 +115,6 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
     return (
       <div className="mt-1">
-        {shouldShowQuote && (
-          <div className="mb-2 p-2 bg-muted/50 rounded-md border-l-2 border-primary">
-            <div className="text-xs text-muted-foreground">
-              Risposta a {message.reply_to.user_name}:
-            </div>
-            <div className="text-sm italic">
-              "{message.reply_to.content || 'Messaggio multimediale'}"
-            </div>
-          </div>
-        )}
-        
         {message.content && (
           <p className="text-sm break-words">{message.content}</p>
         )}
@@ -209,10 +176,6 @@ export const MessageItem: React.FC<MessageItemProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onReply(message.id, userName)}>
-                <Reply className="h-4 w-4 mr-2" />
-                Rispondi
-              </DropdownMenuItem>
               {isOwn && (
                 <>
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>

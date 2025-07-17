@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,7 +7,7 @@ import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { CheckSquare, Square, Trash2, X, Reply } from 'lucide-react';
+import { CheckSquare, Square, Trash2, X } from 'lucide-react';
 
 interface ChatProps {
   channelId: string;
@@ -28,12 +29,6 @@ export interface Message {
   metadata: any;
   is_emergency: boolean | null;
   reply_to_id: string | null;
-  reply_to?: {
-    id: string;
-    content: string | null;
-    user_name: string | null;
-    user_id: string;
-  } | null;
 }
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
@@ -44,7 +39,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
-  const [replyTo, setReplyTo] = useState<{ id: string; content: string | null; userName: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -76,14 +70,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       
       const { data, error } = await supabase
         .from('community_messages')
-        .select(`
-          *,
-          reply_to:community_messages!reply_to_id (
-            id,
-            content,
-            user_id
-          )
-        `)
+        .select('*')
         .eq('channel_name', channelId)
         .is('deleted_at', null)
         .order('created_at', { ascending: true })
@@ -91,30 +78,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
       
-      const processedMessages = (data || []).map((msg) => {
-        const replyToData = Array.isArray(msg.reply_to) ? msg.reply_to[0] : msg.reply_to;
-        
-        if (replyToData) {
-          const replyUserName = userNamesMap[replyToData.user_id] || 'Utente sconosciuto';
-          
-          return {
-            ...msg,
-            reply_to: {
-              id: replyToData.id,
-              content: replyToData.content,
-              user_name: replyUserName,
-              user_id: replyToData.user_id
-            }
-          };
-        }
-        
-        return {
-          ...msg,
-          reply_to: null
-        };
-      });
-      
-      setMessages(processedMessages);
+      setMessages(data || []);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -164,47 +128,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         async (payload) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
-          
-          if (newMessage.reply_to_id) {
-            try {
-              const { data: replyData, error: replyError } = await supabase
-                .from('community_messages')
-                .select('id, content, user_id')
-                .eq('id', newMessage.reply_to_id)
-                .single();
-              
-              if (!replyError && replyData) {
-                let replyUserName = userNames[replyData.user_id];
-                
-                if (!replyUserName) {
-                  const { data: userData, error: userError } = await supabase
-                    .from('user_display_names')
-                    .select('display_name')
-                    .eq('user_id', replyData.user_id)
-                    .single();
-                  
-                  if (!userError && userData) {
-                    replyUserName = userData.display_name;
-                    setUserNames(prev => ({
-                      ...prev,
-                      [replyData.user_id]: userData.display_name
-                    }));
-                  } else {
-                    replyUserName = 'Utente sconosciuto';
-                  }
-                }
-                
-                newMessage.reply_to = {
-                  id: replyData.id,
-                  content: replyData.content,
-                  user_name: replyUserName,
-                  user_id: replyData.user_id
-                };
-              }
-            } catch (error) {
-              console.error('Error loading reply data:', error);
-            }
-          }
           
           setMessages(prev => {
             const exists = prev.some(msg => msg.id === newMessage.id);
@@ -257,7 +180,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         message_type: messageType,
         file_url: fileUrl || null,
         voice_duration: voiceDuration || null,
-        reply_to_id: replyTo?.id || null,
+        reply_to_id: null,
         metadata: {}
       };
 
@@ -276,24 +199,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       console.log('✅ Message sent successfully:', data);
       
-      setReplyTo(null);
-      
       if (data) {
-        let processedMessage = data as Message;
-        
-        if (data.reply_to_id && replyTo) {
-          processedMessage.reply_to = {
-            id: replyTo.id,
-            content: replyTo.content,
-            user_name: replyTo.userName,
-            user_id: user.id
-          };
-        }
-        
         setMessages(prev => {
-          const exists = prev.some(msg => msg.id === processedMessage.id);
+          const exists = prev.some(msg => msg.id === data.id);
           if (exists) return prev;
-          return [...prev, processedMessage];
+          return [...prev, data];
         });
       }
 
@@ -303,17 +213,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         title: "Errore",
         description: "Impossibile inviare il messaggio",
         variant: "destructive"
-      });
-    }
-  };
-
-  const handleReply = (messageId: string, userName: string) => {
-    const message = messages.find(m => m.id === messageId);
-    if (message) {
-      setReplyTo({
-        id: messageId,
-        content: message.content,
-        userName: userName
       });
     }
   };
@@ -502,7 +401,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             userNames={userNames}
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
-            onReply={handleReply}
             isSelectionMode={isSelectionMode}
             selectedMessages={selectedMessages}
             onToggleSelection={toggleMessageSelection}
@@ -510,26 +408,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           <div ref={messagesEndRef} className="h-1" />
         </div>
       </div>
-      
-      {replyTo && (
-        <div className="px-4 py-2 bg-muted/50 border-t">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Reply className="h-4 w-4" />
-              <span>Rispondi a {replyTo.userName}:</span>
-              <span className="italic truncate max-w-xs">"{replyTo.content || 'Messaggio multimediale'}"</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setReplyTo(null)}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
       
       <MessageInput onSendMessage={sendMessage} />
 
