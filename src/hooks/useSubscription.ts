@@ -132,14 +132,16 @@ export const useSubscription = () => {
       
       if (error) throw error;
       
-      // Force refresh subscription status
-      await checkSubscription();
+      // Force refresh subscription status with a small delay to ensure database update
+      setTimeout(async () => {
+        await checkSubscription();
+      }, 500);
       
       // If immediate cancellation, force page refresh to ensure blocking works
       if (type === 'immediate') {
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 1500);
       }
       
       toast({
