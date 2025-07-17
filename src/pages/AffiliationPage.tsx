@@ -24,6 +24,8 @@ import {
   DollarSign, Clock, Shield, AlertTriangle, CheckCircle, 
   ArrowUp, ArrowDown, Globe, Headphones, RefreshCw, Sparkles
 } from 'lucide-react';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -922,85 +924,55 @@ export default function AffiliationPage() {
               <CardTitle>Funnel di Conversione</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {(() => {
-                  // Calcoli accurati per il funnel
-                  const totalShares = Math.max(referrals.length, 1); // Almeno 1 per evitare divisione per 0
-                  const totalClicks = Math.round(totalShares * 2.5); // Stima realistica: ogni referral genera ~2.5 click
-                  const totalRegistrations = referralProfile.total_registrations;
-                  const totalConversions = referralProfile.total_conversions;
-                  const cancelledConversions = referrals.filter(r => r.status === 'cancelled').length;
-                  const activeConversions = totalConversions - cancelledConversions;
-                  
-                  return (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span>Link Condivisi</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-muted rounded-full">
-                            <div className="w-full h-2 bg-blue-500 rounded-full"></div>
-                          </div>
-                          <span className="text-sm font-medium">{totalShares}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span>Click Ricevuti</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-muted rounded-full">
-                            <div 
-                              className="h-2 bg-green-500 rounded-full"
-                              style={{ width: `${totalShares > 0 ? (totalClicks / (totalShares * 3)) * 100 : 0}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-medium">{totalClicks}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span>Registrazioni</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-muted rounded-full">
-                            <div 
-                              className="h-2 bg-yellow-500 rounded-full"
-                              style={{ width: `${totalClicks > 0 ? (totalRegistrations / totalClicks) * 100 : 0}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-medium">{totalRegistrations}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span>Conversioni Premium</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-32 h-2 bg-muted rounded-full">
-                            <div 
-                              className="h-2 bg-purple-500 rounded-full"
-                              style={{ width: `${totalRegistrations > 0 ? (totalConversions / totalRegistrations) * 100 : 0}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-medium">{totalConversions}</span>
-                        </div>
-                      </div>
-                      
-                      {cancelledConversions > 0 && (
-                        <div className="flex items-center justify-between">
-                          <span>Conversioni Attive</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-32 h-2 bg-muted rounded-full">
-                              <div 
-                                className="h-2 bg-emerald-500 rounded-full"
-                                style={{ width: `${totalConversions > 0 ? (activeConversions / totalConversions) * 100 : 0}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm font-medium">{activeConversions}</span>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
+              {(() => {
+                // Calcoli accurati per il funnel
+                const totalShares = Math.max(referrals.length, 1);
+                const totalClicks = Math.round(totalShares * 2.5);
+                const totalRegistrations = referralProfile.total_registrations;
+                const totalConversions = referralProfile.total_conversions;
+                const cancelledConversions = referrals.filter(r => r.status === 'cancelled').length;
+                const activeConversions = totalConversions - cancelledConversions;
+                
+                // Dati per il grafico a torta
+                const pieData = [
+                  { name: 'Link Condivisi', value: totalShares, color: '#3b82f6' },
+                  { name: 'Click Ricevuti', value: totalClicks, color: '#10b981' },
+                  { name: 'Registrazioni', value: totalRegistrations, color: '#f59e0b' },
+                  { name: 'Conversioni', value: totalConversions, color: '#8b5cf6' },
+                  ...(cancelledConversions > 0 ? [{ name: 'Conversioni Attive', value: activeConversions, color: '#059669' }] : [])
+                ];
+                
+                return (
+                  <div className="h-80">
+                    <ChartContainer
+                      config={{
+                        value: { label: "Valore", color: "hsl(var(--primary))" }
+                      }}
+                      className="h-full w-full"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}`}
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <ChartTooltip 
+                            content={<ChartTooltipContent />}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 

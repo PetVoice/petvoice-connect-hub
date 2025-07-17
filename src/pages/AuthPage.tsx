@@ -199,14 +199,6 @@ const AuthPage: React.FC = () => {
           >
             <Moon className="h-4 w-4" />
           </Button>
-          <Button
-            variant={theme === 'system' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setTheme('system')}
-            className={`h-8 w-8 p-0 ${theme === 'system' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            <Monitor className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
