@@ -137,6 +137,52 @@ export function useAccessibility() {
       try {
         const parsed = JSON.parse(savedSettings);
         setAccessibility(parsed);
+        
+        // Applica immediatamente le impostazioni caricate
+        setTimeout(() => {
+          const root = document.documentElement;
+          
+          // Applica alto contrasto
+          if (parsed.highContrast) {
+            root.classList.add('high-contrast');
+            root.style.setProperty('--background', '0 0% 8%');
+            root.style.setProperty('--foreground', '0 0% 95%');
+            root.style.setProperty('--muted', '0 0% 25%');
+            root.style.setProperty('--muted-foreground', '0 0% 75%');
+            root.style.setProperty('--border', '0 0% 40%');
+            root.style.setProperty('--input', '0 0% 12%');
+            root.style.setProperty('--ring', '0 0% 80%');
+            root.style.setProperty('--card', '0 0% 10%');
+            root.style.setProperty('--popover', '0 0% 10%');
+            root.style.setProperty('--accent', '0 0% 15%');
+            root.style.setProperty('--accent-foreground', '0 0% 90%');
+            root.style.setProperty('--secondary', '0 0% 20%');
+            root.style.setProperty('--secondary-foreground', '0 0% 90%');
+          }
+          
+          // Applica dimensione font
+          const fontSizeClasses = {
+            small: 'text-sm',
+            medium: 'text-base',
+            large: 'text-lg',
+            'extra-large': 'text-xl'
+          };
+          
+          Object.values(fontSizeClasses).forEach(cls => {
+            root.classList.remove(cls);
+          });
+          
+          root.classList.add(fontSizeClasses[parsed.fontSize]);
+          
+          const fontSizes = {
+            small: '14px',
+            medium: '16px',
+            large: '18px',
+            'extra-large': '20px'
+          };
+          root.style.setProperty('--base-font-size', fontSizes[parsed.fontSize]);
+        }, 0);
+        
       } catch (error) {
         console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
       }
