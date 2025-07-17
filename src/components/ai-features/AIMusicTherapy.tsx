@@ -107,6 +107,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const [sessionProgress, setSessionProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillatorsRef = useRef<OscillatorNode[]>([]);
 
   // Fetch real emotional DNA from pet analyses
   const fetchEmotionalDNA = async () => {
@@ -121,7 +123,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       if (analyses && analyses.length > 0) {
         // Calcola DNA emotivo basato sulle analisi reali
         let calmaTotal = 0, energiaTotal = 0, focusTotal = 0;
-        let count = 0;
+        let calmaCount = 0, energiaCount = 0, focusCount = 0;
 
         analyses.forEach(analysis => {
           const emotion = analysis.primary_emotion?.toLowerCase();
@@ -131,33 +133,70 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             case 'felice':
             case 'calmo':
             case 'rilassato':
-              calmaTotal += confidence * 100;
+            case 'triste': // anche tristezza contribuisce alla calma
+              calmaTotal += confidence;
+              calmaCount++;
               break;
             case 'energico':
             case 'giocoso':
             case 'eccitato':
-              energiaTotal += confidence * 100;
+              energiaTotal += confidence;
+              energiaCount++;
               break;
             case 'concentrato':
             case 'attento':
             case 'vigile':
-              focusTotal += confidence * 100;
+              focusTotal += confidence;
+              focusCount++;
               break;
           }
-          count++;
         });
 
-        if (count > 0) {
-          setEmotionalDNA({
-            calma: Math.round(calmaTotal / count) || 50,
-            energia: Math.round(energiaTotal / count) || 50,
-            focus: Math.round(focusTotal / count) || 50
-          });
-        }
+        setEmotionalDNA({
+          calma: calmaCount > 0 ? Math.round((calmaTotal / calmaCount) * 100) : 50,
+          energia: energiaCount > 0 ? Math.round((energiaTotal / energiaCount) * 100) : 50,
+          focus: focusCount > 0 ? Math.round((focusTotal / focusCount) * 100) : 50
+        });
       }
     } catch (error) {
       console.error('Errore nel fetch del DNA emotivo:', error);
     }
+  };
+
+  // Genera audio sintetico per le frequenze terapeutiche
+  const generateTherapyAudio = (frequency: string, duration: number) => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Estrai la frequenza principale dal formato "528Hz + 8Hz"
+    const mainFreq = parseFloat(frequency.split('Hz')[0]);
+    const beatFreq = frequency.includes('+') ? parseFloat(frequency.split('+')[1].replace('Hz', '').trim()) : 0;
+    
+    // Crea oscillatori per frequenze binaurali
+    const oscillator1 = audioContext.createOscillator();
+    const oscillator2 = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator1.type = 'sine';
+    oscillator2.type = 'sine';
+    oscillator1.frequency.setValueAtTime(mainFreq, audioContext.currentTime);
+    oscillator2.frequency.setValueAtTime(mainFreq + beatFreq, audioContext.currentTime);
+    
+    // Envelope per evitare click
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(volume[0] / 100 * 0.1, audioContext.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(volume[0] / 100 * 0.1, audioContext.currentTime + duration - 0.1);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration);
+    
+    oscillator1.connect(gainNode);
+    oscillator2.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator1.start(audioContext.currentTime);
+    oscillator2.start(audioContext.currentTime);
+    oscillator1.stop(audioContext.currentTime + duration);
+    oscillator2.stop(audioContext.currentTime + duration);
+    
+    return { audioContext, oscillator1, oscillator2, gainNode };
   };
 
   const generatePersonalizedPlaylist = async (category: string) => {
@@ -191,6 +230,24 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setIsGenerating(false);
   };
 
+  const stopAudio = () => {
+    // Ferma oscillatori esistenti
+    oscillatorsRef.current.forEach(osc => {
+      try {
+        osc.stop();
+      } catch (e) {
+        // Ignora errori se già fermato
+      }
+    });
+    oscillatorsRef.current = [];
+    
+    // Chiudi context audio
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+  };
+
   const handlePlayPause = () => {
     if (!currentSession) {
       toast({
@@ -202,7 +259,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
 
     if (isPlaying) {
-      // Pausa
+      // Pausa - ferma audio e timer
+      stopAudio();
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -213,42 +271,90 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         description: "Sessione di musicoterapia in pausa",
       });
     } else {
-      // Play
-      setIsPlaying(true);
-      toast({
-        title: "Riproduzione avviata",
-        description: `Sessione "${currentSession.title}" in corso`,
-      });
-      
-      // Avvia il timer della sessione
-      intervalRef.current = setInterval(() => {
-        setCurrentTime(prev => {
-          const newTime = prev + 1;
-          const progress = (newTime / (currentSession.duration * 60)) * 100;
-          setSessionProgress(progress);
-          
-          // Adattamento real-time del mood (se abilitato)
-          if (moodAdaptation && newTime % 30 === 0) { // Ogni 30 secondi
-            adaptMoodRealTime();
-          }
-          
-          // Fine sessione
-          if (newTime >= currentSession.duration * 60) {
-            if (intervalRef.current) {
-              clearInterval(intervalRef.current);
-              intervalRef.current = null;
-            }
-            setIsPlaying(false);
-            toast({
-              title: "Sessione completata!",
-              description: `Sessione "${currentSession.title}" terminata con successo`,
-            });
-            return newTime;
-          }
-          
-          return newTime;
+      // Play - avvia audio e timer
+      try {
+        // Genera audio terapeutico
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+        
+        // Estrai frequenza dalla sessione
+        const frequency = currentSession.frequency;
+        const mainFreq = parseFloat(frequency.split('Hz')[0]);
+        const beatFreq = frequency.includes('+') ? parseFloat(frequency.split('+')[1].replace('Hz', '').trim()) : 0;
+        
+        // Crea oscillatori per binaural beats
+        const oscillator1 = audioContext.createOscillator();
+        const oscillator2 = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        // Configura oscillatori
+        oscillator1.type = 'sine';
+        oscillator2.type = 'sine';
+        oscillator1.frequency.setValueAtTime(mainFreq, audioContext.currentTime);
+        oscillator2.frequency.setValueAtTime(mainFreq + beatFreq, audioContext.currentTime);
+        
+        // Imposta volume
+        const vol = (volume[0] / 100) * 0.1; // Molto basso per non disturbare
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(vol, audioContext.currentTime + 0.5);
+        
+        // Connetti tutto
+        oscillator1.connect(gainNode);
+        oscillator2.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // Avvia oscillatori
+        oscillator1.start(audioContext.currentTime);
+        oscillator2.start(audioContext.currentTime);
+        
+        // Salva riferimenti
+        oscillatorsRef.current = [oscillator1, oscillator2];
+        
+        setIsPlaying(true);
+        toast({
+          title: "Riproduzione avviata",
+          description: `Sessione "${currentSession.title}" in corso - Volume basso per comfort`,
         });
-      }, 1000);
+        
+        // Avvia il timer della sessione
+        intervalRef.current = setInterval(() => {
+          setCurrentTime(prev => {
+            const newTime = prev + 1;
+            const progress = (newTime / (currentSession.duration * 60)) * 100;
+            setSessionProgress(progress);
+            
+            // Adattamento real-time del mood (se abilitato)
+            if (moodAdaptation && newTime % 30 === 0) { // Ogni 30 secondi
+              adaptMoodRealTime();
+            }
+            
+            // Fine sessione
+            if (newTime >= currentSession.duration * 60) {
+              stopAudio();
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+              setIsPlaying(false);
+              toast({
+                title: "Sessione completata!",
+                description: `Sessione "${currentSession.title}" terminata con successo`,
+              });
+              return newTime;
+            }
+            
+            return newTime;
+          });
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Errore nell\'avvio dell\'audio:', error);
+        toast({
+          title: "Errore audio",
+          description: "Impossibile avviare l'audio. Controlla le impostazioni del browser.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -292,11 +398,12 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   }, [selectedPet.id]);
 
   useEffect(() => {
-    // Cleanup interval on unmount
+    // Cleanup interval and audio on unmount
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      stopAudio();
     };
   }, []);
 
