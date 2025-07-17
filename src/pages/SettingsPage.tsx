@@ -1759,6 +1759,10 @@ Questa pagina viene aggiornata periodicamente per riflettere eventuali modifiche
     );
   }
 
+  if (activeDocument) {
+    return renderDocumentContent(activeDocument);
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
