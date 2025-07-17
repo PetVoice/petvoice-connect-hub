@@ -7,7 +7,6 @@ export interface AccessibilitySettings {
   fontSize: 'small' | 'medium' | 'large' | 'extra-large';
 }
 
-
 export function useAccessibility() {
   const { toast } = useToast();
   
@@ -16,7 +15,6 @@ export function useAccessibility() {
     highContrast: false,
     fontSize: 'medium'
   });
-
 
   // Migliora il supporto per screen reader
   const enhanceScreenReaderSupport = useCallback(() => {
@@ -50,6 +48,17 @@ export function useAccessibility() {
       liveRegion.style.height = '1px';
       liveRegion.style.overflow = 'hidden';
       document.body.appendChild(liveRegion);
+    }
+  }, []);
+
+  // Annuncia messaggi agli screen reader
+  const announceToScreenReader = useCallback((message: string) => {
+    const liveRegion = document.getElementById('accessibility-live-region');
+    if (liveRegion) {
+      liveRegion.textContent = message;
+      setTimeout(() => {
+        liveRegion.textContent = '';
+      }, 1000);
     }
   }, []);
 
@@ -150,18 +159,6 @@ export function useAccessibility() {
   useEffect(() => {
     applyAccessibilitySettings();
   }, [applyAccessibilitySettings]);
-
-  // Annuncia messaggi agli screen reader
-  const announceToScreenReader = useCallback((message: string) => {
-    const liveRegion = document.getElementById('accessibility-live-region');
-    if (liveRegion) {
-      liveRegion.textContent = message;
-      setTimeout(() => {
-        liveRegion.textContent = '';
-      }, 1000);
-    }
-  }, []);
-
 
   // Aggiorna una singola impostazione
   const updateSetting = useCallback((key: keyof AccessibilitySettings, value: any) => {
