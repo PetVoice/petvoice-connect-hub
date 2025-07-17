@@ -182,15 +182,22 @@ const CommunityPage = () => {
         .delete()
         .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`);
 
+      if (error) {
+        console.error('Errore DELETE:', error);
+        throw error;
+      }
+
+      // Ricarica la lista delle chat private
       await loadPrivateChats();
       
+      // Chiudi la chat se è quella attiva
       if (activeChat === `private_${otherUserId}`) {
         setActiveChat(null);
       }
       
       toast({
         title: "Chat eliminata",
-        description: "La conversazione è stata eliminata"
+        description: "La conversazione è stata eliminata completamente"
       });
       
     } catch (error) {
