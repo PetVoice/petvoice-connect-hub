@@ -1862,7 +1862,7 @@ Continuare?
               <CardContent className="space-y-4">
                 <div>
                   <Label>Fuso Orario</Label>
-                  <Select value={appearance.timezone} onValueChange={(value) => setAppearance(prev => ({...prev, timezone: value}))}>
+                  <Select value={appearance.timezone} onValueChange={(value) => updateAppearance('timezone', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1878,7 +1878,7 @@ Continuare?
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Formato Data</Label>
-                    <Select value={appearance.dateFormat} onValueChange={(value) => setAppearance(prev => ({...prev, dateFormat: value}))}>
+                    <Select value={appearance.dateFormat} onValueChange={(value) => updateAppearance('dateFormat', value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1892,7 +1892,7 @@ Continuare?
 
                   <div>
                     <Label>Formato Ora</Label>
-                    <Select value={appearance.timeFormat} onValueChange={(value) => setAppearance(prev => ({...prev, timeFormat: value}))}>
+                    <Select value={appearance.timeFormat} onValueChange={(value) => updateAppearance('timeFormat', value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1922,7 +1922,7 @@ Continuare?
                   <Label>Sistema di Misura</Label>
                   <RadioGroup 
                     value={appearance.units} 
-                    onValueChange={(value) => setAppearance(prev => ({...prev, units: value}))}
+                    onValueChange={(value) => updateAppearance('units', value)}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="metric" id="metric" />
@@ -1937,7 +1937,7 @@ Continuare?
 
                 <div>
                   <Label>Valuta</Label>
-                  <Select value={appearance.currency} onValueChange={(value) => setAppearance(prev => ({...prev, currency: value}))}>
+                  <Select value={appearance.currency} onValueChange={(value) => updateAppearance('currency', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
