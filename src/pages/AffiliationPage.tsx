@@ -728,8 +728,8 @@ export default function AffiliationPage() {
                       <div className="flex-1">
                         <p className="font-medium">{referral.referred_email}</p>
                         <p className="text-sm text-muted-foreground">
-                          {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
-                          {referral.is_active === false ? ' Utente eliminato' : ' Referral diretto'}
+                          {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })}
+                          {referral.is_active === false && ' · Account eliminato'}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -981,8 +981,8 @@ export default function AffiliationPage() {
                         <div className="flex-1">
                           <p className="font-medium">{referral.referred_email}</p>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
-                            {referral.is_active === false ? ' Account eliminato' : ' Referral diretto'}
+                            {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })}
+                            {referral.is_active === false && ' · Account eliminato'}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
