@@ -9,7 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Monitor, Users, Languages } from 'lucide-react';
+import { ArrowRight, Mail, Lock, Eye, EyeOff, Heart, Sparkles, Star, Sun, Moon, Users } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 const AuthPage: React.FC = () => {
@@ -185,32 +186,18 @@ const AuthPage: React.FC = () => {
       {/* Controls - Top Right */}
       <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
         {/* Language Selector */}
-        <div className="flex items-center gap-1 p-1 bg-card/80 backdrop-blur-md rounded-lg border border-azure/20">
-          <Button
-            variant={language === 'it' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setLanguage('it')}
-            className={`h-8 px-2 text-xs ${language === 'it' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            🇮🇹 IT
-          </Button>
-          <Button
-            variant={language === 'en' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setLanguage('en')}
-            className={`h-8 px-2 text-xs ${language === 'en' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            🇬🇧 EN
-          </Button>
-          <Button
-            variant={language === 'es' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setLanguage('es')}
-            className={`h-8 px-2 text-xs ${language === 'es' ? 'bg-azure text-white' : 'hover:bg-azure/10'}`}
-          >
-            🇪🇸 ES
-          </Button>
-        </div>
+        <Select value={language} onValueChange={setLanguage}>
+          <SelectTrigger className="w-12 h-9 bg-card/80 backdrop-blur-md border-azure/20">
+            <div className="flex items-center justify-center">
+              {language === 'it' ? '🇮🇹' : language === 'en' ? '🇬🇧' : '🇪🇸'}
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="it">🇮🇹 Italiano</SelectItem>
+            <SelectItem value="en">🇬🇧 English</SelectItem>
+            <SelectItem value="es">🇪🇸 Español</SelectItem>
+          </SelectContent>
+        </Select>
 
         {/* Theme Toggle */}
         <div className="flex items-center gap-1 p-1 bg-card/80 backdrop-blur-md rounded-lg border border-azure/20">
