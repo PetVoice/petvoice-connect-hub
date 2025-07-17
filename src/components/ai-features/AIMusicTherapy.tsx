@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -97,6 +98,7 @@ const THERAPY_CATEGORIES: TherapySession[] = [
 ];
 
 export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) => {
+  const [searchParams] = useSearchParams();
   const [currentSession, setCurrentSession] = useState<TherapySession | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -111,6 +113,38 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
+
+  // Gestisci playlist dalla dashboard
+  useEffect(() => {
+    const playlistParam = searchParams.get('playlist');
+    if (playlistParam) {
+      try {
+        const playlistData = JSON.parse(decodeURIComponent(playlistParam));
+        
+        // Crea una sessione temporanea dalla playlist raccomandata
+        const recommendedSession: TherapySession = {
+          id: 'recommended',
+          title: playlistData.name,
+          description: playlistData.description,
+          category: 'raccomandazione',
+          frequency: playlistData.frequency,
+          duration: playlistData.duration,
+          icon: Sparkles,
+          color: 'bg-gradient-to-r from-purple-500 to-pink-500',
+          benefits: ['Raccomandazione personalizzata', 'Basata su analisi', 'Ottimizzata per il tuo pet']
+        };
+        
+        setCurrentSession(recommendedSession);
+        
+        toast({
+          title: "Playlist Caricata",
+          description: `"${playlistData.name}" pronta per la riproduzione`,
+        });
+      } catch (error) {
+        console.error('Error parsing playlist data:', error);
+      }
+    }
+  }, [searchParams]);
 
   // Fetch real emotional DNA from pet analyses
   const fetchEmotionalDNA = async () => {

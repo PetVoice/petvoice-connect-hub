@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -711,6 +712,7 @@ const WellnessPage = () => {
   const { user } = useAuth();
   const { selectedPet } = usePets();
   const { addNotification } = useNotifications();
+  const [searchParams] = useSearchParams();
   
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -921,6 +923,14 @@ const WellnessPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Gestisci i parametri URL per aprire direttamente il tab music-therapy
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Load Medical ID from localStorage when pet changes
   useEffect(() => {
