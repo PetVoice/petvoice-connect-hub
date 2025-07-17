@@ -527,6 +527,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             messages={messages}
             currentUserId={user?.id || ''}
             userNames={userNames}
+            privateUserName={privateUserName}
+            isPrivateChat={channelName.startsWith('private_')}
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
             onReply={handleReply}

@@ -6,6 +6,8 @@ interface MessageListProps {
   messages: Message[];
   currentUserId: string;
   userNames: Record<string, string>;
+  privateUserName?: string;
+  isPrivateChat?: boolean;
   onDeleteMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
   onReply: (messageId: string, userName: string) => void;
@@ -19,6 +21,8 @@ export const MessageList: React.FC<MessageListProps> = ({
   messages,
   currentUserId,
   userNames,
+  privateUserName,
+  isPrivateChat = false,
   onDeleteMessage,
   onEditMessage,
   onReply,
@@ -27,6 +31,14 @@ export const MessageList: React.FC<MessageListProps> = ({
   selectedMessages = [],
   onToggleSelection
 }) => {
+  const getUserName = (userId: string) => {
+    // Se è una chat privata e l'utente non è il current user, usa il privateUserName
+    if (isPrivateChat && userId !== currentUserId && privateUserName) {
+      return privateUserName;
+    }
+    // Altrimenti usa il normale mapping dei nomi utenti
+    return userNames[userId] || 'Utente sconosciuto';
+  };
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.length === 0 ? (
@@ -39,7 +51,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             key={message.id}
             message={message}
             isOwn={message.user_id === currentUserId}
-            userName={userNames[message.user_id] || 'Utente sconosciuto'}
+            userName={getUserName(message.user_id)}
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
             onReply={onReply}
