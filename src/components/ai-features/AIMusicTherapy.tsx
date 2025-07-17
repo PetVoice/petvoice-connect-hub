@@ -315,12 +315,13 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setVolume(newVolume);
     
     // Aggiorna il volume in tempo reale se sta suonando
-    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state !== 'closed') {
+    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state !== 'closed' && isPlaying) {
       try {
         const vol = (newVolume[0] / 100) * 0.1;
         gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
+        console.log('Volume aggiornato a:', vol);
       } catch (error) {
-        console.log('Volume update failed, audio context may be closed');
+        console.log('Volume update failed:', error);
       }
     }
   };
@@ -367,17 +368,19 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     } else {
       // Play - avvia audio e timer IMMEDIATAMENTE
       try {
-        // Riutilizza o crea AudioContext
-        let audioContext = audioContextRef.current;
-        if (!audioContext || audioContext.state === 'closed') {
-          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-          audioContextRef.current = audioContext;
-        }
+        // Ferma audio precedente se presente
+        stopAudio();
+        
+        // Crea sempre un nuovo AudioContext per evitare problemi
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
         
         // Resume context se sospeso
         if (audioContext.state === 'suspended') {
           audioContext.resume();
         }
+        
+        console.log('AudioContext creato, stato:', audioContext.state);
         
         // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
@@ -420,22 +423,23 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillator1.frequency.setValueAtTime(mainFreq, audioContext.currentTime);
         oscillator2.frequency.setValueAtTime(mainFreq + beatFreq, audioContext.currentTime);
         
-        // Imposta volume immediatamente
-        const vol = (volume[0] / 100) * 0.1;
-        gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
-        
-        // Connetti tutto
+        // Connetti tutto PRIMA di impostare il volume
         oscillator1.connect(gainNode);
         oscillator2.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Avvia oscillatori SUBITO
-        oscillator1.start(audioContext.currentTime);
-        oscillator2.start(audioContext.currentTime);
-        
-        // Salva riferimenti
+        // Salva riferimenti SUBITO
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
+        
+        // Imposta volume iniziale
+        const vol = (volume[0] / 100) * 0.1;
+        gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
+        console.log('Volume iniziale impostato a:', vol);
+        
+        // Avvia oscillatori
+        oscillator1.start(audioContext.currentTime);
+        oscillator2.start(audioContext.currentTime);
         
         // Imposta stato PRIMA del toast per feedback immediato
         setIsPlaying(true);
