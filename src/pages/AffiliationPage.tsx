@@ -731,11 +731,6 @@ export default function AffiliationPage() {
                           {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
                           {referral.is_active === false ? ' Utente eliminato' : ' Referral diretto'}
                         </p>
-                        {referral.converted_at && (
-                          <p className="text-xs text-green-600">
-                            Convertito il {format(new Date(referral.converted_at), 'dd MMM yyyy', { locale: it })}
-                          </p>
-                        )}
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge 
@@ -989,11 +984,6 @@ export default function AffiliationPage() {
                             {format(new Date(referral.created_at), 'dd MMM yyyy HH:mm', { locale: it })} · 
                             {referral.is_active === false ? ' Account eliminato' : ' Referral diretto'}
                           </p>
-                          {referral.converted_at && (
-                            <p className="text-xs text-green-600">
-                              Convertito il {format(new Date(referral.converted_at), 'dd MMM yyyy', { locale: it })}
-                            </p>
-                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant={
@@ -1091,15 +1081,18 @@ export default function AffiliationPage() {
                      <div key={credit.id} className={`flex items-center justify-between p-3 border rounded-lg ${
                        credit.is_cancelled ? 'opacity-60 bg-gray-50' : ''
                      }`}>
-                       <div>
-                         <p className="font-medium">
-                           Commissione {credit.commission_type} - Tier {credit.tier}
-                           {credit.is_cancelled && <span className="text-red-600 ml-2">(Annullata)</span>}
-                         </p>
-                         <p className="text-sm text-muted-foreground">
-                           {format(new Date(credit.created_at), 'dd MMM yyyy HH:mm')} · {credit.commission_type}
-                         </p>
-                       </div>
+                        <div>
+                          <p className="font-medium">
+                            {credit.commission_type === 'first_payment' ? 'Prima Sottoscrizione' :
+                             credit.commission_type === 'recurring' ? 'Rinnovo Mensile' :
+                             credit.commission_type === 'monthly_renewal' ? 'Commissione Ricorrente' :
+                             `Commissione ${credit.commission_type}`}
+                            {credit.is_cancelled && <span className="text-red-600 ml-2">(Annullata)</span>}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(credit.created_at), 'dd MMM yyyy HH:mm')} · Tier {credit.tier}
+                          </p>
+                        </div>
                       <div className="text-right">
                          <p className={`font-bold ${
                            credit.is_cancelled ? 'text-gray-500 line-through' :
