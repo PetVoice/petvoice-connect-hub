@@ -16,6 +16,17 @@ export function useAccessibility() {
     fontSize: 'medium'
   });
 
+  // Annuncia messaggi agli screen reader
+  const announceToScreenReader = useCallback((message: string) => {
+    const liveRegion = document.getElementById('accessibility-live-region');
+    if (liveRegion) {
+      liveRegion.textContent = message;
+      setTimeout(() => {
+        liveRegion.textContent = '';
+      }, 1000);
+    }
+  }, []);
+
   // Migliora il supporto per screen reader
   const enhanceScreenReaderSupport = useCallback(() => {
     // Aggiungi attributi ARIA dove mancanti
@@ -51,17 +62,6 @@ export function useAccessibility() {
     }
   }, []);
 
-  // Annuncia messaggi agli screen reader
-  const announceToScreenReader = useCallback((message: string) => {
-    const liveRegion = document.getElementById('accessibility-live-region');
-    if (liveRegion) {
-      liveRegion.textContent = message;
-      setTimeout(() => {
-        liveRegion.textContent = '';
-      }, 1000);
-    }
-  }, []);
-
   // Applica le impostazioni di accessibilità al DOM
   const applyAccessibilitySettings = useCallback(() => {
     const root = document.documentElement;
@@ -69,20 +69,19 @@ export function useAccessibility() {
     // 1. Alto contrasto
     if (accessibility.highContrast) {
       root.classList.add('high-contrast');
-      // Uso colori ad alto contrasto ma non estremi per mantenere la leggibilità
-      root.style.setProperty('--background', '0 0% 8%');  // Grigio molto scuro invece di nero puro
-      root.style.setProperty('--foreground', '0 0% 95%'); // Bianco sporco invece di bianco puro
-      root.style.setProperty('--muted', '0 0% 25%');      // Grigio per testo secondario
-      root.style.setProperty('--muted-foreground', '0 0% 75%'); // Testo secondario leggibile
-      root.style.setProperty('--border', '0 0% 40%');     // Bordi visibili
-      root.style.setProperty('--input', '0 0% 12%');      // Sfondo input
-      root.style.setProperty('--ring', '0 0% 80%');       // Anelli di focus
-      root.style.setProperty('--card', '0 0% 10%');       // Sfondo card
-      root.style.setProperty('--popover', '0 0% 10%');    // Sfondo popover
-      root.style.setProperty('--accent', '0 0% 15%');     // Accent color
-      root.style.setProperty('--accent-foreground', '0 0% 90%'); // Testo su accent
-      root.style.setProperty('--secondary', '0 0% 20%');  // Secondario
-      root.style.setProperty('--secondary-foreground', '0 0% 90%'); // Testo secondario
+      root.style.setProperty('--background', '0 0% 8%');
+      root.style.setProperty('--foreground', '0 0% 95%');
+      root.style.setProperty('--muted', '0 0% 25%');
+      root.style.setProperty('--muted-foreground', '0 0% 75%');
+      root.style.setProperty('--border', '0 0% 40%');
+      root.style.setProperty('--input', '0 0% 12%');
+      root.style.setProperty('--ring', '0 0% 80%');
+      root.style.setProperty('--card', '0 0% 10%');
+      root.style.setProperty('--popover', '0 0% 10%');
+      root.style.setProperty('--accent', '0 0% 15%');
+      root.style.setProperty('--accent-foreground', '0 0% 90%');
+      root.style.setProperty('--secondary', '0 0% 20%');
+      root.style.setProperty('--secondary-foreground', '0 0% 90%');
     } else {
       root.classList.remove('high-contrast');
       root.style.removeProperty('--background');
@@ -129,7 +128,6 @@ export function useAccessibility() {
     if (accessibility.screenReader) {
       enhanceScreenReaderSupport();
     }
-
   }, [accessibility, enhanceScreenReaderSupport]);
 
   // Carica le impostazioni dal localStorage al mount
@@ -153,7 +151,7 @@ export function useAccessibility() {
   // Applica le impostazioni al DOM quando cambiano
   useEffect(() => {
     applyAccessibilitySettings();
-  }, [accessibility, applyAccessibilitySettings]);
+  }, [applyAccessibilitySettings]);
 
   // Aggiorna una singola impostazione
   const updateSetting = useCallback((key: keyof AccessibilitySettings, value: any) => {
