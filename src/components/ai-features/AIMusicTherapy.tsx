@@ -439,10 +439,10 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
         
-        // Imposta volume iniziale con un po' più di volume per sentire subito
-        const vol = Math.max(0.02, (volume[0] / 100) * 0.15); // Minimo 0.02, massimo più alto
+        // Imposta volume fisso ottimale per smartphone
+        const vol = 0.08; // Volume fisso medio-basso
         gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
-        console.log('Volume iniziale impostato a:', vol, 'da slider:', volume[0]);
+        console.log('Volume fisso impostato a:', vol);
         
         // Avvia oscillatori IMMEDIATAMENTE
         const startTime = audioContext.currentTime;
@@ -685,18 +685,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               </Button>
             </div>
 
-            {/* Volume Control */}
-            <div className="flex items-center gap-3">
-              <Volume2 className="h-4 w-4" />
-              <Slider
-                value={volume}
-                onValueChange={updateVolume}
-                max={100}
-                step={1}
-                className="flex-1"
-              />
-              <span className="text-sm text-muted-foreground w-10">{volume[0]}%</span>
-            </div>
 
             {/* Benefits */}
             <div className="pt-2">
