@@ -832,11 +832,13 @@ export default function AffiliationPage() {
                           referral.status === 'converted' ? 'default' : 
                           referral.status === 'registered' ? 'secondary' : 
                           referral.status === 'user_deleted' ? 'destructive' :
+                          referral.status === 'cancelled' ? 'destructive' :
                           'outline'
                         }>
                           {referral.status === 'converted' ? 'Convertito' :
                            referral.status === 'registered' ? 'Registrato' : 
                            referral.status === 'user_deleted' ? 'Eliminato' :
+                           referral.status === 'cancelled' ? 'Annullato' :
                            'In attesa'}
                         </Badge>
                         {referral.status === 'converted' && referral.is_active && (
