@@ -311,22 +311,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     });
   };
 
-  const updateVolume = (newVolume: number[]) => {
-    setVolume(newVolume);
-    
-    // Aggiorna il volume in tempo reale se sta suonando
-    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state === 'running' && isPlaying) {
-      try {
-        const vol = Math.max(0.02, (newVolume[0] / 100) * 0.15); // Minimo 0.02
-        gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
-        console.log('Volume aggiornato a:', vol, 'da slider:', newVolume[0]);
-      } catch (error) {
-        console.log('Volume update failed:', error);
-      }
-    } else {
-      console.log('Volume non aggiornato - AudioContext stato:', audioContextRef.current?.state, 'isPlaying:', isPlaying);
-    }
-  };
 
   const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!currentSession) return;
@@ -368,26 +352,17 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         description: "Sessione di musicoterapia in pausa",
       });
     } else {
-      // Play - avvia audio e timer IMMEDIATAMENTE
-      try {
-        console.log('Avvio riproduzione...');
-        
-        // Ferma audio precedente se presente
-        stopAudio();
-        
-        // Crea sempre un nuovo AudioContext per evitare problemi
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        audioContextRef.current = audioContext;
-        
-        console.log('AudioContext creato, stato:', audioContext.state);
-        
-        // IMPORTANTE: Resume context immediatamente e attendi che sia running
-        if (audioContext.state !== 'running') {
-          console.log('Resuming AudioContext...');
-          audioContext.resume().then(() => {
-            console.log('AudioContext ora è:', audioContext.state);
-          });
-        }
+      // Play - avvia audio IMMEDIATAMENTE con user gesture
+      const startAudio = async () => {
+        try {
+          console.log('Avvio riproduzione immediato...');
+          
+          // Ferma audio precedente se presente
+          stopAudio();
+          
+          // Crea AudioContext immediatamente
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          audioContextRef.current = audioContext;
         
         // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
@@ -450,11 +425,12 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillator2.start(startTime);
         console.log('Oscillatori avviati al tempo:', startTime);
         
-        // Imposta stato PRIMA del toast per feedback immediato
+        // Imposta stato immediatamente per feedback visivo
         setIsPlaying(true);
+        
         toast({
           title: "Riproduzione avviata",
-          description: `Sessione "${currentSession.title}" in corso - Volume basso per comfort`,
+          description: `Sessione "${currentSession.title}" in corso`,
         });
         
         // Avvia il timer della sessione
@@ -464,11 +440,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             const progress = (newTime / (currentSession.duration * 60)) * 100;
             setSessionProgress(progress);
             
-            // Adattamento real-time del mood (se abilitato)
-            if (moodAdaptation && newTime % 30 === 0) { // Ogni 30 secondi
-              adaptMoodRealTime();
-            }
-            
             // Fine sessione
             if (newTime >= currentSession.duration * 60) {
               stopAudio();
@@ -477,25 +448,31 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 intervalRef.current = null;
               }
               setIsPlaying(false);
+              setCurrentTime(0);
+              setSessionProgress(0);
               toast({
-                title: "Sessione completata!",
-                description: `Sessione "${currentSession.title}" terminata con successo`,
+                title: "Sessione completata",
+                description: "La sessione di musicoterapia è terminata",
               });
-              return newTime;
+              return 0;
             }
-            
             return newTime;
           });
         }, 1000);
         
       } catch (error) {
-        console.error('Errore nell\'avvio dell\'audio:', error);
+        console.error('Errore durante avvio audio:', error);
+        setIsPlaying(false);
         toast({
           title: "Errore audio",
-          description: "Impossibile avviare l'audio. Controlla le impostazioni del browser.",
+          description: "Impossibile avviare la riproduzione",
           variant: "destructive"
         });
       }
+      };
+      
+      // Chiama la funzione async
+      startAudio();
     }
   };
 
