@@ -2094,31 +2094,6 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* API Access */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="h-5 w-5" />
-                  Accesso API
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i token di accesso per integrazioni personalizzate
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Le API di PetVoice sono in fase di sviluppo. Iscriviti alla beta per essere tra i primi ad accedervi.
-                  </AlertDescription>
-                </Alert>
-
-                <Button variant="outline" className="w-full" disabled>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Genera Token API (Prossimamente)
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
 
