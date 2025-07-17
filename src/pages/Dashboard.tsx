@@ -15,13 +15,15 @@ import {
   ArrowRight,
   Clock,
   Star,
-  Plus
+  Plus,
+  Cloud
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
 
 interface Pet {
   id: string;
@@ -500,6 +502,24 @@ const Dashboard: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Weather AI Prediction */}
+      {activePet && (
+        <Card className="petvoice-card">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cloud className="h-5 w-5" />
+              Previsione Meteo-Comportamentale AI
+            </CardTitle>
+            <CardDescription>
+              Analisi predittiva basata su condizioni meteo e comportamento di {activePet.name}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WeatherMoodPredictor />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activities */}
       <div className="grid lg:grid-cols-2 gap-6">
