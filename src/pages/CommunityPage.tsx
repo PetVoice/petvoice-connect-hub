@@ -122,6 +122,8 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
   
+  const [deletedChats, setDeletedChats] = useState(new Set());
+  
   const loadPrivateChats = async () => {
     try {
       const { data, error } = await supabase
@@ -140,6 +142,10 @@ const CommunityPage = () => {
       
       data?.forEach(msg => {
         const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
+        
+        // Salta le conversazioni eliminate localmente
+        if (deletedChats.has(otherUserId)) return;
+        
         userIds.add(otherUserId);
         
         if (!conversations[otherUserId]) {
@@ -178,42 +184,23 @@ const CommunityPage = () => {
     try {
       console.log('Eliminando chat con utente:', otherUserId);
       
-      // Prima query: marco come eliminati i messaggi dove sono il sender
-      const { error: senderError } = await supabase
-        .from('private_messages')
-        .update({ 
-          deleted_by_sender: true,
-          deleted_by_recipient: true 
-        })
-        .eq('sender_id', user.id)
-        .eq('recipient_id', otherUserId);
+      // Aggiungi l'utente alla lista delle chat eliminate localmente
+      setDeletedChats(prev => new Set([...prev, otherUserId]));
 
-      if (senderError) {
-        console.error('Errore UPDATE sender:', senderError);
-      }
-
-      // Seconda query: marco come eliminati i messaggi dove sono il recipient  
-      const { error: recipientError } = await supabase
-        .from('private_messages')
-        .update({ 
-          deleted_by_sender: true,
-          deleted_by_recipient: true 
-        })
-        .eq('sender_id', otherUserId)
-        .eq('recipient_id', user.id);
-
-      if (recipientError) {
-        console.error('Errore UPDATE recipient:', recipientError);
-      }
-
-      if (senderError && recipientError) {
-        throw new Error('Impossibile aggiornare i messaggi');
-      }
-
-      console.log('Messaggi marcati come eliminati');
+      console.log('Chat eliminata localmente');
 
       // Ricarica la lista delle chat private
       await loadPrivateChats();
+      
+      // Chiudi la chat se è quella attiva
+      if (activeChat === `private_${otherUserId}`) {
+        setActiveChat(null);
+      }
+      
+      toast({
+        title: "Chat eliminata",
+        description: "La conversazione è stata rimossa dalla tua lista"
+      });
       
       // Chiudi la chat se è quella attiva
       if (activeChat === `private_${otherUserId}`) {
