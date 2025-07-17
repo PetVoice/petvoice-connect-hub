@@ -544,14 +544,58 @@ export default function StatsPage() {
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends
-    const moodTrends = diaryData
+    // Mood trends - combina dati da diario e analisi emotive
+    const diaryMoodData = diaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
         mood: d.mood_score,
+        source: 'diary',
         dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
       }));
+
+    // Converti analisi emotive in punteggi umore (1-10)
+    const emotionToMoodScore = {
+      'felice': 9,
+      'giocoso': 8,
+      'calmo': 7,
+      'rilassato': 6,
+      'neutro': 5,
+      'annoiato': 4,
+      'ansioso': 3,
+      'triste': 2,
+      'aggressivo': 1,
+      'spaventato': 1
+    };
+
+    const analysisMoodData = analysisData.map(a => ({
+      date: format(new Date(a.created_at), 'yyyy-MM-dd'),
+      mood: emotionToMoodScore[a.primary_emotion as keyof typeof emotionToMoodScore] || 5,
+      source: 'analysis',
+      confidence: a.primary_confidence,
+      dateFormatted: format(new Date(a.created_at), 'd MMM', { locale: it })
+    }));
+
+    // Combina e ordina tutti i dati di umore
+    const allMoodData = [...diaryMoodData, ...analysisMoodData]
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Raggruppa per data e calcola media se ci sono più valori nello stesso giorno
+    const moodByDate = allMoodData.reduce((acc, item) => {
+      if (!acc[item.date]) {
+        acc[item.date] = { values: [], date: item.date, dateFormatted: item.dateFormatted };
+      }
+      acc[item.date].values.push(item.mood);
+      return acc;
+    }, {} as Record<string, { values: number[]; date: string; dateFormatted: string }>);
+
+    const moodTrends = Object.values(moodByDate)
+      .map(item => ({
+        date: item.date,
+        mood: Math.round(item.values.reduce((sum, val) => sum + val, 0) / item.values.length * 10) / 10,
+        dateFormatted: item.dateFormatted
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     // Wellness trends
     const wellnessTrends = wellnessData.map(w => ({
