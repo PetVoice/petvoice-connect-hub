@@ -176,16 +176,23 @@ const CommunityPage = () => {
 
   const deletePrivateChat = async (otherUserId) => {
     try {
-      // Marca tutti i messaggi di questa conversazione come eliminati per l'utente corrente
-      const { error } = await supabase
+      // Marca i messaggi dove l'utente corrente è il sender come eliminati dal sender
+      const { error: senderError } = await supabase
         .from('private_messages')
-        .update({ 
-          deleted_by_sender: user.id === otherUserId ? false : true,
-          deleted_by_recipient: user.id !== otherUserId ? false : true
-        })
-        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`);
+        .update({ deleted_by_sender: true })
+        .eq('sender_id', user.id)
+        .eq('recipient_id', otherUserId);
 
-      if (error) throw error;
+      if (senderError) throw senderError;
+
+      // Marca i messaggi dove l'utente corrente è il recipient come eliminati dal recipient
+      const { error: recipientError } = await supabase
+        .from('private_messages')
+        .update({ deleted_by_recipient: true })
+        .eq('sender_id', otherUserId)
+        .eq('recipient_id', user.id);
+
+      if (recipientError) throw recipientError;
 
       await loadPrivateChats();
       
