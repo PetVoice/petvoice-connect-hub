@@ -132,10 +132,26 @@ export const useSubscription = () => {
       
       if (error) throw error;
       
-      // Force refresh subscription status with a small delay to ensure database update
-      setTimeout(async () => {
+      // Force refresh subscription status with multiple retries to ensure database sync
+      let retries = 0;
+      const maxRetries = 5;
+      
+      const checkWithRetry = async () => {
         await checkSubscription();
-      }, 500);
+        
+        // Check if the cancellation was properly reflected
+        const currentSub = subscription;
+        const shouldRetry = type === 'end_of_period' && 
+                           (!currentSub.is_cancelled || currentSub.cancellation_type !== 'end_of_period') &&
+                           retries < maxRetries;
+        
+        if (shouldRetry) {
+          retries++;
+          setTimeout(checkWithRetry, 1000); // Retry every second
+        }
+      };
+      
+      setTimeout(checkWithRetry, 500);
       
       // If immediate cancellation, force page refresh to ensure blocking works
       if (type === 'immediate') {
