@@ -211,20 +211,28 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
     setIsPlaying(false);
     
-    // Simula generazione AI personalizzata
+    // Fetch fresh emotional DNA before generating playlist
+    await fetchEmotionalDNA();
+    
+    // Simula generazione AI personalizzata basata su DNA emotivo
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     const categorySession = THERAPY_CATEGORIES.find(c => c.id === category);
     if (categorySession) {
-      setCurrentSession({
+      // Personalizza la sessione basandosi sul DNA emotivo
+      const personalizedSession = {
         ...categorySession,
         title: `${categorySession.title} per ${selectedPet.name}`,
-        description: `Personalizzato per ${selectedPet.type.toLowerCase()} - ${categorySession.description}`
-      });
+        description: `Personalizzato per ${selectedPet.type.toLowerCase()} - Adattato al DNA emotivo (Calma: ${emotionalDNA.calma}%, Energia: ${emotionalDNA.energia}%, Focus: ${emotionalDNA.focus}%) - ${categorySession.description}`,
+        // Modifica durata basata sul livello di energia del pet
+        duration: categorySession.duration + Math.round((emotionalDNA.energia - 50) / 10) // ±5 min basato su energia
+      };
+      
+      setCurrentSession(personalizedSession);
       
       toast({
-        title: "Playlist generata!",
-        description: `Sessione "${categorySession.title}" pronta per ${selectedPet.name}`,
+        title: "Playlist AI Generata!",
+        description: `Sessione "${categorySession.title}" personalizzata per ${selectedPet.name} basata sul suo DNA emotivo`,
       });
     }
     
@@ -406,19 +414,51 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
   };
 
-  const adaptMoodRealTime = () => {
+  const adaptMoodRealTime = async () => {
     if (!moodAdaptation) return;
     
-    // Simula adattamento real-time del mood
-    setEmotionalDNA(prev => ({
-      calma: Math.min(100, prev.calma + Math.random() * 5),
-      energia: Math.max(0, prev.energia + (Math.random() - 0.5) * 3),
-      focus: Math.min(100, prev.focus + Math.random() * 2)
-    }));
+    // Aggiorna il DNA emotivo con dati reali dal database
+    await fetchEmotionalDNA();
+    
+    // Modifica le frequenze audio in base al nuovo mood
+    if (audioContextRef.current && oscillatorsRef.current.length > 0 && currentSession) {
+      // Chiudi gli oscillatori attuali
+      stopAudio();
+      
+      // Riavvia con nuove frequenze adattate al mood corrente
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = audioContext;
+      
+      // Calcola nuove frequenze basate sul DNA emotivo
+      const baseFreq = parseFloat(currentSession.frequency.split('Hz')[0]);
+      const adaptedFreq = baseFreq + (emotionalDNA.energia - 50) * 0.5; // Adatta freq in base all'energia
+      const beatFreq = Math.max(5, Math.min(15, emotionalDNA.calma / 10)); // Beat freq basato su calma
+      
+      const oscillator1 = audioContext.createOscillator();
+      const oscillator2 = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator1.type = 'sine';
+      oscillator2.type = 'sine';
+      oscillator1.frequency.setValueAtTime(adaptedFreq, audioContext.currentTime);
+      oscillator2.frequency.setValueAtTime(adaptedFreq + beatFreq, audioContext.currentTime);
+      
+      const vol = (volume[0] / 100) * 0.1;
+      gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
+      
+      oscillator1.connect(gainNode);
+      oscillator2.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator1.start(audioContext.currentTime);
+      oscillator2.start(audioContext.currentTime);
+      
+      oscillatorsRef.current = [oscillator1, oscillator2];
+    }
     
     toast({
-      title: "Adattamento real-time",
-      description: "Musica adattata al mood corrente",
+      title: "Adattamento AI real-time",
+      description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
     });
   };
 
