@@ -1682,19 +1682,6 @@ Questa pagina viene aggiornata periodicamente per riflettere eventuali modifiche
       </div>
     );
   };
-          reader.readAsText(file);
-        }
-      };
-      
-      input.click();
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile avviare l'importazione.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const filterLoginHistory = (records: LoginRecord[]) => {
     const now = new Date();
