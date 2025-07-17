@@ -67,8 +67,9 @@ export default function PerformanceSection({ referrals, credits }: PerformanceSe
     
     return {
       registrations: filteredReferrals.length, // tutti gli utenti registrati
-      conversions: filteredReferrals.filter(r => r.status === 'converted').length, // tutti gli utenti che hanno pagato
       pending: filteredReferrals.filter(r => r.status === 'registered').length, // utenti senza abbonamento
+      subscriptions: filteredReferrals.filter(r => r.status === 'converted').length, // tutti gli utenti che hanno sottoscritto
+      cancelled: filteredReferrals.filter(r => r.status === 'cancelled').length, // abbonamenti annullati
       credits: filteredCredits.reduce((sum, c) => sum + c.amount, 0) // tutti i crediti guadagnati
     };
   };
@@ -97,16 +98,20 @@ export default function PerformanceSection({ referrals, credits }: PerformanceSe
       {/* Metriche */}
       <div className="space-y-3">
         <div className="flex justify-between">
-          <span>Registrazioni {performanceFilter === 'total' ? 'totali' : 'periodo'}</span>
+          <span>Registrazioni</span>
           <span className="font-bold text-blue-600">{data.registrations}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Conversioni {performanceFilter === 'total' ? 'totali' : 'periodo'}</span>
-          <span className="font-bold text-green-600">{data.conversions}</span>
         </div>
         <div className="flex justify-between">
           <span>In attesa di pagamento</span>
           <span className="font-bold text-orange-600">{data.pending}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Abbonamenti sottoscritti</span>
+          <span className="font-bold text-green-600">{data.subscriptions}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Abbonamenti Annullati</span>
+          <span className="font-bold text-red-600">{data.cancelled}</span>
         </div>
         <div className="flex justify-between">
           <span>Crediti guadagnati</span>
