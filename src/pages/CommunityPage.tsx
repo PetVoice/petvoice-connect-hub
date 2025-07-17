@@ -124,8 +124,10 @@ const CommunityPage = () => {
   
   const [deletedChats, setDeletedChats] = useState(new Set());
   
-  const loadPrivateChats = async () => {
+  const loadPrivateChats = async (excludeUserId = null) => {
     try {
+      console.log('Caricando chat private... Deleted chats:', Array.from(deletedChats), 'Exclude:', excludeUserId);
+      
       const { data, error } = await supabase
         .from('private_messages')
         .select('*')
@@ -143,8 +145,13 @@ const CommunityPage = () => {
       data?.forEach(msg => {
         const otherUserId = msg.sender_id === user.id ? msg.recipient_id : msg.sender_id;
         
-        // Salta le conversazioni eliminate localmente
-        if (deletedChats.has(otherUserId)) return;
+        console.log('Processando messaggio con utente:', otherUserId, 'Deleted?', deletedChats.has(otherUserId), 'Exclude?', otherUserId === excludeUserId);
+        
+        // Salta le conversazioni eliminate localmente O quella appena eliminata
+        if (deletedChats.has(otherUserId) || otherUserId === excludeUserId) {
+          console.log('Saltando conversazione eliminata:', otherUserId);
+          return;
+        }
         
         userIds.add(otherUserId);
         
@@ -157,6 +164,8 @@ const CommunityPage = () => {
           };
         }
       });
+
+      console.log('Conversazioni trovate:', Object.keys(conversations));
 
       // Carica i nomi degli utenti
       if (userIds.size > 0) {
@@ -189,8 +198,8 @@ const CommunityPage = () => {
 
       console.log('Chat eliminata localmente');
 
-      // Ricarica la lista delle chat private
-      await loadPrivateChats();
+      // Ricarica la lista delle chat private escludendo la conversazione eliminata
+      await loadPrivateChats(otherUserId);
       
       // Chiudi la chat se è quella attiva
       if (activeChat === `private_${otherUserId}`) {
@@ -200,16 +209,6 @@ const CommunityPage = () => {
       toast({
         title: "Chat eliminata",
         description: "La conversazione è stata rimossa dalla tua lista"
-      });
-      
-      // Chiudi la chat se è quella attiva
-      if (activeChat === `private_${otherUserId}`) {
-        setActiveChat(null);
-      }
-      
-      toast({
-        title: "Chat eliminata",
-        description: "La conversazione è stata eliminata completamente"
       });
       
     } catch (error) {
