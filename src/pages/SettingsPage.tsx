@@ -71,7 +71,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useIntegrations } from '@/hooks/useIntegrations';
+
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAppearance } from '@/contexts/AppearanceContext';
@@ -218,8 +218,6 @@ const SettingsPage: React.FC = () => {
     }
   });
 
-  // Integration State with useIntegrations hook
-  const { integrations, connectIntegration, disconnectIntegration, getIntegrationStatus, loading: integrationsLoading } = useIntegrations();
 
   // Accessibility State
   const [accessibility, setAccessibility] = useState({
@@ -1188,10 +1186,6 @@ Continuare?
             <Palette className="h-4 w-4" />
             Aspetto
           </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <Link className="h-4 w-4" />
-            Integrazioni
-          </TabsTrigger>
           <TabsTrigger value="accessibility" className="flex items-center gap-2">
             <Accessibility className="h-4 w-4" />
             Accessibilità
@@ -1930,172 +1924,6 @@ Continuare?
         </TabsContent>
 
 
-        {/* Integrations Tab */}
-        <TabsContent value="integrations" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Calendar Integrations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Sincronizzazione Calendario
-                </CardTitle>
-                <CardDescription>
-                  Connetti i tuoi calendari preferiti
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <Label>Google Calendar</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza appuntamenti veterinari</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={getIntegrationStatus('calendar', 'google').connected}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        connectIntegration('calendar', 'google');
-                      } else {
-                        const integration = getIntegrationStatus('calendar', 'google').integration;
-                        if (integration) {
-                          disconnectIntegration(integration.id);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <Label>Apple Calendar</Label>
-                      <p className="text-sm text-muted-foreground">Integrazione con iCal</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={getIntegrationStatus('calendar', 'apple').connected}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        connectIntegration('calendar', 'apple');
-                      } else {
-                        const integration = getIntegrationStatus('calendar', 'apple').integration;
-                        if (integration) {
-                          disconnectIntegration(integration.id);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <Label>Microsoft Outlook</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza con Outlook</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={getIntegrationStatus('calendar', 'microsoft').connected}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        connectIntegration('calendar', 'microsoft');
-                      } else {
-                        const integration = getIntegrationStatus('calendar', 'microsoft').integration;
-                        if (integration) {
-                          disconnectIntegration(integration.id);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-
-            {/* Health Apps */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5" />
-                  App Salute
-                </CardTitle>
-                <CardDescription>
-                  Connetti con le app di monitoraggio salute
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Heart className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <Label>Apple Health</Label>
-                      <p className="text-sm text-muted-foreground">Condividi dati di salute del pet</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={getIntegrationStatus('health', 'apple').connected}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        connectIntegration('health', 'apple');
-                      } else {
-                        const integration = getIntegrationStatus('health', 'apple').integration;
-                        if (integration) {
-                          disconnectIntegration(integration.id);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Heart className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <Label>Google Fit</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza attività fisica</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={getIntegrationStatus('health', 'google').connected}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        connectIntegration('health', 'google');
-                      } else {
-                        const integration = getIntegrationStatus('health', 'google').integration;
-                        if (integration) {
-                          disconnectIntegration(integration.id);
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Le integrazioni health sono in fase di sviluppo e saranno disponibili presto.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-
-          </div>
-        </TabsContent>
 
         {/* Accessibility Tab */}
         <TabsContent value="accessibility" className="space-y-6">
