@@ -315,14 +315,16 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setVolume(newVolume);
     
     // Aggiorna il volume in tempo reale se sta suonando
-    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state !== 'closed' && isPlaying) {
+    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state === 'running' && isPlaying) {
       try {
-        const vol = (newVolume[0] / 100) * 0.1;
+        const vol = Math.max(0.02, (newVolume[0] / 100) * 0.15); // Minimo 0.02
         gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
-        console.log('Volume aggiornato a:', vol);
+        console.log('Volume aggiornato a:', vol, 'da slider:', newVolume[0]);
       } catch (error) {
         console.log('Volume update failed:', error);
       }
+    } else {
+      console.log('Volume non aggiornato - AudioContext stato:', audioContextRef.current?.state, 'isPlaying:', isPlaying);
     }
   };
 
@@ -368,6 +370,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     } else {
       // Play - avvia audio e timer IMMEDIATAMENTE
       try {
+        console.log('Avvio riproduzione...');
+        
         // Ferma audio precedente se presente
         stopAudio();
         
@@ -375,12 +379,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
         audioContextRef.current = audioContext;
         
-        // Resume context se sospeso
-        if (audioContext.state === 'suspended') {
-          audioContext.resume();
-        }
-        
         console.log('AudioContext creato, stato:', audioContext.state);
+        
+        // IMPORTANTE: Resume context immediatamente e attendi che sia running
+        if (audioContext.state !== 'running') {
+          console.log('Resuming AudioContext...');
+          audioContext.resume().then(() => {
+            console.log('AudioContext ora è:', audioContext.state);
+          });
+        }
         
         // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
@@ -432,14 +439,16 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
         
-        // Imposta volume iniziale
-        const vol = (volume[0] / 100) * 0.1;
+        // Imposta volume iniziale con un po' più di volume per sentire subito
+        const vol = Math.max(0.02, (volume[0] / 100) * 0.15); // Minimo 0.02, massimo più alto
         gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
-        console.log('Volume iniziale impostato a:', vol);
+        console.log('Volume iniziale impostato a:', vol, 'da slider:', volume[0]);
         
-        // Avvia oscillatori
-        oscillator1.start(audioContext.currentTime);
-        oscillator2.start(audioContext.currentTime);
+        // Avvia oscillatori IMMEDIATAMENTE
+        const startTime = audioContext.currentTime;
+        oscillator1.start(startTime);
+        oscillator2.start(startTime);
+        console.log('Oscillatori avviati al tempo:', startTime);
         
         // Imposta stato PRIMA del toast per feedback immediato
         setIsPlaying(true);
