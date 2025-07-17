@@ -10,10 +10,22 @@ export interface AccessibilitySettings {
 export function useAccessibility() {
   const { toast } = useToast();
   
-  const [accessibility, setAccessibility] = useState<AccessibilitySettings>({
-    screenReader: false,
-    highContrast: false,
-    fontSize: 'medium'
+  const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
+    // Carica le impostazioni dal localStorage al primo render
+    const savedSettings = localStorage.getItem('accessibility-settings');
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        return parsed;
+      } catch (error) {
+        console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
+      }
+    }
+    return {
+      screenReader: false,
+      highContrast: false,
+      fontSize: 'medium' as const
+    };
   });
 
   // Annuncia messaggi agli screen reader
@@ -63,11 +75,11 @@ export function useAccessibility() {
   }, []);
 
   // Applica le impostazioni di accessibilità al DOM
-  const applyAccessibilitySettings = useCallback(() => {
+  const applyAccessibilitySettings = useCallback((settings: AccessibilitySettings) => {
     const root = document.documentElement;
     
     // 1. Alto contrasto
-    if (accessibility.highContrast) {
+    if (settings.highContrast) {
       root.classList.add('high-contrast');
       root.style.setProperty('--background', '0 0% 8%');
       root.style.setProperty('--foreground', '0 0% 95%');
@@ -113,7 +125,7 @@ export function useAccessibility() {
     });
     
     // Applica la nuova dimensione
-    root.classList.add(fontSizeClasses[accessibility.fontSize]);
+    root.classList.add(fontSizeClasses[settings.fontSize]);
     
     // Applica anche via CSS custom properties
     const fontSizes = {
@@ -122,82 +134,24 @@ export function useAccessibility() {
       large: '18px',
       'extra-large': '20px'
     };
-    root.style.setProperty('--base-font-size', fontSizes[accessibility.fontSize]);
+    root.style.setProperty('--base-font-size', fontSizes[settings.fontSize]);
 
     // 3. Screen reader - migliora attributi ARIA
-    if (accessibility.screenReader) {
+    if (settings.screenReader) {
       enhanceScreenReaderSupport();
     }
-  }, [accessibility, enhanceScreenReaderSupport]);
+  }, [enhanceScreenReaderSupport]);
 
-  // Carica le impostazioni dal localStorage al mount
+  // Applica le impostazioni iniziali al mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('accessibility-settings');
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        setAccessibility(parsed);
-        
-        // Applica immediatamente le impostazioni caricate
-        setTimeout(() => {
-          const root = document.documentElement;
-          
-          // Applica alto contrasto
-          if (parsed.highContrast) {
-            root.classList.add('high-contrast');
-            root.style.setProperty('--background', '0 0% 8%');
-            root.style.setProperty('--foreground', '0 0% 95%');
-            root.style.setProperty('--muted', '0 0% 25%');
-            root.style.setProperty('--muted-foreground', '0 0% 75%');
-            root.style.setProperty('--border', '0 0% 40%');
-            root.style.setProperty('--input', '0 0% 12%');
-            root.style.setProperty('--ring', '0 0% 80%');
-            root.style.setProperty('--card', '0 0% 10%');
-            root.style.setProperty('--popover', '0 0% 10%');
-            root.style.setProperty('--accent', '0 0% 15%');
-            root.style.setProperty('--accent-foreground', '0 0% 90%');
-            root.style.setProperty('--secondary', '0 0% 20%');
-            root.style.setProperty('--secondary-foreground', '0 0% 90%');
-          }
-          
-          // Applica dimensione font
-          const fontSizeClasses = {
-            small: 'text-sm',
-            medium: 'text-base',
-            large: 'text-lg',
-            'extra-large': 'text-xl'
-          };
-          
-          Object.values(fontSizeClasses).forEach(cls => {
-            root.classList.remove(cls);
-          });
-          
-          root.classList.add(fontSizeClasses[parsed.fontSize]);
-          
-          const fontSizes = {
-            small: '14px',
-            medium: '16px',
-            large: '18px',
-            'extra-large': '20px'
-          };
-          root.style.setProperty('--base-font-size', fontSizes[parsed.fontSize]);
-        }, 0);
-        
-      } catch (error) {
-        console.error('Errore nel caricamento delle impostazioni di accessibilità:', error);
-      }
-    }
+    applyAccessibilitySettings(accessibility);
   }, []);
 
   // Salva le impostazioni nel localStorage quando cambiano
   useEffect(() => {
     localStorage.setItem('accessibility-settings', JSON.stringify(accessibility));
-  }, [accessibility]);
-
-  // Applica le impostazioni al DOM quando cambiano
-  useEffect(() => {
-    applyAccessibilitySettings();
-  }, [applyAccessibilitySettings]);
+    applyAccessibilitySettings(accessibility);
+  }, [accessibility, applyAccessibilitySettings]);
 
   // Aggiorna una singola impostazione
   const updateSetting = useCallback((key: keyof AccessibilitySettings, value: any) => {

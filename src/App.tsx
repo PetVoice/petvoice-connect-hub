@@ -30,7 +30,6 @@ import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
-import { AccessibilityInitializer } from '@/components/AccessibilityInitializer';
 
 const queryClient = new QueryClient();
 
@@ -145,7 +144,6 @@ const App = () => (
             <AppearanceProvider>
               <NotificationEventsProvider>
                 <TooltipProvider>
-                  <AccessibilityInitializer />
                   <NotificationManager />
                   <AppContent />
                   <Toaster />
