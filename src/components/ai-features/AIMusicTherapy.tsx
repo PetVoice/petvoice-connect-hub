@@ -110,6 +110,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
+  const gainNodeRef = useRef<GainNode | null>(null);
 
   // Fetch real emotional DNA from pet analyses
   const fetchEmotionalDNA = async () => {
@@ -280,10 +281,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setVolume(newVolume);
     
     // Aggiorna il volume in tempo reale se sta suonando
-    if (audioContextRef.current && oscillatorsRef.current.length > 0) {
-      const gainNodes = audioContextRef.current.createGain();
+    if (audioContextRef.current && gainNodeRef.current) {
       const vol = (newVolume[0] / 100) * 0.1;
-      gainNodes.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
+      gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
     }
   };
 
@@ -292,11 +292,25 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     
     const rect = event.currentTarget.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
-    const percentage = clickX / rect.width;
+    const percentage = Math.max(0, Math.min(1, clickX / rect.width));
     const newTime = Math.floor(percentage * currentSession.duration * 60);
     
     setCurrentTime(newTime);
     setSessionProgress(percentage * 100);
+    
+    // Se sta suonando, riavvia dalla nuova posizione
+    if (isPlaying) {
+      stopAudio();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      
+      // Riavvia da questo punto
+      setTimeout(() => {
+        handlePlayPause();
+      }, 100);
+    }
     
     toast({
       title: "Posizione aggiornata",
@@ -390,6 +404,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         
         // Salva riferimenti
         oscillatorsRef.current = [oscillator1, oscillator2];
+        gainNodeRef.current = gainNode;
         
         setIsPlaying(true);
         toast({
