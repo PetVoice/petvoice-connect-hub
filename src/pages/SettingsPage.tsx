@@ -1,2692 +1,415 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { 
-  User, 
-  Shield, 
-  Eye, 
-  Bell, 
-  Palette, 
-  Database, 
-  Link, 
-  CreditCard, 
-  Users, 
-  Cog as SettingsIcon,
-  Accessibility,
-  HeadphonesIcon,
-  FileText,
-  Camera,
-  Mail,
-  Lock,
-  Smartphone,
-  Globe,
-  Calendar,
-  Download,
-  Trash2,
-  LogOut,
-  AlertTriangle,
-  CheckCircle,
-  MapPin,
-  Clock,
-  Monitor,
-  Moon,
-  Sun,
-  Languages,
-  DollarSign,
-  Ruler,
-  Volume2,
-  Zap,
-  Crown,
-  Plus,
-  X,
-  Edit,
-  Save,
-  Key,
-  History,
-  Info,
-  Home,
-  Heart,
-  Share2,
-  Fingerprint,
-  Wifi,
-  Upload,
-  ArrowLeft,
-  Cookie,
-  Scale,
-  UserCheck
-} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ProfileAvatar } from '@/components/settings/ProfileAvatar';
-import { ProfileEditForm } from '@/components/settings/ProfileEditForm';
-import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
-import { EmailManagement } from '@/components/settings/EmailManagement';
-import { DeleteAccountSection } from '@/components/settings/DeleteAccountSection';
 import { 
-  TermsOfService, 
-  PrivacyPolicy, 
-  CookiePolicy, 
-  DataProcessingAgreement, 
-  UserRights, 
-  CancellationPolicy, 
-  LicenseAgreement 
-} from '@/components/legal/LegalDocuments';
+  Bell, 
+  User, 
+  Shield, 
+  Palette, 
+  Globe, 
+  Database,
+  Calendar,
+  Users,
+  Heart,
+  Gift,
+  Smartphone,
+  X
+} from 'lucide-react';
 
-interface UserProfile {
-  id: string;
-  display_name: string;
-  avatar_url: string;
-  theme: string;
-  language: string;
-  notifications_enabled: boolean;
-}
-
-interface SecuritySettings {
-  twoFactorEnabled: boolean;
-  sessions: ActiveSession[];
-  loginHistory: LoginRecord[];
-}
-
-interface ActiveSession {
-  id: string;
-  device: string;
-  location: string;
-  browser: string;
-  lastActive: string;
-  isCurrent: boolean;
-}
-
-interface LoginRecord {
-  id: string;
-  timestamp: string;
-  location: string;
-  device: string;
-  ipAddress: string;
-  success: boolean;
-  status: 'active' | 'disconnected';
-}
-
-interface NotificationSettings {
-  push: {
-    healthAlerts: boolean;
-    appointments: boolean;
-    community: boolean;
-    analysis: boolean;
-    achievements: boolean;
-    system: boolean;
-  };
-  email: {
-    healthAlerts: boolean;
-    appointments: boolean;
-    community: boolean;
-    analysis: boolean;
-    achievements: boolean;
-    system: boolean;
-    newsletter: boolean;
-    marketing: boolean;
-  };
-  sms: {
-    enabled: boolean;
-    phoneNumber: string;
-    emergencyOnly: boolean;
-  };
-  quietHours: {
-    enabled: boolean;
-    start: string;
-    end: string;
-  };
-  frequency: 'realtime' | 'hourly' | 'daily' | 'weekly';
-}
-
-const SettingsPage: React.FC = () => {
+export default function SettingsPage() {
+  const { user, signOut } = useAuth();
+  const { notifications, clearAllNotifications } = useNotifications();
+  const { supported: pushSupported, permission, requestPermission, sendNotification } = usePushNotifications();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [newEmail, setNewEmail] = useState('');
-  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
-  
-  // Security State
-  const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
-    twoFactorEnabled: false,
-    sessions: [],
-    loginHistory: []
-  });
-
-  // Notification State
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    push: {
-      healthAlerts: true,
-      appointments: true,
-      community: true,
-      analysis: true,
-      achievements: true,
-      system: true
-    },
-    email: {
-      healthAlerts: true,
-      appointments: true,
-      community: false,
-      analysis: true,
-      achievements: false,
-      system: true,
-      newsletter: false,
-      marketing: false
-    },
-    sms: {
-      enabled: false,
-      phoneNumber: '',
-      emergencyOnly: true
-    },
-    quietHours: {
-      enabled: false,
-      start: '22:00',
-      end: '08:00'
-    },
-    frequency: 'realtime'
-  });
-
-  // Appearance State
-  const [appearance, setAppearance] = useState({
-    theme: 'system',
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState({
+    display_name: '',
+    theme: 'light',
     language: 'it',
-    timezone: 'Europe/Rome',
-    dateFormat: 'DD/MM/YYYY',
-    timeFormat: '24h',
-    currency: 'EUR',
-    units: 'metric'
+    notifications_enabled: true,
+    marketing_communications: false,
+    analytics_contribution: true,
+    community_participation: true
   });
 
-  // Privacy State
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: 'private',
-    communityParticipation: true,
-    dataSharing: false,
-    analyticsContribution: true,
-    marketingCommunications: false,
-    thirdPartySharing: false
+  // Impostazioni specifiche per le notifiche
+  const [notificationSettings, setNotificationSettings] = useState({
+    calendar_reminders: true,
+    community_messages: true,
+    medication_reminders: true,
+    referral_updates: true,
+    push_notifications: false
   });
 
-  // Data Management State
-  const [dataManagement, setDataManagement] = useState({
-    autoBackup: true,
-    backupFrequency: 'daily',
-    retentionPeriod: '2years',
-    crossDeviceSync: true,
-    storageUsage: {
-      used: 2.4,
-      total: 10,
-      breakdown: {
-        photos: 1.2,
-        analyses: 0.8,
-        diary: 0.3,
-        other: 0.1
-      }
-    }
-  });
-
-  // Integration State
-  const [integrations, setIntegrations] = useState({
-    calendar: {
-      google: false,
-      apple: false,
-      outlook: false
-    },
-    smartHome: {
-      alexa: false,
-      googleHome: false,
-      homeKit: false
-    },
-    health: {
-      appleHealth: false,
-      googleFit: false
-    }
-  });
-
-  // Accessibility State
-  const [accessibility, setAccessibility] = useState({
-    screenReader: false,
-    highContrast: false,
-    fontSize: 'medium',
-    motionSensitivity: false,
-    keyboardNavigation: true,
-    voiceCommands: false
-  });
-
-  const [user, setUser] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState(localStorage.getItem('settings-active-tab') || 'account');
-  const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
-  const [openDocument, setOpenDocument] = useState<string | null>(null);
-  const [showDocumentView, setShowDocumentView] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('settings-active-tab', activeTab);
-  }, [activeTab]);
-
-  useEffect(() => {
-    loadUserProfile();
-    loadSecurityData();
-  }, []);
-
-  const loadUserProfile = async () => {
+  const handleProfileUpdate = async () => {
+    if (!user) return;
+    
+    setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (profile) {
-          setProfile({
-            id: profile.id,
-            display_name: profile.display_name || '',
-            avatar_url: profile.avatar_url || '',
-            theme: profile.theme || 'system',
-            language: profile.language || 'it',
-            notifications_enabled: profile.notifications_enabled
-          });
+      const { error } = await supabase
+        .from('profiles')
+        .update(profile)
+        .eq('user_id', user.id);
 
-          // Load privacy preferences from database
-          setPrivacy({
-            profileVisibility: 'private', // This will remain local state for now
-            communityParticipation: profile.community_participation ?? true,
-            dataSharing: false, // This will remain local state for now  
-            analyticsContribution: profile.analytics_contribution ?? true,
-            marketingCommunications: profile.marketing_communications ?? false,
-            thirdPartySharing: profile.third_party_sharing ?? false
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    }
-  };
-
-  const loadSecurityData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Genera sessioni reali basate su dati utente
-        const currentSession = {
-          id: '1',
-          device: getDeviceInfo(),
-          location: 'Italia',
-          browser: getBrowserInfo(),
-          lastActive: new Date().toLocaleString('it-IT'),
-          isCurrent: true
-        };
-
-        // Genera cronologia di accesso realistica
-        const loginHistory = generateRealisticLoginHistory(user);
-        
-        setSecuritySettings({
-          twoFactorEnabled: false,
-          sessions: [currentSession],
-          loginHistory
-        });
-      }
-    } catch (error) {
-      console.error('Error loading security data:', error);
-    }
-  };
-
-  const getDeviceInfo = () => {
-    const userAgent = navigator.userAgent;
-    if (userAgent.includes('Mac')) return 'MacBook Pro';
-    if (userAgent.includes('Windows')) return 'PC Windows';
-    if (userAgent.includes('iPhone')) return 'iPhone';
-    if (userAgent.includes('Android')) return 'Android';
-    return 'Dispositivo sconosciuto';
-  };
-
-  const getBrowserInfo = () => {
-    const userAgent = navigator.userAgent;
-    if (userAgent.includes('Chrome')) return 'Chrome ' + userAgent.match(/Chrome\/(\d+)/)?.[1] || '';
-    if (userAgent.includes('Firefox')) return 'Firefox ' + userAgent.match(/Firefox\/(\d+)/)?.[1] || '';
-    if (userAgent.includes('Safari')) return 'Safari ' + userAgent.match(/Version\/(\d+)/)?.[1] || '';
-    if (userAgent.includes('Edge')) return 'Edge ' + userAgent.match(/Edge\/(\d+)/)?.[1] || '';
-    return 'Browser sconosciuto';
-  };
-
-  const generateRealisticLoginHistory = (user: any) => {
-    const history = [];
-    const now = new Date();
-    
-    // Aggiungi login corrente
-    history.push({
-      id: '1',
-      timestamp: now.toLocaleString('it-IT'),
-      location: 'Italia',
-      device: getDeviceInfo(),
-      ipAddress: '192.168.1.100',
-      success: true,
-      status: 'active' as const
-    });
-
-    // Aggiungi alcuni login precedenti
-    for (let i = 1; i <= 5; i++) {
-      const loginDate = new Date(now);
-      loginDate.setDate(loginDate.getDate() - i);
-      
-      history.push({
-        id: (i + 1).toString(),
-        timestamp: loginDate.toLocaleString('it-IT'),
-        location: 'Italia',
-        device: getDeviceInfo(),
-        ipAddress: `192.168.1.${100 + i}`,
-        success: Math.random() > 0.1, // 90% successo
-        status: 'disconnected' as const
-      });
-    }
-
-    return history;
-  };
-
-  const handleAvatarChange = (url: string) => {
-    loadUserProfile(); // Refresh user data
-  };
-
-  const handleProfileUpdate = () => {
-    loadUserProfile(); // Refresh user data
-  };
-
-  const handleProfileSave = async () => {
-    if (!profile) return;
-    
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            display_name: profile.display_name,
-            theme: profile.theme,
-            language: profile.language,
-            notifications_enabled: profile.notifications_enabled,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        
-        toast({
-          title: "Profilo aggiornato",
-          description: "Le modifiche sono state salvate con successo."
-        });
-        setIsEditing(false);
-      }
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare le modifiche. Riprova.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleOpenDocument = (documentType: string) => {
-    setOpenDocument(documentType);
-    setShowDocumentView(true);
-    setActiveTab('legal-document');
-  };
-
-  const handleCloseDocument = () => {
-    setOpenDocument(null);
-    setShowDocumentView(false);
-    setActiveTab('privacy');
-  };
-
-  const renderDocument = () => {
-    if (!openDocument) return null;
-    
-    const props = { onClose: handleCloseDocument };
-    
-    switch (openDocument) {
-      case 'terms':
-        return <TermsOfService {...props} />;
-      case 'privacy':
-        return <PrivacyPolicy {...props} />;
-      case 'cookies':
-        return <CookiePolicy {...props} />;
-      case 'data-processing':
-        return <DataProcessingAgreement {...props} />;
-      case 'user-rights':
-        return <UserRights {...props} />;
-      case 'cancellation':
-        return <CancellationPolicy {...props} />;
-      case 'license':
-        return <LicenseAgreement {...props} />;
-      default:
-        return null;
-    }
-  };
-
-  const handleEmailChange = async () => {
-    if (!newEmail) return;
-    
-    try {
-      const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
       
-      setEmailVerificationSent(true);
       toast({
-        title: "Email di verifica inviata",
-        description: "Controlla la tua nuova email per confermare il cambio."
+        title: "Profilo aggiornato",
+        description: "Le tue impostazioni sono state salvate con successo.",
       });
     } catch (error) {
       toast({
         title: "Errore",
-        description: "Impossibile cambiare email. Riprova.",
-        variant: "destructive"
+        description: "Si è verificato un errore durante l'aggiornamento del profilo.",
+        variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
-      
-      // Invalidate all sessions except current
-      await supabase.auth.signOut({ scope: 'others' });
-      
-      toast({
-        title: "Password aggiornata",
-        description: "Tutte le altre sessioni sono state disconnesse per sicurezza."
-      });
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile cambiare password. Riprova.",
-        variant: "destructive"
-      });
-    }
+  const handleNotificationSettingChange = (setting: keyof typeof notificationSettings) => {
+    setNotificationSettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting]
+    }));
   };
 
-  const handleSessionDisconnect = async (sessionId: string) => {
-    try {
-      await supabase.auth.signOut({ scope: 'others' });
-      
-      setSecuritySettings(prev => ({
-        ...prev,
-        sessions: prev.sessions.filter(s => s.id !== sessionId)
-      }));
-      
+  const handlePushNotificationToggle = async () => {
+    if (!pushSupported) {
       toast({
-        title: "Sessione disconnessa",
-        description: "La sessione è stata terminata con successo."
+        title: "Non supportato",
+        description: "Le notifiche push non sono supportate in questo browser.",
+        variant: "destructive",
       });
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile disconnettere la sessione.",
-        variant: "destructive"
-      });
+      return;
     }
-  };
 
-  const handleDisconnectAllSessions = async () => {
-    try {
-      await supabase.auth.signOut({ scope: 'others' });
-      
-      setSecuritySettings(prev => ({
-        ...prev,
-        sessions: prev.sessions.filter(s => s.isCurrent)
-      }));
-      
-      toast({
-        title: "Sessioni disconnesse",
-        description: "Tutte le altre sessioni sono state terminate."
-      });
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile disconnettere le sessioni.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleSetup2FA = async () => {
-    try {
-      toast({
-        title: "2FA in configurazione",
-        description: "Avvio della configurazione dell'autenticazione a due fattori..."
-      });
-      
-      // Simula configurazione 2FA
-      setTimeout(() => {
-        setSecuritySettings(prev => ({
-          ...prev,
-          twoFactorEnabled: true
-        }));
-        
+    if (permission !== 'granted') {
+      const granted = await requestPermission();
+      if (!granted) {
         toast({
-          title: "2FA attivato",
-          description: "L'autenticazione a due fattori è stata configurata con successo."
-        });
-      }, 2000);
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile configurare 2FA.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDataExport = async (format: 'json' | 'pdf' | 'csv') => {
-    try {
-      toast({
-        title: "Esportazione avviata",
-        description: `Raccolta di tutti i tuoi dati in corso...`
-      });
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Esporta TUTTI i dati dell'utente per un backup completo
-        const [
-          profileData,
-          petsData,
-          activityLogData,
-          calendarEventsData,
-          diaryEntriesData,
-          emergencyContactsData,
-          eventNotificationsData,
-          eventTemplatesData,
-          healthAlertsData,
-          healthMetricsData,
-          medicalRecordsData,
-          medicationsData,
-          petAnalysesData,
-          petInsuranceData,
-          petWellnessScoresData,
-          symptomsData,
-          veterinariansData,
-          referrerStatsData,
-          subscribersData,
-          userChannelSubscriptionsData,
-          userDisplayNamesData,
-          userLearningProgressData,
-          userOnboardingData
-        ] = await Promise.all([
-          supabase.from('profiles').select('*').eq('user_id', user.id).single(),
-          supabase.from('pets').select('*').eq('user_id', user.id),
-          supabase.from('activity_log').select('*').eq('user_id', user.id),
-          supabase.from('calendar_events').select('*').eq('user_id', user.id),
-          supabase.from('diary_entries').select('*').eq('user_id', user.id),
-          supabase.from('emergency_contacts').select('*').eq('user_id', user.id),
-          supabase.from('event_notifications').select('*').eq('user_id', user.id),
-          supabase.from('event_templates').select('*').eq('user_id', user.id),
-          supabase.from('health_alerts').select('*').eq('user_id', user.id),
-          supabase.from('health_metrics').select('*').eq('user_id', user.id),
-          supabase.from('medical_records').select('*').eq('user_id', user.id),
-          supabase.from('medications').select('*').eq('user_id', user.id),
-          supabase.from('pet_analyses').select('*').eq('user_id', user.id),
-          supabase.from('pet_insurance').select('*').eq('user_id', user.id),
-          supabase.from('pet_wellness_scores').select('*').eq('user_id', user.id),
-          supabase.from('symptoms').select('*').eq('user_id', user.id),
-          supabase.from('veterinarians').select('*').eq('user_id', user.id),
-          supabase.from('referrer_stats').select('*').eq('user_id', user.id),
-          supabase.from('subscribers').select('*').eq('user_id', user.id),
-          supabase.from('user_channel_subscriptions').select('*').eq('user_id', user.id),
-          supabase.from('user_display_names').select('*').eq('user_id', user.id),
-          supabase.from('user_learning_progress').select('*').eq('user_id', user.id),
-          supabase.from('user_onboarding').select('*').eq('user_id', user.id)
-        ]);
-
-        const exportData = {
-          // Informazioni di esportazione
-          export_info: {
-            user_id: user.id,
-            user_email: user.email,
-            export_date: new Date().toISOString(),
-            export_format: format,
-            version: '1.0',
-            description: 'Backup completo dati utente PetVet - GDPR Export'
-          },
-          
-          // Dati principali
-          profile: profileData?.data || null,
-          pets: petsData?.data || [],
-          
-          // Attività e log
-          activity_log: activityLogData?.data || [],
-          
-          // Calendario ed eventi
-          calendar_events: calendarEventsData?.data || [],
-          event_notifications: eventNotificationsData?.data || [],
-          event_templates: eventTemplatesData?.data || [],
-          
-          // Diario e benessere
-          diary_entries: diaryEntriesData?.data || [],
-          pet_wellness_scores: petWellnessScoresData?.data || [],
-          
-          // Salute e medicina
-          health_alerts: healthAlertsData?.data || [],
-          health_metrics: healthMetricsData?.data || [],
-          medical_records: medicalRecordsData?.data || [],
-          medications: medicationsData?.data || [],
-          symptoms: symptomsData?.data || [],
-          
-          // Analisi e assicurazioni
-          pet_analyses: petAnalysesData?.data || [],
-          pet_insurance: petInsuranceData?.data || [],
-          
-          // Contatti e veterinari
-          emergency_contacts: emergencyContactsData?.data || [],
-          veterinarians: veterinariansData?.data || [],
-          
-          // Sistema referral
-          referrer_stats: referrerStatsData?.data || [],
-          
-          // Abbonamenti e account
-          subscribers: subscribersData?.data || [],
-          
-          // Community e learning
-          user_channel_subscriptions: userChannelSubscriptionsData?.data || [],
-          user_display_names: userDisplayNamesData?.data || [],
-          user_learning_progress: userLearningProgressData?.data || [],
-          user_onboarding: userOnboardingData?.data || []
-        };
-        
-        let blob: Blob;
-        let fileName: string;
-        
-        if (format === 'json') {
-          blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-          fileName = `petvet-backup-${new Date().toISOString().split('T')[0]}.json`;
-        } else if (format === 'csv') {
-          // Per CSV, crea un file con i dati principali
-          const csvData = [
-            ['Tabella', 'Numero Record', 'Ultima Modifica'],
-            ['Profilo', exportData.profile ? '1' : '0', exportData.profile?.updated_at || 'N/A'],
-            ['Pets', exportData.pets.length.toString(), exportData.pets[0]?.updated_at || 'N/A'],
-            ['Voci Diario', exportData.diary_entries.length.toString(), exportData.diary_entries[0]?.updated_at || 'N/A'],
-            ['Eventi Calendario', exportData.calendar_events.length.toString(), exportData.calendar_events[0]?.updated_at || 'N/A'],
-            ['Cartelle Mediche', exportData.medical_records.length.toString(), exportData.medical_records[0]?.updated_at || 'N/A'],
-            ['Farmaci', exportData.medications.length.toString(), exportData.medications[0]?.updated_at || 'N/A'],
-            ['Contatti Emergenza', exportData.emergency_contacts.length.toString(), exportData.emergency_contacts[0]?.updated_at || 'N/A'],
-            ['Veterinari', exportData.veterinarians.length.toString(), exportData.veterinarians[0]?.updated_at || 'N/A'],
-            ['Analisi Pet', exportData.pet_analyses.length.toString(), exportData.pet_analyses[0]?.updated_at || 'N/A'],
-            ['Log Attività', exportData.activity_log.length.toString(), exportData.activity_log[0]?.created_at || 'N/A']
-          ];
-          
-          const csvContent = csvData.map(row => row.join(',')).join('\n');
-          blob = new Blob([csvContent], { type: 'text/csv' });
-          fileName = `petvet-summary-${new Date().toISOString().split('T')[0]}.csv`;
-        } else {
-          // Per PDF, crea un riassunto
-          const pdfContent = `
-PETVET - BACKUP DATI UTENTE
-===========================
-
-Data Export: ${new Date().toLocaleString('it-IT')}
-Utente: ${user.email}
-User ID: ${user.id}
-
-RIEPILOGO DATI:
-- Profilo: ${exportData.profile ? '✓' : '✗'}
-- Pets: ${exportData.pets.length} record
-- Voci Diario: ${exportData.diary_entries.length} record
-- Eventi Calendario: ${exportData.calendar_events.length} record
-- Cartelle Mediche: ${exportData.medical_records.length} record
-- Farmaci: ${exportData.medications.length} record
-- Contatti Emergenza: ${exportData.emergency_contacts.length} record
-- Veterinari: ${exportData.veterinarians.length} record
-- Analisi Pet: ${exportData.pet_analyses.length} record
-- Log Attività: ${exportData.activity_log.length} record
-
-ATTENZIONE: Questo è solo un riassunto. 
-Per il backup completo utilizzare il formato JSON.
-          `;
-          
-          blob = new Blob([pdfContent], { type: 'text/plain' });
-          fileName = `petvet-summary-${new Date().toISOString().split('T')[0]}.txt`;
-        }
-        
-        // Scarica il file
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(url);
-        
-        // Calcola statistiche per il toast
-        const totalRecords = Object.values(exportData).reduce((total, data) => {
-          if (Array.isArray(data)) return total + data.length;
-          if (data && typeof data === 'object' && data !== null) return total + 1;
-          return total;
-        }, 0) - 1; // -1 per escludere export_info
-        
-        toast({
-          title: "Esportazione completata",
-          description: `${totalRecords} record esportati con successo. File salvato: ${fileName}`
-        });
-      }
-    } catch (error) {
-      console.error('Errore durante l\'esportazione:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile esportare i dati. Controlla la console per dettagli.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const updatePrivacySetting = async (field: keyof typeof privacy, value: boolean) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        // Map frontend fields to database columns
-        const dbFieldMapping = {
-          communityParticipation: 'community_participation',
-          analyticsContribution: 'analytics_contribution', 
-          marketingCommunications: 'marketing_communications',
-          thirdPartySharing: 'third_party_sharing'
-        };
-
-        const dbField = dbFieldMapping[field as keyof typeof dbFieldMapping];
-        
-        if (dbField) {
-          const { error } = await supabase
-            .from('profiles')
-            .update({ [dbField]: value })
-            .eq('user_id', user.id);
-
-          if (error) throw error;
-
-          toast({
-            title: "Preferenza aggiornata",
-            description: "Le tue preferenze privacy sono state salvate."
-          });
-        }
-
-        // Update local state
-        setPrivacy(prev => ({ ...prev, [field]: value }));
-      }
-    } catch (error) {
-      console.error('Error updating privacy setting:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare la preferenza. Riprova.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDataImport = async (format: 'json' | 'pdf' | 'csv') => {
-    try {
-      if (format !== 'json') {
-        toast({
-          title: "Formato non supportato",
-          description: "L'importazione è supportata solo per file JSON creati dall'export di PetVet.",
-          variant: "destructive"
+          title: "Permesso negato",
+          description: "Hai negato il permesso per le notifiche push.",
+          variant: "destructive",
         });
         return;
       }
+    }
 
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      
-      input.onchange = async (event) => {
-        const file = (event.target as HTMLInputElement).files?.[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = async (e) => {
-            try {
-              toast({
-                title: "Importazione avviata",
-                description: "Analisi del file di backup in corso..."
-              });
-              
-              const fileContent = e.target?.result as string;
-              const importData = JSON.parse(fileContent);
-              
-              // Verifica che sia un backup valido di PetVet
-              if (!importData.export_info || !importData.export_info.user_id) {
-                throw new Error("File non valido: non è un backup di PetVet");
-              }
-              
-              const { data: { user } } = await supabase.auth.getUser();
-              if (!user) {
-                throw new Error("Utente non autenticato");
-              }
-              
-              // Conferma prima di procedere con l'importazione
-              const confirmed = confirm(`
-ATTENZIONE: Stai per importare un backup completo.
-Questo sovrascriverà TUTTI i tuoi dati attuali.
+    setNotificationSettings(prev => ({
+      ...prev,
+      push_notifications: !prev.push_notifications
+    }));
 
-Backup da: ${importData.export_info.user_email}
-Data backup: ${new Date(importData.export_info.export_date).toLocaleString('it-IT')}
-
-Continuare?
-              `);
-              
-              if (!confirmed) {
-                toast({
-                  title: "Importazione annullata",
-                  description: "Nessun dato è stato modificato."
-                });
-                return;
-              }
-              
-              toast({
-                title: "Importazione in corso",
-                description: "Ripristino dei dati in corso... NON chiudere la pagina."
-              });
-              
-              let importedTables = 0;
-              let errors = 0;
-              
-              // Importa profilo
-              if (importData.profile) {
-                try {
-                  const { error } = await supabase
-                    .from('profiles')
-                    .upsert({
-                      ...importData.profile,
-                      user_id: user.id,
-                      updated_at: new Date().toISOString()
-                    });
-                  
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione profilo:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa pets
-              if (importData.pets && importData.pets.length > 0) {
-                try {
-                  // Elimina pets esistenti
-                  await supabase.from('pets').delete().eq('user_id', user.id);
-                  
-                  // Inserisci nuovi pets
-                  const petsToInsert = importData.pets.map((pet: any) => ({
-                    ...pet,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('pets').insert(petsToInsert);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione pets:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa diary entries
-              if (importData.diary_entries && importData.diary_entries.length > 0) {
-                try {
-                  await supabase.from('diary_entries').delete().eq('user_id', user.id);
-                  const entries = importData.diary_entries.map((entry: any) => ({
-                    ...entry,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('diary_entries').insert(entries);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione diary entries:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa calendar events
-              if (importData.calendar_events && importData.calendar_events.length > 0) {
-                try {
-                  await supabase.from('calendar_events').delete().eq('user_id', user.id);
-                  const events = importData.calendar_events.map((event: any) => ({
-                    ...event,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('calendar_events').insert(events);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione calendar events:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa medical records
-              if (importData.medical_records && importData.medical_records.length > 0) {
-                try {
-                  await supabase.from('medical_records').delete().eq('user_id', user.id);
-                  const records = importData.medical_records.map((record: any) => ({
-                    ...record,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('medical_records').insert(records);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione medical records:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa medications
-              if (importData.medications && importData.medications.length > 0) {
-                try {
-                  await supabase.from('medications').delete().eq('user_id', user.id);
-                  const medications = importData.medications.map((med: any) => ({
-                    ...med,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('medications').insert(medications);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione medications:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa emergency contacts
-              if (importData.emergency_contacts && importData.emergency_contacts.length > 0) {
-                try {
-                  await supabase.from('emergency_contacts').delete().eq('user_id', user.id);
-                  const contacts = importData.emergency_contacts.map((contact: any) => ({
-                    ...contact,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('emergency_contacts').insert(contacts);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione emergency contacts:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa veterinarians
-              if (importData.veterinarians && importData.veterinarians.length > 0) {
-                try {
-                  await supabase.from('veterinarians').delete().eq('user_id', user.id);
-                  const vets = importData.veterinarians.map((vet: any) => ({
-                    ...vet,
-                    user_id: user.id,
-                    updated_at: new Date().toISOString()
-                  }));
-                  
-                  const { error } = await supabase.from('veterinarians').insert(vets);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione veterinarians:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa health metrics
-              if (importData.health_metrics && importData.health_metrics.length > 0) {
-                try {
-                  await supabase.from('health_metrics').delete().eq('user_id', user.id);
-                  const metrics = importData.health_metrics.map((metric: any) => ({
-                    ...metric,
-                    user_id: user.id
-                  }));
-                  
-                  const { error } = await supabase.from('health_metrics').insert(metrics);
-                  if (error) throw error;
-                  importedTables++;
-                } catch (err) {
-                  console.error('Errore importazione health metrics:', err);
-                  errors++;
-                }
-              }
-              
-              // Importa altre tabelle se necessario...
-              // (pet_analyses, pet_insurance, etc.)
-              
-              if (errors > 0) {
-                toast({
-                  title: "Importazione completata con errori",
-                  description: `${importedTables} tabelle importate, ${errors} errori. Controlla la console per dettagli.`,
-                  variant: "destructive"
-                });
-              } else {
-                toast({
-                  title: "Importazione completata",
-                  description: `Tutti i dati sono stati ripristinati con successo. ${importedTables} tabelle importate.`
-                });
-                
-                // Ricarica la pagina per aggiornare i dati
-                setTimeout(() => {
-                  window.location.reload();
-                }, 2000);
-              }
-              
-            } catch (error) {
-              console.error('Errore durante l\'importazione:', error);
-              toast({
-                title: "Errore",
-                description: `Impossibile importare i dati: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
-                variant: "destructive"
-              });
-            }
-          };
-          reader.readAsText(file);
-        }
-      };
-      
-      input.click();
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile avviare l'importazione.",
-        variant: "destructive"
+    if (!notificationSettings.push_notifications) {
+      await sendNotification("Notifiche push attivate", {
+        body: "Ora riceverai notifiche push da PetVoice!",
+        url: "/"
       });
     }
   };
 
-  const filterLoginHistory = (records: LoginRecord[]) => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    return records.filter(record => {
-      const recordDate = new Date(record.timestamp);
-      
-      switch (loginHistoryFilter) {
-        case 'today':
-          return recordDate >= today;
-        case 'week':
-          const weekAgo = new Date(today);
-          weekAgo.setDate(weekAgo.getDate() - 7);
-          return recordDate >= weekAgo;
-        case 'month':
-          const monthAgo = new Date(today);
-          monthAgo.setMonth(monthAgo.getMonth() - 1);
-          return recordDate >= monthAgo;
-        case 'year':
-          const yearAgo = new Date(today);
-          yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-          return recordDate >= yearAgo;
-        case 'all':
-        default:
-          return true;
-      }
+  const testNotification = async () => {
+    if (pushSupported && permission === 'granted') {
+      await sendNotification("Test notifica", {
+        body: "Questa è una notifica di test da PetVoice!",
+        url: "/"
+      });
+    }
+    toast({
+      title: "Notifica inviata",
+      description: "Hai ricevuto una notifica di test.",
     });
   };
 
   const handleAccountDeletion = async () => {
-    try {
-      // This would typically show a confirmation dialog first
-      const confirmed = window.confirm(
-        "Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile e tutti i tuoi dati verranno cancellati permanentemente."
-      );
-      
-      if (confirmed) {
-        // In a real implementation, this would call an edge function to delete all user data
+    if (!user) return;
+    
+    const confirmed = window.confirm(
+      "Sei sicuro di voler eliminare il tuo account? Questa azione non può essere annullata."
+    );
+    
+    if (confirmed) {
+      try {
+        await supabase.rpc('delete_user_account');
+        await signOut();
         toast({
           title: "Account eliminato",
           description: "Il tuo account è stato eliminato con successo.",
-          variant: "destructive"
+        });
+      } catch (error) {
+        toast({
+          title: "Errore",
+          description: "Si è verificato un errore durante l'eliminazione dell'account.",
+          variant: "destructive",
         });
       }
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'account.",
-        variant: "destructive"
-      });
     }
   };
 
-  const calculatePasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (/[a-z]/.test(password)) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 25;
-    if (/[0-9]/.test(password)) strength += 12.5;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 12.5;
-    return Math.min(strength, 100);
-  };
-
-  if (!profile) {
-    return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Caricamento impostazioni...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Impostazioni</h1>
-          <p className="text-muted-foreground">Gestisci il tuo account e personalizza la tua esperienza</p>
-        </div>
-        <Badge variant="outline" className="flex items-center gap-2">
-          <CheckCircle className="h-3 w-3" />
-          Account Verificato
-        </Badge>
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Impostazioni</h1>
+        <p className="text-muted-foreground">Gestisci le tue preferenze e impostazioni dell'account</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
-          <TabsTrigger value="account" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Account
-          </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Sicurezza
-          </TabsTrigger>
-          <TabsTrigger value="privacy" className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            Privacy
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            Notifiche
-          </TabsTrigger>
-          <TabsTrigger value="appearance" className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            Aspetto
-          </TabsTrigger>
-          <TabsTrigger value="data" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Dati
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <Link className="h-4 w-4" />
-            Integrazioni
-          </TabsTrigger>
-          <TabsTrigger value="accessibility" className="flex items-center gap-2">
-            <Accessibility className="h-4 w-4" />
-            Accessibilità
-          </TabsTrigger>
-          <TabsTrigger value="legal-document" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Documento
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Legal Document View */}
-        <TabsContent value="legal-document" className="space-y-6">
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="outline" 
-              onClick={handleCloseDocument}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Torna alle Impostazioni
-            </Button>
-          </div>
-          {renderDocument()}
-        </TabsContent>
-
-        {/* Account Management Tab */}
-        <TabsContent value="account" className="space-y-6">
-          {/* Profile Information - Full Width */}
-          <Card className="w-full">
-            <CardHeader className="pb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-xl">
-                    <User className="h-6 w-6" />
-                    Informazioni Profilo
-                  </CardTitle>
-                  <CardDescription className="mt-2">
-                    Gestisci le tue informazioni personali e preferenze del profilo
-                  </CardDescription>
-                </div>
-                <Badge variant="outline" className="flex items-center gap-2">
-                  <CheckCircle className="h-3 w-3" />
-                  Profilo Verificato
-                </Badge>
+      <div className="grid gap-6">
+        {/* Profilo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Profilo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="display_name">Nome visualizzato</Label>
+                <Input
+                  id="display_name"
+                  value={profile.display_name}
+                  onChange={(e) => setProfile({...profile, display_name: e.target.value})}
+                  placeholder="Il tuo nome"
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              {user && (
-                <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-                  {/* Avatar Section */}
-                  <div className="xl:col-span-1 flex flex-col items-center space-y-4">
-                    <ProfileAvatar 
-                      user={user} 
-                      onAvatarChange={handleAvatarChange}
-                    />
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground">
-                        Clicca sull'avatar per cambiarlo
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Profile Form Section */}
-                  <div className="xl:col-span-3">
-                    <ProfileEditForm 
-                      user={user} 
-                      onProfileUpdate={handleProfileUpdate}
-                    />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Email Management */}
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Gestione Email
-              </CardTitle>
-              <CardDescription>
-                Cambia il tuo indirizzo email con verifica di sicurezza
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {user && <EmailManagement user={user} />}
-            </CardContent>
-          </Card>
-
-          {/* Danger Zone */}
-          <Card className="border-destructive/50 bg-destructive/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertTriangle className="h-5 w-5" />
-                Zona Pericolosa
-              </CardTitle>
-              <CardDescription>
-                Azioni irreversibili che potrebbero causare la perdita permanente dei dati
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-background border border-destructive/20 rounded-lg p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <Trash2 className="h-5 w-5 text-destructive" />
-                  <div>
-                    <h4 className="font-medium text-destructive">Eliminazione Account</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Elimina permanentemente il tuo account e tutti i dati associati
-                    </p>
-                  </div>
-                </div>
-                {user && <DeleteAccountSection user={user} />}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Security Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Active Sessions */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Monitor className="h-5 w-5" />
-                      Sessioni Attive
-                    </CardTitle>
-                    <CardDescription>
-                      Gestisci i dispositivi che hanno accesso al tuo account
-                    </CardDescription>
-                  </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Disconnetti Tutto
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Conferma disconnessione</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Sei sicuro di voler disconnettere tutte le altre sessioni attive? Questa azione non può essere annullata.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Annulla</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDisconnectAllSessions} className="bg-destructive hover:bg-destructive/90">
-                          Disconnetti Tutto
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {securitySettings.sessions.map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          {session.device.includes('iPhone') ? (
-                            <Smartphone className="h-5 w-5" />
-                          ) : (
-                            <Monitor className="h-5 w-5" />
-                          )}
-                        </div>
-                        <div>
-                           <div className="flex items-center gap-2">
-                             <h4 className="font-medium">{session.device}</h4>
-                             {session.isCurrent && (
-                               <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">Attiva</Badge>
-                             )}
-                           </div>
-                          <p className="text-sm text-muted-foreground">{session.browser}</p>
-                          <p className="text-xs text-muted-foreground">
-                            <MapPin className="h-3 w-3 inline mr-1" />
-                            {session.location} • Ultimo accesso: {session.lastActive}
-                          </p>
-                        </div>
-                      </div>
-                      {!session.isCurrent && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm">
-                              Disconnetti
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Conferma disconnessione</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Sei sicuro di voler disconnettere questa sessione? Il dispositivo dovrà effettuare nuovamente l'accesso.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annulla</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleSessionDisconnect(session.id)} className="bg-destructive hover:bg-destructive/90">
-                                Disconnetti
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Password Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5" />
-                  Cambio Password
-                </CardTitle>
-                <CardDescription>
-                  Aggiorna la tua password per mantenere l'account sicuro
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChangePasswordForm />
-                <Alert className="mt-4">
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    Cambiando la password, tutte le altre sessioni attive verranno disconnesse per sicurezza.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-
-            {/* Login History */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <History className="h-5 w-5" />
-                  Cronologia Accessi
-                </CardTitle>
-                <CardDescription>
-                  Visualizza gli ultimi accessi al tuo account
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <Select value={loginHistoryFilter} onValueChange={(value: any) => setLoginHistoryFilter(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Filtra cronologia" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="today">Oggi</SelectItem>
-                      <SelectItem value="week">Questa settimana</SelectItem>
-                      <SelectItem value="month">Questo mese</SelectItem>
-                      <SelectItem value="year">Quest'anno</SelectItem>
-                      <SelectItem value="all">Sempre</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {filterLoginHistory(securitySettings.loginHistory).map((login) => (
-                    <div key={login.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-2 w-2 rounded-full ${login.success ? 'bg-green-500' : 'bg-red-500'}`} />
-                        <div>
-                          <p className="text-sm font-medium">{login.device}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {login.location} • {login.timestamp}
-                          </p>
-                        </div>
-                      </div>
-                       <div className="flex items-center gap-2">
-                         <Badge 
-                           variant={login.status === 'active' ? 'default' : 'destructive'} 
-                           className={`text-xs ${login.status === 'active' ? 'bg-green-600 hover:bg-green-700' : ''}`}
-                         >
-                           {login.status === 'active' ? 'Attivo' : 'Disconnesso'}
-                         </Badge>
-                       </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-          </div>
-        </TabsContent>
-
-        {/* Privacy Tab */}
-        <TabsContent value="privacy" className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">{/* removed lg:grid-cols-2 since we removed profile visibility */}
-            {/* Data Sharing */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  Condivisione Dati
-                </CardTitle>
-                <CardDescription>
-                  Gestisci la condivisione dei tuoi dati
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Partecipazione Community</Label>
-                    <p className="text-sm text-muted-foreground">Partecipa alle discussioni e condividi esperienze</p>
-                  </div>
-                  <Switch
-                    checked={privacy.communityParticipation}
-                    onCheckedChange={(checked) => updatePrivacySetting('communityParticipation', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Contributo Analytics</Label>
-                    <p className="text-sm text-muted-foreground">Aiuta a migliorare l'app con dati anonimi</p>
-                  </div>
-                  <Switch
-                    checked={privacy.analyticsContribution}
-                    onCheckedChange={(checked) => updatePrivacySetting('analyticsContribution', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Comunicazioni Marketing</Label>
-                    <p className="text-sm text-muted-foreground">Ricevi email promozionali e offerte</p>
-                  </div>
-                  <Switch
-                    checked={privacy.marketingCommunications}
-                    onCheckedChange={(checked) => updatePrivacySetting('marketingCommunications', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Condivisione Terze Parti</Label>
-                    <p className="text-sm text-muted-foreground">Condividi dati con partner selezionati</p>
-                  </div>
-                  <Switch
-                    checked={privacy.thirdPartySharing}
-                    onCheckedChange={(checked) => updatePrivacySetting('thirdPartySharing', checked)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Data Management (GDPR) */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Gestione Dati (GDPR)
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i tuoi dati: scarica, importa e gestisci le tue informazioni per conformità GDPR
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-medium mb-3">Esportazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataExport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        Esporta JSON
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <h4 className="font-medium mb-3">Importazione Dati</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleDataImport('json')}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="h-4 w-4" />
-                        Importa JSON
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <Alert className="mt-4">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    L'esportazione includerà tutti i tuoi dati: profilo, pet, analisi, diario, impostazioni e cronologia. L'importazione sostituirà i dati esistenti.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-
-            {/* Legal & Compliance */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Legale e Conformità
-                </CardTitle>
-                <CardDescription>
-                  Visualizza e scarica documenti legali
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <h4 className="font-medium">Documenti Legali</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('terms')}
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Termini di Servizio
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('privacy')}
-                    >
-                      <Shield className="h-4 w-4 mr-2" />
-                      Privacy Policy
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('cookies')}
-                    >
-                      <Cookie className="h-4 w-4 mr-2" />
-                      Cookie Policy
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('data-processing')}
-                    >
-                      <Database className="h-4 w-4 mr-2" />
-                      Accordo Trattamento Dati
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('user-rights')}
-                    >
-                      <UserCheck className="h-4 w-4 mr-2" />
-                      Diritti dell'Utente
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('cancellation')}
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Condizioni di Cancellazione
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="justify-start"
-                      onClick={() => handleOpenDocument('license')}
-                    >
-                      <Scale className="h-4 w-4 mr-2" />
-                      Licenza d'Uso
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Notifications Tab */}
-        <TabsContent value="notifications" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Push Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notifiche Push
-                </CardTitle>
-                <CardDescription>
-                  Gestisci le notifiche che ricevi sul dispositivo
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Object.entries(notifications.push).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <div>
-                      <Label>{key === 'healthAlerts' ? 'Avvisi Salute' : 
-                              key === 'appointments' ? 'Appuntamenti' :
-                              key === 'community' ? 'Community' :
-                              key === 'analysis' ? 'Analisi' :
-                              key === 'achievements' ? 'Traguardi' : 'Sistema'}</Label>
-                      <p className="text-sm text-muted-foreground">
-                        {key === 'healthAlerts' ? 'Avvisi critici sulla salute del pet' :
-                         key === 'appointments' ? 'Promemoria per appuntamenti veterinari' :
-                         key === 'community' ? 'Messaggi e risposte dalla community' :
-                         key === 'analysis' ? 'Risultati delle analisi comportamentali' :
-                         key === 'achievements' ? 'Nuovi traguardi e badge ottenuti' : 'Aggiornamenti di sistema e sicurezza'}
-                      </p>
-                    </div>
-                    <Switch
-                      checked={value}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({
-                          ...prev, 
-                          push: {...prev.push, [key]: checked}
-                        }))
-                      }
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Email Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Notifiche Email
-                </CardTitle>
-                <CardDescription>
-                  Controlla quali email ricevere
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {Object.entries(notifications.email).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <div>
-                      <Label>{key === 'healthAlerts' ? 'Avvisi Salute' : 
-                              key === 'appointments' ? 'Appuntamenti' :
-                              key === 'community' ? 'Community' :
-                              key === 'analysis' ? 'Analisi' :
-                              key === 'achievements' ? 'Traguardi' : 
-                              key === 'system' ? 'Sistema' :
-                              key === 'newsletter' ? 'Newsletter' : 'Marketing'}</Label>
-                    </div>
-                    <Switch
-                      checked={value}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({
-                          ...prev, 
-                          email: {...prev.email, [key]: checked}
-                        }))
-                      }
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* SMS Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  Notifiche SMS
-                </CardTitle>
-                <CardDescription>
-                  Configura le notifiche via SMS per le emergenze
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>SMS Abilitati</Label>
-                  <Switch
-                    checked={notifications.sms.enabled}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({
-                        ...prev, 
-                        sms: {...prev.sms, enabled: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                {notifications.sms.enabled && (
-                  <>
-                    <div>
-                      <Label htmlFor="phoneNumber">Numero di telefono</Label>
-                      <Input
-                        id="phoneNumber"
-                        type="tel"
-                        value={notifications.sms.phoneNumber}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            sms: {...prev.sms, phoneNumber: e.target.value}
-                          }))
-                        }
-                        placeholder="+39 123 456 7890"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Solo Emergenze</Label>
-                        <p className="text-sm text-muted-foreground">Ricevi SMS solo per avvisi critici</p>
-                      </div>
-                      <Switch
-                        checked={notifications.sms.emergencyOnly}
-                        onCheckedChange={(checked) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            sms: {...prev.sms, emergencyOnly: checked}
-                          }))
-                        }
-                      />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Quiet Hours */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Moon className="h-5 w-5" />
-                  Orari Silenziosi
-                </CardTitle>
-                <CardDescription>
-                  Imposta gli orari in cui non ricevere notifiche
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Orari silenziosi attivi</Label>
-                  <Switch
-                    checked={notifications.quietHours.enabled}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({
-                        ...prev, 
-                        quietHours: {...prev.quietHours, enabled: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                {notifications.quietHours.enabled && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="quietStart">Inizio</Label>
-                      <Input
-                        id="quietStart"
-                        type="time"
-                        value={notifications.quietHours.start}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            quietHours: {...prev.quietHours, start: e.target.value}
-                          }))
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="quietEnd">Fine</Label>
-                      <Input
-                        id="quietEnd"
-                        type="time"
-                        value={notifications.quietHours.end}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            quietHours: {...prev.quietHours, end: e.target.value}
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Appearance Tab */}
-        <TabsContent value="appearance" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Theme */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5" />
-                  Tema
-                </CardTitle>
-                <CardDescription>
-                  Personalizza l'aspetto dell'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <RadioGroup 
-                  value={appearance.theme} 
-                  onValueChange={(value) => setAppearance(prev => ({...prev, theme: value}))}
+              <div>
+                <Label htmlFor="language">Lingua</Label>
+                <select 
+                  id="language"
+                  value={profile.language}
+                  onChange={(e) => setProfile({...profile, language: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-md"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="light" id="light" />
-                    <Label htmlFor="light" className="flex items-center gap-2">
-                      <Sun className="h-4 w-4" />
-                      Chiaro
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="dark" id="dark" />
-                    <Label htmlFor="dark" className="flex items-center gap-2">
-                      <Moon className="h-4 w-4" />
-                      Scuro
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="auto" id="auto" />
-                    <Label htmlFor="auto" className="flex items-center gap-2">
-                      <Monitor className="h-4 w-4" />
-                      Automatico
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
+                  <option value="it">Italiano</option>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                </select>
+              </div>
+            </div>
+            <Button onClick={handleProfileUpdate} disabled={loading}>
+              {loading ? 'Salvataggio...' : 'Salva modifiche'}
+            </Button>
+          </CardContent>
+        </Card>
 
-            {/* Language */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Languages className="h-5 w-5" />
-                  Lingua
-                </CardTitle>
-                <CardDescription>
-                  Seleziona la lingua dell'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Select value={appearance.language} onValueChange={(value) => setAppearance(prev => ({...prev, language: value}))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="it">Italiano</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-
-            {/* Regional Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Impostazioni Regionali
-                </CardTitle>
-                <CardDescription>
-                  Configura formati regionali e fuso orario
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        {/* Notifiche */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notifiche
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-500" />
                 <div>
-                  <Label>Fuso Orario</Label>
-                  <Select value={appearance.timezone} onValueChange={(value) => setAppearance(prev => ({...prev, timezone: value}))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Europe/Rome">Europa/Roma (GMT+1)</SelectItem>
-                      <SelectItem value="Europe/London">Europa/Londra (GMT+0)</SelectItem>
-                      <SelectItem value="America/New_York">America/New York (GMT-5)</SelectItem>
-                      <SelectItem value="Asia/Tokyo">Asia/Tokyo (GMT+9)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Promemoria calendario</Label>
+                  <p className="text-sm text-muted-foreground">Ricevi notifiche per appuntamenti imminenti</p>
                 </div>
+              </div>
+              <Switch
+                checked={notificationSettings.calendar_reminders}
+                onCheckedChange={() => handleNotificationSettingChange('calendar_reminders')}
+              />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Formato Data</Label>
-                    <Select value={appearance.dateFormat} onValueChange={(value) => setAppearance(prev => ({...prev, dateFormat: value}))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                        <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                        <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+            <Separator />
 
-                  <div>
-                    <Label>Formato Ora</Label>
-                    <Select value={appearance.timeFormat} onValueChange={(value) => setAppearance(prev => ({...prev, timeFormat: value}))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="24h">24 ore</SelectItem>
-                        <SelectItem value="12h">12 ore (AM/PM)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Units & Currency */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Ruler className="h-5 w-5" />
-                  Unità di Misura
-                </CardTitle>
-                <CardDescription>
-                  Seleziona unità di misura e valuta
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-green-500" />
                 <div>
-                  <Label>Sistema di Misura</Label>
-                  <RadioGroup 
-                    value={appearance.units} 
-                    onValueChange={(value) => setAppearance(prev => ({...prev, units: value}))}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="metric" id="metric" />
-                      <Label htmlFor="metric">Metrico (kg, cm, °C)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="imperial" id="imperial" />
-                      <Label htmlFor="imperial">Imperiale (lb, in, °F)</Label>
-                    </div>
-                  </RadioGroup>
+                  <Label>Messaggi community</Label>
+                  <p className="text-sm text-muted-foreground">Notifiche per nuovi messaggi nei canali seguiti</p>
                 </div>
+              </div>
+              <Switch
+                checked={notificationSettings.community_messages}
+                onCheckedChange={() => handleNotificationSettingChange('community_messages')}
+              />
+            </div>
 
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="h-4 w-4 text-red-500" />
                 <div>
-                  <Label>Valuta</Label>
-                  <Select value={appearance.currency} onValueChange={(value) => setAppearance(prev => ({...prev, currency: value}))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="EUR">Euro (€)</SelectItem>
-                      <SelectItem value="USD">Dollaro USA ($)</SelectItem>
-                      <SelectItem value="GBP">Sterlina (£)</SelectItem>
-                      <SelectItem value="CHF">Franco Svizzero (CHF)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Promemoria farmaci</Label>
+                  <p className="text-sm text-muted-foreground">Notifiche per la somministrazione di farmaci</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+              </div>
+              <Switch
+                checked={notificationSettings.medication_reminders}
+                onCheckedChange={() => handleNotificationSettingChange('medication_reminders')}
+              />
+            </div>
 
-        {/* Data Tab */}
-        <TabsContent value="data" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Storage Usage */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
-                  Utilizzo Spazio
-                </CardTitle>
-                <CardDescription>
-                  Monitora l'utilizzo dello spazio di archiviazione
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Spazio utilizzato</span>
-                      <span className="text-sm text-muted-foreground">
-                        {dataManagement.storageUsage.used} GB di {dataManagement.storageUsage.total} GB
-                      </span>
-                    </div>
-                    <Progress value={(dataManagement.storageUsage.used / dataManagement.storageUsage.total) * 100} />
-                  </div>
+            <Separator />
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(dataManagement.storageUsage.breakdown).map(([key, value]) => (
-                      <div key={key} className="text-center p-4 border rounded-lg">
-                        <div className="text-2xl font-bold text-primary">{value} GB</div>
-                        <div className="text-sm text-muted-foreground capitalize">
-                          {key === 'photos' ? 'Foto' : 
-                           key === 'analyses' ? 'Analisi' :
-                           key === 'diary' ? 'Diario' : 'Altro'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Backup Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="h-5 w-5" />
-                  Backup Automatico
-                </CardTitle>
-                <CardDescription>
-                  Configura il backup automatico dei tuoi dati
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Backup automatico</Label>
-                  <Switch
-                    checked={dataManagement.autoBackup}
-                    onCheckedChange={(checked) => 
-                      setDataManagement(prev => ({...prev, autoBackup: checked}))
-                    }
-                  />
-                </div>
-
-                {dataManagement.autoBackup && (
-                  <div>
-                    <Label>Frequenza backup</Label>
-                    <Select 
-                      value={dataManagement.backupFrequency} 
-                      onValueChange={(value) => setDataManagement(prev => ({...prev, backupFrequency: value}))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="daily">Giornaliero</SelectItem>
-                        <SelectItem value="weekly">Settimanale</SelectItem>
-                        <SelectItem value="monthly">Mensile</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Gift className="h-4 w-4 text-purple-500" />
                 <div>
-                  <Label>Periodo di conservazione</Label>
-                  <Select 
-                    value={dataManagement.retentionPeriod} 
-                    onValueChange={(value) => setDataManagement(prev => ({...prev, retentionPeriod: value}))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1year">1 anno</SelectItem>
-                      <SelectItem value="2years">2 anni</SelectItem>
-                      <SelectItem value="5years">5 anni</SelectItem>
-                      <SelectItem value="forever">Per sempre</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Aggiornamenti referral</Label>
+                  <p className="text-sm text-muted-foreground">Notifiche per nuovi referral e commissioni</p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <Switch
+                checked={notificationSettings.referral_updates}
+                onCheckedChange={() => handleNotificationSettingChange('referral_updates')}
+              />
+            </div>
 
-            {/* Sync Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wifi className="h-5 w-5" />
-                  Sincronizzazione
-                </CardTitle>
-                <CardDescription>
-                  Gestisci la sincronizzazione tra dispositivi
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Sync cross-device</Label>
-                    <p className="text-sm text-muted-foreground">Sincronizza dati tra tutti i tuoi dispositivi</p>
-                  </div>
-                  <Switch
-                    checked={dataManagement.crossDeviceSync}
-                    onCheckedChange={(checked) => 
-                      setDataManagement(prev => ({...prev, crossDeviceSync: checked}))
-                    }
-                  />
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Smartphone className="h-4 w-4 text-indigo-500" />
+                <div>
+                  <Label>Notifiche push</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Ricevi notifiche push sul dispositivo
+                    {!pushSupported && <Badge variant="destructive" className="ml-2">Non supportato</Badge>}
+                    {pushSupported && permission === 'denied' && <Badge variant="destructive" className="ml-2">Negato</Badge>}
+                    {pushSupported && permission === 'granted' && <Badge variant="secondary" className="ml-2">Consentito</Badge>}
+                  </p>
                 </div>
+              </div>
+              <Switch
+                checked={notificationSettings.push_notifications}
+                onCheckedChange={handlePushNotificationToggle}
+                disabled={!pushSupported}
+              />
+            </div>
 
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    La sincronizzazione utilizza connessione internet e può influire sulla durata della batteria.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={testNotification} variant="outline" size="sm">
+                Test notifica
+              </Button>
+              <Button onClick={clearAllNotifications} variant="outline" size="sm">
+                <X className="h-4 w-4 mr-2" />
+                Pulisci tutte ({notifications.length})
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Data Export */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Download className="h-5 w-5" />
-                  Esportazione Dati
-                </CardTitle>
-                <CardDescription>
-                  Esporta i tuoi dati in diversi formati
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-primary" />
-                      <h4 className="font-medium">Formato JSON</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Ideale per backup completi e ripristino totale dei dati
-                    </p>
-                    <Button variant="outline" onClick={() => handleDataExport('json')} className="w-full">
-                      Esporta JSON
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+        {/* Tema */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5" />
+              Tema
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Tema dell'applicazione</Label>
+                <p className="text-sm text-muted-foreground">Scegli il tema che preferisci</p>
+              </div>
+              <select 
+                value={profile.theme}
+                onChange={(e) => setProfile({...profile, theme: e.target.value})}
+                className="px-3 py-2 border rounded-md"
+              >
+                <option value="light">Chiaro</option>
+                <option value="dark">Scuro</option>
+                <option value="system">Sistema</option>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Integrations Tab */}
-        <TabsContent value="integrations" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Calendar Integrations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Sincronizzazione Calendario
-                </CardTitle>
-                <CardDescription>
-                  Connetti i tuoi calendari preferiti
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <Label>Google Calendar</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza appuntamenti veterinari</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.calendar.google}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, google: checked}
-                      }))
-                    }
-                  />
-                </div>
+        {/* Privacy */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Privacy
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Comunicazioni marketing</Label>
+                <p className="text-sm text-muted-foreground">Ricevi email promozionali e novità</p>
+              </div>
+              <Switch
+                checked={profile.marketing_communications}
+                onCheckedChange={(checked) => setProfile({...profile, marketing_communications: checked})}
+              />
+            </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <Label>Apple Calendar</Label>
-                      <p className="text-sm text-muted-foreground">Integrazione con iCal</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.calendar.apple}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, apple: checked}
-                      }))
-                    }
-                  />
-                </div>
+            <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <Label>Microsoft Outlook</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza con Outlook</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.calendar.outlook}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        calendar: {...prev.calendar, outlook: checked}
-                      }))
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Contributo analytics</Label>
+                <p className="text-sm text-muted-foreground">Aiuta a migliorare l'app condividendo dati anonimi</p>
+              </div>
+              <Switch
+                checked={profile.analytics_contribution}
+                onCheckedChange={(checked) => setProfile({...profile, analytics_contribution: checked})}
+              />
+            </div>
 
-            {/* Smart Home */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Home className="h-5 w-5" />
-                  Casa Intelligente
-                </CardTitle>
-                <CardDescription>
-                  Integra con i tuoi dispositivi smart home
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-cyan-100 rounded-lg">
-                      <Volume2 className="h-4 w-4 text-cyan-600" />
-                    </div>
-                    <div>
-                      <Label>Amazon Alexa</Label>
-                      <p className="text-sm text-muted-foreground">Comandi vocali per PetVoice</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.alexa}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, alexa: checked}
-                      }))
-                    }
-                  />
-                </div>
+            <Separator />
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Globe className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <Label>Google Home</Label>
-                      <p className="text-sm text-muted-foreground">Controllo vocale Google</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.googleHome}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, googleHome: checked}
-                      }))
-                    }
-                  />
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Partecipazione community</Label>
+                <p className="text-sm text-muted-foreground">Mostra il tuo profilo nella community</p>
+              </div>
+              <Switch
+                checked={profile.community_participation}
+                onCheckedChange={(checked) => setProfile({...profile, community_participation: checked})}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg">
-                      <Home className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <Label>Apple HomeKit</Label>
-                      <p className="text-sm text-muted-foreground">Integrazione HomeKit</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.smartHome.homeKit}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        smartHome: {...prev.smartHome, homeKit: checked}
-                      }))
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Health Apps */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="h-5 w-5" />
-                  App Salute
-                </CardTitle>
-                <CardDescription>
-                  Connetti con le app di monitoraggio salute
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Heart className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <Label>Apple Health</Label>
-                      <p className="text-sm text-muted-foreground">Condividi dati di salute del pet</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.health.appleHealth}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        health: {...prev.health, appleHealth: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Heart className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <Label>Google Fit</Label>
-                      <p className="text-sm text-muted-foreground">Sincronizza attività fisica</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={integrations.health.googleFit}
-                    onCheckedChange={(checked) => 
-                      setIntegrations(prev => ({
-                        ...prev, 
-                        health: {...prev.health, googleFit: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Le integrazioni health sono in fase di sviluppo e saranno disponibili presto.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-
-            {/* API Access */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Key className="h-5 w-5" />
-                  Accesso API
-                </CardTitle>
-                <CardDescription>
-                  Gestisci i token di accesso per integrazioni personalizzate
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Le API di PetVoice sono in fase di sviluppo. Iscriviti alla beta per essere tra i primi ad accedervi.
-                  </AlertDescription>
-                </Alert>
-
-                <Button variant="outline" className="w-full" disabled>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Genera Token API (Prossimamente)
+        {/* Zona pericolosa */}
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-700">
+              <Database className="h-5 w-5" />
+              Zona pericolosa
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label className="text-red-700">Elimina account</Label>
+                <p className="text-sm text-red-600 mb-2">
+                  Questa azione eliminerà permanentemente il tuo account e tutti i dati associati.
+                </p>
+                <Button variant="destructive" onClick={handleAccountDeletion}>
+                  Elimina account
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Accessibility Tab */}
-        <TabsContent value="accessibility" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Visual Accessibility */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Accessibilità Visiva
-                </CardTitle>
-                <CardDescription>
-                  Migliora la visibilità dell'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Ottimizzazione screen reader</Label>
-                    <p className="text-sm text-muted-foreground">Migliora l'esperienza con lettori di schermo</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.screenReader}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, screenReader: checked}))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Alto contrasto</Label>
-                    <p className="text-sm text-muted-foreground">Aumenta il contrasto dei colori</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.highContrast}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, highContrast: checked}))
-                    }
-                  />
-                </div>
-
-                <div>
-                  <Label>Dimensione font</Label>
-                  <Select 
-                    value={accessibility.fontSize} 
-                    onValueChange={(value) => setAccessibility(prev => ({...prev, fontSize: value}))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="small">Piccolo</SelectItem>
-                      <SelectItem value="medium">Medio</SelectItem>
-                      <SelectItem value="large">Grande</SelectItem>
-                      <SelectItem value="extra-large">Extra Large</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Motor Accessibility */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <SettingsIcon className="h-5 w-5" />
-                  Accessibilità Motoria
-                </CardTitle>
-                <CardDescription>
-                  Facilitazioni per l'interazione con l'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Sensibilità al movimento</Label>
-                    <p className="text-sm text-muted-foreground">Riduce animazioni e movimenti</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.motionSensitivity}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, motionSensitivity: checked}))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Navigazione da tastiera</Label>
-                    <p className="text-sm text-muted-foreground">Ottimizza la navigazione con tastiera</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.keyboardNavigation}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, keyboardNavigation: checked}))
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Comandi vocali</Label>
-                    <p className="text-sm text-muted-foreground">Abilita controllo vocale dell'app</p>
-                  </div>
-                  <Switch
-                    checked={accessibility.voiceCommands}
-                    onCheckedChange={(checked) => 
-                      setAccessibility(prev => ({...prev, voiceCommands: checked}))
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Accessibility Help */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HeadphonesIcon className="h-5 w-5" />
-                  Supporto Accessibilità
-                </CardTitle>
-                <CardDescription>
-                  Risorse e aiuto per l'accessibilità
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Guide Accessibilità</h4>
-                    <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Guida Screen Reader
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Shortcuts Tastiera
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Comandi Vocali
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-medium">Supporto Tecnico</h4>
-                    <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
-                        <HeadphonesIcon className="h-4 w-4 mr-2" />
-                        Contatta Supporto
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <Users className="h-4 w-4 mr-2" />
-                        Community Accessibilità
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Feedback Accessibilità
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-};
-
-export default SettingsPage;
+}
