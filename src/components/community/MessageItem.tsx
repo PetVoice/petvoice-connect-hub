@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MoreVertical, Edit, Trash2, Download, Play, Pause } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Download, Play, Pause, Reply, MessageCircle, User } from 'lucide-react';
 import { Message } from './Chat';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -14,9 +14,12 @@ interface MessageItemProps {
   isOwn: boolean;
   onDelete: () => void;
   onEdit: (newContent: string) => void;
+  onReply: (replyToId: string, userName: string) => void;
+  onContactUser: (userId: string, userName: string) => void;
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
+  userName?: string;
 }
 
 export const MessageItem: React.FC<MessageItemProps> = ({
@@ -24,9 +27,12 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   isOwn,
   onDelete,
   onEdit,
+  onReply,
+  onContactUser,
   isSelectionMode = false,
   isSelected = false,
-  onToggleSelection
+  onToggleSelection,
+  userName = 'Utente sconosciuto'
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content || '');
@@ -93,6 +99,25 @@ export const MessageItem: React.FC<MessageItemProps> = ({
               : 'bg-muted'
           } ${isSelectionMode && isOwn ? 'flex-1' : ''}`}
         >
+          {/* Nome utente sopra il messaggio se non è proprio */}
+          {!isOwn && (
+            <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+              <User className="h-3 w-3" />
+              {userName}
+            </div>
+          )}
+          
+          {/* Messaggio a cui si sta rispondendo */}
+          {message.reply_to && (
+            <div className="text-xs text-muted-foreground mb-2 p-2 bg-muted/50 rounded border-l-2 border-primary/30">
+              <div className="flex items-center gap-1 mb-1">
+                <Reply className="h-3 w-3" />
+                Risposta a: {message.reply_to.user_name || 'Utente sconosciuto'}
+              </div>
+              <div className="truncate italic">"{message.reply_to.content || 'Messaggio multimediale'}"</div>
+            </div>
+          )}
+
           {/* Message content */}
           {message.message_type === 'text' && (
             <div>
@@ -205,6 +230,16 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                   <DropdownMenuItem onClick={() => setIsEditing(true)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Modifica
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => onReply(message.id, userName)}>
+                  <Reply className="h-4 w-4 mr-2" />
+                  Rispondi
+                </DropdownMenuItem>
+                {!isOwn && (
+                  <DropdownMenuItem onClick={() => onContactUser(message.user_id, userName)}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Contatta in privato
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem 

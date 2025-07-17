@@ -6,7 +6,7 @@ import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { CheckSquare, Square, Trash2, X } from 'lucide-react';
+import { CheckSquare, Square, Trash2, X, Reply } from 'lucide-react';
 
 interface ChatProps {
   channelId: string;
@@ -27,15 +27,22 @@ export interface Message {
   voice_duration: number | null;
   metadata: any;
   is_emergency: boolean | null;
+  reply_to?: {
+    id: string;
+    content: string | null;
+    user_name: string | null;
+  } | null;
 }
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [replyTo, setReplyTo] = useState<{ id: string; content: string | null; userName: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -53,6 +60,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
   useEffect(() => {
     loadMessages();
+    loadUserNames();
     setupRealtimeSubscription();
   }, [channelId]);
 
@@ -67,14 +75,32 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     try {
       const { data, error } = await supabase
         .from('community_messages')
-        .select('*')
+        .select(`
+          *,
+          reply_to:community_messages!reply_to_id (
+            id,
+            content,
+            user_id
+          )
+        `)
         .eq('channel_name', channelId)
         .is('deleted_at', null)
         .order('created_at', { ascending: true })
         .limit(100);
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Processa i messaggi per includere reply_to con user_name
+      const processedMessages = data?.map(msg => ({
+        ...msg,
+        reply_to: msg.reply_to ? {
+          id: msg.reply_to.id,
+          content: msg.reply_to.content,
+          user_name: userNames[msg.reply_to.user_id] || 'Utente sconosciuto'
+        } : null
+      })) || [];
+      
+      setMessages(processedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -84,6 +110,24 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserNames = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_display_names')
+        .select('user_id, display_name');
+
+      if (error) throw error;
+      
+      const namesMap: Record<string, string> = {};
+      data?.forEach(item => {
+        namesMap[item.user_id] = item.display_name;
+      });
+      setUserNames(namesMap);
+    } catch (error) {
+      console.error('Error loading user names:', error);
     }
   };
 
@@ -155,6 +199,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         message_type: messageType,
         file_url: fileUrl || null,
         voice_duration: voiceDuration || null,
+        reply_to_id: replyTo?.id || null,
         metadata: {}
       };
 
@@ -173,6 +218,9 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       console.log('✅ Message sent successfully:', data);
       
+      // Resetta reply
+      setReplyTo(null);
+      
       // Aggiungi il messaggio immediatamente allo stato locale per feedback immediato
       if (data) {
         setMessages(prev => {
@@ -190,6 +238,26 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleReply = (messageId: string, userName: string) => {
+    const message = messages.find(m => m.id === messageId);
+    if (message) {
+      setReplyTo({
+        id: messageId,
+        content: message.content,
+        userName: userName
+      });
+    }
+  };
+
+  const handleContactUser = (userId: string, userName: string) => {
+    // Navigare alla pagina dei messaggi privati con questo utente
+    // Per ora mostriamo un toast per indicare la funzionalità
+    toast({
+      title: "Messaggi privati",
+      description: `Contatto con ${userName} - Funzionalità in sviluppo`,
+    });
   };
 
   const deleteMessage = async (messageId: string) => {
@@ -375,8 +443,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           <MessageList 
             messages={messages}
             currentUserId={user?.id || ''}
+            userNames={userNames}
             onDeleteMessage={deleteMessage}
             onEditMessage={editMessage}
+            onReply={handleReply}
+            onContactUser={handleContactUser}
             isSelectionMode={isSelectionMode}
             selectedMessages={selectedMessages}
             onToggleSelection={toggleMessageSelection}
@@ -384,6 +455,27 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           <div ref={messagesEndRef} className="h-1" />
         </div>
       </div>
+      
+      {/* Reply indicator */}
+      {replyTo && (
+        <div className="px-4 py-2 bg-muted/50 border-t">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Reply className="h-4 w-4" />
+              <span>Rispondi a {replyTo.userName}:</span>
+              <span className="italic truncate max-w-xs">"{replyTo.content || 'Messaggio multimediale'}"</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setReplyTo(null)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      )}
       
       <MessageInput onSendMessage={sendMessage} />
 

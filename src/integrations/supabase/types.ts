@@ -1077,6 +1077,65 @@ export type Database = {
         }
         Relationships: []
       }
+      private_messages: {
+        Row: {
+          content: string | null
+          created_at: string
+          deleted_by_recipient: boolean | null
+          deleted_by_sender: boolean | null
+          file_url: string | null
+          id: string
+          is_read: boolean | null
+          message_type: string
+          metadata: Json | null
+          recipient_id: string
+          reply_to_id: string | null
+          sender_id: string
+          updated_at: string
+          voice_duration: number | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          deleted_by_recipient?: boolean | null
+          deleted_by_sender?: boolean | null
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          recipient_id: string
+          reply_to_id?: string | null
+          sender_id: string
+          updated_at?: string
+          voice_duration?: number | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          deleted_by_recipient?: boolean | null
+          deleted_by_sender?: boolean | null
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          recipient_id?: string
+          reply_to_id?: string | null
+          sender_id?: string
+          updated_at?: string
+          voice_duration?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "private_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1910,6 +1969,33 @@ export type Database = {
           id?: string
           joined_at?: string
           notifications_enabled?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_display_names: {
+        Row: {
+          avatar_url: string | null
+          display_name: string
+          is_online: boolean | null
+          last_seen: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          display_name: string
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          display_name?: string
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

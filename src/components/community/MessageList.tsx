@@ -5,8 +5,11 @@ import { Message } from './Chat';
 interface MessageListProps {
   messages: Message[];
   currentUserId: string;
+  userNames: Record<string, string>;
   onDeleteMessage: (messageId: string) => void;
   onEditMessage: (messageId: string, newContent: string) => void;
+  onReply: (messageId: string, userName: string) => void;
+  onContactUser: (userId: string, userName: string) => void;
   isSelectionMode?: boolean;
   selectedMessages?: string[];
   onToggleSelection?: (messageId: string) => void;
@@ -15,8 +18,11 @@ interface MessageListProps {
 export const MessageList: React.FC<MessageListProps> = ({
   messages,
   currentUserId,
+  userNames,
   onDeleteMessage,
   onEditMessage,
+  onReply,
+  onContactUser,
   isSelectionMode = false,
   selectedMessages = [],
   onToggleSelection
@@ -33,8 +39,11 @@ export const MessageList: React.FC<MessageListProps> = ({
             key={message.id}
             message={message}
             isOwn={message.user_id === currentUserId}
+            userName={userNames[message.user_id] || 'Utente sconosciuto'}
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
+            onReply={onReply}
+            onContactUser={onContactUser}
             isSelectionMode={isSelectionMode}
             isSelected={selectedMessages.includes(message.id)}
             onToggleSelection={() => onToggleSelection?.(message.id)}
