@@ -844,11 +844,11 @@ export default function AffiliationPage() {
                             Commissioni attive
                           </Badge>
                         )}
-                        {referral.status === 'converted' && !referral.is_active && (
-                          <Badge variant="outline" className="bg-gray-100 text-gray-600">
-                            Commissioni sospese
+                        {(referral.status === 'converted' && !referral.is_active) || referral.status === 'cancelled' ? (
+                          <Badge variant="outline" className="bg-red-100 text-red-600">
+                            Commissioni disattive
                           </Badge>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   ))}
@@ -1096,11 +1096,11 @@ export default function AffiliationPage() {
                               Commissioni attive
                             </Badge>
                           )}
-                          {(referral.status === 'converted' && referral.is_active === false) || referral.status === 'cancelled' && (
-                            <Badge variant="outline" className="bg-gray-100 text-gray-600">
-                              Commissioni sospese
+                          {(referral.status === 'converted' && referral.is_active === false) || referral.status === 'cancelled' ? (
+                            <Badge variant="outline" className="bg-red-100 text-red-600">
+                              Commissioni disattive
                             </Badge>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     ))}
