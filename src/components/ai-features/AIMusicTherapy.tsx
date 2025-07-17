@@ -315,9 +315,13 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setVolume(newVolume);
     
     // Aggiorna il volume in tempo reale se sta suonando
-    if (audioContextRef.current && gainNodeRef.current) {
-      const vol = (newVolume[0] / 100) * 0.1;
-      gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
+    if (audioContextRef.current && gainNodeRef.current && audioContextRef.current.state !== 'closed') {
+      try {
+        const vol = (newVolume[0] / 100) * 0.1;
+        gainNodeRef.current.gain.setValueAtTime(vol, audioContextRef.current.currentTime);
+      } catch (error) {
+        console.log('Volume update failed, audio context may be closed');
+      }
     }
   };
 
@@ -361,11 +365,19 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         description: "Sessione di musicoterapia in pausa",
       });
     } else {
-      // Play - avvia audio e timer
+      // Play - avvia audio e timer IMMEDIATAMENTE
       try {
-        // Genera audio terapeutico
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        audioContextRef.current = audioContext;
+        // Riutilizza o crea AudioContext
+        let audioContext = audioContextRef.current;
+        if (!audioContext || audioContext.state === 'closed') {
+          audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          audioContextRef.current = audioContext;
+        }
+        
+        // Resume context se sospeso
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
         
         // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
@@ -397,7 +409,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           }
         }
         
-        // Crea oscillatori per binaural beats
+        // Crea oscillatori per binaural beats (ottimizzato)
         const oscillator1 = audioContext.createOscillator();
         const oscillator2 = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -408,17 +420,16 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillator1.frequency.setValueAtTime(mainFreq, audioContext.currentTime);
         oscillator2.frequency.setValueAtTime(mainFreq + beatFreq, audioContext.currentTime);
         
-        // Imposta volume
-        const vol = (volume[0] / 100) * 0.1; // Molto basso per non disturbare
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(vol, audioContext.currentTime + 0.5);
+        // Imposta volume immediatamente
+        const vol = (volume[0] / 100) * 0.1;
+        gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
         
         // Connetti tutto
         oscillator1.connect(gainNode);
         oscillator2.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Avvia oscillatori
+        // Avvia oscillatori SUBITO
         oscillator1.start(audioContext.currentTime);
         oscillator2.start(audioContext.currentTime);
         
@@ -426,6 +437,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
         
+        // Imposta stato PRIMA del toast per feedback immediato
         setIsPlaying(true);
         toast({
           title: "Riproduzione avviata",
