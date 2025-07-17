@@ -436,7 +436,12 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         <div className="py-2 border-b bg-muted/20">
           {!isSelectionMode ? (
             <div className="flex items-center justify-between px-4">
-              <div className="font-semibold">Chat: {channelName}</div>
+              <div className="font-semibold">
+                {channelName.startsWith('private_') ? 
+                  'Chat privata' : 
+                  `Chat: ${channelName}`
+                }
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
