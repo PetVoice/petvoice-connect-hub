@@ -90,6 +90,8 @@ import {
   CancellationPolicy, 
   LicenseAgreement 
 } from '@/components/legal/LegalDocuments';
+import { AccessibilityGuides } from '@/components/accessibility/AccessibilityGuides';
+import { ContactSupport, CommunityAccessibility, FeedbackAccessibility } from '@/components/accessibility/SupportComponents';
 
 interface UserProfile {
   id: string;
@@ -227,6 +229,12 @@ const SettingsPage: React.FC = () => {
   const [loginHistoryFilter, setLoginHistoryFilter] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
   const [openDocument, setOpenDocument] = useState<string | null>(null);
   const [showDocumentView, setShowDocumentView] = useState(false);
+  
+  // Accessibility modal states
+  const [showAccessibilityGuides, setShowAccessibilityGuides] = useState(false);
+  const [showContactSupport, setShowContactSupport] = useState(false);
+  const [showCommunityAccessibility, setShowCommunityAccessibility] = useState(false);
+  const [showFeedbackAccessibility, setShowFeedbackAccessibility] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('settings-active-tab', activeTab);
@@ -1957,8 +1965,8 @@ Continuare?
             </Card>
 
 
-            {/* Accessibility Help */}
-            <Card className="lg:col-span-2">
+            {/* Accessibility Support */}
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <HeadphonesIcon className="h-5 w-5" />
@@ -1969,13 +1977,17 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-3">
                     <h4 className="font-medium">Guide Accessibilità</h4>
                     <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setShowAccessibilityGuides(true)}
+                      >
                         <FileText className="h-4 w-4 mr-2" />
-                        Guida Screen Reader
+                        Guida Accessibilità Visiva
                       </Button>
                     </div>
                   </div>
@@ -1983,15 +1995,27 @@ Continuare?
                   <div className="space-y-3">
                     <h4 className="font-medium">Supporto Tecnico</h4>
                     <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setShowContactSupport(true)}
+                      >
                         <HeadphonesIcon className="h-4 w-4 mr-2" />
                         Contatta Supporto
                       </Button>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setShowCommunityAccessibility(true)}
+                      >
                         <Users className="h-4 w-4 mr-2" />
                         Community Accessibilità
                       </Button>
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setShowFeedbackAccessibility(true)}
+                      >
                         <FileText className="h-4 w-4 mr-2" />
                         Feedback Accessibilità
                       </Button>
@@ -2013,6 +2037,23 @@ Continuare?
           Reset impostazioni accessibilità
         </button>
       </div>
+      
+      {/* Accessibility Modals */}
+      {showAccessibilityGuides && (
+        <AccessibilityGuides onClose={() => setShowAccessibilityGuides(false)} />
+      )}
+      
+      {showContactSupport && (
+        <ContactSupport onClose={() => setShowContactSupport(false)} />
+      )}
+      
+      {showCommunityAccessibility && (
+        <CommunityAccessibility onClose={() => setShowCommunityAccessibility(false)} />
+      )}
+      
+      {showFeedbackAccessibility && (
+        <FeedbackAccessibility onClose={() => setShowFeedbackAccessibility(false)} />
+      )}
       
       {/* Legal Document Modal */}
       {showDocumentView && (
