@@ -742,10 +742,10 @@ export default function AffiliationPage() {
                   {/* Referral Mensili */}
                   <div>
                     <h4 className="font-medium mb-3">Referral di questo mese</h4>
-                    {(() => {
-                      const monthlyReferrals = referrals.filter(r => 
-                        new Date(r.created_at) >= startOfMonth(new Date())
-                      );
+                     {(() => {
+                       const monthlyReferrals = referrals.filter(r => 
+                         new Date(r.created_at) >= startOfMonth(new Date())
+                       );
                       
                       if (monthlyReferrals.length === 0) {
                         return (

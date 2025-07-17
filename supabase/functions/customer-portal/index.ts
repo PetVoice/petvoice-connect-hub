@@ -68,7 +68,7 @@ serve(async (req) => {
     }
     logStep("Found Stripe customer", { customerId });
 
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    const origin = req.headers.get("origin") || "https://5902ad23-96c6-4f99-95c4-8e601d99495a.lovableproject.com";
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: `${origin}/subscription`,
