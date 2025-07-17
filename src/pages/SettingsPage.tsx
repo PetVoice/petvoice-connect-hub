@@ -219,7 +219,7 @@ const SettingsPage: React.FC = () => {
 
   // Appearance State
   const [appearance, setAppearance] = useState({
-    theme: 'light',
+    theme: 'system',
     language: 'it',
     timezone: 'Europe/Rome',
     dateFormat: 'DD/MM/YYYY',
@@ -307,7 +307,7 @@ const SettingsPage: React.FC = () => {
             id: profile.id,
             display_name: profile.display_name || '',
             avatar_url: profile.avatar_url || '',
-            theme: profile.theme || 'light',
+            theme: profile.theme || 'system',
             language: profile.language || 'it',
             notifications_enabled: profile.notifications_enabled
           });

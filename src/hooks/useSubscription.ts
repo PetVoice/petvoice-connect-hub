@@ -207,6 +207,7 @@ export const useSubscription = () => {
 
   useEffect(() => {
     // Always call checkSubscription to ensure loading state is handled
+    setLoading(true);
     checkSubscription();
 
     // Listen for payment success messages from child windows

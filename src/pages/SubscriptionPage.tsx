@@ -77,6 +77,29 @@ const SubscriptionPage = () => {
     shouldShowReactivationSection: isEndOfPeriodCancellation
   });
 
+  // Show loading skeleton during initial load
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6 max-w-4xl">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-4">
+            🎵 PetVoice Premium
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            L'unico piano disponibile per sbloccare tutto il potenziale di PetVoice
+          </p>
+        </div>
+        
+        <Card className="petvoice-card">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Caricamento stato abbonamento...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8 text-center">
