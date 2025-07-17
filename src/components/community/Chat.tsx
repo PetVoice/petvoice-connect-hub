@@ -41,6 +41,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const [privateUserName, setPrivateUserName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -64,6 +65,10 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   useEffect(() => {
     loadUserNames().then(() => {
       loadMessages();
+      // Se è una chat privata, carica il nome dell'utente
+      if (channelName.startsWith('private_')) {
+        loadPrivateUserName();
+      }
     });
     setupRealtimeSubscription();
   }, [channelId]);
@@ -179,6 +184,28 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       setUserNames(namesMap);
     } catch (error) {
       console.error('Error loading user names:', error);
+    }
+  };
+
+  const loadPrivateUserName = async () => {
+    if (!channelName.startsWith('private_')) return;
+    
+    // Estrai l'ID utente dal channelName
+    const otherUserId = channelName.replace('private_', '');
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_display_names')
+        .select('display_name')
+        .eq('user_id', otherUserId)
+        .single();
+
+      if (error) throw error;
+      
+      setPrivateUserName(data?.display_name || 'Utente sconosciuto');
+    } catch (error) {
+      console.error('Error loading private user name:', error);
+      setPrivateUserName('Utente sconosciuto');
     }
   };
 
@@ -438,7 +465,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             <div className="flex items-center justify-between px-4">
               <div className="font-semibold">
                 {channelName.startsWith('private_') ? 
-                  'Chat privata' : 
+                  (privateUserName || 'Chat privata') : 
                   `Chat: ${channelName}`
                 }
               </div>
