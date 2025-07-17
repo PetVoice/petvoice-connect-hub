@@ -138,16 +138,6 @@ interface NotificationSettings {
     newsletter: boolean;
     marketing: boolean;
   };
-  sms: {
-    enabled: boolean;
-    phoneNumber: string;
-    emergencyOnly: boolean;
-  };
-  quietHours: {
-    enabled: boolean;
-    start: string;
-    end: string;
-  };
   frequency: 'realtime' | 'hourly' | 'daily' | 'weekly';
 }
 
@@ -185,16 +175,6 @@ const SettingsPage: React.FC = () => {
       system: true,
       newsletter: false,
       marketing: false
-    },
-    sms: {
-      enabled: false,
-      phoneNumber: '',
-      emergencyOnly: true
-    },
-    quietHours: {
-      enabled: false,
-      start: '22:00',
-      end: '08:00'
     },
     frequency: 'realtime'
   });
@@ -1799,128 +1779,6 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* SMS Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  Notifiche SMS
-                </CardTitle>
-                <CardDescription>
-                  Configura le notifiche via SMS per le emergenze
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>SMS Abilitati</Label>
-                  <Switch
-                    checked={notifications.sms.enabled}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({
-                        ...prev, 
-                        sms: {...prev.sms, enabled: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                {notifications.sms.enabled && (
-                  <>
-                    <div>
-                      <Label htmlFor="phoneNumber">Numero di telefono</Label>
-                      <Input
-                        id="phoneNumber"
-                        type="tel"
-                        value={notifications.sms.phoneNumber}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            sms: {...prev.sms, phoneNumber: e.target.value}
-                          }))
-                        }
-                        placeholder="+39 123 456 7890"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label>Solo Emergenze</Label>
-                        <p className="text-sm text-muted-foreground">Ricevi SMS solo per avvisi critici</p>
-                      </div>
-                      <Switch
-                        checked={notifications.sms.emergencyOnly}
-                        onCheckedChange={(checked) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            sms: {...prev.sms, emergencyOnly: checked}
-                          }))
-                        }
-                      />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Quiet Hours */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Moon className="h-5 w-5" />
-                  Orari Silenziosi
-                </CardTitle>
-                <CardDescription>
-                  Imposta gli orari in cui non ricevere notifiche
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Orari silenziosi attivi</Label>
-                  <Switch
-                    checked={notifications.quietHours.enabled}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({
-                        ...prev, 
-                        quietHours: {...prev.quietHours, enabled: checked}
-                      }))
-                    }
-                  />
-                </div>
-
-                {notifications.quietHours.enabled && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="quietStart">Inizio</Label>
-                      <Input
-                        id="quietStart"
-                        type="time"
-                        value={notifications.quietHours.start}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            quietHours: {...prev.quietHours, start: e.target.value}
-                          }))
-                        }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="quietEnd">Fine</Label>
-                      <Input
-                        id="quietEnd"
-                        type="time"
-                        value={notifications.quietHours.end}
-                        onChange={(e) => 
-                          setNotifications(prev => ({
-                            ...prev, 
-                            quietHours: {...prev.quietHours, end: e.target.value}
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
 
