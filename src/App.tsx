@@ -27,7 +27,6 @@ import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
 
 import SettingsPage from './pages/SettingsPage';
-import TrainingPage from './pages/TrainingPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
@@ -80,13 +79,6 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <WellnessPage />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        <Route path="/training" element={
-          <ProtectedRoute>
-            <Layout>
-              <TrainingPage />
             </Layout>
           </ProtectedRoute>
         } />
