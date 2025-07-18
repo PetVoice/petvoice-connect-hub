@@ -25,7 +25,7 @@ import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
-import CommunityLearningPage from "@/pages/CommunityLearningPage";
+
 
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
@@ -94,13 +94,6 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <CommunityPage />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        <Route path="/community-learning" element={
-          <ProtectedRoute>
-            <Layout>
-              <CommunityLearningPage />
             </Layout>
           </ProtectedRoute>
         } />
