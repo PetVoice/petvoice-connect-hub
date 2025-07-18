@@ -25,6 +25,7 @@ import {
   useMarkNotificationRead,
   useDismissNotification
 } from '@/hooks/useCommunityLearning';
+import { useCommunityLearningProcessor } from '@/hooks/useCommunityLearningProcessor';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -44,6 +45,7 @@ const CommunityInsightsDashboard: React.FC = () => {
 
   const markAsRead = useMarkNotificationRead();
   const dismissNotification = useDismissNotification();
+  const processor = useCommunityLearningProcessor();
 
   const getConfidenceColor = (score: number) => {
     if (score >= 0.8) return 'text-green-600';
@@ -69,8 +71,44 @@ const CommunityInsightsDashboard: React.FC = () => {
     }
   };
 
+  const handleProcessData = () => {
+    processor.mutate({
+      type: 'pattern_discovery',
+      confidence_threshold: 0.6,
+      time_range: {
+        start: '2024-01-01',
+        end: new Date().toISOString()
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Header con pulsante di elaborazione */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Community Learning AI</h1>
+          <p className="text-muted-foreground">Insights automatici dai dati della comunità</p>
+        </div>
+        <Button 
+          onClick={handleProcessData}
+          disabled={processor.isPending}
+          className="bg-azure hover:bg-azure-dark text-white"
+        >
+          {processor.isPending ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Elaborando...
+            </>
+          ) : (
+            <>
+              <Brain className="mr-2 h-4 w-4" />
+              Elabora Dati
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Header con statistiche */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
