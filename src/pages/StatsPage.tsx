@@ -354,6 +354,7 @@ export default function StatsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
   const [healthTrendFilter, setHealthTrendFilter] = useState('1m');
+  const [wellnessTrendFilter, setWellnessTrendFilter] = useState('1m');
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subMonths(new Date(), 1),
     to: new Date()
@@ -606,22 +607,47 @@ export default function StatsPage() {
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Enhanced Wellness trends - combines all data sources
+    // Enhanced Wellness trends - combines all data sources with filtering
     const calculateComprehensiveWellness = () => {
-      // Get all unique dates from all data sources
+      // Filter data based on wellness trend filter
+      let filteredWellnessData = wellnessData;
+      let filteredDiaryData = diaryData;
+      let filteredHealthData = healthData;
+      let filteredAnalysisData = analysisData;
+      
+      if (wellnessTrendFilter !== 'all') {
+        const filterDays = HEALTH_TREND_RANGES.find(r => r.value === wellnessTrendFilter)?.days;
+        if (filterDays) {
+          const filterDate = subDays(new Date(), filterDays);
+          filteredWellnessData = wellnessData.filter(w => 
+            new Date(w.score_date) >= filterDate
+          );
+          filteredDiaryData = diaryData.filter(d => 
+            new Date(d.entry_date) >= filterDate
+          );
+          filteredHealthData = healthData.filter(h => 
+            new Date(h.recorded_at) >= filterDate
+          );
+          filteredAnalysisData = analysisData.filter(a => 
+            new Date(a.created_at) >= filterDate
+          );
+        }
+      }
+
+      // Get all unique dates from filtered data sources
       const allDates = new Set();
       
       // Add dates from wellness scores
-      wellnessData.forEach(w => allDates.add(w.score_date));
+      filteredWellnessData.forEach(w => allDates.add(w.score_date));
       
       // Add dates from diary entries
-      diaryData.forEach(d => allDates.add(d.entry_date));
+      filteredDiaryData.forEach(d => allDates.add(d.entry_date));
       
       // Add dates from health metrics
-      healthData.forEach(h => allDates.add(format(new Date(h.recorded_at), 'yyyy-MM-dd')));
+      filteredHealthData.forEach(h => allDates.add(format(new Date(h.recorded_at), 'yyyy-MM-dd')));
       
       // Add dates from emotional analyses
-      analysisData.forEach(a => allDates.add(format(new Date(a.created_at), 'yyyy-MM-dd')));
+      filteredAnalysisData.forEach(a => allDates.add(format(new Date(a.created_at), 'yyyy-MM-dd')));
 
       return Array.from(allDates)
         .sort((a, b) => new Date(a as string).getTime() - new Date(b as string).getTime())
@@ -632,7 +658,7 @@ export default function StatsPage() {
           const factors: any = {};
 
           // 1. Wellness score (if available) - Weight: 40%
-          const wellnessForDate = wellnessData.find(w => w.score_date === dateStr);
+          const wellnessForDate = filteredWellnessData.find(w => w.score_date === dateStr);
           if (wellnessForDate && wellnessForDate.wellness_score) {
             factors.wellness = wellnessForDate.wellness_score;
             totalScore += wellnessForDate.wellness_score * 0.4;
@@ -640,7 +666,7 @@ export default function StatsPage() {
           }
 
           // 2. Diary mood score - Weight: 30%
-          const diaryForDate = diaryData.filter(d => d.entry_date === dateStr);
+          const diaryForDate = filteredDiaryData.filter(d => d.entry_date === dateStr);
           if (diaryForDate.length > 0) {
             const avgMood = diaryForDate.reduce((sum, d) => sum + (d.mood_score || 5), 0) / diaryForDate.length;
             factors.mood = avgMood;
@@ -651,7 +677,7 @@ export default function StatsPage() {
           }
 
           // 3. Health metrics analysis - Weight: 20%
-          const healthForDate = healthData.filter(h => 
+          const healthForDate = filteredHealthData.filter(h => 
             format(new Date(h.recorded_at), 'yyyy-MM-dd') === dateStr
           );
           if (healthForDate.length > 0) {
@@ -676,7 +702,7 @@ export default function StatsPage() {
           }
 
           // 4. Emotional analysis - Weight: 10%
-          const analysesForDate = analysisData.filter(a => 
+          const analysesForDate = filteredAnalysisData.filter(a => 
             format(new Date(a.created_at), 'yyyy-MM-dd') === dateStr
           );
           if (analysesForDate.length > 0) {
@@ -868,7 +894,7 @@ export default function StatsPage() {
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter]);
+  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter, wellnessTrendFilter]);
 
   // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
@@ -1057,13 +1083,29 @@ export default function StatsPage() {
             {/* Wellness Trend */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Trend Benessere
-                </CardTitle>
-                <CardDescription>
-                  Evoluzione del punteggio di benessere nel tempo
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Trend Benessere
+                    </CardTitle>
+                    <CardDescription>
+                      Evoluzione del punteggio di benessere nel tempo
+                    </CardDescription>
+                  </div>
+                  <Select value={wellnessTrendFilter} onValueChange={setWellnessTrendFilter}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {HEALTH_TREND_RANGES.map(range => (
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={{
