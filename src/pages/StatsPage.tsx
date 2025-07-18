@@ -354,9 +354,6 @@ export default function StatsPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
   const [healthTrendFilter, setHealthTrendFilter] = useState('1m');
-  const [wellnessTrendFilter, setWellnessTrendFilter] = useState('1m');
-  const [emotionDistributionFilter, setEmotionDistributionFilter] = useState('1m');
-  const [moodTrendFilter, setMoodTrendFilter] = useState('1m');
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subMonths(new Date(), 1),
     to: new Date()
@@ -543,20 +540,8 @@ export default function StatsPage() {
       ...diaryData.map(d => d.entry_date)
     ]).size;
 
-    // Emotion distribution - Apply filter
-    const getFilteredAnalysisData = (filter: string) => {
-      if (filter === 'all') return analysisData;
-      const filterRange = HEALTH_TREND_RANGES.find(r => r.value === filter);
-      if (!filterRange || !filterRange.days) return analysisData;
-      
-      const cutoffDate = subDays(new Date(), filterRange.days);
-      return analysisData.filter(analysis => 
-        new Date(analysis.created_at) >= cutoffDate
-      );
-    };
-
-    const filteredAnalysisData = getFilteredAnalysisData(emotionDistributionFilter);
-    const emotionCounts = filteredAnalysisData.reduce((acc, analysis) => {
+    // Emotion distribution
+    const emotionCounts = analysisData.reduce((acc, analysis) => {
       acc[analysis.primary_emotion] = (acc[analysis.primary_emotion] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -564,26 +549,12 @@ export default function StatsPage() {
     const emotionDistribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
       emotion,
       count,
-      percentage: filteredAnalysisData.length > 0 ? Math.round((count / filteredAnalysisData.length) * 100) : 0,
+      percentage: totalAnalyses > 0 ? Math.round((count / totalAnalyses) * 100) : 0,
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends - Apply filter and combine data from diary and emotional analysis
-    const getFilteredDiaryData = (filter: string) => {
-      if (filter === 'all') return diaryData;
-      const filterRange = HEALTH_TREND_RANGES.find(r => r.value === filter);
-      if (!filterRange || !filterRange.days) return diaryData;
-      
-      const cutoffDate = subDays(new Date(), filterRange.days);
-      return diaryData.filter(diary => 
-        new Date(diary.entry_date) >= cutoffDate
-      );
-    };
-
-    const filteredDiaryData = getFilteredDiaryData(moodTrendFilter);
-    const filteredAnalysisForMood = getFilteredAnalysisData(moodTrendFilter);
-
-    const diaryMoodData = filteredDiaryData
+    // Mood trends - combina dati da diario e analisi emotive
+    const diaryMoodData = diaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
@@ -606,7 +577,7 @@ export default function StatsPage() {
       'spaventato': 1
     };
 
-    const analysisMoodData = filteredAnalysisForMood.map(a => ({
+    const analysisMoodData = analysisData.map(a => ({
       date: format(new Date(a.created_at), 'yyyy-MM-dd'),
       mood: emotionToMoodScore[a.primary_emotion as keyof typeof emotionToMoodScore] || 5,
       source: 'analysis',
@@ -635,32 +606,13 @@ export default function StatsPage() {
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Enhanced Wellness trends - combines all data sources with filtering
+    // Enhanced Wellness trends - combines all data sources
     const calculateComprehensiveWellness = () => {
-      // Filter data based on wellness trend filter
+      // Use all data without filtering
       let filteredWellnessData = wellnessData;
       let filteredDiaryData = diaryData;
       let filteredHealthData = healthData;
       let filteredAnalysisData = analysisData;
-      
-      if (wellnessTrendFilter !== 'all') {
-        const filterDays = HEALTH_TREND_RANGES.find(r => r.value === wellnessTrendFilter)?.days;
-        if (filterDays) {
-          const filterDate = subDays(new Date(), filterDays);
-          filteredWellnessData = wellnessData.filter(w => 
-            new Date(w.score_date) >= filterDate
-          );
-          filteredDiaryData = diaryData.filter(d => 
-            new Date(d.entry_date) >= filterDate
-          );
-          filteredHealthData = healthData.filter(h => 
-            new Date(h.recorded_at) >= filterDate
-          );
-          filteredAnalysisData = analysisData.filter(a => 
-            new Date(a.created_at) >= filterDate
-          );
-        }
-      }
 
       // Get all unique dates from filtered data sources
       const allDates = new Set();
@@ -922,7 +874,7 @@ export default function StatsPage() {
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter, wellnessTrendFilter, emotionDistributionFilter, moodTrendFilter]);
+  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter]);
 
   // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
@@ -1111,29 +1063,13 @@ export default function StatsPage() {
             {/* Wellness Trend */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Trend Benessere
-                    </CardTitle>
-                    <CardDescription>
-                      Evoluzione del punteggio di benessere nel tempo
-                    </CardDescription>
-                  </div>
-                  <Select value={wellnessTrendFilter} onValueChange={setWellnessTrendFilter}>
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {HEALTH_TREND_RANGES.map(range => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere
+                </CardTitle>
+                <CardDescription>
+                  Evoluzione del punteggio di benessere nel tempo
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={{
@@ -1160,33 +1096,6 @@ export default function StatsPage() {
               </CardContent>
             </Card>
 
-            {/* Activity Patterns */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Pattern Attività
-                </CardTitle>
-                <CardDescription>
-                  Distribuzione delle analisi per giorno della settimana
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={{
-                  analyses: { label: "Analisi", color: "hsl(var(--primary))" }
-                }} className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={displayAnalytics.activityPatterns}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="analyses" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Mood vs Weather Correlation */}
@@ -1226,29 +1135,13 @@ export default function StatsPage() {
             {/* Emotion Distribution */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <PieChartIcon className="h-5 w-5" />
-                      Distribuzione Emozioni
-                    </CardTitle>
-                    <CardDescription>
-                      Percentuale delle diverse emozioni rilevate
-                    </CardDescription>
-                  </div>
-                  <Select value={emotionDistributionFilter} onValueChange={setEmotionDistributionFilter}>
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {HEALTH_TREND_RANGES.map(range => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChartIcon className="h-5 w-5" />
+                  Distribuzione Emozioni
+                </CardTitle>
+                <CardDescription>
+                  Percentuale delle diverse emozioni rilevate
+                </CardDescription>
               </CardHeader>
               <CardContent>
                  <div className="space-y-4">
@@ -1295,29 +1188,13 @@ export default function StatsPage() {
             {/* Mood Trends */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <LineChartIcon className="h-5 w-5" />
-                      Trend Umore
-                    </CardTitle>
-                    <CardDescription>
-                      Variazione dell'umore nel tempo (scala 1-10)
-                    </CardDescription>
-                  </div>
-                  <Select value={moodTrendFilter} onValueChange={setMoodTrendFilter}>
-                    <SelectTrigger className="w-[120px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {HEALTH_TREND_RANGES.map(range => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChartIcon className="h-5 w-5" />
+                  Trend Umore
+                </CardTitle>
+                <CardDescription>
+                  Variazione dell'umore nel tempo (scala 1-10)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={{
