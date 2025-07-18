@@ -641,11 +641,11 @@ export const PetMatchingIntelligence: React.FC = () => {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm">DNA Comportamentale:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {twin.behavioralDNA.map((trait, idx) => (
+                        {(twin.behavioralDNA || []).map((trait, idx) => (
                           <Badge 
                             key={idx} 
                             variant="outline" 
-                            className={`text-xs ${currentPet.behavioralDNA.includes(trait) ? 'bg-green-100 border-green-300 text-green-700' : ''}`}
+                            className={`text-xs ${(currentPet.behavioralDNA || []).includes(trait) ? 'bg-green-100 border-green-300 text-green-700' : ''}`}
                           >
                             {trait}
                             {currentPet.behavioralDNA.includes(trait) && <CheckCircle className="h-3 w-3 ml-1" />}
@@ -657,7 +657,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm">Tratti Comuni:</h4>
                       <ul className="text-xs text-muted-foreground space-y-1">
-                        {twin.commonTraits.slice(0, 2).map((trait, idx) => (
+                        {(twin.commonTraits || []).slice(0, 2).map((trait, idx) => (
                           <li key={idx} className="flex items-center gap-1">
                             <CheckCircle className="h-3 w-3 text-green-500" />
                             {trait}
@@ -739,7 +739,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                               <div>
                                 <h3 className="font-semibold mb-3">DNA Comportamentale Completo</h3>
                                 <div className="flex flex-wrap gap-2">
-                                  {twin.behavioralDNA.map((trait, idx) => (
+                                  {(twin.behavioralDNA || []).map((trait, idx) => (
                                     <Badge 
                                       key={idx} 
                                       variant={currentPet.behavioralDNA.includes(trait) ? "default" : "outline"}
@@ -869,7 +869,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm">Specializzazioni:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {mentor.specialties.map((specialty, idx) => (
+                        {(mentor.specialties || []).map((specialty, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
                             {specialty}
                           </Badge>
@@ -972,7 +972,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                               <div>
                                 <h3 className="font-semibold mb-3">Specializzazioni</h3>
                                 <div className="flex flex-wrap gap-2">
-                                  {mentor.specialties.map((specialty, idx) => (
+                                  {(mentor.specialties || []).map((specialty, idx) => (
                                     <Badge key={idx} variant="outline" className="text-sm">
                                       {specialty}
                                     </Badge>
@@ -984,7 +984,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                               <div>
                                 <h3 className="font-semibold mb-3">Lingue</h3>
                                 <div className="flex gap-2">
-                                  {mentor.languages.map((lang, idx) => (
+                                  {(mentor.languages || []).map((lang, idx) => (
                                     <Badge key={idx} variant="secondary">
                                       {lang}
                                     </Badge>
@@ -1104,7 +1104,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm">Passi Principali:</h4>
                     <ul className="text-xs text-muted-foreground space-y-1">
-                      {pattern.steps.slice(0, 3).map((step, idx) => (
+                      {(pattern.steps || []).slice(0, 3).map((step, idx) => (
                         <li key={idx} className="flex items-start gap-2">
                           <span className="text-orange-500 font-medium">{idx + 1}.</span>
                           <span>{step}</span>
@@ -1120,7 +1120,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm">Materiali Necessari:</h4>
                       <div className="flex flex-wrap gap-1">
-                        {pattern.requiredMaterials.map((material, idx) => (
+                        {(pattern.requiredMaterials || []).map((material, idx) => (
                           <Badge key={idx} variant="outline" className="text-xs">
                             {material}
                           </Badge>
@@ -1173,7 +1173,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                             <div>
                               <h4 className="font-medium mb-3">Piano Completo</h4>
                               <div className="space-y-3">
-                                {pattern.steps.map((step, idx) => (
+                                {(pattern.steps || []).map((step, idx) => (
                                   <div key={idx} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
                                     <div className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
                                       {idx + 1}
@@ -1189,7 +1189,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                             <div>
                               <h4 className="font-medium mb-3">Materiali e Costi</h4>
                               <div className="space-y-2">
-                                {pattern.requiredMaterials.map((material, idx) => (
+                                {(pattern.requiredMaterials || []).map((material, idx) => (
                                   <div key={idx} className="flex justify-between items-center p-2 bg-muted/30 rounded">
                                     <span className="text-sm">{material}</span>
                                     <Badge variant="outline">Necessario</Badge>
