@@ -135,6 +135,20 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
     return 'text-red-600';
   };
 
+  const generateAnalysisTitle = (analysis: AnalysisData) => {
+    const emotion = analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1);
+    const date = format(new Date(analysis.created_at), 'dd/MM', { locale: it });
+    const time = format(new Date(analysis.created_at), 'HH:mm', { locale: it });
+    const fileType = analysis.file_type.startsWith('audio/') ? 'Audio' : 'Video';
+    const emotionIcon = EMOTION_ICONS[analysis.primary_emotion];
+    
+    return {
+      main: `${emotionIcon} ${emotion} • ${petName}`,
+      subtitle: `${fileType} del ${date} alle ${time}`,
+      confidence: analysis.primary_confidence
+    };
+  };
+
   const sortedAnalyses = [...analyses].sort((a, b) => {
     let comparison = 0;
     
@@ -285,12 +299,27 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-medium truncate">{analysis.file_name}</h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span>{format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}</span>
-                        <span>{formatFileSize(analysis.file_size)}</span>
-                        <span>{String(analysis.analysis_duration)}</span>
-                      </div>
+                      {(() => {
+                        const title = generateAnalysisTitle(analysis);
+                        return (
+                          <div className="space-y-1">
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                              {title.main}
+                              <Badge variant="secondary" className="text-xs font-medium">
+                                {title.confidence}%
+                              </Badge>
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {title.subtitle}
+                            </p>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span>{formatFileSize(analysis.file_size)}</span>
+                              <span>•</span>
+                              <span>{String(analysis.analysis_duration)}</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <Button
