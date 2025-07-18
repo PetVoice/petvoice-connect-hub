@@ -11,7 +11,8 @@ import {
   CreditCard, 
   Handshake, 
   HeadphonesIcon, 
-  Settings
+  Settings,
+  Brain
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -39,6 +40,7 @@ const navigationItems = [
 
 const communityItems = [
   { title: 'Community', url: '/community', icon: Users },
+  { title: 'Community Learning AI', url: '/community-learning', icon: Brain },
   { title: 'Abbonamenti', url: '/subscription', icon: CreditCard },
   { title: 'Affiliazione', url: '/affiliate', icon: Handshake },
 ];
