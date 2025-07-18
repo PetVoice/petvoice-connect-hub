@@ -96,6 +96,16 @@ const VITAL_PARAMETERS_RANGES = {
     cats: { min: 20, max: 30, unit: 'atti/min' },
     critical_low: 8,
     critical_high: 40
+  },
+  weight: {
+    dogs_toy: { min: 1, max: 5, unit: 'kg' },
+    dogs_small: { min: 5, max: 15, unit: 'kg' },
+    dogs_medium: { min: 15, max: 30, unit: 'kg' },
+    dogs_large: { min: 30, max: 50, unit: 'kg' },
+    dogs_giant: { min: 50, max: 90, unit: 'kg' },
+    cats: { min: 2.5, max: 7, unit: 'kg' },
+    critical_low_percentage: 0.15, // -15% del peso normale
+    critical_high_percentage: 0.20 // +20% del peso normale
   }
 };
 
@@ -238,22 +248,60 @@ const evaluateVitalParameter = (metricType: string, value: number, petType?: str
           return {
             status: 'warning',
             message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'Gengive pallide possono indicare anemia o shock. Consulta il veterinario'
+            recommendation: 'Possibile anemia o shock - consulta il veterinario'
           };
         case 3: // Blu/Viola
           return {
             status: 'critical',
             message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'EMERGENZA - Gengive cianotiche indicano mancanza di ossigeno. Vai immediatamente dal veterinario!'
+            recommendation: 'EMERGENZA - Cianosi, problemi respiratori o cardiaci. Vai immediatamente dal veterinario!'
           };
         case 4: // Gialle
           return {
             status: 'critical',
             message: `Colore Gengive: ${gumColorText}`,
-            recommendation: 'CRITICO - Gengive gialle possono indicare ittero o problemi epatici. Consulta urgentemente il veterinario'
+            recommendation: 'EMERGENZA - Possibile ittero o problemi epatici. Vai immediatamente dal veterinario!'
           };
         default:
-          return { status: 'normal', message: `Colore Gengive: ${gumColorText}` };
+          return { status: 'warning', message: `Colore Gengive: ${gumColorText}`, recommendation: 'Valutazione non determinabile' };
+      }
+
+    case 'weight':
+      // Per il peso, dobbiamo avere un peso di riferimento per valutare variazioni significative
+      // In questo caso, diamo solo informazioni generali
+      if (petType === 'gatto' || petType === 'cat') {
+        if (value < VITAL_PARAMETERS_RANGES.weight.cats.min) {
+          return {
+            status: 'warning',
+            message: `Peso basso: ${value} kg`,
+            recommendation: 'Peso sotto la norma per gatti. Consulta il veterinario per escludere problemi di salute'
+          };
+        }
+        if (value > VITAL_PARAMETERS_RANGES.weight.cats.max) {
+          return {
+            status: 'warning',
+            message: `Peso alto: ${value} kg`,
+            recommendation: 'Peso sopra la norma per gatti. Valuta dieta e attività fisica con il veterinario'
+          };
+        }
+        return { status: 'normal', message: `Peso normale: ${value} kg` };
+      } else {
+        // Per i cani, la valutazione è più complessa data la varietà di taglie
+        if (value < 1) {
+          return {
+            status: 'critical',
+            message: `Peso critico basso: ${value} kg`,
+            recommendation: 'Peso estremamente basso - consulta immediatamente il veterinario'
+          };
+        }
+        if (value > 90) {
+          return {
+            status: 'warning',
+            message: `Peso molto alto: ${value} kg`,
+            recommendation: 'Peso molto elevato - valuta dieta e condizioni di salute con il veterinario'
+          };
+        }
+        return { status: 'normal', message: `Peso: ${value} kg - Varia per taglia` };
       }
 
     default:
@@ -1105,8 +1153,8 @@ export default function StatsPage() {
 
         {/* Health Tab */}
         <TabsContent value="health" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Health Metrics Summary */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Health Metrics Summary - Full Width */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -1118,7 +1166,7 @@ export default function StatsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-3 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.totalMetrics}</div>
                     <div className="text-sm text-muted-foreground">Misurazioni Totali</div>
@@ -1198,91 +1246,7 @@ export default function StatsPage() {
 
               </CardContent>
             </Card>
-
-            {/* Temperature Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Thermometer className="h-5 w-5" />
-                  Temperatura Corporea
-                </CardTitle>
-                <CardDescription>
-                  Monitoraggio della temperatura nel tempo
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {displayAnalytics.temperatureTrends.length > 0 ? (
-                  <ChartContainer config={{
-                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" }
-                  }} className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={displayAnalytics.temperatureTrends}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                        <XAxis dataKey="dateFormatted" />
-                        <YAxis domain={[36, 42]} />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Line
-                          type="monotone"
-                          dataKey="temperature"
-                          stroke="hsl(var(--destructive))"
-                          strokeWidth={2}
-                          dot={{ fill: "hsl(var(--destructive))", r: 3 }}
-                        />
-                        <ReferenceLine y={38.5} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Normale" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Thermometer className="h-12 w-12 mx-auto mb-2" />
-                    <p>Nessun dato temperatura disponibile</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
           </div>
-
-          {/* Weight Trends - Full Width */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Scale className="h-5 w-5" />
-                Andamento Peso
-              </CardTitle>
-              <CardDescription>
-                Monitoraggio del peso corporeo nel tempo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {displayAnalytics.weightTrends.length > 0 ? (
-                <ChartContainer config={{
-                  weight: { label: "Peso (kg)", color: "hsl(var(--primary))" }
-                }} className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={displayAnalytics.weightTrends}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Area
-                        type="monotone"
-                        dataKey="weight"
-                        stroke="hsl(var(--primary))"
-                        fill="hsl(var(--primary))"
-                        fillOpacity={0.2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Scale className="h-12 w-12 mx-auto mb-2" />
-                  <p>Nessun dato peso disponibile</p>
-                  <p className="text-sm">Aggiungi misurazioni del peso per vedere i trend</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Behavior Tab */}
