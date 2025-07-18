@@ -451,15 +451,20 @@ export const PetMatchingIntelligence: React.FC = () => {
     }, 1000);
   };
 
+  // Find highest match if any
+  const highestMatch = filteredPetTwins.find(twin => twin.match_score >= 90);
+
   return (
     <div className="space-y-6">
-      {/* Success Alert */}
-      <Alert className="border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
-        <CheckCircle className="h-4 w-4 text-emerald-500" />
-        <AlertDescription className="text-emerald-700 dark:text-emerald-300">
-          🎉 Hai un nuovo match al 94% con Luna! Il vostro DNA comportamentale è incredibilmente simile.
-        </AlertDescription>
-      </Alert>
+      {/* Success Alert - only show if there's a real high match */}
+      {highestMatch && (
+        <Alert className="border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
+          <CheckCircle className="h-4 w-4 text-emerald-500" />
+          <AlertDescription className="text-emerald-700 dark:text-emerald-300">
+            🎉 Hai un nuovo match al {highestMatch.match_score}% con {highestMatch.name}! Il vostro DNA comportamentale è incredibilmente simile.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Enhanced Search and Filters */}
       <div className="space-y-4">
