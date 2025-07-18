@@ -11,7 +11,8 @@ import {
   CreditCard, 
   Handshake, 
   HeadphonesIcon, 
-  Settings
+  Settings,
+  Network
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -35,6 +36,7 @@ const navigationItems = [
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Benessere', url: '/wellness', icon: Heart },
   { title: 'Statistiche', url: '/stats', icon: BarChart3 },
+  { title: 'Pet Matching', url: '/pet-matching', icon: Network },
 ];
 
 const communityItems = [

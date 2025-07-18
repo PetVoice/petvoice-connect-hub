@@ -25,6 +25,7 @@ import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
+import PetMatchingPage from "@/pages/PetMatchingPage";
 
 
 import SettingsPage from './pages/SettingsPage';
@@ -87,6 +88,13 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <StatsPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/pet-matching" element={
+          <ProtectedRoute>
+            <Layout>
+              <PetMatchingPage />
             </Layout>
           </ProtectedRoute>
         } />
