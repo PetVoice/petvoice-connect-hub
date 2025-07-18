@@ -19,10 +19,15 @@ import {
   Star,
   Clock,
   Trash2,
-  MoreHorizontal
+  MoreHorizontal,
+  Edit
 } from 'lucide-react';
 import { useTrainingProtocols, useDeleteProtocol, useUpdateProtocol } from '@/hooks/useTrainingProtocols';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TrainingProtocol {
@@ -189,6 +194,10 @@ export const AITrainingProtocols: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('protocols');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingProtocol, setEditingProtocol] = useState<any>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
   const { data: protocols = [], isLoading } = useTrainingProtocols();
   const deleteProtocol = useDeleteProtocol();
@@ -236,7 +245,31 @@ export const AITrainingProtocols: React.FC = () => {
   };
 
   const isUserCreated = (protocol: any) => {
-    return protocol.user_id === currentUserId && !protocol.ai_generated;
+    return protocol.user_id === currentUserId && protocol.ai_generated !== true;
+  };
+
+  const handleEditProtocol = (protocol: any) => {
+    setEditingProtocol(protocol);
+    setEditTitle(protocol.title);
+    setEditDescription(protocol.description || '');
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProtocol) return;
+
+    await updateProtocol.mutateAsync({
+      id: editingProtocol.id,
+      updates: {
+        title: editTitle,
+        description: editDescription,
+      }
+    });
+
+    setIsEditDialogOpen(false);
+    setEditingProtocol(null);
+    setEditTitle('');
+    setEditDescription('');
   };
 
   if (isLoading) {
@@ -357,13 +390,19 @@ export const AITrainingProtocols: React.FC = () => {
                                 Riavvia
                               </DropdownMenuItem>
                               {isUserCreated(protocol) && (
-                                <DropdownMenuItem 
-                                  onClick={() => handleDeleteProtocol(protocol.id)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Elimina
-                                </DropdownMenuItem>
+                                <>
+                                  <DropdownMenuItem onClick={() => handleEditProtocol(protocol)}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Modifica
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteProtocol(protocol.id)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Elimina
+                                  </DropdownMenuItem>
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -492,6 +531,42 @@ export const AITrainingProtocols: React.FC = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* Edit Protocol Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifica Protocollo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Titolo</Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Descrizione</Label>
+              <Textarea
+                id="edit-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Annulla
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                Salva
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

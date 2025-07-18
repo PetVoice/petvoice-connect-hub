@@ -35,10 +35,10 @@ const navigationItems = [
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'AI Training', url: '/training', icon: Brain },
+  { title: 'Pet Matching', url: '/pet-matching', icon: Network },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Benessere', url: '/wellness', icon: Heart },
   { title: 'Statistiche', url: '/stats', icon: BarChart3 },
-  { title: 'Pet Matching', url: '/pet-matching', icon: Network },
 ];
 
 const communityItems = [
