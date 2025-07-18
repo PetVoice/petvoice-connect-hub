@@ -330,6 +330,14 @@ const TIME_RANGES = [
   { value: '1y', label: '1 anno', days: 365 }
 ];
 
+const HEALTH_TREND_RANGES = [
+  { value: '1d', label: 'Giorno', days: 1 },
+  { value: '7d', label: 'Settimana', days: 7 },
+  { value: '1m', label: 'Mese', days: 30 },
+  { value: '1y', label: 'Anno', days: 365 },
+  { value: 'all', label: 'Tutte', days: null }
+];
+
 export default function StatsPage() {
   const { user } = useAuth();
   const { selectedPet: activePet, pets } = usePets();
@@ -345,6 +353,7 @@ export default function StatsPage() {
   const [selectedPets, setSelectedPets] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
+  const [healthTrendFilter, setHealthTrendFilter] = useState('1m');
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subMonths(new Date(), 1),
     to: new Date()
@@ -686,6 +695,54 @@ export default function StatsPage() {
          (previousWellness.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / previousWellness.length))
       : 0;
 
+    // Health trends calculation based on filter
+    const getHealthTrendsData = (filterValue: string) => {
+      let filteredHealthData = healthData;
+      
+      if (filterValue !== 'all') {
+        const filterDays = HEALTH_TREND_RANGES.find(r => r.value === filterValue)?.days;
+        if (filterDays) {
+          const filterDate = subDays(new Date(), filterDays);
+          filteredHealthData = healthData.filter(h => 
+            new Date(h.recorded_at) >= filterDate
+          );
+        }
+      }
+
+      // Group by date and metric type
+      const trendData = filteredHealthData.reduce((acc, metric) => {
+        const date = format(new Date(metric.recorded_at), 'yyyy-MM-dd');
+        if (!acc[date]) {
+          acc[date] = {};
+        }
+        if (!acc[date][metric.metric_type]) {
+          acc[date][metric.metric_type] = [];
+        }
+        acc[date][metric.metric_type].push(metric.value);
+        return acc;
+      }, {} as Record<string, Record<string, number[]>>);
+
+      // Calculate averages and create chart data
+      return Object.entries(trendData)
+        .map(([date, metrics]) => {
+          const dataPoint: any = {
+            date,
+            dateFormatted: format(new Date(date), 'd MMM', { locale: it })
+          };
+          
+          // Calculate average for each metric type
+          Object.entries(metrics).forEach(([metricType, values]) => {
+            const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+            dataPoint[metricType] = Math.round(avg * 100) / 100;
+          });
+          
+          return dataPoint;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    };
+
+    const healthTrends = getHealthTrendsData(healthTrendFilter);
+
     return {
       totalAnalyses,
       averageWellnessScore,
@@ -698,11 +755,12 @@ export default function StatsPage() {
       temperatureTrends,
       heartRateTrends,
       healthMetricsSummary,
+      healthTrends,
       weatherMoodData,
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
+  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter]);
 
   // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
@@ -715,6 +773,7 @@ export default function StatsPage() {
     weightTrends: [],
     temperatureTrends: [],
     heartRateTrends: [],
+    healthTrends: [],
     weatherMoodData: [],
     activeDays: 0,
     timeSpan: 30,
@@ -1196,6 +1255,110 @@ export default function StatsPage() {
                   </Alert>
                 )}
 
+              </CardContent>
+            </Card>
+
+            {/* Health Trends Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Trend Salute
+                </CardTitle>
+                <CardDescription>
+                  Andamento delle metriche di salute nel tempo
+                </CardDescription>
+                <div className="flex items-center gap-2 mt-3">
+                  <Select value={healthTrendFilter} onValueChange={setHealthTrendFilter}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {HEALTH_TREND_RANGES.map(range => (
+                        <SelectItem key={range.value} value={range.value}>
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {displayAnalytics.healthTrends.length > 0 ? (
+                  <ChartContainer config={{
+                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" },
+                    heart_rate: { label: "Freq. Cardiaca (bpm)", color: "hsl(var(--primary))" },
+                    weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
+                    respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
+                    gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
+                  }} className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={displayAnalytics.healthTrends}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="dateFormatted" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        {displayAnalytics.healthTrends.some(d => d.temperature) && (
+                          <Line
+                            type="monotone"
+                            dataKey="temperature"
+                            stroke="hsl(var(--destructive))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.heart_rate) && (
+                          <Line
+                            type="monotone"
+                            dataKey="heart_rate"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.weight) && (
+                          <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="hsl(var(--secondary))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.respiration) && (
+                          <Line
+                            type="monotone"
+                            dataKey="respiration"
+                            stroke="hsl(var(--accent))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.gum_color) && (
+                          <Line
+                            type="monotone"
+                            dataKey="gum_color"
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessun dato di salute disponibile</p>
+                    <p className="text-sm">Aggiungi metriche di salute per vedere i trend</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
