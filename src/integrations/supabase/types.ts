@@ -44,6 +44,105 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_insights_notifications: {
+        Row: {
+          action_data: Json | null
+          action_required: boolean | null
+          created_at: string
+          dismissed_at: string | null
+          expires_at: string | null
+          id: string
+          insight_type: string
+          is_dismissed: boolean | null
+          is_read: boolean | null
+          message: string
+          priority: string
+          read_at: string | null
+          related_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_data?: Json | null
+          action_required?: boolean | null
+          created_at?: string
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          insight_type: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          message: string
+          priority?: string
+          read_at?: string | null
+          related_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_data?: Json | null
+          action_required?: boolean | null
+          created_at?: string
+          dismissed_at?: string | null
+          expires_at?: string | null
+          id?: string
+          insight_type?: string
+          is_dismissed?: boolean | null
+          is_read?: boolean | null
+          message?: string
+          priority?: string
+          read_at?: string | null
+          related_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      anonymous_benchmarks: {
+        Row: {
+          age_range: string | null
+          benchmark_type: string
+          created_at: string
+          data_period: string
+          id: string
+          last_updated: string
+          metadata: Json | null
+          metric_name: string
+          percentile_data: Json
+          region_code: string | null
+          sample_size: number
+          species: string
+        }
+        Insert: {
+          age_range?: string | null
+          benchmark_type: string
+          created_at?: string
+          data_period: string
+          id?: string
+          last_updated?: string
+          metadata?: Json | null
+          metric_name: string
+          percentile_data: Json
+          region_code?: string | null
+          sample_size: number
+          species: string
+        }
+        Update: {
+          age_range?: string | null
+          benchmark_type?: string
+          created_at?: string
+          data_period?: string
+          id?: string
+          last_updated?: string
+          metadata?: Json | null
+          metric_name?: string
+          percentile_data?: Json
+          region_code?: string | null
+          sample_size?: number
+          species?: string
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           attendees: string[] | null
@@ -107,6 +206,63 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      community_anomalies: {
+        Row: {
+          affected_species: string[]
+          anomaly_data: Json
+          anomaly_type: string
+          community_reports: number
+          confidence_score: number
+          created_at: string
+          detection_method: string
+          expert_validation: string | null
+          geographic_distribution: Json | null
+          id: string
+          potential_causes: string[] | null
+          recommended_actions: Json | null
+          resolution_status: string | null
+          severity: string
+          temporal_pattern: Json | null
+          updated_at: string
+        }
+        Insert: {
+          affected_species?: string[]
+          anomaly_data: Json
+          anomaly_type: string
+          community_reports?: number
+          confidence_score: number
+          created_at?: string
+          detection_method: string
+          expert_validation?: string | null
+          geographic_distribution?: Json | null
+          id?: string
+          potential_causes?: string[] | null
+          recommended_actions?: Json | null
+          resolution_status?: string | null
+          severity: string
+          temporal_pattern?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          affected_species?: string[]
+          anomaly_data?: Json
+          anomaly_type?: string
+          community_reports?: number
+          confidence_score?: number
+          created_at?: string
+          detection_method?: string
+          expert_validation?: string | null
+          geographic_distribution?: Json | null
+          id?: string
+          potential_causes?: string[] | null
+          recommended_actions?: Json | null
+          resolution_status?: string | null
+          severity?: string
+          temporal_pattern?: Json | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -252,6 +408,156 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      community_patterns: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          description: string | null
+          discovery_date: string
+          id: string
+          impact_level: string
+          metadata: Json | null
+          pattern_data: Json
+          pattern_type: string
+          sample_size: number
+          species_affected: string[]
+          updated_at: string
+          validation_count: number
+          validation_status: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          description?: string | null
+          discovery_date?: string
+          id?: string
+          impact_level?: string
+          metadata?: Json | null
+          pattern_data: Json
+          pattern_type: string
+          sample_size?: number
+          species_affected?: string[]
+          updated_at?: string
+          validation_count?: number
+          validation_status?: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          description?: string | null
+          discovery_date?: string
+          id?: string
+          impact_level?: string
+          metadata?: Json | null
+          pattern_data?: Json
+          pattern_type?: string
+          sample_size?: number
+          species_affected?: string[]
+          updated_at?: string
+          validation_count?: number
+          validation_status?: string
+        }
+        Relationships: []
+      }
+      community_trends: {
+        Row: {
+          age_groups_affected: string[] | null
+          category: string
+          created_at: string
+          duration_days: number
+          geographic_scope: string[] | null
+          id: string
+          peak_period: string | null
+          predictions: Json | null
+          related_events: Json | null
+          species_affected: string[]
+          statistical_significance: number | null
+          trend_data: Json
+          trend_strength: number
+          trend_type: string
+          updated_at: string
+        }
+        Insert: {
+          age_groups_affected?: string[] | null
+          category: string
+          created_at?: string
+          duration_days: number
+          geographic_scope?: string[] | null
+          id?: string
+          peak_period?: string | null
+          predictions?: Json | null
+          related_events?: Json | null
+          species_affected?: string[]
+          statistical_significance?: number | null
+          trend_data: Json
+          trend_strength: number
+          trend_type: string
+          updated_at?: string
+        }
+        Update: {
+          age_groups_affected?: string[] | null
+          category?: string
+          created_at?: string
+          duration_days?: number
+          geographic_scope?: string[] | null
+          id?: string
+          peak_period?: string | null
+          predictions?: Json | null
+          related_events?: Json | null
+          species_affected?: string[]
+          statistical_significance?: number | null
+          trend_data?: Json
+          trend_strength?: number
+          trend_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cross_species_insights: {
+        Row: {
+          applicability_score: number
+          community_votes: number
+          created_at: string
+          evidence_strength: string
+          expert_validated: boolean | null
+          id: string
+          insight_data: Json
+          insight_type: string
+          related_patterns: string[] | null
+          source_species: string
+          target_species: string
+          updated_at: string
+        }
+        Insert: {
+          applicability_score: number
+          community_votes?: number
+          created_at?: string
+          evidence_strength: string
+          expert_validated?: boolean | null
+          id?: string
+          insight_data: Json
+          insight_type: string
+          related_patterns?: string[] | null
+          source_species: string
+          target_species: string
+          updated_at?: string
+        }
+        Update: {
+          applicability_score?: number
+          community_votes?: number
+          created_at?: string
+          evidence_strength?: string
+          expert_validated?: boolean | null
+          id?: string
+          insight_data?: Json
+          insight_type?: string
+          related_patterns?: string[] | null
+          source_species?: string
+          target_species?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       diary_entries: {
         Row: {
@@ -970,6 +1276,57 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      model_improvements: {
+        Row: {
+          affected_users_count: number | null
+          after_metrics: Json
+          before_metrics: Json
+          created_at: string
+          deployment_date: string | null
+          id: string
+          improvement_percentage: number | null
+          improvement_type: string
+          model_component: string
+          performance_impact: Json | null
+          rollout_status: string | null
+          technical_details: Json | null
+          updated_at: string
+          user_feedback_summary: Json | null
+        }
+        Insert: {
+          affected_users_count?: number | null
+          after_metrics: Json
+          before_metrics: Json
+          created_at?: string
+          deployment_date?: string | null
+          id?: string
+          improvement_percentage?: number | null
+          improvement_type: string
+          model_component: string
+          performance_impact?: Json | null
+          rollout_status?: string | null
+          technical_details?: Json | null
+          updated_at?: string
+          user_feedback_summary?: Json | null
+        }
+        Update: {
+          affected_users_count?: number | null
+          after_metrics?: Json
+          before_metrics?: Json
+          created_at?: string
+          deployment_date?: string | null
+          id?: string
+          improvement_percentage?: number | null
+          improvement_type?: string
+          model_component?: string
+          performance_impact?: Json | null
+          rollout_status?: string | null
+          technical_details?: Json | null
+          updated_at?: string
+          user_feedback_summary?: Json | null
         }
         Relationships: []
       }
