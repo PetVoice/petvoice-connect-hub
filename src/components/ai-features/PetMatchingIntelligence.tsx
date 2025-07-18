@@ -311,10 +311,19 @@ const mockSuccessPatterns: SuccessPattern[] = [
 export const PetMatchingIntelligence: React.FC = () => {
   const { toast } = useToast();
   
-  // Real data hooks
+  // Real data hooks with proper loading states
   const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
   const { data: mentors = [], isLoading: mentorsLoading } = useMentors();
   const { data: successPatterns = [], isLoading: patternsLoading } = useSuccessPatterns();
+  
+  // Show loading if any data is still loading
+  if (petsLoading || mentorsLoading || patternsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   
   // State Management
   const [selectedPetTwin, setSelectedPetTwin] = useState<any>(null);
@@ -351,9 +360,10 @@ export const PetMatchingIntelligence: React.FC = () => {
     if (!petTwins || petTwins.length === 0) return [];
     
     return petTwins.filter(twin => {
-      const matchesSearch = twin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           twin.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           twin.owner_name.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!twin) return false;
+      const matchesSearch = twin.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           twin.breed?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           twin.owner_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesSpecies = speciesFilter === 'all' || twin.type === speciesFilter;
       
       return matchesSearch && matchesSpecies;
@@ -364,8 +374,9 @@ export const PetMatchingIntelligence: React.FC = () => {
     if (!mentors || mentors.length === 0) return [];
     
     return mentors.filter(mentor => {
-      const matchesSearch = mentor.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           mentor.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+      if (!mentor) return false;
+      const matchesSearch = mentor.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           mentor.specialties?.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesOnline = !onlineFilter || mentor.is_online;
       
       return matchesSearch && matchesOnline;
