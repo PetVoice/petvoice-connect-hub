@@ -339,6 +339,7 @@ const HEALTH_TREND_RANGES = [
 ];
 
 export default function StatsPage() {
+  console.log('StatsPage component loading...');
   const { user } = useAuth();
   const { selectedPet: activePet, pets } = usePets();
   const { toast } = useToast();
@@ -875,6 +876,8 @@ export default function StatsPage() {
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
   }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
+  
+  // Force rebuild - no healthTrendFilter references
 
   // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
