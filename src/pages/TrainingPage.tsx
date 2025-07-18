@@ -1,9 +1,20 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AITrainingHub } from '@/components/training/AITrainingHub';
+import { useTrainingProtocols } from '@/hooks/useTrainingProtocols';
 import { Brain, Target, TrendingUp, Clock, Award, Users } from 'lucide-react';
 
 const TrainingPage: React.FC = () => {
+  const { data: protocols, isLoading } = useTrainingProtocols();
+
+  // Calculate real statistics
+  const activeProtocols = protocols?.filter(p => p.status === 'active').length || 0;
+  const completedProtocols = protocols?.filter(p => p.status === 'completed').length || 0;
+  const publicProtocols = protocols?.filter(p => p.is_public).length || 0;
+  const averageSuccessRate = protocols?.length > 0 
+    ? Math.round(protocols.reduce((sum, p) => sum + p.success_rate, 0) / protocols.length) 
+    : 0;
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -31,7 +42,9 @@ const TrainingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-500">3</div>
+            <div className="text-2xl font-bold text-purple-500">
+              {isLoading ? '...' : activeProtocols}
+            </div>
             <p className="text-xs text-muted-foreground">in corso</p>
           </CardContent>
         </Card>
@@ -44,7 +57,9 @@ const TrainingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">12</div>
+            <div className="text-2xl font-bold text-green-500">
+              {isLoading ? '...' : completedProtocols}
+            </div>
             <p className="text-xs text-muted-foreground">con successo</p>
           </CardContent>
         </Card>
@@ -57,8 +72,10 @@ const TrainingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">89%</div>
-            <p className="text-xs text-muted-foreground">media piattaforma</p>
+            <div className="text-2xl font-bold text-blue-500">
+              {isLoading ? '...' : `${averageSuccessRate}%`}
+            </div>
+            <p className="text-xs text-muted-foreground">media personale</p>
           </CardContent>
         </Card>
 
@@ -70,7 +87,9 @@ const TrainingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-500">2.4k</div>
+            <div className="text-2xl font-bold text-orange-500">
+              {isLoading ? '...' : publicProtocols}
+            </div>
             <p className="text-xs text-muted-foreground">protocolli condivisi</p>
           </CardContent>
         </Card>
