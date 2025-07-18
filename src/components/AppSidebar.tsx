@@ -12,7 +12,8 @@ import {
   Handshake, 
   HeadphonesIcon, 
   Settings,
-  Network
+  Network,
+  Brain
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -33,6 +34,7 @@ const navigationItems = [
   { title: 'I Miei Pet', url: '/pets', icon: PawPrint },
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
   { title: 'Diario', url: '/diary', icon: BookOpen },
+  { title: 'AI Training', url: '/training', icon: Brain },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Benessere', url: '/wellness', icon: Heart },
   { title: 'Statistiche', url: '/stats', icon: BarChart3 },
