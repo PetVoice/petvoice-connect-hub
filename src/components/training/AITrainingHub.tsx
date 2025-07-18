@@ -75,7 +75,8 @@ import {
   TrendingDown,
   Activity,
   Compass,
-  Flag
+  Flag,
+  Trophy
 } from 'lucide-react';
 
 // Enhanced Types
@@ -418,7 +419,7 @@ const mockTemplates: ProtocolTemplate[] = [
 ];
 
 // Main Component
-export const AITrainingComplete: React.FC = () => {
+export const AITrainingHub: React.FC = () => {
   // State Management
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -443,6 +444,7 @@ export const AITrainingComplete: React.FC = () => {
     template: null,
     schedule: {
       startDate: '',
+      endDate: '',
       dailyTime: '09:00',
       reminderTimes: ['08:45'],
       weekdays: [1, 2, 3, 4, 5, 6, 7],
@@ -667,6 +669,7 @@ export const AITrainingComplete: React.FC = () => {
       template: null,
       schedule: {
         startDate: '',
+        endDate: '',
         dailyTime: '09:00',
         reminderTimes: ['08:45'],
         weekdays: [1, 2, 3, 4, 5, 6, 7],
@@ -984,7 +987,7 @@ export const AITrainingComplete: React.FC = () => {
                                   {protocol.petName} • {protocol.category} • {protocol.totalDays} giorni
                                 </p>
                               </div>
-                              <Badge className={getStatusColor(protocol.status)} className="ml-auto">
+                              <Badge className={`${getStatusColor(protocol.status)} ml-auto`}>
                                 {protocol.status}
                               </Badge>
                             </DialogTitle>
