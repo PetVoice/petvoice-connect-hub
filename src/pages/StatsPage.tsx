@@ -606,12 +606,120 @@ export default function StatsPage() {
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Wellness trends
-    const wellnessTrends = wellnessData.map(w => ({
-      date: w.score_date,
-      score: w.wellness_score || 0,
-      dateFormatted: format(new Date(w.score_date), 'd MMM', { locale: it })
-    }));
+    // Enhanced Wellness trends - combines all data sources
+    const calculateComprehensiveWellness = () => {
+      // Get all unique dates from all data sources
+      const allDates = new Set();
+      
+      // Add dates from wellness scores
+      wellnessData.forEach(w => allDates.add(w.score_date));
+      
+      // Add dates from diary entries
+      diaryData.forEach(d => allDates.add(d.entry_date));
+      
+      // Add dates from health metrics
+      healthData.forEach(h => allDates.add(format(new Date(h.recorded_at), 'yyyy-MM-dd')));
+      
+      // Add dates from emotional analyses
+      analysisData.forEach(a => allDates.add(format(new Date(a.created_at), 'yyyy-MM-dd')));
+
+      return Array.from(allDates)
+        .sort((a, b) => new Date(a as string).getTime() - new Date(b as string).getTime())
+        .map(dateStr => {
+          const date = new Date(dateStr as string);
+          let totalScore = 0;
+          let factorCount = 0;
+          const factors: any = {};
+
+          // 1. Wellness score (if available) - Weight: 40%
+          const wellnessForDate = wellnessData.find(w => w.score_date === dateStr);
+          if (wellnessForDate && wellnessForDate.wellness_score) {
+            factors.wellness = wellnessForDate.wellness_score;
+            totalScore += wellnessForDate.wellness_score * 0.4;
+            factorCount += 0.4;
+          }
+
+          // 2. Diary mood score - Weight: 30%
+          const diaryForDate = diaryData.filter(d => d.entry_date === dateStr);
+          if (diaryForDate.length > 0) {
+            const avgMood = diaryForDate.reduce((sum, d) => sum + (d.mood_score || 5), 0) / diaryForDate.length;
+            factors.mood = avgMood;
+            // Convert mood (1-10) to wellness score (0-100)
+            const moodScore = (avgMood / 10) * 100;
+            totalScore += moodScore * 0.3;
+            factorCount += 0.3;
+          }
+
+          // 3. Health metrics analysis - Weight: 20%
+          const healthForDate = healthData.filter(h => 
+            format(new Date(h.recorded_at), 'yyyy-MM-dd') === dateStr
+          );
+          if (healthForDate.length > 0) {
+            const petType = selectedPets.length === 1 ? pets.find(p => p.id === selectedPets[0])?.type : undefined;
+            let healthScore = 100; // Start with perfect health
+            let criticalPenalty = 0;
+            let warningPenalty = 0;
+
+            healthForDate.forEach(h => {
+              const evaluation = evaluateVitalParameter(h.metric_type, h.value, petType);
+              if (evaluation.status === 'critical') {
+                criticalPenalty += 30; // -30 points per critical value
+              } else if (evaluation.status === 'warning') {
+                warningPenalty += 15; // -15 points per warning value
+              }
+            });
+
+            healthScore = Math.max(0, healthScore - criticalPenalty - warningPenalty);
+            factors.health = healthScore;
+            totalScore += healthScore * 0.2;
+            factorCount += 0.2;
+          }
+
+          // 4. Emotional analysis - Weight: 10%
+          const analysesForDate = analysisData.filter(a => 
+            format(new Date(a.created_at), 'yyyy-MM-dd') === dateStr
+          );
+          if (analysesForDate.length > 0) {
+            // Calculate emotional wellness based on positive vs negative emotions
+            const emotionScores = analysesForDate.map(a => {
+              const positiveEmotions = ['felice', 'giocoso', 'calmo', 'curioso', 'affettuoso'];
+              const negativeEmotions = ['triste', 'ansioso', 'agitato', 'spaventato', 'aggressivo'];
+              
+              if (positiveEmotions.includes(a.primary_emotion.toLowerCase())) {
+                return a.primary_confidence * 100; // 0-100 based on confidence
+              } else if (negativeEmotions.includes(a.primary_emotion.toLowerCase())) {
+                return (1 - a.primary_confidence) * 100; // Invert negative emotions
+              } else {
+                return 70; // Neutral emotions get average score
+              }
+            });
+            
+            const avgEmotionScore = emotionScores.reduce((sum, score) => sum + score, 0) / emotionScores.length;
+            factors.emotion = avgEmotionScore;
+            totalScore += avgEmotionScore * 0.1;
+            factorCount += 0.1;
+          }
+
+          // Calculate final score (normalize by actual factors present)
+          const finalScore = factorCount > 0 ? Math.round(totalScore / factorCount) : 0;
+
+          return {
+            date: dateStr,
+            score: Math.min(100, Math.max(0, finalScore)), // Clamp between 0-100
+            dateFormatted: format(date, 'd MMM', { locale: it }),
+            factors,
+            dataTypes: {
+              hasWellness: !!wellnessForDate,
+              hasDiary: diaryForDate.length > 0,
+              hasHealth: healthForDate.length > 0,
+              hasAnalysis: analysesForDate.length > 0
+            }
+          };
+        })
+        .filter(item => item.score > 0); // Only include dates with actual data
+    };
+
+    const wellnessTrends = calculateComprehensiveWellness();
 
     // Activity patterns - group by day of week
     const activityPatterns = Array.from({ length: 7 }, (_, i) => {
