@@ -11,7 +11,8 @@ import {
   CreditCard, 
   Handshake, 
   HeadphonesIcon, 
-  Settings 
+  Settings,
+  GraduationCap
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -33,6 +34,7 @@ const navigationItems = [
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
+  { title: 'Training AI', url: '/training', icon: GraduationCap },
   { title: 'Benessere', url: '/wellness', icon: Heart },
   { title: 'Statistiche', url: '/stats', icon: BarChart3 },
 ];

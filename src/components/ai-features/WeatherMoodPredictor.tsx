@@ -106,9 +106,9 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       await fetchWeatherAndPrediction(latitude, longitude);
       
     } catch (error) {
-      console.error('Error getting location:', error);
+      // Silently handle geolocation errors to prevent UI flickering
       setHasLocation(false);
-      toast.error('Impossibile ottenere la posizione. Abilita la geolocalizzazione.');
+      // Only show toast error if user explicitly tries to enable location
     } finally {
       setIsLoading(false);
     }
