@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { usePetTwins, useMentors, useSuccessPatterns } from '@/hooks/usePetMatching';
+import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 
 // Enhanced Types
 interface PetTwin {
@@ -316,6 +317,9 @@ export const PetMatchingIntelligence: React.FC = () => {
   const { data: mentors = [], isLoading: mentorsLoading } = useMentors();
   const { data: successPatterns = [], isLoading: patternsLoading } = useSuccessPatterns();
   
+  // Training protocol creation
+  const createProtocol = useCreateProtocol();
+  
   // Show loading if any data is still loading
   if (petsLoading || mentorsLoading || patternsLoading) {
     return (
@@ -434,21 +438,64 @@ export const PetMatchingIntelligence: React.FC = () => {
     }, 1000);
   };
 
-  const handleStartPattern = (patternId: string) => {
+  const handleStartPattern = async (patternId: string) => {
     setIsLoading(true);
     const pattern = patterns.find(p => p.id === patternId);
-    setTimeout(() => {
+    
+    if (!pattern) {
       setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Create the real protocol in database
+      await createProtocol.mutateAsync({
+        title: pattern.patternName,
+        description: pattern.description,
+        category: pattern.category.toLowerCase(),
+        difficulty: pattern.difficulty.toLowerCase() as 'facile' | 'medio' | 'difficile',
+        duration_days: parseInt(pattern.timeframe.split(' ')[0]) || 14,
+        target_behavior: pattern.patternName,
+        triggers: [],
+        required_materials: pattern.requiredMaterials || [],
+        is_public: false,
+        ai_generated: true,
+        integration_source: 'matching',
+        current_day: 1,
+        progress_percentage: 0,
+        status: 'active',
+        success_rate: pattern.successRate || 0,
+        veterinary_approved: false,
+        community_rating: 0,
+        community_usage: 0,
+        mentor_recommended: false,
+        notifications_enabled: true,
+        last_activity_at: new Date().toISOString(),
+        user_id: '',
+        pet_id: null,
+        estimated_cost: null, // Sempre gratuito
+        share_code: null,
+      });
+
+      // Update local state
       setPatterns(prev => prev.map(p => 
         p.id === patternId ? { ...p, isStarted: true } : p
       ));
-      if (pattern) {
-        toast({
-          title: "Protocollo avviato!",
-          description: `"${pattern.patternName}" è stato avviato. Troverai i dettagli nella sezione Training.`,
-        });
-      }
-    }, 1000);
+
+      toast({
+        title: "Protocollo creato!",
+        description: `"${pattern.patternName}" è stato creato e avviato. Lo trovi nella sezione Training.`,
+      });
+    } catch (error) {
+      console.error('Error creating protocol:', error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile creare il protocollo. Riprova.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Find highest match if any
@@ -1098,12 +1145,6 @@ export const PetMatchingIntelligence: React.FC = () => {
                       <p className="font-medium">Casi Simili:</p>
                       <p className="text-muted-foreground">{pattern.similarCases}</p>
                     </div>
-                    {pattern.estimatedCost && (
-                      <div className="col-span-2">
-                        <p className="font-medium">Costo Stimato:</p>
-                        <p className="text-muted-foreground">€{pattern.estimatedCost}</p>
-                      </div>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -1200,14 +1241,6 @@ export const PetMatchingIntelligence: React.FC = () => {
                                     <Badge variant="outline">Necessario</Badge>
                                   </div>
                                 ))}
-                                {pattern.estimatedCost && (
-                                  <div className="pt-2 border-t">
-                                    <div className="flex justify-between font-medium">
-                                      <span>Costo Totale Stimato:</span>
-                                      <span>€{pattern.estimatedCost}</span>
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </div>
@@ -1252,38 +1285,23 @@ export const PetMatchingIntelligence: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Ansia da Separazione</span>
-                    <span className="text-sm font-medium">89% miglioramento</span>
+                {/* Calcola i progressi dai dati reali */}
+                {successPatterns.slice(0, 4).map((pattern, index) => (
+                  <div key={pattern.id} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{pattern.patternName}</span>
+                      <span className="text-sm font-medium">{pattern.successRate}% miglioramento</span>
+                    </div>
+                    <Progress value={pattern.successRate || 0} className="h-2" />
+                    <p className="text-xs text-muted-foreground">{pattern.similarCases} casi trattati</p>
                   </div>
-                  <Progress value={89} className="h-2" />
-                  <p className="text-xs text-muted-foreground">127 casi trattati con successo</p>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Gestione Energia</span>
-                    <span className="text-sm font-medium">94% miglioramento</span>
+                ))}
+                
+                {successPatterns.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>Nessun dato disponibile al momento</p>
                   </div>
-                  <Progress value={94} className="h-2" />
-                  <p className="text-xs text-muted-foreground">89 casi completati</p>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Socializzazione</span>
-                    <span className="text-sm font-medium">78% miglioramento</span>
-                  </div>
-                  <Progress value={78} className="h-2" />
-                  <p className="text-xs text-muted-foreground">56 casi in corso</p>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Comportamento Alimentare</span>
-                    <span className="text-sm font-medium">85% miglioramento</span>
-                  </div>
-                  <Progress value={85} className="h-2" />
-                  <p className="text-xs text-muted-foreground">43 casi risolti</p>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -1296,65 +1314,50 @@ export const PetMatchingIntelligence: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-purple-500/20 text-purple-700">M</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">Max (Golden Retriever)</p>
-                        <p className="text-xs text-muted-foreground">Trattamento ansia - 6 settimane</p>
+                  {/* Genera storie di successo dai dati reali */}
+                  {petTwins.slice(0, 3).map((pet, index) => (
+                    <div key={pet.id} className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-purple-500/20 text-purple-700">
+                            {pet.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-sm">{pet.name} ({pet.breed})</p>
+                          <p className="text-xs text-muted-foreground">Programma comportamentale - {pet.age} anni</p>
+                        </div>
+                        <Badge 
+                          variant={pet.match_score > 85 ? "default" : "outline"} 
+                          className={`ml-auto text-xs ${pet.match_score > 85 ? 'bg-green-500' : ''}`}
+                        >
+                          {pet.match_score > 85 ? 'Successo' : 'In Corso'}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="ml-auto text-xs">Completato</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      "Grazie al protocollo anti-ansia e al supporto del mentore Dr. Elena, Max è passato da 8 ore di pianto a solo 10 minuti!"
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                      <Target className="h-3 w-3" />
-                      <span>Obiettivo raggiunto al 96%</span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-purple-500/20 text-purple-700">L</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">Lucy (Gatto Persiano)</p>
-                        <p className="text-xs text-muted-foreground">Socializzazione - 10 settimane</p>
+                      <p className="text-sm text-muted-foreground">
+                        "{pet.name} ha mostrato miglioramenti significativi nel comportamento grazie al programma personalizzato!"
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        {pet.match_score > 85 ? (
+                          <div className="flex items-center gap-2 text-xs text-green-600">
+                            <CheckCircle className="h-3 w-3" />
+                            <span>Obiettivo raggiunto al {pet.match_score}%</span>
+                          </div>
+                        ) : (
+                          <>
+                            <Progress value={pet.match_score} className="flex-1 h-1" />
+                            <span className="text-xs text-muted-foreground">{pet.match_score}%</span>
+                          </>
+                        )}
                       </div>
-                      <Badge variant="outline" className="ml-auto text-xs">In Corso</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      "Il programma di socializzazione graduale ha permesso a Lucy di accettare finalmente altri gatti!"
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Progress value={75} className="flex-1 h-1" />
-                      <span className="text-xs text-muted-foreground">75%</span>
+                  ))}
+                  
+                  {petTwins.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Nessuna storia di successo disponibile al momento</p>
                     </div>
-                  </div>
-
-                  <div className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-purple-500/20 text-purple-700">B</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-sm">Buddy (Labrador)</p>
-                        <p className="text-xs text-muted-foreground">Gestione energia - 3 settimane</p>
-                      </div>
-                      <Badge className="ml-auto text-xs bg-green-500">Successo</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      "Routine di esercizio strutturata ha completamente risolto l'iperattività. Buddy è ora calmo e equilibrato!"
-                    </p>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-green-600">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>Risultato eccezionale</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

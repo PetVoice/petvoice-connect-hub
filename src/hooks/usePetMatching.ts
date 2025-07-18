@@ -241,7 +241,7 @@ export const useSuccessPatterns = () => {
         similarCases: template.popularity_score || 0,
         category: template.category || 'Comportamento',
         isStarted: false,
-        estimatedCost: Math.floor(Math.random() * 100) + 50,
+        estimatedCost: null, // Sempre gratuito
         requiredMaterials: ['Materiali base', 'Strumenti di monitoraggio']
       })) || [];
     },
