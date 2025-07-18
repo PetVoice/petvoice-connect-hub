@@ -353,7 +353,7 @@ export default function StatsPage() {
   const [selectedPets, setSelectedPets] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
-  const [healthTrendFilter, setHealthTrendFilter] = useState('1m');
+  
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subMonths(new Date(), 1),
     to: new Date()
@@ -855,7 +855,7 @@ export default function StatsPage() {
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     };
 
-    const healthTrends = getHealthTrendsData(healthTrendFilter);
+    const healthTrends = getHealthTrendsData('all');
 
     return {
       totalAnalyses,
@@ -874,7 +874,7 @@ export default function StatsPage() {
       wellnessTrend,
       timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthData, wellnessData, dateRange, healthTrendFilter]);
+  }, [analysisData, diaryData, healthData, wellnessData, dateRange]);
 
   // Create display analytics with fallback values - ULTRA SAFE VERSION
   const displayAnalytics = analytics || {
@@ -1355,20 +1355,6 @@ export default function StatsPage() {
                 <CardDescription>
                   Andamento delle metriche di salute nel tempo
                 </CardDescription>
-                <div className="flex items-center gap-2 mt-3">
-                  <Select value={healthTrendFilter} onValueChange={setHealthTrendFilter}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {HEALTH_TREND_RANGES.map(range => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </CardHeader>
               <CardContent>
                 {displayAnalytics.healthTrends.length > 0 ? (
