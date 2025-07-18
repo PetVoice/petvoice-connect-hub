@@ -98,6 +98,400 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_suggested_protocols: {
+        Row: {
+          accepted: boolean | null
+          auto_generated: boolean | null
+          category: string
+          confidence_score: number
+          created_at: string | null
+          description: string | null
+          difficulty: string
+          dismissed: boolean | null
+          duration_days: number
+          estimated_success: number | null
+          id: string
+          integration_data: Json | null
+          pet_id: string | null
+          reason: string
+          similar_cases: number | null
+          source: string
+          title: string
+          updated_at: string | null
+          urgency: string
+          user_id: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          auto_generated?: boolean | null
+          category: string
+          confidence_score: number
+          created_at?: string | null
+          description?: string | null
+          difficulty: string
+          dismissed?: boolean | null
+          duration_days: number
+          estimated_success?: number | null
+          id?: string
+          integration_data?: Json | null
+          pet_id?: string | null
+          reason: string
+          similar_cases?: number | null
+          source: string
+          title: string
+          updated_at?: string | null
+          urgency?: string
+          user_id: string
+        }
+        Update: {
+          accepted?: boolean | null
+          auto_generated?: boolean | null
+          category?: string
+          confidence_score?: number
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string
+          dismissed?: boolean | null
+          duration_days?: number
+          estimated_success?: number | null
+          id?: string
+          integration_data?: Json | null
+          pet_id?: string | null
+          reason?: string
+          similar_cases?: number | null
+          source?: string
+          title?: string
+          updated_at?: string | null
+          urgency?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggested_protocols_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_training_exercises: {
+        Row: {
+          ai_analysis: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          day_number: number
+          description: string | null
+          duration_minutes: number | null
+          effectiveness_score: number | null
+          exercise_type: string
+          feedback: string | null
+          id: string
+          instructions: string[] | null
+          materials: string[] | null
+          photos: string[] | null
+          protocol_id: string
+          title: string
+          updated_at: string | null
+          video_url: string | null
+          voice_notes: string[] | null
+        }
+        Insert: {
+          ai_analysis?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number: number
+          description?: string | null
+          duration_minutes?: number | null
+          effectiveness_score?: number | null
+          exercise_type?: string
+          feedback?: string | null
+          id?: string
+          instructions?: string[] | null
+          materials?: string[] | null
+          photos?: string[] | null
+          protocol_id: string
+          title: string
+          updated_at?: string | null
+          video_url?: string | null
+          voice_notes?: string[] | null
+        }
+        Update: {
+          ai_analysis?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number?: number
+          description?: string | null
+          duration_minutes?: number | null
+          effectiveness_score?: number | null
+          exercise_type?: string
+          feedback?: string | null
+          id?: string
+          instructions?: string[] | null
+          materials?: string[] | null
+          photos?: string[] | null
+          protocol_id?: string
+          title?: string
+          updated_at?: string | null
+          video_url?: string | null
+          voice_notes?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_training_exercises_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "ai_training_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_training_metrics: {
+        Row: {
+          behavior_improvement: number | null
+          community_success: number | null
+          cost_effectiveness: number | null
+          created_at: string | null
+          engagement_level: number | null
+          id: string
+          owner_satisfaction: number | null
+          protocol_id: string
+          recorded_at: string | null
+          stress_reduction: number | null
+          time_efficiency: number | null
+        }
+        Insert: {
+          behavior_improvement?: number | null
+          community_success?: number | null
+          cost_effectiveness?: number | null
+          created_at?: string | null
+          engagement_level?: number | null
+          id?: string
+          owner_satisfaction?: number | null
+          protocol_id: string
+          recorded_at?: string | null
+          stress_reduction?: number | null
+          time_efficiency?: number | null
+        }
+        Update: {
+          behavior_improvement?: number | null
+          community_success?: number | null
+          cost_effectiveness?: number | null
+          created_at?: string | null
+          engagement_level?: number | null
+          id?: string
+          owner_satisfaction?: number | null
+          protocol_id?: string
+          recorded_at?: string | null
+          stress_reduction?: number | null
+          time_efficiency?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_training_metrics_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "ai_training_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_training_protocols: {
+        Row: {
+          ai_generated: boolean | null
+          category: string
+          community_rating: number | null
+          community_usage: number | null
+          created_at: string | null
+          current_day: number | null
+          description: string | null
+          difficulty: string
+          duration_days: number
+          estimated_cost: number | null
+          id: string
+          integration_source: string | null
+          is_public: boolean | null
+          last_activity_at: string | null
+          mentor_recommended: boolean | null
+          notifications_enabled: boolean | null
+          pet_id: string | null
+          progress_percentage: number | null
+          required_materials: string[] | null
+          share_code: string | null
+          status: string
+          success_rate: number | null
+          target_behavior: string | null
+          title: string
+          triggers: string[] | null
+          updated_at: string | null
+          user_id: string
+          veterinary_approved: boolean | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          category?: string
+          community_rating?: number | null
+          community_usage?: number | null
+          created_at?: string | null
+          current_day?: number | null
+          description?: string | null
+          difficulty?: string
+          duration_days?: number
+          estimated_cost?: number | null
+          id?: string
+          integration_source?: string | null
+          is_public?: boolean | null
+          last_activity_at?: string | null
+          mentor_recommended?: boolean | null
+          notifications_enabled?: boolean | null
+          pet_id?: string | null
+          progress_percentage?: number | null
+          required_materials?: string[] | null
+          share_code?: string | null
+          status?: string
+          success_rate?: number | null
+          target_behavior?: string | null
+          title: string
+          triggers?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          veterinary_approved?: boolean | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          category?: string
+          community_rating?: number | null
+          community_usage?: number | null
+          created_at?: string | null
+          current_day?: number | null
+          description?: string | null
+          difficulty?: string
+          duration_days?: number
+          estimated_cost?: number | null
+          id?: string
+          integration_source?: string | null
+          is_public?: boolean | null
+          last_activity_at?: string | null
+          mentor_recommended?: boolean | null
+          notifications_enabled?: boolean | null
+          pet_id?: string | null
+          progress_percentage?: number | null
+          required_materials?: string[] | null
+          share_code?: string | null
+          status?: string
+          success_rate?: number | null
+          target_behavior?: string | null
+          title?: string
+          triggers?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          veterinary_approved?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_training_protocols_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_training_schedules: {
+        Row: {
+          created_at: string | null
+          daily_time: string | null
+          end_date: string | null
+          flexible: boolean | null
+          id: string
+          protocol_id: string
+          reminder_times: string[] | null
+          start_date: string
+          updated_at: string | null
+          weekdays: number[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          daily_time?: string | null
+          end_date?: string | null
+          flexible?: boolean | null
+          id?: string
+          protocol_id: string
+          reminder_times?: string[] | null
+          start_date: string
+          updated_at?: string | null
+          weekdays?: number[] | null
+        }
+        Update: {
+          created_at?: string | null
+          daily_time?: string | null
+          end_date?: string | null
+          flexible?: boolean | null
+          id?: string
+          protocol_id?: string
+          reminder_times?: string[] | null
+          start_date?: string
+          updated_at?: string | null
+          weekdays?: number[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_training_schedules_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "ai_training_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_training_templates: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          difficulty: string
+          duration_days: number
+          id: string
+          is_active: boolean | null
+          name: string
+          popularity_score: number | null
+          success_rate: number | null
+          template_data: Json
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          difficulty: string
+          duration_days: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          popularity_score?: number | null
+          success_rate?: number | null
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string
+          duration_days?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          popularity_score?: number | null
+          success_rate?: number | null
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       anonymous_benchmarks: {
         Row: {
           age_range: string | null
