@@ -42,6 +42,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { usePetTwins, useMentors, useSuccessPatterns } from '@/hooks/usePetMatching';
 
 // Enhanced Types
 interface PetTwin {
@@ -310,10 +311,15 @@ const mockSuccessPatterns: SuccessPattern[] = [
 export const PetMatchingIntelligence: React.FC = () => {
   const { toast } = useToast();
   
+  // Real data hooks
+  const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
+  const { data: mentors = [], isLoading: mentorsLoading } = useMentors();
+  const { data: successPatterns = [], isLoading: patternsLoading } = useSuccessPatterns();
+  
   // State Management
-  const [selectedPetTwin, setSelectedPetTwin] = useState<PetTwin | null>(null);
-  const [selectedMentor, setSelectedMentor] = useState<MentorMatch | null>(null);
-  const [selectedPattern, setSelectedPattern] = useState<SuccessPattern | null>(null);
+  const [selectedPetTwin, setSelectedPetTwin] = useState<any>(null);
+  const [selectedMentor, setSelectedMentor] = useState<any>(null);
+  const [selectedPattern, setSelectedPattern] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [speciesFilter, setSpeciesFilter] = useState<string>('all');
   const [distanceFilter, setDistanceFilter] = useState<string>('all');
@@ -323,7 +329,14 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
-  const [patterns, setPatterns] = useState<SuccessPattern[]>(mockSuccessPatterns);
+  const [patterns, setPatterns] = useState<any[]>([]);
+
+  // Update patterns when successPatterns changes
+  React.useEffect(() => {
+    if (successPatterns.length > 0) {
+      setPatterns(successPatterns);
+    }
+  }, [successPatterns]);
 
   // Mock current pet data (would come from app state)
   const currentPet = {
@@ -335,67 +348,29 @@ export const PetMatchingIntelligence: React.FC = () => {
 
   // Filter and sort logic
   const filteredPetTwins = useMemo(() => {
-    let filtered = mockPetTwins.filter(twin => {
+    if (!petTwins || petTwins.length === 0) return [];
+    
+    return petTwins.filter(twin => {
       const matchesSearch = twin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            twin.breed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           twin.owner.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSpecies = speciesFilter === 'all' || twin.species === speciesFilter;
-      const matchesDistance = distanceFilter === 'all' || 
-                             (distanceFilter === '5' && twin.distance <= 5) ||
-                             (distanceFilter === '10' && twin.distance <= 10) ||
-                             (distanceFilter === '25' && twin.distance <= 25);
+                           twin.owner_name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSpecies = speciesFilter === 'all' || twin.type === speciesFilter;
       
-      return matchesSearch && matchesSpecies && matchesDistance;
+      return matchesSearch && matchesSpecies;
     });
-
-    // Sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'match':
-          return b.matchScore - a.matchScore;
-        case 'distance':
-          return a.distance - b.distance;
-        case 'activity':
-          return a.lastActive.localeCompare(b.lastActive);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [searchTerm, speciesFilter, distanceFilter, sortBy]);
+  }, [petTwins, searchTerm, speciesFilter]);
 
   const filteredMentors = useMemo(() => {
-    let filtered = mockMentors.filter(mentor => {
-      const matchesSearch = mentor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    if (!mentors || mentors.length === 0) return [];
+    
+    return mentors.filter(mentor => {
+      const matchesSearch = mentor.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            mentor.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesOnline = !onlineFilter || mentor.isOnline;
-      const matchesDistance = distanceFilter === 'all' || 
-                             (distanceFilter === '5' && mentor.distance <= 5) ||
-                             (distanceFilter === '10' && mentor.distance <= 10) ||
-                             (distanceFilter === '25' && mentor.distance <= 25);
+      const matchesOnline = !onlineFilter || mentor.is_online;
       
-      return matchesSearch && matchesOnline && matchesDistance;
+      return matchesSearch && matchesOnline;
     });
-
-    // Sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'rating':
-          return b.rating - a.rating;
-        case 'distance':
-          return a.distance - b.distance;
-        case 'experience':
-          return b.experience - a.experience;
-        case 'success':
-          return b.successRate - a.successRate;
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [searchTerm, onlineFilter, distanceFilter, sortBy]);
+  }, [mentors, searchTerm, onlineFilter]);
 
   // Utility functions
   const getDifficultyColor = (difficulty: string): string => {

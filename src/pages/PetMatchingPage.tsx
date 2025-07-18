@@ -1,9 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
+import { usePetMatching } from '@/hooks/usePetMatching';
 import { Network, Heart, Users, TrendingUp, Star } from 'lucide-react';
 
 const PetMatchingPage: React.FC = () => {
+  const { data: matchingData, isLoading } = usePetMatching();
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -29,7 +32,9 @@ const PetMatchingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-azure">12</div>
+            <div className="text-2xl font-bold text-azure">
+              {isLoading ? '...' : matchingData?.petTwins || 0}
+            </div>
             <p className="text-xs text-muted-foreground">match comportamentali</p>
           </CardContent>
         </Card>
@@ -42,7 +47,9 @@ const PetMatchingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-500">8</div>
+            <div className="text-2xl font-bold text-emerald-500">
+              {isLoading ? '...' : matchingData?.mentorsActive || 0}
+            </div>
             <p className="text-xs text-muted-foreground">proprietari esperti</p>
           </CardContent>
         </Card>
@@ -55,7 +62,9 @@ const PetMatchingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-500">94%</div>
+            <div className="text-2xl font-bold text-orange-500">
+              {isLoading ? '...' : `${matchingData?.averageImprovement || 0}%`}
+            </div>
             <p className="text-xs text-muted-foreground">miglioramento medio</p>
           </CardContent>
         </Card>
@@ -68,7 +77,9 @@ const PetMatchingPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-500">156</div>
+            <div className="text-2xl font-bold text-purple-500">
+              {isLoading ? '...' : matchingData?.successStories || 0}
+            </div>
             <p className="text-xs text-muted-foreground">casi di successo</p>
           </CardContent>
         </Card>
