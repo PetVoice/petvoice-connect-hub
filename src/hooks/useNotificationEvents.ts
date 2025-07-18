@@ -57,8 +57,8 @@ export function useNotificationEvents() {
       localStorage.setItem(lastReminderKey, now.toISOString());
     };
 
-    // Controlla una volta al minuto se è ora di inviare promemoria giornalieri
-    const interval = setInterval(generateDailyReminders, 60000);
+    // Controlla ogni 5 secondi per notifiche più reattive
+    const interval = setInterval(generateDailyReminders, 5000);
     return () => clearInterval(interval);
   }, [user, pets, addNotification]);
 
