@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -17,8 +17,13 @@ import {
   AlertCircle,
   Video,
   Star,
-  Clock
+  Clock,
+  Trash2,
+  MoreHorizontal
 } from 'lucide-react';
+import { useTrainingProtocols, useDeleteProtocol, useUpdateProtocol } from '@/hooks/useTrainingProtocols';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TrainingProtocol {
   id: string;
@@ -181,14 +186,28 @@ const mockSessions: TrainingSession[] = [
 ];
 
 export const AITrainingProtocols: React.FC = () => {
-  const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
+  const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('protocols');
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  
+  const { data: protocols = [], isLoading } = useTrainingProtocols();
+  const deleteProtocol = useDeleteProtocol();
+  const updateProtocol = useUpdateProtocol();
+
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'bg-green-100 text-green-800';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-      case 'advanced': return 'bg-red-100 text-red-800';
+      case 'facile': return 'bg-green-100 text-green-800';
+      case 'medio': return 'bg-yellow-100 text-yellow-800';
+      case 'difficile': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -198,9 +217,31 @@ export const AITrainingProtocols: React.FC = () => {
       case 'active': return 'bg-blue-100 text-blue-800';
       case 'completed': return 'bg-green-100 text-green-800';
       case 'paused': return 'bg-gray-100 text-gray-800';
+      case 'available': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const handleDeleteProtocol = async (protocolId: string) => {
+    if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+      await deleteProtocol.mutateAsync(protocolId);
+    }
+  };
+
+  const handleStatusChange = async (protocolId: string, newStatus: string) => {
+    await updateProtocol.mutateAsync({
+      id: protocolId,
+      updates: { status: newStatus as any }
+    });
+  };
+
+  const isUserCreated = (protocol: any) => {
+    return protocol.user_id === currentUserId && !protocol.ai_generated;
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Caricamento protocolli...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -224,20 +265,23 @@ export const AITrainingProtocols: React.FC = () => {
 
             <TabsContent value="protocols" className="mt-4">
               <div className="grid gap-4">
-                {mockProtocols.map((protocol) => (
+                {protocols.map((protocol) => (
                   <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
                         onClick={() => setSelectedProtocol(protocol)}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{protocol.name}</h3>
+                            <h3 className="font-semibold">{protocol.title}</h3>
                             <Badge className={getDifficultyColor(protocol.difficulty)}>
                               {protocol.difficulty}
                             </Badge>
                             <Badge className={getStatusColor(protocol.status)}>
                               {protocol.status}
                             </Badge>
+                            {protocol.ai_generated && (
+                              <Badge variant="outline">AI</Badge>
+                            )}
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
                             {protocol.description}
@@ -245,35 +289,84 @@ export const AITrainingProtocols: React.FC = () => {
                           <div className="flex items-center gap-4 text-sm">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-4 w-4" />
-                              Giorno {protocol.currentDay}/{protocol.duration}
+                              Giorno {protocol.current_day}/{protocol.duration_days}
                             </span>
                             <span className="flex items-center gap-1">
                               <TrendingUp className="h-4 w-4" />
-                              {protocol.successRate}% successo
+                              {protocol.success_rate}% successo
                             </span>
                           </div>
                           <div className="mt-3">
                             <div className="flex items-center justify-between text-sm mb-1">
                               <span>Progresso</span>
-                              <span>{Math.round((protocol.currentDay / protocol.duration) * 100)}%</span>
+                              <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
                             </div>
-                            <Progress value={(protocol.currentDay / protocol.duration) * 100} />
+                            <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
                           </div>
                         </div>
                         <div className="flex gap-2">
                           {protocol.status === 'active' && (
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(protocol.id, 'paused');
+                              }}
+                            >
                               <PauseCircle className="h-4 w-4" />
                             </Button>
                           )}
                           {protocol.status === 'paused' && (
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(protocol.id, 'active');
+                              }}
+                            >
                               <PlayCircle className="h-4 w-4" />
                             </Button>
                           )}
-                          <Button size="sm" variant="outline">
-                            <RotateCcw className="h-4 w-4" />
-                          </Button>
+                          {protocol.status === 'available' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusChange(protocol.id, 'active');
+                              }}
+                            >
+                              <PlayCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleStatusChange(protocol.id, 'active')}>
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Riavvia
+                              </DropdownMenuItem>
+                              {isUserCreated(protocol) && (
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteProtocol(protocol.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Elimina
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     </CardContent>

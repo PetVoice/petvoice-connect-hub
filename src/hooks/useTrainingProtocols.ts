@@ -277,6 +277,39 @@ export const useUpdateProtocol = () => {
   });
 };
 
+export const useDeleteProtocol = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('ai_training_protocols')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+      toast({
+        title: 'Protocollo eliminato',
+        description: 'Il protocollo è stato eliminato con successo',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Errore nell\'eliminazione',
+        description: 'Non è stato possibile eliminare il protocollo',
+        variant: 'destructive',
+      });
+      console.error('Error deleting protocol:', error);
+    },
+  });
+};
+
 export const useAcceptSuggestion = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
