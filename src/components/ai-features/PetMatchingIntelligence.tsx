@@ -41,6 +41,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 // Enhanced Types
 interface PetTwin {
@@ -307,6 +308,8 @@ const mockSuccessPatterns: SuccessPattern[] = [
 ];
 
 export const PetMatchingIntelligence: React.FC = () => {
+  const { toast } = useToast();
+  
   // State Management
   const [selectedPetTwin, setSelectedPetTwin] = useState<PetTwin | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<MentorMatch | null>(null);
@@ -320,6 +323,7 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
+  const [patterns, setPatterns] = useState<SuccessPattern[]>(mockSuccessPatterns);
 
   // Mock current pet data (would come from app state)
   const currentPet = {
@@ -425,7 +429,10 @@ export const PetMatchingIntelligence: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      alert(`Richiesta di connessione inviata al proprietario del pet!`);
+      toast({
+        title: "Connessione inviata!",
+        description: "La richiesta di connessione è stata inviata al proprietario del pet.",
+      });
     }, 1500);
   };
 
@@ -433,18 +440,27 @@ export const PetMatchingIntelligence: React.FC = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      alert(`Messaggio inviato al mentore! Risponderà entro ${mockMentors.find(m => m.id === mentorId)?.responseTime}`);
+      const mentor = mockMentors.find(m => m.id === mentorId);
+      toast({
+        title: "Messaggio inviato!",
+        description: `Il mentore risponderà entro ${mentor?.responseTime || "alcune ore"}.`,
+      });
     }, 1000);
   };
 
   const handleStartPattern = (patternId: string) => {
     setIsLoading(true);
+    const pattern = patterns.find(p => p.id === patternId);
     setTimeout(() => {
       setIsLoading(false);
-      const pattern = mockSuccessPatterns.find(p => p.id === patternId);
+      setPatterns(prev => prev.map(p => 
+        p.id === patternId ? { ...p, isStarted: true } : p
+      ));
       if (pattern) {
-        pattern.isStarted = true;
-        alert(`Protocollo "${pattern.patternName}" avviato! Troverai i dettagli nella sezione Training.`);
+        toast({
+          title: "Protocollo avviato!",
+          description: `"${pattern.patternName}" è stato avviato. Troverai i dettagli nella sezione Training.`,
+        });
       }
     }, 1000);
   };
@@ -575,13 +591,13 @@ export const PetMatchingIntelligence: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredPetTwins.map((twin) => (
-                <Card key={twin.id} className="hover:shadow-lg transition-all duration-300 cursor-pointer border-azure/20 hover:border-azure/40">
+                <Card key={twin.id} className="hover:shadow-lg transition-all duration-300 cursor-pointer border-primary/20 hover:border-primary/40">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-12 w-12 border-2 border-azure/30">
+                        <Avatar className="h-12 w-12 border-2 border-primary/30">
                           <AvatarImage src={twin.avatar} alt={twin.name} />
-                          <AvatarFallback className="bg-azure/20 text-azure">
+                          <AvatarFallback className="bg-primary/20 text-primary">
                             {twin.name.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
@@ -591,7 +607,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <Badge variant="secondary" className="bg-azure/20 text-azure border-azure/30">
+                        <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
                           {twin.matchScore}% Match
                         </Badge>
                         <Button
@@ -789,7 +805,7 @@ export const PetMatchingIntelligence: React.FC = () => {
                         </Dialog>
                         <Button 
                           size="sm" 
-                          className="bg-azure hover:bg-azure-dark"
+                          className="bg-primary hover:bg-primary/90"
                           onClick={() => handleConnect(twin.id)}
                           disabled={isLoading}
                         >
@@ -1052,7 +1068,7 @@ export const PetMatchingIntelligence: React.FC = () => {
         {/* Enhanced Success Patterns Tab */}
         <TabsContent value="success-patterns" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            {mockSuccessPatterns.map((pattern) => (
+            {patterns.map((pattern) => (
               <Card key={pattern.id} className="hover:shadow-lg transition-all duration-300 border-orange-500/20 hover:border-orange-500/40">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
