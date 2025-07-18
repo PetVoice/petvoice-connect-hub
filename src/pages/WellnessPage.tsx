@@ -3153,7 +3153,8 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                     'temperature': '°C',
                     'heart_rate': 'bpm',
                     'respiration': 'resp/min',
-                    'gum_color': ''
+                    'gum_color': '',
+                    'weight': 'kg'
                   };
                   setNewMetric(prev => ({ 
                     ...prev, 
@@ -3171,6 +3172,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                   <SelectItem value="heart_rate">Frequenza Cardiaca</SelectItem>
                   <SelectItem value="respiration">Respirazione</SelectItem>
                   <SelectItem value="gum_color">Colore Gengive</SelectItem>
+                  <SelectItem value="weight">Peso</SelectItem>
                 </SelectContent>
               </Select>
             </div>
