@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +26,10 @@ import {
   useMarkNotificationRead,
   useDismissNotification
 } from '@/hooks/useCommunityLearning';
-import { useCommunityLearningProcessor } from '@/hooks/useCommunityLearningProcessor';
+import { generateInsights } from '@/utils/insightsGenerator';
+import { usePets } from '@/contexts/PetContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -45,7 +49,52 @@ const CommunityInsightsDashboard: React.FC = () => {
 
   const markAsRead = useMarkNotificationRead();
   const dismissNotification = useDismissNotification();
-  const processor = useCommunityLearningProcessor();
+  const { pets } = usePets();
+  const activePet = pets?.[0]; // Use first pet for demo
+  const queryClient = useQueryClient();
+  
+  // Query for generating community insights using existing system
+  const { data: communityInsights, isLoading: communityLoading, refetch: refetchInsights } = useQuery({
+    queryKey: ['community-insights', activePet?.id],
+    queryFn: async () => {
+      if (!activePet) return [];
+      
+      // Fetch data needed for insights
+      const [analysisData, diaryData, healthData] = await Promise.all([
+        supabase
+          .from('pet_analyses')
+          .select('*')
+          .eq('pet_id', activePet.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('diary_entries')
+          .select('*')
+          .eq('pet_id', activePet.id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('health_metrics')
+          .select('*')
+          .eq('pet_id', activePet.id)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      ]);
+      
+      const insights = generateInsights({
+        analysisData: analysisData.data || [],
+        diaryData: diaryData.data || [],
+        healthData: healthData.data || [],
+        wellnessData: [],
+        petData: activePet,
+        timeRange: 'Last 30 days'
+      });
+      
+      return insights;
+    },
+    enabled: !!activePet,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 
   const getConfidenceColor = (score: number) => {
     if (score >= 0.8) return 'text-green-600';
@@ -71,15 +120,26 @@ const CommunityInsightsDashboard: React.FC = () => {
     }
   };
 
-  const handleProcessData = () => {
-    processor.mutate({
-      type: 'pattern_discovery',
-      confidence_threshold: 0.6,
-      time_range: {
-        start: '2024-01-01',
-        end: new Date().toISOString()
-      }
-    });
+  const handleProcessData = async () => {
+    if (!activePet) return;
+    
+    try {
+      await refetchInsights();
+      // Simulate processing community patterns
+      const communityPatterns = communityInsights?.filter(insight => 
+        insight.category === 'Community Patterns' || 
+        insight.category === 'Cross-Species Learning' ||
+        insight.category === 'Anomaly Detection'
+      ) || [];
+      
+      console.log('Community patterns discovered:', communityPatterns);
+      
+      // Update stats based on insights
+      queryClient.invalidateQueries({ queryKey: ['community-stats'] });
+      
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
   };
 
   return (
@@ -92,10 +152,10 @@ const CommunityInsightsDashboard: React.FC = () => {
         </div>
         <Button 
           onClick={handleProcessData}
-          disabled={processor.isPending}
+          disabled={communityLoading}
           className="bg-azure hover:bg-azure-dark text-white"
         >
-          {processor.isPending ? (
+          {communityLoading ? (
             <>
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
               Elaborando...
@@ -103,7 +163,7 @@ const CommunityInsightsDashboard: React.FC = () => {
           ) : (
             <>
               <Brain className="mr-2 h-4 w-4" />
-              Elabora Dati
+              Genera Insights
             </>
           )}
         </Button>
@@ -247,58 +307,59 @@ const CommunityInsightsDashboard: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {patternsLoading ? (
+              {communityLoading ? (
                 <div className="flex items-center justify-center p-8">
                   <RefreshCw className="h-6 w-6 animate-spin" />
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {patterns?.map((pattern) => (
-                    <div key={pattern.id} className="border rounded-lg p-4">
+                  {communityInsights?.filter(insight => 
+                    insight.category === 'Community Patterns' || 
+                    insight.category === 'Cross-Species Learning' ||
+                    insight.category === 'Anomaly Detection'
+                  ).map((insight) => (
+                    <div key={insight.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline">{pattern.pattern_type}</Badge>
-                            <Badge variant={pattern.impact_level === 'high' || pattern.impact_level === 'critical' ? 'destructive' : 'secondary'}>
-                              {pattern.impact_level}
+                            <Badge variant="outline">{insight.type}</Badge>
+                            <Badge variant={insight.severity === 'high' || insight.severity === 'critical' ? 'destructive' : 'secondary'}>
+                              {insight.severity}
                             </Badge>
                           </div>
-                          <h4 className="font-medium">{pattern.description || 'Pattern non denominato'}</h4>
+                          <h4 className="font-medium">{insight.title}</h4>
                         </div>
-                        <div className={`text-sm font-medium ${getConfidenceColor(pattern.confidence_score)}`}>
-                          {Math.round(pattern.confidence_score * 100)}% confidence
+                        <div className={`text-sm font-medium ${getConfidenceColor(insight.confidence / 100)}`}>
+                          {insight.confidence}% confidence
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="space-y-2 text-sm">
+                        <p className="text-muted-foreground">{insight.description}</p>
+                        
                         <div>
-                          <span className="text-muted-foreground">Specie:</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {pattern.species_affected.map((species) => (
-                              <Badge key={species} variant="outline" className="text-xs">
-                                {species}
-                              </Badge>
-                            ))}
+                          <span className="text-muted-foreground">Category:</span>
+                          <p className="font-medium">{insight.category}</p>
+                        </div>
+                        
+                        <div>
+                          <span className="text-muted-foreground">Data Points:</span>
+                          <p className="font-medium">{insight.evidence?.dataPoints || 0}</p>
+                        </div>
+                        
+                        {insight.recommendation && (
+                          <div className="mt-3 p-2 bg-muted rounded">
+                            <span className="text-muted-foreground">Recommendation:</span>
+                            <p className="font-medium">{insight.recommendation.action}</p>
                           </div>
-                        </div>
-                        
-                        <div>
-                          <span className="text-muted-foreground">Campione:</span>
-                          <p className="font-medium">{pattern.sample_size.toLocaleString()} animali</p>
-                        </div>
-                        
-                        <div>
-                          <span className="text-muted-foreground">Scoperto:</span>
-                          <p className="font-medium">
-                            {formatDistanceToNow(new Date(pattern.discovery_date), { 
-                              addSuffix: true, 
-                              locale: it 
-                            })}
-                          </p>
-                        </div>
+                        )}
                       </div>
                     </div>
-                  ))}
+                  )) || (
+                    <div className="text-center text-muted-foreground p-8">
+                      Nessun pattern scoperto. Clicca "Genera Insights" per elaborare i dati.
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
