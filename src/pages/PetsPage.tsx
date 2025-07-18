@@ -24,7 +24,7 @@ import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
-import { UpgradeModal } from '@/components/UpgradeModal';
+
 import { useNotifications } from '@/hooks/useNotifications';
 
 interface Pet {
@@ -636,17 +636,6 @@ const PetsPage: React.FC = () => {
         onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
       />
 
-      {/* Upgrade Modal */}
-      <UpgradeModal 
-        open={showUpgradeModal} 
-        onOpenChange={(open) => {
-          setShowUpgradeModal(open);
-          // Chiudi anche il form di aggiunta pet quando l'upgrade modal viene chiuso
-          if (!open) {
-            setShowForm(false);
-          }
-        }} 
-      />
     </div>
   );
 };

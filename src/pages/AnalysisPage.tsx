@@ -47,7 +47,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
-import { UpgradeModal } from '@/components/UpgradeModal';
+
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -1316,11 +1316,6 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
         }}
       />
 
-      {/* Upgrade Modal */}
-      <UpgradeModal 
-        open={showUpgradeModal} 
-        onOpenChange={setShowUpgradeModal} 
-      />
     </div>
   );
 };
