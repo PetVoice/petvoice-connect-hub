@@ -5,7 +5,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { Loader2, Crown, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SubscriptionBlockModal } from '@/components/SubscriptionBlockModal';
+
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
@@ -62,21 +62,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     (subscription.is_cancelled && subscription.cancellation_type === 'immediate');
     
   if (isBlocked) {
-    // Determine if user is cancelled or new
-    const isCancelledUser = subscription.is_cancelled || subscription.cancellation_date !== null;
-    
-    // Show modal for ALL pages including subscription page
-    return (
-      <>
-        {children}
-        <SubscriptionBlockModal
-          isOpen={true}
-          onSubscribe={handleSubscribe}
-          isLoading={subscribeLoading}
-          isCancelledUser={isCancelledUser}
-        />
-      </>
-    );
+    // Redirect to subscription page when blocked
+    return <Navigate to="/subscription" replace />;
   }
 
   return <>{children}</>;
