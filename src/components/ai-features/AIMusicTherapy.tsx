@@ -106,6 +106,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isGenerating, setIsGenerating] = useState(false);
   const [moodAdaptation, setMoodAdaptation] = useState(true);
+  const [showCategories, setShowCategories] = useState(true);
   const [emotionalDNA, setEmotionalDNA] = useState({ calma: 50, energia: 50, focus: 50 });
   const [sessionProgress, setSessionProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -137,7 +138,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         };
         
         setCurrentSession(recommendedSession);
-        
+        setShowCategories(false); // Nascondi le categorie quando viene caricata una playlist dall'analisi
         // Auto-start se richiesto
         if (autoStart) {
           // Delay di 1 secondo per permettere al componente di renderizzare
@@ -697,7 +698,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         </Card>
       )}
 
-      {/* Category Filter */}
+      {/* Category Filter - Nascosto quando viene caricata una playlist dall'analisi */}
+      {showCategories && (
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Categorie Terapeutiche</CardTitle>
@@ -765,6 +767,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </div>
         </CardContent>
       </Card>
+      )}
 
       {/* AI Features */}
       <div className="grid md:grid-cols-2 gap-4">
