@@ -505,61 +505,19 @@ const TrainingDashboard: React.FC = () => {
         }
       });
 
-      // Se è l'ultimo esercizio della giornata, avanza al giorno successivo
-      if (completedCount === todayExercises.length) {
-        const isLastDay = protocol.current_day >= protocol.duration_days;
-        
-        await updateProtocol.mutateAsync({
-          id: protocol.id,
-          updates: {
-            current_day: isLastDay ? protocol.current_day : protocol.current_day + 1,
-            progress_percentage: Math.min(newProgressPercentage, 100),
-            status: isLastDay ? 'completed' : protocol.status,
-            last_activity_at: new Date().toISOString(),
-          }
-        });
+       // NON avanzare automaticamente al giorno successivo!
+       // Il giorno cambia SOLO quando clicchi il pulsante "Vai al giorno X"
+       
+       // Toast semplice per confermare il completamento dell'esercizio
+       toast({
+         title: `✅ Esercizio ${currentExercise + 1} completato!`,
+         description: `Ottimo lavoro! ${completedCount === todayExercises.length ? 'Ora puoi passare al giorno successivo.' : `Continua con l'esercizio ${currentExercise + 2}.`}`,
+       });
 
-        toast({
-          title: isLastDay ? 'Protocollo completato!' : 'Giornata completata!',
-          description: isLastDay 
-            ? `Congratulazioni! Hai completato tutto il protocollo "${protocol.title}"!`
-            : `Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ottimo lavoro!`,
-        });
-
-        // Se il protocollo è completato, torna alla dashboard
-        if (isLastDay) {
-          setTimeout(() => {
-            navigate('/training');
-          }, 2000);
-        }
-      } else {
-        // Aggiorna solo il progresso senza cambiare giorno
-        const isProtocolCompleted = newProgressPercentage >= 100;
-        
-        await updateProtocol.mutateAsync({
-          id: protocol.id,
-          updates: {
-            progress_percentage: Math.min(newProgressPercentage, 100),
-            status: isProtocolCompleted ? 'completed' : protocol.status,
-            last_activity_at: new Date().toISOString(),
-          }
-        });
-
-        // Se il protocollo è completato, mostra toast e torna alla dashboard
-        if (isProtocolCompleted) {
-          toast({
-            title: 'Protocollo completato!',
-            description: `Congratulazioni! Hai completato tutto il protocollo "${protocol.title}"!`,
-          });
-          
-          setTimeout(() => {
-            navigate('/training');
-          }, 2000);
-        } else {
-          // Passa al prossimo esercizio
-          setCurrentExercise(prev => prev + 1);
-        }
-      }
+       // Passa al prossimo esercizio
+       if (currentExercise < todayExercises.length - 1) {
+         setCurrentExercise(prev => prev + 1);
+       }
 
       // Reset form se necessario
       
