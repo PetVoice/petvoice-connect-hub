@@ -77,10 +77,19 @@ export const AITrainingHub: React.FC = () => {
   const queryClient = useQueryClient();
   
   // Real data hooks
-  const { data: protocols = [], isLoading: protocolsLoading } = useTrainingProtocols();
+  const { data: protocols = [], isLoading: protocolsLoading, refetch: refetchProtocols } = useTrainingProtocols();
   const { data: suggestedProtocols = [], isLoading: suggestionsLoading } = useSuggestedProtocols();
   const { data: templates = [], isLoading: templatesLoading } = useTrainingTemplates();
   const { data: completedProtocols = [], isLoading: completedLoading } = useCompletedProtocols();
+
+  // Force refresh on mount to ensure data is loaded
+  React.useEffect(() => {
+    console.log('Protocols loaded:', protocols.length);
+    if (protocols.length === 0 && !protocolsLoading) {
+      console.log('Forcing protocol refetch...');
+      refetchProtocols();
+    }
+  }, [protocols, protocolsLoading, refetchProtocols]);
   
   // Mutations
   const createProtocol = useCreateProtocol();
@@ -144,14 +153,17 @@ export const AITrainingHub: React.FC = () => {
   // Delete Confirmation State
   const [protocolToDelete, setProtocolToDelete] = useState<string | null>(null);
 
-  // Get current user ID
+  // Get current user ID and invalidate cache
   useEffect(() => {
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setCurrentUserId(user?.id || null);
+      
+      // Invalida cache per forzare reload
+      queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
     };
     getCurrentUser();
-  }, []);
+  }, [queryClient]);
 
   // Real-time connection monitoring
   React.useEffect(() => {
