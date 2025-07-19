@@ -748,14 +748,18 @@ export const AITrainingHub: React.FC = () => {
                             <Clock className="h-4 w-4" />
                             <span>{protocol.duration_days} giorni</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Target className="h-4 w-4" />
-                            <span>Giorno {protocol.current_day}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% successo</span>
-                          </div>
+                          {protocol.status === 'active' && (
+                            <div className="flex items-center gap-1">
+                              <Target className="h-4 w-4" />
+                              <span>Giorno {protocol.current_day}</span>
+                            </div>
+                          )}
+                          {protocol.success_rate > 0 && (
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="h-4 w-4" />
+                              <span>{Math.round(protocol.success_rate)}% successo</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
@@ -814,13 +818,15 @@ export const AITrainingHub: React.FC = () => {
                              )}
                           </div>
                          
-                          <div className="w-32">
-                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                              <span>Progresso</span>
-                              <span>{protocol.status === 'active' ? protocol.progress_percentage : 0}%</span>
-                            </div>
-                            <Progress value={protocol.status === 'active' ? protocol.progress_percentage : 0} className="h-2" />
-                          </div>
+                           {protocol.status === 'active' && protocol.progress_percentage > 0 && (
+                             <div className="w-32">
+                               <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                                 <span>Progresso</span>
+                                 <span>{protocol.progress_percentage}%</span>
+                               </div>
+                               <Progress value={protocol.progress_percentage} className="h-2" />
+                             </div>
+                           )}
                        </div>
                      </div>
                    </CardContent>
@@ -898,10 +904,12 @@ export const AITrainingHub: React.FC = () => {
                             <Target className="h-4 w-4" />
                             <span>Giorno {protocol.current_day}</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% successo</span>
-                          </div>
+                          {protocol.success_rate > 0 && (
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="h-4 w-4" />
+                              <span>{Math.round(protocol.success_rate)}% successo</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             <span>Iniziato il {new Date(protocol.created_at).toLocaleDateString()}</span>
@@ -1028,10 +1036,12 @@ export const AITrainingHub: React.FC = () => {
                             <Clock className="h-4 w-4" />
                             <span>{protocol.duration_days} giorni</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% successo</span>
-                          </div>
+                          {protocol.success_rate > 0 && (
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="h-4 w-4" />
+                              <span>{Math.round(protocol.success_rate)}% successo</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             <span>Completato il {new Date(protocol.updated_at).toLocaleDateString()}</span>
