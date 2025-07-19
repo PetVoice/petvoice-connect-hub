@@ -599,31 +599,26 @@ const TrainingDashboard: React.FC = () => {
 
   const currentEx = todayExercises[currentExercise];
   
-  // Calcola SOLO gli esercizi completati oggi basandosi sul progresso del protocollo
+  // APPROCCIO SEMPLIFICATO: Usa currentExercise per il progresso giornaliero
   const exercisesPerDay = 3; // Ogni giorno ha sempre 3 esercizi
   const totalExercises = exercisesPerDay * protocol.duration_days; // Es: 3 * 21 = 63
-  const totalCompletedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
   
-  // Calcola gli esercizi completati nei giorni precedenti
-  const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
+  // Il progresso giornaliero è basato su currentExercise (0-based)
+  // Se currentExercise = 0 → 0 completati
+  // Se currentExercise = 1 → 1 completato 
+  // Se currentExercise = 2 → 2 completati
+  // Ma quando si clicca il pulsante, currentExercise dovrebbe aggiornare
   
-  // Gli esercizi completati OGGI sono la differenza
-  const completedExercisesToday = Math.max(0, totalCompletedExercises - exercisesCompletedInPreviousDays);
-  
-  // Limita a massimo 3 esercizi per oggi
-  const completedExercises = Math.min(completedExercisesToday, exercisesPerDay);
+  const completedExercises = currentExercise; // Semplice: usa l'indice corrente
   const totalExercisesToday = exercisesPerDay; // Sempre 3
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
   // Debug: log per verificare il calcolo
-  console.log('📊 DEBUG PROGRESSO GIORNALIERO:', {
+  console.log('📊 DEBUG PROGRESSO SEMPLIFICATO:', {
     currentDay: protocol.current_day,
-    progressPercentage: protocol.progress_percentage,
-    totalExercises,
-    totalCompletedExercises,
-    exercisesCompletedInPreviousDays,
-    completedExercisesToday,
+    currentExercise,
     completedExercises,
+    totalExercisesToday,
     dayProgress
   });
 
