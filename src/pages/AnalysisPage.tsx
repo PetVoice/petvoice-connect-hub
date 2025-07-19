@@ -88,7 +88,7 @@ const AnalysisPage: React.FC = () => {
   const { selectedPet } = usePets();
   const { toast } = useToast();
   const { subscription } = useSubscription();
-  const { checkAnalysisLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
+  const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { triggerAnalysisCompleted } = useNotificationEventsContext();
   const [activeTab, setActiveTab] = useState(() => {
     // Leggi il parametro tab dall'URL, default a 'upload'

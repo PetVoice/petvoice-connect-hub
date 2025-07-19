@@ -92,7 +92,7 @@ const PetsPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, loading, updatePet, deletePet, addPet } = usePets();
   const navigate = useNavigate();
-  const { checkPetLimit, showUpgradePrompt, showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
+  const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
@@ -304,13 +304,7 @@ const PetsPage: React.FC = () => {
           <DialogTrigger asChild>
             <Button 
               variant="outline"
-              onClick={() => {
-                if (checkPetLimit(pets.length)) {
-                  setShowForm(true);
-                } else {
-                  showUpgradePrompt("Aggiunta di più pet");
-                }
-              }}
+              onClick={() => setShowForm(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet
@@ -529,13 +523,7 @@ const PetsPage: React.FC = () => {
               Non hai ancora aggiunto nessun pet. Inizia creando il profilo del tuo amico a quattro zampe!
             </CardDescription>
             <Button 
-              onClick={() => {
-                if (checkPetLimit(pets.length)) {
-                  setShowForm(true);
-                } else {
-                  showUpgradePrompt("Aggiunta di più pet");
-                }
-              }}
+              onClick={() => setShowForm(true)}
               className="petvoice-button"
             >
               <Plus className="h-4 w-4 mr-2" />

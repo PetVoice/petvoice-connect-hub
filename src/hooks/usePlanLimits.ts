@@ -41,18 +41,7 @@ export const usePlanLimits = () => {
     return Boolean(currentLimits[feature]);
   };
 
-  const checkPetLimit = (currentPets: number): boolean => {
-    return currentPets < currentLimits.maxPets;
-  };
-
-  const checkAnalysisLimit = (currentAnalyses: number): boolean => {
-    return currentAnalyses < currentLimits.maxAnalysesPerMonth;
-  };
-
-  const checkDeviceLimit = (currentDevices: number): boolean => {
-    if (!currentLimits.maxDevices) return true; // No limit for plans without maxDevices
-    return currentDevices < currentLimits.maxDevices;
-  };
+  // Controlli di limite rimossi - solo piano premium disponibile
 
   const showUpgradePrompt = (featureName: string) => {
     // Non mostrare più prompt di upgrade dato che esiste solo il piano premium
@@ -74,13 +63,7 @@ export const usePlanLimits = () => {
     currentLimits,
     showUpgradeModal,
     setShowUpgradeModal,
-    checkFeatureAccess,
-    checkPetLimit,
-    checkAnalysisLimit,
-    checkDeviceLimit,
-    showUpgradePrompt,
     requiresPremium,
     isPremium: subscription.subscribed,
-    isFamily: false, // Non esiste più piano family
   };
 };

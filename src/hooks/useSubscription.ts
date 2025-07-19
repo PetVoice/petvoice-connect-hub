@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast';
 
 export interface SubscriptionData {
   subscribed: boolean;
-  subscription_tier: 'premium' | 'family' | 'free';
+  subscription_tier: 'premium';
   subscription_end: string | null;
   is_cancelled: boolean;
   cancellation_type: 'immediate' | 'end_of_period' | null;
@@ -24,7 +24,7 @@ export const useSubscription = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
-    subscription_tier: 'free',
+    subscription_tier: 'premium',
     subscription_end: null,
     is_cancelled: false,
     cancellation_type: null,
@@ -38,7 +38,7 @@ export const useSubscription = () => {
       // Set default state when no user is logged in
       setSubscription({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: 'premium',
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -61,7 +61,7 @@ export const useSubscription = () => {
       // Set default state on error
       setSubscription({
         subscribed: false,
-        subscription_tier: 'free',
+        subscription_tier: 'premium',
         subscription_end: null,
         is_cancelled: false,
         cancellation_type: null,
@@ -81,12 +81,12 @@ export const useSubscription = () => {
     }
   };
 
-  const createCheckoutSession = async (plan: 'premium' | 'family') => {
+  const createCheckoutSession = async () => {
     if (!user) return null;
     
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan }
+        body: { plan: 'premium' }
       });
       
       if (error) throw error;

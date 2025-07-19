@@ -18,7 +18,7 @@ const SubscriptionPage = () => {
 
   const handleSubscribe = async () => {
     setSubscribeLoading(true);
-    const checkoutUrl = await createCheckoutSession('premium');
+    const checkoutUrl = await createCheckoutSession();
     if (checkoutUrl) {
       window.open(checkoutUrl, '_blank');
     }
