@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Exercise {
   id: string;
@@ -456,11 +457,26 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      // Aggiorna l'esercizio corrente come completato
-      const updatedExercises = [...todayExercises];
-      updatedExercises[currentExercise].completed = true;
-      updatedExercises[currentExercise].rating = exerciseRating;
-      updatedExercises[currentExercise].notes = exerciseNotes;
+      // Prima aggiorna l'esercizio nel database
+      const { error: exerciseError } = await supabase
+        .from('ai_training_exercises')
+        .update({
+          completed: true,
+          completed_at: new Date().toISOString(),
+          effectiveness_score: exerciseRating,
+          feedback: exerciseNotes,
+        })
+        .eq('id', currentEx.id);
+
+      if (exerciseError) {
+        console.error('Error updating exercise:', exerciseError);
+        toast({
+          title: 'Errore',
+          description: 'Impossibile aggiornare l\'esercizio.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
       toast({
         title: 'Esercizio completato!',
@@ -471,14 +487,13 @@ const TrainingDashboard: React.FC = () => {
       const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
       const totalExercisesToday = todayExercises.length;
       
-      // Calcola il progresso totale del protocollo usando tutti gli esercizi
+      // Calcola il progresso totale del protocollo
       const allExercises = protocol.exercises || [];
       const totalExercises = allExercises.length;
       
-      // Conta tutti gli esercizi completati nel protocollo
+      // Conta tutti gli esercizi completati nel protocollo (includendo quello appena completato)
       const allCompletedExercises = allExercises.filter(ex => ex.completed).length;
-      // Aggiungi 1 per l'esercizio appena completato se non era già contato
-      const newTotalCompletedExercises = allCompletedExercises + 1;
+      const newTotalCompletedExercises = allCompletedExercises + 1; // +1 per l'esercizio appena completato
       const newProgressPercentage = totalExercises > 0 
         ? Math.round((newTotalCompletedExercises / totalExercises) * 100)
         : 0;
