@@ -401,9 +401,13 @@ export const AITrainingHub: React.FC = () => {
           }
         });
 
-        // Invalida le query per aggiornare le liste immediatamente
-        queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
-        queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+        // Invalida e ricarica immediatamente le query per aggiornare le liste
+        await queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
+        await queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+        
+        // Forza il refetch per assicurarsi che le liste siano aggiornate
+        await queryClient.refetchQueries({ queryKey: ['completed-protocols'] });
+        await queryClient.refetchQueries({ queryKey: ['training-protocols'] });
         
         toast({
           title: 'Protocollo riavviato',
