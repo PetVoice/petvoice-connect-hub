@@ -739,7 +739,7 @@ const TrainingDashboard: React.FC = () => {
                   {currentEx.title}
                 </CardTitle>
                 <Badge variant="outline">
-                  {currentExercise + 1} di {totalExercises}
+                  {currentExercise + 1} di {totalExercisesToday}
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
