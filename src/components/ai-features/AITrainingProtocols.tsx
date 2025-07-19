@@ -310,8 +310,13 @@ export const AITrainingProtocols: React.FC = () => {
             <TabsContent value="protocols" className="mt-4">
               <div className="grid gap-4">
                 {protocols.map((protocol) => {
+                  console.log('Rendering protocol:', protocol.title, {
+                    protocolUserId: protocol.user_id,
+                    currentUserId,
+                    shouldShowButtons: currentUserId && protocol.user_id === currentUserId
+                  });
                   return (
-                    <Card 
+                    <Card
                       key={protocol.id} 
                       className="cursor-pointer hover:bg-accent/50 focus-within:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2" 
                       onClick={() => setSelectedProtocol(protocol)}
