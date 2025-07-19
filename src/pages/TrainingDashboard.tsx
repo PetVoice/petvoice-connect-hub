@@ -469,10 +469,6 @@ const TrainingDashboard: React.FC = () => {
       // Gli esercizi sono generati dinamicamente, non è necessario aggiornarli nel database
       // Invece, registriamo il completamento nell'activity log e aggiorniamo il protocollo
       
-      toast({
-        title: 'Esercizio completato!',
-        description: `Hai completato "${currentEx.title}" con successo.`,
-      });
 
       // Calcola il progresso del protocollo - CORREZIONE FORMULA
       const completedCount = currentExercise + 1; // Esercizio appena completato
