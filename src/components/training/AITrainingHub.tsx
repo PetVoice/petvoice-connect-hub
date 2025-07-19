@@ -19,6 +19,7 @@ import {
   Award, 
   Users, 
   Play, 
+  Pause,
   CheckCircle, 
   AlertCircle,
   Plus,
@@ -473,6 +474,31 @@ export const AITrainingHub: React.FC = () => {
     }
   };
 
+  // Handle status change
+  const handleStatusChange = async (protocolId: string, newStatus: 'active' | 'paused' | 'completed' | 'available' | 'suggested') => {
+    try {
+      await updateProtocol.mutateAsync({
+        id: protocolId,
+        updates: {
+          status: newStatus,
+          last_activity_at: new Date().toISOString(),
+        }
+      });
+      
+      toast({
+        title: 'Status aggiornato',
+        description: `Il protocollo è stato ${newStatus === 'paused' ? 'interrotto' : 'aggiornato'}`,
+      });
+    } catch (error) {
+      console.error('Error updating protocol status:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile aggiornare lo status del protocollo',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (protocolsLoading || suggestionsLoading || templatesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -658,24 +684,38 @@ export const AITrainingHub: React.FC = () => {
                       
                        <div className="flex flex-col items-end gap-2">
                          
-                         <div className="flex items-center gap-2">
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => setSelectedProtocol(protocol)}
-                           >
-                             <Eye className="h-4 w-4 mr-2" />
-                             Dettagli
-                           </Button>
+                          <div className="flex items-center gap-2">
                             <Button
+                              variant="outline"
                               size="sm"
-                              onClick={() => handleStartProtocol(protocol)}
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                              onClick={() => setSelectedProtocol(protocol)}
                             >
-                              <Play className="h-4 w-4 mr-2" />
-                              {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
+                              <Eye className="h-4 w-4 mr-2" />
+                              Dettagli
                             </Button>
-                         </div>
+                             <Button
+                               size="sm"
+                               onClick={() => handleStartProtocol(protocol)}
+                               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                             >
+                               <Play className="h-4 w-4 mr-2" />
+                               {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
+                             </Button>
+                             {protocol.user_id && protocol.status === 'active' && (
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleStatusChange(protocol.id, 'paused');
+                                 }}
+                                 className="flex items-center gap-2"
+                               >
+                                 <Pause className="h-4 w-4" />
+                                 Interrompi
+                               </Button>
+                             )}
+                          </div>
                          
                          <div className="w-32">
                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
