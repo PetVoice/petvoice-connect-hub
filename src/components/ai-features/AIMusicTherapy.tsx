@@ -120,54 +120,47 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     const playlistParam = searchParams.get('playlist');
     const autoStart = searchParams.get('autoStart') === 'true';
     
-    console.log('DEBUG - URL params:', { playlistParam, autoStart });
-    console.log('DEBUG - Full searchParams:', searchParams.toString());
+    console.log('🎵 Checking for playlist param:', playlistParam ? 'FOUND' : 'NOT FOUND');
     
     if (playlistParam) {
-      console.log('DEBUG - Found playlist param, attempting to parse...');
+      console.log('🎵 Processing playlist from analysis...');
       try {
         const playlistData = JSON.parse(decodeURIComponent(playlistParam));
-        console.log('DEBUG - Parsed playlist data:', playlistData);
+        console.log('🎵 Playlist data:', playlistData);
         
         // Crea una sessione temporanea dalla playlist raccomandata
         const recommendedSession: TherapySession = {
-          id: 'recommended',
-          title: playlistData.name,
-          description: playlistData.description,
-          category: 'raccomandazione',
-          frequency: playlistData.frequency,
-          duration: playlistData.duration,
+          id: 'analysis-recommendation',
+          title: playlistData.name || 'Playlist dall\'Analisi',
+          description: playlistData.description || 'Playlist personalizzata basata sull\'analisi emotiva',
+          category: 'Raccomandazione AI',
+          frequency: playlistData.frequency || '528Hz + 10Hz',
+          duration: playlistData.duration || 15,
           icon: Sparkles,
           color: 'bg-gradient-to-r from-purple-500 to-pink-500',
           benefits: ['Raccomandazione personalizzata', 'Basata su analisi', 'Ottimizzata per il tuo pet']
         };
         
+        console.log('🎵 Setting session and hiding categories...');
         setCurrentSession(recommendedSession);
-        setShowCategories(false); // Nascondi le categorie quando viene caricata una playlist dall'analisi
-        // Auto-start se richiesto
-        if (autoStart) {
-          // Delay di 1 secondo per permettere al componente di renderizzare
-          setTimeout(() => {
-            // Simula click del pulsante play
-            if (!isPlaying) {
-              setIsPlaying(true);
-              // Nota: l'audio verrà avviato dal primo click dell'utente per rispettare le policy browser
-            }
-          }, 1000);
-          
-          toast({
-            title: "Playlist Caricata",
-            description: `"${playlistData.name}" è pronta. Clicca Play per avviare la sessione per ${selectedPet.name}`,
-          });
-        } else {
-          toast({
-            title: "Playlist Caricata",
-            description: `"${playlistData.name}" pronta per la riproduzione`,
-          });
-        }
+        setShowCategories(false);
+        
+        toast({
+          title: "🎵 Playlist dall'Analisi Caricata",
+          description: `"${recommendedSession.title}" pronta per ${selectedPet.name}`,
+        });
+        
       } catch (error) {
-        console.error('Error parsing playlist data:', error);
+        console.error('❌ Error parsing playlist data:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile caricare la playlist dall'analisi",
+          variant: "destructive"
+        });
       }
+    } else {
+      console.log('🎵 No playlist param, showing categories');
+      setShowCategories(true);
     }
   }, [searchParams, selectedPet.name]);
 
