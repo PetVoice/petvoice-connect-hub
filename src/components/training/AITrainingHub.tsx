@@ -193,22 +193,22 @@ export const AITrainingHub: React.FC = () => {
   // Statistics from real data
   const stats = useMemo(() => {
     const activeProtocols = protocols.filter(p => p.status === 'active').length;
-    const completedProtocols = protocols.filter(p => p.status === 'completed').length;
-    const totalProtocols = protocols.length;
+    const completedProtocolsCount = completedProtocols.length; // Usa completedProtocols dal hook dedicato
+    const totalProtocols = protocols.length + completedProtocolsCount;
     
     // Calculate success rate based on completed protocols only
-    const completedWithData = protocols.filter(p => p.status === 'completed' && p.success_rate > 0);
+    const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
     const avgSuccessRate = completedWithData.length > 0 
       ? Math.round(completedWithData.reduce((sum, p) => sum + p.success_rate, 0) / completedWithData.length)
       : 0;
     
     return {
       activeProtocols,
-      completedProtocols,
+      completedProtocols: completedProtocolsCount,
       successRate: avgSuccessRate,
       communityProtocols: protocols.filter(p => p.is_public).length
     };
-  }, [protocols]);
+  }, [protocols, completedProtocols]);
 
   // Utility Functions
   const getDifficultyColor = (difficulty: string) => {
@@ -386,8 +386,30 @@ export const AITrainingHub: React.FC = () => {
         setTimeout(() => {
           window.location.href = `/training/dashboard/${createdProtocol.id}`;
         }, 1500);
+      } else if (protocol.status === 'completed') {
+        // Se è un protocollo completato, resettalo completamente
+        await updateProtocol.mutateAsync({
+          id: protocol.id,
+          updates: {
+            status: 'active',
+            current_day: 1,
+            progress_percentage: 0,
+            success_rate: 0,
+            last_activity_at: new Date().toISOString(),
+          }
+        });
+        
+        toast({
+          title: 'Protocollo riavviato',
+          description: `Il protocollo "${protocol.title}" è stato riavviato da capo`,
+        });
+        
+        // Reindirizza alla dashboard del protocollo resettato
+        setTimeout(() => {
+          window.location.href = `/training/dashboard/${protocol.id}`;
+        }, 1500);
       } else {
-        // Se è già un protocollo dell'utente, attivalo
+        // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
           id: protocol.id,
           updates: {
