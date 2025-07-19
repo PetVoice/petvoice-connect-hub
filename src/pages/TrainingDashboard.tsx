@@ -461,20 +461,18 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      // Gli esercizi sono generati dinamicamente, non è necessario aggiornarli nel database
-      // Invece, registriamo il completamento nell'activity log e aggiorniamo il protocollo
-      
-
-      // Calcola il progresso del protocollo - CORREZIONE FORMULA
+      // Calcola il progresso del protocollo
       const completedCount = currentExercise + 1; // Esercizio appena completato
       const exercisesPerDay = todayExercises.length; // 3 esercizi per giorno
-      const totalExercises = exercisesPerDay * protocol.duration_days; // Es: 3 * 9 = 27
+      const totalExercises = exercisesPerDay * protocol.duration_days;
       
       // Calcola totale esercizi completati nel protocollo
       const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
       const totalCompletedExercises = exercisesCompletedInPreviousDays + completedCount;
-      const newProgressPercentage = Math.round((totalCompletedExercises / totalExercises) * 100);
       
+      // Calcola percentuale (arrotondata verso il basso per evitare valori >= 100)
+      const newProgressPercentage = Math.floor((totalCompletedExercises / totalExercises) * 100);
+
       console.log('🧮 CALCOLO PROGRESSO:', {
         currentExercise,
         completedCount,
@@ -487,9 +485,10 @@ const TrainingDashboard: React.FC = () => {
        });
 
       // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
-      setDailyCompletedExercises(prev => prev + 1);
+      const newDailyCompleted = dailyCompletedExercises + 1;
+      setDailyCompletedExercises(newDailyCompleted);
 
-      // Aggiorna il progresso del protocollo nel database (NON completarlo automaticamente)
+      // Aggiorna il progresso del protocollo nel database
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
@@ -498,22 +497,61 @@ const TrainingDashboard: React.FC = () => {
         }
       });
 
-       // NON avanzare automaticamente al giorno successivo!
-       // Il giorno cambia SOLO quando clicchi il pulsante "Vai al giorno X"
-       
-       // Toast semplice per confermare il completamento dell'esercizio
-       toast({
-         title: `✅ Esercizio ${currentExercise + 1} completato!`,
-         description: `Ottimo lavoro! ${completedCount === todayExercises.length ? 'Ora puoi passare al giorno successivo.' : `Continua con l'esercizio ${currentExercise + 2}.`}`,
-       });
+      // SE È L'ULTIMO ESERCIZIO DEL GIORNO (esercizio 3), PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
+      if (completedCount === exercisesPerDay) {
+        const isLastDay = protocol.current_day >= protocol.duration_days;
+        
+        if (isLastDay) {
+          // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
+          toast({
+            title: `✅ Esercizio ${currentExercise + 1} completato!`,
+            description: "🏆 Hai completato tutto il protocollo! Valuta la tua esperienza.",
+          });
+          
+          setTimeout(() => {
+            setShowRatingDialog(true);
+          }, 2000);
+        } else {
+          // PASSA AL GIORNO SUCCESSIVO AUTOMATICAMENTE
+          
+          // 1. Toast per esercizio completato
+          toast({
+            title: `✅ Esercizio ${currentExercise + 1} completato!`,
+            description: `🎉 Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
+          });
+          
+          // 2. Aggiorna il database: current_day + 1
+          setTimeout(async () => {
+            await updateProtocol.mutateAsync({
+              id: protocol.id,
+              updates: {
+                current_day: protocol.current_day + 1,
+                last_activity_at: new Date().toISOString(),
+              }
+            });
+            
+            // 3. Reset statistiche del giorno DOPO l'update del database
+            setDailyCompletedExercises(0);
+            setCurrentExercise(0);
+            
+            // 4. Toast di congratulazioni per il nuovo giorno
+            toast({
+              title: "🚀 Nuovo giorno iniziato!",
+              description: `Benvenuto al giorno ${protocol.current_day + 1}! Inizia con l'esercizio 1.`,
+            });
+          }, 2000);
+        }
+      } else {
+        // NON è l'ultimo esercizio del giorno - solo toast normale e passa al prossimo
+        toast({
+          title: `✅ Esercizio ${currentExercise + 1} completato!`,
+          description: `Ottimo lavoro! Continua con l'esercizio ${currentExercise + 2}.`,
+        });
 
-       // Passa al prossimo esercizio
-       if (currentExercise < todayExercises.length - 1) {
-         setCurrentExercise(prev => prev + 1);
-       }
+        // Passa al prossimo esercizio
+        setCurrentExercise(prev => prev + 1);
+      }
 
-      // Reset form se necessario
-      
     } catch (error) {
       console.error('Error completing exercise:', error);
       toast({
@@ -880,83 +918,18 @@ const TrainingDashboard: React.FC = () => {
               
               <Button
                 onClick={async () => {
-                  // Se tutti gli esercizi sono completati, vai al giorno successivo o completa protocollo
-                  if (dailyCompletedExercises === 3) {
-                    const isLastDay = protocol.current_day >= protocol.duration_days;
-                    
-                    if (isLastDay) {
-                      // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
-                      setShowRatingDialog(true);
-                    } else {
-                      // PASSA AL GIORNO SUCCESSIVO
-                      
-                      // 1. Reset statistiche del giorno
-                      setDailyCompletedExercises(0);
-                      setCurrentExercise(0);
-                      
-                      // 2. AGGIORNA IL DATABASE: current_day + 1
-                      await updateProtocol.mutateAsync({
-                        id: protocol.id,
-                        updates: {
-                          current_day: protocol.current_day + 1,
-                          last_activity_at: new Date().toISOString(),
-                        }
-                      });
-                      
-                      // 3. Toast di congratulazioni per il giorno completato
-                      toast({
-                        title: "🎉 Giorno completato!",
-                        description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ora sei al giorno ${protocol.current_day + 1}!`,
-                      });
-                    }
-                  } else {
-                    // Completa l'esercizio corrente
-                    handleCompleteExercise();
-                  }
+                  // SEMPLIFICAZIONE: Solo completamento esercizi, il cambio giorno è automatico
+                  handleCompleteExercise();
                 }}
-                disabled={dailyCompletedExercises < 3 && currentExercise !== dailyCompletedExercises}
+                disabled={currentExercise !== dailyCompletedExercises}
                 className={`w-full ${
-                  dailyCompletedExercises === 3 
-                    ? (protocol.current_day >= protocol.duration_days 
-                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700' 
-                        : 'bg-primary hover:bg-primary/90 text-primary-foreground')
-                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                  currentExercise === dailyCompletedExercises 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                    : 'opacity-50 cursor-not-allowed'
                 } disabled:opacity-50`}
               >
-                {dailyCompletedExercises === 3 ? (
-                  // TUTTI ESERCIZI COMPLETATI: Mostra pulsante per andare al giorno successivo o completare
-                  protocol.current_day >= protocol.duration_days ? (
-                    <>
-                      <Trophy className="h-4 w-4 mr-2" />
-                      🏆 Protocollo Completato
-                    </>
-                  ) : (
-                     <>
-                       <CheckCircle className="h-4 w-4 mr-2" />
-                       Esercizio 1 Completato
-                     </>
-                   )
-                 ) : currentExercise < dailyCompletedExercises ? (
-                   // CASO 1: Esercizio GIÀ completato
-                   <>
-                     <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                     ✅ Esercizio {currentExercise + 1} già completato
-                   </>
-                 ) : currentExercise === dailyCompletedExercises ? (
-                   // CASO 2: PROSSIMO esercizio da completare
-                   <>
-                     <CheckCircle className="h-4 w-4 mr-2" />
-                     {currentExercise === 2 
-                       ? `Esercizio 3 Completato`
-                      : `Esercizio ${currentExercise + 1} Completato`}
-                  </>
-                ) : (
-                  // CASO 3: Esercizio FUTURO - deve completare prima quelli precedenti
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
-                    Completa prima l'Esercizio {dailyCompletedExercises + 1}
-                  </>
-                )}
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Esercizio {currentExercise + 1} Completato
               </Button>
 
               {/* Pulsante Interrompi Protocollo */}
