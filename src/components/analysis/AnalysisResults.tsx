@@ -652,8 +652,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           className="bg-purple-600 hover:bg-purple-700 text-white"
                           onClick={() => {
                             const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
-                            const playlistData = encodeURIComponent(JSON.stringify(playlist));
-                            window.location.href = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}`;
+                            const playlistData = encodeURIComponent(JSON.stringify({
+                              ...playlist,
+                              emotion: selectedAnalysis.primary_emotion,
+                              confidence: selectedAnalysis.primary_confidence,
+                              autoStart: true
+                            }));
+                            window.location.href = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
                           }}
                         >
                           <AudioLines className="h-3 w-3 mr-1" />
@@ -851,6 +856,119 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 <Target className="h-3 w-3 mr-1" />
                                 Inizia Protocollo Training
                               </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Raccomandazioni Personalizzate - Solo per emozioni negative */}
+                {(() => {
+                  const negativeEmotions = [
+                    'ansia', 'ansioso', 
+                    'paura', 'pauroso', 'spaventato', 'terrorizzato',
+                    'stress', 'stressato', 
+                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
+                    'tristezza', 'triste', 'melanconico', 
+                    'depressione', 'depresso', 'abbattuto',
+                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
+                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
+                    'dolore', 'sofferente', 'malessere'
+                  ];
+                  const isNegativeEmotion = negativeEmotions.some(emotion => 
+                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
+                  );
+                  
+                  if (isNegativeEmotion && selectedPet) {
+                    return (
+                      <div className="mt-6">
+                        <h4 className="font-medium mb-3 flex items-center gap-2">
+                          <Brain className="h-4 w-4" />
+                          Raccomandazioni Personalizzate
+                        </h4>
+                        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border">
+                          <div className="space-y-3">
+                            {/* Raccomandazioni basate sull'età */}
+                            {selectedPet.age && (
+                              <div className="text-sm">
+                                <span className="font-medium text-blue-800 dark:text-blue-200">Età ({selectedPet.age} anni): </span>
+                                <span className="text-blue-700 dark:text-blue-300">
+                                  {selectedPet.age < 1 ? "Pazienza extra - i cuccioli hanno bisogno di tempi di adattamento più lunghi" :
+                                   selectedPet.age < 3 ? "Energia giovanile - aumenta l'attività fisica per ridurre stress" :
+                                   selectedPet.age < 7 ? "Fase adulta - mantieni routine costanti per stabilità" :
+                                   "Età senior - riduci i cambiamenti bruschi e aumenta il comfort"}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Raccomandazioni basate sulla razza */}
+                            {selectedPet.breed && (
+                              <div className="text-sm">
+                                <span className="font-medium text-blue-800 dark:text-blue-200">Razza ({selectedPet.breed}): </span>
+                                <span className="text-blue-700 dark:text-blue-300">
+                                  {selectedPet.breed.toLowerCase().includes('border') ? "Razza intelligente - stimoli mentali quotidiani sono essenziali" :
+                                   selectedPet.breed.toLowerCase().includes('labrador') ? "Razza socievole - aumenta le interazioni positive" :
+                                   selectedPet.breed.toLowerCase().includes('golden') ? "Temperamento dolce - rinforzi positivi molto efficaci" :
+                                   selectedPet.breed.toLowerCase().includes('pastore') ? "Razza protettiva - lavora sulla socializzazione graduale" :
+                                   "Considera le caratteristiche specifiche della razza per il training"}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Raccomandazioni basate sul peso */}
+                            {selectedPet.weight && (
+                              <div className="text-sm">
+                                <span className="font-medium text-blue-800 dark:text-blue-200">Peso ({selectedPet.weight}kg): </span>
+                                <span className="text-blue-700 dark:text-blue-300">
+                                  {selectedPet.weight < 5 ? "Piccola taglia - sessioni brevi (5-10 min) ma frequenti" :
+                                   selectedPet.weight < 20 ? "Media taglia - sessioni standard (15-20 min)" :
+                                   "Grande taglia - sessioni più lunghe (20-30 min) con pause"}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Raccomandazioni basate sulle condizioni di salute */}
+                            {selectedPet.health_conditions && selectedPet.health_conditions.length > 0 && (
+                              <div className="text-sm">
+                                <span className="font-medium text-blue-800 dark:text-blue-200">Condizioni di salute: </span>
+                                <span className="text-blue-700 dark:text-blue-300">
+                                  Monitora attentamente i segni di stress durante il training. Consulta il veterinario prima di iniziare protocolli intensivi.
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Raccomandazione generale basata sull'emozione */}
+                            <div className="text-sm">
+                              <span className="font-medium text-blue-800 dark:text-blue-200">Per l'emozione "{selectedAnalysis.primary_emotion}": </span>
+                              <span className="text-blue-700 dark:text-blue-300">
+                                {(() => {
+                                  const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                  if (emotion.includes('ansia') || emotion.includes('stress')) {
+                                    return "Crea un ambiente sicuro e prevedibile. Evita cambiamenti bruschi nella routine.";
+                                  } else if (emotion.includes('aggressiv') || emotion.includes('frustrato')) {
+                                    return "Mantieni calma e distanza di sicurezza. Usa rinforzi positivi, mai punizioni.";
+                                  } else if (emotion.includes('paura')) {
+                                    return "Desensibilizzazione graduale. Non forzare l'esposizione, procedi con pazienza.";
+                                  } else if (emotion.includes('triste') || emotion.includes('depresso')) {
+                                    return "Aumenta attività gratificanti e interazioni sociali positive.";
+                                  } else {
+                                    return "Mantieni coerenza nel training e celebra ogni piccolo progresso.";
+                                  }
+                                })()}
+                              </span>
+                            </div>
+                            
+                            {/* Frequenza delle sessioni personalizzata */}
+                            <div className="text-sm">
+                              <span className="font-medium text-blue-800 dark:text-blue-200">Frequenza raccomandata: </span>
+                              <span className="text-blue-700 dark:text-blue-300">
+                                {selectedPet.age && selectedPet.age < 1 ? "2-3 sessioni brevi al giorno" :
+                                 selectedAnalysis.primary_confidence > 80 ? "1-2 sessioni al giorno" :
+                                 "1 sessione al giorno per evitare sovrastimolazione"}
+                              </span>
                             </div>
                           </div>
                         </div>
