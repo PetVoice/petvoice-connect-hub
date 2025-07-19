@@ -33,6 +33,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
 import jsPDF from 'jspdf';
+import AudioPlayer from './AudioPlayer';
 
 interface SharingTemplate {
   id: string;
@@ -586,11 +587,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="emotions" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="emotions">Emozioni</TabsTrigger>
                 <TabsTrigger value="insights">Insights</TabsTrigger>
                 <TabsTrigger value="recommendations">Consigli</TabsTrigger>
                 <TabsTrigger value="triggers">Trigger</TabsTrigger>
+                <TabsTrigger value="audio">Audio</TabsTrigger>
               </TabsList>
 
               <TabsContent value="emotions" className="space-y-4">
@@ -1042,6 +1044,27 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       </div>
                     ))}
                   </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="audio" className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <AudioLines className="h-4 w-4" />
+                    Registrazione Originale
+                  </h4>
+                  {selectedAnalysis.file_type.startsWith('audio/') ? (
+                    <AudioPlayer 
+                      storagePath={selectedAnalysis.storage_path}
+                      fileName={selectedAnalysis.file_name}
+                    />
+                  ) : (
+                    <div className="p-4 bg-muted/50 border rounded-lg text-center">
+                      <p className="text-muted-foreground">
+                        Questo file non è un audio. Player disponibile solo per registrazioni audio.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

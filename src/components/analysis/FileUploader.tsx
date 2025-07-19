@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -19,6 +19,7 @@ interface FileUploaderProps {
   maxFiles?: number;
   maxSizePerFile?: number; // in MB
   acceptedTypes?: string[];
+  autoAnalyzeAudio?: boolean; // Nuovo prop per auto-analisi audio
 }
 
 interface FileWithPreview {
@@ -42,7 +43,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   onFilesSelected,
   maxFiles = 10,
   maxSizePerFile = 100, // 100MB
-  acceptedTypes = DEFAULT_ACCEPTED_TYPES
+  acceptedTypes = DEFAULT_ACCEPTED_TYPES,
+  autoAnalyzeAudio = false // Default false per retrocompatibilità
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
@@ -155,6 +157,24 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, [selectedFiles, onFilesSelected]);
 
+  // Auto-analyze audio files when autoAnalyzeAudio is true
+  useEffect(() => {
+    if (autoAnalyzeAudio && selectedFiles.length > 0 && !isProcessing) {
+      const audioFiles = selectedFiles.filter(f => 
+        f.file.type.startsWith('audio/') && !f.error
+      );
+      
+      if (audioFiles.length > 0) {
+        // Delay per permettere il rendering
+        const timer = setTimeout(() => {
+          handleStartAnalysis();
+        }, 500);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [autoAnalyzeAudio, selectedFiles, isProcessing, handleStartAnalysis]);
+
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('audio/')) {
       return <FileAudio className="h-8 w-8 text-coral" />;
@@ -174,6 +194,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
   const validFiles = selectedFiles.filter(f => !f.error);
   const hasErrors = selectedFiles.some(f => f.error);
+  const hasAudioFiles = selectedFiles.some(f => f.file.type.startsWith('audio/') && !f.error);
+  const shouldHideAnalysisButton = autoAnalyzeAudio && hasAudioFiles;
 
   return (
     <Card className="h-fit">
@@ -287,7 +309,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               ))}
             </div>
 
-            {validFiles.length > 0 && (
+            {validFiles.length > 0 && !shouldHideAnalysisButton && (
               <Button 
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
@@ -304,6 +326,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   </>
                 )}
               </Button>
+            )}
+
+            {shouldHideAnalysisButton && (
+              <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <span className="font-medium text-green-800 dark:text-green-200">
+                    ✨ File audio caricato
+                  </span>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                  🚀 Avvio analisi automatica in corso...
+                </p>
+              </div>
             )}
 
             {hasErrors && (
