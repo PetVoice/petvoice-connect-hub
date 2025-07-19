@@ -666,7 +666,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
                 {/* Training Protocol Recommendation - Solo per risultati negativi */}
                 {(() => {
-                  const negativeEmotions = ['ansia', 'ansioso', 'paura', 'stress', 'stressato', 'aggressività', 'aggressivo', 'tristezza', 'triste', 'depressione', 'depresso', 'agitazione', 'agitato'];
+                  const negativeEmotions = [
+                    'ansia', 'ansioso', 
+                    'paura', 'pauroso', 'spaventato', 'terrorizzato',
+                    'stress', 'stressato', 
+                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
+                    'tristezza', 'triste', 'melanconico', 
+                    'depressione', 'depresso', 'abbattuto',
+                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
+                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
+                    'dolore', 'sofferente', 'malessere'
+                  ];
                   const isNegativeEmotion = negativeEmotions.some(emotion => 
                     selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
                   );
