@@ -357,14 +357,14 @@ const TrainingDashboard: React.FC = () => {
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {
-    if (protocol && !hasInitialized) {
+    if (protocol && protocol.progress_percentage !== undefined) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
       const totalExercises = protocol.duration_days * exercisesPerDay;
       const completedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
       
       // Calcola l'esercizio corrente nel giorno attuale
       const exercisesInCurrentDay = completedExercises % exercisesPerDay;
-      const calculatedCurrentExercise = exercisesInCurrentDay;
+      const calculatedCurrentExercise = Math.min(exercisesInCurrentDay, exercisesPerDay - 1);
       
       console.log('🔄 INIZIALIZZAZIONE PROGRESSO:', {
         protocol_id: protocol.id,
@@ -374,8 +374,7 @@ const TrainingDashboard: React.FC = () => {
         totalExercises,
         completedExercises,
         exercisesInCurrentDay,
-        calculatedCurrentExercise,
-        hasInitialized
+        calculatedCurrentExercise
       });
       
       setCurrentExercise(calculatedCurrentExercise);
@@ -383,7 +382,7 @@ const TrainingDashboard: React.FC = () => {
       
       console.log('✅ IMPOSTATO currentExercise a:', calculatedCurrentExercise);
     }
-  }, [protocol?.id, hasInitialized]); // Usa solo l'ID del protocollo per evitare re-render
+  }, [protocol?.id, protocol?.progress_percentage]); // Rimuovo hasInitialized dalle dependency
 
   // Ottieni esercizi dinamici basati sul protocollo
   const todayExercises: Exercise[] = protocol ? getExercisesForProtocol(protocol) : [];
