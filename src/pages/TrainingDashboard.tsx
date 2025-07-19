@@ -700,7 +700,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-primary" />
               <div>
-                <div className="text-lg font-bold">{completedExercises}/{totalExercises}</div>
+                <div className="text-lg font-bold">{completedExercises}/{totalExercisesToday}</div>
                 <p className="text-xs text-muted-foreground">Esercizi oggi</p>
               </div>
             </div>
