@@ -914,7 +914,7 @@ const TrainingDashboard: React.FC = () => {
                     handleCompleteExercise();
                   }
                 }}
-                disabled={currentExercise !== dailyCompletedExercises}
+                disabled={dailyCompletedExercises < 3 && currentExercise !== dailyCompletedExercises}
                 className={`w-full ${
                   dailyCompletedExercises === 3 
                     ? (protocol.current_day >= protocol.duration_days 
