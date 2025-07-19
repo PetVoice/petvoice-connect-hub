@@ -609,7 +609,7 @@ const TrainingDashboard: React.FC = () => {
   // Se currentExercise = 2 → 2 completati
   // Ma quando si clicca il pulsante, currentExercise dovrebbe aggiornare
   
-  const completedExercises = currentExercise; // Semplice: usa l'indice corrente
+  const completedExercises = currentExercise + 1; // +1 perché currentExercise è 0-based!
   const totalExercisesToday = exercisesPerDay; // Sempre 3
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
