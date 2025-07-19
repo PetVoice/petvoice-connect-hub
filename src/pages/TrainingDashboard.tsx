@@ -944,13 +944,13 @@ const TrainingDashboard: React.FC = () => {
                   </>
                 ) : currentExercise === dailyCompletedExercises ? (
                   // CASO 2: PROSSIMO esercizio da completare
-                   <>
-                     <CheckCircle className="h-4 w-4 mr-2" />
-                     {currentExercise === 2 
-                       ? `Esercizio 3 - Giorno ${protocol.current_day} Completato` 
-                       : `Esercizio ${currentExercise + 1} - Giorno ${protocol.current_day} Completato`}
-                   </>
-                 ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {currentExercise === 2 
+                      ? `Esercizio 3 Completato` 
+                      : `Esercizio ${currentExercise + 1} Completato`}
+                  </>
+                ) : (
                   // CASO 3: Esercizio FUTURO - deve completare prima quelli precedenti
                   <>
                     <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
@@ -959,39 +959,37 @@ const TrainingDashboard: React.FC = () => {
                 )}
               </Button>
 
-              {/* Pulsante Interrompi Protocollo - nascosto quando protocollo completato */}
-              {!(dailyCompletedExercises === 3 && protocol.current_day >= protocol.duration_days) && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="destructive"
-                      size="sm" 
-                      className="w-full mt-3"
+              {/* Pulsante Interrompi Protocollo */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive"
+                    size="sm" 
+                    className="w-full mt-3"
+                  >
+                    <Square className="h-4 w-4 mr-2" />
+                    Interrompi Protocollo
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                    <AlertDialogDescription>
+                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
+                       Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleInterruptProtocol}
+                      className="bg-red-600 hover:bg-red-700"
                     >
-                      <Square className="h-4 w-4 mr-2" />
-                      Interrompi Protocollo
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                      <AlertDialogDescription>
-                         Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
-                         Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annulla</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleInterruptProtocol}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        Sì, interrompi
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
+                      Sì, interrompi
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
 
             </CardContent>
           </Card>
