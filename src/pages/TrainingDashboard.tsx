@@ -359,8 +359,18 @@ const TrainingDashboard: React.FC = () => {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
       const totalExercises = protocol.duration_days * exercisesPerDay;
       const completedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
-      const exercisesInCurrentDay = completedExercises % exercisesPerDay;
-      const calculatedCurrentExercise = Math.min(exercisesInCurrentDay, exercisesPerDay - 1);
+      
+      console.log('Debug progresso:', {
+        progress_percentage: protocol.progress_percentage,
+        duration_days: protocol.duration_days,
+        current_day: protocol.current_day,
+        totalExercises,
+        completedExercises
+      });
+      
+      // L'esercizio corrente è il prossimo da completare
+      const calculatedCurrentExercise = Math.min(completedExercises, exercisesPerDay - 1);
+      console.log('Setting currentExercise to:', calculatedCurrentExercise);
       setCurrentExercise(calculatedCurrentExercise);
     }
   }, [protocol]);
@@ -456,11 +466,23 @@ const TrainingDashboard: React.FC = () => {
       const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
       const totalExercisesToday = todayExercises.length;
       
-      // Calcola il progresso totale del protocollo
+      // Calcola il progresso totale del protocollo basato sui veri esercizi completati
       const exercisesPerDay = totalExercisesToday;
       const totalExercises = protocol.duration_days * exercisesPerDay;
-      const completedExercisesTotal = ((protocol.current_day - 1) * exercisesPerDay) + completedCount;
-      const newProgressPercentage = Math.round((completedExercisesTotal / totalExercises) * 100);
+      
+      // Calcola gli esercizi completati prima di oggi + quelli completati oggi
+      const currentProgressExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
+      const newTotalCompletedExercises = currentProgressExercises + 1; // +1 per l'esercizio appena completato
+      const newProgressPercentage = Math.round((newTotalCompletedExercises / totalExercises) * 100);
+      
+      console.log('Progress calculation:', {
+        currentExercise,
+        completedCount,
+        currentProgressExercises,
+        newTotalCompletedExercises,
+        totalExercises,
+        newProgressPercentage
+      });
 
       // Se è l'ultimo esercizio della giornata, avanza al giorno successivo
       if (completedCount === totalExercisesToday) {
