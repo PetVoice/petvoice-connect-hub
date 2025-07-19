@@ -1098,7 +1098,7 @@ const TrainingDashboard: React.FC = () => {
             </div>
           </div>
           
-           <DialogFooter className="flex gap-2 justify-center">
+           <DialogFooter className="flex justify-center gap-2">
             <Button
               onClick={handleSubmitRating}
               disabled={isSubmittingRating}
