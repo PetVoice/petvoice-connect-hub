@@ -63,6 +63,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
@@ -115,6 +116,14 @@ export const AITrainingHub: React.FC = () => {
   const [editingProtocol, setEditingProtocol] = useState<TrainingProtocol | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editCategory, setEditCategory] = useState('');
+  const [editDifficulty, setEditDifficulty] = useState<'facile' | 'medio' | 'difficile'>('facile');
+  const [editDurationDays, setEditDurationDays] = useState(14);
+  const [editTargetBehavior, setEditTargetBehavior] = useState('');
+  const [editIsPublic, setEditIsPublic] = useState(false);
+
+  // Delete Confirmation State
+  const [protocolToDelete, setProtocolToDelete] = useState<string | null>(null);
 
   // Get current user ID
   useEffect(() => {
@@ -330,6 +339,11 @@ export const AITrainingHub: React.FC = () => {
     setEditingProtocol(protocol);
     setEditTitle(protocol.title);
     setEditDescription(protocol.description || '');
+    setEditCategory(protocol.category);
+    setEditDifficulty(protocol.difficulty);
+    setEditDurationDays(protocol.duration_days);
+    setEditTargetBehavior(protocol.target_behavior || '');
+    setEditIsPublic(protocol.is_public || false);
   };
 
   // Handle save edit
@@ -342,6 +356,11 @@ export const AITrainingHub: React.FC = () => {
         updates: {
           title: editTitle,
           description: editDescription,
+          category: editCategory,
+          difficulty: editDifficulty,
+          duration_days: editDurationDays,
+          target_behavior: editTargetBehavior,
+          is_public: editIsPublic,
         }
       });
       
@@ -607,19 +626,17 @@ export const AITrainingHub: React.FC = () => {
                              >
                                <Edit className="h-4 w-4" />
                              </Button>
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 if (window.confirm("Sei sicuro di voler eliminare questo protocollo?")) {
-                                   handleDeleteProtocol(protocol.id);
-                                 }
-                               }}
-                               className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8"
-                             >
-                               <Trash2 className="h-4 w-4" />
-                             </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setProtocolToDelete(protocol.id);
+                                }}
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                            </div>
                          )}
                          
@@ -1079,6 +1096,68 @@ export const AITrainingHub: React.FC = () => {
                 rows={4}
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-category">Categoria</Label>
+                <Select value={editCategory} onValueChange={setEditCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="comportamento">Comportamento</SelectItem>
+                    <SelectItem value="educazione">Educazione</SelectItem>
+                    <SelectItem value="sociale">Sociale</SelectItem>
+                    <SelectItem value="fisico">Fisico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-difficulty">Difficoltà</Label>
+                <Select value={editDifficulty} onValueChange={(value) => setEditDifficulty(value as any)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="facile">Facile</SelectItem>
+                    <SelectItem value="medio">Medio</SelectItem>
+                    <SelectItem value="difficile">Difficile</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-duration">Durata (giorni)</Label>
+              <Input
+                id="edit-duration"
+                type="number"
+                min="1"
+                max="90"
+                value={editDurationDays}
+                onChange={(e) => setEditDurationDays(parseInt(e.target.value) || 14)}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-target">Comportamento target</Label>
+              <Input
+                id="edit-target"
+                placeholder="Es. Ridurre l'ansia da separazione"
+                value={editTargetBehavior}
+                onChange={(e) => setEditTargetBehavior(e.target.value)}
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-public"
+                checked={editIsPublic}
+                onCheckedChange={setEditIsPublic}
+              />
+              <Label htmlFor="edit-public">Condividi con la community</Label>
+            </div>
             
             <div className="flex justify-end gap-3">
               <Button
@@ -1098,6 +1177,36 @@ export const AITrainingHub: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation AlertDialog */}
+      <AlertDialog open={!!protocolToDelete} onOpenChange={() => setProtocolToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sei sicuro di voler eliminare questo protocollo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Questa azione non può essere annullata. Il protocollo verrà eliminato permanentemente 
+              insieme a tutti i suoi dati associati.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setProtocolToDelete(null)}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (protocolToDelete) {
+                  handleDeleteProtocol(protocolToDelete);
+                  setProtocolToDelete(null);
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
