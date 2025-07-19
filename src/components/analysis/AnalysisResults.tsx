@@ -1055,8 +1055,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <span className="font-medium">Episodio Simile</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} 
-                      con emozione "{mostRecentOther.primary_emotion}" (confidenza {mostRecentOther.primary_confidence}%)
+                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} con emozione "{mostRecentOther.primary_emotion}" (confidenza {mostRecentOther.primary_confidence}%)
                     </p>
                     <Button 
                       size="sm" 
@@ -1080,10 +1079,20 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       const otherAnalyses = analyses.filter(a => a.id !== selectedAnalysis.id);
                       if (otherAnalyses.length === 0) return '0%';
                       
+                      // Trova l'analisi più simile per emozione o la più recente
+                      const currentEmotion = selectedAnalysis.primary_emotion.toLowerCase();
+                      const similarAnalysis = otherAnalyses.find(a => 
+                        a.primary_emotion.toLowerCase() === currentEmotion
+                      ) || otherAnalyses[0];
+                      
                       const currentConfidence = selectedAnalysis.primary_confidence;
-                      const previousConfidence = otherAnalyses[0].primary_confidence;
-                      const improvement = ((currentConfidence - previousConfidence) / previousConfidence * 100).toFixed(1);
-                      return Number(improvement) > 0 ? `+${improvement}%` : `${improvement}%`;
+                      const previousConfidence = similarAnalysis.primary_confidence;
+                      const improvement = ((currentConfidence - previousConfidence) / previousConfidence * 100);
+                      
+                      // Limita il valore per evitare percentuali irrealistiche
+                      const clampedImprovement = Math.max(-50, Math.min(50, improvement));
+                      
+                      return Number(clampedImprovement) > 0 ? `+${clampedImprovement.toFixed(1)}%` : `${clampedImprovement.toFixed(1)}%`;
                     })()}
                   </p>
                   <p className="text-sm text-muted-foreground">Variazione Confidenza</p>
@@ -1094,21 +1103,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       const otherAnalyses = analyses.filter(a => a.id !== selectedAnalysis.id);
                       if (otherAnalyses.length === 0) return '0';
                       
+                      // Calcola i giorni dall'analisi più recente
                       const current = new Date(selectedAnalysis.created_at);
                       const previous = new Date(otherAnalyses[0].created_at);
                       const diffTime = Math.abs(current.getTime() - previous.getTime());
                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                      return diffDays;
+                      
+                      // Se è lo stesso giorno, mostra "Oggi"
+                      if (diffDays === 0) return 'Oggi';
+                      if (diffDays === 1) return '1 giorno';
+                      
+                      return `${diffDays} giorni`;
                     })()}
                   </p>
-                  <p className="text-sm text-muted-foreground">Giorni Dall'Ultima Analisi</p>
+                  <p className="text-sm text-muted-foreground">Dall'Ultima Analisi</p>
                 </div>
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-purple-600">
                     {(() => {
-                      const similarEmotions = analyses.filter(a => a.primary_emotion === selectedAnalysis.primary_emotion).length;
-                      const consistency = (similarEmotions / analyses.length * 100).toFixed(0);
-                      return `${consistency}%`;
+                      if (analyses.length === 0) return '0%';
+                      
+                      const currentEmotion = selectedAnalysis.primary_emotion.toLowerCase();
+                      const similarEmotions = analyses.filter(a => 
+                        a.primary_emotion.toLowerCase() === currentEmotion
+                      ).length;
+                      
+                      const consistency = (similarEmotions / analyses.length * 100);
+                      return `${Math.round(consistency)}%`;
                     })()}
                   </p>
                   <p className="text-sm text-muted-foreground">Consistenza Emotiva</p>
