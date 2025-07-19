@@ -721,8 +721,8 @@ export const AITrainingHub: React.FC = () => {
                                    <AlertDialogHeader>
                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                                      <AlertDialogDescription>
-                                       Sei sicuro di voler interrompere il protocollo "{protocol.title}"? 
-                                       Il protocollo verrà messo in pausa e potrai riprenderlo in qualsiasi momento.
+                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
+                                        Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
                                      </AlertDialogDescription>
                                    </AlertDialogHeader>
                                    <AlertDialogFooter>

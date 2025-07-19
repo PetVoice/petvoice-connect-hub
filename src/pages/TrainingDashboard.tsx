@@ -440,8 +440,8 @@ const TrainingDashboard: React.FC = () => {
         description: `Hai completato "${currentEx.title}" con successo.`,
       });
 
-      // Calcola il progresso basato sugli esercizi completati
-      const completedCount = updatedExercises.filter(ex => ex.completed).length;
+      // Calcola il progresso basato sull'esercizio corrente completato
+      const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
       const totalExercisesToday = todayExercises.length;
       
       // Calcola il progresso totale del protocollo
