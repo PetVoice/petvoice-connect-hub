@@ -397,7 +397,35 @@ const TrainingDashboard: React.FC = () => {
 
   const handleCompleteExercise = async () => {
     try {
+      // Verifica che esista un esercizio corrente
+      if (!todayExercises || todayExercises.length === 0) {
+        toast({
+          title: 'Errore',
+          description: 'Nessun esercizio disponibile per oggi.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (currentExercise >= todayExercises.length || currentExercise < 0) {
+        toast({
+          title: 'Errore',
+          description: 'Esercizio non valido.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const currentEx = todayExercises[currentExercise];
+      
+      if (!currentEx) {
+        toast({
+          title: 'Errore',
+          description: 'Esercizio non trovato.',
+          variant: 'destructive',
+        });
+        return;
+      }
       
       // Aggiorna l'esercizio corrente come completato
       const updatedExercises = [...todayExercises];
@@ -479,6 +507,25 @@ const TrainingDashboard: React.FC = () => {
   const completedExercises = todayExercises.filter(ex => ex.completed).length;
   const totalExercises = todayExercises.length;
   const dayProgress = (completedExercises / totalExercises) * 100;
+
+  // Se non c'è un esercizio corrente valido, mostra messaggio di errore
+  if (!currentEx || todayExercises.length === 0) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Nessun esercizio disponibile</h2>
+          <p className="text-muted-foreground mb-4">
+            Non ci sono esercizi configurati per questo protocollo. Contatta il supporto per assistenza.
+          </p>
+          <Button onClick={() => navigate('/training')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Torna ai Protocolli
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
