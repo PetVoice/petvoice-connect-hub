@@ -108,6 +108,8 @@ export const AITrainingHub: React.FC = () => {
     const tabParam = searchParams.get('tab');
     if (tabParam === 'completed') {
       setCurrentView('completed');
+    } else if (tabParam === 'active') {
+      setCurrentView('active');
     }
   }, [searchParams]);
 
@@ -334,11 +336,11 @@ export const AITrainingHub: React.FC = () => {
     if (existingActiveProtocol) {
       toast({
         title: 'Protocollo già attivo',
-        description: `Il protocollo "${protocol.title}" è già attivo. Vai alla dashboard per continuare.`,
-        variant: 'destructive',
+        description: `Il protocollo "${protocol.title}" è già attivo. Ti porto alla scheda Attivi.`,
       });
-      // Reindirizza direttamente alla dashboard del protocollo attivo
-      navigate(`/training/dashboard/${existingActiveProtocol.id}`);
+      // Reindirizza alla scheda "Attivi" invece che alla dashboard
+      setCurrentView('active');
+      navigate('/training?tab=active');
       return;
     }
 
