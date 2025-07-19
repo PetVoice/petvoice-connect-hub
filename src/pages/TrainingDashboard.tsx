@@ -865,7 +865,7 @@ const TrainingDashboard: React.FC = () => {
               {/* Pulsante per andare al giorno successivo o completare il protocollo */}
               {dailyCompletedExercises === 3 && (
                 <Button
-                  onClick={() => {
+                  onClick={async () => {
                     const isLastDay = protocol.current_day >= protocol.duration_days;
                     
                     if (isLastDay) {
@@ -885,14 +885,20 @@ const TrainingDashboard: React.FC = () => {
                       setDailyCompletedExercises(0);
                       setCurrentExercise(0);
                       
-                      // 2. Toast di congratulazioni per il giorno completato
-                      toast({
-                        title: "🎉 Giorno completato!",
-                        description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Continua così!`,
+                      // 2. AGGIORNA IL DATABASE: current_day + 1
+                      await updateProtocol.mutateAsync({
+                        id: protocol.id,
+                        updates: {
+                          current_day: protocol.current_day + 1,
+                          last_activity_at: new Date().toISOString(),
+                        }
                       });
                       
-                      // 3. Qui dovresti aggiornare il database per avanzare al giorno successivo
-                      // Questo probabilmente richiederà una chiamata API per aggiornare current_day nel protocollo
+                      // 3. Toast di congratulazioni per il giorno completato
+                      toast({
+                        title: "🎉 Giorno completato!",
+                        description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ora sei al giorno ${protocol.current_day + 1}!`,
+                      });
                     }
                   }}
                   className="w-full mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
