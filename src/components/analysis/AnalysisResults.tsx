@@ -697,6 +697,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
                                 {(() => {
                                   if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
+                                      selectedAnalysis.primary_emotion.toLowerCase().includes('ansioso') ||
                                       selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
                                     return 'Gestione Ansia da Separazione';
                                   } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
@@ -711,6 +712,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                                 {(() => {
                                   if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
+                                      selectedAnalysis.primary_emotion.toLowerCase().includes('ansioso') ||
                                       selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
                                     return 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.';
                                   } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
