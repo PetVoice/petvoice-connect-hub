@@ -657,7 +657,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               ✨ {petName} sta bene!
                             </h5>
                             <p className="text-sm text-green-700 dark:text-green-300">
-                              Emozione "{selectedAnalysis.primary_emotion}" rilevata - nessuna musicoterapia necessaria. Il tuo pet è in uno stato emotivo positivo!
+                              Emozione "{selectedAnalysis.primary_emotion}" rilevata. Il tuo pet è in uno stato emotivo positivo!
                             </p>
                           </div>
                         </div>
