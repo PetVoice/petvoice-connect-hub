@@ -879,43 +879,14 @@ const TrainingDashboard: React.FC = () => {
               <Separator />
               
               <Button
-                onClick={handleCompleteExercise}
-                disabled={currentExercise !== dailyCompletedExercises}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
-              >
-                {currentExercise < dailyCompletedExercises ? (
-                  // CASO 1: Esercizio GIÀ completato
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                    ✅ Esercizio {currentExercise + 1} già completato
-                  </>
-                ) : currentExercise === dailyCompletedExercises ? (
-                  // CASO 2: PROSSIMO esercizio da completare
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {currentExercise === 2 
-                      ? `Esercizio 3 Completato` 
-                      : `Esercizio ${currentExercise + 1} Completato`}
-                  </>
-                ) : (
-                  // CASO 3: Esercizio FUTURO - deve completare prima quelli precedenti
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
-                    Completa prima l'Esercizio {dailyCompletedExercises + 1}
-                  </>
-                )}
-              </Button>
-              
-              {/* Pulsante per andare al giorno successivo o completare il protocollo */}
-              {dailyCompletedExercises === 3 && (
-                <Button
-                  onClick={async () => {
+                onClick={async () => {
+                  // Se tutti gli esercizi sono completati, vai al giorno successivo o completa protocollo
+                  if (dailyCompletedExercises === 3) {
                     const isLastDay = protocol.current_day >= protocol.duration_days;
                     
-                     if (isLastDay) {
-                       // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
-                       setShowRatingDialog(true);
-                      
+                    if (isLastDay) {
+                      // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
+                      setShowRatingDialog(true);
                     } else {
                       // PASSA AL GIORNO SUCCESSIVO
                       
@@ -938,10 +909,23 @@ const TrainingDashboard: React.FC = () => {
                         description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ora sei al giorno ${protocol.current_day + 1}!`,
                       });
                     }
-                  }}
-                  className="w-full mt-3 bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {protocol.current_day >= protocol.duration_days ? (
+                  } else {
+                    // Completa l'esercizio corrente
+                    handleCompleteExercise();
+                  }
+                }}
+                disabled={currentExercise !== dailyCompletedExercises}
+                className={`w-full ${
+                  dailyCompletedExercises === 3 
+                    ? (protocol.current_day >= protocol.duration_days 
+                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700' 
+                        : 'bg-primary hover:bg-primary/90 text-primary-foreground')
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                } disabled:opacity-50`}
+              >
+                {dailyCompletedExercises === 3 ? (
+                  // TUTTI ESERCIZI COMPLETATI: Mostra pulsante per andare al giorno successivo o completare
+                  protocol.current_day >= protocol.duration_days ? (
                     <>
                       <Trophy className="h-4 w-4 mr-2" />
                       🏆 Protocollo Completato
@@ -951,9 +935,29 @@ const TrainingDashboard: React.FC = () => {
                       <Trophy className="h-4 w-4 mr-2" />
                       🎯 Vai al Giorno {protocol.current_day + 1}
                     </>
-                  )}
-                 </Button>
-              )}
+                  )
+                ) : currentExercise < dailyCompletedExercises ? (
+                  // CASO 1: Esercizio GIÀ completato
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                    ✅ Esercizio {currentExercise + 1} già completato
+                  </>
+                ) : currentExercise === dailyCompletedExercises ? (
+                  // CASO 2: PROSSIMO esercizio da completare
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {currentExercise === 2 
+                      ? `Esercizio 3 Completato` 
+                      : `Esercizio ${currentExercise + 1} Completato`}
+                  </>
+                ) : (
+                  // CASO 3: Esercizio FUTURO - deve completare prima quelli precedenti
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
+                    Completa prima l'Esercizio {dailyCompletedExercises + 1}
+                  </>
+                )}
+              </Button>
 
               {/* Pulsante Interrompi Protocollo */}
               <AlertDialog>
