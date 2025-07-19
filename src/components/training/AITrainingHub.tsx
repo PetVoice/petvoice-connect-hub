@@ -119,7 +119,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'analytics' | 'community' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'community' | 'completed'>('protocols');
 
   // Check URL parameters to set initial tab
   useEffect(() => {
@@ -689,12 +689,11 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
           <TabsTrigger value="active">Attivi</TabsTrigger>
           <TabsTrigger value="completed">Completati</TabsTrigger>
           <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
@@ -1177,59 +1176,6 @@ export const AITrainingHub: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Panoramica Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-500">{stats.successRate}%</div>
-                    <p className="text-sm text-muted-foreground">Tasso di successo medio</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-500">{stats.activeProtocols}</div>
-                    <p className="text-sm text-muted-foreground">Protocolli attivi</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-500">{stats.completedProtocols}</div>
-                    <p className="text-sm text-muted-foreground">Protocolli completati</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  Insights AI
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Alert>
-                    <Lightbulb className="h-4 w-4" />
-                    <AlertDescription>
-                      I tuoi protocolli mostrano un tasso di successo del {stats.successRate}%, che è sopra la media della piattaforma!
-                    </AlertDescription>
-                  </Alert>
-                  <Alert>
-                    <TrendingUp className="h-4 w-4" />
-                    <AlertDescription>
-                      I protocolli di categoria "comportamento" hanno il miglior tasso di successo nei tuoi dati.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
 
         <TabsContent value="community" className="space-y-4">
           <div className="grid gap-6">
