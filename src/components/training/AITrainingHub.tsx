@@ -324,24 +324,26 @@ export const AITrainingHub: React.FC = () => {
   };
 
   const handleStartProtocol = async (protocol: TrainingProtocol) => {
-    // 1. VERIFICA SE IL PROTOCOLLO È GIÀ STATO AVVIATO
+    // 1. VERIFICA SE IL PROTOCOLLO È GIÀ ATTIVO (solo status 'active', non 'paused')
     const existingActiveProtocol = protocols.find(p => 
-      p.title === protocol.title && 
       p.user_id === currentUserId && 
-      (p.status === 'active' || p.status === 'paused')
+      p.status === 'active' &&
+      (p.id === protocol.id || (p.title === protocol.title && p.category === protocol.category))
     );
 
     if (existingActiveProtocol) {
       toast({
-        title: 'Protocollo già avviato',
-        description: `Il protocollo "${protocol.title}" è già stato avviato e si trova nei protocolli attivi.`,
+        title: 'Protocollo già attivo',
+        description: `Il protocollo "${protocol.title}" è già attivo. Vai alla dashboard per continuare.`,
         variant: 'destructive',
       });
+      // Reindirizza direttamente alla dashboard del protocollo attivo
+      navigate(`/training/dashboard/${existingActiveProtocol.id}`);
       return;
     }
 
     if (protocol.status === 'active') {
-      // Se già attivo, vai alla dashboard usando navigate invece di window.location
+      // Se già attivo, vai alla dashboard
       navigate(`/training/dashboard/${protocol.id}`);
       return;
     }
