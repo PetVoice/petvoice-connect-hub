@@ -206,7 +206,9 @@ export const AITrainingProtocols: React.FC = () => {
   // Get current user ID
   useEffect(() => {
     const getCurrentUser = async () => {
+      console.log('Getting current user...');
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user from auth:', user?.id);
       setCurrentUserId(user?.id || null);
     };
     getCurrentUser();
