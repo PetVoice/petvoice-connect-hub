@@ -351,6 +351,9 @@ const TrainingDashboard: React.FC = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [protocolRating, setProtocolRating] = useState(5);
   const [protocolNotes, setProtocolNotes] = useState('');
+  
+  // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
+  const [dailyCompletedExercises, setDailyCompletedExercises] = useState(0);
 
   const protocol = protocols?.find(p => p.id === protocolId);
 
@@ -488,7 +491,10 @@ const TrainingDashboard: React.FC = () => {
         totalCompletedExercises,
         newProgressPercentage,
         currentDay: protocol.current_day
-      });
+       });
+
+      // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
+      setDailyCompletedExercises(prev => prev + 1);
 
       // Aggiorna il progresso del protocollo nel database
       await updateProtocol.mutateAsync({
@@ -599,26 +605,13 @@ const TrainingDashboard: React.FC = () => {
 
   const currentEx = todayExercises[currentExercise];
   
-  // CALCOLO CORRETTO: Basato sui completamenti effettivi nel database
-  const exercisesPerDay = 3; // Ogni giorno ha sempre 3 esercizi
-  const totalExercises = exercisesPerDay * protocol.duration_days; // Es: 3 * 21 = 63
-  const totalCompletedExercises = Math.round((protocol.progress_percentage / 100) * totalExercises);
-  
-  // Calcola gli esercizi completati nei giorni precedenti
-  const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
-  
-  // Gli esercizi completati OGGI sono la differenza
-  const completedExercisesToday = Math.max(0, totalCompletedExercises - exercisesCompletedInPreviousDays);
-  
-  // Il progresso giornaliero è basato sui completamenti EFFETTIVI
-  const completedExercises = Math.min(completedExercisesToday, exercisesPerDay);
-  const totalExercisesToday = exercisesPerDay; // Sempre 3
+  // CALCOLO SEMPLICISSIMO: Usa solo lo stato locale per il progresso giornaliero
+  const totalExercisesToday = 3; // Sempre 3 esercizi per giorno
+  const completedExercises = dailyCompletedExercises; // Stato locale che si incrementa solo sui click
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
-  // Debug: log per verificare il calcolo
-  console.log('📊 DEBUG PROGRESSO SEMPLIFICATO:', {
-    currentDay: protocol.current_day,
-    currentExercise,
+  console.log('📊 PROGRESSO LOCALE:', {
+    dailyCompletedExercises,
     completedExercises,
     totalExercisesToday,
     dayProgress
