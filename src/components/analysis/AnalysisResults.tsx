@@ -629,67 +629,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
               <TabsContent value="recommendations" className="space-y-4">
 
-                {/* Training Protocol Recommendation */}
-                {(() => {
-                  const analysisKeywords = [
-                    selectedAnalysis.primary_emotion,
-                    selectedAnalysis.behavioral_insights,
-                    ...selectedAnalysis.recommendations,
-                    ...selectedAnalysis.triggers
-                  ];
-                  const recommendedProtocolId = getRecommendedProtocol(analysisKeywords);
-                  
-                  if (recommendedProtocolId) {
-                    const protocol = Object.values(allProtocols).find(p => p.id === recommendedProtocolId);
-                    if (protocol) {
-                      return (
-                        <div className="mb-6">
-                          <h4 className="font-medium mb-3 flex items-center gap-2">
-                            <Target className="h-4 w-4" />
-                            Protocollo di Training Raccomandato
-                          </h4>
-                          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border">
-                            <div className="flex items-start gap-3">
-                              <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                                <Target className="h-5 w-5 text-green-600" />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                                  {protocol.name}
-                                </h5>
-                                <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                                  {protocol.description}
-                                </p>
-                                <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
-                                  <span>📅 {protocol.durationDays} giorni</span>
-                                  <span>🎯 Livello: {protocol.difficulty}</span>
-                                  <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
-                                </div>
-                                <p className="text-xs text-green-600 dark:text-green-400 mb-3">
-                                  Comportamenti target: {protocol.targetBehaviors.join(', ')}
-                                </p>
-                                <Button 
-                                  size="sm" 
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => {
-                                    window.location.href = `/training?recommended=${protocol.id}`;
-                                  }}
-                                >
-                                  <Target className="h-3 w-3 mr-1" />
-                                  Inizia Protocollo Training
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                  }
-                  return null;
-                })()}
-
                 {/* AI Music Therapy Recommendations */}
-                <div className="mt-6">
+                <div>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
                     <AudioLines className="h-4 w-4" />
                     Playlist IA Music Therapy Consigliata
@@ -727,6 +668,78 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     </div>
                   </div>
                 </div>
+
+                {/* Training Protocol Recommendation - Solo per risultati negativi */}
+                {(() => {
+                  const negativeEmotions = ['ansia', 'paura', 'stress', 'aggressività', 'tristezza', 'depressione', 'agitazione'];
+                  const isNegativeEmotion = negativeEmotions.some(emotion => 
+                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
+                  );
+                  
+                  if (isNegativeEmotion) {
+                    return (
+                      <div className="mt-6">
+                        <h4 className="font-medium mb-3 flex items-center gap-2">
+                          <Target className="h-4 w-4" />
+                          Protocollo di Training Raccomandato
+                        </h4>
+                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                              <Target className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                                {(() => {
+                                  if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
+                                      selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
+                                    return 'Gestione Ansia da Separazione';
+                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
+                                    return 'Controllo Aggressività';
+                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('paura')) {
+                                    return 'Superamento Paure e Fobie';
+                                  } else {
+                                    return 'Gestione Iperattività';
+                                  }
+                                })()}
+                              </h5>
+                              <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                                {(() => {
+                                  if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
+                                      selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
+                                    return 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.';
+                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
+                                    return 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.';
+                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('paura')) {
+                                    return 'Esercizi di desensibilizzazione per superare paure specifiche.';
+                                  } else {
+                                    return 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.';
+                                  }
+                                })()}
+                              </p>
+                              <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
+                                <span>📅 14-21 giorni</span>
+                                <span>🎯 Livello: Intermedio</span>
+                                <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                              </div>
+                              <Button 
+                                size="sm" 
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => {
+                                  window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
+                                }}
+                              >
+                                <Target className="h-3 w-3 mr-1" />
+                                Inizia Protocollo Training
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </TabsContent>
 
               <TabsContent value="triggers" className="space-y-4">
