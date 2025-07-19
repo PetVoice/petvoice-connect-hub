@@ -359,7 +359,7 @@ const TrainingDashboard: React.FC = () => {
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {
-    if (protocol && protocol.progress_percentage !== undefined) {
+    if (protocol && protocol.progress_percentage !== undefined && !hasInitialized) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
       const totalExercises = protocol.duration_days * exercisesPerDay;
       const totalCompletedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
@@ -373,7 +373,7 @@ const TrainingDashboard: React.FC = () => {
       // L'esercizio corrente è il primo non completato oggi
       const calculatedCurrentExercise = Math.min(exercisesCompletedToday, exercisesPerDay - 1);
       
-      console.log('🔄 INIZIALIZZAZIONE PROGRESSO CORRETTA:', {
+      console.log('🔄 INIZIALIZZAZIONE PROGRESSO (SOLO UNA VOLTA):', {
         protocol_id: protocol.id,
         progress_percentage: protocol.progress_percentage,
         duration_days: protocol.duration_days,
@@ -382,15 +382,17 @@ const TrainingDashboard: React.FC = () => {
         totalCompletedExercises,
         exercisesCompletedInPreviousDays,
         exercisesCompletedToday,
-        calculatedCurrentExercise
+        calculatedCurrentExercise,
+        hasInitialized
       });
       
       setCurrentExercise(calculatedCurrentExercise);
+      setDailyCompletedExercises(exercisesCompletedToday);
       setHasInitialized(true);
       
-      console.log('✅ IMPOSTATO currentExercise a:', calculatedCurrentExercise);
+      console.log('✅ INIZIALIZZAZIONE COMPLETATA - currentExercise:', calculatedCurrentExercise);
     }
-  }, [protocol?.id, protocol?.progress_percentage]); // Rimuovo hasInitialized dalle dependency
+  }, [protocol?.id, hasInitialized]); // RIMOSSO protocol?.progress_percentage dalle dipendenze!
 
   // Ottieni esercizi dinamici basati sul protocollo
   const todayExercises: Exercise[] = protocol ? getExercisesForProtocol(protocol) : [];
