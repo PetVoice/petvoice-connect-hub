@@ -396,45 +396,83 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const handleCompleteExercise = async () => {
-    const updatedExercises = [...todayExercises];
-    updatedExercises[currentExercise].completed = true;
-    updatedExercises[currentExercise].rating = exerciseRating;
-    updatedExercises[currentExercise].notes = exerciseNotes;
-
-    toast({
-      title: 'Esercizio completato!',
-      description: `Hai completato "${updatedExercises[currentExercise].title}" con successo.`,
-    });
-
-    // Se è l'ultimo esercizio della giornata
-    if (currentExercise === todayExercises.length - 1) {
-      const completedExercises = updatedExercises.filter(ex => ex.completed).length;
-      const progressPercentage = Math.round((protocol.current_day / protocol.duration_days) * 100);
+    try {
+      const currentEx = todayExercises[currentExercise];
       
-      try {
+      // Aggiorna l'esercizio corrente come completato
+      const updatedExercises = [...todayExercises];
+      updatedExercises[currentExercise].completed = true;
+      updatedExercises[currentExercise].rating = exerciseRating;
+      updatedExercises[currentExercise].notes = exerciseNotes;
+
+      toast({
+        title: 'Esercizio completato!',
+        description: `Hai completato "${currentEx.title}" con successo.`,
+      });
+
+      // Calcola il progresso basato sugli esercizi completati
+      const completedCount = updatedExercises.filter(ex => ex.completed).length;
+      const totalExercisesToday = todayExercises.length;
+      
+      // Calcola il progresso totale del protocollo
+      const exercisesPerDay = totalExercisesToday;
+      const totalExercises = protocol.duration_days * exercisesPerDay;
+      const completedExercisesTotal = ((protocol.current_day - 1) * exercisesPerDay) + completedCount;
+      const newProgressPercentage = Math.round((completedExercisesTotal / totalExercises) * 100);
+
+      // Se è l'ultimo esercizio della giornata, avanza al giorno successivo
+      if (completedCount === totalExercisesToday) {
+        const isLastDay = protocol.current_day >= protocol.duration_days;
+        
         await updateProtocol.mutateAsync({
           id: protocol.id,
           updates: {
-            current_day: protocol.current_day + 1,
-            progress_percentage: Math.min(progressPercentage + (100 / protocol.duration_days), 100),
+            current_day: isLastDay ? protocol.current_day : protocol.current_day + 1,
+            progress_percentage: Math.min(newProgressPercentage, 100),
+            status: isLastDay ? 'completed' : protocol.status,
             last_activity_at: new Date().toISOString(),
           }
         });
 
         toast({
-          title: 'Giornata completata!',
-          description: `Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ottimo lavoro!`,
+          title: isLastDay ? 'Protocollo completato!' : 'Giornata completata!',
+          description: isLastDay 
+            ? `Congratulazioni! Hai completato tutto il protocollo "${protocol.title}"!`
+            : `Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Ottimo lavoro!`,
         });
-      } catch (error) {
-        console.error('Error updating protocol:', error);
-      }
-    } else {
-      setCurrentExercise(prev => prev + 1);
-    }
 
-    // Reset form
-    setExerciseRating(5);
-    setExerciseNotes('');
+        // Se il protocollo è completato, torna alla dashboard
+        if (isLastDay) {
+          setTimeout(() => {
+            navigate('/training');
+          }, 2000);
+        }
+      } else {
+        // Aggiorna solo il progresso senza cambiare giorno
+        await updateProtocol.mutateAsync({
+          id: protocol.id,
+          updates: {
+            progress_percentage: Math.min(newProgressPercentage, 100),
+            last_activity_at: new Date().toISOString(),
+          }
+        });
+
+        // Passa al prossimo esercizio
+        setCurrentExercise(prev => prev + 1);
+      }
+
+      // Reset form
+      setExerciseRating(5);
+      setExerciseNotes('');
+      
+    } catch (error) {
+      console.error('Error completing exercise:', error);
+      toast({
+        title: 'Errore',
+        description: 'Non è stato possibile completare l\'esercizio. Riprova.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const currentEx = todayExercises[currentExercise];
