@@ -722,10 +722,9 @@ export const AITrainingHub: React.FC = () => {
                                  <AlertDialogContent>
                                    <AlertDialogHeader>
                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                                     <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
-                                        Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                                     </AlertDialogDescription>
+                                      <AlertDialogDescription>
+                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                      </AlertDialogDescription>
                                    </AlertDialogHeader>
                                    <AlertDialogFooter>
                                      <AlertDialogCancel>Annulla</AlertDialogCancel>
@@ -870,11 +869,10 @@ export const AITrainingHub: React.FC = () => {
                              </AlertDialogTrigger>
                              <AlertDialogContent>
                                <AlertDialogHeader>
-                                 <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                                 <AlertDialogDescription>
-                                   Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
-                                   Il tuo progresso verrà mantenuto e potrai riprendere in qualsiasi momento.
-                                 </AlertDialogDescription>
+                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                      </AlertDialogDescription>
                                </AlertDialogHeader>
                                <AlertDialogFooter>
                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
