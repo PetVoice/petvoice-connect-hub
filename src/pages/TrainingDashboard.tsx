@@ -605,16 +605,17 @@ const TrainingDashboard: React.FC = () => {
 
   const currentEx = todayExercises[currentExercise];
   
-  // CALCOLO SEMPLICISSIMO: Usa solo lo stato locale per il progresso giornaliero
+  // FOTTUTAMENTE SEMPLICE: Stato che parte da 0 e si incrementa sui click
   const totalExercisesToday = 3; // Sempre 3 esercizi per giorno
-  const completedExercises = dailyCompletedExercises; // Stato locale che si incrementa solo sui click
+  const completedExercises = dailyCompletedExercises; // Questo DEVE funzionare!
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
-  console.log('📊 PROGRESSO LOCALE:', {
+  console.log('🔥 STATO PULSANTI:', {
     dailyCompletedExercises,
-    completedExercises,
+    completedExercises, 
     totalExercisesToday,
-    dayProgress
+    dayProgress,
+    currentExercise
   });
 
   // Se non c'è un esercizio corrente valido, mostra messaggio di errore
