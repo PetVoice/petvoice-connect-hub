@@ -18,6 +18,7 @@ interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
   maxDuration?: number; // in seconds
   onStartRecording?: () => boolean;
+  autoAnalyze?: boolean; // Nuovo prop per l'analisi automatica
 }
 
 interface RecordingState {
@@ -32,7 +33,8 @@ interface RecordingState {
 const AudioRecorder: React.FC<AudioRecorderProps> = ({ 
   onRecordingComplete, 
   maxDuration = 300, // 5 minutes default
-  onStartRecording
+  onStartRecording,
+  autoAnalyze = false // Default false per retrocompatibilità
 }) => {
   const [recordingState, setRecordingState] = useState<RecordingState>({
     isRecording: false,
@@ -87,6 +89,18 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       URL.revokeObjectURL(recordingState.audioUrl);
     }
   }, [recordingState.audioUrl]);
+
+  // Auto-analyze after recording completion
+  useEffect(() => {
+    if (autoAnalyze && recordingState.audioBlob && !recordingState.isRecording) {
+      // Avvia automaticamente l'analisi dopo un breve delay per permettere il rendering
+      const timer = setTimeout(() => {
+        handleAnalyze();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [autoAnalyze, recordingState.audioBlob, recordingState.isRecording]);
 
   const setupAudioContext = async (stream: MediaStream) => {
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -401,7 +415,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         )}
 
         {/* Playback Controls */}
-        {recordingState.audioBlob && !recordingState.isRecording && (
+        {recordingState.audioBlob && !recordingState.isRecording && !autoAnalyze && (
           <div className="space-y-4 p-4 bg-secondary/50 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Registrazione completata</span>
@@ -470,6 +484,23 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 Analizza
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* Auto-analyze message */}
+        {recordingState.audioBlob && !recordingState.isRecording && autoAnalyze && (
+          <div className="space-y-4 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                ✨ Registrazione completata
+              </span>
+              <span className="text-sm text-green-700 dark:text-green-300">
+                {formatTime(recordingState.duration)}
+              </span>
+            </div>
+            <p className="text-sm text-green-700 dark:text-green-300">
+              🚀 Avvio analisi automatica in corso...
+            </p>
           </div>
         )}
 

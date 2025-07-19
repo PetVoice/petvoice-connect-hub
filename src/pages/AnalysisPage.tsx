@@ -958,6 +958,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             <AudioRecorder 
               onRecordingComplete={handleRecordingComplete} 
               onStartRecording={handleStartRecording}
+              autoAnalyze={true}
             />
           </div>
         </TabsContent>
