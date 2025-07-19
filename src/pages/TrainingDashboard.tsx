@@ -615,6 +615,18 @@ const TrainingDashboard: React.FC = () => {
   const totalExercisesToday = exercisesPerDay; // Sempre 3
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
+  // Debug: log per verificare il calcolo
+  console.log('📊 DEBUG PROGRESSO GIORNALIERO:', {
+    currentDay: protocol.current_day,
+    progressPercentage: protocol.progress_percentage,
+    totalExercises,
+    totalCompletedExercises,
+    exercisesCompletedInPreviousDays,
+    completedExercisesToday,
+    completedExercises,
+    dayProgress
+  });
+
   // Se non c'è un esercizio corrente valido, mostra messaggio di errore
   if (!currentEx || todayExercises.length === 0) {
     return (
