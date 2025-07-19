@@ -347,11 +347,10 @@ const TrainingDashboard: React.FC = () => {
   
   const [currentExercise, setCurrentExercise] = useState(0);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [exerciseRating, setExerciseRating] = useState(5);
-  const [exerciseNotes, setExerciseNotes] = useState('');
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [dayRating, setDayRating] = useState([5]);
+  const [protocolRating, setProtocolRating] = useState(5);
+  const [protocolNotes, setProtocolNotes] = useState('');
 
   const protocol = protocols?.find(p => p.id === protocolId);
 
@@ -556,9 +555,7 @@ const TrainingDashboard: React.FC = () => {
         }
       }
 
-      // Reset form
-      setExerciseRating(5);
-      setExerciseNotes('');
+      // Reset form se necessario
       
     } catch (error) {
       console.error('Error completing exercise:', error);
@@ -774,9 +771,9 @@ const TrainingDashboard: React.FC = () => {
 
               {/* Instructions */}
               <div>
-                <h3 className="font-semibold mb-3">Istruzioni Step-by-Step</h3>
+                <h3 className="font-semibold mb-3">Esercizi del giorno</h3>
                 <div className="space-y-3">
-                  {currentEx.instructions.map((instruction, index) => (
+                  {currentEx.instructions.slice(0, 3).map((instruction, index) => (
                     <div key={index} className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
                         {index + 1}
@@ -800,62 +797,28 @@ const TrainingDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Completion Form */}
+              {/* Completion Button */}
               <Separator />
               
-              <div className="space-y-4">
-                <h3 className="font-semibold">Valutazione Esercizio</h3>
-                
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Quanto è stato efficace l'esercizio? ({exerciseRating}/10)
-                  </label>
-                  <Slider
-                    value={[exerciseRating]}
-                    onValueChange={(value) => setExerciseRating(value[0])}
-                    max={10}
-                    min={1}
-                    step={1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>1 - Poco efficace</span>
-                    <span>10 - Molto efficace</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    Note sull'esercizio (opzionale)
-                  </label>
-                  <Textarea
-                    placeholder="Descrivi come è andato l'esercizio, comportamenti osservati, difficoltà incontrate..."
-                    value={exerciseNotes}
-                    onChange={(e) => setExerciseNotes(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <Button
-                  onClick={handleCompleteExercise}
-                  disabled={currentEx.completed}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                >
-                  {currentEx.completed ? (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Esercizio Completato
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      {(currentExercise === totalExercises - 1 && protocol.current_day === protocol.duration_days) 
-                        ? 'Completa Protocollo' 
-                        : 'Prossimo Esercizio'}
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button
+                onClick={handleCompleteExercise}
+                disabled={currentEx.completed}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+              >
+                {currentEx.completed ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Esercizio Completato
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {(currentExercise === totalExercises - 1 && protocol.current_day === protocol.duration_days) 
+                      ? 'Completa Protocollo' 
+                      : 'Prossimo Esercizio'}
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
         </div>
