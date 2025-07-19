@@ -1215,33 +1215,6 @@ export const AITrainingHub: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Community Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-500">{stats.communityProtocols}</div>
-                    <p className="text-sm text-muted-foreground">Protocolli condivisi</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-500">{templates.length}</div>
-                    <p className="text-sm text-muted-foreground">Template disponibili</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-500">
-                      {Math.round(templates.reduce((sum, t) => sum + t.success_rate, 0) / templates.length || 0)}%
-                    </div>
-                    <p className="text-sm text-muted-foreground">Successo medio community</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-yellow-500" />
                   Template Più Popolari
                 </CardTitle>
