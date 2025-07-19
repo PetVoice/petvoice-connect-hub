@@ -58,7 +58,6 @@ import {
   useAcceptSuggestion, 
   useDismissSuggestion,
   useDeleteProtocol,
-  useCompletedProtocols,
   TrainingProtocol,
   SuggestedProtocol,
   TrainingTemplate
@@ -75,7 +74,6 @@ export const AITrainingHub: React.FC = () => {
   const { data: protocols = [], isLoading: protocolsLoading } = useTrainingProtocols();
   const { data: suggestedProtocols = [], isLoading: suggestionsLoading } = useSuggestedProtocols();
   const { data: templates = [], isLoading: templatesLoading } = useTrainingTemplates();
-  const { data: completedProtocols = [], isLoading: completedLoading } = useCompletedProtocols();
   
   // Mutations
   const createProtocol = useCreateProtocol();
@@ -96,7 +94,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'suggestions' | 'analytics' | 'community' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'suggestions' | 'analytics' | 'community'>('protocols');
 
   // Wizard State
   const [wizardStep, setWizardStep] = useState(1);
@@ -505,7 +503,7 @@ export const AITrainingHub: React.FC = () => {
     }
   };
 
-  if (protocolsLoading || suggestionsLoading || templatesLoading || completedLoading) {
+  if (protocolsLoading || suggestionsLoading || templatesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -587,9 +585,8 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
-          <TabsTrigger value="completed">Completati</TabsTrigger>
           <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
@@ -756,106 +753,6 @@ export const AITrainingHub: React.FC = () => {
                      </div>
                    </CardContent>
                  </Card>
-              ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="completed" className="space-y-4">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-green-500" />
-              <h2 className="text-lg font-semibold">Protocolli Completati</h2>
-            </div>
-            <Badge variant="secondary" className="bg-green-500/20 text-green-700 border-green-500/20">
-              {completedProtocols.length} completati
-            </Badge>
-          </div>
-
-          <div className="grid gap-4">
-            {completedLoading ? (
-              <div className="flex items-center justify-center min-h-[200px]">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : completedProtocols.length === 0 ? (
-              <Card className="p-8 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <Trophy className="h-12 w-12 text-muted-foreground" />
-                  <div>
-                    <h3 className="text-lg font-semibold text-muted-foreground">Nessun protocollo completato</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Completa i tuoi primi protocolli per vederli qui
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ) : (
-              completedProtocols.map((protocol) => (
-                <Card key={protocol.id} className="border-green-500/20 hover:border-green-500/40 transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="flex-shrink-0">
-                            <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                              <CheckCircle className="h-6 w-6 text-green-500" />
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{protocol.title}</h3>
-                            <p className="text-sm text-muted-foreground">{protocol.description}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <Badge className={getDifficultyColor(protocol.difficulty)}>
-                            {protocol.difficulty}
-                          </Badge>
-                          <Badge variant="outline">{protocol.category}</Badge>
-                          <Badge className="bg-green-500/20 text-green-700 border-green-500/20">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Completato
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{protocol.duration_days} giorni</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{protocol.success_rate}% successo</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Completato il {new Date(protocol.updated_at).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Progresso</span>
-                            <span className="font-medium text-green-600">100%</span>
-                          </div>
-                          <Progress value={100} className="mt-1 h-2" />
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2 ml-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleStartProtocol(protocol)}
-                          className="border-green-500/20 hover:border-green-500/40 hover:bg-green-500/10"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Rifai
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
               ))
             )}
           </div>

@@ -124,40 +124,6 @@ export interface TrainingTemplate {
   updated_at: string;
 }
 
-// Hook per recuperare protocolli completati (unici per titolo)
-export const useCompletedProtocols = () => {
-  return useQuery({
-    queryKey: ['completed-protocols'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      // Query per ottenere protocolli completati unici (uno per titolo)
-      const { data, error } = await supabase
-        .from('ai_training_protocols')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'completed')
-        .order('updated_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Filtra per mantenere solo un protocollo per titolo (il più recente)
-      const uniqueProtocols = data?.reduce((acc: any[], protocol: any) => {
-        if (!acc.some(p => p.title === protocol.title)) {
-          acc.push({
-            ...protocol,
-            difficulty: protocol.difficulty as 'facile' | 'medio' | 'difficile'
-          });
-        }
-        return acc;
-      }, []) || [];
-
-      return uniqueProtocols as TrainingProtocol[];
-    },
-  });
-};
-
 export const useTrainingProtocols = () => {
   const { toast } = useToast();
 
