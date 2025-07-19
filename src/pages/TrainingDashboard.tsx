@@ -691,9 +691,9 @@ const TrainingDashboard: React.FC = () => {
       </Card>
 
       {/* Main Exercise Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Current Exercise */}
-        <div className="lg:col-span-2">
+      <div className="w-full">
+        {/* Current Exercise - Now Full Width */}
+        <div className="w-full">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -957,10 +957,6 @@ const TrainingDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Sidebar vuota per ora */}
-        <div className="space-y-4">
-          {/* Spazio per future aggiunte alla sidebar */}
-        </div>
       </div>
     </div>
   );
