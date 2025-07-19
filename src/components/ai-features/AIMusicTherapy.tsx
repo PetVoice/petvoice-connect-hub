@@ -688,11 +688,11 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 )}
               </Button>
               <Button 
-                variant="outline" 
+                variant="destructive"
                 size="icon"
                 onClick={handleStop}
                 disabled={!currentSession || isGenerating}
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                className="bg-red-500 hover:bg-red-600 text-white border-red-500"
               >
                 <Square className="h-4 w-4" />
               </Button>
