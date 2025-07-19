@@ -114,9 +114,11 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const oscillatorsRef = useRef<OscillatorNode[]>([]);
   const gainNodeRef = useRef<GainNode | null>(null);
 
-  // Gestisci playlist dalla dashboard
+  // Gestisci playlist dalla dashboard con auto-start
   useEffect(() => {
     const playlistParam = searchParams.get('playlist');
+    const autoStart = searchParams.get('autoStart') === 'true';
+    
     if (playlistParam) {
       try {
         const playlistData = JSON.parse(decodeURIComponent(playlistParam));
@@ -136,15 +138,32 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         
         setCurrentSession(recommendedSession);
         
-        toast({
-          title: "Playlist Caricata",
-          description: `"${playlistData.name}" pronta per la riproduzione`,
-        });
+        // Auto-start se richiesto
+        if (autoStart) {
+          // Delay di 1 secondo per permettere al componente di renderizzare
+          setTimeout(() => {
+            // Simula click del pulsante play
+            if (!isPlaying) {
+              setIsPlaying(true);
+              // Nota: l'audio verrà avviato dal primo click dell'utente per rispettare le policy browser
+            }
+          }, 1000);
+          
+          toast({
+            title: "Playlist Caricata",
+            description: `"${playlistData.name}" è pronta. Clicca Play per avviare la sessione per ${selectedPet.name}`,
+          });
+        } else {
+          toast({
+            title: "Playlist Caricata",
+            description: `"${playlistData.name}" pronta per la riproduzione`,
+          });
+        }
       } catch (error) {
         console.error('Error parsing playlist data:', error);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, selectedPet.name]);
 
   // Fetch real emotional DNA from pet analyses
   const fetchEmotionalDNA = async () => {
