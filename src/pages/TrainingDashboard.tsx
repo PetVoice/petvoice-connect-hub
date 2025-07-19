@@ -536,7 +536,9 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const currentEx = todayExercises[currentExercise];
-  const completedExercises = todayExercises.filter(ex => ex.completed).length;
+  
+  // Calcola il progresso in tempo reale considerando l'esercizio corrente e quelli precedenti completati
+  const completedExercises = Math.min(currentExercise, todayExercises.length);
   const totalExercises = todayExercises.length;
   const dayProgress = (completedExercises / totalExercises) * 100;
 

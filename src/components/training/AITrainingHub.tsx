@@ -357,7 +357,7 @@ export const AITrainingHub: React.FC = () => {
         if (error) throw error;
 
         toast({
-          title: 'Protocollo copiato e avviato',
+          title: 'Protocollo avviato',
           description: `Il protocollo "${protocol.title}" è stato aggiunto ai tuoi protocolli attivi`,
         });
         
@@ -703,7 +703,7 @@ export const AITrainingHub: React.FC = () => {
                                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                              >
                                <Play className="h-4 w-4 mr-2" />
-                               {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
+                               {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Avvia Protocollo'}
                              </Button>
                              {protocol.user_id && protocol.status === 'active' && (
                                <AlertDialog>
