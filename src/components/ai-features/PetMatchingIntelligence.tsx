@@ -320,15 +320,6 @@ export const PetMatchingIntelligence: React.FC = () => {
   // Training protocol creation
   const createProtocol = useCreateProtocol();
   
-  // Show loading if any data is still loading
-  if (petsLoading || mentorsLoading || patternsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
   // State Management
   const [selectedPetTwin, setSelectedPetTwin] = useState<any>(null);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
@@ -338,6 +329,15 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [distanceFilter, setDistanceFilter] = useState<string>('all');
   const [onlineFilter, setOnlineFilter] = useState(false);
   const [sortBy, setSortBy] = useState<string>('match');
+  
+  // Show loading if any data is still loading
+  if (petsLoading || mentorsLoading || patternsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
   const [isLoading, setIsLoading] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
