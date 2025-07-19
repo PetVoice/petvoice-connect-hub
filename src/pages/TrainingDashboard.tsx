@@ -808,7 +808,7 @@ const TrainingDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {todayExercises.map((exercise, index) => (
+                {todayExercises.slice(0, 3).map((exercise, index) => (
                   <div
                     key={exercise.id}
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
