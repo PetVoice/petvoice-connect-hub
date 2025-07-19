@@ -657,33 +657,6 @@ export const AITrainingHub: React.FC = () => {
                       </div>
                       
                        <div className="flex flex-col items-end gap-2">
-                         {/* Pulsanti Edit/Delete solo per protocolli dell'utente */}
-                         {isUserProtocol(protocol) && (
-                           <div className="flex items-center gap-2 mb-2">
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleEditProtocol(protocol);
-                               }}
-                               className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 h-8 w-8"
-                             >
-                               <Edit className="h-4 w-4" />
-                             </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setProtocolToDelete(protocol.id);
-                                }}
-                                className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                           </div>
-                         )}
                          
                          <div className="flex items-center gap-2">
                            <Button
