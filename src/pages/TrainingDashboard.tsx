@@ -931,23 +931,23 @@ const TrainingDashboard: React.FC = () => {
                       🏆 Protocollo Completato
                     </>
                   ) : (
-                    <>
-                      <Trophy className="h-4 w-4 mr-2" />
-                      🎯 Vai al Giorno {protocol.current_day + 1}
-                    </>
-                  )
-                ) : currentExercise < dailyCompletedExercises ? (
-                  // CASO 1: Esercizio GIÀ completato
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                    ✅ Esercizio {currentExercise + 1} già completato
-                  </>
-                ) : currentExercise === dailyCompletedExercises ? (
-                  // CASO 2: PROSSIMO esercizio da completare
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {currentExercise === 2 
-                      ? `Esercizio 3 Completato` 
+                     <>
+                       <CheckCircle className="h-4 w-4 mr-2" />
+                       Esercizio 1 Completato
+                     </>
+                   )
+                 ) : currentExercise < dailyCompletedExercises ? (
+                   // CASO 1: Esercizio GIÀ completato
+                   <>
+                     <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                     ✅ Esercizio {currentExercise + 1} già completato
+                   </>
+                 ) : currentExercise === dailyCompletedExercises ? (
+                   // CASO 2: PROSSIMO esercizio da completare
+                   <>
+                     <CheckCircle className="h-4 w-4 mr-2" />
+                     {currentExercise === 2 
+                       ? `Esercizio 3 Completato`
                       : `Esercizio ${currentExercise + 1} Completato`}
                   </>
                 ) : (
