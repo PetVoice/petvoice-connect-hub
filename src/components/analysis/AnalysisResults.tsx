@@ -154,17 +154,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
-  // Seleziona automaticamente l'analisi più recente quando cambiano le analisi
+  // Seleziona automaticamente l'analisi più recente SOLO all'inizio
   useEffect(() => {
-    if (analyses.length > 0) {
-      // Se non c'è analisi selezionata o la nuova lista ha un'analisi più recente
-      if (!selectedAnalysis || (analyses[0] && new Date(analyses[0].created_at) > new Date(selectedAnalysis.created_at))) {
-        setSelectedAnalysis(analyses[0]);
-      }
-    } else {
-      setSelectedAnalysis(null);
+    if (analyses.length > 0 && !selectedAnalysis) {
+      setSelectedAnalysis(analyses[0]);
     }
-  }, [analyses]);
+  }, [analyses.length]); // Usa solo la lunghezza, non tutto l'array
 
   useEffect(() => {
     loadSharingTemplates();
@@ -671,7 +666,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
                 {/* Training Protocol Recommendation - Solo per risultati negativi */}
                 {(() => {
-                  const negativeEmotions = ['ansia', 'paura', 'stress', 'aggressività', 'tristezza', 'depressione', 'agitazione'];
+                  const negativeEmotions = ['ansia', 'ansioso', 'paura', 'stress', 'stressato', 'aggressività', 'aggressivo', 'tristezza', 'triste', 'depressione', 'depresso', 'agitazione', 'agitato'];
                   const isNegativeEmotion = negativeEmotions.some(emotion => 
                     selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
                   );
