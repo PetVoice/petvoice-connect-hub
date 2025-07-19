@@ -498,11 +498,15 @@ const TrainingDashboard: React.FC = () => {
       // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
       setDailyCompletedExercises(prev => prev + 1);
 
+      // Determina se il protocollo è completato
+      const isProtocolCompleted = newProgressPercentage >= 100;
+
       // Aggiorna il progresso del protocollo nel database
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
           progress_percentage: Math.min(newProgressPercentage, 100),
+          status: isProtocolCompleted ? 'completed' : protocol.status,
           last_activity_at: new Date().toISOString(),
         }
       });
