@@ -696,33 +696,57 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <div className="flex-1">
                               <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
                                 {(() => {
-                                  if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
-                                      selectedAnalysis.primary_emotion.toLowerCase().includes('ansioso') ||
-                                      selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
+                                  const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                  
+                                  if (emotion.includes('ansia') || emotion.includes('ansioso') || 
+                                      emotion.includes('stress') || emotion.includes('stressato') ||
+                                      emotion.includes('preoccupato') || emotion.includes('inquieto')) {
                                     return 'Gestione Ansia da Separazione';
-                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
+                                  } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                             emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                             emotion.includes('irritato')) {
                                     return 'Controllo Aggressività';
-                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('paura')) {
+                                  } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                             emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
                                     return 'Superamento Paure e Fobie';
-                                  } else {
+                                  } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                             emotion.includes('nervoso') || emotion.includes('irrequieto')) {
                                     return 'Gestione Iperattività';
+                                  } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                             emotion.includes('depresso') || emotion.includes('depressione') ||
+                                             emotion.includes('abbattuto') || emotion.includes('melanconico')) {
+                                    return 'Supporto Emotivo e Benessere';
+                                  } else {
+                                    return 'Gestione Comportamento Generale';
                                   }
                                 })()}
                               </h5>
-                              <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                                {(() => {
-                                  if (selectedAnalysis.primary_emotion.toLowerCase().includes('ansia') || 
-                                      selectedAnalysis.primary_emotion.toLowerCase().includes('ansioso') ||
-                                      selectedAnalysis.primary_emotion.toLowerCase().includes('stress')) {
-                                    return 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.';
-                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('aggressiv')) {
-                                    return 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.';
-                                  } else if (selectedAnalysis.primary_emotion.toLowerCase().includes('paura')) {
-                                    return 'Esercizi di desensibilizzazione per superare paure specifiche.';
-                                  } else {
-                                    return 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.';
-                                  }
-                                })()}
+                               <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                                 {(() => {
+                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                   
+                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
+                                       emotion.includes('stress') || emotion.includes('stressato') ||
+                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
+                                     return 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.';
+                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                              emotion.includes('irritato')) {
+                                     return 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.';
+                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
+                                     return 'Esercizi di desensibilizzazione per superare paure specifiche.';
+                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
+                                     return 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.';
+                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                              emotion.includes('depresso') || emotion.includes('depressione') ||
+                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
+                                     return 'Supporto emotivo personalizzato per migliorare l\'umore e il benessere del pet.';
+                                   } else {
+                                     return 'Protocollo generale per migliorare il comportamento e il benessere complessivo.';
+                                   }
+                                 })()}
                               </p>
                               <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
                                 <span>📅 14-21 giorni</span>
