@@ -903,6 +903,28 @@ const TrainingDashboard: React.FC = () => {
                   </>
                 )}
               </Button>
+              
+              {/* Pulsante per andare al giorno successivo */}
+              {dailyCompletedExercises === 3 && (
+                <Button
+                  onClick={() => {
+                    // Reset per il nuovo giorno
+                    setDailyCompletedExercises(0);
+                    setCurrentExercise(0);
+                    
+                    // Qui potresti aggiungere logica per aggiornare il protocollo al giorno successivo
+                    // Per ora mostra solo un messaggio
+                    toast({
+                      title: "🎉 Giorno completato!",
+                      description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Continua così!`,
+                    });
+                  }}
+                  className="w-full mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                >
+                  <Trophy className="h-4 w-4 mr-2" />
+                  🎯 Vai al Giorno {protocol.current_day + 1}
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
