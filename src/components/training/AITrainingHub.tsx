@@ -313,8 +313,18 @@ export const AITrainingHub: React.FC = () => {
           last_activity_at: new Date().toISOString(),
         }
       });
+      
+      toast({
+        title: 'Protocollo avviato',
+        description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+      });
     } catch (error) {
       console.error('Error starting protocol:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile avviare il protocollo',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -508,7 +518,7 @@ export const AITrainingHub: React.FC = () => {
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
-          <TabsTrigger value="suggestions">AI Suggestions</TabsTrigger>
+          <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
