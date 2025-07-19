@@ -246,13 +246,13 @@ export const AITrainingProtocols: React.FC = () => {
 
   const isUserCreated = (protocol: any) => {
     const isUserProtocol = protocol.user_id === currentUserId && protocol.ai_generated !== true;
-    console.log('Protocol check:', {
-      protocolId: protocol.id,
-      protocolTitle: protocol.title,
+    console.log('Protocol check for:', protocol.title, {
       protocolUserId: protocol.user_id,
       currentUserId,
       aiGenerated: protocol.ai_generated,
-      isUserProtocol
+      isUserProtocol,
+      userIdMatch: protocol.user_id === currentUserId,
+      notAiGenerated: protocol.ai_generated !== true
     });
     return isUserProtocol;
   };
