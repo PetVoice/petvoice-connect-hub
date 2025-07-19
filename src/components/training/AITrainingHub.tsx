@@ -96,7 +96,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'suggestions' | 'analytics' | 'community' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'analytics' | 'community' | 'completed'>('protocols');
 
   // Wizard State
   const [wizardStep, setWizardStep] = useState(1);
@@ -157,17 +157,20 @@ export const AITrainingHub: React.FC = () => {
     return currentUserId && protocol.user_id === currentUserId && !protocol.ai_generated;
   };
 
-  // Filtered protocols - excludes completed ones
+  // Filtered protocols - excludes completed and active ones
   const filteredProtocols = useMemo(() => {
     if (!protocols) return [];
     
     return protocols.filter(protocol => {
+      // Exclude active protocols from main "Protocolli" tab
+      if (protocol.status === 'active') return false;
+      
       const matchesSearch = protocol.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || protocol.category === categoryFilter;
       
-      // Filter out 'completed' and 'paused' from status options
-      let validStatuses = ['all', 'available', 'active'];
+      // Filter out 'completed', 'paused', and 'active' from status options
+      let validStatuses = ['all', 'available'];
       if (!validStatuses.includes(statusFilter)) {
         setStatusFilter('all');
         return false;
@@ -178,6 +181,12 @@ export const AITrainingHub: React.FC = () => {
       return matchesSearch && matchesCategory && matchesStatus;
     });
   }, [protocols, searchTerm, categoryFilter, statusFilter]);
+
+  // Active protocols for the "Attivi" tab
+  const activeProtocols = useMemo(() => {
+    if (!protocols) return [];
+    return protocols.filter(protocol => protocol.status === 'active');
+  }, [protocols]);
 
   // Statistics from real data
   const stats = useMemo(() => {
@@ -592,8 +601,9 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
+          <TabsTrigger value="active">Attivi</TabsTrigger>
           <TabsTrigger value="completed">Completati</TabsTrigger>
           <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -630,7 +640,6 @@ export const AITrainingHub: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutti gli stati</SelectItem>
-                <SelectItem value="active">Attivo</SelectItem>
                 <SelectItem value="available">Disponibile</SelectItem>
               </SelectContent>
             </Select>
@@ -759,6 +768,122 @@ export const AITrainingHub: React.FC = () => {
                      </div>
                    </CardContent>
                  </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="active" className="space-y-4">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <Play className="h-5 w-5 text-blue-500" />
+              <h2 className="text-lg font-semibold">Protocolli Attivi</h2>
+            </div>
+            <Badge variant="secondary" className="bg-blue-500/20 text-blue-700 border-blue-500/20">
+              {activeProtocols.length} attivi
+            </Badge>
+          </div>
+
+          <div className="grid gap-4">
+            {activeProtocols.length === 0 ? (
+              <Card className="p-8 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <Play className="h-12 w-12 text-muted-foreground" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-muted-foreground">Nessun protocollo attivo</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Avvia un protocollo per iniziare il tuo percorso di training
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              activeProtocols.map((protocol) => (
+                <Card key={protocol.id} className="border-blue-500/20 hover:border-blue-500/40 transition-all duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                              <Play className="h-6 w-6 text-blue-500" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg">{protocol.title}</h3>
+                            <p className="text-sm text-muted-foreground">{protocol.description}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <Badge className={getDifficultyColor(protocol.difficulty)}>
+                            {protocol.difficulty}
+                          </Badge>
+                          <Badge variant="outline">{protocol.category}</Badge>
+                          <Badge className="bg-blue-500/20 text-blue-700 border-blue-500/20">
+                            <Play className="h-3 w-3 mr-1" />
+                            Attivo
+                          </Badge>
+                          {protocol.ai_generated && (
+                            <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              AI
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>{protocol.duration_days} giorni</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Target className="h-4 w-4" />
+                            <span>Giorno {protocol.current_day}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <TrendingUp className="h-4 w-4" />
+                            <span>{protocol.success_rate}% successo</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            <span>Iniziato il {new Date(protocol.created_at).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Progresso</span>
+                            <span className="font-medium text-blue-600">{protocol.progress_percentage}%</span>
+                          </div>
+                          <Progress value={protocol.progress_percentage} className="mt-1 h-2" />
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2 ml-4">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleStartProtocol(protocol)}
+                          className="bg-blue-500 hover:bg-blue-600"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Continua
+                        </Button>
+                        {isUserProtocol(protocol) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(protocol.id, 'paused')}
+                          >
+                            <Pause className="h-4 w-4 mr-2" />
+                            Pausa
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))
             )}
           </div>
