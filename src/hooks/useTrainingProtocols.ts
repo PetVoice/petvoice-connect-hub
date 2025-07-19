@@ -176,7 +176,7 @@ export const useTrainingProtocols = () => {
           schedule:ai_training_schedules(*)
         `)
         .or(`user_id.eq.${user.id},is_public.eq.true`)
-        .neq('status', 'completed')
+        .not('status', 'eq', 'completed')
         .order('created_at', { ascending: false });
 
       if (error) {
