@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,8 @@ import {
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Edit, Trash2 } from 'lucide-react';
 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
@@ -74,6 +76,9 @@ export const AITrainingHub: React.FC = () => {
   const updateProtocol = useUpdateProtocol();
   const acceptSuggestion = useAcceptSuggestion();
   const dismissSuggestion = useDismissSuggestion();
+
+  // Current User State
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // State Management
   const [searchTerm, setSearchTerm] = useState('');
@@ -102,6 +107,15 @@ export const AITrainingHub: React.FC = () => {
   const [isCreatingProtocol, setIsCreatingProtocol] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getCurrentUser();
+  }, []);
+
   // Real-time connection monitoring
   React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -115,6 +129,11 @@ export const AITrainingHub: React.FC = () => {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Check if protocol belongs to current user
+  const isUserProtocol = (protocol: TrainingProtocol) => {
+    return currentUserId && protocol.user_id === currentUserId && !protocol.ai_generated;
+  };
 
   // Filtered protocols
   const filteredProtocols = useMemo(() => {
@@ -507,52 +526,38 @@ export const AITrainingHub: React.FC = () => {
                         </div>
                       </div>
                       
-                       <div style={{ 
-                         backgroundColor: 'red', 
-                         padding: '20px', 
-                         border: '5px solid purple',
-                         minWidth: '200px',
-                         display: 'flex',
-                         flexDirection: 'column',
-                         gap: '10px'
-                       }}>
-                         <div style={{ backgroundColor: 'yellow', padding: '10px', fontSize: '20px', fontWeight: 'bold' }}>
-                           PULSANTI QUI!!! 🔥🔥🔥
-                         </div>
-                         <Button
-                           size="lg"
-                           variant="outline"
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             alert('MODIFICA CLICCATO! - ' + protocol.title);
-                           }}
-                           style={{ 
-                             backgroundColor: 'blue', 
-                             color: 'white', 
-                             fontSize: '16px',
-                             padding: '15px',
-                             border: '3px solid black'
-                           }}
-                         >
-                           MODIFICA 🔧
-                         </Button>
-                         <Button
-                           size="lg"
-                           variant="outline"
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             alert('ELIMINA CLICCATO! - ' + protocol.title);
-                           }}
-                           style={{ 
-                             backgroundColor: 'red', 
-                             color: 'white', 
-                             fontSize: '16px',
-                             padding: '15px',
-                             border: '3px solid black'
-                           }}
-                         >
-                           ELIMINA 🗑️
-                         </Button>
+                       <div className="flex flex-col items-end gap-2">
+                         {/* Pulsanti Edit/Delete solo per protocolli dell'utente */}
+                         {isUserProtocol(protocol) && (
+                           <div className="flex items-center gap-2 mb-2">
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 alert('Modifica: ' + protocol.title);
+                               }}
+                               className="text-blue-600 hover:text-blue-800 border-blue-600"
+                             >
+                               <Edit className="h-4 w-4 mr-1" />
+                               Modifica
+                             </Button>
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+                                   alert('Elimina: ' + protocol.title);
+                                 }
+                               }}
+                               className="text-red-600 hover:text-red-800 border-red-600"
+                             >
+                               <Trash2 className="h-4 w-4 mr-1" />
+                               Elimina
+                             </Button>
+                           </div>
+                         )}
                          
                          <div className="flex items-center gap-2">
                            <Button
@@ -572,6 +577,14 @@ export const AITrainingHub: React.FC = () => {
                              <Play className="h-4 w-4 mr-2" />
                              {protocol.status === 'active' ? 'Attivo' : 'Avvia'}
                            </Button>
+                         </div>
+                         
+                         <div className="w-32">
+                           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                             <span>Progresso</span>
+                             <span>{protocol.progress_percentage}%</span>
+                           </div>
+                           <Progress value={protocol.progress_percentage} className="h-2" />
                          </div>
                        </div>
                      </div>
