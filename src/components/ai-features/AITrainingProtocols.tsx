@@ -313,6 +313,11 @@ export const AITrainingProtocols: React.FC = () => {
                   console.log('RENDERING PROTOCOL:', protocol.title, 'ID:', protocol.id);
                   const isTestProtocol = protocol.title === 'Test' || protocol.title === 'Test2';
                   console.log('IS TEST PROTOCOL:', isTestProtocol, 'for', protocol.title);
+                  
+                  if (isTestProtocol) {
+                    alert(`TROVATO PROTOCOLLO: ${protocol.title} - Dovrebbero apparire i pulsanti!`);
+                  }
+                  
                   return (
                     <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
                           onClick={() => setSelectedProtocol(protocol)}>
