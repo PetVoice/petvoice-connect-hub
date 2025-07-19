@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -70,6 +71,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Real data hooks
   const { data: protocols = [], isLoading: protocolsLoading } = useTrainingProtocols();
@@ -312,8 +314,8 @@ export const AITrainingHub: React.FC = () => {
 
   const handleStartProtocol = async (protocol: TrainingProtocol) => {
     if (protocol.status === 'active') {
-      // Se già attivo, vai alla dashboard
-      window.location.href = `/training/dashboard/${protocol.id}`;
+      // Se già attivo, vai alla dashboard usando navigate invece di window.location
+      navigate(`/training/dashboard/${protocol.id}`);
       return;
     }
 

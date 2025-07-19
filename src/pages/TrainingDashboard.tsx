@@ -483,32 +483,33 @@ const TrainingDashboard: React.FC = () => {
         description: `Hai completato "${currentEx.title}" con successo.`,
       });
 
-      // Calcola il progresso basato sull'esercizio corrente completato
-      const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
-      const totalExercisesToday = todayExercises.length;
-      
-      // Calcola il progresso totale del protocollo
-      const allExercises = protocol.exercises || [];
-      const totalExercises = allExercises.length;
-      
-      // Conta tutti gli esercizi completati nel protocollo (includendo quello appena completato)
-      const allCompletedExercises = allExercises.filter(ex => ex.completed).length;
-      const newTotalCompletedExercises = allCompletedExercises + 1; // +1 per l'esercizio appena completato
-      const newProgressPercentage = totalExercises > 0 
-        ? Math.round((newTotalCompletedExercises / totalExercises) * 100)
-        : 0;
+      // Calcola il progresso del protocollo
+      const completedCount = currentExercise + 1;
+      const totalExercises = todayExercises.length * protocol.duration_days;
+      const totalCompletedExercises = ((protocol.current_day - 1) * todayExercises.length) + completedCount;
+      const newProgressPercentage = Math.round((totalCompletedExercises / totalExercises) * 100);
       
       console.log('Progress calculation:', {
         currentExercise,
         completedCount,
-        allCompletedExercises: allExercises.filter(ex => ex.completed).length,
-        newTotalCompletedExercises,
+        totalCompletedExercises,
         totalExercises,
-        newProgressPercentage
+        newProgressPercentage,
+        currentDay: protocol.current_day,
+        exercisesPerDay: todayExercises.length
+      });
+
+      // Aggiorna il progresso del protocollo nel database
+      await updateProtocol.mutateAsync({
+        id: protocol.id,
+        updates: {
+          progress_percentage: Math.min(newProgressPercentage, 100),
+          last_activity_at: new Date().toISOString(),
+        }
       });
 
       // Se è l'ultimo esercizio della giornata, avanza al giorno successivo
-      if (completedCount === totalExercisesToday) {
+      if (completedCount === todayExercises.length) {
         const isLastDay = protocol.current_day >= protocol.duration_days;
         
         await updateProtocol.mutateAsync({
