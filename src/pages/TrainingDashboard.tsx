@@ -570,14 +570,16 @@ const TrainingDashboard: React.FC = () => {
   const handleSubmitRating = async () => {
     setIsSubmittingRating(true);
     try {
-      // Inserisci la valutazione nel database
+      // Inserisci o aggiorna la valutazione nel database (UPSERT)
       const { error } = await supabase
         .from('protocol_ratings')
-        .insert({
+        .upsert({
           protocol_id: protocol.id,
           user_id: (await supabase.auth.getUser()).data.user?.id,
           rating: protocolRating,
           comment: protocolNotes.trim() || null
+        }, {
+          onConflict: 'protocol_id,user_id'
         });
 
       if (error) {
