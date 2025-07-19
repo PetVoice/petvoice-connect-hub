@@ -314,26 +314,155 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       secondaryEmotions[emotion] = Math.floor(Math.random() * 30) + 10;
     });
 
-    const insights = [
-      "Il pet mostra segni di stress durante i rumori forti",
-      "Comportamento tipico per l'orario della giornata",
-      "Livello di energia coerente con l'età e la razza",
-      "Possibili indicatori di bisogni non soddisfatti"
-    ];
+    // Insights specifici per emozione
+    const emotionSpecificInsights: Record<string, string[]> = {
+      ansioso: [
+        "Il pet manifesta segni di ansia generalizzata con tremori e irrequietezza",
+        "Comportamento di evitamento e ricerca costante di rifugi sicuri",
+        "Respirazione accelerata e ipervigilanza verso stimoli esterni",
+        "Difficoltà a rilassarsi, con tendenza al pacing e vocalizzazioni eccessive"
+      ],
+      triste: [
+        "Ridotta attività generale e diminuzione dell'interesse per il gioco",
+        "Postura corporea abbassata con orecchie all'indietro e coda bassa",
+        "Minore interazione sociale e tendenza all'isolamento",
+        "Appetito ridotto e sonno irregolare con segni di malinconia"
+      ],
+      aggressivo: [
+        "Tensione muscolare elevata con postura rigida e minacciosa",
+        "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso",
+        "Territorialità esacerbata e reattività a stimoli specifici",
+        "Comportamento di sfida con fissazione prolungata e movimento rigido"
+      ],
+      felice: [
+        "Elevata reattività positiva con movimenti fluidi e giocosi",
+        "Interazione sociale aumentata e ricerca attiva di contatto",
+        "Postura corporea rilassata con coda alzata e orecchie erette",
+        "Energia bilanciata con interesse spontaneo per l'ambiente circostante"
+      ],
+      eccitato: [
+        "Iperattivazione con movimento frenetico e difficoltà di concentrazione",
+        "Ricerca compulsiva di stimoli e attività ad alta intensità",
+        "Respirazione rapida alternata a vocalizzazioni acute e frequenti",
+        "Difficoltà nel controllo degli impulsi con comportamenti ripetitivi"
+      ],
+      calmo: [
+        "Stato di rilassamento profondo con respirazione regolare e lenta",
+        "Postura distesa e confortevole con muscoli completamente decontratti",
+        "Attenzione diffusa ma non ipervigilante verso l'ambiente",
+        "Equilibrio emotivo stabile con risposte appropriate agli stimoli"
+      ],
+      giocoso: [
+        "Attivazione comportamentale mirata al gioco con sequenze ripetitive",
+        "Interazione sociale dinamica con invitation al gioco verso altri",
+        "Energia focalizzata su attività ludiche con variazioni di intensità",
+        "Comportamento esplorativo con curiosità verso oggetti e spazi nuovi"
+      ]
+    };
 
-    const recommendations = [
-      "Aumentare il tempo di gioco quotidiano",
-      "Introdurre esercizi di rilassamento",
-      "Valutare l'ambiente circostante per fattori stressanti",
-      "Mantenere routine consistent"
-    ];
+    // Raccomandazioni specifiche per emozione
+    const emotionSpecificRecommendations: Record<string, string[]> = {
+      ansioso: [
+        "Implementare tecniche di desensibilizzazione graduale ai trigger",
+        "Creare una zona sicura con comfort objects familiari",
+        "Introdurre esercizi di respirazione guidata e rilassamento muscolare",
+        "Valutare l'uso di feromoni calmanti o integratori naturali",
+        "Mantenere routine prevedibili per ridurre l'incertezza"
+      ],
+      triste: [
+        "Aumentare gradualmente le attività fisiche stimolanti",
+        "Implementare sessioni di gioco interattivo quotidiane",
+        "Incrementare il contatto sociale positivo e le coccole",
+        "Valutare cambiamenti nella dieta per migliorare l'energia",
+        "Monitorare per possibili cause mediche sottostanti"
+      ],
+      aggressivo: [
+        "Implementare protocolli di gestione della reattività immediati",
+        "Lavorare sulla leadership positiva e controllo degli impulsi",
+        "Evitare trigger identificati fino al completamento del training",
+        "Consultare un esperto comportamentale qualificato",
+        "Valutare l'ambiente per rimuovere fattori scatenanti"
+      ],
+      felice: [
+        "Mantenere il livello attuale di stimolazione positiva",
+        "Continuare le attività che promuovono questo stato emotivo",
+        "Utilizzare questo stato per introdurre nuovi apprendimenti",
+        "Documentare le condizioni che favoriscono il benessere"
+      ],
+      eccitato: [
+        "Introdurre esercizi di autocontrollo e 'settle' training",
+        "Ridurre temporaneamente stimoli ad alta intensità",
+        "Implementare pause forzate durante le attività",
+        "Lavorare sui comandi di base per migliorare la concentrazione",
+        "Bilanciare attività fisiche con momenti di calma"
+      ],
+      calmo: [
+        "Mantenere l'ambiente attuale che favorisce la tranquillità",
+        "Utilizzare questo stato per sessioni di training avanzato",
+        "Introdurre gradualmente nuove esperienze positive",
+        "Documentare le routine che promuovono il rilassamento"
+      ],
+      giocoso: [
+        "Canalizzare l'energia ludica in attività strutturate",
+        "Introdurre giochi che stimolano la mente oltre al corpo",
+        "Bilanciare il gioco libero con quello guidato",
+        "Utilizzare il gioco come strumento di apprendimento"
+      ]
+    };
 
-    const triggers = [
-      "Rumori improvvisi",
-      "Cambiamenti nell'ambiente", 
-      "Presenza di estranei",
-      "Orario dei pasti"
-    ];
+    // Trigger specifici per emozione
+    const emotionSpecificTriggers: Record<string, string[]> = {
+      ansioso: [
+        "Rumori improvvisi ad alta intensità (tuoni, fuochi d'artificio)",
+        "Separazione dal proprietario o figure di attaccamento",
+        "Presenza di estranei o animali sconosciuti nell'ambiente",
+        "Cambiamenti nella routine quotidiana o nell'ambiente domestico",
+        "Situazioni di confinamento o restrizione del movimento"
+      ],
+      triste: [
+        "Perdita o assenza prolungata di compagni (umani o animali)",
+        "Riduzione delle attività sociali e ricreative abituali",
+        "Cambiamenti stagionali o climatici significativi",
+        "Diminuzione dell'attenzione e dell'interazione sociale",
+        "Modifiche nell'ambiente domestico o nella routine"
+      ],
+      aggressivo: [
+        "Invasione del territorio o delle risorse (cibo, giocattoli)",
+        "Contatto fisico non desiderato o forzato",
+        "Competizione con altri animali per risorse limitate",
+        "Dolore fisico o disagio medico non diagnosticato",
+        "Stimoli scatenanti specifici appresi (uniformi, oggetti)"
+      ],
+      felice: [
+        "Presenza del proprietario o di persone care",
+        "Attività ricreative preferite (passeggiate, giochi)",
+        "Ricevimento di attenzioni positive e rinforzi",
+        "Ambienti familiari e sicuri con routine stabili"
+      ],
+      eccitato: [
+        "Anticipazione di eventi piacevoli (pasti, uscite)",
+        "Stimolazione sensoriale intensa (suoni, movimenti)",
+        "Interazione con giocattoli ad alta stimolazione",
+        "Presenza di altri animali o persone energiche",
+        "Attività fisiche intense o prolungate"
+      ],
+      calmo: [
+        "Ambienti tranquilli con illuminazione soffusa",
+        "Routine rilassanti consolidate (massaggi, coccole)",
+        "Assenza di stimoli stressanti o disturbanti",
+        "Presenza di comfort objects familiari"
+      ],
+      giocoso: [
+        "Presenza di giocattoli interattivi o stimolanti",
+        "Interazione con altri animali giovani o giocosi",
+        "Ambienti spazi aperti che incoraggiano l'esplorazione",
+        "Orari specifici della giornata associati al gioco"
+      ]
+    };
+
+    const insights = emotionSpecificInsights[primaryEmotion] || emotionSpecificInsights['calmo'];
+    const recommendations = emotionSpecificRecommendations[primaryEmotion] || emotionSpecificRecommendations['calmo'];
+    const triggers = emotionSpecificTriggers[primaryEmotion] || emotionSpecificTriggers['calmo'];
 
     return {
       primary_emotion: primaryEmotion,
@@ -341,7 +470,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       secondary_emotions: secondaryEmotions,
       behavioral_insights: insights[Math.floor(Math.random() * insights.length)],
       recommendations: recommendations.slice(0, Math.floor(Math.random() * 3) + 2),
-      triggers: triggers.slice(0, Math.floor(Math.random() * 2) + 1),
+      triggers: triggers.slice(0, Math.floor(Math.random() * 3) + 1),
       analysis_duration: `${Math.floor(Math.random() * 5) + 2} seconds`
     };
   };
