@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
+import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
 import jsPDF from 'jspdf';
 
 interface SharingTemplate {
@@ -627,42 +628,65 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               </TabsContent>
 
               <TabsContent value="recommendations" className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4" />
-                    Raccomandazioni Personalizzate
-                  </h4>
-                  <div className="space-y-3">
-                    {selectedAnalysis.recommendations.map((recommendation, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg">
-                        <Target className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-yellow-800 dark:text-yellow-200">
-                            {recommendation}
-                          </p>
-                          <div className="mt-2 flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => addToDiary(selectedAnalysis)}
-                            >
-                              <BookOpen className="h-3 w-3 mr-1" />
-                              Aggiungi al Diario
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => scheduleFollowUp(selectedAnalysis)}
-                            >
-                              <Calendar className="h-3 w-3 mr-1" />
-                              Programma Follow-up
-                            </Button>
+
+                {/* Training Protocol Recommendation */}
+                {(() => {
+                  const analysisKeywords = [
+                    selectedAnalysis.primary_emotion,
+                    selectedAnalysis.behavioral_insights,
+                    ...selectedAnalysis.recommendations,
+                    ...selectedAnalysis.triggers
+                  ];
+                  const recommendedProtocolId = getRecommendedProtocol(analysisKeywords);
+                  
+                  if (recommendedProtocolId) {
+                    const protocol = Object.values(allProtocols).find(p => p.id === recommendedProtocolId);
+                    if (protocol) {
+                      return (
+                        <div className="mb-6">
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            <Target className="h-4 w-4" />
+                            Protocollo di Training Raccomandato
+                          </h4>
+                          <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                                <Target className="h-5 w-5 text-green-600" />
+                              </div>
+                              <div className="flex-1">
+                                <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                                  {protocol.name}
+                                </h5>
+                                <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                                  {protocol.description}
+                                </p>
+                                <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
+                                  <span>📅 {protocol.durationDays} giorni</span>
+                                  <span>🎯 Livello: {protocol.difficulty}</span>
+                                  <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                </div>
+                                <p className="text-xs text-green-600 dark:text-green-400 mb-3">
+                                  Comportamenti target: {protocol.targetBehaviors.join(', ')}
+                                </p>
+                                <Button 
+                                  size="sm" 
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                  onClick={() => {
+                                    window.location.href = `/training?recommended=${protocol.id}`;
+                                  }}
+                                >
+                                  <Target className="h-3 w-3 mr-1" />
+                                  Inizia Protocollo Training
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
 
                 {/* AI Music Therapy Recommendations */}
                 <div className="mt-6">
