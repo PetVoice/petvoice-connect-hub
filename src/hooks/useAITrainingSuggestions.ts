@@ -109,59 +109,165 @@ export const useAITrainingSuggestions = () => {
   ): Promise<IntegrationSuggestion[]> => {
     const suggestions: IntegrationSuggestion[] = [];
 
-    // Analizza le emozioni dalle analisi
+    // Mappa completa emozioni negative -> protocolli
+    const emotionProtocolMap = {
+      anxious: {
+        title: 'Gestione Ansia da Separazione',
+        protocol: 'Desensibilizzazione graduale con rinforzo positivo',
+        threshold: 2
+      },
+      stressed: {
+        title: 'Riduzione Stress e Tensione',
+        protocol: 'Tecniche di rilassamento e controllo ambientale',
+        threshold: 2
+      },
+      aggressive: {
+        title: 'Controllo Aggressività',
+        protocol: 'Controllo impulsi e redirezione comportamentale',
+        threshold: 1
+      },
+      fearful: {
+        title: 'Superare Fobie e Paure Specifiche',
+        protocol: 'Terapia comportamentale per fobie specifiche',
+        threshold: 2
+      },
+      depressed: {
+        title: 'Supporto per Depressione',
+        protocol: 'Stimolazione comportamentale e arricchimento ambientale',
+        threshold: 2
+      },
+      agitated: {
+        title: 'Gestione Agitazione',
+        protocol: 'Calming protocol con esercizi di autocontrollo',
+        threshold: 2
+      },
+      territorial: {
+        title: 'Gestione Territorialità',
+        protocol: 'Socializzazione controllata e gestione spazi',
+        threshold: 1
+      },
+      destructive: {
+        title: 'Stop Comportamenti Distruttivi',
+        protocol: 'Redirezione comportamentale e stimolazione mentale',
+        threshold: 2
+      }
+    };
+
+    // Analizza tutte le emozioni dalle analisi
     if (analyses.length > 0) {
-      const anxietyCount = analyses.filter(a => 
-        a.primary_emotion === 'anxious' || 
-        a.primary_emotion === 'stressed' ||
-        (a.secondary_emotions && JSON.stringify(a.secondary_emotions).includes('anxious'))
-      ).length;
+      // Conta occorrenze per ogni emozione negativa
+      const emotionCounts: { [key: string]: number } = {};
+      
+      analyses.forEach(analysis => {
+        // Controlla emozione primaria
+        if (analysis.primary_emotion && emotionProtocolMap[analysis.primary_emotion as keyof typeof emotionProtocolMap]) {
+          emotionCounts[analysis.primary_emotion] = (emotionCounts[analysis.primary_emotion] || 0) + 1;
+        }
 
-      if (anxietyCount >= 3) {
-        suggestions.push({
-          id: 'anxiety-analysis',
-          source: 'analysis',
-          title: 'Protocollo Anti-Ansia Personalizzato',
-          description: `Rilevata ansia in ${anxietyCount} delle ultime ${analyses.length} analisi emotive`,
-          confidence: Math.min(95, 60 + (anxietyCount * 10)),
-          reason: `Ansia identificata in ${anxietyCount} analisi recenti con confidenza media del ${Math.round(analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / analyses.length * 100)}%`,
-          suggestedProtocol: 'Desensibilizzazione graduale con rinforzo positivo',
-          estimatedDuration: Math.max(7, anxietyCount * 3),
-          potentialImprovement: Math.min(90, 50 + (anxietyCount * 8))
-        });
-      }
+        // Controlla emozioni secondarie
+        if (analysis.secondary_emotions) {
+          const secondaryEmotions = typeof analysis.secondary_emotions === 'string' 
+            ? JSON.parse(analysis.secondary_emotions) 
+            : analysis.secondary_emotions;
+          
+          if (Array.isArray(secondaryEmotions)) {
+            secondaryEmotions.forEach((emotion: string) => {
+              if (emotionProtocolMap[emotion as keyof typeof emotionProtocolMap]) {
+                emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+              }
+            });
+          }
+        }
+      });
 
-      // Analizza comportamenti aggressivi
-      const aggressionCount = analyses.filter(a => 
-        a.primary_emotion === 'aggressive' ||
-        (a.secondary_emotions && JSON.stringify(a.secondary_emotions).includes('aggressive'))
-      ).length;
+      // Genera suggerimenti per ogni emozione che supera la soglia
+      Object.entries(emotionCounts).forEach(([emotion, count]) => {
+        const emotionData = emotionProtocolMap[emotion as keyof typeof emotionProtocolMap];
+        if (count >= emotionData.threshold) {
+          const averageConfidence = analyses
+            .filter(a => a.primary_emotion === emotion || 
+              (a.secondary_emotions && JSON.stringify(a.secondary_emotions).includes(emotion)))
+            .reduce((sum, a) => sum + (a.primary_confidence || 0), 0) / count;
 
-      if (aggressionCount >= 2) {
-        suggestions.push({
-          id: 'aggression-analysis',
-          source: 'analysis',
-          title: 'Gestione Comportamenti Aggressivi',
-          description: `Comportamenti aggressivi rilevati in ${aggressionCount} analisi`,
-          confidence: Math.min(92, 65 + (aggressionCount * 12)),
-          reason: `Aggressività identificata in ${aggressionCount} sessioni di analisi emotiva`,
-          suggestedProtocol: 'Controllo impulsi e redirezione comportamentale',
-          estimatedDuration: 14 + (aggressionCount * 2),
-          potentialImprovement: Math.min(85, 45 + (aggressionCount * 15))
-        });
-      }
+          suggestions.push({
+            id: `${emotion}-analysis`,
+            source: 'analysis',
+            title: emotionData.title,
+            description: `${emotion === 'fearful' ? 'Paura' : 
+                         emotion === 'anxious' ? 'Ansia' : 
+                         emotion === 'stressed' ? 'Stress' : 
+                         emotion === 'aggressive' ? 'Aggressività' : 
+                         emotion === 'depressed' ? 'Depressione' : 
+                         emotion === 'agitated' ? 'Agitazione' : 
+                         emotion === 'territorial' ? 'Comportamento territoriale' : 
+                         emotion === 'destructive' ? 'Comportamenti distruttivi' : emotion} rilevata in ${count} delle ultime ${analyses.length} analisi`,
+            confidence: Math.min(95, 50 + (count * 15) + (averageConfidence * 30)),
+            reason: `${emotion === 'fearful' ? 'Episodi di paura' : 
+                     emotion === 'anxious' ? 'Ansia' : 
+                     emotion === 'stressed' ? 'Stress' : 
+                     emotion === 'aggressive' ? 'Aggressività' : 
+                     emotion === 'depressed' ? 'Depressione' : 
+                     emotion === 'agitated' ? 'Agitazione' : 
+                     emotion === 'territorial' ? 'Territorialità' : 
+                     emotion === 'destructive' ? 'Comportamenti distruttivi' : emotion} identificata in ${count} analisi con confidenza media del ${Math.round(averageConfidence * 100)}%`,
+            suggestedProtocol: emotionData.protocol,
+            estimatedDuration: Math.max(5, count * 3 + (emotion === 'aggressive' || emotion === 'territorial' ? 5 : 0)),
+            potentialImprovement: Math.min(90, 40 + (count * 10) + (averageConfidence * 25))
+          });
+        }
+      });
     }
 
-    // Analizza il diario comportamentale
+    // Analizza il diario comportamentale per emozioni/comportamenti negativi
     if (diaryEntries.length > 0) {
       const lowMoodEntries = diaryEntries.filter(e => e.mood_score && e.mood_score <= 4);
-      const negativeTagsCount = diaryEntries.reduce((count, entry) => {
-        const negativeTags = ['aggressivo', 'ansioso', 'depresso', 'agitato', 'distruttivo'];
-        return count + (entry.behavioral_tags?.filter((tag: string) => 
-          negativeTags.some(negTag => tag.toLowerCase().includes(negTag))
-        ).length || 0);
-      }, 0);
+      
+      // Mappa tag comportamentali negativi a protocolli
+      const behavioralTagProtocols: { [key: string]: { title: string; protocol: string } } = {
+        'aggressivo': { title: 'Controllo Aggressività', protocol: 'Gestione impulsi aggressivi' },
+        'ansioso': { title: 'Gestione Ansia da Separazione', protocol: 'Desensibilizzazione graduale' },
+        'depresso': { title: 'Supporto Emotivo', protocol: 'Stimolazione comportamentale positiva' },
+        'agitato': { title: 'Calming Protocol', protocol: 'Tecniche di rilassamento' },
+        'distruttivo': { title: 'Stop Comportamenti Distruttivi', protocol: 'Redirezione comportamentale' },
+        'pauroso': { title: 'Superare Fobie e Paure', protocol: 'Desensibilizzazione sistematica' },
+        'territoriale': { title: 'Gestione Territorialità', protocol: 'Socializzazione controllata' },
+        'possessivo': { title: 'Gestione Gelosia e Possessività', protocol: 'Controllo della possessività' }
+      };
 
+      // Conta i tag comportamentali negativi
+      const tagCounts: { [key: string]: number } = {};
+      diaryEntries.forEach(entry => {
+        if (entry.behavioral_tags) {
+          entry.behavioral_tags.forEach((tag: string) => {
+            const lowerTag = tag.toLowerCase();
+            Object.keys(behavioralTagProtocols).forEach(negativeTag => {
+              if (lowerTag.includes(negativeTag)) {
+                tagCounts[negativeTag] = (tagCounts[negativeTag] || 0) + 1;
+              }
+            });
+          });
+        }
+      });
+
+      // Genera suggerimenti per i tag comportamentali
+      Object.entries(tagCounts).forEach(([tag, count]) => {
+        if (count >= 2) {
+          const tagData = behavioralTagProtocols[tag];
+          suggestions.push({
+            id: `${tag}-diary`,
+            source: 'diary',
+            title: tagData.title,
+            description: `Comportamento "${tag}" registrato ${count} volte nel diario`,
+            confidence: Math.min(88, 60 + (count * 8)),
+            reason: `Pattern comportamentale "${tag}" identificato in ${count} occasioni nel diario`,
+            suggestedProtocol: tagData.protocol,
+            estimatedDuration: 7 + (count * 2),
+            potentialImprovement: Math.min(80, 45 + (count * 8))
+          });
+        }
+      });
+
+      // Suggerimento per umore basso generalizzato
       if (lowMoodEntries.length >= 3) {
         suggestions.push({
           id: 'mood-diary',
@@ -173,20 +279,6 @@ export const useAITrainingSuggestions = () => {
           suggestedProtocol: 'Programma di arricchimento ambientale e stimolazione positiva',
           estimatedDuration: 10 + lowMoodEntries.length,
           potentialImprovement: Math.min(80, 55 + (lowMoodEntries.length * 6))
-        });
-      }
-
-      if (negativeTagsCount >= 5) {
-        suggestions.push({
-          id: 'behavioral-diary',
-          source: 'diary',
-          title: 'Controllo Comportamenti Problematici',
-          description: `${negativeTagsCount} comportamenti negativi registrati nel diario`,
-          confidence: Math.min(85, 65 + Math.floor(negativeTagsCount / 2)),
-          reason: `Pattern comportamentali problematici identificati in ${negativeTagsCount} occasioni`,
-          suggestedProtocol: 'Modificazione comportamentale con rinforzo differenziale',
-          estimatedDuration: 8 + Math.floor(negativeTagsCount / 2),
-          potentialImprovement: Math.min(75, 50 + Math.floor(negativeTagsCount * 1.5))
         });
       }
     }
