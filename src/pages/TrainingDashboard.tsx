@@ -798,6 +798,69 @@ const TrainingDashboard: React.FC = () => {
                     </div>
                   ))}
                 </div>
+                
+                {/* Dettagli Esercizio Corrente */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <Book className="h-4 w-4" />
+                    Dettagli: {currentEx.title}
+                  </h4>
+                  
+                  <div className="space-y-4 text-sm">
+                    {/* Descrizione */}
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-1">📝 Descrizione:</h5>
+                      <p className="text-blue-700 leading-relaxed">{currentEx.description}</p>
+                    </div>
+                    
+                    {/* Istruzioni Step-by-Step */}
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">🎯 Istruzioni passo-passo:</h5>
+                      <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                        {currentEx.instructions.map((instruction, index) => (
+                          <li key={index} className="leading-relaxed">{instruction}</li>
+                        ))}
+                      </ol>
+                    </div>
+                    
+                    {/* Materiali necessari */}
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">🛠️ Materiali necessari:</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                        {currentEx.materials.map((material, index) => (
+                          <div key={index} className="flex items-center gap-2 text-blue-700">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                            {material}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Info aggiuntive */}
+                    <div className="flex items-center gap-4 pt-2 border-t border-blue-200">
+                      <div className="flex items-center gap-1 text-blue-600">
+                        <Clock className="h-4 w-4" />
+                        <span className="font-medium">Durata: {currentEx.duration} minuti</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-blue-600">
+                        <Target className="h-4 w-4" />
+                        <span className="font-medium">Livello: Principiante</span>
+                      </div>
+                    </div>
+                    
+                    {/* Consigli */}
+                    <div className="bg-blue-100 p-3 rounded-md border border-blue-300">
+                      <h5 className="font-medium text-blue-800 mb-1 flex items-center gap-1">
+                        <Lightbulb className="h-4 w-4" />
+                        💡 Consiglio:
+                      </h5>
+                      <p className="text-blue-700 text-xs leading-relaxed">
+                        Mantieni sempre un atteggiamento positivo e paziente. Se il tuo pet non risponde immediatamente, 
+                        ripeti l'esercizio più lentamente e ricompensalo per ogni piccolo progresso.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Materials */}
