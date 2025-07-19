@@ -21,23 +21,14 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
     hasDataExport: true,
     hasPrioritySupport: true,
   },
-  family: {
-    maxPets: Infinity,
-    maxAnalysesPerMonth: Infinity,
-    hasAiInsights: true,
-    hasMusicTherapy: true,
-    hasDataExport: true,
-    hasPrioritySupport: true,
-    maxDevices: 3,
-  },
 };
 
 export const usePlanLimits = () => {
   const { subscription } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const currentLimits = (subscription.subscribed && subscription.subscription_tier && subscription.subscription_tier !== 'free') ? 
-    PLAN_LIMITS[subscription.subscription_tier] : {
+  const currentLimits = subscription.subscribed ? 
+    PLAN_LIMITS.premium : {
     maxPets: 0,
     maxAnalysesPerMonth: 0,
     hasAiInsights: false,
@@ -64,21 +55,18 @@ export const usePlanLimits = () => {
   };
 
   const showUpgradePrompt = (featureName: string) => {
-    toast({
-      title: "Funzionalità Premium",
-      description: `${featureName} è disponibile solo nei piani Premium e Family`,
-      variant: "default",
-    });
-    setShowUpgradeModal(true);
+    // Non mostrare più prompt di upgrade dato che esiste solo il piano premium
+    return;
   };
 
   const requiresPremium = (action: () => void, featureName: string, customCheck?: () => boolean) => {
-    const hasAccess = customCheck ? customCheck() : (subscription.subscribed && subscription.subscription_tier !== 'free');
+    const hasAccess = customCheck ? customCheck() : subscription.subscribed;
     
     if (hasAccess) {
       action();
     } else {
-      showUpgradePrompt(featureName);
+      // Non fare nulla dato che non ci sono upgrade da mostrare
+      return;
     }
   };
 
@@ -92,7 +80,7 @@ export const usePlanLimits = () => {
     checkDeviceLimit,
     showUpgradePrompt,
     requiresPremium,
-    isPremium: subscription.subscribed && subscription.subscription_tier !== 'free',
-    isFamily: subscription.subscription_tier === 'family',
+    isPremium: subscription.subscribed,
+    isFamily: false, // Non esiste più piano family
   };
 };

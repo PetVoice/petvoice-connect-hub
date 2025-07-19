@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 interface PremiumFeatureWrapperProps {
   children: ReactNode;
   featureName: string;
-  requiredPlan?: 'premium' | 'family';
   customCheck?: () => boolean;
   fallbackComponent?: ReactNode;
   className?: string;
@@ -17,27 +16,21 @@ interface PremiumFeatureWrapperProps {
 export const PremiumFeatureWrapper = ({
   children,
   featureName,
-  requiredPlan,
   customCheck,
   fallbackComponent,
   className,
   showOverlay = true,
 }: PremiumFeatureWrapperProps) => {
-  const { isPremium, isFamily, showUpgradePrompt } = usePlanLimits();
+  const { isPremium } = usePlanLimits();
 
-  // Determine if user has access
-  const hasAccess = customCheck ? customCheck() : 
-    requiredPlan === 'family' ? isFamily : 
-    requiredPlan === 'premium' ? (isPremium || isFamily) : 
-    isPremium;
+  // Determine if user has access - solo piano premium disponibile
+  const hasAccess = customCheck ? customCheck() : isPremium;
 
   if (hasAccess) {
     return <>{children}</>;
   }
 
-  const handleUpgradeClick = () => {
-    showUpgradePrompt(featureName);
-  };
+  // Non più necessario dato che esiste solo piano premium
 
   if (fallbackComponent) {
     return <>{fallbackComponent}</>;
@@ -55,12 +48,8 @@ export const PremiumFeatureWrapper = ({
                 <span className="font-semibold text-lg">Funzione Premium</span>
               </div>
               <p className="text-muted-foreground mb-4 text-sm">
-                {featureName} è disponibile con i piani Premium e Family
+                {featureName} è disponibile con il piano Premium
               </p>
-              <Button onClick={handleUpgradeClick} size="sm" className="gap-2">
-                <Crown className="w-4 h-4" />
-                Sblocca ora
-              </Button>
             </div>
           </div>
         </>
@@ -76,15 +65,11 @@ export const PremiumFeatureWrapper = ({
 export const PremiumGate = ({
   children,
   featureName,
-  requiredPlan,
   customCheck,
 }: Omit<PremiumFeatureWrapperProps, 'fallbackComponent' | 'showOverlay'>) => {
-  const { isPremium, isFamily, showUpgradePrompt } = usePlanLimits();
+  const { isPremium } = usePlanLimits();
 
-  const hasAccess = customCheck ? customCheck() : 
-    requiredPlan === 'family' ? isFamily : 
-    requiredPlan === 'premium' ? (isPremium || isFamily) : 
-    isPremium;
+  const hasAccess = customCheck ? customCheck() : isPremium;
 
   if (!hasAccess) {
     return (
@@ -93,12 +78,8 @@ export const PremiumGate = ({
           <Lock className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
           <h3 className="font-semibold mb-1">Funzione Premium</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            {featureName} richiede un piano Premium o Family
+            {featureName} richiede il piano Premium
           </p>
-          <Button onClick={() => showUpgradePrompt(featureName)} size="sm">
-            <Crown className="w-4 h-4 mr-2" />
-            Effettua l'upgrade
-          </Button>
         </div>
       </div>
     );

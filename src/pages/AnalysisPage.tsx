@@ -206,11 +206,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       return;
     }
 
-    // Check analysis limit for free users
-    if (!checkAnalysisLimit(analyses.length)) {
-      showUpgradePrompt("Analisi aggiuntive");
-      return;
-    }
+    // Rimuovo controllo limite analisi - solo piano premium disponibile
 
     setProcessing({
       isProcessing: true,
@@ -367,12 +363,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       return false;
     }
 
-    // Check analysis limit for free users using subscription data
-    const currentAnalyses = subscription.usage?.analyses_this_month || 0;
-    if (!checkAnalysisLimit(currentAnalyses)) {
-      showUpgradePrompt("Analisi aggiuntive");
-      return false;
-    }
+    // Rimuovo controllo limite analisi - solo piano premium disponibile
 
     return true;
   };
