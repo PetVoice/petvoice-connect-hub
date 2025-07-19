@@ -329,9 +329,9 @@ export const AITrainingProtocols: React.FC = () => {
                         }
                       }}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
+                       <CardContent className="p-4">
+                         <div className="flex items-start justify-between gap-4">
+                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold">{protocol.title}</h3>
                               <Badge className={getDifficultyColor(protocol.difficulty)}>
@@ -365,7 +365,7 @@ export const AITrainingProtocols: React.FC = () => {
                               <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col gap-2 shrink-0 min-w-fit">
                             {/* Pulsanti sempre visibili per ora */}
                             <Button 
                               size="sm" 
