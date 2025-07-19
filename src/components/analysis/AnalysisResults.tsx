@@ -753,13 +753,42 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 <span>🎯 Livello: Intermedio</span>
                                 <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
                               </div>
-                              <Button 
-                                size="sm" 
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => {
-                                  window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
-                                }}
-                              >
+                               <Button 
+                                 size="sm" 
+                                 className="bg-green-600 hover:bg-green-700 text-white"
+                                 onClick={() => {
+                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                   let protocolId = '';
+                                   
+                                   // Mappa l'emozione al protocollo ID corretto dal database
+                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
+                                       emotion.includes('stress') || emotion.includes('stressato') ||
+                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
+                                     protocolId = 'e3f1ebcd-f147-4c67-bfa0-44aba48ecd96'; // Gestione Ansia da Separazione
+                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                              emotion.includes('irritato')) {
+                                     protocolId = 'a6b8ca21-c042-4a9a-9739-9d7ead57c209'; // Controllo Aggressività Reattiva
+                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
+                                     protocolId = '23070d02-4127-4ad6-a8fa-c70958621172'; // Superamento Paure e Fobie
+                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
+                                     protocolId = 'dc383c80-185d-47b3-b99a-6c47afb54508'; // Gestione Energia Eccessiva
+                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                              emotion.includes('depresso') || emotion.includes('depressione') ||
+                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
+                                     protocolId = '3250a33e-c2e8-43e3-9fcf-bef48bfcc304'; // Riattivazione Comportamentale
+                                   } else {
+                                     // Fallback - vai alla lista generale
+                                     window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
+                                     return;
+                                   }
+                                   
+                                   // Vai direttamente al protocollo specifico
+                                   window.location.href = `/training/dashboard/${protocolId}`;
+                                 }}
+                               >
                                 <Target className="h-3 w-3 mr-1" />
                                 Inizia Protocollo Training
                               </Button>
