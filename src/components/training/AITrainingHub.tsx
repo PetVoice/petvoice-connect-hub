@@ -651,7 +651,7 @@ export const AITrainingHub: React.FC = () => {
                               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                             >
                               <Play className="h-4 w-4 mr-2" />
-                              {protocol.status === 'active' ? 'Continua' : 'Avvia'}
+                              {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
                             </Button>
                          </div>
                          

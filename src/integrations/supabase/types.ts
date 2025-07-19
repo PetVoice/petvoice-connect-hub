@@ -327,7 +327,7 @@ export type Database = {
           title: string
           triggers: string[] | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
           veterinary_approved: boolean | null
         }
         Insert: {
@@ -357,7 +357,7 @@ export type Database = {
           title: string
           triggers?: string[] | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
           veterinary_approved?: boolean | null
         }
         Update: {
@@ -387,7 +387,7 @@ export type Database = {
           title?: string
           triggers?: string[] | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           veterinary_approved?: boolean | null
         }
         Relationships: [
