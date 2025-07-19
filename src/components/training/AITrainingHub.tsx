@@ -358,7 +358,7 @@ export const AITrainingHub: React.FC = () => {
 
         toast({
           title: 'Protocollo avviato',
-          description: `Il protocollo "${protocol.title}" è stato aggiunto ai tuoi protocolli attivi`,
+          description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
         });
         
         // Reindirizza alla dashboard del nuovo protocollo
