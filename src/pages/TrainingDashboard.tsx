@@ -881,20 +881,25 @@ const TrainingDashboard: React.FC = () => {
               
               <Button
                 onClick={handleCompleteExercise}
-                disabled={currentEx.completed}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                disabled={currentExercise !== dailyCompletedExercises || currentEx.completed}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
               >
                 {currentEx.completed ? (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Esercizio Completato
                   </>
-                ) : (
+                ) : currentExercise === dailyCompletedExercises ? (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     {currentExercise === 2 
                       ? `Esercizio 3 Completato` 
                       : `Esercizio ${currentExercise + 1} Completato`}
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
+                    {`Completa prima l'Esercizio ${dailyCompletedExercises + 1}`}
                   </>
                 )}
               </Button>
