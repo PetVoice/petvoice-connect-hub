@@ -360,20 +360,26 @@ const TrainingDashboard: React.FC = () => {
     if (protocol && protocol.progress_percentage !== undefined) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
       const totalExercises = protocol.duration_days * exercisesPerDay;
-      const completedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
+      const totalCompletedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
       
-      // Calcola l'esercizio corrente nel giorno attuale
-      const exercisesInCurrentDay = completedExercises % exercisesPerDay;
-      const calculatedCurrentExercise = Math.min(exercisesInCurrentDay, exercisesPerDay - 1);
+      // Calcola quanti esercizi sono stati completati nei giorni precedenti
+      const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
       
-      console.log('🔄 INIZIALIZZAZIONE PROGRESSO:', {
+      // Calcola gli esercizi completati oggi
+      const exercisesCompletedToday = Math.max(0, totalCompletedExercises - exercisesCompletedInPreviousDays);
+      
+      // L'esercizio corrente è il primo non completato oggi
+      const calculatedCurrentExercise = Math.min(exercisesCompletedToday, exercisesPerDay - 1);
+      
+      console.log('🔄 INIZIALIZZAZIONE PROGRESSO CORRETTA:', {
         protocol_id: protocol.id,
         progress_percentage: protocol.progress_percentage,
         duration_days: protocol.duration_days,
         current_day: protocol.current_day,
         totalExercises,
-        completedExercises,
-        exercisesInCurrentDay,
+        totalCompletedExercises,
+        exercisesCompletedInPreviousDays,
+        exercisesCompletedToday,
         calculatedCurrentExercise
       });
       
@@ -468,20 +474,25 @@ const TrainingDashboard: React.FC = () => {
         description: `Hai completato "${currentEx.title}" con successo.`,
       });
 
-      // Calcola il progresso del protocollo
-      const completedCount = currentExercise + 1;
-      const totalExercises = todayExercises.length * protocol.duration_days;
-      const totalCompletedExercises = ((protocol.current_day - 1) * todayExercises.length) + completedCount;
+      // Calcola il progresso del protocollo - CORREZIONE FORMULA
+      const completedCount = currentExercise + 1; // Esercizio appena completato
+      const exercisesPerDay = todayExercises.length; // 3 esercizi per giorno
+      const totalExercises = exercisesPerDay * protocol.duration_days; // Es: 3 * 9 = 27
+      
+      // Calcola totale esercizi completati nel protocollo
+      const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
+      const totalCompletedExercises = exercisesCompletedInPreviousDays + completedCount;
       const newProgressPercentage = Math.round((totalCompletedExercises / totalExercises) * 100);
       
-      console.log('Progress calculation:', {
+      console.log('🧮 CALCOLO PROGRESSO:', {
         currentExercise,
         completedCount,
-        totalCompletedExercises,
+        exercisesPerDay,
         totalExercises,
+        exercisesCompletedInPreviousDays,
+        totalCompletedExercises,
         newProgressPercentage,
-        currentDay: protocol.current_day,
-        exercisesPerDay: todayExercises.length
+        currentDay: protocol.current_day
       });
 
       // Aggiorna il progresso del protocollo nel database
