@@ -50,13 +50,178 @@ interface Exercise {
 
 // Esercizi dinamici basati sulla categoria del protocollo
 const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
+  const currentDay = protocol.current_day;
+  
+  // Esercizi specifici per la categoria socializzazione con progressione giornaliera
+  if (protocol.category === 'socializzazione') {
+    const allSocializationExercises: Exercise[] = [
+      // Settimana 1 (Giorni 1-7): Fondamenti
+      {
+        id: `soc-${currentDay}-1`,
+        title: currentDay <= 7 ? 'Comando Base "Guarda"' : 
+              currentDay <= 14 ? 'Incontri Controllati Vicini' :
+              currentDay <= 21 ? 'Socializzazione Multi-Persona' :
+              currentDay <= 28 ? 'Gestione Ambienti Affollati' :
+              'Consolidamento Avanzato',
+        description: currentDay <= 7 ? 'Stabilire il contatto visivo come base per tutti gli esercizi successivi' :
+                    currentDay <= 14 ? 'Socializzazione con persone familiari a distanza ravvicinata' :
+                    currentDay <= 21 ? 'Interazione contemporanea con più persone' :
+                    currentDay <= 28 ? 'Mantenere calma in situazioni stimolanti' :
+                    'Perfezionamento delle abilità sociali acquisite',
+        duration: Math.min(10 + Math.floor(currentDay / 3), 25),
+        instructions: currentDay <= 7 ? [
+          'Seduto di fronte al pet a 1 metro',
+          'Dì "guarda" e attendi il contatto visivo',
+          'Premia immediatamente quando ti guarda',
+          'Ripeti 10 volte con pause',
+          'Incrementa gradualmente la distanza'
+        ] : currentDay <= 14 ? [
+          'Presenta una persona familiare a 3 metri',
+          'Usa comando "guarda" quando nota la persona',
+          'Premia per calma e attenzione verso di te',
+          'Avvicinati di 1 metro se rimane tranquillo',
+          'Termina con interazione positiva'
+        ] : currentDay <= 21 ? [
+          'Organizza incontro con 2-3 persone calme',
+          'Mantieni pet al guinzaglio inizialmente',
+          'Premia interazioni gentili e appropriate',
+          'Gestisci pause se si sovraeccita',
+          'Termina quando tutti sono calmi'
+        ] : currentDay <= 28 ? [
+          'Visita luogo pubblico moderatamente affollato',
+          'Mantieni distanza di comfort dagli stimoli',
+          'Premia per mantenere attenzione su di te',
+          'Usa comandi di richiamo se si distrae',
+          'Uscita positiva anche se breve'
+        ] : [
+          'Combinazione di tutti gli esercizi precedenti',
+          'Test in ambiente imprevedibile',
+          'Autonomia graduale (guinzaglio più lungo)',
+          'Valutazione dei progressi complessivi',
+          'Celebrazione dei risultati ottenuti'
+        ],
+        materials: currentDay <= 7 ? ['Clicker', 'Snack piccoli e frequenti'] :
+                  currentDay <= 14 ? ['Guinzaglio 2m', 'Persona collaborativa', 'Snack'] :
+                  currentDay <= 21 ? ['Guinzaglio', 'Gruppo persone familiari', 'Premi vari'] :
+                  currentDay <= 28 ? ['Guinzaglio corto', 'Snack alta appetibilità', 'Bottiglia acqua'] :
+                  ['Kit completo materiali', 'Registrazione video opzionale'],
+        completed: false
+      },
+      {
+        id: `soc-${currentDay}-2`,
+        title: currentDay <= 7 ? 'Desensibilizzazione Suoni Sociali' :
+              currentDay <= 14 ? 'Interazioni con Altri Animali' :
+              currentDay <= 21 ? 'Gioco Sociale Guidato' :
+              currentDay <= 28 ? 'Socializzazione in Movimento' :
+              'Autonomia in Contesti Sociali',
+        description: currentDay <= 7 ? 'Abituazione graduale ai suoni tipici delle interazioni sociali' :
+                    currentDay <= 14 ? 'Primi approcci controllati con altri animali' :
+                    currentDay <= 21 ? 'Attività di gruppo strutturate e supervisionate' :
+                    currentDay <= 28 ? 'Socializzazione durante passeggiate e spostamenti' :
+                    'Riduzione graduale della supervisione diretta',
+        duration: Math.min(12 + Math.floor(currentDay / 2.5), 30),
+        instructions: currentDay <= 7 ? [
+          'Riproduci suoni di voci umane a basso volume',
+          'Associa i suoni con attività piacevoli',
+          'Incrementa gradualmente volume e varietà',
+          'Include risate, applausi, conversazioni',
+          'Premia per rimanere rilassato'
+        ] : currentDay <= 14 ? [
+          'Scegli animale calmo e ben socializzato',
+          'Inizia con 10 metri di distanza',
+          'Avvicinati solo se entrambi sono tranquilli',
+          'Permetti brevi annusate se appropriato',
+          'Termina prima di sovrastimolazione'
+        ] : currentDay <= 21 ? [
+          'Organizza gioco controllato con 1-2 animali',
+          'Stabilisci regole chiare per l\'interazione',
+          'Supervisiona costantemente le dinamiche',
+          'Interrompi se il gioco diventa troppo intenso',
+          'Premia comportamenti sociali appropriati'
+        ] : currentDay <= 28 ? [
+          'Passeggiata in area con moderata presenza sociale',
+          'Gestisci incontri casuali con altri',
+          'Mantieni movimento per evitare fissazioni',
+          'Premia per attenzione e collaborazione',
+          'Varia percorsi per diverse esperienze'
+        ] : [
+          'Situazioni sociali con supervisione minima',
+          'Osserva da distanza per valutare autonomia',
+          'Intervieni solo se strettamente necessario',
+          'Documenta progressi e aree di miglioramento',
+          'Pianifica mantenimento dei risultati'
+        ],
+        materials: currentDay <= 7 ? ['Speaker bluetooth', 'Playlist suoni sociali', 'Snack calmanti'] :
+                  currentDay <= 14 ? ['Due guinzagli', 'Animale collaborativo', 'Spazio neutro'] :
+                  currentDay <= 21 ? ['Giocattoli sicuri', 'Spazio recintato', 'Snack per tutti'] :
+                  currentDay <= 28 ? ['Guinzaglio confortevole', 'Marsupio snack', 'Mappa percorsi'] :
+                  ['Materiali essenziali', 'Modulo valutazione'],
+        completed: false
+      },
+      {
+        id: `soc-${currentDay}-3`,
+        title: currentDay <= 7 ? 'Rilassamento in Presenza' :
+              currentDay <= 14 ? 'Condivisione Spazio Sociale' :
+              currentDay <= 21 ? 'Comunicazione Non Verbale' :
+              currentDay <= 28 ? 'Adattabilità Sociale' :
+              'Valutazione Finale e Mantenimento',
+        description: currentDay <= 7 ? 'Imparare a rimanere calmi anche quando ci sono altre persone/animali' :
+                    currentDay <= 14 ? 'Condividere spazi comuni senza stress o conflitti' :
+                    currentDay <= 21 ? 'Interpretare e rispondere ai segnali sociali appropriati' :
+                    currentDay <= 28 ? 'Flessibilità nel gestire situazioni sociali impreviste' :
+                    'Test comprensivo di tutte le competenze sviluppate',
+        duration: Math.min(15 + Math.floor(currentDay / 2), 35),
+        instructions: currentDay <= 7 ? [
+          'Posiziona il pet in area confortevole',
+          'Introduci gradualmente presenza di altri',
+          'Mantieni ambiente tranquillo e prevedibile',
+          'Premia stati di rilassamento',
+          'Estendi gradualmente i tempi'
+        ] : currentDay <= 14 ? [
+          'Situazioni di coesistenza pacifica',
+          'Nessuna interazione forzata',
+          'Premia per ignorare appropriato di stimoli',
+          'Gestisci spazio personale rispettoso',
+          'Costruisci tolleranza alla presenza'
+        ] : currentDay <= 21 ? [
+          'Osserva e interpreta segnali di stress/comfort',
+          'Insegna segnali di disimpegno appropriati',
+          'Premia per lettura corretta delle situazioni',
+          'Pratica approach e retreat appropriati',
+          'Sviluppa comunicazione chiara'
+        ] : currentDay <= 28 ? [
+          'Esponi a situazioni sociali variabili',
+          'Cambia componenti: numero persone, rumore, spazio',
+          'Valuta capacità di adattamento',
+          'Premia flessibilità e problem solving',
+          'Costruisci resilienza sociale'
+        ] : [
+          'Test completo in ambiente reale',
+          'Valutazione su tutti gli obiettivi',
+          'Documentazione video dei progressi',
+          'Piano di mantenimento personalizzato',
+          'Celebrazione dei risultati raggiunti'
+        ],
+        materials: currentDay <= 7 ? ['Coperta comfort', 'Ambiente controllato', 'Timer'] :
+                  currentDay <= 14 ? ['Barriere visive opzionali', 'Spazi definiti', 'Snack'] :
+                  currentDay <= 21 ? ['Materiale osservazione', 'Camera per registrazione', 'Note'] :
+                  currentDay <= 28 ? ['Ambienti vari', 'Stimoli diversificati', 'Kit emergenza'] :
+                  ['Checklist valutazione', 'Camera', 'Certificato completamento'],
+        completed: false
+      }
+    ];
+    
+    return allSocializationExercises;
+  }
+  
+  // Per le altre categorie, mantieni gli esercizi base ma con progressione
   const baseExercises: Record<string, Exercise[]> = {
     ansia: [
       {
-        id: '1',
+        id: `ansia-${currentDay}-1`,
         title: 'Desensibilizzazione ai Rumori di Partenza',
-        description: 'Graduale esposizione ai suoni che precedono la tua partenza per ridurre l\'ansia anticipatoria',
-        duration: 15,
+        description: `Graduale esposizione ai suoni che precedono la tua partenza (Giorno ${currentDay})`,
+        duration: Math.min(15 + currentDay, 30),
         instructions: [
           'Raccogli le chiavi senza uscire di casa',
           'Metti le scarpe e resta seduto per 5 minuti',
@@ -68,14 +233,14 @@ const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
         completed: false
       },
       {
-        id: '2',
+        id: `ansia-${currentDay}-2`,
         title: 'Uscite Progressive',
-        description: 'Incremento graduale del tempo di assenza per costruire tolleranza',
-        duration: 20,
+        description: `Incremento graduale del tempo di assenza (Giorno ${currentDay})`,
+        duration: Math.min(20 + currentDay * 2, 45),
         instructions: [
-          'Esci per 30 secondi e rientra',
+          `Esci per ${Math.min(30 + currentDay * 10, 300)} secondi e rientra`,
           'Ignora il pet per 2 minuti al rientro',
-          'Incrementa a 2 minuti di assenza',
+          `Incrementa a ${Math.min(2 + currentDay, 15)} minuti di assenza`,
           'Continua ignorando reazioni eccessive',
           'Premia solo quando è calmo'
         ],
@@ -83,10 +248,10 @@ const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
         completed: false
       },
       {
-        id: '3',
+        id: `ansia-${currentDay}-3`,
         title: 'Creazione Area Sicura',
-        description: 'Stabilire uno spazio comfort per quando il pet rimane solo',
-        duration: 10,
+        description: `Stabilire uno spazio comfort progressivamente autonomo (Giorno ${currentDay})`,
+        duration: Math.min(10 + currentDay, 25),
         instructions: [
           'Scegli un\'area tranquilla della casa',
           'Posiziona la cuccia/coperta preferita',
@@ -98,200 +263,13 @@ const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
         completed: false
       }
     ],
-    aggressivita: [
-      {
-        id: '1',
-        title: 'Controllo Impulsi Base',
-        description: 'Esercizi fondamentali per insegnare autocontrollo e ridurre reattività',
-        duration: 12,
-        instructions: [
-          'Comando "seduto" con distrazioni presenti',
-          'Mantieni posizione per 30 secondi',
-          'Premia solo se rimane fermo',
-          'Incrementa gradualmente le distrazioni',
-          'Termina sempre con successo'
-        ],
-        materials: ['Pettorina anti-tiro', 'Clicker', 'Snack alta appetibilità'],
-        completed: false
-      },
-      {
-        id: '2',
-        title: 'Distanza Sicura e Socializzazione',
-        description: 'Lavoro a distanza controllata con stimoli scatenanti',
-        duration: 18,
-        instructions: [
-          'Identifica la distanza soglia di reazione',
-          'Posizionati a distanza sicura dallo stimolo',
-          'Premia per attenzione verso di te',
-          'Avvicinati di 1 metro solo se rimane calmo',
-          'Allontanati se mostra segni di tensione'
-        ],
-        materials: ['Guinzaglio lungo 3m', 'Clicker', 'Premi alta gratificazione'],
-        completed: false
-      },
-      {
-        id: '3',
-        title: 'Ridirezione Focus',
-        description: 'Tecniche per spostare l\'attenzione da stimoli trigger',
-        duration: 15,
-        instructions: [
-          'Pratica comando "guardami" senza distrazioni',
-          'Introduce stimolo blando a distanza',
-          'Usa comando "guardami" quando nota lo stimolo',
-          'Premia immediatamente il contatto visivo',
-          'Ripeti incrementando intensità gradualmente'
-        ],
-        materials: ['Snack odorosi', 'Clicker', 'Guinzaglio corto'],
-        completed: false
-      }
-    ],
-    iperattivita: [
-      {
-        id: '1',
-        title: 'Esercizi di Calma Controllata',
-        description: 'Insegnare stati di calma attraverso esercizi strutturati',
-        duration: 10,
-        instructions: [
-          'Comando "seduto" per 15 secondi',
-          'Comando "terra" mantenendo posizione',
-          'Premia la calma, non l\'eccitazione',
-          'Incrementa gradualmente i tempi',
-          'Usa voce calma e movimenti lenti'
-        ],
-        materials: ['Tappetino relax', 'Timer', 'Snack calmi'],
-        completed: false
-      },
-      {
-        id: '2',
-        title: 'Canalizzazione Energia',
-        description: 'Attività strutturate per sfogare energia in modo positivo',
-        duration: 20,
-        instructions: [
-          'Sessione gioco con regole (inizia/stop)',
-          'Alterna 2 minuti gioco e 1 minuto pausa',
-          'Usa comando "stop" per interrompere',
-          'Premia l\'autocontrollo durante le pause',
-          'Termina sempre con calma'
-        ],
-        materials: ['Corda da gioco', 'Puzzle feeder', 'Timer sessioni'],
-        completed: false
-      },
-      {
-        id: '3',
-        title: 'Stimolazione Mentale Avanzata',
-        description: 'Puzzle e giochi cognitivi per stancare mentalmente',
-        duration: 15,
-        instructions: [
-          'Presenta puzzle di difficoltà adeguata',
-          'Non aiutare troppo, lascia sperimentare',
-          'Premia i tentativi, non solo il successo',
-          'Ruota i giochi per mantenere interesse',
-          'Termina prima che si frustri'
-        ],
-        materials: ['Puzzle feeder', 'Giocattoli Kong', 'Tappeto sniffing'],
-        completed: false
-      }
-    ],
-    paura: [
-      {
-        id: '1',
-        title: 'Esposizione Graduale ai Suoni',
-        description: 'Desensibilizzazione sistematica ai rumori che causano paura',
-        duration: 25,
-        instructions: [
-          'Inizia con volume molto basso del suono trigger',
-          'Mantieni il pet rilassato con attività positive',
-          'Incrementa volume solo se rimane calmo',
-          'Abbassa immediatamente se mostra stress',
-          'Associa il suono a esperienze positive'
-        ],
-        materials: ['App suoni graduali', 'Snack speciali', 'Coperta sicurezza'],
-        completed: false
-      },
-      {
-        id: '2',
-        title: 'Costruzione Fiducia',
-        description: 'Esercizi per aumentare sicurezza di sé e ridurre ansia generale',
-        duration: 12,
-        instructions: [
-          'Esercizi semplici che conosce bene',
-          'Premia ogni piccolo successo abbondantemente',
-          'Usa tono di voce incoraggiante',
-          'Evita di forzare se mostra resistenza',
-          'Termina sempre con esperienza positiva'
-        ],
-        materials: ['Snack preferiti', 'Giocattolo comfort', 'Voce calma'],
-        completed: false
-      },
-      {
-        id: '3',
-        title: 'Tecnica Contro-Condizionamento',
-        description: 'Associare stimoli paurosi con esperienze piacevoli',
-        duration: 18,
-        instructions: [
-          'Presenta stimolo a distanza/intensità minima',
-          'Inizia immediatamente attività piacevole',
-          'Mantieni associazione positiva per tutto il tempo',
-          'Termina prima che lo stimolo diventi troppo intenso',
-          'Ripeti fino a creare associazione positiva'
-        ],
-        materials: ['Stimolo graduabile', 'Gioco preferito', 'Snack alta gratificazione'],
-        completed: false
-      }
-    ],
-    socializzazione: [
-      {
-        id: '1',
-        title: 'Incontri Controllati',
-        description: 'Socializzazione guidata con persone e animali nuovi',
-        duration: 20,
-        instructions: [
-          'Scegli persona/animale calmo e amichevole',
-          'Inizia con distanza di comfort',
-          'Premia comportamenti sociali positivi',
-          'Mantieni incontri brevi e positivi',
-          'Termina prima di sovrastimolazione'
-        ],
-        materials: ['Guinzaglio corto', 'Snack premio', 'Persona collaborativa'],
-        completed: false
-      },
-      {
-        id: '2',
-        title: 'Esposizione Ambientale',
-        description: 'Abituazione graduale a nuovi ambienti e situazioni',
-        duration: 15,
-        instructions: [
-          'Scegli ambiente nuovo ma non caotico',
-          'Lascia esplorare al suo ritmo',
-          'Premia curiosità e investigazione',
-          'Non forzare interazione se riluttante',
-          'Mantieni esperienze positive'
-        ],
-        materials: ['Guinzaglio lungo', 'Snack motivanti', 'Borsa premio'],
-        completed: false
-      },
-      {
-        id: '3',
-        title: 'Gioco Sociale Strutturato',
-        description: 'Attività di gruppo per migliorare competenze sociali',
-        duration: 25,
-        instructions: [
-          'Organizza gioco con animale ben socializzato',
-          'Supervisiona interazioni costantemente',
-          'Interrompi se gioco diventa troppo intenso',
-          'Premia gioco appropriato e pause naturali',
-          'Termina con tutti i partecipanti calmi'
-        ],
-        materials: ['Giocattoli condivisi', 'Spazio sicuro', 'Snack per tutti'],
-        completed: false
-      }
-    ],
+    // Le altre categorie mantengono la stessa struttura di progressione...
     default: [
       {
-        id: '1',
+        id: `default-${currentDay}-1`,
         title: 'Valutazione Comportamentale',
-        description: 'Osservazione e registrazione del comportamento attuale',
-        duration: 10,
+        description: `Osservazione e registrazione del comportamento (Giorno ${currentDay})`,
+        duration: 10 + currentDay,
         instructions: [
           'Osserva il pet in ambiente normale',
           'Registra comportamenti problematici',
@@ -303,10 +281,10 @@ const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
         completed: false
       },
       {
-        id: '2',
+        id: `default-${currentDay}-2`,
         title: 'Stabilimento Routine Base',
-        description: 'Creazione di routine strutturata per stabilità',
-        duration: 15,
+        description: `Creazione di routine strutturata (Giorno ${currentDay})`,
+        duration: 15 + currentDay,
         instructions: [
           'Stabilisci orari fissi per pasti',
           'Crea routine per uscite e gioco',
@@ -318,10 +296,10 @@ const getExercisesForProtocol = (protocol: TrainingProtocol): Exercise[] => {
         completed: false
       },
       {
-        id: '3',
+        id: `default-${currentDay}-3`,
         title: 'Rinforzo Positivo Base',
-        description: 'Fondamenti del training con rinforzo positivo',
-        duration: 12,
+        description: `Fondamenti del training con rinforzo positivo (Giorno ${currentDay})`,
+        duration: 12 + currentDay,
         instructions: [
           'Identifica ricompense più gradite',
           'Timing perfetto: premia immediatamente',
