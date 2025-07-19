@@ -839,15 +839,17 @@ const TrainingDashboard: React.FC = () => {
               
               <Button
                 onClick={handleCompleteExercise}
-                disabled={currentExercise !== dailyCompletedExercises || currentEx.completed}
+                disabled={currentExercise !== dailyCompletedExercises}
                 className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
               >
-                {currentEx.completed ? (
+                {currentExercise < dailyCompletedExercises ? (
+                  // CASO 1: Esercizio GIÀ completato
                   <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Esercizio Completato
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                    ✅ Esercizio {currentExercise + 1} già completato
                   </>
                 ) : currentExercise === dailyCompletedExercises ? (
+                  // CASO 2: PROSSIMO esercizio da completare
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     {currentExercise === 2 
@@ -855,9 +857,10 @@ const TrainingDashboard: React.FC = () => {
                       : `Esercizio ${currentExercise + 1} Completato`}
                   </>
                 ) : (
+                  // CASO 3: Esercizio FUTURO - deve completare prima quelli precedenti
                   <>
                     <CheckCircle className="h-4 w-4 mr-2 opacity-50" />
-                    {`Completa prima l'Esercizio ${dailyCompletedExercises + 1}`}
+                    Completa prima l'Esercizio {dailyCompletedExercises + 1}
                   </>
                 )}
               </Button>
