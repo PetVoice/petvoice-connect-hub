@@ -160,6 +160,9 @@ export const AITrainingHub: React.FC = () => {
     if (!protocols) return [];
     
     return protocols.filter(protocol => {
+      // Escludi protocolli interrotti (paused) dalla vista principale
+      if (protocol.status === 'paused') return false;
+      
       const matchesSearch = protocol.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || protocol.category === categoryFilter;
