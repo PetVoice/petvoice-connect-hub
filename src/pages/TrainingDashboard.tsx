@@ -889,9 +889,9 @@ const TrainingDashboard: React.FC = () => {
                          description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
                        });
                        
-                       // Reindirizza alla pagina dei protocolli
+                       // Reindirizza alla scheda "Completati" 
                        setTimeout(() => {
-                         navigate('/training');
+                         navigate('/training?tab=completed');
                        }, 2000);
                       
                     } else {

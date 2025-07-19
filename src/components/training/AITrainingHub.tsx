@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -72,6 +72,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   // Real data hooks
   const { data: protocols = [], isLoading: protocolsLoading } = useTrainingProtocols();
@@ -99,6 +100,14 @@ export const AITrainingHub: React.FC = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'analytics' | 'community' | 'completed'>('protocols');
+
+  // Check URL parameters to set initial tab
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'completed') {
+      setCurrentView('completed');
+    }
+  }, [searchParams]);
 
   // Wizard State
   const [wizardStep, setWizardStep] = useState(1);
