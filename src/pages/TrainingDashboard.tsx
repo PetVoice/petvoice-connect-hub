@@ -874,25 +874,26 @@ const TrainingDashboard: React.FC = () => {
                     const isLastDay = protocol.current_day >= protocol.duration_days;
                     
                      if (isLastDay) {
-                       // PROTOCOLLO TERMINATO - Marca come completato
-                       await updateProtocol.mutateAsync({
-                         id: protocol.id,
-                         updates: {
-                           status: 'completed',
-                           progress_percentage: 100,
-                           last_activity_at: new Date().toISOString(),
-                         }
-                       });
-                       
+                       // PROTOCOLLO TERMINATO - Mostra toast e reindirizza immediatamente
                        toast({
                          title: "🏆 PROTOCOLLO COMPLETATO!",
                          description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
                        });
                        
-                       // Reindirizza alla scheda "Completati" 
-                       setTimeout(() => {
-                         navigate('/training?tab=completed');
-                       }, 2000);
+                       // Reindirizza immediatamente alla scheda "Completati"
+                       navigate('/training?tab=completed');
+                       
+                       // Marca come completato DOPO il redirect per evitare l'errore
+                       setTimeout(async () => {
+                         await updateProtocol.mutateAsync({
+                           id: protocol.id,
+                           updates: {
+                             status: 'completed',
+                             progress_percentage: 100,
+                             last_activity_at: new Date().toISOString(),
+                           }
+                         });
+                       }, 100);
                       
                     } else {
                       // PASSA AL GIORNO SUCCESSIVO
