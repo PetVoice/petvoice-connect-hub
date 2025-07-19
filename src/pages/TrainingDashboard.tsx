@@ -823,18 +823,6 @@ const TrainingDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Materials */}
-              <div>
-                <h3 className="font-semibold mb-3">Materiali Necessari</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {currentEx.materials.map((material, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      {material}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {/* Completion Button */}
               <Separator />
@@ -873,7 +861,7 @@ const TrainingDashboard: React.FC = () => {
                   <Button 
                     variant="destructive"
                     size="sm" 
-                    className="w-full justify-start mt-3"
+                    className="w-full mt-3"
                   >
                     <Square className="h-4 w-4 mr-2" />
                     Interrompi Protocollo
