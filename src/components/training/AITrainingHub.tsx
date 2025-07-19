@@ -65,7 +65,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
@@ -703,18 +703,39 @@ export const AITrainingHub: React.FC = () => {
                                {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
                              </Button>
                              {protocol.user_id && protocol.status === 'active' && (
-                               <Button
-                                 variant="outline"
-                                 size="sm"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleStatusChange(protocol.id, 'paused');
-                                 }}
-                                 className="flex items-center gap-2 border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600"
-                               >
-                                 <Square className="h-4 w-4" />
-                                 Interrompi
-                               </Button>
+                               <AlertDialog>
+                                 <AlertDialogTrigger asChild>
+                                   <Button
+                                     variant="destructive"
+                                     size="sm"
+                                     className="flex items-center gap-2"
+                                   >
+                                     <Square className="h-4 w-4" />
+                                     Interrompi
+                                   </Button>
+                                 </AlertDialogTrigger>
+                                 <AlertDialogContent>
+                                   <AlertDialogHeader>
+                                     <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                                     <AlertDialogDescription>
+                                       Sei sicuro di voler interrompere il protocollo "{protocol.title}"? 
+                                       Il protocollo verrà messo in pausa e potrai riprenderlo in qualsiasi momento.
+                                     </AlertDialogDescription>
+                                   </AlertDialogHeader>
+                                   <AlertDialogFooter>
+                                     <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                     <AlertDialogAction 
+                                       onClick={(e) => {
+                                         e.stopPropagation();
+                                         handleStatusChange(protocol.id, 'paused');
+                                       }}
+                                       className="bg-red-600 hover:bg-red-700"
+                                     >
+                                       Sì, interrompi
+                                     </AlertDialogAction>
+                                   </AlertDialogFooter>
+                                 </AlertDialogContent>
+                               </AlertDialog>
                              )}
                           </div>
                          

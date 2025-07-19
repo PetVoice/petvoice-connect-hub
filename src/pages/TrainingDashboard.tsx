@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import {
   Calendar,
   Clock,
@@ -877,15 +878,36 @@ const TrainingDashboard: React.FC = () => {
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Vedi Progresso
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600"
-                  onClick={handleInterruptProtocol}
-                >
-                  <Square className="h-4 w-4 mr-2" />
-                  Interrompi Protocollo
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive"
+                      size="sm" 
+                      className="w-full justify-start"
+                    >
+                      <Square className="h-4 w-4 mr-2" />
+                      Interrompi Protocollo
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Sei sicuro di voler interrompere il protocollo "{protocol.title}"? 
+                        Potrai riprenderlo in qualsiasi momento dalla dashboard principale.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleInterruptProtocol}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Sì, interrompi
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
