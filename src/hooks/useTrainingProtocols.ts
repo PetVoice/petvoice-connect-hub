@@ -164,6 +164,9 @@ export const useTrainingProtocols = () => {
   return useQuery({
     queryKey: ['training-protocols'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select(`
@@ -172,6 +175,8 @@ export const useTrainingProtocols = () => {
           metrics:ai_training_metrics(*),
           schedule:ai_training_schedules(*)
         `)
+        .eq('user_id', user.id)
+        .neq('status', 'completed')
         .order('created_at', { ascending: false });
 
       if (error) {

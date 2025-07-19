@@ -157,17 +157,22 @@ export const AITrainingHub: React.FC = () => {
     return currentUserId && protocol.user_id === currentUserId && !protocol.ai_generated;
   };
 
-  // Filtered protocols
+  // Filtered protocols - excludes completed ones
   const filteredProtocols = useMemo(() => {
     if (!protocols) return [];
     
     return protocols.filter(protocol => {
-      // Escludi protocolli interrotti (paused) dalla vista principale
-      if (protocol.status === 'paused') return false;
-      
       const matchesSearch = protocol.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || protocol.category === categoryFilter;
+      
+      // Filter out 'completed' and 'paused' from status options
+      let validStatuses = ['all', 'available', 'active'];
+      if (!validStatuses.includes(statusFilter)) {
+        setStatusFilter('all');
+        return false;
+      }
+      
       const matchesStatus = statusFilter === 'all' || protocol.status === statusFilter;
       
       return matchesSearch && matchesCategory && matchesStatus;
@@ -627,8 +632,6 @@ export const AITrainingHub: React.FC = () => {
                 <SelectItem value="all">Tutti gli stati</SelectItem>
                 <SelectItem value="active">Attivo</SelectItem>
                 <SelectItem value="available">Disponibile</SelectItem>
-                <SelectItem value="completed">Completato</SelectItem>
-                <SelectItem value="paused">In pausa</SelectItem>
               </SelectContent>
             </Select>
           </div>
