@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
+import { useAITrainingSuggestions } from '@/hooks/useAITrainingSuggestions';
 import { 
   Microscope, 
   BookOpen, 
@@ -13,7 +14,8 @@ import {
   Target, 
   TrendingUp,
   Brain,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from 'lucide-react';
 
 interface IntegrationSuggestion {
@@ -36,63 +38,10 @@ interface IntegrationData {
   communityRecommendations: string[];
 }
 
-const mockIntegrationData: IntegrationData = {
-  emotionalTriggers: ['Ansia', 'Agitazione', 'Stress'],
-  behavioralPatterns: ['Iperattività mattutina', 'Difficoltà separazione', 'Vocalizzazioni eccessive'],
-  wellnessDecline: true,
-  similarPetSolutions: ['Protocollo Anti-Ansia Graduale', 'Gestione Separation Anxiety'],
-  communityRecommendations: ['Socializzazione Controllata', 'Rilassamento Guidato']
-};
-
-const mockSuggestions: IntegrationSuggestion[] = [
-  {
-    id: '1',
-    source: 'analysis',
-    title: 'Protocollo Anti-Ansia Personalizzato',
-    description: 'Basato sulle ultime 5 analisi emotive che mostrano picchi di ansia',
-    confidence: 94,
-    reason: 'Rilevata ansia ricorrente nelle sessioni di analisi emotiva',
-    suggestedProtocol: 'Desensibilizzazione graduale con rinforzo positivo',
-    estimatedDuration: 21,
-    potentialImprovement: 78
-  },
-  {
-    id: '2',
-    source: 'diary',
-    title: 'Controllo Comportamenti Compulsivi',
-    description: 'Pattern comportamentali ripetitivi identificati nel diario',
-    confidence: 87,
-    reason: 'Comportamenti compulsivi registrati 8 volte negli ultimi 14 giorni',
-    suggestedProtocol: 'Ridirezione comportamentale con stimolazione mentale',
-    estimatedDuration: 28,
-    potentialImprovement: 72
-  },
-  {
-    id: '3',
-    source: 'wellness',
-    title: 'Miglioramento Benessere Generale',
-    description: 'Calo del wellness score del 15% nell\'ultima settimana',
-    confidence: 82,
-    reason: 'Declino generale del benessere rilevato dai sensori',
-    suggestedProtocol: 'Programma olistico di riabilitazione comportamentale',
-    estimatedDuration: 35,
-    potentialImprovement: 85
-  },
-  {
-    id: '4',
-    source: 'matching',
-    title: 'Protocollo Community-Tested',
-    description: 'Successo del 89% su pet con profilo comportamentale simile',
-    confidence: 91,
-    reason: 'Pet gemelli hanno risolto problemi simili con questo approccio',
-    suggestedProtocol: 'Socializzazione strutturata con pet matching',
-    estimatedDuration: 24,
-    potentialImprovement: 89
-  }
-];
 
 export const TrainingIntegrations: React.FC = () => {
   const { toast } = useToast();
+  const { suggestions, integrationData, isLoading, refreshSuggestions } = useAITrainingSuggestions();
 
   const getSourceIcon = (source: string) => {
     switch (source) {
@@ -129,6 +78,8 @@ export const TrainingIntegrations: React.FC = () => {
       title: "Protocollo Integrato Creato!",
       description: `"${suggestion.title}" è stato aggiunto ai tuoi protocolli attivi con dati da ${getSourceLabel(suggestion.source)}.`,
     });
+    // Aggiorna i suggerimenti dopo aver accettato uno
+    refreshSuggestions();
   };
 
   const handleViewIntegrationData = (source: string) => {
@@ -188,13 +139,49 @@ export const TrainingIntegrations: React.FC = () => {
 
       {/* Integration Suggestions */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Target className="h-5 w-5 text-blue-500" />
-          Protocolli Suggeriti dall'Integrazione AI
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Target className="h-5 w-5 text-blue-500" />
+            Protocolli Suggeriti dall'Integrazione AI
+          </h3>
+          {isLoading && (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          )}
+        </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {mockSuggestions.map((suggestion) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="pb-3">
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-muted rounded"></div>
+                    <div className="h-3 bg-muted rounded w-4/5"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : suggestions.length === 0 ? (
+          <Card className="text-center py-8">
+            <CardContent>
+              <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nessun suggerimento disponibile</h3>
+              <p className="text-muted-foreground mb-4">
+                Aggiungi più dati attraverso analisi emotive e diario comportamentale per ricevere suggerimenti personalizzati.
+              </p>
+              <Button onClick={refreshSuggestions} variant="outline">
+                Aggiorna Suggerimenti
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {suggestions.map((suggestion) => (
             <Card key={suggestion.id} className="hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -257,8 +244,9 @@ export const TrainingIntegrations: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Integration Data Summary */}
@@ -274,44 +262,60 @@ export const TrainingIntegrations: React.FC = () => {
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Trigger Emotivi Rilevati</h4>
               <div className="flex flex-wrap gap-2">
-                {mockIntegrationData.emotionalTriggers.map((trigger, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs">
-                    {trigger}
-                  </Badge>
-                ))}
+                {integrationData.emotionalTriggers.length > 0 ? (
+                  integrationData.emotionalTriggers.map((trigger, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {trigger}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nessun trigger emotivo identificato</p>
+                )}
               </div>
             </div>
             
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Pattern Comportamentali</h4>
               <div className="flex flex-wrap gap-2">
-                {mockIntegrationData.behavioralPatterns.map((pattern, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs">
-                    {pattern}
-                  </Badge>
-                ))}
+                {integrationData.behavioralPatterns.length > 0 ? (
+                  integrationData.behavioralPatterns.map((pattern, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {pattern}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nessun pattern identificato</p>
+                )}
               </div>
             </div>
             
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Soluzioni Community</h4>
               <div className="flex flex-wrap gap-2">
-                {mockIntegrationData.similarPetSolutions.map((solution, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs bg-purple-50">
-                    {solution}
-                  </Badge>
-                ))}
+                {integrationData.similarPetSolutions.length > 0 ? (
+                  integrationData.similarPetSolutions.map((solution, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs bg-purple-50">
+                      {solution}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nessuna soluzione simile trovata</p>
+                )}
               </div>
             </div>
             
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Raccomandazioni Mentori</h4>
               <div className="flex flex-wrap gap-2">
-                {mockIntegrationData.communityRecommendations.map((rec, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs bg-green-50">
-                    {rec}
-                  </Badge>
-                ))}
+                {integrationData.communityRecommendations.length > 0 ? (
+                  integrationData.communityRecommendations.map((rec, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs bg-green-50">
+                      {rec}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nessuna raccomandazione disponibile</p>
+                )}
               </div>
             </div>
           </div>
