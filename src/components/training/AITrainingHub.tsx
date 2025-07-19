@@ -338,7 +338,7 @@ export const AITrainingHub: React.FC = () => {
           last_activity_at: new Date().toISOString(),
           user_id: user.id,
           pet_id: null,
-          integration_source: 'community' as const,
+          integration_source: null,
           estimated_cost: null,
           share_code: null,
         };
