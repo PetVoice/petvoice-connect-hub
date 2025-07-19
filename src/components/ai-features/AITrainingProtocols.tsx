@@ -311,8 +311,19 @@ export const AITrainingProtocols: React.FC = () => {
               <div className="grid gap-4">
                 {protocols.map((protocol) => {
                   return (
-                    <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
-                          onClick={() => setSelectedProtocol(protocol)}>
+                    <Card 
+                      key={protocol.id} 
+                      className="cursor-pointer hover:bg-accent/50 focus-within:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2" 
+                      onClick={() => setSelectedProtocol(protocol)}
+                      tabIndex={0}
+                      role="button"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedProtocol(protocol);
+                        }
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
