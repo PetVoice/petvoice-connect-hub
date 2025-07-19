@@ -9,6 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Calendar,
   Clock,
@@ -351,6 +352,8 @@ const TrainingDashboard: React.FC = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [protocolRating, setProtocolRating] = useState(5);
   const [protocolNotes, setProtocolNotes] = useState('');
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
   
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
   const [dailyCompletedExercises, setDailyCompletedExercises] = useState(0);
@@ -560,6 +563,64 @@ const TrainingDashboard: React.FC = () => {
         description: 'Non è stato possibile interrompere il protocollo.',
         variant: 'destructive',
       });
+    }
+  };
+
+  // Funzione per gestire la valutazione del protocollo
+  const handleSubmitRating = async () => {
+    setIsSubmittingRating(true);
+    try {
+      // Inserisci la valutazione nel database
+      const { error } = await supabase
+        .from('protocol_ratings')
+        .insert({
+          protocol_id: protocol.id,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          rating: protocolRating,
+          comment: protocolNotes.trim() || null
+        });
+
+      if (error) {
+        console.error('Errore inserimento valutazione:', error);
+        toast({
+          title: 'Errore',
+          description: 'Non è stato possibile salvare la valutazione. Riprova.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Completa il protocollo
+      await updateProtocol.mutateAsync({
+        id: protocol.id,
+        updates: {
+          status: 'completed',
+          progress_percentage: 100,
+          last_activity_at: new Date().toISOString(),
+        }
+      });
+
+      // Toast di successo
+      toast({
+        title: "🏆 PROTOCOLLO COMPLETATO!",
+        description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" e la tua valutazione è stata salvata!`,
+      });
+
+      // Chiudi dialog e reindirizza
+      setShowRatingDialog(false);
+      setTimeout(() => {
+        navigate('/training?tab=completed');
+      }, 1500);
+
+    } catch (error) {
+      console.error('Errore completamento protocollo:', error);
+      toast({
+        title: 'Errore',
+        description: 'Non è stato possibile completare il protocollo. Riprova.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmittingRating(false);
     }
   };
 
@@ -862,26 +923,8 @@ const TrainingDashboard: React.FC = () => {
                     const isLastDay = protocol.current_day >= protocol.duration_days;
                     
                      if (isLastDay) {
-                       // PROTOCOLLO TERMINATO - Mostra toast e reindirizza immediatamente
-                       toast({
-                         title: "🏆 PROTOCOLLO COMPLETATO!",
-                         description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
-                       });
-                       
-                       // Reindirizza immediatamente alla scheda "Completati"
-                       navigate('/training?tab=completed');
-                       
-                       // Marca come completato DOPO il redirect per evitare l'errore
-                       setTimeout(async () => {
-                         await updateProtocol.mutateAsync({
-                           id: protocol.id,
-                           updates: {
-                             status: 'completed',
-                             progress_percentage: 100,
-                             last_activity_at: new Date().toISOString(),
-                           }
-                         });
-                       }, 100);
+                       // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
+                       setShowRatingDialog(true);
                       
                     } else {
                       // PASSA AL GIORNO SUCCESSIVO
@@ -959,6 +1002,113 @@ const TrainingDashboard: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Dialog di Valutazione Protocollo */}
+      <Dialog open={showRatingDialog} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              🏆 Protocollo Completato!
+            </DialogTitle>
+            <DialogDescription>
+              Complimenti! Hai completato tutto il protocollo "{protocol.title}". 
+              La tua valutazione ci aiuterà a migliorare i nostri protocolli.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Sistema di valutazione con stelle */}
+            <div>
+              <label className="text-sm font-medium mb-3 block">
+                Quanto è stato efficace questo protocollo? (1-10)
+              </label>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+                  <button
+                    key={rating}
+                    onClick={() => setProtocolRating(rating)}
+                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${
+                      rating <= protocolRating
+                        ? 'bg-yellow-500 border-yellow-500 text-white'
+                        : 'border-gray-300 text-gray-400 hover:border-yellow-400'
+                    }`}
+                  >
+                    {rating}
+                  </button>
+                ))}
+              </div>
+              <div className="text-center">
+                <span className="text-2xl font-bold text-yellow-500">{protocolRating}/10</span>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {protocolRating <= 3 && "Non ha funzionato"}
+                  {protocolRating > 3 && protocolRating <= 5 && "Parzialmente efficace"}
+                  {protocolRating > 5 && protocolRating <= 7 && "Abbastanza efficace"}
+                  {protocolRating > 7 && protocolRating <= 9 && "Molto efficace"}
+                  {protocolRating === 10 && "Perfettamente efficace!"}
+                </p>
+              </div>
+            </div>
+            
+            {/* Campo per commenti opzionali */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Commenti aggiuntivi (opzionale)
+              </label>
+              <Textarea
+                placeholder="Racconta la tua esperienza: cosa ha funzionato meglio? Cosa potresti migliorare?"
+                value={protocolNotes}
+                onChange={(e) => setProtocolNotes(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRatingDialog(false);
+                // Completa il protocollo senza valutazione
+                updateProtocol.mutate({
+                  id: protocol.id,
+                  updates: {
+                    status: 'completed',
+                    progress_percentage: 100,
+                    last_activity_at: new Date().toISOString(),
+                  }
+                });
+                toast({
+                  title: "🏆 Protocollo completato",
+                  description: `Il protocollo "${protocol.title}" è stato completato senza valutazione.`,
+                });
+                setTimeout(() => navigate('/training?tab=completed'), 1500);
+              }}
+              disabled={isSubmittingRating}
+            >
+              Salta valutazione
+            </Button>
+            <Button
+              onClick={handleSubmitRating}
+              disabled={isSubmittingRating}
+              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+            >
+              {isSubmittingRating ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Invio...
+                </>
+              ) : (
+                <>
+                  <Star className="h-4 w-4 mr-2" />
+                  Invia valutazione
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
     </div>
   );
 };
