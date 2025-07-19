@@ -19,11 +19,11 @@ const TrainingPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg">
+        <div className="p-3 rounded-lg bg-gradient-to-r from-primary to-primary/80 shadow-lg">
           <Brain className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             AI Training Protocols
           </h1>
           <p className="text-muted-foreground mt-1">

@@ -573,7 +573,7 @@ const TrainingDashboard: React.FC = () => {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{protocol.title}</h1>
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
               <Calendar className="h-3 w-3 mr-1" />
               Giorno {protocol.current_day} di {protocol.duration_days}
             </Badge>
@@ -623,7 +623,7 @@ const TrainingDashboard: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-purple-500" />
+              <CheckCircle className="h-5 w-5 text-primary" />
               <div>
                 <div className="text-lg font-bold">{completedExercises}/{totalExercises}</div>
                 <p className="text-xs text-muted-foreground">Esercizi oggi</p>
@@ -711,7 +711,7 @@ const TrainingDashboard: React.FC = () => {
                 <div className="space-y-3">
                   {currentEx.instructions.map((instruction, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
                         {index + 1}
                       </div>
                       <p className="text-sm">{instruction}</p>
@@ -807,7 +807,7 @@ const TrainingDashboard: React.FC = () => {
                     key={exercise.id}
                     className={`p-3 rounded-lg border cursor-pointer transition-all ${
                       index === currentExercise
-                        ? 'bg-purple-50 border-purple-200'
+                        ? 'bg-primary/10 border-primary/20'
                         : exercise.completed
                         ? 'bg-green-50 border-green-200'
                         : 'hover:bg-muted/50'
@@ -819,7 +819,7 @@ const TrainingDashboard: React.FC = () => {
                         {exercise.completed ? (
                           <CheckCircle className="h-5 w-5 text-green-500" />
                         ) : index === currentExercise ? (
-                          <Play className="h-5 w-5 text-purple-500" />
+                          <Play className="h-5 w-5 text-primary" />
                         ) : (
                           <Clock className="h-5 w-5 text-muted-foreground" />
                         )}
@@ -831,7 +831,7 @@ const TrainingDashboard: React.FC = () => {
                         </div>
                       </div>
                       {index === currentExercise && (
-                        <ChevronRight className="h-4 w-4 text-purple-500" />
+                        <ChevronRight className="h-4 w-4 text-primary" />
                       )}
                     </div>
                   </div>

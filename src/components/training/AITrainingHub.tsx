@@ -202,7 +202,7 @@ export const AITrainingHub: React.FC = () => {
       case 'completed': return 'bg-green-500/20 text-green-700 border-green-500/20';
       case 'paused': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20';
       case 'available': return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
-      case 'suggested': return 'bg-purple-500/20 text-purple-700 border-purple-500/20';
+      case 'suggested': return 'bg-primary/20 text-primary border-primary/20';
       default: return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
     }
   };
@@ -527,15 +527,15 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+        <Card className="border-primary/20 hover:border-primary/40 transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Target className="h-4 w-4 text-purple-500" />
+              <Target className="h-4 w-4 text-primary" />
               Protocolli Attivi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-500">{stats.activeProtocols}</div>
+            <div className="text-2xl font-bold text-primary">{stats.activeProtocols}</div>
             <p className="text-xs text-muted-foreground">in corso</p>
           </CardContent>
         </Card>
@@ -653,7 +653,7 @@ export const AITrainingHub: React.FC = () => {
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{protocol.title}</h3>
                           {protocol.ai_generated && (
-                            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                             <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
                               <Sparkles className="h-3 w-3 mr-1" />
                               AI
                             </Badge>
@@ -697,7 +697,7 @@ export const AITrainingHub: React.FC = () => {
                              <Button
                                size="sm"
                                onClick={() => handleStartProtocol(protocol)}
-                               className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                               className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                              >
                                <Play className="h-4 w-4 mr-2" />
                                {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Avvia') : 'Usa Protocollo'}
@@ -777,7 +777,7 @@ export const AITrainingHub: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{suggestion.title}</h3>
-                          <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
                             <Sparkles className="h-3 w-3 mr-1" />
                             AI
                           </Badge>
@@ -855,7 +855,7 @@ export const AITrainingHub: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Protocolli attivi</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-500">{stats.completedProtocols}</div>
+                    <div className="text-2xl font-bold text-green-500">{stats.completedProtocols}</div>
                     <p className="text-sm text-muted-foreground">Protocolli completati</p>
                   </div>
                 </div>
@@ -1005,7 +1005,7 @@ export const AITrainingHub: React.FC = () => {
                     setSelectedProtocol(null);
                   }}
                   disabled={selectedProtocol.status === 'active'}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                 >
                   <Play className="h-4 w-4 mr-2" />
                   {selectedProtocol.status === 'active' ? 'Già Attivo' : 'Avvia Protocollo'}
