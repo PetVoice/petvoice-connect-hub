@@ -381,23 +381,8 @@ const TrainingDashboard: React.FC = () => {
     }
   }, [protocol, hasInitialized]);
 
-  // Ottieni esercizi reali dal database per questo protocollo
-  const todayExercises: Exercise[] = protocol?.exercises?.map((dbExercise, index) => {
-    const dynamicExercises = getExercisesForProtocol(protocol);
-    const dynamicEx = dynamicExercises[index % dynamicExercises.length];
-    
-    return {
-      id: dbExercise.id,
-      title: dynamicEx?.title || dbExercise.title,
-      description: dynamicEx?.description || dbExercise.description || '',
-      duration: dynamicEx?.duration || dbExercise.duration_minutes,
-      instructions: dynamicEx?.instructions || [],
-      materials: dynamicEx?.materials || [],
-      completed: dbExercise.completed,
-      rating: dbExercise.effectiveness_score,
-      notes: dbExercise.feedback
-    };
-  }) || [];
+  // Ottieni esercizi dinamici basati sul protocollo
+  const todayExercises: Exercise[] = protocol ? getExercisesForProtocol(protocol) : [];
 
   // Timer effect
   useEffect(() => {
@@ -502,28 +487,23 @@ const TrainingDashboard: React.FC = () => {
       const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
       const totalExercisesToday = todayExercises.length;
       
-      // Ottieni il numero aggiornato di esercizi completati dal database
-      const { data: updatedExercises, error: exercisesError } = await supabase
-        .from('ai_training_exercises')
-        .select('id, completed')
-        .eq('protocol_id', protocol.id);
-
-      if (exercisesError) {
-        console.error('Error fetching updated exercises:', exercisesError);
-      }
-
-      // Calcola il progresso totale del protocollo con i dati aggiornati
-      const totalExercises = updatedExercises?.length || 0;
-      const completedExercises = updatedExercises?.filter(ex => ex.completed).length || 0;
+      // Calcola il progresso totale del protocollo
+      const allExercises = protocol.exercises || [];
+      const totalExercises = allExercises.length;
+      
+      // Conta tutti gli esercizi completati nel protocollo (includendo quello appena completato)
+      const allCompletedExercises = allExercises.filter(ex => ex.completed).length;
+      const newTotalCompletedExercises = allCompletedExercises + 1; // +1 per l'esercizio appena completato
       const newProgressPercentage = totalExercises > 0 
-        ? Math.round((completedExercises / totalExercises) * 100)
+        ? Math.round((newTotalCompletedExercises / totalExercises) * 100)
         : 0;
       
       console.log('Progress calculation:', {
         currentExercise,
         completedCount,
+        allCompletedExercises: allExercises.filter(ex => ex.completed).length,
+        newTotalCompletedExercises,
         totalExercises,
-        completedExercises,
         newProgressPercentage
       });
 
