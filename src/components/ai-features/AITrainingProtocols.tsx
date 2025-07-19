@@ -309,139 +309,144 @@ export const AITrainingProtocols: React.FC = () => {
 
             <TabsContent value="protocols" className="mt-4">
               <div className="grid gap-4">
-                {protocols.map((protocol) => (
-                  <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
-                        onClick={() => setSelectedProtocol(protocol)}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold">{protocol.title}</h3>
-                            <Badge className={getDifficultyColor(protocol.difficulty)}>
-                              {protocol.difficulty}
-                            </Badge>
-                            <Badge className={getStatusColor(protocol.status)}>
-                              {protocol.status}
-                            </Badge>
-                            {protocol.ai_generated && (
-                              <Badge variant="outline">AI</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {protocol.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              Giorno {protocol.current_day}/{protocol.duration_days}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <TrendingUp className="h-4 w-4" />
-                              {protocol.success_rate}% successo
-                            </span>
-                          </div>
-                          <div className="mt-3">
-                            <div className="flex items-center justify-between text-sm mb-1">
-                              <span>Progresso</span>
-                              <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
+                {protocols.map((protocol) => {
+                  console.log('RENDERING PROTOCOL:', protocol.title, 'ID:', protocol.id);
+                  const isTestProtocol = protocol.title === 'Test' || protocol.title === 'Test2';
+                  console.log('IS TEST PROTOCOL:', isTestProtocol, 'for', protocol.title);
+                  return (
+                    <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
+                          onClick={() => setSelectedProtocol(protocol)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold">{protocol.title}</h3>
+                              <Badge className={getDifficultyColor(protocol.difficulty)}>
+                                {protocol.difficulty}
+                              </Badge>
+                              <Badge className={getStatusColor(protocol.status)}>
+                                {protocol.status}
+                              </Badge>
+                              {protocol.ai_generated && (
+                                <Badge variant="outline">AI</Badge>
+                              )}
                             </div>
-                            <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {protocol.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                Giorno {protocol.current_day}/{protocol.duration_days}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <TrendingUp className="h-4 w-4" />
+                                {protocol.success_rate}% successo
+                              </span>
+                            </div>
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between text-sm mb-1">
+                                <span>Progresso</span>
+                                <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
+                              </div>
+                              <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            {/* PULSANTI SEMPRE VISIBILI PER TEST */}
+                            {(protocol.title === 'Test' || protocol.title === 'Test2') && (
+                              <>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('EDIT CLICKED for:', protocol.title);
+                                    handleEditProtocol(protocol);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800 border-blue-600"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  MODIFICA
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log('DELETE CLICKED for:', protocol.title);
+                                    if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+                                      handleDeleteProtocol(protocol.id);
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-800 border-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  ELIMINA
+                                </Button>
+                              </>
+                            )}
+                            
+                            {protocol.status === 'active' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(protocol.id, 'paused');
+                                }}
+                              >
+                                <PauseCircle className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {protocol.status === 'paused' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(protocol.id, 'active');
+                                }}
+                              >
+                                <PlayCircle className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {protocol.status === 'available' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(protocol.id, 'active');
+                                }}
+                              >
+                                <PlayCircle className="h-4 w-4" />
+                              </Button>
+                            )}
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleStatusChange(protocol.id, 'active')}>
+                                  <RotateCcw className="h-4 w-4 mr-2" />
+                                  Riavvia
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          {/* PULSANTI SEMPRE VISIBILI PER TEST */}
-                          {(protocol.title === 'Test' || protocol.title === 'Test2') && (
-                            <>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  console.log('EDIT CLICKED for:', protocol.title);
-                                  handleEditProtocol(protocol);
-                                }}
-                                className="text-blue-600 hover:text-blue-800 border-blue-600"
-                              >
-                                <Edit className="h-4 w-4 mr-1" />
-                                MODIFICA
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  console.log('DELETE CLICKED for:', protocol.title);
-                                  if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                    handleDeleteProtocol(protocol.id);
-                                  }
-                                }}
-                                className="text-red-600 hover:text-red-800 border-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                ELIMINA
-                              </Button>
-                            </>
-                          )}
-                          
-                          {protocol.status === 'active' && (
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(protocol.id, 'paused');
-                              }}
-                            >
-                              <PauseCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {protocol.status === 'paused' && (
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(protocol.id, 'active');
-                              }}
-                            >
-                              <PlayCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {protocol.status === 'available' && (
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleStatusChange(protocol.id, 'active');
-                              }}
-                            >
-                              <PlayCircle className="h-4 w-4" />
-                            </Button>
-                          )}
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleStatusChange(protocol.id, 'active')}>
-                                <RotateCcw className="h-4 w-4 mr-2" />
-                                Riavvia
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </TabsContent>
 
