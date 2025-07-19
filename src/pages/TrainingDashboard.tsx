@@ -937,18 +937,6 @@ const TrainingDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Camera className="h-4 w-4 mr-2" />
-                  Aggiungi Foto
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Mic className="h-4 w-4 mr-2" />
-                  Nota Vocale
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Vedi Progresso
-                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button 
