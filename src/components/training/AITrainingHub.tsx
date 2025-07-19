@@ -169,18 +169,9 @@ export const AITrainingHub: React.FC = () => {
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || protocol.category === categoryFilter;
       
-      // Filter out 'completed', 'paused', and 'active' from status options
-      let validStatuses = ['all', 'available'];
-      if (!validStatuses.includes(statusFilter)) {
-        setStatusFilter('all');
-        return false;
-      }
-      
-      const matchesStatus = statusFilter === 'all' || protocol.status === statusFilter;
-      
-      return matchesSearch && matchesCategory && matchesStatus;
+      return matchesSearch && matchesCategory;
     });
-  }, [protocols, searchTerm, categoryFilter, statusFilter]);
+  }, [protocols, searchTerm, categoryFilter]);
 
   // Active protocols for the "Attivi" tab
   const activeProtocols = useMemo(() => {
@@ -632,15 +623,6 @@ export const AITrainingHub: React.FC = () => {
                 <SelectItem value="educazione">Educazione</SelectItem>
                 <SelectItem value="sociale">Sociale</SelectItem>
                 <SelectItem value="fisico">Fisico</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tutti gli stati</SelectItem>
-                <SelectItem value="available">Disponibile</SelectItem>
               </SelectContent>
             </Select>
           </div>
