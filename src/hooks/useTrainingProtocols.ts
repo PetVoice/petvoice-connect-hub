@@ -175,7 +175,7 @@ export const useTrainingProtocols = () => {
           metrics:ai_training_metrics(*),
           schedule:ai_training_schedules(*)
         `)
-        .eq('user_id', user.id)
+        .or(`user_id.eq.${user.id},is_public.eq.true`)
         .neq('status', 'completed')
         .order('created_at', { ascending: false });
 
