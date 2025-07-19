@@ -518,16 +518,31 @@ const TrainingDashboard: React.FC = () => {
         }
       } else {
         // Aggiorna solo il progresso senza cambiare giorno
+        const isProtocolCompleted = newProgressPercentage >= 100;
+        
         await updateProtocol.mutateAsync({
           id: protocol.id,
           updates: {
             progress_percentage: Math.min(newProgressPercentage, 100),
+            status: isProtocolCompleted ? 'completed' : protocol.status,
             last_activity_at: new Date().toISOString(),
           }
         });
 
-        // Passa al prossimo esercizio
-        setCurrentExercise(prev => prev + 1);
+        // Se il protocollo è completato, mostra toast e torna alla dashboard
+        if (isProtocolCompleted) {
+          toast({
+            title: 'Protocollo completato!',
+            description: `Congratulazioni! Hai completato tutto il protocollo "${protocol.title}"!`,
+          });
+          
+          setTimeout(() => {
+            navigate('/training');
+          }, 2000);
+        } else {
+          // Passa al prossimo esercizio
+          setCurrentExercise(prev => prev + 1);
+        }
       }
 
       // Reset form
