@@ -855,38 +855,6 @@ const TrainingDashboard: React.FC = () => {
                 )}
               </Button>
               
-              {/* Pulsante Interrompi Protocollo */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="destructive"
-                    size="sm" 
-                    className="w-full mt-3"
-                  >
-                    <Square className="h-4 w-4 mr-2" />
-                    Interrompi Protocollo
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                    <AlertDialogDescription>
-                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
-                       Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annulla</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={handleInterruptProtocol}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      Sì, interrompi
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              
               {/* Pulsante per andare al giorno successivo o completare il protocollo */}
               {dailyCompletedExercises === 3 && (
                 <Button
@@ -951,8 +919,41 @@ const TrainingDashboard: React.FC = () => {
                       🎯 Vai al Giorno {protocol.current_day + 1}
                     </>
                   )}
-                </Button>
+                 </Button>
               )}
+
+              {/* Pulsante Interrompi Protocollo */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive"
+                    size="sm" 
+                    className="w-full mt-3"
+                  >
+                    <Square className="h-4 w-4 mr-2" />
+                    Interrompi Protocollo
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                    <AlertDialogDescription>
+                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
+                       Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleInterruptProtocol}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Sì, interrompi
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
             </CardContent>
           </Card>
         </div>
