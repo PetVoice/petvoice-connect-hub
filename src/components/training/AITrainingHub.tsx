@@ -157,13 +157,13 @@ export const AITrainingHub: React.FC = () => {
     return currentUserId && protocol.user_id === currentUserId && !protocol.ai_generated;
   };
 
-  // Filtered protocols - excludes completed and active ones
+  // Filtered protocols - only available and paused protocols
   const filteredProtocols = useMemo(() => {
     if (!protocols) return [];
     
     return protocols.filter(protocol => {
-      // Exclude active protocols from main "Protocolli" tab
-      if (protocol.status === 'active') return false;
+      // Exclude active and completed protocols from main "Protocolli" tab
+      if (protocol.status === 'active' || protocol.status === 'completed') return false;
       
       const matchesSearch = protocol.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
