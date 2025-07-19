@@ -904,25 +904,52 @@ const TrainingDashboard: React.FC = () => {
                 )}
               </Button>
               
-              {/* Pulsante per andare al giorno successivo */}
+              {/* Pulsante per andare al giorno successivo o completare il protocollo */}
               {dailyCompletedExercises === 3 && (
                 <Button
                   onClick={() => {
-                    // Reset per il nuovo giorno
-                    setDailyCompletedExercises(0);
-                    setCurrentExercise(0);
+                    const isLastDay = protocol.current_day >= protocol.duration_days;
                     
-                    // Qui potresti aggiungere logica per aggiornare il protocollo al giorno successivo
-                    // Per ora mostra solo un messaggio
-                    toast({
-                      title: "🎉 Giorno completato!",
-                      description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Continua così!`,
-                    });
+                    if (isLastDay) {
+                      // PROTOCOLLO TERMINATO
+                      toast({
+                        title: "🏆 PROTOCOLLO COMPLETATO!",
+                        description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
+                      });
+                      
+                      // Qui potresti reindirizzare alla pagina dei protocolli o mostrare statistiche finali
+                      navigate('/training');
+                      
+                    } else {
+                      // PASSA AL GIORNO SUCCESSIVO
+                      
+                      // 1. Reset statistiche del giorno
+                      setDailyCompletedExercises(0);
+                      setCurrentExercise(0);
+                      
+                      // 2. Toast di congratulazioni per il giorno completato
+                      toast({
+                        title: "🎉 Giorno completato!",
+                        description: `Complimenti! Hai completato tutti gli esercizi del giorno ${protocol.current_day}. Continua così!`,
+                      });
+                      
+                      // 3. Qui dovresti aggiornare il database per avanzare al giorno successivo
+                      // Questo probabilmente richiederà una chiamata API per aggiornare current_day nel protocollo
+                    }
                   }}
                   className="w-full mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
                 >
-                  <Trophy className="h-4 w-4 mr-2" />
-                  🎯 Vai al Giorno {protocol.current_day + 1}
+                  {protocol.current_day >= protocol.duration_days ? (
+                    <>
+                      <Trophy className="h-4 w-4 mr-2" />
+                      🏆 Protocollo Completato
+                    </>
+                  ) : (
+                    <>
+                      <Trophy className="h-4 w-4 mr-2" />
+                      🎯 Vai al Giorno {protocol.current_day + 1}
+                    </>
+                  )}
                 </Button>
               )}
             </CardContent>
