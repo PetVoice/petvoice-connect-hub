@@ -757,13 +757,13 @@ export const AITrainingHub: React.FC = () => {
                              )}
                           </div>
                          
-                         <div className="w-32">
-                           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                             <span>Progresso</span>
-                             <span>{protocol.progress_percentage}%</span>
-                           </div>
-                           <Progress value={protocol.progress_percentage} className="h-2" />
-                         </div>
+                          <div className="w-32">
+                            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                              <span>Progresso</span>
+                              <span>{protocol.status === 'active' ? protocol.progress_percentage : 0}%</span>
+                            </div>
+                            <Progress value={protocol.status === 'active' ? protocol.progress_percentage : 0} className="h-2" />
+                          </div>
                        </div>
                      </div>
                    </CardContent>
