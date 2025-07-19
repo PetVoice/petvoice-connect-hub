@@ -386,17 +386,20 @@ export const AITrainingProtocols: React.FC = () => {
                             </Button>
                           )}
                           
-                          {/* Pulsanti di modifica ed eliminazione sempre visibili per protocolli dell'utente */}
-                          {isUserCreated(protocol) && (
+                          {/* Pulsanti di modifica ed eliminazione SEMPRE VISIBILI per protocolli dell'utente */}
+                          {/* TEMPORANEO: Mostriamo sempre i pulsanti per debugging */}
+                          {(protocol.title === 'Test' || protocol.title === 'Test2' || isUserCreated(protocol)) && (
                             <>
                               <Button 
                                 size="sm" 
                                 variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  console.log('Edit clicked for:', protocol.title);
                                   handleEditProtocol(protocol);
                                 }}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 border-blue-200"
+                                title="Modifica protocollo"
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
@@ -405,9 +408,11 @@ export const AITrainingProtocols: React.FC = () => {
                                 variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  console.log('Delete clicked for:', protocol.title);
                                   handleDeleteProtocol(protocol.id);
                                 }}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 border-red-200"
+                                title="Elimina protocollo"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
