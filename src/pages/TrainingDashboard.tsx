@@ -957,19 +957,9 @@ const TrainingDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar vuota per ora */}
         <div className="space-y-4">
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Azioni Rapide</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {/* Altri pulsanti rapidi se necessario in futuro */}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Spazio per future aggiunte alla sidebar */}
         </div>
       </div>
     </div>
