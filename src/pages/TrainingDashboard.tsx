@@ -498,15 +498,11 @@ const TrainingDashboard: React.FC = () => {
       // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
       setDailyCompletedExercises(prev => prev + 1);
 
-      // Determina se il protocollo è completato
-      const isProtocolCompleted = newProgressPercentage >= 100;
-
-      // Aggiorna il progresso del protocollo nel database
+      // Aggiorna il progresso del protocollo nel database (NON completarlo automaticamente)
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
           progress_percentage: Math.min(newProgressPercentage, 100),
-          status: isProtocolCompleted ? 'completed' : protocol.status,
           last_activity_at: new Date().toISOString(),
         }
       });
@@ -877,15 +873,26 @@ const TrainingDashboard: React.FC = () => {
                   onClick={async () => {
                     const isLastDay = protocol.current_day >= protocol.duration_days;
                     
-                    if (isLastDay) {
-                      // PROTOCOLLO TERMINATO
-                      toast({
-                        title: "🏆 PROTOCOLLO COMPLETATO!",
-                        description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
-                      });
-                      
-                      // Qui potresti reindirizzare alla pagina dei protocolli o mostrare statistiche finali
-                      navigate('/training');
+                     if (isLastDay) {
+                       // PROTOCOLLO TERMINATO - Marca come completato
+                       await updateProtocol.mutateAsync({
+                         id: protocol.id,
+                         updates: {
+                           status: 'completed',
+                           progress_percentage: 100,
+                           last_activity_at: new Date().toISOString(),
+                         }
+                       });
+                       
+                       toast({
+                         title: "🏆 PROTOCOLLO COMPLETATO!",
+                         description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" in ${protocol.duration_days} giorni!`,
+                       });
+                       
+                       // Reindirizza alla pagina dei protocolli
+                       setTimeout(() => {
+                         navigate('/training');
+                       }, 2000);
                       
                     } else {
                       // PASSA AL GIORNO SUCCESSIVO
