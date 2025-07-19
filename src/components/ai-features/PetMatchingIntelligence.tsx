@@ -320,7 +320,7 @@ export const PetMatchingIntelligence: React.FC = () => {
   // Training protocol creation
   const createProtocol = useCreateProtocol();
   
-  // State Management - TUTTI GLI HOOKS DEVONO ESSERE PRIMA DELL'EARLY RETURN
+  // State Management - ALL HOOKS MUST BE BEFORE ANY CONDITIONAL RETURNS
   const [selectedPetTwin, setSelectedPetTwin] = useState<any>(null);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
   const [selectedPattern, setSelectedPattern] = useState<any>(null);
@@ -335,31 +335,14 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [patterns, setPatterns] = useState<any[]>([]);
   
-  // Update patterns when successPatterns changes - DEVE ESSERE PRIMA DELL'EARLY RETURN
+  // Update patterns when successPatterns changes - MUST BE BEFORE ANY CONDITIONAL RETURNS
   React.useEffect(() => {
     if (successPatterns.length > 0) {
       setPatterns(successPatterns);
     }
   }, [successPatterns]);
   
-  // Show loading if any data is still loading
-  if (petsLoading || mentorsLoading || patternsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // Mock current pet data (would come from app state)
-  const currentPet = {
-    name: 'Max',
-    species: 'Cane',
-    breed: 'Golden Retriever',
-    behavioralDNA: ['Ansioso', 'Giocoso', 'Socievole', 'Energico']
-  };
-
-  // Filter and sort logic
+  // Filter and sort logic - ALL useMemo HOOKS MUST BE BEFORE CONDITIONAL RETURNS
   const filteredPetTwins = useMemo(() => {
     if (!petTwins || petTwins.length === 0) return [];
     
@@ -386,6 +369,24 @@ export const PetMatchingIntelligence: React.FC = () => {
       return matchesSearch && matchesOnline;
     });
   }, [mentors, searchTerm, onlineFilter]);
+  
+  // Show loading AFTER all hooks are declared
+  if (petsLoading || mentorsLoading || patternsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // Mock current pet data (would come from app state)
+  const currentPet = {
+    name: 'Max',
+    species: 'Cane',
+    breed: 'Golden Retriever',
+    behavioralDNA: ['Ansioso', 'Giocoso', 'Socievole', 'Energico']
+  };
+
 
   // Utility functions
   const getDifficultyColor = (difficulty: string): string => {
