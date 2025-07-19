@@ -303,23 +303,83 @@ export const AITrainingHub: React.FC = () => {
     }
 
     try {
-      await updateProtocol.mutateAsync({
-        id: protocol.id,
-        updates: {
-          status: 'active',
-          last_activity_at: new Date().toISOString(),
+      // Se è un protocollo pubblico (senza user_id), crea una copia per l'utente
+      if (!protocol.user_id) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: 'Accesso richiesto',
+            description: 'Devi essere autenticato per usare un protocollo',
+            variant: 'destructive',
+          });
+          return;
         }
-      });
-      
-      toast({
-        title: 'Protocollo avviato',
-        description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
-      });
-      
-      // Reindirizza alla dashboard del protocollo
-      setTimeout(() => {
-        window.location.href = `/training/dashboard/${protocol.id}`;
-      }, 1500);
+
+        const newProtocol = {
+          title: protocol.title,
+          description: protocol.description,
+          category: protocol.category,
+          difficulty: protocol.difficulty,
+          duration_days: protocol.duration_days,
+          target_behavior: protocol.target_behavior,
+          triggers: protocol.triggers,
+          required_materials: protocol.required_materials,
+          current_day: 1,
+          progress_percentage: 0,
+          status: 'active' as const,
+          success_rate: 0,
+          ai_generated: false,
+          is_public: false,
+          veterinary_approved: false,
+          community_rating: 0,
+          community_usage: 0,
+          mentor_recommended: false,
+          notifications_enabled: true,
+          last_activity_at: new Date().toISOString(),
+          user_id: user.id,
+          pet_id: null,
+          integration_source: 'community' as const,
+          estimated_cost: null,
+          share_code: null,
+        };
+
+        const { data: createdProtocol, error } = await supabase
+          .from('ai_training_protocols')
+          .insert(newProtocol)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        toast({
+          title: 'Protocollo copiato e avviato',
+          description: `Il protocollo "${protocol.title}" è stato aggiunto ai tuoi protocolli attivi`,
+        });
+        
+        // Reindirizza alla dashboard del nuovo protocollo
+        setTimeout(() => {
+          window.location.href = `/training/dashboard/${createdProtocol.id}`;
+        }, 1500);
+      } else {
+        // Se è già un protocollo dell'utente, attivalo
+        await updateProtocol.mutateAsync({
+          id: protocol.id,
+          updates: {
+            status: 'active',
+            last_activity_at: new Date().toISOString(),
+          }
+        });
+        
+        toast({
+          title: 'Protocollo avviato',
+          description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+        });
+        
+        // Reindirizza alla dashboard del protocollo
+        setTimeout(() => {
+          window.location.href = `/training/dashboard/${protocol.id}`;
+        }, 1500);
+      }
     } catch (error) {
       console.error('Error starting protocol:', error);
       toast({
@@ -436,13 +496,6 @@ export const AITrainingHub: React.FC = () => {
             <span className="text-sm">Offline</span>
           </div>
         )}
-        <Button 
-          onClick={() => setShowWizard(true)}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Crea Protocollo
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -559,13 +612,9 @@ export const AITrainingHub: React.FC = () => {
                       Crea il tuo primo protocollo di training personalizzato
                     </p>
                   </div>
-                  <Button 
-                    onClick={() => setShowWizard(true)}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Crea Protocollo
-                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    Usa i protocolli disponibili della community
+                  </p>
                 </div>
               </Card>
             ) : (
