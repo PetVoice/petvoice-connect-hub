@@ -361,33 +361,37 @@ export const AITrainingProtocols: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            {/* PULSANTI EDIT/DELETE SEMPRE VISIBILI PER TUTTI I PROTOCOLLI */}
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditProtocol(protocol);
-                              }}
-                              className="text-blue-600 hover:text-blue-800 border-blue-600"
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              Modifica
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                  handleDeleteProtocol(protocol.id);
-                                }
-                              }}
-                              className="text-red-600 hover:text-red-800 border-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Elimina
-                            </Button>
+                            {/* Pulsanti sempre visibili per protocolli dell'utente */}
+                            {currentUserId && protocol.user_id === currentUserId && (
+                              <>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditProtocol(protocol);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800 border-blue-600"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Modifica
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+                                      handleDeleteProtocol(protocol.id);
+                                    }
+                                  }}
+                                  className="text-red-600 hover:text-red-800 border-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Elimina
+                                </Button>
+                              </>
+                            )}
                             
                             
                             {protocol.status === 'active' && (
