@@ -120,9 +120,14 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     const playlistParam = searchParams.get('playlist');
     const autoStart = searchParams.get('autoStart') === 'true';
     
+    console.log('DEBUG - URL params:', { playlistParam, autoStart });
+    console.log('DEBUG - Full searchParams:', searchParams.toString());
+    
     if (playlistParam) {
+      console.log('DEBUG - Found playlist param, attempting to parse...');
       try {
         const playlistData = JSON.parse(decodeURIComponent(playlistParam));
+        console.log('DEBUG - Parsed playlist data:', playlistData);
         
         // Crea una sessione temporanea dalla playlist raccomandata
         const recommendedSession: TherapySession = {
