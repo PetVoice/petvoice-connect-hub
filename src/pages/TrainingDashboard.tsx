@@ -949,7 +949,7 @@ const TrainingDashboard: React.FC = () => {
                       });
                     }
                   }}
-                  className="w-full mt-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                  className="w-full mt-3 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {protocol.current_day >= protocol.duration_days ? (
                     <>
@@ -1024,30 +1024,65 @@ const TrainingDashboard: React.FC = () => {
                 Quanto è stato efficace questo protocollo? (1-10)
               </label>
               <div className="flex items-center justify-center gap-2 mb-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
-                  <button
-                    key={rating}
-                    onClick={() => setProtocolRating(rating)}
-                    className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${
-                      rating <= protocolRating
-                        ? 'bg-yellow-500 border-yellow-500 text-white'
-                        : 'border-gray-300 text-gray-400 hover:border-yellow-400'
-                    }`}
-                  >
-                    {rating}
-                  </button>
-                ))}
+                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => {
+                   let colorClass = '';
+                   if (rating <= 3) {
+                     colorClass = rating <= protocolRating 
+                       ? 'bg-red-500 border-red-500 text-white' 
+                       : 'border-red-300 text-red-400 hover:border-red-400';
+                   } else if (rating <= 5) {
+                     colorClass = rating <= protocolRating 
+                       ? 'bg-orange-500 border-orange-500 text-white' 
+                       : 'border-orange-300 text-orange-400 hover:border-orange-400';
+                   } else if (rating <= 7) {
+                     colorClass = rating <= protocolRating 
+                       ? 'bg-yellow-500 border-yellow-500 text-white' 
+                       : 'border-yellow-300 text-yellow-400 hover:border-yellow-400';
+                   } else if (rating <= 9) {
+                     colorClass = rating <= protocolRating 
+                       ? 'bg-blue-500 border-blue-500 text-white' 
+                       : 'border-blue-300 text-blue-400 hover:border-blue-400';
+                   } else {
+                     colorClass = rating <= protocolRating 
+                       ? 'bg-green-500 border-green-500 text-white' 
+                       : 'border-green-300 text-green-400 hover:border-green-400';
+                   }
+                   
+                   return (
+                     <button
+                       key={rating}
+                       onClick={() => setProtocolRating(rating)}
+                       className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${colorClass}`}
+                     >
+                       {rating}
+                     </button>
+                   );
+                 })}
               </div>
-              <div className="text-center">
-                <span className="text-2xl font-bold text-yellow-500">{protocolRating}/10</span>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {protocolRating <= 3 && "Non ha funzionato"}
-                  {protocolRating > 3 && protocolRating <= 5 && "Parzialmente efficace"}
-                  {protocolRating > 5 && protocolRating <= 7 && "Abbastanza efficace"}
-                  {protocolRating > 7 && protocolRating <= 9 && "Molto efficace"}
-                  {protocolRating === 10 && "Perfettamente efficace!"}
-                </p>
-              </div>
+               <div className="text-center">
+                 <span className={`text-2xl font-bold ${
+                   protocolRating <= 3 ? 'text-red-500' :
+                   protocolRating <= 5 ? 'text-orange-500' :
+                   protocolRating <= 7 ? 'text-yellow-500' :
+                   protocolRating <= 9 ? 'text-blue-500' :
+                   'text-green-500'
+                 }`}>
+                   {protocolRating}/10
+                 </span>
+                 <p className={`text-xs mt-1 font-medium ${
+                   protocolRating <= 3 ? 'text-red-500' :
+                   protocolRating <= 5 ? 'text-orange-500' :
+                   protocolRating <= 7 ? 'text-yellow-500' :
+                   protocolRating <= 9 ? 'text-blue-500' :
+                   'text-green-500'
+                 }`}>
+                   {protocolRating <= 3 && "Non ha funzionato"}
+                   {protocolRating > 3 && protocolRating <= 5 && "Parzialmente efficace"}
+                   {protocolRating > 5 && protocolRating <= 7 && "Abbastanza efficace"}
+                   {protocolRating > 7 && protocolRating <= 9 && "Molto efficace"}
+                   {protocolRating === 10 && "Perfettamente efficace!"}
+                 </p>
+               </div>
             </div>
             
             {/* Campo per commenti opzionali */}
@@ -1064,30 +1099,7 @@ const TrainingDashboard: React.FC = () => {
             </div>
           </div>
           
-          <DialogFooter className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowRatingDialog(false);
-                // Completa il protocollo senza valutazione
-                updateProtocol.mutate({
-                  id: protocol.id,
-                  updates: {
-                    status: 'completed',
-                    progress_percentage: 100,
-                    last_activity_at: new Date().toISOString(),
-                  }
-                });
-                toast({
-                  title: "🏆 Protocollo completato",
-                  description: `Il protocollo "${protocol.title}" è stato completato senza valutazione.`,
-                });
-                setTimeout(() => navigate('/training?tab=completed'), 1500);
-              }}
-              disabled={isSubmittingRating}
-            >
-              Salta valutazione
-            </Button>
+           <DialogFooter className="flex gap-2">
             <Button
               onClick={handleSubmitRating}
               disabled={isSubmittingRating}
