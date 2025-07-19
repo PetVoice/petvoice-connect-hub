@@ -599,10 +599,14 @@ const TrainingDashboard: React.FC = () => {
 
   const currentEx = todayExercises[currentExercise];
   
-  // Calcola il progresso in tempo reale considerando l'esercizio corrente e quelli precedenti completati
-  const completedExercises = currentExercise + 1; // +1 perché currentExercise è 0-indexed
-  const totalExercises = todayExercises.length;
-  const dayProgress = (completedExercises / totalExercises) * 100;
+  // Calcola il progresso in tempo reale basato sui completamenti effettivi del database
+  const exercisesPerDay = todayExercises.length; // 3 esercizi per giorno
+  const totalExercises = exercisesPerDay * protocol.duration_days;
+  const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
+  const totalCompletedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
+  const completedExercises = Math.max(0, totalCompletedExercises - exercisesCompletedInPreviousDays);
+  const totalExercisesToday = todayExercises.length;
+  const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
   // Se non c'è un esercizio corrente valido, mostra messaggio di errore
   if (!currentEx || todayExercises.length === 0) {
