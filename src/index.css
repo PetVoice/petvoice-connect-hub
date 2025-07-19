@@ -513,3 +513,34 @@ button:not(.no-hover):hover,
     100% { transform: translateX(100%); }
   }
 }
+
+/* ========================================
+   ACCESSIBILITY - FOCUS STYLES FOR ICONS & TRIGGERS
+   ======================================== */
+
+/* Classe utility per trigger con icone accessibili */
+.icon-trigger, .chevron-trigger, .icon-button {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer transition-all duration-200;
+}
+
+/* Per elementi con icone che dovrebbero essere focusabili */
+.focusable-icon {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm transition-all duration-200;
+}
+
+/* Per trigger collapsabili con chevron */
+.collapsible-trigger {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md transition-all duration-200;
+}
+
+/* Per assicurarsi che tutti gli elementi interattivi abbiano focus visibile */
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2 outline-none;
+}
+
+/* Migliora la visibilità del focus su elementi custom */
+.custom-interactive:focus {
+  @apply ring-2 ring-primary ring-offset-2 outline-none;
+}
