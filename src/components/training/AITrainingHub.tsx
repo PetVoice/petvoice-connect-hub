@@ -184,8 +184,11 @@ export const AITrainingHub: React.FC = () => {
     const activeProtocols = protocols.filter(p => p.status === 'active').length;
     const completedProtocols = protocols.filter(p => p.status === 'completed').length;
     const totalProtocols = protocols.length;
-    const avgSuccessRate = totalProtocols > 0 
-      ? Math.round(protocols.reduce((sum, p) => sum + p.success_rate, 0) / totalProtocols)
+    
+    // Calculate success rate based on completed protocols only
+    const completedWithData = protocols.filter(p => p.status === 'completed' && p.success_rate > 0);
+    const avgSuccessRate = completedWithData.length > 0 
+      ? Math.round(completedWithData.reduce((sum, p) => sum + p.success_rate, 0) / completedWithData.length)
       : 0;
     
     return {
@@ -847,19 +850,19 @@ export const AITrainingHub: React.FC = () => {
                           variant="default"
                           size="sm"
                           onClick={() => handleStartProtocol(protocol)}
-                          className="bg-blue-500 hover:bg-blue-600"
+                          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                         >
                           <Play className="h-4 w-4 mr-2" />
                           Continua
                         </Button>
                         {isUserProtocol(protocol) && (
                           <Button
-                            variant="outline"
+                            variant="destructive"
                             size="sm"
                             onClick={() => handleStatusChange(protocol.id, 'paused')}
                           >
-                            <Pause className="h-4 w-4 mr-2" />
-                            Pausa
+                            <Square className="h-4 w-4 mr-2" />
+                            Interrompi
                           </Button>
                         )}
                       </div>

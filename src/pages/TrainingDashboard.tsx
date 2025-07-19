@@ -469,21 +469,22 @@ const TrainingDashboard: React.FC = () => {
       const completedCount = currentExercise + 1; // +1 perché abbiamo appena completato l'esercizio corrente
       const totalExercisesToday = todayExercises.length;
       
-      // Calcola il progresso totale del protocollo
-      const exercisesPerDay = totalExercisesToday;
-      const totalExercises = protocol.duration_days * exercisesPerDay;
+      // Calcola il progresso totale del protocollo usando tutti gli esercizi
+      const allExercises = protocol.exercises || [];
+      const totalExercises = allExercises.length;
       
-      // Calcola correttamente il nuovo progresso: esercizi completati nel giorno corrente
-      const exercisesCompletedInCurrentDay = currentExercise + 1; // +1 per l'esercizio appena completato
-      const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
-      const newTotalCompletedExercises = exercisesCompletedInPreviousDays + exercisesCompletedInCurrentDay;
-      const newProgressPercentage = Math.round((newTotalCompletedExercises / totalExercises) * 100);
+      // Conta tutti gli esercizi completati nel protocollo
+      const allCompletedExercises = allExercises.filter(ex => ex.completed).length;
+      // Aggiungi 1 per l'esercizio appena completato se non era già contato
+      const newTotalCompletedExercises = allCompletedExercises + 1;
+      const newProgressPercentage = totalExercises > 0 
+        ? Math.round((newTotalCompletedExercises / totalExercises) * 100)
+        : 0;
       
       console.log('Progress calculation:', {
         currentExercise,
         completedCount,
-        exercisesCompletedInCurrentDay,
-        exercisesCompletedInPreviousDays,
+        allCompletedExercises: allExercises.filter(ex => ex.completed).length,
         newTotalCompletedExercises,
         totalExercises,
         newProgressPercentage
