@@ -68,89 +68,6 @@ interface TrainingSession {
   };
 }
 
-const mockProtocols: TrainingProtocol[] = [
-  {
-    id: '1',
-    name: 'Anxiety Relief Protocol',
-    description: 'Programma 21 giorni per ridurre ansia e stress',
-    duration: 21,
-    difficulty: 'intermediate',
-    targetBehaviors: ['ansia', 'stress', 'iperattivazione'],
-    currentDay: 8,
-    successRate: 78,
-    status: 'active',
-    phases: [
-      {
-        id: '1',
-        name: 'Foundation Building',
-        dayRange: [1, 7],
-        objectives: ['Stabilire routine', 'Breathing exercises', 'Basic relaxation'],
-        techniques: ['Desensibilizzazione graduale', 'Rinforzo positivo'],
-        successCriteria: ['Riduzione 30% episodi ansia', 'Maggiore calma durante trigger'],
-        isCompleted: true
-      },
-      {
-        id: '2',
-        name: 'Skill Development',
-        dayRange: [8, 14],
-        objectives: ['Advanced coping strategies', 'Trigger management'],
-        techniques: ['Controllo cognitivo', 'Gestione trigger ambientali'],
-        successCriteria: ['Autoregolazione durante stress', 'Risposta più veloce ai comandi'],
-        isCompleted: false
-      },
-      {
-        id: '3',
-        name: 'Mastery & Maintenance',
-        dayRange: [15, 21],
-        objectives: ['Consolidamento skills', 'Prevenzione recidive'],
-        techniques: ['Maintenance training', 'Generalization'],
-        successCriteria: ['Comportamento stabile', 'Indipendenza nella gestione'],
-        isCompleted: false
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'Socialization Boost',
-    description: 'Miglioramento interazioni sociali e comportamento pubblico',
-    duration: 14,
-    difficulty: 'beginner',
-    targetBehaviors: ['timidezza', 'aggressività', 'paura sociale'],
-    currentDay: 14,
-    successRate: 92,
-    status: 'completed',
-    phases: [
-      {
-        id: '1',
-        name: 'Introduction Phase',
-        dayRange: [1, 5],
-        objectives: ['Comfort in new environments', 'Basic social cues'],
-        techniques: ['Gradual exposure', 'Positive reinforcement'],
-        successCriteria: ['Calm in public spaces', 'Appropriate greetings'],
-        isCompleted: true
-      },
-      {
-        id: '2',
-        name: 'Interaction Training',
-        dayRange: [6, 10],
-        objectives: ['Controlled interactions', 'Impulse control'],
-        techniques: ['Leash training', 'Command reinforcement'],
-        successCriteria: ['Polite greetings', 'Calm around strangers'],
-        isCompleted: true
-      },
-      {
-        id: '3',
-        name: 'Real-world Application',
-        dayRange: [11, 14],
-        objectives: ['Confident public behavior', 'Stress management'],
-        techniques: ['Real-world practice', 'Maintenance protocols'],
-        successCriteria: ['Confident in crowds', 'Stable behavior'],
-        isCompleted: true
-      }
-    ]
-  }
-];
-
 const mockSessions: TrainingSession[] = [
   {
     id: '1',
@@ -329,9 +246,9 @@ export const AITrainingProtocols: React.FC = () => {
                         }
                       }}
                     >
-                       <CardContent className="p-4">
-                         <div className="flex items-start justify-between gap-4">
-                           <div className="flex-1 min-w-0">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold">{protocol.title}</h3>
                               <Badge className={getDifficultyColor(protocol.difficulty)}>
@@ -365,93 +282,61 @@ export const AITrainingProtocols: React.FC = () => {
                               <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
                             </div>
                           </div>
-                           <div className="flex flex-col gap-2 shrink-0 min-w-fit">
-                             {/* DEBUG: PULSANTI SEMPRE VISIBILI PER ORA */}
-                             <div className="text-xs bg-yellow-100 p-1 rounded">
-                               USER: {currentUserId || 'NULL'} | PROTO: {protocol.user_id || 'NULL'} | AI: {protocol.ai_generated ? 'SI' : 'NO'}
-                             </div>
-                             <Button 
-                               size="sm" 
-                               variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleEditProtocol(protocol);
-                               }}
-                               className="text-blue-600 hover:text-blue-800 border-blue-600"
-                             >
-                               <Edit className="h-4 w-4 mr-1" />
-                               Modifica
-                             </Button>
-                             <Button 
-                               size="sm" 
-                               variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                   handleDeleteProtocol(protocol.id);
-                                 }
-                               }}
-                               className="text-red-600 hover:text-red-800 border-red-600"
-                             >
-                               <Trash2 className="h-4 w-4 mr-1" />
-                               Elimina
-                             </Button>
-                            
-                            
-                            {protocol.status === 'active' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStatusChange(protocol.id, 'paused');
-                                }}
-                              >
-                                <PauseCircle className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {protocol.status === 'paused' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStatusChange(protocol.id, 'active');
-                                }}
-                              >
-                                <PlayCircle className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {protocol.status === 'available' && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleStatusChange(protocol.id, 'active');
-                                }}
-                              >
-                                <PlayCircle className="h-4 w-4" />
-                              </Button>
-                            )}
-                            
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleStatusChange(protocol.id, 'active')}>
-                                  <RotateCcw className="h-4 w-4 mr-2" />
-                                  Riavvia
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                          
+                          {/* PULSANTI SUPER VISIBILI! */}
+                          <div style={{ 
+                            backgroundColor: 'red', 
+                            padding: '20px', 
+                            margin: '10px',
+                            border: '5px solid purple',
+                            minWidth: '200px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px'
+                          }}>
+                            <div style={{ backgroundColor: 'yellow', padding: '10px', fontSize: '20px', fontWeight: 'bold' }}>
+                              PULSANTI QUI!!! 🔥🔥🔥
+                            </div>
+                            <Button 
+                              size="lg" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                alert('MODIFICA CLICCATO!');
+                                handleEditProtocol(protocol);
+                              }}
+                              style={{ 
+                                backgroundColor: 'blue', 
+                                color: 'white', 
+                                fontSize: '16px',
+                                padding: '15px',
+                                border: '3px solid black'
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              MODIFICA 🔧
+                            </Button>
+                            <Button 
+                              size="lg" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                alert('ELIMINA CLICCATO!');
+                                if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+                                  handleDeleteProtocol(protocol.id);
+                                }
+                              }}
+                              style={{ 
+                                backgroundColor: 'red', 
+                                color: 'white', 
+                                fontSize: '16px',
+                                padding: '15px',
+                                border: '3px solid black'
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              ELIMINA 🗑️
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
