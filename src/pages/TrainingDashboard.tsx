@@ -924,7 +924,7 @@ const TrainingDashboard: React.FC = () => {
                 disabled={currentExercise !== dailyCompletedExercises}
                 className={`w-full ${
                   currentExercise === dailyCompletedExercises 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95'
                     : 'opacity-50 cursor-not-allowed'
                 } disabled:opacity-50`}
               >
