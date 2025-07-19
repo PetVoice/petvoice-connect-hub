@@ -857,16 +857,37 @@ export const AITrainingHub: React.FC = () => {
                           <Play className="h-4 w-4 mr-2" />
                           Continua
                         </Button>
-                        {isUserProtocol(protocol) && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleStatusChange(protocol.id, 'paused')}
-                          >
-                            <Square className="h-4 w-4 mr-2" />
-                            Interrompi
-                          </Button>
-                        )}
+                         {isUserProtocol(protocol) && (
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button
+                                 variant="destructive"
+                                 size="sm"
+                               >
+                                 <Square className="h-4 w-4 mr-2" />
+                                 Interrompi
+                               </Button>
+                             </AlertDialogTrigger>
+                             <AlertDialogContent>
+                               <AlertDialogHeader>
+                                 <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                                 <AlertDialogDescription>
+                                   Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
+                                   Il tuo progresso verrà mantenuto e potrai riprendere in qualsiasi momento.
+                                 </AlertDialogDescription>
+                               </AlertDialogHeader>
+                               <AlertDialogFooter>
+                                 <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                 <AlertDialogAction 
+                                   onClick={() => handleStatusChange(protocol.id, 'paused')}
+                                   className="bg-red-600 hover:bg-red-700"
+                                 >
+                                   Sì, interrompi
+                                 </AlertDialogAction>
+                               </AlertDialogFooter>
+                             </AlertDialogContent>
+                           </AlertDialog>
+                         )}
                       </div>
                     </div>
                   </CardContent>
