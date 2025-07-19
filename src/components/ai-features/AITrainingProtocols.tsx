@@ -271,7 +271,7 @@ export const AITrainingProtocols: React.FC = () => {
                               </span>
                               <span className="flex items-center gap-1">
                                 <TrendingUp className="h-4 w-4" />
-                                {protocol.success_rate}% successo
+                                {Math.round(protocol.success_rate)}% successo
                               </span>
                             </div>
                             <div className="mt-3">

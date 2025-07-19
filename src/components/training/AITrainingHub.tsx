@@ -733,7 +733,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{protocol.success_rate}% successo</span>
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                         </div>
                       </div>
@@ -879,7 +879,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{protocol.success_rate}% successo</span>
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1009,7 +1009,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{protocol.success_rate}% successo</span>
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1228,7 +1228,7 @@ export const AITrainingHub: React.FC = () => {
                           {template.difficulty}
                         </Badge>
                         <div className="text-right">
-                          <div className="text-sm font-medium">{template.success_rate}%</div>
+                          <div className="text-sm font-medium">{Math.round(template.success_rate)}%</div>
                           <div className="text-xs text-muted-foreground">successo</div>
                         </div>
                       </div>
@@ -1260,7 +1260,7 @@ export const AITrainingHub: React.FC = () => {
                     <div><strong>Durata:</strong> {selectedProtocol.duration_days} giorni</div>
                     <div><strong>Giorno corrente:</strong> {selectedProtocol.current_day}</div>
                     <div><strong>Progresso:</strong> {selectedProtocol.progress_percentage}%</div>
-                    <div><strong>Tasso di successo:</strong> {selectedProtocol.success_rate}%</div>
+                    <div><strong>Tasso di successo:</strong> {Math.round(selectedProtocol.success_rate)}%</div>
                   </div>
                 </div>
                 

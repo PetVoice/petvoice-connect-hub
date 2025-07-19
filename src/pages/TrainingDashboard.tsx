@@ -418,21 +418,9 @@ const TrainingDashboard: React.FC = () => {
   }, [currentExercise]);
 
   if (!protocol) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Protocollo non trovato</h2>
-          <p className="text-muted-foreground mb-4">
-            Il protocollo richiesto non esiste o non hai i permessi per visualizzarlo.
-          </p>
-          <Button onClick={() => navigate('/training')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Torna ai Protocolli
-          </Button>
-        </div>
-      </div>
-    );
+    // Redirect automaticamente ai protocolli completati invece di mostrare errore
+    navigate('/training?tab=completed');
+    return null;
   }
 
   const formatTime = (seconds: number) => {
@@ -714,7 +702,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-green-500" />
               <div>
-                <div className="text-lg font-bold">{protocol.success_rate}%</div>
+                <div className="text-lg font-bold">{Math.round(protocol.success_rate)}%</div>
                 <p className="text-xs text-muted-foreground">Tasso successo</p>
               </div>
             </div>
