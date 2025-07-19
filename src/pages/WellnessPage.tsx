@@ -63,7 +63,7 @@ import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import jsPDF from 'jspdf';
 import { useNotifications } from '@/hooks/useNotifications';
-import { AIMusicTherapy } from '@/components/ai-features/AIMusicTherapy';
+
 
 interface HealthMetric {
   id: string;
@@ -1851,10 +1851,6 @@ const WellnessPage = () => {
             <TrendingUp className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="music-therapy">
-            <Music className="h-4 w-4 mr-2" />
-            AI Music Therapy
-          </TabsTrigger>
           <TabsTrigger value="emergency">
             <Siren className="h-4 w-4 mr-2" />
             Emergenze
@@ -2883,10 +2879,6 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
           </div>
         </TabsContent>
 
-        {/* AI Music Therapy Tab */}
-        <TabsContent value="music-therapy" className="space-y-6">
-          <AIMusicTherapy selectedPet={selectedPet} />
-        </TabsContent>
       </Tabs>
 
       {/* Add Document Dialog */}

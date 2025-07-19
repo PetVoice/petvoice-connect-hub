@@ -16,6 +16,7 @@ import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
+import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
 
 import StatsPage from "@/pages/StatsPage";
@@ -83,6 +84,13 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <WellnessPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/ai-music-therapy" element={
+          <ProtectedRoute>
+            <Layout>
+              <AIMusicTherapyPage />
             </Layout>
           </ProtectedRoute>
         } />
