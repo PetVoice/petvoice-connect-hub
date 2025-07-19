@@ -320,7 +320,7 @@ export const PetMatchingIntelligence: React.FC = () => {
   // Training protocol creation
   const createProtocol = useCreateProtocol();
   
-  // State Management
+  // State Management - TUTTI GLI HOOKS DEVONO ESSERE PRIMA DELL'EARLY RETURN
   const [selectedPetTwin, setSelectedPetTwin] = useState<any>(null);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
   const [selectedPattern, setSelectedPattern] = useState<any>(null);
@@ -329,6 +329,11 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [distanceFilter, setDistanceFilter] = useState<string>('all');
   const [onlineFilter, setOnlineFilter] = useState(false);
   const [sortBy, setSortBy] = useState<string>('match');
+  const [isLoading, setIsLoading] = useState(false);
+  const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
+  const [showFilters, setShowFilters] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
+  const [patterns, setPatterns] = useState<any[]>([]);
   
   // Show loading if any data is still loading
   if (petsLoading || mentorsLoading || patternsLoading) {
@@ -338,11 +343,6 @@ export const PetMatchingIntelligence: React.FC = () => {
       </div>
     );
   }
-  const [isLoading, setIsLoading] = useState(false);
-  const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
-  const [showFilters, setShowFilters] = useState(false);
-  const [chatMessage, setChatMessage] = useState('');
-  const [patterns, setPatterns] = useState<any[]>([]);
 
   // Update patterns when successPatterns changes
   React.useEffect(() => {
