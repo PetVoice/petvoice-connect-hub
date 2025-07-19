@@ -507,38 +507,76 @@ export const AITrainingHub: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedProtocol(protocol)}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Dettagli
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleStartProtocol(protocol)}
-                            disabled={protocol.status === 'active'}
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                          >
-                            <Play className="h-4 w-4 mr-2" />
-                            {protocol.status === 'active' ? 'Attivo' : 'Avvia'}
-                          </Button>
-                        </div>
-                        
-                        <div className="w-32">
-                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                            <span>Progresso</span>
-                            <span>{protocol.progress_percentage}%</span>
-                          </div>
-                          <Progress value={protocol.progress_percentage} className="h-2" />
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                       <div style={{ 
+                         backgroundColor: 'red', 
+                         padding: '20px', 
+                         border: '5px solid purple',
+                         minWidth: '200px',
+                         display: 'flex',
+                         flexDirection: 'column',
+                         gap: '10px'
+                       }}>
+                         <div style={{ backgroundColor: 'yellow', padding: '10px', fontSize: '20px', fontWeight: 'bold' }}>
+                           PULSANTI QUI!!! 🔥🔥🔥
+                         </div>
+                         <Button
+                           size="lg"
+                           variant="outline"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             alert('MODIFICA CLICCATO! - ' + protocol.title);
+                           }}
+                           style={{ 
+                             backgroundColor: 'blue', 
+                             color: 'white', 
+                             fontSize: '16px',
+                             padding: '15px',
+                             border: '3px solid black'
+                           }}
+                         >
+                           MODIFICA 🔧
+                         </Button>
+                         <Button
+                           size="lg"
+                           variant="outline"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             alert('ELIMINA CLICCATO! - ' + protocol.title);
+                           }}
+                           style={{ 
+                             backgroundColor: 'red', 
+                             color: 'white', 
+                             fontSize: '16px',
+                             padding: '15px',
+                             border: '3px solid black'
+                           }}
+                         >
+                           ELIMINA 🗑️
+                         </Button>
+                         
+                         <div className="flex items-center gap-2">
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             onClick={() => setSelectedProtocol(protocol)}
+                           >
+                             <Eye className="h-4 w-4 mr-2" />
+                             Dettagli
+                           </Button>
+                           <Button
+                             size="sm"
+                             onClick={() => handleStartProtocol(protocol)}
+                             disabled={protocol.status === 'active'}
+                             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                           >
+                             <Play className="h-4 w-4 mr-2" />
+                             {protocol.status === 'active' ? 'Attivo' : 'Avvia'}
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
               ))
             )}
           </div>
