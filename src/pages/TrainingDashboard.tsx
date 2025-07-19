@@ -867,6 +867,38 @@ const TrainingDashboard: React.FC = () => {
                 )}
               </Button>
               
+              {/* Pulsante Interrompi Protocollo */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive"
+                    size="sm" 
+                    className="w-full justify-start mt-3"
+                  >
+                    <Square className="h-4 w-4 mr-2" />
+                    Interrompi Protocollo
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                    <AlertDialogDescription>
+                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
+                       Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleInterruptProtocol}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Sì, interrompi
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              
               {/* Pulsante per andare al giorno successivo o completare il protocollo */}
               {dailyCompletedExercises === 3 && (
                 <Button
@@ -939,25 +971,6 @@ const TrainingDashboard: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Daily Insights */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Lightbulb className="h-5 w-5" />
-                Insight del Giorno
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Alert>
-                <Heart className="h-4 w-4" />
-                <AlertDescription className="text-sm">
-                  Ricorda di mantenere sempre un atteggiamento positivo e paziente. 
-                  Il tuo pet percepisce le tue emozioni e risponderà meglio in un ambiente sereno.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-
           {/* Quick Actions */}
           <Card>
             <CardHeader>
@@ -965,36 +978,7 @@ const TrainingDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button 
-                      variant="destructive"
-                      size="sm" 
-                      className="w-full justify-start"
-                    >
-                      <Square className="h-4 w-4 mr-2" />
-                      Interrompi Protocollo
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                      <AlertDialogDescription>
-                         Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? 
-                         Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Annulla</AlertDialogCancel>
-                      <AlertDialogAction 
-                        onClick={handleInterruptProtocol}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
-                        Sì, interrompi
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                {/* Altri pulsanti rapidi se necessario in futuro */}
               </div>
             </CardContent>
           </Card>
