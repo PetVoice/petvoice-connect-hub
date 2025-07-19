@@ -493,6 +493,8 @@ export const AITrainingHub: React.FC = () => {
   // Handle status change
   const handleStatusChange = async (protocolId: string, newStatus: 'active' | 'paused' | 'completed' | 'available' | 'suggested') => {
     try {
+      const protocol = protocols?.find(p => p.id === protocolId);
+      
       await updateProtocol.mutateAsync({
         id: protocolId,
         updates: {
@@ -501,10 +503,17 @@ export const AITrainingHub: React.FC = () => {
         }
       });
       
-      toast({
-        title: 'Status aggiornato',
-        description: `Il protocollo è stato ${newStatus === 'paused' ? 'interrotto' : 'aggiornato'}`,
-      });
+      if (newStatus === 'paused') {
+        toast({
+          title: 'Protocollo interrotto',
+          description: `Il protocollo "${protocol?.title}" è stato interrotto con successo`,
+        });
+      } else {
+        toast({
+          title: 'Status aggiornato',
+          description: `Il protocollo è stato aggiornato`,
+        });
+      }
     } catch (error) {
       console.error('Error updating protocol status:', error);
       toast({
