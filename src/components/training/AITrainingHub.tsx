@@ -421,42 +421,26 @@ export const AITrainingHub: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="p-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg">
-            <Brain className="h-6 w-6 text-white" />
+      {/* Online Status and Create Button */}
+      <div className="flex items-center justify-end gap-2">
+        {isOnline ? (
+          <div className="flex items-center gap-2 text-green-600">
+            <Wifi className="h-4 w-4" />
+            <span className="text-sm">Online</span>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              AI Training Hub
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Protocolli di addestramento personalizzati con intelligenza artificiale
-            </p>
+        ) : (
+          <div className="flex items-center gap-2 text-red-600">
+            <WifiOff className="h-4 w-4" />
+            <span className="text-sm">Offline</span>
           </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {isOnline ? (
-            <div className="flex items-center gap-2 text-green-600">
-              <Wifi className="h-4 w-4" />
-              <span className="text-sm">Online</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-red-600">
-              <WifiOff className="h-4 w-4" />
-              <span className="text-sm">Offline</span>
-            </div>
-          )}
-          <Button 
-            onClick={() => setShowWizard(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Crea Protocollo
-          </Button>
-        </div>
+        )}
+        <Button 
+          onClick={() => setShowWizard(true)}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Crea Protocollo
+        </Button>
       </div>
 
       {/* Stats Cards */}
