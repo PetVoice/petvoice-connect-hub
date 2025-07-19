@@ -297,11 +297,8 @@ export const AITrainingHub: React.FC = () => {
 
   const handleStartProtocol = async (protocol: TrainingProtocol) => {
     if (protocol.status === 'active') {
-      toast({
-        title: 'Protocollo già attivo',
-        description: 'Questo protocollo è già in esecuzione',
-        variant: 'destructive',
-      });
+      // Se già attivo, vai alla dashboard
+      window.location.href = `/training/dashboard/${protocol.id}`;
       return;
     }
 
@@ -318,6 +315,11 @@ export const AITrainingHub: React.FC = () => {
         title: 'Protocollo avviato',
         description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
       });
+      
+      // Reindirizza alla dashboard del protocollo
+      setTimeout(() => {
+        window.location.href = `/training/dashboard/${protocol.id}`;
+      }, 1500);
     } catch (error) {
       console.error('Error starting protocol:', error);
       toast({
@@ -643,15 +645,14 @@ export const AITrainingHub: React.FC = () => {
                              <Eye className="h-4 w-4 mr-2" />
                              Dettagli
                            </Button>
-                           <Button
-                             size="sm"
-                             onClick={() => handleStartProtocol(protocol)}
-                             disabled={protocol.status === 'active'}
-                             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                           >
-                             <Play className="h-4 w-4 mr-2" />
-                             {protocol.status === 'active' ? 'Attivo' : 'Avvia'}
-                           </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleStartProtocol(protocol)}
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                            >
+                              <Play className="h-4 w-4 mr-2" />
+                              {protocol.status === 'active' ? 'Continua' : 'Avvia'}
+                            </Button>
                          </div>
                          
                          <div className="w-32">

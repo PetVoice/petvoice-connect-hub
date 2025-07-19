@@ -27,6 +27,7 @@ import AffiliationPage from "@/pages/AffiliationPage";
 import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
+import TrainingDashboard from "@/pages/TrainingDashboard";
 
 
 import SettingsPage from './pages/SettingsPage';
@@ -103,6 +104,13 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <TrainingPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/training/dashboard/:protocolId" element={
+          <ProtectedRoute>
+            <Layout>
+              <TrainingDashboard />
             </Layout>
           </ProtectedRoute>
         } />
