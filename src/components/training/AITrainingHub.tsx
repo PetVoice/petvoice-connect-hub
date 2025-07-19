@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -73,6 +74,7 @@ export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   
   // Real data hooks
   const { data: protocols = [], isLoading: protocolsLoading } = useTrainingProtocols();
@@ -398,6 +400,10 @@ export const AITrainingHub: React.FC = () => {
             last_activity_at: new Date().toISOString(),
           }
         });
+
+        // Invalida le query per aggiornare le liste immediatamente
+        queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
+        queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
         
         toast({
           title: 'Protocollo riavviato',
