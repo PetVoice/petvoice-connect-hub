@@ -335,6 +335,13 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [patterns, setPatterns] = useState<any[]>([]);
   
+  // Update patterns when successPatterns changes - DEVE ESSERE PRIMA DELL'EARLY RETURN
+  React.useEffect(() => {
+    if (successPatterns.length > 0) {
+      setPatterns(successPatterns);
+    }
+  }, [successPatterns]);
+  
   // Show loading if any data is still loading
   if (petsLoading || mentorsLoading || patternsLoading) {
     return (
@@ -343,13 +350,6 @@ export const PetMatchingIntelligence: React.FC = () => {
       </div>
     );
   }
-
-  // Update patterns when successPatterns changes
-  React.useEffect(() => {
-    if (successPatterns.length > 0) {
-      setPatterns(successPatterns);
-    }
-  }, [successPatterns]);
 
   // Mock current pet data (would come from app state)
   const currentPet = {
