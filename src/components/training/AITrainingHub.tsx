@@ -55,6 +55,7 @@ import {
   useUpdateProtocol, 
   useAcceptSuggestion, 
   useDismissSuggestion,
+  useDeleteProtocol,
   TrainingProtocol,
   SuggestedProtocol,
   TrainingTemplate
@@ -76,6 +77,9 @@ export const AITrainingHub: React.FC = () => {
   const updateProtocol = useUpdateProtocol();
   const acceptSuggestion = useAcceptSuggestion();
   const dismissSuggestion = useDismissSuggestion();
+
+  // Import delete protocol hook
+  const deleteProtocol = useDeleteProtocol();
 
   // Current User State
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -106,6 +110,11 @@ export const AITrainingHub: React.FC = () => {
   // Create Protocol State
   const [isCreatingProtocol, setIsCreatingProtocol] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Edit Protocol State
+  const [editingProtocol, setEditingProtocol] = useState<TrainingProtocol | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   // Get current user ID
   useEffect(() => {
@@ -313,6 +322,63 @@ export const AITrainingHub: React.FC = () => {
       await dismissSuggestion.mutateAsync(suggestionId);
     } catch (error) {
       console.error('Error dismissing suggestion:', error);
+    }
+  };
+
+  // Handle edit protocol
+  const handleEditProtocol = (protocol: TrainingProtocol) => {
+    setEditingProtocol(protocol);
+    setEditTitle(protocol.title);
+    setEditDescription(protocol.description || '');
+  };
+
+  // Handle save edit
+  const handleSaveEdit = async () => {
+    if (!editingProtocol) return;
+    
+    try {
+      await updateProtocol.mutateAsync({
+        id: editingProtocol.id,
+        updates: {
+          title: editTitle,
+          description: editDescription,
+        }
+      });
+      
+      setEditingProtocol(null);
+      setEditTitle('');
+      setEditDescription('');
+      
+      toast({
+        title: 'Protocollo aggiornato',
+        description: 'Le modifiche sono state salvate con successo',
+      });
+    } catch (error) {
+      console.error('Error updating protocol:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile salvare le modifiche',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Handle delete protocol
+  const handleDeleteProtocol = async (protocolId: string) => {
+    try {
+      await deleteProtocol.mutateAsync(protocolId);
+      
+      toast({
+        title: 'Protocollo eliminato',
+        description: 'Il protocollo è stato eliminato con successo',
+      });
+    } catch (error) {
+      console.error('Error deleting protocol:', error);
+      toast({
+        title: 'Errore',
+        description: 'Impossibile eliminare il protocollo',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -531,30 +597,28 @@ export const AITrainingHub: React.FC = () => {
                          {isUserProtocol(protocol) && (
                            <div className="flex items-center gap-2 mb-2">
                              <Button
-                               variant="outline"
+                               variant="ghost"
                                size="sm"
                                onClick={(e) => {
                                  e.stopPropagation();
-                                 alert('Modifica: ' + protocol.title);
+                                 handleEditProtocol(protocol);
                                }}
-                               className="text-blue-600 hover:text-blue-800 border-blue-600"
+                               className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 h-8 w-8"
                              >
-                               <Edit className="h-4 w-4 mr-1" />
-                               Modifica
+                               <Edit className="h-4 w-4" />
                              </Button>
                              <Button
-                               variant="outline"
+                               variant="ghost"
                                size="sm"
                                onClick={(e) => {
                                  e.stopPropagation();
-                                 if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                   alert('Elimina: ' + protocol.title);
+                                 if (window.confirm("Sei sicuro di voler eliminare questo protocollo?")) {
+                                   handleDeleteProtocol(protocol.id);
                                  }
                                }}
-                               className="text-red-600 hover:text-red-800 border-red-600"
+                               className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-8 w-8"
                              >
-                               <Trash2 className="h-4 w-4 mr-1" />
-                               Elimina
+                               <Trash2 className="h-4 w-4" />
                              </Button>
                            </div>
                          )}
@@ -984,6 +1048,54 @@ export const AITrainingHub: React.FC = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Protocol Dialog */}
+      <Dialog open={!!editingProtocol} onOpenChange={() => setEditingProtocol(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Modifica Protocollo</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-title">Titolo</Label>
+              <Input
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Inserisci il titolo del protocollo"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="edit-description">Descrizione</Label>
+              <Textarea
+                id="edit-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Inserisci la descrizione del protocollo"
+                rows={4}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setEditingProtocol(null)}
+              >
+                Annulla
+              </Button>
+              <Button
+                onClick={handleSaveEdit}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Salva Modifiche
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
