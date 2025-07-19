@@ -745,30 +745,6 @@ const TrainingDashboard: React.FC = () => {
             <CardContent className="space-y-6">
               <p className="text-muted-foreground">{currentEx.description}</p>
 
-              {/* Timer Controls */}
-              <div className="flex items-center justify-center gap-4 p-4 bg-muted/50 rounded-lg">
-                <div className="text-2xl font-mono font-bold">
-                  {formatTime(timeElapsed)}
-                </div>
-                <Button
-                  variant={isTimerRunning ? "destructive" : "default"}
-                  onClick={() => setIsTimerRunning(!isTimerRunning)}
-                  className="gap-2"
-                >
-                  {isTimerRunning ? (
-                    <>
-                      <Pause className="h-4 w-4" />
-                      Pausa
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4" />
-                      Avvia
-                    </>
-                  )}
-                </Button>
-              </div>
-
               {/* Instructions */}
               <div>
                 <h3 className="font-semibold mb-3">Esercizi del giorno</h3>
