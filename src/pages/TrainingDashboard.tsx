@@ -457,27 +457,9 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      // Prima aggiorna l'esercizio nel database
-      const { error: exerciseError } = await supabase
-        .from('ai_training_exercises')
-        .update({
-          completed: true,
-          completed_at: new Date().toISOString(),
-          effectiveness_score: exerciseRating,
-          feedback: exerciseNotes,
-        })
-        .eq('id', currentEx.id);
-
-      if (exerciseError) {
-        console.error('Error updating exercise:', exerciseError);
-        toast({
-          title: 'Errore',
-          description: 'Impossibile aggiornare l\'esercizio.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
+      // Gli esercizi sono generati dinamicamente, non è necessario aggiornarli nel database
+      // Invece, registriamo il completamento nell'activity log e aggiorniamo il protocollo
+      
       toast({
         title: 'Esercizio completato!',
         description: `Hai completato "${currentEx.title}" con successo.`,
