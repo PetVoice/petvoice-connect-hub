@@ -748,11 +748,70 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                    }
                                  })()}
                               </p>
-                              <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
-                                <span>📅 14-21 giorni</span>
-                                <span>🎯 Livello: Intermedio</span>
-                                <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
-                              </div>
+                               <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
+                                 {(() => {
+                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                   
+                                   // Dati reali dei protocolli dal database
+                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
+                                       emotion.includes('stress') || emotion.includes('stressato') ||
+                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
+                                     return (
+                                       <>
+                                         <span>📅 3 giorni</span>
+                                         <span>🎯 Livello: Medio</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                              emotion.includes('irritato')) {
+                                     return (
+                                       <>
+                                         <span>📅 3 giorni</span>
+                                         <span>🎯 Livello: Difficile</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
+                                     return (
+                                       <>
+                                         <span>📅 42 giorni</span>
+                                         <span>🎯 Livello: Difficile</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
+                                     return (
+                                       <>
+                                         <span>📅 28 giorni</span>
+                                         <span>🎯 Livello: Medio</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                              emotion.includes('depresso') || emotion.includes('depressione') ||
+                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
+                                     return (
+                                       <>
+                                         <span>📅 28 giorni</span>
+                                         <span>🎯 Livello: Medio</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   } else {
+                                     return (
+                                       <>
+                                         <span>📅 Variabile</span>
+                                         <span>🎯 Livello: Personalizzato</span>
+                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                       </>
+                                     );
+                                   }
+                                 })()}
+                               </div>
                                <Button 
                                  size="sm" 
                                  className="bg-green-600 hover:bg-green-700 text-white"
