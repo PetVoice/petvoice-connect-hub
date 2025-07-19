@@ -13,7 +13,8 @@ import {
   HeadphonesIcon, 
   Settings,
   Network,
-  Brain
+  Brain,
+  Music
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -34,6 +35,7 @@ const navigationItems = [
   { title: 'I Miei Pet', url: '/pets', icon: PawPrint },
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
   { title: 'Diario', url: '/diary', icon: BookOpen },
+  { title: 'AI Music Therapy', url: '/wellness?tab=ai-music', icon: Music },
   { title: 'AI Training', url: '/training', icon: Brain },
   { title: 'Pet Matching', url: '/pet-matching', icon: Network },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
