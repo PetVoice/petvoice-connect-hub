@@ -745,16 +745,42 @@ const TrainingDashboard: React.FC = () => {
             <CardContent className="space-y-6">
               <p className="text-muted-foreground">{currentEx.description}</p>
 
-              {/* Instructions */}
+              {/* Esercizi di Oggi */}
               <div>
-                <h3 className="font-semibold mb-3">Esercizi del giorno</h3>
-                <div className="space-y-3">
-                  {currentEx.instructions.slice(0, 3).map((instruction, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
-                        {index + 1}
+                <h3 className="font-semibold mb-3">Esercizi di Oggi</h3>
+                <div className="space-y-2">
+                  {todayExercises.slice(0, 3).map((exercise, index) => (
+                    <div
+                      key={exercise.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                        index === currentExercise
+                          ? 'bg-primary/10 border-primary/20'
+                          : exercise.completed
+                          ? 'bg-green-50 border-green-200'
+                          : 'hover:bg-muted/50'
+                      }`}
+                      onClick={() => setCurrentExercise(index)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {exercise.completed ? (
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                          ) : index === currentExercise ? (
+                            <Play className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Clock className="h-5 w-5 text-muted-foreground" />
+                          )}
+                          <div>
+                            <div className="font-medium text-sm">{exercise.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {exercise.duration} min
+                            </div>
+                          </div>
+                        </div>
+                        {index === currentExercise && (
+                          <ChevronRight className="h-4 w-4 text-primary" />
+                        )}
                       </div>
-                      <p className="text-sm">{instruction}</p>
                     </div>
                   ))}
                 </div>
@@ -801,51 +827,6 @@ const TrainingDashboard: React.FC = () => {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Exercise List */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Esercizi di Oggi</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {todayExercises.slice(0, 3).map((exercise, index) => (
-                  <div
-                    key={exercise.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                      index === currentExercise
-                        ? 'bg-primary/10 border-primary/20'
-                        : exercise.completed
-                        ? 'bg-green-50 border-green-200'
-                        : 'hover:bg-muted/50'
-                    }`}
-                    onClick={() => setCurrentExercise(index)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {exercise.completed ? (
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        ) : index === currentExercise ? (
-                          <Play className="h-5 w-5 text-primary" />
-                        ) : (
-                          <Clock className="h-5 w-5 text-muted-foreground" />
-                        )}
-                        <div>
-                          <div className="font-medium text-sm">{exercise.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {exercise.duration} min
-                          </div>
-                        </div>
-                      </div>
-                      {index === currentExercise && (
-                        <ChevronRight className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Daily Insights */}
           <Card>
             <CardHeader>
