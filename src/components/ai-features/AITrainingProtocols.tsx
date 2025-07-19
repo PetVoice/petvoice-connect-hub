@@ -310,14 +310,6 @@ export const AITrainingProtocols: React.FC = () => {
             <TabsContent value="protocols" className="mt-4">
               <div className="grid gap-4">
                 {protocols.map((protocol) => {
-                  console.log('RENDERING PROTOCOL:', protocol.title, 'ID:', protocol.id);
-                  const isTestProtocol = protocol.title === 'Test' || protocol.title === 'Test2';
-                  console.log('IS TEST PROTOCOL:', isTestProtocol, 'for', protocol.title);
-                  
-                  if (isTestProtocol) {
-                    alert(`TROVATO PROTOCOLLO: ${protocol.title} - Dovrebbero apparire i pulsanti!`);
-                  }
-                  
                   return (
                     <Card key={protocol.id} className="cursor-pointer hover:bg-accent/50" 
                           onClick={() => setSelectedProtocol(protocol)}>
@@ -358,39 +350,34 @@ export const AITrainingProtocols: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            {/* PULSANTI SEMPRE VISIBILI PER TEST */}
-                            {(protocol.title === 'Test' || protocol.title === 'Test2') && (
-                              <>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    console.log('EDIT CLICKED for:', protocol.title);
-                                    handleEditProtocol(protocol);
-                                  }}
-                                  className="text-blue-600 hover:text-blue-800 border-blue-600"
-                                >
-                                  <Edit className="h-4 w-4 mr-1" />
-                                  MODIFICA
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    console.log('DELETE CLICKED for:', protocol.title);
-                                    if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                      handleDeleteProtocol(protocol.id);
-                                    }
-                                  }}
-                                  className="text-red-600 hover:text-red-800 border-red-600"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-1" />
-                                  ELIMINA
-                                </Button>
-                              </>
-                            )}
+                            {/* PULSANTI EDIT/DELETE SEMPRE VISIBILI PER TUTTI I PROTOCOLLI */}
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditProtocol(protocol);
+                              }}
+                              className="text-blue-600 hover:text-blue-800 border-blue-600"
+                            >
+                              <Edit className="h-4 w-4 mr-1" />
+                              Modifica
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+                                  handleDeleteProtocol(protocol.id);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-800 border-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Elimina
+                            </Button>
+                            
                             
                             {protocol.status === 'active' && (
                               <Button 
