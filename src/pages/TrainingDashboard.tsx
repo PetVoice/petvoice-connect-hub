@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Play,
   Pause,
+  Square,
   Star,
   Award,
   Heart,
@@ -503,6 +504,36 @@ const TrainingDashboard: React.FC = () => {
     }
   };
 
+  // Funzione per interrompere il protocollo
+  const handleInterruptProtocol = async () => {
+    try {
+      await updateProtocol.mutateAsync({
+        id: protocol.id,
+        updates: {
+          status: 'paused',
+          last_activity_at: new Date().toISOString(),
+        }
+      });
+
+      toast({
+        title: 'Protocollo interrotto',
+        description: 'Il protocollo è stato messo in pausa. Puoi riprenderlo quando vuoi.',
+      });
+
+      // Torna alla dashboard principale
+      setTimeout(() => {
+        navigate('/training');
+      }, 1500);
+    } catch (error) {
+      console.error('Error pausing protocol:', error);
+      toast({
+        title: 'Errore',
+        description: 'Non è stato possibile interrompere il protocollo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const currentEx = todayExercises[currentExercise];
   const completedExercises = todayExercises.filter(ex => ex.completed).length;
   const totalExercises = todayExercises.length;
@@ -750,7 +781,9 @@ const TrainingDashboard: React.FC = () => {
                   ) : (
                     <>
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      Completa Esercizio
+                      {(currentExercise === totalExercises - 1 && protocol.current_day === protocol.duration_days) 
+                        ? 'Completa Protocollo' 
+                        : 'Completa Esercizio'}
                     </>
                   )}
                 </Button>
@@ -843,6 +876,15 @@ const TrainingDashboard: React.FC = () => {
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Vedi Progresso
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full justify-start border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600"
+                  onClick={handleInterruptProtocol}
+                >
+                  <Square className="h-4 w-4 mr-2" />
+                  Interrompi Protocollo
                 </Button>
               </div>
             </CardContent>

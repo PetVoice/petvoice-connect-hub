@@ -20,6 +20,7 @@ import {
   Users, 
   Play, 
   Pause,
+  Square,
   CheckCircle, 
   AlertCircle,
   Plus,
@@ -709,9 +710,9 @@ export const AITrainingHub: React.FC = () => {
                                    e.stopPropagation();
                                    handleStatusChange(protocol.id, 'paused');
                                  }}
-                                 className="flex items-center gap-2"
+                                 className="flex items-center gap-2 border-red-500 text-red-600 hover:bg-red-50 hover:border-red-600"
                                >
-                                 <Pause className="h-4 w-4" />
+                                 <Square className="h-4 w-4" />
                                  Interrompi
                                </Button>
                              )}
