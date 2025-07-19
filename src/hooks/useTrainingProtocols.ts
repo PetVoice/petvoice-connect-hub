@@ -300,10 +300,6 @@ export const useUpdateProtocol = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
-      toast({
-        title: 'Protocollo aggiornato',
-        description: 'Il protocollo è stato aggiornato con successo',
-      });
     },
     onError: (error) => {
       toast({
