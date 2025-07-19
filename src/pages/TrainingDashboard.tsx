@@ -720,7 +720,7 @@ const TrainingDashboard: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span>Esercizi completati</span>
-              <span>{completedExercises} di {totalExercises}</span>
+              <span>{completedExercises} di {totalExercisesToday}</span>
             </div>
             <Progress value={dayProgress} className="h-3" />
           </div>
