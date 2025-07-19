@@ -86,9 +86,16 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
   giocoso: '😄'
 };
 
-// Usa la stessa logica del hook usePlaylistRecommendations per garantire coerenza
+// Genera playlist solo per emozioni negative che richiedono intervento
 const getRecommendedPlaylist = (emotion: string, confidence: number) => {
   const emotionLower = emotion.toLowerCase();
+  
+  // Solo emozioni negative che richiedono musicoterapia
+  const negativeEmotions = ['ansioso', 'stressato', 'triste', 'depresso', 'aggressivo', 'agitato', 'iperattivo', 'nervoso', 'irritato', 'pauroso'];
+  
+  if (!negativeEmotions.includes(emotionLower)) {
+    return null; // Nessuna playlist necessaria per emozioni positive/neutre
+  }
   
   switch (emotionLower) {
     case 'ansioso':
@@ -121,23 +128,34 @@ const getRecommendedPlaylist = (emotion: string, confidence: number) => {
         reasoning: `Umore basso rilevato - stimolazione energetica necessaria`
       };
 
-    case 'felice':
-    case 'giocoso':
+    case 'aggressivo':
+    case 'nervoso':
+    case 'irritato':
       return {
-        name: "Mantenimento Benessere",
-        description: "Frequenze per mantenere lo stato positivo",
-        frequency: "40Hz",
-        duration: 10,
-        reasoning: `Stato emotivo positivo - consolidamento del benessere`
+        name: "Calma e Controllo",
+        description: "Frequenze per ridurre aggressività e irritabilità",
+        frequency: "432Hz + 8Hz",
+        duration: 20,
+        reasoning: `Comportamento aggressivo rilevato - necessario calmare`
+      };
+
+    case 'pauroso':
+      return {
+        name: "Sicurezza e Fiducia",
+        description: "Frequenze per ridurre paura e aumentare fiducia",
+        frequency: "528Hz + 40Hz",
+        duration: 18,
+        reasoning: `Paura rilevata - necessario aumentare sicurezza`
       };
 
     default:
+      // Per altre emozioni negative non specificate
       return {
         name: "Equilibrio Generale",
         description: "Sessione bilanciata per stabilità emotiva",
         frequency: "528Hz + 10Hz",
         duration: 15,
-        reasoning: `Stato emotivo neutro - mantenimento equilibrio`
+        reasoning: `Stato emotivo negativo - necessario riequilibrio`
       };
   }
 };
@@ -624,53 +642,77 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
               <TabsContent value="recommendations" className="space-y-4">
 
-                {/* AI Music Therapy Recommendations */}
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <AudioLines className="h-4 w-4" />
-                    Playlist IA Music Therapy Consigliata
-                  </h4>
-                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                        <AudioLines className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
-                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).name}
-                        </h5>
-                        <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
-                          {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).description}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
-                          <span>🎵 {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).frequency}</span>
-                          <span>⏱️ {getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence).duration} min</span>
-                          <span>🎯 Confidenza: {selectedAnalysis.primary_confidence}%</span>
+                {/* AI Music Therapy Recommendations - Solo per emozioni negative */}
+                {(() => {
+                  const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
+                  if (!playlist) {
+                    return (
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 rounded-lg border">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                            <Heart className="h-5 w-5 text-green-600" />
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-green-800 dark:text-green-200 mb-1">
+                              ✨ {petName} sta bene!
+                            </h5>
+                            <p className="text-sm text-green-700 dark:text-green-300">
+                              Emozione "{selectedAnalysis.primary_emotion}" rilevata - nessuna musicoterapia necessaria. Il tuo pet è in uno stato emotivo positivo!
+                            </p>
+                          </div>
                         </div>
-                        <Button 
-                          size="sm" 
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
-                          onClick={() => {
-                            const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
-                            const playlistData = encodeURIComponent(JSON.stringify({
-                              ...playlist,
-                              emotion: selectedAnalysis.primary_emotion,
-                              confidence: selectedAnalysis.primary_confidence,
-                              autoStart: true
-                            }));
-                            const url = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
-                            console.log('DEBUG - Generated URL:', url);
-                            console.log('DEBUG - Playlist data:', playlist);
-                            window.location.href = url;
-                          }}
-                        >
-                          <AudioLines className="h-3 w-3 mr-1" />
-                          Inizia Sessione Musicoterapia
-                        </Button>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div>
+                      <h4 className="font-medium mb-3 flex items-center gap-2">
+                        <AudioLines className="h-4 w-4" />
+                        Playlist IA Music Therapy Consigliata
+                      </h4>
+                      <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
+                            <AudioLines className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
+                              {playlist.name}
+                            </h5>
+                            <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
+                              {playlist.description}
+                            </p>
+                            <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
+                              <span>🎵 {playlist.frequency}</span>
+                              <span>⏱️ {playlist.duration} min</span>
+                              <span>🎯 Confidenza: {selectedAnalysis.primary_confidence}%</span>
+                            </div>
+                            <Button 
+                              size="sm" 
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                              onClick={() => {
+                                const playlistData = encodeURIComponent(JSON.stringify({
+                                  ...playlist,
+                                  emotion: selectedAnalysis.primary_emotion,
+                                  confidence: selectedAnalysis.primary_confidence,
+                                  autoStart: true
+                                }));
+                                const url = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
+                                console.log('DEBUG - Generated URL:', url);
+                                console.log('DEBUG - Playlist data:', playlist);
+                                window.location.href = url;
+                              }}
+                            >
+                              <AudioLines className="h-3 w-3 mr-1" />
+                              Inizia Sessione Musicoterapia
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
 
                 {/* Training Protocol Recommendation - Solo per risultati negativi */}
                 {(() => {
