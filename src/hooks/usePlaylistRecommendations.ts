@@ -111,6 +111,7 @@ export const usePlaylistRecommendations = (petId?: string) => {
   const generateEmotionalPlaylist = (analysis: Analysis): Omit<PlaylistRecommendation, 'priority' | 'source'> | null => {
     const emotion = analysis.primary_emotion.toLowerCase();
     
+    // Solo emozioni negative richiedono playlist terapeutiche
     switch (emotion) {
       case 'ansioso':
       case 'stressato':
@@ -145,26 +146,23 @@ export const usePlaylistRecommendations = (petId?: string) => {
           reasoning: `Umore basso rilevato - stimolazione energetica necessaria`
         };
 
-      case 'felice':
-      case 'giocoso':
+      case 'aggressivo':
         return {
-          name: "Mantenimento Benessere",
-          description: "Frequenze per mantenere lo stato positivo",
-          frequency: "40Hz",
-          duration: 10,
-          tracks: ["Happy Harmonics", "Joyful Rhythms", "Wellness Maintain"],
-          reasoning: `Stato emotivo positivo - consolidamento del benessere`
+          name: "Calma e Controllo",
+          description: "Frequenze per ridurre aggressività e irritabilità",
+          frequency: "432Hz + 8Hz",
+          duration: 20,
+          tracks: ["Peaceful Control", "Anger Release", "Calm Strength"],
+          reasoning: `Comportamento aggressivo rilevato - necessario calmare`
         };
 
+      // Non generiamo raccomandazioni per emozioni positive
+      case 'felice':
+      case 'giocoso':
+      case 'calmo':
+      case 'rilassato':
       default:
-        return {
-          name: "Equilibrio Generale",
-          description: "Sessione bilanciata per stabilità emotiva",
-          frequency: "528Hz + 10Hz",
-          duration: 15,
-          tracks: ["Balanced Mind", "Emotional Harmony", "Stable Vibes"],
-          reasoning: `Stato emotivo neutro - mantenimento equilibrio`
-        };
+        return null; // Nessuna raccomandazione per emozioni positive
     }
   };
 
@@ -211,7 +209,7 @@ export const usePlaylistRecommendations = (petId?: string) => {
     const emotion = analysis.primary_emotion.toLowerCase();
     const { temperature, condition } = weather;
 
-    // Combinazioni specifiche
+    // Solo combinazioni per emozioni negative e condizioni meteorologiche sfavorevoli
     if ((emotion === 'ansioso' || emotion === 'stressato') && temperature > 25) {
       return {
         name: "Calma Estiva",
@@ -234,17 +232,18 @@ export const usePlaylistRecommendations = (petId?: string) => {
       };
     }
 
-    if ((emotion === 'felice' || emotion === 'giocoso') && temperature > 20 && temperature < 26) {
+    if ((emotion === 'aggressivo') && temperature > 25) {
       return {
-        name: "Perfetto Equilibrio",
-        description: "Consolidamento del benessere in condizioni climatiche ideali",
-        frequency: "528Hz + 8Hz",
-        duration: 15,
-        tracks: ["Perfect Day", "Optimal Harmony", "Peak Wellness"],
-        reasoning: `Stato emotivo positivo + clima ideale - massimizzazione del benessere`
+        name: "Controllo del Calore",
+        description: "Gestione dell'aggressività intensificata dal caldo",
+        frequency: "432Hz + 6Hz",
+        duration: 25,
+        tracks: ["Cool Temper", "Heat Anger Relief", "Calm Control"],
+        reasoning: `Aggressività + caldo eccessivo - controllo dell'irritabilità`
       };
     }
 
+    // Non generiamo raccomandazioni combinate per emozioni positive
     return null;
   };
 
