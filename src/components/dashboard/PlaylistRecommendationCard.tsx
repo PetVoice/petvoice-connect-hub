@@ -59,8 +59,8 @@ const PlaylistRecommendationCard: React.FC<PlaylistRecommendationCardProps> = ({
   };
 
   const handlePlayPlaylist = (playlist: PlaylistRecommendation) => {
-    // Naviga alla pagina Wellness con il tab music-therapy e i parametri della playlist
-    navigate(`/wellness?tab=music-therapy&petId=${petId}&playlist=${encodeURIComponent(JSON.stringify({
+    // Naviga alla pagina AI Music Therapy con i parametri della playlist
+    navigate(`/ai-music-therapy?petId=${petId}&playlist=${encodeURIComponent(JSON.stringify({
       name: playlist.name,
       frequency: playlist.frequency,
       duration: playlist.duration,

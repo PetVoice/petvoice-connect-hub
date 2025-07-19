@@ -700,7 +700,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                   confidence: selectedAnalysis.primary_confidence,
                                   autoStart: true
                                 }));
-                                const url = `/wellness?tab=music-therapy&petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
+                                const url = `/ai-music-therapy?petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
                                 console.log('DEBUG - Generated URL:', url);
                                 console.log('DEBUG - Playlist data:', playlist);
                                 window.location.href = url;
