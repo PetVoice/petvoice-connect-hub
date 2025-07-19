@@ -815,9 +815,9 @@ const TrainingDashboard: React.FC = () => {
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    {(currentExercise === totalExercises - 1 && protocol.current_day === protocol.duration_days) 
-                      ? 'Completa Protocollo' 
-                      : 'Prossimo Esercizio'}
+                    {currentExercise === 2 
+                      ? `Esercizio 3 Completato` 
+                      : `Esercizio ${currentExercise + 1} Completato`}
                   </>
                 )}
               </Button>
