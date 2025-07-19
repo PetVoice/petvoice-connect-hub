@@ -125,8 +125,30 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     if (playlistParam) {
       console.log('🎵 Processing playlist from analysis...');
       try {
-        const playlistData = JSON.parse(decodeURIComponent(playlistParam));
+        // Parsing più robusto per evitare errori URI malformed
+        let playlistData;
+        try {
+          playlistData = JSON.parse(decodeURIComponent(playlistParam));
+        } catch (uriError) {
+          // Fallback: prova senza decodeURIComponent
+          playlistData = JSON.parse(playlistParam);
+        }
+        
         console.log('🎵 Playlist data:', playlistData);
+        
+        // Verifica se l'emozione è negativa (solo per emozioni negative mostriamo playlist)
+        const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso'];
+        const isNegativeEmotion = negativeEmotions.includes(playlistData.emotion?.toLowerCase());
+        
+        if (!isNegativeEmotion) {
+          console.log('🎵 Emozione positiva rilevata, nessuna playlist necessaria');
+          toast({
+            title: "✨ Stato Emotivo Positivo",
+            description: `${selectedPet.name} sta bene! Nessuna musicoterapia necessaria.`,
+          });
+          setShowCategories(true);
+          return;
+        }
         
         // Crea una sessione temporanea dalla playlist raccomandata
         const recommendedSession: TherapySession = {
@@ -157,6 +179,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           description: "Impossibile caricare la playlist dall'analisi",
           variant: "destructive"
         });
+        setShowCategories(true);
       }
     } else {
       console.log('🎵 No playlist param, showing categories');
