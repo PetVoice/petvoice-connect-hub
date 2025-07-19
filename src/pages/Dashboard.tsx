@@ -24,8 +24,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
-import PlaylistRecommendationCard from '@/components/dashboard/PlaylistRecommendationCard';
-import { usePlaylistRecommendations } from '@/hooks/usePlaylistRecommendations';
 
 interface Pet {
   id: string;
@@ -75,8 +73,6 @@ const Dashboard: React.FC = () => {
   const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
   
-  // Hook per le raccomandazioni playlist
-  const { recommendations, loading: playlistLoading, generateRecommendations } = usePlaylistRecommendations(activePet?.id);
 
   // Mappa delle emozioni per calcolare il wellness score
   const emotionScores: Record<string, number> = {
@@ -266,17 +262,6 @@ const Dashboard: React.FC = () => {
 
     fetchPetAnalyses();
   }, [activePet]);
-
-  // Genera raccomandazioni quando cambia il pet attivo (con debounce)
-  useEffect(() => {
-    if (activePet) {
-      const timer = setTimeout(() => {
-        generateRecommendations(weatherData);
-      }, 500); // Debounce di 500ms
-
-      return () => clearTimeout(timer);
-    }
-  }, [activePet?.id]); // Solo l'ID del pet, non l'oggetto completo
 
   // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
@@ -537,21 +522,12 @@ const Dashboard: React.FC = () => {
               user={user} 
               onWeatherUpdate={(data) => {
                 setWeatherData(data);
-                generateRecommendations(data);
               }}
             />
           </CardContent>
         </Card>
       )}
 
-      {/* Playlist Recommendations - Sistema Unificato */}
-      {activePet && (
-        <PlaylistRecommendationCard
-          recommendations={recommendations}
-          loading={playlistLoading}
-          petId={activePet.id}
-        />
-      )}
 
       {/* Recent Activities */}
       <div className="grid lg:grid-cols-2 gap-6">
