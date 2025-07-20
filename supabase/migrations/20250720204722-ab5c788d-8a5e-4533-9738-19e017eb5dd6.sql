@@ -1,0 +1,142 @@
+-- GIORNI 3-4: Redirezione su Oggetti Appropriati
+WITH protocol_id AS (
+  SELECT id FROM ai_training_protocols 
+  WHERE title = 'Stop Comportamenti Distruttivi' 
+  ORDER BY created_at DESC 
+  LIMIT 1
+)
+
+INSERT INTO public.ai_training_exercises (
+  protocol_id,
+  day_number,
+  title,
+  description,
+  duration_minutes,
+  exercise_type,
+  instructions,
+  materials,
+  completed
+) 
+SELECT 
+  p.id,
+  3,
+  'Training Comando "PRENDI QUESTO"',
+  'Insegnare comando specifico per dirigere l''attenzione verso oggetti appropriati, creando associazione positiva con la redirezione.',
+  14,
+  'behavioral',
+  ARRAY[
+    'Tieni in mano giocattolo masticabile e di "Prendi questo!" con tono allegro',
+    'Quando l''animale si avvicina o tocca il giocattolo, premia immediatamente',
+    'Ripeti 10 volte alternando giocattoli diversi',
+    'Pratica in stanze diverse per generalizzare il comando',
+    'Aumenta gradualmente la distanza tra te e l''oggetto',
+    'Termina sempre con 2-3 minuti di gioco libero con l''oggetto scelto'
+  ],
+  ARRAY['3-4 giocattoli masticabili diversi', 'Premi piccoli e appetitosi', 'Entusiasmo e pazienza'],
+  false
+FROM protocol_id p
+
+UNION ALL
+
+SELECT 
+  p.id,
+  3,
+  'Sfida Scelta Multipla',
+  'Presentare più opzioni appropriate simultaneamente per rinforzare la capacità di scegliere correttamente e ignorare oggetti inappropriati.',
+  12,
+  'mental',
+  ARRAY[
+    'Disponi 3 oggetti: 2 appropriati (giocattoli) e 1 inappropriato (scarpa)',
+    'Posizionati vicino agli oggetti appropriati',
+    'Invita l''animale: "Scegli quello giusto!"',
+    'Se sceglie correttamente: premio e lode immediate',
+    'Se sceglie inappropriato: "No" calmo + redirezione senza punizione',
+    'Ripeti variando posizioni oggetti, 8-10 tentativi per sessione'
+  ],
+  ARRAY['2 giocattoli appetibili', '1 oggetto "proibito" sacrificabile', 'Premi di alto valore'],
+  false
+FROM protocol_id p
+
+UNION ALL
+
+SELECT 
+  p.id,
+  3,
+  'Introduzione Tappetino Snuffle',
+  'Presentare attività di ricerca cibo per stimolazione mentale e redirezione naturale dell''istinto esplorativo.',
+  10,
+  'mental',
+  ARRAY[
+    'Nascondi piccoli premi nel tappetino snuffle',
+    'Presenta il tappetino dicendo "Cerca!" con entusiasmo',
+    'Lascia che l''animale esplori e trovi i premi autonomamente',
+    'Non aiutare - l''obiettivo è sviluppare concentrazione',
+    'Quando termina, togli il tappetino per mantenerlo speciale',
+    'Osserva se dopo questa attività è più calmo e meno interessato a distruggere'
+  ],
+  ARRAY['Tappetino snuffle', 'Premi piccoli e profumati', 'Pazienza per lasciarlo lavorare'],
+  false
+FROM protocol_id p
+
+UNION ALL
+
+SELECT 
+  p.id,
+  4,
+  'Test Resistenza alla Tentazione',
+  'Valutare i progressi mettendo l''animale di fronte a tentazioni controllate per misurare l''efficacia della redirezione.',
+  15,
+  'behavioral',
+  ARRAY[
+    'Posiziona oggetto molto appetibile ma inappropriato (scarpa usata)',
+    'Metti giocattolo appropriato a distanza simile',
+    'Libera l''animale e osserva la prima scelta senza intervenire',
+    'Se va verso oggetto sbagliato: "No" + redirezione immediata',
+    'Se sceglie correttamente: festa enorme e premio speciale',
+    'Ripeti test 5 volte aumentando difficoltà (oggetti più appetibili)'
+  ],
+  ARRAY['Oggetti "proibiti" sacrificabili', 'Giocattoli irresistibili', 'Premi di altissimo valore', 'Cronometro'],
+  false
+FROM protocol_id p
+
+UNION ALL
+
+SELECT 
+  p.id,
+  4,
+  'Gioco Interattivo Prolungato',
+  'Sessione estesa di gioco con giocattoli appropriati per rinforzare l''associazione positiva e soddisfare bisogni di masticazione.',
+  12,
+  'physical',
+  ARRAY[
+    'Scegli il giocattolo che ha mostrato preferire nei giorni precedenti',
+    'Inizia giocando insieme per 5 minuti (tira e molla, lancia e riporta)',
+    'Gradualmente riduci la tua partecipazione, lasciandolo giocare solo',
+    'Rimani presente ma non interattivo per altri 7 minuti',
+    'Premia verbalmente quando si concentra bene sul giocattolo',
+    'Nota durata attenzione e preferenze per personalizzare futuro training'
+  ],
+  ARRAY['Giocattolo preferito', 'Cronometro', 'Premi verbali entusiasti'],
+  false
+FROM protocol_id p
+
+UNION ALL
+
+SELECT 
+  p.id,
+  4,
+  'Creazione Angolo Masticazione Personale',
+  'Stabilire una zona specifica dedicata alla masticazione dove l''animale può liberamente scegliere tra opzioni appropriate.',
+  8,
+  'behavioral',
+  ARRAY[
+    'Scegli angolo tranquillo della casa come "zona masticazione"',
+    'Disponi 4-5 giocattoli masticabili diversi (texture, durezza, sapori)',
+    'Aggiungi tappetino comodo e ciotola acqua',
+    'Porta l''animale alla zona e presenta: "Questo è il tuo angolo speciale"',
+    'Resta vicino 5 minuti rinforzando qualsiasi interesse per la zona',
+    'Durante il giorno, reindirizza sempre verso questo angolo quando cerca cosa masticare'
+  ],
+  ARRAY['Tappetino confortevole', '4-5 giocattoli masticabili vari', 'Ciotola acqua piccola'],
+  false
+FROM protocol_id p;
