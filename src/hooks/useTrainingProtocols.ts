@@ -180,7 +180,7 @@ export const useActiveProtocols = () => {
 
       if (error) throw error;
 
-      return data?.map(protocol => ({
+      return data?.filter(protocol => protocol && protocol.title && protocol.id).map(protocol => ({
         ...protocol,
         exercises: protocol.exercises || [],
         metrics: protocol.metrics?.[0] || null,
