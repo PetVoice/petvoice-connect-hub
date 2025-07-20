@@ -190,32 +190,8 @@ export const useActiveProtocols = () => {
         schedule: protocol.schedule?.[0] || null,
       })) as TrainingProtocol[];
     },
+    refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
-
-  // Setup realtime subscription separatamente
-  useEffect(() => {
-    const channel = supabase
-      .channel('training-protocols-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'ai_training_protocols'
-        },
-        (payload) => {
-          console.log('🔄 Realtime update received:', payload);
-          // Invalida e ricarica i dati quando c'è un update
-          queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
-        }
-      )
-      .subscribe();
-
-    // Cleanup della subscription
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
 
   return query;
 };
