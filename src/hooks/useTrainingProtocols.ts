@@ -167,6 +167,16 @@ export const useTrainingProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Prima ottieni i protocolli dell'utente per vedere quali titoli ha già
+      const { data: userProtocols } = await supabase
+        .from('ai_training_protocols')
+        .select('title')
+        .eq('user_id', user.id)
+        .not('status', 'eq', 'completed');
+
+      const userProtocolTitles = userProtocols?.map(p => p.title) || [];
+
+      // Poi ottieni tutti i protocolli, ma escludi quelli pubblici con titoli già posseduti dall'utente
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select(`
@@ -179,16 +189,20 @@ export const useTrainingProtocols = () => {
         .not('status', 'eq', 'completed')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        toast({
-          title: 'Errore nel caricamento',
-          description: 'Non è stato possibile caricare i protocolli di training',
-          variant: 'destructive',
-        });
-        throw error;
-      }
+      if (error) throw error;
 
-      return data.map(protocol => ({
+      // Filtra i risultati per evitare duplicati
+      const filteredData = data?.filter(protocol => {
+        // Mantieni sempre i protocolli dell'utente
+        if (protocol.user_id === user.id) return true;
+        
+        // Per i protocolli pubblici, mostrali solo se l'utente non ne ha già una copia
+        if (protocol.is_public && !userProtocolTitles.includes(protocol.title)) return true;
+        
+        return false;
+      }) || [];
+
+      return filteredData.map(protocol => ({
         ...protocol,
         exercises: protocol.exercises || [],
         metrics: protocol.metrics?.[0] || null,
