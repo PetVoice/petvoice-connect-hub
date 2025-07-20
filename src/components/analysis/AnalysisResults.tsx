@@ -871,25 +871,36 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                    const emotion = selectedAnalysis.primary_emotion.toLowerCase();
                                    let protocolId = '';
                                    
-                                   // Mappa l'emozione al protocollo ID corretto dal database
-                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                       emotion.includes('stress') || emotion.includes('stressato') ||
-                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                     protocolId = 'e3f1ebcd-f147-4c67-bfa0-44aba48ecd96'; // Gestione Ansia da Separazione
-                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                              emotion.includes('irritato')) {
-                                     protocolId = 'a6b8ca21-c042-4a9a-9739-9d7ead57c209'; // Controllo Aggressività Reattiva
-                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                     protocolId = '23070d02-4127-4ad6-a8fa-c70958621172'; // Superamento Paure e Fobie
-                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                     protocolId = 'dc383c80-185d-47b3-b99a-6c47afb54508'; // Gestione Energia Eccessiva
-                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                              emotion.includes('depresso') || emotion.includes('depressione') ||
-                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                     protocolId = '3250a33e-c2e8-43e3-9fcf-bef48bfcc304'; // Riattivazione Comportamentale
+                                    // Mappa l'emozione al protocollo ID corretto dal database (IDs aggiornati)
+                                    if (emotion.includes('ansia') || emotion.includes('ansioso') || 
+                                        emotion.includes('stress') || emotion.includes('stressato') ||
+                                        emotion.includes('preoccupato') || emotion.includes('inquieto')) {
+                                      protocolId = 'd19a882e-db8b-47f4-b760-371379f0a7ad'; // Gestione Ansia da Separazione
+                                    } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                               emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                               emotion.includes('irritato')) {
+                                      protocolId = 'abe1baef-06fe-4850-aaf6-1defa06a2dff'; // Controllo Aggressività Reattiva
+                                    } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                               emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
+                                      protocolId = '12a29252-4ef5-4564-b943-46377ac252f9'; // Superare Fobie e Paure Specifiche
+                                    } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                               emotion.includes('nervoso') || emotion.includes('irrequieto') ||
+                                               emotion.includes('iperattiv')) {
+                                      protocolId = 'f1e2d3c4-b5a6-4d5c-8f9e-1a2b3c4d5e6f'; // Gestione Iperattività e Deficit Attenzione
+                                    } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                               emotion.includes('depresso') || emotion.includes('depressione') ||
+                                               emotion.includes('abbattuto') || emotion.includes('melanconico') ||
+                                               emotion.includes('apatico') || emotion.includes('letargico')) {
+                                      protocolId = '14b93624-bc7d-4bfd-9484-b4811880838c'; // Riattivazione Energia e Motivazione
+                                    } else if (emotion.includes('timido') || emotion.includes('insicuro') ||
+                                               emotion.includes('riservato') || emotion.includes('introverso')) {
+                                      protocolId = '1ece2f5b-29cf-4f36-9987-26523a96e3f6'; // Socializzazione Progressiva
+                                    } else if (emotion.includes('geloso') || emotion.includes('possessiv') ||
+                                               emotion.includes('invidioso')) {
+                                      protocolId = 'ad9c3aef-ba6c-4994-8d3f-91f4e8dc2b5e'; // Gestione Gelosia e Possessività
+                                    } else if (emotion.includes('distruttiv') || emotion.includes('disobbedient') ||
+                                               emotion.includes('ribelle')) {
+                                      protocolId = '7036439d-8a2d-43dd-8a62-71b866f7b661'; // Stop Comportamenti Distruttivi
                                    } else {
                                      // Fallback - vai alla lista generale
                                      window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
