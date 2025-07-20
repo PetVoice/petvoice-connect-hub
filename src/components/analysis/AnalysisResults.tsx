@@ -864,13 +864,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                    }
                                  })()}
                                </div>
-                               <Button 
-                                 size="sm" 
-                                 className="bg-green-600 hover:bg-green-700 text-white"
-                                 onClick={() => {
-                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                   let protocolId = '';
-                                   
+                                <Button 
+                                  size="sm" 
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                  onClick={async () => {
+                                    const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                    let protocolId = '';
+                                    
                                     // Mappa l'emozione al protocollo ID corretto dal database (IDs aggiornati)
                                     if (emotion.includes('ansia') || emotion.includes('ansioso') || 
                                         emotion.includes('stress') || emotion.includes('stressato') ||
@@ -901,15 +901,122 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                     } else if (emotion.includes('distruttiv') || emotion.includes('disobbedient') ||
                                                emotion.includes('ribelle')) {
                                       protocolId = '7036439d-8a2d-43dd-8a62-71b866f7b661'; // Stop Comportamenti Distruttivi
-                                   } else {
-                                     // Fallback - vai alla lista generale
-                                     window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
-                                     return;
-                                   }
-                                   
-                                   // Vai direttamente al protocollo specifico
-                                   window.location.href = `/training/dashboard/${protocolId}`;
-                                 }}
+                                    } else {
+                                      // Fallback - vai alla lista generale
+                                      window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
+                                      return;
+                                    }
+                                    
+                                    try {
+                                      // Ottieni l'utente corrente
+                                      const { data: { user } } = await supabase.auth.getUser();
+                                      if (!user) {
+                                        console.error('User not authenticated');
+                                        return;
+                                      }
+
+                                      // Ottieni il protocollo pubblico originale
+                                      const { data: originalProtocol, error: protocolError } = await supabase
+                                        .from('ai_training_protocols')
+                                        .select('*')
+                                        .eq('id', protocolId)
+                                        .eq('is_public', true)
+                                        .single();
+
+                                      if (protocolError || !originalProtocol) {
+                                        console.error('Error fetching protocol:', protocolError);
+                                        // Fallback
+                                        window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
+                                        return;
+                                      }
+
+                                      // Verifica se l'utente ha già questo protocollo attivo
+                                      const { data: existingProtocol } = await supabase
+                                        .from('ai_training_protocols')
+                                        .select('id, status')
+                                        .eq('user_id', user.id)
+                                        .eq('title', originalProtocol.title)
+                                        .single();
+
+                                      if (existingProtocol) {
+                                        // Se esiste già, vai direttamente al protocollo esistente
+                                        window.location.href = `/training/dashboard/${existingProtocol.id}`;
+                                        return;
+                                      }
+
+                                      // Crea una nuova copia del protocollo per l'utente
+                                      const newProtocol = {
+                                        title: originalProtocol.title,
+                                        description: originalProtocol.description,
+                                        category: originalProtocol.category,
+                                        difficulty: originalProtocol.difficulty,
+                                        duration_days: originalProtocol.duration_days,
+                                        target_behavior: originalProtocol.target_behavior,
+                                        triggers: originalProtocol.triggers,
+                                        required_materials: originalProtocol.required_materials,
+                                        current_day: 1,
+                                        progress_percentage: 0,
+                                        status: 'active',
+                                        success_rate: 0,
+                                        ai_generated: false,
+                                        is_public: false,
+                                        veterinary_approved: false,
+                                        community_rating: 0,
+                                        community_usage: 0,
+                                        mentor_recommended: false,
+                                        notifications_enabled: true,
+                                        last_activity_at: new Date().toISOString(),
+                                        user_id: user.id,
+                                        pet_id: null,
+                                        integration_source: 'analysis_recommendation',
+                                        estimated_cost: null,
+                                        share_code: null,
+                                      };
+
+                                      const { data: createdProtocol, error: createError } = await supabase
+                                        .from('ai_training_protocols')
+                                        .insert(newProtocol)
+                                        .select()
+                                        .single();
+
+                                      if (createError) {
+                                        console.error('Error creating protocol:', createError);
+                                        return;
+                                      }
+
+                                      // Copia tutti gli esercizi dal protocollo originale
+                                      const { data: originalExercises, error: exercisesError } = await supabase
+                                        .from('ai_training_exercises')
+                                        .select('*')
+                                        .eq('protocol_id', protocolId);
+
+                                      if (!exercisesError && originalExercises && originalExercises.length > 0) {
+                                        const exercisesToCopy = originalExercises.map(exercise => ({
+                                          protocol_id: createdProtocol.id,
+                                          title: exercise.title,
+                                          description: exercise.description,
+                                          exercise_type: exercise.exercise_type,
+                                          day_number: exercise.day_number,
+                                          duration_minutes: exercise.duration_minutes,
+                                          instructions: exercise.instructions,
+                                          materials: exercise.materials,
+                                          effectiveness_score: exercise.effectiveness_score,
+                                        }));
+
+                                        await supabase
+                                          .from('ai_training_exercises')
+                                          .insert(exercisesToCopy);
+                                      }
+
+                                      // Vai al protocollo appena creato
+                                      window.location.href = `/training/dashboard/${createdProtocol.id}`;
+                                      
+                                    } catch (error) {
+                                      console.error('Error starting protocol from analysis:', error);
+                                      // Fallback in caso di errore
+                                      window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
+                                    }
+                                  }}
                                >
                                 <Target className="h-3 w-3 mr-1" />
                                 Inizia Protocollo Training
