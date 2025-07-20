@@ -42,7 +42,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { usePetTwins, useMentors } from '@/hooks/usePetMatching';
+import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 
 // Enhanced Types
@@ -314,7 +314,6 @@ export const PetMatchingIntelligence: React.FC = () => {
   
   // Real data hooks with proper loading states
   const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
-  const { data: mentors = [], isLoading: mentorsLoading } = useMentors();
   
   // Training protocol creation
   const createProtocol = useCreateProtocol();
@@ -349,22 +348,9 @@ export const PetMatchingIntelligence: React.FC = () => {
       return matchesSearch && matchesSpecies;
     });
   }, [petTwins, searchTerm, speciesFilter]);
-
-  const filteredMentors = useMemo(() => {
-    if (!mentors || mentors.length === 0) return [];
-    
-    return mentors.filter(mentor => {
-      if (!mentor) return false;
-      const matchesSearch = mentor.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           mentor.specialties?.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesOnline = !onlineFilter || mentor.is_online;
-      
-      return matchesSearch && matchesOnline;
-    });
-  }, [mentors, searchTerm, onlineFilter]);
   
   // Show loading AFTER all hooks are declared
-  if (petsLoading || mentorsLoading) {
+  if (petsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -586,14 +572,8 @@ export const PetMatchingIntelligence: React.FC = () => {
         )}
       </div>
 
-      <Tabs defaultValue="pets" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="pets">Pet Gemelli</TabsTrigger>
-          <TabsTrigger value="mentors">Mentori</TabsTrigger>
-        </TabsList>
-
-        {/* Enhanced Pet Twins Tab */}
-        <TabsContent value="pets" className="space-y-4">
+      {/* Contenuto Pet Gemelli direttamente (senza tab) */}
+      <div className="space-y-4">
           {filteredPetTwins.length === 0 ? (
             <div className="text-center py-8">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -835,249 +815,7 @@ export const PetMatchingIntelligence: React.FC = () => {
               ))}
             </div>
           )}
-        </TabsContent>
-
-        {/* Enhanced Mentors Tab */}
-        <TabsContent value="mentors" className="space-y-4">
-          {filteredMentors.length === 0 ? (
-            <div className="text-center py-8">
-              <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">Nessun mentore trovato</h3>
-              <p className="text-muted-foreground">Prova a modificare i filtri di ricerca</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {filteredMentors.map((mentor) => (
-                <Card key={mentor.id} className="hover:shadow-lg transition-all duration-300 border-emerald-500/20 hover:border-emerald-500/40">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <Avatar className="h-12 w-12 border-2 border-emerald-500/30">
-                            <AvatarImage src={mentor.avatar} alt={mentor.name} />
-                            <AvatarFallback className="bg-emerald-500/20 text-emerald-700">
-                              {mentor.name.substring(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                          {mentor.isOnline && (
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg">{mentor.name}</h3>
-                          <p className="text-sm text-muted-foreground">{mentor.experience} anni di esperienza</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="font-medium">{mentor.rating}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">{mentor.successRate}% successo</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleBookmark(mentor.id, 'mentor')}
-                          className="h-8 w-8 p-0 mt-1"
-                        >
-                          {isBookmarked(mentor.id, 'mentor') ? (
-                            <BookmarkCheck className="h-4 w-4 text-blue-500" />
-                          ) : (
-                            <Bookmark className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground">{mentor.bio}</p>
-
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">Specializzazioni:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {(mentor.specialties || []).map((specialty, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {specialty}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        <span className="text-muted-foreground">{mentor.distance}km</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span className="text-muted-foreground">{mentor.responseTime}</span>
-                      </div>
-                      {mentor.hourlyRate && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-muted-foreground">€{mentor.hourlyRate}/ora</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <Badge variant={mentor.availability === 'Disponibile' ? 'default' : 'secondary'} className="text-xs">
-                          {mentor.availability}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm">
-                        <div className={`w-2 h-2 rounded-full ${mentor.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                        <span className="text-muted-foreground">{mentor.lastSeen}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => setSelectedMentor(mentor)}
-                            >
-                              <Eye className="h-4 w-4 mr-1" />
-                              Profilo
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle className="flex items-center gap-3">
-                                <div className="relative">
-                                  <Avatar className="h-12 w-12">
-                                    <AvatarImage src={mentor.avatar} alt={mentor.name} />
-                                    <AvatarFallback>{mentor.name.substring(0, 2)}</AvatarFallback>
-                                  </Avatar>
-                                  {mentor.isOnline && (
-                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
-                                  )}
-                                </div>
-                                <div>
-                                  <h2 className="text-xl font-bold">{mentor.name}</h2>
-                                  <p className="text-sm text-muted-foreground">{mentor.experience} anni di esperienza</p>
-                                </div>
-                                <div className="ml-auto text-right">
-                                  <div className="flex items-center gap-1">
-                                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                                    <span className="font-medium">{mentor.rating}</span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground">{mentor.totalMentorships} consultazioni</p>
-                                </div>
-                              </DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-6">
-                              {/* Bio Extended */}
-                              <div>
-                                <h3 className="font-semibold mb-3">Chi sono</h3>
-                                <p className="text-sm text-muted-foreground">{mentor.bio}</p>
-                              </div>
-
-                              {/* Statistics */}
-                              <div>
-                                <h3 className="font-semibold mb-3">Statistiche</h3>
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                                    <div className="text-2xl font-bold text-emerald-600">{mentor.successRate}%</div>
-                                    <div className="text-xs text-muted-foreground">Tasso Successo</div>
-                                  </div>
-                                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                                    <div className="text-2xl font-bold text-emerald-600">{mentor.totalMentorships}</div>
-                                    <div className="text-xs text-muted-foreground">Consultazioni</div>
-                                  </div>
-                                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                                    <div className="text-2xl font-bold text-emerald-600">{mentor.responseTime}</div>
-                                    <div className="text-xs text-muted-foreground">Risposta</div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Specializations */}
-                              <div>
-                                <h3 className="font-semibold mb-3">Specializzazioni</h3>
-                                <div className="flex flex-wrap gap-2">
-                                  {(mentor.specialties || []).map((specialty, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-sm">
-                                      {specialty}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Languages */}
-                              <div>
-                                <h3 className="font-semibold mb-3">Lingue</h3>
-                                <div className="flex gap-2">
-                                  {(mentor.languages || []).map((lang, idx) => (
-                                    <Badge key={idx} variant="secondary">
-                                      {lang}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Contact Options */}
-                              <div className="space-y-3">
-                                <h3 className="font-semibold">Contatta</h3>
-                                <div className="space-y-2">
-                                  <Textarea
-                                    placeholder="Scrivi il tuo messaggio..."
-                                    value={chatMessage}
-                                    onChange={(e) => setChatMessage(e.target.value)}
-                                    rows={3}
-                                  />
-                                  <div className="flex gap-2">
-                                    <Button 
-                                      className="flex-1"
-                                      onClick={() => handleContactMentor(mentor.id)}
-                                      disabled={isLoading || !chatMessage.trim()}
-                                    >
-                                      {isLoading ? (
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                      ) : (
-                                        <Send className="h-4 w-4 mr-2" />
-                                      )}
-                                      Invia Messaggio
-                                    </Button>
-                                    <Button variant="outline">
-                                      <Phone className="h-4 w-4 mr-2" />
-                                      Chiama
-                                    </Button>
-                                    <Button variant="outline">
-                                      <Video className="h-4 w-4 mr-2" />
-                                      Video
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        <Button 
-                          size="sm" 
-                          className="bg-emerald-500 hover:bg-emerald-600"
-                          onClick={() => handleContactMentor(mentor.id)}
-                          disabled={isLoading}
-                        >
-                          {isLoading ? (
-                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          ) : (
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                          )}
-                          Contatta
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-      </Tabs>
+        </div>
     </div>
   );
 };
