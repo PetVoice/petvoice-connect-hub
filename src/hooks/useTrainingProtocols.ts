@@ -175,7 +175,7 @@ export const useActiveProtocols = () => {
           schedule:ai_training_schedules(*)
         `)
         .eq('user_id', user.id)
-        .eq('status', 'never_show')  // Status che non esiste mai
+        .in('status', ['active'])  // Solo protocolli attivi
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
@@ -292,6 +292,7 @@ export const useCreateProtocol = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
       toast({
         title: 'Protocollo creato',
         description: 'Il protocollo di training è stato creato con successo',
@@ -326,6 +327,7 @@ export const useUpdateProtocol = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
     },
     onError: (error) => {
       toast({
