@@ -968,7 +968,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                         last_activity_at: new Date().toISOString(),
                                         user_id: user.id,
                                         pet_id: null,
-                                        integration_source: 'analysis_recommendation',
+                                        integration_source: 'analysis',
                                         estimated_cost: null,
                                         share_code: null,
                                       };
