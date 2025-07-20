@@ -98,6 +98,8 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
+      console.log('🔍 PROTOCOLLO CARICATO DAL DATABASE:', data);
+      
       setProtocol({
         ...data,
         difficulty: data.difficulty as 'facile' | 'medio' | 'difficile',
@@ -108,6 +110,12 @@ const TrainingDashboard: React.FC = () => {
         metrics: data.metrics?.[0] || null,
         schedule: data.schedule?.[0] || null,
       } as TrainingProtocol);
+      
+      console.log('🔍 PROTOCOLLO DOPO SETPROTOCOL:', {
+        id: data.id,
+        title: data.title,
+        current_day: data.current_day
+      });
     };
     
     fetchProtocol();
