@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -160,7 +161,9 @@ export const useCompletedProtocols = () => {
 
 // Hook per recuperare protocolli attivi dell'utente
 export const useActiveProtocols = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+  
+  const query = useQuery({
     queryKey: ['active-protocols'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -188,6 +191,33 @@ export const useActiveProtocols = () => {
       })) as TrainingProtocol[];
     },
   });
+
+  // Setup realtime subscription separatamente
+  useEffect(() => {
+    const channel = supabase
+      .channel('training-protocols-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ai_training_protocols'
+        },
+        (payload) => {
+          console.log('🔄 Realtime update received:', payload);
+          // Invalida e ricarica i dati quando c'è un update
+          queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+        }
+      )
+      .subscribe();
+
+    // Cleanup della subscription
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 export const useTrainingProtocols = () => {
