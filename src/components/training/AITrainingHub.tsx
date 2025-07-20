@@ -416,6 +416,12 @@ export const AITrainingHub: React.FC = () => {
           .single();
 
         if (error) throw error;
+        
+        // INCREMENTA IL CONTEGGIO DEGLI UTILIZZI DEL PROTOCOLLO ORIGINALE
+        await supabase
+          .from('ai_training_protocols')
+          .update({ community_usage: (protocol.community_usage || 0) + 1 })
+          .eq('id', protocol.id);
 
         // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO
         const { data: originalExercises, error: exercisesError } = await supabase
@@ -811,6 +817,10 @@ export const AITrainingHub: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
                             <span>{Math.round(protocol.success_rate)}% successo</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            <span>{protocol.community_usage || 0} utilizzi</span>
                           </div>
                         </div>
                       </div>
