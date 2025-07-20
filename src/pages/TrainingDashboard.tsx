@@ -330,13 +330,6 @@ const TrainingDashboard: React.FC = () => {
 
   // Funzione per interrompere il protocollo
   const handleInterruptProtocol = async () => {
-    console.log('🔍 DEBUG INTERRUZIONE:', {
-      protocol_exists: !!protocol,
-      protocol_id: protocol?.id,
-      protocol_title: protocol?.title,
-      protocol_object: protocol
-    });
-    
     if (!protocol) {
       toast({
         title: 'Errore',
