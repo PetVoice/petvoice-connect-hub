@@ -621,7 +621,7 @@ export const AITrainingHub: React.FC = () => {
       if (newStatus === 'paused') {
         toast({
           title: 'Protocollo interrotto',
-          description: `Il protocollo è stato interrotto con successo`,
+          description: `Il protocollo "${protocol?.title || 'Senza nome'}" è stato interrotto con successo`,
         });
       } else {
         toast({
