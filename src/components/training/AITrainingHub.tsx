@@ -95,10 +95,11 @@ export const AITrainingHub: React.FC = () => {
   React.useEffect(() => {
     const forceRefresh = async () => {
       await queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+      await queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
       refetchProtocols();
     };
     forceRefresh();
-  }, []);  // Run once on mount
+  }, [queryClient, refetchProtocols]);  // Updated dependencies
   
   // Mutations
   const createProtocol = useCreateProtocol();
