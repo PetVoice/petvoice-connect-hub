@@ -292,10 +292,26 @@ const TrainingDashboard: React.FC = () => {
           setTimeout(async () => {
             const newCurrentDay = protocol.current_day + 1;
             
+            // CALCOLA ANCHE IL PROGRESSO AGGIORNATO
+            const exercisesPerDay = 3; // Fisso a 3 esercizi per giorno
+            const totalExercises = exercisesPerDay * protocol.duration_days;
+            const exercisesCompletedInPreviousDays = protocol.current_day * exercisesPerDay; // Tutti i giorni precedenti + oggi completato
+            const newProgressPercentage = Math.floor((exercisesCompletedInPreviousDays / totalExercises) * 100);
+            
+            console.log('🔄 AGGIORNAMENTO PROGRESSO PASSAGGIO GIORNO:', {
+              currentDay: protocol.current_day,
+              newCurrentDay,
+              exercisesPerDay,
+              totalExercises,
+              exercisesCompletedInPreviousDays,
+              newProgressPercentage
+            });
+            
             await updateProtocol.mutateAsync({
               id: protocol.id,
               updates: {
                 current_day: newCurrentDay,
+                progress_percentage: Math.min(newProgressPercentage, 100),
                 last_activity_at: new Date().toISOString(),
               }
             });
@@ -303,7 +319,8 @@ const TrainingDashboard: React.FC = () => {
             // 3. AGGIORNA LO STATO LOCALE DEL PROTOCOLLO
             setProtocol(prev => prev ? {
               ...prev,
-              current_day: newCurrentDay
+              current_day: newCurrentDay,
+              progress_percentage: Math.min(newProgressPercentage, 100)
             } : null);
             
             // 4. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
@@ -317,7 +334,7 @@ const TrainingDashboard: React.FC = () => {
             // 6. Toast di congratulazioni per il nuovo giorno
             toast({
               title: "🎉 Nuovo giorno iniziato!",
-              description: `Benvenuto al giorno ${newCurrentDay}! Inizia con l'esercizio 1.`,
+              description: `Benvenuto al giorno ${newCurrentDay}! Progresso: ${Math.min(newProgressPercentage, 100)}%`,
             });
           }, 2000);
         }
