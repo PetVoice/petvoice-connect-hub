@@ -609,6 +609,7 @@ export const AITrainingHub: React.FC = () => {
   const handleStatusChange = async (protocolId: string, newStatus: 'active' | 'paused' | 'completed' | 'available' | 'suggested') => {
     try {
       const protocol = protocols?.find(p => p.id === protocolId);
+      console.log('🔍 PROTOCOLLO TROVATO PER INTERRUZIONE:', protocol);
       
       await updateProtocol.mutateAsync({
         id: protocolId,
@@ -621,7 +622,7 @@ export const AITrainingHub: React.FC = () => {
       if (newStatus === 'paused') {
         toast({
           title: 'Protocollo interrotto',
-          description: `Il protocollo è stato interrotto con successo`,
+          description: `Il protocollo "${protocol?.title || 'Protocollo senza titolo'}" è stato interrotto con successo`,
         });
       } else {
         toast({
