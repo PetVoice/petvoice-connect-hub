@@ -227,6 +227,7 @@ export const useTrainingProtocols = () => {
         schedule: protocol.schedule?.[0] || null,
       })) as TrainingProtocol[];
     },
+    staleTime: 0, // Forza sempre il refresh
   });
 };
 
