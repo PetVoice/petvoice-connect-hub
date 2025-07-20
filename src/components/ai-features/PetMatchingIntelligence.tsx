@@ -42,7 +42,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { usePetTwins, useMentors, useSuccessPatterns } from '@/hooks/usePetMatching';
+import { usePetTwins, useMentors } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 
 // Enhanced Types
@@ -315,7 +315,6 @@ export const PetMatchingIntelligence: React.FC = () => {
   // Real data hooks with proper loading states
   const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
   const { data: mentors = [], isLoading: mentorsLoading } = useMentors();
-  const { data: successPatterns = [], isLoading: patternsLoading } = useSuccessPatterns();
   
   // Training protocol creation
   const createProtocol = useCreateProtocol();
@@ -335,12 +334,6 @@ export const PetMatchingIntelligence: React.FC = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [patterns, setPatterns] = useState<any[]>([]);
   
-  // Update patterns when successPatterns changes - MUST BE BEFORE ANY CONDITIONAL RETURNS
-  React.useEffect(() => {
-    if (successPatterns.length > 0) {
-      setPatterns(successPatterns);
-    }
-  }, [successPatterns]);
   
   // Filter and sort logic - ALL useMemo HOOKS MUST BE BEFORE CONDITIONAL RETURNS
   const filteredPetTwins = useMemo(() => {
@@ -371,7 +364,7 @@ export const PetMatchingIntelligence: React.FC = () => {
   }, [mentors, searchTerm, onlineFilter]);
   
   // Show loading AFTER all hooks are declared
-  if (petsLoading || mentorsLoading || patternsLoading) {
+  if (petsLoading || mentorsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -593,34 +586,14 @@ export const PetMatchingIntelligence: React.FC = () => {
         )}
       </div>
 
-      <Tabs defaultValue="pet-twins" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="pet-twins" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            Pet Gemelli
-            <Badge variant="secondary" className="ml-1 text-xs">
-              {filteredPetTwins.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="mentors" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Mentori
-            <Badge variant="secondary" className="ml-1 text-xs">
-              {filteredMentors.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="success-patterns" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Modelli di Successo
-          </TabsTrigger>
-          <TabsTrigger value="progress" className="flex items-center gap-2">
-            <Star className="h-4 w-4" />
-            Progressi Community
-          </TabsTrigger>
+      <Tabs defaultValue="pets" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="pets">Pet Gemelli</TabsTrigger>
+          <TabsTrigger value="mentors">Mentori</TabsTrigger>
         </TabsList>
 
         {/* Enhanced Pet Twins Tab */}
-        <TabsContent value="pet-twins" className="space-y-4">
+        <TabsContent value="pets" className="space-y-4">
           {filteredPetTwins.length === 0 ? (
             <div className="text-center py-8">
               <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -1104,266 +1077,6 @@ export const PetMatchingIntelligence: React.FC = () => {
           )}
         </TabsContent>
 
-        {/* Enhanced Success Patterns Tab */}
-        <TabsContent value="success-patterns" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-            {patterns.map((pattern) => (
-              <Card key={pattern.id} className="hover:shadow-lg transition-all duration-300 border-orange-500/20 hover:border-orange-500/40">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-orange-500" />
-                      <h3 className="font-semibold text-lg">{pattern.patternName}</h3>
-                    </div>
-                    <Badge className={getDifficultyColor(pattern.difficulty)}>
-                      {pattern.difficulty}
-                    </Badge>
-                  </div>
-                  {pattern.isStarted && (
-                    <Badge variant="default" className="w-fit">
-                      <Zap className="h-3 w-3 mr-1" />
-                      In Corso
-                    </Badge>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{pattern.description}</p>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">Tasso di Successo</span>
-                      <span className="text-orange-500 font-semibold">{pattern.successRate}%</span>
-                    </div>
-                    <Progress value={pattern.successRate} className="h-2" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="font-medium">Durata:</p>
-                      <p className="text-muted-foreground">{pattern.timeframe}</p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Casi Simili:</p>
-                      <p className="text-muted-foreground">{pattern.similarCases}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Passi Principali:</h4>
-                    <ul className="text-xs text-muted-foreground space-y-1">
-                      {(pattern.steps || []).slice(0, 3).map((step, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-orange-500 font-medium">{idx + 1}.</span>
-                          <span>{step}</span>
-                        </li>
-                      ))}
-                      {pattern.steps.length > 3 && (
-                        <li className="text-muted-foreground">...e altri {pattern.steps.length - 3} passi</li>
-                      )}
-                    </ul>
-                  </div>
-
-                  {pattern.requiredMaterials.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-sm">Materiali Necessari:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {(pattern.requiredMaterials || []).map((material, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
-                            {material}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <Separator />
-
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {pattern.category}
-                    </Badge>
-                    <div className="flex gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4 mr-1" />
-                            Dettagli
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                              <Sparkles className="h-5 w-5 text-orange-500" />
-                              {pattern.patternName}
-                              <Badge className={getDifficultyColor(pattern.difficulty)}>
-                                {pattern.difficulty}
-                              </Badge>
-                            </DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-6">
-                            <p className="text-muted-foreground">{pattern.description}</p>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-medium">Tasso di Successo</h4>
-                                <div className="flex items-center gap-2">
-                                  <Progress value={pattern.successRate} className="flex-1" />
-                                  <span className="text-sm font-medium">{pattern.successRate}%</span>
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-medium">Durata Prevista</h4>
-                                <p className="text-muted-foreground">{pattern.timeframe}</p>
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="font-medium mb-3">Piano Completo</h4>
-                              <div className="space-y-3">
-                                {(pattern.steps || []).map((step, idx) => (
-                                  <div key={idx} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
-                                    <div className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                                      {idx + 1}
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-sm">{step}</p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div>
-                              <h4 className="font-medium mb-3">Materiali e Costi</h4>
-                              <div className="space-y-2">
-                                {(pattern.requiredMaterials || []).map((material, idx) => (
-                                  <div key={idx} className="flex justify-between items-center p-2 bg-muted/30 rounded">
-                                    <span className="text-sm">{material}</span>
-                                    <Badge variant="outline">Necessario</Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                      <Button 
-                        size="sm" 
-                        className="bg-orange-500 hover:bg-orange-600"
-                        onClick={() => handleStartPattern(pattern.id)}
-                        disabled={pattern.isStarted || isLoading}
-                      >
-                        {isLoading ? (
-                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                        ) : pattern.isStarted ? (
-                          <>
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Avviato
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight className="h-4 w-4 mr-1" />
-                            Inizia
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* Enhanced Progress Community Tab */}
-        <TabsContent value="progress" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="border-purple-500/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-purple-500" />
-                  Progressi della Community
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Calcola i progressi dai dati reali */}
-                {successPatterns.slice(0, 4).map((pattern, index) => (
-                  <div key={pattern.id} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{pattern.patternName}</span>
-                      <span className="text-sm font-medium">{pattern.successRate}% miglioramento</span>
-                    </div>
-                    <Progress value={pattern.successRate || 0} className="h-2" />
-                    <p className="text-xs text-muted-foreground">{pattern.similarCases} casi trattati</p>
-                  </div>
-                ))}
-                
-                {successPatterns.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Nessun dato disponibile al momento</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-500/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-purple-500" />
-                  Storie di Successo Recenti
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Genera storie di successo dai dati reali */}
-                  {petTwins.slice(0, 3).map((pet, index) => (
-                    <div key={pet.id} className="p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-lg">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-purple-500/20 text-purple-700">
-                            {pet.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-sm">{pet.name} ({pet.breed})</p>
-                          <p className="text-xs text-muted-foreground">Programma comportamentale - {pet.age} anni</p>
-                        </div>
-                        <Badge 
-                          variant={pet.match_score > 85 ? "default" : "outline"} 
-                          className={`ml-auto text-xs ${pet.match_score > 85 ? 'bg-green-500' : ''}`}
-                        >
-                          {pet.match_score > 85 ? 'Successo' : 'In Corso'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        "{pet.name} ha mostrato miglioramenti significativi nel comportamento grazie al programma personalizzato!"
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        {pet.match_score > 85 ? (
-                          <div className="flex items-center gap-2 text-xs text-green-600">
-                            <CheckCircle className="h-3 w-3" />
-                            <span>Obiettivo raggiunto al {pet.match_score}%</span>
-                          </div>
-                        ) : (
-                          <>
-                            <Progress value={pet.match_score} className="flex-1 h-1" />
-                            <span className="text-xs text-muted-foreground">{pet.match_score}%</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {petTwins.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <p>Nessuna storia di successo disponibile al momento</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
     </div>
   );

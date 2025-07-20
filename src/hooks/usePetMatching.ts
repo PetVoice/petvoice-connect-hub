@@ -110,11 +110,16 @@ export const usePetTwins = () => {
   return useQuery({
     queryKey: ['pet-twins'],
     queryFn: async () => {
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Get all pets except current user's pets
       const { data: pets, error } = await supabase
         .from('pets')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .neq('user_id', user.id) // Exclude current user's pets
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -132,34 +137,94 @@ export const usePetTwins = () => {
         return acc;
       }, {} as Record<string, string>) || {};
 
-      // Transform to PetMatch format
-      return pets?.map(pet => ({
-        id: pet.id,
-        name: pet.name,
-        type: pet.type,
-        breed: pet.breed || 'Misto',
-        age: pet.age || 0,
-        location: 'Italia', // Mock location
-        user_id: pet.user_id,
-        owner_name: ownerNames[pet.user_id] || 'Utente',
-        match_score: Math.floor(Math.random() * 30) + 70, // Mock score 70-100
-        created_at: pet.created_at,
-        // Additional properties for UI
-        avatar: '/placeholder.svg',
-        owner: ownerNames[pet.user_id] || 'Utente',
-        matchScore: Math.floor(Math.random() * 30) + 70,
-        distance: Math.floor(Math.random() * 20) + 1,
-        behavioralDNA: ['Giocoso', 'Socievole', 'Energico', 'Curioso'],
-        commonTraits: ['Ama giocare', 'Socievole con altri pet', 'Energico al mattino'],
-        differences: ['Più calmo', 'Meno territoriale'],
-        successStories: Math.floor(Math.random() * 5) + 1,
-        lastActive: '2 ore fa',
-        energyLevel: Math.floor(Math.random() * 40) + 60,
-        socialScore: Math.floor(Math.random() * 40) + 60,
-        anxietyLevel: Math.floor(Math.random() * 40) + 20,
-        trainingProgress: Math.floor(Math.random() * 40) + 60,
-        isBookmarked: false
-      })) || [];
+      // Get current user's pets to calculate matches
+      const { data: myPets, error: myPetsError } = await supabase
+        .from('pets')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (myPetsError) throw myPetsError;
+
+      if (!myPets?.length) return []; // No pets to match against
+
+      // Get pet analyses for better matching
+      const { data: analyses, error: analysesError } = await supabase
+        .from('pet_analyses')
+        .select('pet_id, primary_emotion, primary_confidence, behavioral_insights');
+
+      if (analysesError) throw analysesError;
+
+      // Create analysis map
+      const analysisMap = analyses?.reduce((acc, analysis) => {
+        if (!acc[analysis.pet_id]) acc[analysis.pet_id] = [];
+        acc[analysis.pet_id].push(analysis);
+        return acc;
+      }, {} as Record<string, any[]>) || {};
+
+      // Transform to PetMatch format with real matching logic
+      return pets?.map(pet => {
+        const myPet = myPets[0]; // Use first pet for matching (could be enhanced)
+        const petAnalyses = analysisMap[pet.id] || [];
+        const myPetAnalyses = analysisMap[myPet.id] || [];
+        
+        // Calculate match score based on multiple criteria
+        let matchScore = 50; // Base score
+        
+        // Same breed bonus
+        if (pet.breed === myPet.breed) matchScore += 25;
+        
+        // Same type (species) bonus
+        if (pet.type === myPet.type) matchScore += 15;
+        
+        // Age similarity (within 2 years)
+        const ageDiff = Math.abs((pet.age || 0) - (myPet.age || 0));
+        if (ageDiff <= 2) matchScore += 10;
+        
+        // Similar emotions/behaviors from analyses
+        if (petAnalyses.length && myPetAnalyses.length) {
+          const commonEmotions = petAnalyses.filter(pa => 
+            myPetAnalyses.some(mpa => mpa.primary_emotion === pa.primary_emotion)
+          ).length;
+          matchScore += commonEmotions * 5;
+        }
+        
+        // Ensure score is within bounds
+        matchScore = Math.min(100, Math.max(60, matchScore));
+
+        return {
+          id: pet.id,
+          name: pet.name,
+          type: pet.type,
+          breed: pet.breed || 'Misto',
+          age: pet.age || 0,
+          location: 'Italia', // Mock location, could be enhanced with real locations
+          user_id: pet.user_id,
+          owner_name: ownerNames[pet.user_id] || 'Utente',
+          match_score: matchScore,
+          created_at: pet.created_at,
+          // Additional properties for UI
+          avatar: '/placeholder.svg',
+          owner: ownerNames[pet.user_id] || 'Utente',
+          matchScore: matchScore,
+          distance: Math.floor(Math.random() * 20) + 1, // Mock distance for now
+          behavioralDNA: petAnalyses.map(a => a.primary_emotion).filter(Boolean) || ['Socievole', 'Energico'],
+          commonTraits: [
+            pet.breed === myPet.breed ? `Stessa razza: ${pet.breed}` : null,
+            pet.type === myPet.type ? `Stesso tipo: ${pet.type}` : null,
+            ageDiff <= 2 ? `Età simile (${pet.age || 0} anni)` : null
+          ].filter(Boolean),
+          differences: ['Caratteristiche uniche', 'Temperamento diverso'],
+          successStories: Math.floor(Math.random() * 5) + 1,
+          lastActive: '2 ore fa',
+          energyLevel: Math.floor(Math.random() * 40) + 60,
+          socialScore: Math.floor(Math.random() * 40) + 60,
+          anxietyLevel: Math.floor(Math.random() * 40) + 20,
+          trainingProgress: Math.floor(Math.random() * 40) + 60,
+          isBookmarked: false
+        };
+      })
+      .sort((a, b) => b.matchScore - a.matchScore) // Sort by match score
+      .slice(0, 20) || []; // Limit to top 20 matches
     },
   });
 };
@@ -206,43 +271,6 @@ export const useMentors = () => {
         languages: ['Italiano', 'Inglese'],
         distance: Math.floor(Math.random() * 20) + 1,
         isBookmarked: false
-      })) || [];
-    },
-  });
-};
-
-export const useSuccessPatterns = () => {
-  return useQuery({
-    queryKey: ['success-patterns'],
-    queryFn: async () => {
-      const { data: templates, error } = await supabase
-        .from('ai_training_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('success_rate', { ascending: false });
-
-      if (error) throw error;
-
-      return templates?.map(template => ({
-        id: template.id,
-        patternName: template.name,
-        description: template.description || 'Pattern di successo provato',
-        difficulty: template.difficulty === 'facile' ? 'Facile' : 
-                   template.difficulty === 'medio' ? 'Medio' : 'Difficile',
-        successRate: template.success_rate || 0,
-        timeframe: `${template.duration_days || 14} giorni`,
-        steps: [
-          'Valutazione iniziale',
-          'Implementazione graduale',
-          'Monitoraggio progress',
-          'Ottimizzazione',
-          'Consolidamento risultati'
-        ],
-        similarCases: template.popularity_score || 0,
-        category: template.category || 'Comportamento',
-        isStarted: false,
-        estimatedCost: null, // Sempre gratuito
-        requiredMaterials: ['Materiali base', 'Strumenti di monitoraggio']
       })) || [];
     },
   });
