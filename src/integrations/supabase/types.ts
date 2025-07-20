@@ -3129,6 +3129,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_protocol_success_rate: {
+        Args: { p_protocol_id: string }
+        Returns: number
+      }
       calculate_referral_tier: {
         Args: { converted_count: number }
         Returns: Json
@@ -3172,6 +3176,10 @@ export type Database = {
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_protocol_ratings_count: {
+        Args: { p_protocol_id: string }
+        Returns: number
       }
       get_tier_info: {
         Args: { conversions: number }
