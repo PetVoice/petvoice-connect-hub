@@ -66,11 +66,52 @@ const TrainingDashboard: React.FC = () => {
   const [protocolNotes, setProtocolNotes] = useState('');
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [protocol, setProtocol] = useState<TrainingProtocol | null>(null);
   
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
   const [dailyCompletedExercises, setDailyCompletedExercises] = useState(0);
 
-  const protocol = protocols?.find(p => p.id === protocolId);
+  // Recupera il protocollo specifico dal database
+  useEffect(() => {
+    const fetchProtocol = async () => {
+      if (!protocolId) return;
+      
+      const { data, error } = await supabase
+        .from('ai_training_protocols')
+        .select(`
+          *,
+          exercises:ai_training_exercises(*),
+          metrics:ai_training_metrics(*),
+          schedule:ai_training_schedules(*)
+        `)
+        .eq('id', protocolId)
+        .single();
+        
+      if (error) {
+        console.error('Error fetching protocol:', error);
+        toast({
+          title: 'Errore',
+          description: 'Non è stato possibile caricare il protocollo',
+          variant: 'destructive',
+        });
+        navigate('/training');
+        return;
+      }
+      
+      setProtocol({
+        ...data,
+        difficulty: data.difficulty as 'facile' | 'medio' | 'difficile',
+        exercises: (data.exercises || []).map((ex: any) => ({
+          ...ex,
+          exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
+        })),
+        metrics: data.metrics?.[0] || null,
+        schedule: data.schedule?.[0] || null,
+      } as TrainingProtocol);
+    };
+    
+    fetchProtocol();
+  }, [protocolId, navigate, toast]);
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {
