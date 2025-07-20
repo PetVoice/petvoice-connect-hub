@@ -288,22 +288,30 @@ const TrainingDashboard: React.FC = () => {
           
           // 2. Aggiorna il database: current_day + 1
           setTimeout(async () => {
+            const newCurrentDay = protocol.current_day + 1;
+            
             await updateProtocol.mutateAsync({
               id: protocol.id,
               updates: {
-                current_day: protocol.current_day + 1,
+                current_day: newCurrentDay,
                 last_activity_at: new Date().toISOString(),
               }
             });
             
-            // 3. Reset statistiche del giorno DOPO l'update del database
+            // 3. AGGIORNA LO STATO LOCALE DEL PROTOCOLLO
+            setProtocol(prev => prev ? {
+              ...prev,
+              current_day: newCurrentDay
+            } : null);
+            
+            // 4. Reset statistiche del giorno DOPO l'update del database
             setDailyCompletedExercises(0);
             setCurrentExercise(0);
             
-            // 4. Toast di congratulazioni per il nuovo giorno
+            // 5. Toast di congratulazioni per il nuovo giorno
             toast({
-              title: "🚀 Nuovo giorno iniziato!",
-              description: `Benvenuto al giorno ${protocol.current_day + 1}! Inizia con l'esercizio 1.`,
+              title: "🎉 Nuovo giorno iniziato!",
+              description: `Benvenuto al giorno ${newCurrentDay}! Inizia con l'esercizio 1.`,
             });
           }, 2000);
         }
