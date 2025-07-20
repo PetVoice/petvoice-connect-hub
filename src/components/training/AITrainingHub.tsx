@@ -53,6 +53,7 @@ import {
 // Import hooks for real data
 import { 
   useTrainingProtocols, 
+  useActiveProtocols,
   useSuggestedProtocols, 
   useTrainingTemplates, 
   useCreateProtocol, 
@@ -76,8 +77,9 @@ export const AITrainingHub: React.FC = () => {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   
-  // Real data hooks
-  const { data: protocols = [], isLoading: protocolsLoading, refetch: refetchProtocols } = useTrainingProtocols();
+  // Real data hooks - separati per tipo
+  const { data: protocols = [], isLoading: protocolsLoading, refetch: refetchProtocols } = useTrainingProtocols(); // Solo pubblici
+  const { data: activeProtocols = [], isLoading: activeLoading } = useActiveProtocols(); // Solo attivi dell'utente
   const { data: suggestedProtocols = [], isLoading: suggestionsLoading } = useSuggestedProtocols();
   const { data: templates = [], isLoading: templatesLoading } = useTrainingTemplates();
   const { data: completedProtocols = [], isLoading: completedLoading } = useCompletedProtocols();
@@ -210,17 +212,11 @@ export const AITrainingHub: React.FC = () => {
     });
   }, [protocols, searchTerm, categoryFilter]);
 
-  // Active protocols for the "Attivi" tab
-  const activeProtocols = useMemo(() => {
-    if (!protocols) return [];
-    return protocols.filter(protocol => protocol.status === 'active');
-  }, [protocols]);
-
   // Statistics from real data
   const stats = useMemo(() => {
-    const activeProtocols = protocols.filter(p => p.status === 'active').length;
+    const activeCount = activeProtocols.length; // Usa il hook dedicato
     const completedProtocolsCount = completedProtocols.length; // Usa completedProtocols dal hook dedicato
-    const totalProtocols = protocols.length + completedProtocolsCount;
+    const totalProtocols = protocols.length + activeCount + completedProtocolsCount;
     
     // Calculate success rate based on completed protocols only
     const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
@@ -229,12 +225,13 @@ export const AITrainingHub: React.FC = () => {
       : 0;
     
     return {
-      activeProtocols,
+      totalProtocols,
+      activeProtocols: activeCount,
       completedProtocols: completedProtocolsCount,
-      successRate: avgSuccessRate,
+      avgSuccessRate,
       communityProtocols: protocols.filter(p => p.is_public).length
     };
-  }, [protocols, completedProtocols]);
+  }, [protocols, activeProtocols, completedProtocols]);
 
   // Utility Functions
   const getDifficultyColor = (difficulty: string) => {
@@ -355,9 +352,7 @@ export const AITrainingHub: React.FC = () => {
     }
 
     // 1. VERIFICA SE ESISTE GIÀ UN PROTOCOLLO ATTIVO SIMILE (solo per protocolli non attivi)
-    const existingActiveProtocol = protocols.find(p => 
-      p.user_id === currentUserId && 
-      p.status === 'active' &&
+    const existingActiveProtocol = activeProtocols.find(p => 
       p.id !== protocol.id && // Esclude il protocollo corrente
       (p.title === protocol.title && p.category === protocol.category)
     );
@@ -705,7 +700,7 @@ export const AITrainingHub: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{stats.successRate}%</div>
+            <div className="text-2xl font-bold text-blue-500">{stats.avgSuccessRate}%</div>
             <p className="text-xs text-muted-foreground">media personale</p>
           </CardContent>
         </Card>

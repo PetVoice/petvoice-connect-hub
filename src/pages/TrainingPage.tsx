@@ -1,18 +1,20 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AITrainingHub } from '@/components/training/AITrainingHub';
-import { useTrainingProtocols } from '@/hooks/useTrainingProtocols';
+import { useTrainingProtocols, useActiveProtocols, useCompletedProtocols } from '@/hooks/useTrainingProtocols';
 import { Brain, Target, TrendingUp, Clock, Award, Users } from 'lucide-react';
 
 const TrainingPage: React.FC = () => {
-  const { data: protocols, isLoading } = useTrainingProtocols();
+  const { data: protocols, isLoading: protocolsLoading } = useTrainingProtocols(); // Pubblici
+  const { data: activeProtocols, isLoading: activeLoading } = useActiveProtocols(); // Attivi dell'utente
+  const { data: completedProtocols, isLoading: completedLoading } = useCompletedProtocols(); // Completati dell'utente
 
-  // Calculate real statistics
-  const activeProtocols = protocols?.filter(p => p.status === 'active').length || 0;
-  const completedProtocols = protocols?.filter(p => p.status === 'completed').length || 0;
-  const publicProtocols = protocols?.filter(p => p.is_public).length || 0;
-  const averageSuccessRate = protocols?.length > 0 
-    ? Math.round(protocols.reduce((sum, p) => sum + p.success_rate, 0) / protocols.length) 
+  // Calculate real statistics usando i hook separati
+  const activeProtocolsCount = activeProtocols?.length || 0;
+  const completedProtocolsCount = completedProtocols?.length || 0;
+  const publicProtocolsCount = protocols?.length || 0;
+  const averageSuccessRate = completedProtocols?.length > 0 
+    ? Math.round(completedProtocols.reduce((sum, p) => sum + p.success_rate, 0) / completedProtocols.length) 
     : 0;
 
   return (

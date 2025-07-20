@@ -158,6 +158,38 @@ export const useCompletedProtocols = () => {
   });
 };
 
+// Hook per recuperare protocolli attivi dell'utente
+export const useActiveProtocols = () => {
+  return useQuery({
+    queryKey: ['active-protocols'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('ai_training_protocols')
+        .select(`
+          *,
+          exercises:ai_training_exercises(*),
+          metrics:ai_training_metrics(*),
+          schedule:ai_training_schedules(*)
+        `)
+        .eq('user_id', user.id)
+        .in('status', ['active', 'paused'])
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data?.map(protocol => ({
+        ...protocol,
+        exercises: protocol.exercises || [],
+        metrics: protocol.metrics?.[0] || null,
+        schedule: protocol.schedule?.[0] || null,
+      })) as TrainingProtocol[];
+    },
+  });
+};
+
 export const useTrainingProtocols = () => {
   const { toast } = useToast();
 
@@ -167,16 +199,7 @@ export const useTrainingProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Prima ottieni i protocolli dell'utente per vedere quali titoli ha già
-      const { data: userProtocols } = await supabase
-        .from('ai_training_protocols')
-        .select('title')
-        .eq('user_id', user.id)
-        .not('status', 'eq', 'completed');
-
-      const userProtocolTitles = userProtocols?.map(p => p.title) || [];
-
-      // Poi ottieni tutti i protocolli, ma escludi quelli pubblici con titoli già posseduti dall'utente
+      // Per la lista principale, mostra solo protocolli pubblici (template disponibili)
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select(`
@@ -185,24 +208,13 @@ export const useTrainingProtocols = () => {
           metrics:ai_training_metrics(*),
           schedule:ai_training_schedules(*)
         `)
-        .or(`user_id.eq.${user.id},is_public.eq.true`)
-        .not('status', 'eq', 'completed')
+        .eq('is_public', true)
+        .eq('status', 'available')  // Solo protocolli disponibili
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Filtra i risultati per evitare duplicati
-      const filteredData = data?.filter(protocol => {
-        // Mantieni sempre i protocolli dell'utente
-        if (protocol.user_id === user.id) return true;
-        
-        // Per i protocolli pubblici, mostrali solo se l'utente non ne ha già una copia
-        if (protocol.is_public && !userProtocolTitles.includes(protocol.title)) return true;
-        
-        return false;
-      }) || [];
-
-      return filteredData.map(protocol => ({
+      return data?.map(protocol => ({
         ...protocol,
         exercises: protocol.exercises || [],
         metrics: protocol.metrics?.[0] || null,
