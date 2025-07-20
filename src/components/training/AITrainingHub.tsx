@@ -421,6 +421,42 @@ export const AITrainingHub: React.FC = () => {
 
         if (error) throw error;
 
+        // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO
+        const { data: originalExercises, error: exercisesError } = await supabase
+          .from('ai_training_exercises')
+          .select('*')
+          .eq('protocol_id', protocol.id);
+
+        if (exercisesError) {
+          console.error('Errore nel caricamento esercizi:', exercisesError);
+        } else if (originalExercises && originalExercises.length > 0) {
+          // Copia gli esercizi al nuovo protocollo
+          const exercisesToCopy = originalExercises.map(exercise => ({
+            protocol_id: createdProtocol.id,
+            title: exercise.title,
+            description: exercise.description,
+            exercise_type: exercise.exercise_type,
+            day_number: exercise.day_number,
+            duration_minutes: exercise.duration_minutes,
+            instructions: exercise.instructions,
+            materials: exercise.materials,
+            effectiveness_score: exercise.effectiveness_score,
+          }));
+
+          const { error: copyError } = await supabase
+            .from('ai_training_exercises')
+            .insert(exercisesToCopy);
+
+          if (copyError) {
+            console.error('Errore nella copia degli esercizi:', copyError);
+            toast({
+              title: 'Attenzione',
+              description: 'Protocollo avviato ma alcuni esercizi potrebbero non essere disponibili',
+              variant: 'destructive',
+            });
+          }
+        }
+
         toast({
           title: 'Protocollo avviato',
           description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
