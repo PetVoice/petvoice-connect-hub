@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Exercise {
@@ -55,6 +56,7 @@ const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
   const updateProtocol = useUpdateProtocol();
   
@@ -304,11 +306,15 @@ const TrainingDashboard: React.FC = () => {
               current_day: newCurrentDay
             } : null);
             
-            // 4. Reset statistiche del giorno DOPO l'update del database
+            // 4. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
+            queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+            queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+            
+            // 5. Reset statistiche del giorno DOPO l'update del database
             setDailyCompletedExercises(0);
             setCurrentExercise(0);
             
-            // 5. Toast di congratulazioni per il nuovo giorno
+            // 6. Toast di congratulazioni per il nuovo giorno
             toast({
               title: "🎉 Nuovo giorno iniziato!",
               description: `Benvenuto al giorno ${newCurrentDay}! Inizia con l'esercizio 1.`,
