@@ -88,14 +88,21 @@ export const ProtocolRatingModal: React.FC<ProtocolRatingModalProps> = ({
 
     setIsSubmitting(true);
     try {
+      // Calcola la media delle valutazioni per il rating generale
+      const averageRating = Math.round(
+        (ratings.effectiveness + ratings.ease + ratings.improvement + ratings.satisfaction) / 4
+      );
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('protocol_ratings')
         .insert({
           protocol_id: protocolId,
-          effectiveness_rating: ratings.effectiveness,
-          ease_rating: ratings.ease,
-          improvement_rating: ratings.improvement,
-          overall_satisfaction: ratings.satisfaction
+          user_id: user.id,
+          rating: averageRating,
+          comment: `Efficacia: ${ratings.effectiveness}/5, Facilità: ${ratings.ease}/5, Miglioramento: ${ratings.improvement}/5, Soddisfazione: ${ratings.satisfaction}/5`
         });
 
       if (error) throw error;
