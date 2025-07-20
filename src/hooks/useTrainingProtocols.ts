@@ -175,7 +175,7 @@ export const useActiveProtocols = () => {
           schedule:ai_training_schedules(*)
         `)
         .eq('user_id', user.id)
-        .in('status', ['active', 'paused'])
+        .eq('status', 'never_show')  // Status che non esiste mai
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
