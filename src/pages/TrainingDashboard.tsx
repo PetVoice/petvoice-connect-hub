@@ -109,18 +109,21 @@ const TrainingDashboard: React.FC = () => {
     }
   }, [protocol?.id, hasInitialized]); // RIMOSSO protocol?.progress_percentage dalle dipendenze!
 
-  // Ottieni esercizi dal database invece di quelli hardcodati
-  const todayExercises: Exercise[] = protocol?.exercises ? protocol.exercises.map(ex => ({
-    id: ex.id,
-    title: ex.title,
-    description: ex.description || '',
-    duration: ex.duration_minutes || 15,
-    instructions: ex.instructions || [],
-    materials: ex.materials || [],
-    completed: ex.completed || false,
-    rating: ex.effectiveness_score,
-    notes: ex.feedback
-  })) : [];
+  // Ottieni SOLO gli esercizi del giorno corrente (3 al giorno)
+  const todayExercises: Exercise[] = protocol?.exercises ? 
+    protocol.exercises
+      .filter(ex => ex.day_number === protocol.current_day)
+      .map(ex => ({
+        id: ex.id,
+        title: ex.title,
+        description: ex.description || '',
+        duration: ex.duration_minutes || 15,
+        instructions: ex.instructions || [],
+        materials: ex.materials || [],
+        completed: ex.completed || false,
+        rating: ex.effectiveness_score,
+        notes: ex.feedback
+      })) : [];
 
   // Timer effect
   useEffect(() => {
