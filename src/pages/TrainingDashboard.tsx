@@ -716,7 +716,7 @@ const TrainingDashboard: React.FC = () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                     <AlertDialogDescription>
-                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol?.title || 'Senza nome'}"? 
+                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol?.title || 'Caricamento...'}"? 
                        Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
