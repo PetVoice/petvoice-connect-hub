@@ -408,7 +408,7 @@ const TrainingDashboard: React.FC = () => {
       // Toast di successo
       toast({
         title: "🏆 PROTOCOLLO COMPLETATO!",
-        description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol.title}" e la tua valutazione è stata salvata!`,
+        description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol?.title || 'questo protocollo'}" e la tua valutazione è stata salvata!`,
       });
 
       // Chiudi dialog e reindirizza
