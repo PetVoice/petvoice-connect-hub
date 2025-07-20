@@ -250,7 +250,7 @@ export const AITrainingHub: React.FC = () => {
       case 'active': return 'bg-blue-500/20 text-blue-700 border-blue-500/20';
       case 'completed': return 'bg-green-500/20 text-green-700 border-green-500/20';
       case 'paused': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20';
-      case 'available': return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
+      case 'available': return '';
       case 'suggested': return 'bg-primary/20 text-primary border-primary/20';
       default: return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
     }
@@ -757,7 +757,7 @@ export const AITrainingHub: React.FC = () => {
                           <Badge className={getDifficultyColor(protocol.difficulty)}>
                             {protocol.difficulty}
                           </Badge>
-                          <Badge className={getStatusColor(protocol.status)}>
+                          <Badge variant={protocol.status === 'available' ? 'available' : 'default'} className={protocol.status === 'available' ? '' : getStatusColor(protocol.status)}>
                             {protocol.status}
                           </Badge>
                         </div>
