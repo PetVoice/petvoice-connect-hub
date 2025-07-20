@@ -293,7 +293,9 @@ const TrainingDashboard: React.FC = () => {
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
-          status: 'paused',
+          status: 'available',  // Torna disponibile per essere riavviato
+          current_day: 1,       // Reset al giorno 1
+          progress_percentage: 0,  // Reset progresso
           last_activity_at: new Date().toISOString(),
         }
       });
