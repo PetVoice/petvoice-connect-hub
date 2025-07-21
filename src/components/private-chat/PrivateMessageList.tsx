@@ -1,8 +1,9 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { MessageCircle, Edit2, Trash2, Reply, CheckSquare, Square } from 'lucide-react';
+import { MessageCircle, Edit2, Trash2, Reply, CheckSquare, Square, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
@@ -203,6 +204,7 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                       </div>
                       
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {/* Reply button always visible */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -212,46 +214,53 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                           <Reply className="h-3 w-3" />
                         </Button>
                         
+                        {/* Edit/Delete dropdown for own messages */}
                         {isOwn && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0"
-                              onClick={() => startEdit(message)}
-                            >
-                              <Edit2 className="h-3 w-3" />
-                            </Button>
-                            
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Elimina messaggio</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => onDeleteMessage(message.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                              >
+                                <MoreVertical className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => startEdit(message)}>
+                                <Edit2 className="h-3 w-3 mr-2" />
+                                Modifica
+                              </DropdownMenuItem>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem
+                                    className="text-destructive"
+                                    onSelect={(e) => e.preventDefault()}
                                   >
+                                    <Trash2 className="h-3 w-3 mr-2" />
                                     Elimina
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </>
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Elimina messaggio</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Sei sicuro di voler eliminare questo messaggio? Questa azione non può essere annullata.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => onDeleteMessage(message.id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Elimina
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         )}
                       </div>
                     </div>

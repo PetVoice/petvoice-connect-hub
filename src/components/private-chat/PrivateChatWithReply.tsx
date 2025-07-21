@@ -723,31 +723,30 @@ export const PrivateChatWithReply: React.FC = () => {
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
-                        <p className="text-xs text-muted-foreground">Chat privata</p>
-                      </div>
+                       <div>
+                         <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
+                         <p className="text-xs text-muted-foreground">Chat privata</p>
+                       </div>
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={() => setShowDeleteChatDialog(true)}
+                         className="text-destructive hover:text-destructive"
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={toggleSelectionMode}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        <CheckSquare className="h-4 w-4 mr-2" />
-                        Seleziona
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowDeleteChatDialog(true)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Elimina Chat
-                      </Button>
-                    </div>
+                     <div className="flex items-center gap-2">
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={toggleSelectionMode}
+                         className="text-muted-foreground hover:text-foreground"
+                       >
+                         <CheckSquare className="h-4 w-4 mr-2" />
+                         Seleziona
+                       </Button>
+                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
