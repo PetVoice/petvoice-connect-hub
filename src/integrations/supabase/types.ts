@@ -1999,7 +1999,7 @@ export type Database = {
           primary_emotion: string
           recommendations: string[] | null
           secondary_emotions: Json | null
-          storage_path: string
+          storage_path: string | null
           triggers: string[] | null
           updated_at: string
           user_id: string
@@ -2018,7 +2018,7 @@ export type Database = {
           primary_emotion: string
           recommendations?: string[] | null
           secondary_emotions?: Json | null
-          storage_path: string
+          storage_path?: string | null
           triggers?: string[] | null
           updated_at?: string
           user_id: string
@@ -2037,7 +2037,7 @@ export type Database = {
           primary_emotion?: string
           recommendations?: string[] | null
           secondary_emotions?: Json | null
-          storage_path?: string
+          storage_path?: string | null
           triggers?: string[] | null
           updated_at?: string
           user_id?: string
