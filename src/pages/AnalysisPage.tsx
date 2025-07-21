@@ -1194,49 +1194,14 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   </div>
                   <p className="font-bold text-lg mb-2">Analisi Doppia</p>
                   <p className="text-sm text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
-                </div>
               </div>
             </div>
-
+          </div>
+          
+          {/* Extra spacing to prevent overlap */}
+          <div className="h-8"></div>
           </div>
 
-          {/* Stats Preview */}
-          {analyses.length > 0 && (
-            <div className="bg-muted/30 p-6 rounded-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                  Le Tue Analisi Recenti
-                </h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('results')}
-                  className="text-primary hover:text-primary/80"
-                >
-                  Vedi Tutti i Risultati
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-background rounded-lg border">
-                  <p className="text-2xl font-bold text-primary">{analyses.length}</p>
-                  <p className="text-sm text-muted-foreground">Analisi Totali</p>
-                </div>
-                <div className="text-center p-4 bg-background rounded-lg border">
-                  <p className="text-2xl font-bold text-green-600">
-                    {Math.round((analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / analyses.length) * 100)}%
-                  </p>
-                  <p className="text-sm text-muted-foreground">Confidenza Media</p>
-                </div>
-                <div className="text-center p-4 bg-background rounded-lg border">
-                  <p className="text-2xl font-bold text-blue-600">
-                    {analyses[0]?.primary_emotion || 'N/A'}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Ultima Emozione</p>
-                </div>
-              </div>
-            </div>
-          )}
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
