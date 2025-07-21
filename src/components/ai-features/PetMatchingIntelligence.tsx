@@ -455,8 +455,8 @@ export const PetMatchingIntelligence: React.FC = () => {
           channel_id: channelData.id,
           channel_name: channelData.name,
           user_id: user.id,
-          content: `👋 Ciao! Sono ${userName} e ho visto il tuo ${selectedTwin.name}. I nostri pet potrebbero essere ottimi compagni! Scrivimiù in privato se vuoi organizzare un incontro.`,
-          message_type: 'connection_request',
+          content: `👋 Ciao! Sono ${userName} e ho visto il tuo ${selectedTwin.name}. I nostri pet potrebbero essere ottimi compagni! Scrivimi in privato se vuoi organizzare un incontro.`,
+          message_type: 'text', // Using valid message type
           metadata: {
             pet_id: petId,
             target_pet_name: selectedTwin.name,
