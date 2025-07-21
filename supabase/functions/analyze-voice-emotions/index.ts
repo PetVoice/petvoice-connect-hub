@@ -131,9 +131,27 @@ serve(async (req) => {
   }
 
   try {
-    const { audioData, petId, userId } = await req.json();
+    console.log('Request method:', req.method);
+    console.log('Request headers:', req.headers);
+    
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (jsonError) {
+      console.error('Error parsing JSON:', jsonError);
+      throw new Error('Invalid JSON in request body');
+    }
+    
+    console.log('Request body keys:', Object.keys(requestBody));
+    
+    const { audioData, petId, userId } = requestBody;
 
     if (!audioData || !petId || !userId) {
+      console.error('Missing required fields:', { 
+        hasAudioData: !!audioData, 
+        hasPetId: !!petId, 
+        hasUserId: !!userId 
+      });
       throw new Error('Audio data, pet ID e user ID sono richiesti');
     }
 
