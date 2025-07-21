@@ -112,7 +112,7 @@ serve(async (req) => {
               subscription_end_date: subscriptionEnd,
               is_cancelled: false,
               updated_at: new Date().toISOString(),
-            }, { onConflict: 'email' });
+            }, { onConflict: 'user_id' });
 
             if (error) {
               logStep("Database update error", { 
@@ -250,7 +250,7 @@ serve(async (req) => {
             current_period_end: subscriptionEnd,
             is_cancelled: !isActive,
             updated_at: new Date().toISOString(),
-          }, { onConflict: 'email' });
+          }, { onConflict: 'user_id' });
 
           logStep("Updated database with subscription info", { subscription_status: subscription.status, subscription_plan: isActive ? 'premium' : null });
         } catch (dbError) {
@@ -274,15 +274,27 @@ serve(async (req) => {
         
         logStep("Subscription deleted", { subscriptionId: subscription.id });
 
+        // Get user_id for this customer
+        let userId = subscription.metadata?.user_id || null;
+        
+        if (!userId && customer.email) {
+          const { data: authUsers } = await supabaseClient.auth.admin.listUsers();
+          const user = authUsers.users.find(u => u.email === customer.email);
+          if (user) {
+            userId = user.id;
+          }
+        }
+
         await supabaseClient.from("subscribers").upsert({
           email: customer.email,
+          user_id: userId,
           stripe_customer_id: subscription.customer,
           subscription_status: 'canceled',
           subscription_plan: null,
           subscription_end_date: null,
           is_cancelled: true,
           updated_at: new Date().toISOString(),
-        }, { onConflict: 'email' });
+        }, { onConflict: 'user_id' });
 
         logStep("Subscription cancelled in database", { email: customer.email });
         break;
