@@ -513,17 +513,52 @@ export const PrivateChatWithReply: React.FC = () => {
 
       if (error) throw error;
 
-      setMessages(prev => prev.filter(msg => !selectedMessages.includes(msg.id)));
       setSelectedMessages([]);
       setIsSelectionMode(false);
       setShowBulkDeleteDialog(false);
+      await loadMessages(selectedChat.id);
 
       toast({
         title: "Messaggi eliminati",
-        description: `${selectedMessages.length} messaggi sono stati eliminati con successo`
+        description: `${selectedMessages.length} messaggi eliminati solo per te`
       });
     } catch (error) {
       console.error('Error deleting messages:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi selezionati",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteSelectedMessagesForBoth = async () => {
+    if (selectedMessages.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_by_recipient: true,
+          deleted_at: new Date().toISOString()
+        })
+        .in('id', selectedMessages)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+
+      setSelectedMessages([]);
+      setIsSelectionMode(false);
+      setShowBulkDeleteDialog(false);
+      await loadMessages(selectedChat.id);
+
+      toast({
+        title: "Messaggi eliminati",
+        description: `${selectedMessages.length} messaggi eliminati per entrambi`
+      });
+    } catch (error) {
+      console.error('Error deleting messages for both:', error);
       toast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
@@ -890,18 +925,25 @@ export const PrivateChatWithReply: React.FC = () => {
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare {selectedMessages.length} messaggi selezionati? Questa azione non può essere annullata.
+              Come vuoi eliminare i {selectedMessages.length} messaggi selezionati?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction
+            <Button
+              variant="outline"
               onClick={deleteSelectedMessages}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="w-full sm:w-auto"
             >
-              Elimina {selectedMessages.length} messaggi
+              Elimina solo per me
+            </Button>
+            <AlertDialogAction
+              onClick={deleteSelectedMessagesForBoth}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+            >
+              Elimina per entrambi
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
