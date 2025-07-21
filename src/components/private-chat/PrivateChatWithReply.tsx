@@ -59,7 +59,9 @@ export const PrivateChatWithReply: React.FC = () => {
   const [replyToMessage, setReplyToMessage] = useState<PrivateMessage | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -70,20 +72,51 @@ export const PrivateChatWithReply: React.FC = () => {
 
   useEffect(() => {
     if (selectedChat) {
+      console.log('📱 Loading messages for chat:', selectedChat.id);
       loadMessages(selectedChat.id);
       markChatAsRead(selectedChat.id);
     }
   }, [selectedChat]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    console.log('📜 Messages updated, hasUnreadMessages:', hasUnreadMessages);
+    if (hasUnreadMessages) {
+      scrollToFirstUnreadMessage();
+    } else {
+      scrollToBottom();
+    }
+  }, [messages, hasUnreadMessages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    console.log('⬇️ Scrolling to bottom');
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const scrollToFirstUnreadMessage = () => {
+    if (!selectedChat || !user) return;
+    
+    console.log('🔍 Looking for first unread message');
+    const firstUnreadMessage = messages.find(
+      msg => !msg.is_read && msg.recipient_id === user.id
+    );
+    
+    if (firstUnreadMessage) {
+      console.log('📍 Found first unread message:', firstUnreadMessage.id);
+      setTimeout(() => {
+        scrollToMessage(firstUnreadMessage.id);
+        setHasUnreadMessages(false);
+      }, 200);
+    } else {
+      console.log('📍 No unread messages found, scrolling to bottom');
+      scrollToBottom();
+      setHasUnreadMessages(false);
+    }
   };
 
   const scrollToMessage = (messageId: string) => {
+    console.log('🎯 Scrolling to message:', messageId);
     const messageElement = document.getElementById(`private-message-${messageId}`);
     if (messageElement) {
       messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -91,6 +124,8 @@ export const PrivateChatWithReply: React.FC = () => {
       setTimeout(() => {
         messageElement.classList.remove('bg-yellow-200', 'dark:bg-yellow-900');
       }, 2000);
+    } else {
+      console.log('❌ Message element not found:', messageId);
     }
   };
 
@@ -111,10 +146,16 @@ export const PrivateChatWithReply: React.FC = () => {
         },
         (payload) => {
           const newMessage = payload.new as PrivateMessage;
+          console.log('📨 New message received via realtime:', newMessage.id);
+          
           // Solo se il messaggio è per la chat selezionata
           if (selectedChat && newMessage.chat_id === selectedChat.id) {
             setMessages(prev => [...prev, { ...newMessage, sender_name: 'Utente' }]);
-            scrollToBottom();
+            // Se il messaggio è mio, scrolla sempre in basso
+            if (newMessage.sender_id === user?.id) {
+              console.log('📤 My message, scrolling to bottom');
+              setTimeout(() => scrollToBottom(), 100);
+            }
           }
           // Ricarica la lista delle chat per aggiornare l'ultimo messaggio
           loadChats();
@@ -225,6 +266,13 @@ export const PrivateChatWithReply: React.FC = () => {
       );
 
       setMessages(messagesWithNames);
+      
+      // Verifica se ci sono messaggi non letti quando carico i messaggi
+      const hasUnread = messagesWithNames.some(
+        msg => !msg.is_read && msg.recipient_id === user?.id
+      );
+      console.log('📊 Messages loaded, hasUnread:', hasUnread, 'total messages:', messagesWithNames.length);
+      setHasUnreadMessages(hasUnread);
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -272,8 +320,16 @@ export const PrivateChatWithReply: React.FC = () => {
 
       setNewMessage('');
       setReplyToMessage(null);
+      
+      console.log('💬 Message sent, reloading messages and scrolling to bottom');
       await loadMessages(selectedChat.id);
       await loadChats();
+      
+      // Forza scroll in basso dopo l'invio
+      setTimeout(() => {
+        console.log('⬇️ Force scroll to bottom after sending message');
+        scrollToBottom();
+      }, 200);
 
     } catch (error) {
       console.error('Error sending message:', error);
