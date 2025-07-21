@@ -405,46 +405,57 @@ export const PetMatchingIntelligence: React.FC = () => {
     }
 
     try {
-      // Create a connection notification in the database
-      const { error } = await supabase
-        .from('community_notifications')
-        .insert({
-          user_id: selectedTwin.user_id, // The owner of the pet we want to connect with
-          channel_id: selectedTwin.id, // Using pet ID as channel reference
-          message_id: selectedTwin.id, // Reference to the connection request
-          is_read: false
-        });
-
-      if (error) {
-        console.error('Error creating connection notification:', error);
-        throw error;
+      // Get current user info
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
       }
 
-      // Also create a message in community to track the connection request
+      // Use a general channel for pet connections
+      const channelName = 'pet-connections';
+      
+      // First, ensure user is subscribed to the pet-connections channel
+      const { error: subscriptionError } = await supabase
+        .from('user_channel_subscriptions')
+        .upsert({
+          user_id: user.id,
+          channel_name: channelName
+        }, {
+          onConflict: 'user_id,channel_name'
+        });
+
+      if (subscriptionError) {
+        console.error('Error subscribing to channel:', subscriptionError);
+        // Continue anyway as this might not be critical
+      }
+
+      // Create a message in the general pet connections channel
       const { error: messageError } = await supabase
         .from('community_messages')
         .insert({
-          channel_id: selectedTwin.id,
-          channel_name: `pet-connection-${selectedTwin.id}`,
-          user_id: selectedTwin.user_id, // Current user requesting connection
-          content: `Richiesta di connessione per ${selectedTwin.name}`,
+          channel_id: '00000000-0000-0000-0000-000000000001', // Fixed ID for pet-connections channel
+          channel_name: channelName,
+          user_id: user.id, // Current user requesting connection
+          content: `Richiesta di connessione inviata per ${selectedTwin.name}`,
           message_type: 'connection_request',
           metadata: {
             pet_id: petId,
             pet_name: selectedTwin.name,
-            requester_name: 'Current User', // This should come from user profile
-            connection_type: 'pet_match'
+            target_user_id: selectedTwin.user_id || 'unknown',
+            requester_name: user.user_metadata?.display_name || 'Utente',
+            connection_type: 'pet_match',
+            match_score: selectedTwin.matchScore
           }
         });
 
       if (messageError) {
         console.error('Error creating connection message:', messageError);
-        // Don't throw here as the notification was created successfully
+        throw messageError;
       }
 
       toast({
         title: "Connessione inviata!",
-        description: `La richiesta di connessione è stata inviata al proprietario di ${selectedTwin.name}.`,
+        description: `La richiesta di connessione è stata registrata per ${selectedTwin.name}.`,
       });
     } catch (error) {
       console.error('Connection error:', error);
