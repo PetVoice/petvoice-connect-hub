@@ -2096,9 +2096,6 @@ export type Database = {
           notifications_enabled: boolean | null
           postal_code: string | null
           province: string | null
-          referral_code: string | null
-          referral_count: number | null
-          referred_by: string | null
           street_name: string | null
           street_number: string | null
           theme: string | null
@@ -2121,9 +2118,6 @@ export type Database = {
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
-          referral_code?: string | null
-          referral_count?: number | null
-          referred_by?: string | null
           street_name?: string | null
           street_number?: string | null
           theme?: string | null
@@ -2146,9 +2140,6 @@ export type Database = {
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
-          referral_code?: string | null
-          referral_count?: number | null
-          referred_by?: string | null
           street_name?: string | null
           street_number?: string | null
           theme?: string | null
@@ -2181,144 +2172,6 @@ export type Database = {
           id?: string
           protocol_id?: string
           rating?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
-      referral_commissions: {
-        Row: {
-          amount: number
-          billing_period_end: string | null
-          billing_period_start: string | null
-          commission_rate: number
-          commission_type: string
-          created_at: string | null
-          id: string
-          is_cancelled: boolean | null
-          is_historical: boolean | null
-          referred_email: string | null
-          referred_user_id: string | null
-          referrer_email: string | null
-          referrer_id: string | null
-          status: string
-          subscription_amount: number
-          tier: string
-        }
-        Insert: {
-          amount: number
-          billing_period_end?: string | null
-          billing_period_start?: string | null
-          commission_rate: number
-          commission_type: string
-          created_at?: string | null
-          id?: string
-          is_cancelled?: boolean | null
-          is_historical?: boolean | null
-          referred_email?: string | null
-          referred_user_id?: string | null
-          referrer_email?: string | null
-          referrer_id?: string | null
-          status?: string
-          subscription_amount: number
-          tier: string
-        }
-        Update: {
-          amount?: number
-          billing_period_end?: string | null
-          billing_period_start?: string | null
-          commission_rate?: number
-          commission_type?: string
-          created_at?: string | null
-          id?: string
-          is_cancelled?: boolean | null
-          is_historical?: boolean | null
-          referred_email?: string | null
-          referred_user_id?: string | null
-          referrer_email?: string | null
-          referrer_id?: string | null
-          status?: string
-          subscription_amount?: number
-          tier?: string
-        }
-        Relationships: []
-      }
-      referrals: {
-        Row: {
-          converted_at: string | null
-          created_at: string | null
-          id: string
-          is_active: boolean
-          is_historical: boolean | null
-          referral_code: string
-          referred_email: string
-          referred_user_id: string | null
-          referrer_email: string | null
-          referrer_id: string | null
-          registered_at: string | null
-          status: string
-        }
-        Insert: {
-          converted_at?: string | null
-          created_at?: string | null
-          id?: string
-          is_active?: boolean
-          is_historical?: boolean | null
-          referral_code: string
-          referred_email: string
-          referred_user_id?: string | null
-          referrer_email?: string | null
-          referrer_id?: string | null
-          registered_at?: string | null
-          status?: string
-        }
-        Update: {
-          converted_at?: string | null
-          created_at?: string | null
-          id?: string
-          is_active?: boolean
-          is_historical?: boolean | null
-          referral_code?: string
-          referred_email?: string
-          referred_user_id?: string | null
-          referrer_email?: string | null
-          referrer_id?: string | null
-          registered_at?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
-      referrer_stats: {
-        Row: {
-          available_credits: number | null
-          current_tier: string | null
-          referral_code: string
-          tier_progress: number | null
-          total_conversions: number | null
-          total_credits_earned: number | null
-          total_registrations: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          available_credits?: number | null
-          current_tier?: string | null
-          referral_code: string
-          tier_progress?: number | null
-          total_conversions?: number | null
-          total_credits_earned?: number | null
-          total_registrations?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          available_credits?: number | null
-          current_tier?: string | null
-          referral_code?: string
-          tier_progress?: number | null
-          total_conversions?: number | null
-          total_credits_earned?: number | null
-          total_registrations?: number | null
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3223,10 +3076,6 @@ export type Database = {
         Args: { p_protocol_id: string }
         Returns: number
       }
-      calculate_referral_tier: {
-        Args: { converted_count: number }
-        Returns: Json
-      }
       calculate_sla_deadline: {
         Args: { category: string; priority: string }
         Returns: string
@@ -3251,10 +3100,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never> | { user_email: string }
-        Returns: string
-      }
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3262,15 +3107,6 @@ export type Database = {
       get_protocol_ratings_count: {
         Args: { p_protocol_id: string }
         Returns: number
-      }
-      get_tier_info: {
-        Args: { conversions: number }
-        Returns: {
-          tier: string
-          rate: number
-          min_conversions: number
-          max_conversions: number
-        }[]
       }
       get_user_subscription: {
         Args: { p_user_id: string }
@@ -3286,14 +3122,6 @@ export type Database = {
       reactivate_user_subscription: {
         Args: { p_user_id: string }
         Returns: boolean
-      }
-      register_referral: {
-        Args: {
-          p_referrer_id: string
-          p_referred_email: string
-          p_referral_code: string
-        }
-        Returns: string
       }
       reset_affiliation_system: {
         Args: Record<PropertyKey, never>

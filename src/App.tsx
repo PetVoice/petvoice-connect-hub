@@ -24,7 +24,7 @@ import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
-import AffiliationPage from "@/pages/AffiliationPage";
+
 import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
@@ -140,13 +140,6 @@ function AppContent() {
           <ProtectedRoute>
             <Layout>
               <SubscriptionSuccessPage />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        <Route path="/affiliate" element={
-          <ProtectedRoute>
-            <Layout>
-              <AffiliationPage />
             </Layout>
           </ProtectedRoute>
         } />

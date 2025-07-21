@@ -575,7 +575,6 @@ const SettingsPage: React.FC = () => {
           petWellnessScoresData,
           symptomsData,
           veterinariansData,
-          referrerStatsData,
           subscribersData,
           userChannelSubscriptionsData,
           userDisplayNamesData,
@@ -599,7 +598,7 @@ const SettingsPage: React.FC = () => {
           supabase.from('pet_wellness_scores').select('*').eq('user_id', user.id),
           supabase.from('symptoms').select('*').eq('user_id', user.id),
           supabase.from('veterinarians').select('*').eq('user_id', user.id),
-          supabase.from('referrer_stats').select('*').eq('user_id', user.id),
+          
           supabase.from('subscribers').select('*').eq('user_id', user.id),
           supabase.from('user_channel_subscriptions').select('*').eq('user_id', user.id),
           supabase.from('user_display_names').select('*').eq('user_id', user.id),
@@ -649,8 +648,6 @@ const SettingsPage: React.FC = () => {
           emergency_contacts: emergencyContactsData?.data || [],
           veterinarians: veterinariansData?.data || [],
           
-          // Sistema referral
-          referrer_stats: referrerStatsData?.data || [],
           
           // Abbonamenti e account
           subscribers: subscribersData?.data || [],

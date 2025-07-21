@@ -9,7 +9,6 @@ import {
   BarChart3, 
   Users, 
   CreditCard, 
-  Handshake, 
   HeadphonesIcon, 
   Settings,
   Network,
@@ -45,7 +44,6 @@ const navigationItems = [
 const communityItems = [
   { title: 'Community', url: '/community', icon: Users },
   { title: 'Abbonamenti', url: '/subscription', icon: CreditCard },
-  { title: 'Affiliazione', url: '/affiliate', icon: Handshake },
 ];
 
 const supportItems = [

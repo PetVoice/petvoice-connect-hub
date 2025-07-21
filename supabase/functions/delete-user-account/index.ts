@@ -104,12 +104,6 @@ serve(async (req) => {
       // Delete emergency contacts
       supabaseClient.from('emergency_contacts').delete().eq('user_id', user.id),
       
-      // Delete referrals
-      supabaseClient.from('referrals').delete().eq('referrer_id', user.id),
-      supabaseClient.from('referrals').delete().eq('referred_user_id', user.id),
-      
-      // Delete referral credits
-      supabaseClient.from('referral_credits').delete().eq('user_id', user.id),
       
       // Delete community messages
       supabaseClient.from('community_messages').delete().eq('user_id', user.id),

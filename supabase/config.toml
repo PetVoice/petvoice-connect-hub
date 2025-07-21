@@ -45,6 +45,3 @@ verify_jwt = false
 
 [functions.get-weather]
 verify_jwt = false
-
-[functions.convert-pending-referrals]
-verify_jwt = false

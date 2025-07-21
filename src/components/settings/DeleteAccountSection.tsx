@@ -95,7 +95,7 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
               <li>Il tuo account e profilo</li>
               <li>Tutti i tuoi animali domestici</li>
               <li>Tutte le analisi effettuate</li>
-              <li>I referral e crediti</li>
+              
               <li>L'abbonamento attivo (se presente)</li>
               <li>Tutti i messaggi e dati</li>
             </ul>

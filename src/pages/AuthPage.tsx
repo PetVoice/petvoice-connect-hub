@@ -19,7 +19,7 @@ const AuthPage: React.FC = () => {
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [referralCode, setReferralCode] = useState('');
+  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -37,13 +37,6 @@ const AuthPage: React.FC = () => {
       navigate('/');
     }
     
-    // Check for referral code in URL
-    const urlParams = new URLSearchParams(location.search);
-    const refCode = urlParams.get('ref');
-    if (refCode) {
-      setReferralCode(refCode);
-      setActiveTab('register'); // Switch to register tab if referral code is present
-    }
   }, [user, navigate, location.search]);
 
   if (user) {
@@ -68,7 +61,7 @@ const AuthPage: React.FC = () => {
     
     setLoading(true);
     
-    const { error } = await signUp(registerEmail, registerPassword, displayName, referralCode);
+    const { error } = await signUp(registerEmail, registerPassword, displayName);
     
     // Non mostrare toast qui - sono già gestiti in AuthContext
     setLoading(false);
@@ -78,7 +71,7 @@ const AuthPage: React.FC = () => {
       setRegisterEmail('');
       setRegisterPassword('');
       setDisplayName('');
-      setReferralCode('');
+      
     }
   };
 
@@ -425,24 +418,6 @@ const AuthPage: React.FC = () => {
                     <p className="text-xs text-muted-foreground pl-1">
                       Minimo 6 caratteri
                     </p>
-                   </div>
-                   
-                   <div className="space-y-2 animate-slide-up" style={{ animationDelay: '0.25s' }}>
-                     <Label htmlFor="reg-referral" className="text-sm font-medium">Codice Referral (facoltativo)</Label>
-                     <div className="relative group">
-                       <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-azure" />
-                       <Input
-                         id="reg-referral"
-                         type="text"
-                         placeholder="Inserisci il codice referral se ne hai uno"
-                         value={referralCode}
-                         onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                         className="pl-9 petvoice-input h-12 transition-all duration-300 focus:scale-[1.02]"
-                       />
-                     </div>
-                     <p className="text-xs text-muted-foreground pl-1">
-                       Opzionale: inserisci il codice del tuo referente per guadagnare vantaggi
-                     </p>
                    </div>
                    
                    <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>

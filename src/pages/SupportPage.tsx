@@ -617,9 +617,6 @@ const SupportPage: React.FC = () => {
       return "Il diario digitale ti permette di tracciare l'umore, i comportamenti e la salute del tuo pet quotidianamente. Puoi aggiungere foto, note vocali e tag comportamentali. Ti serve aiuto per iniziare?";
     }
     
-    if (message.includes('referral') || message.includes('invita') || message.includes('amici')) {
-      return "Con il programma referral di PetVoice puoi invitare amici e guadagnare crediti! Ogni amico che si iscrive ti fa guadagnare bonus e vantaggi esclusivi. Vuoi il tuo codice referral?";
-    }
     
     if (message.includes('emergenza') || message.includes('urgente') || message.includes('aiuto')) {
       return "Per emergenze relative alla salute del tuo pet, contatta immediatamente il tuo veterinario. Per supporto tecnico urgente, usa il supporto di emergenza 24/7 nella sezione contatti. Posso aiutarti con qualcos'altro?";
@@ -1989,24 +1986,6 @@ const SupportPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
-                    <div>
-                      <h4 className="font-medium">Ottieni il tuo codice referral</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Vai nella sezione Affiliazione per trovare il tuo codice personale
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">2</div>
-                    <div>
-                      <h4 className="font-medium">Condividi con amici</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Invita amici a registrarsi usando il tuo codice referral
-                      </p>
-                    </div>
-                  </div>
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
                     <div>
