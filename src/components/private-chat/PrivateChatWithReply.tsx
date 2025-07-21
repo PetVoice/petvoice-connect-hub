@@ -238,7 +238,7 @@ export const PrivateChatWithReply: React.FC = () => {
             .from('profiles')
             .select('user_id, display_name, avatar_url')
             .eq('user_id', otherUserId)
-            .single();
+            .maybeSingle();
 
           console.log('🔍 User profile for', otherUserId, ':', userProfile);
 
@@ -305,7 +305,7 @@ export const PrivateChatWithReply: React.FC = () => {
             .from('profiles')
             .select('display_name')
             .eq('user_id', message.sender_id)
-            .single();
+            .maybeSingle();
 
           console.log('💬 Message sender profile for', message.sender_id, ':', senderProfile);
           const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';

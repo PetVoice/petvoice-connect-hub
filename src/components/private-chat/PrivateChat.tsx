@@ -111,7 +111,7 @@ export const PrivateChat: React.FC = () => {
             .from('profiles')
             .select('user_id, display_name, avatar_url')
             .eq('user_id', otherUserId)
-            .single();
+            .maybeSingle();
 
           // Get last message
           const { data: lastMessage } = await supabase
@@ -178,7 +178,7 @@ export const PrivateChat: React.FC = () => {
             .from('profiles')
             .select('display_name')
             .eq('user_id', message.sender_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...message,

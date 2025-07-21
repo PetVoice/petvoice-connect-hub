@@ -28,7 +28,7 @@ export function usePrivateMessageNotifications() {
               .from('profiles')
               .select('display_name')
               .eq('user_id', payload.new.sender_id)
-              .single();
+              .maybeSingle();
 
             const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente sconosciuto';
             
