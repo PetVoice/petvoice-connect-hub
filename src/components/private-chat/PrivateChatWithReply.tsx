@@ -644,55 +644,70 @@ export const PrivateChatWithReply: React.FC = () => {
                 </div>
               ) : (
                 <div className="divide-y">
-                  {chats.map((chat) => (
-                    <div
-                      key={chat.id}
-                      className={`p-4 cursor-pointer transition-colors ${
-                        selectedChat?.id === chat.id 
-                          ? 'bg-primary/10 border-r-2 border-primary shadow-sm' 
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => setSelectedChat(chat)}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={chat.other_user.avatar_url} />
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className={`font-medium text-sm truncate ${
-                              selectedChat?.id === chat.id ? 'text-primary font-semibold' : ''
-                            }`}>
-                              {chat.other_user.display_name}
-                            </h4>
-                            {chat.unread_count > 0 && (
-                              <Badge variant="secondary" className="text-xs">
-                                {chat.unread_count}
-                              </Badge>
-                            )}
-                          </div>
-                          {chat.last_message && (
-                            <p className="text-xs text-muted-foreground truncate mt-1">
-                              {chat.last_message.sender_id === user.id ? 'Tu: ' : ''}
-                              {chat.last_message.content}
-                            </p>
-                          )}
-                          <div className="flex items-center gap-1 mt-1">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(chat.last_message_at), {
-                                addSuffix: true,
-                                locale: it
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                   {chats.map((chat) => (
+                     <div
+                       key={chat.id}
+                       className={`p-4 cursor-pointer transition-colors relative ${
+                         selectedChat?.id === chat.id 
+                           ? 'bg-primary/10 border-r-2 border-primary shadow-sm' 
+                           : 'hover:bg-muted/50'
+                       }`}
+                       onClick={() => setSelectedChat(chat)}
+                     >
+                       <div className="flex items-start gap-3">
+                         <Avatar className="h-10 w-10">
+                           <AvatarImage src={chat.other_user.avatar_url} />
+                           <AvatarFallback>
+                             <User className="h-4 w-4" />
+                           </AvatarFallback>
+                         </Avatar>
+                         <div className="flex-1 min-w-0">
+                           <div className="flex items-center justify-between">
+                             <h4 className={`font-medium text-sm truncate ${
+                               selectedChat?.id === chat.id ? 'text-primary font-semibold' : ''
+                             }`}>
+                               {chat.other_user.display_name}
+                             </h4>
+                             <div className="flex items-center gap-2">
+                               {chat.unread_count > 0 && (
+                                 <Badge variant="secondary" className="text-xs">
+                                   {chat.unread_count}
+                                 </Badge>
+                               )}
+                               {selectedChat?.id === chat.id && (
+                                 <Button
+                                   variant="ghost"
+                                   size="sm"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     setShowDeleteChatDialog(true);
+                                   }}
+                                   className="text-destructive hover:text-destructive h-6 w-6 p-0"
+                                 >
+                                   <Trash2 className="h-3 w-3" />
+                                 </Button>
+                               )}
+                             </div>
+                           </div>
+                           {chat.last_message && (
+                             <p className="text-xs text-muted-foreground truncate mt-1">
+                               {chat.last_message.sender_id === user.id ? 'Tu: ' : ''}
+                               {chat.last_message.content}
+                             </p>
+                           )}
+                           <div className="flex items-center gap-1 mt-1">
+                             <Clock className="h-3 w-3 text-muted-foreground" />
+                             <span className="text-xs text-muted-foreground">
+                               {formatDistanceToNow(new Date(chat.last_message_at), {
+                                 addSuffix: true,
+                                 locale: it
+                               })}
+                             </span>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   ))}
                 </div>
               )}
             </ScrollArea>
@@ -727,14 +742,6 @@ export const PrivateChatWithReply: React.FC = () => {
                          <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
                          <p className="text-xs text-muted-foreground">Chat privata</p>
                        </div>
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={() => setShowDeleteChatDialog(true)}
-                         className="text-destructive hover:text-destructive"
-                       >
-                         <Trash2 className="h-4 w-4" />
-                       </Button>
                     </div>
                      <div className="flex items-center gap-2">
                        <Button
@@ -745,6 +752,15 @@ export const PrivateChatWithReply: React.FC = () => {
                        >
                          <CheckSquare className="h-4 w-4 mr-2" />
                          Seleziona
+                       </Button>
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={() => setShowDeleteChatDialog(true)}
+                         className="text-destructive hover:text-destructive"
+                       >
+                         <Trash2 className="h-4 w-4 mr-2" />
+                         Elimina Chat
                        </Button>
                      </div>
                   </div>
@@ -792,22 +808,20 @@ export const PrivateChatWithReply: React.FC = () => {
               </CardHeader>
               <Separator />
               <CardContent className="p-0 flex flex-col h-[500px]">
-                {/* Messages */}
-                <ScrollArea className="flex-1 p-4">
-                  <PrivateMessageList
-                    messages={messages}
-                    currentUserId={user.id}
-                    otherUserName={selectedChat.other_user.display_name}
-                    onDeleteMessage={deleteMessage}
-                    onEditMessage={editMessage}
-                    onReply={handleReply}
-                    onScrollToMessage={scrollToMessage}
-                    isSelectionMode={isSelectionMode}
-                    selectedMessages={selectedMessages}
-                    onToggleSelection={toggleMessageSelection}
-                  />
-                  <div ref={messagesEndRef} className="h-1" />
-                </ScrollArea>
+                 {/* Messages */}
+                 <PrivateMessageList
+                   messages={messages}
+                   currentUserId={user.id}
+                   otherUserName={selectedChat.other_user.display_name}
+                   onDeleteMessage={deleteMessage}
+                   onEditMessage={editMessage}
+                   onReply={handleReply}
+                   onScrollToMessage={scrollToMessage}
+                   isSelectionMode={isSelectionMode}
+                   selectedMessages={selectedMessages}
+                   onToggleSelection={toggleMessageSelection}
+                 />
+                 <div ref={messagesEndRef} className="h-1" />
 
                 {/* Message Input */}
                 <div className="p-4 border-t">
