@@ -70,7 +70,7 @@ import {
   Cloud,
   BarChart2
 } from 'lucide-react';
-import { InsightsEngine } from '@/components/insights/InsightsEngine';
+
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1678,15 +1678,6 @@ export default function StatsPage() {
             </Card>
           </div>
 
-          {/* Insights Intelligenti Engine */}
-          <InsightsEngine
-            analysisData={analysisData || []}
-            diaryData={diaryData || []}
-            healthData={healthData || []}
-            wellnessData={wellnessData || []}
-            petData={activePet}
-            timeRange={selectedTimeRange}
-          />
 
           {/* Seasonal Predictions */}
           <Card>
