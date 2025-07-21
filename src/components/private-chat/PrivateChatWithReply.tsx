@@ -385,7 +385,7 @@ export const PrivateChatWithReply: React.FC = () => {
 
       if (chatData && (chatData.deleted_by_participant_1 || chatData.deleted_by_participant_2)) {
         console.log('🔄 Chat was deleted by someone, reactivating before sending message...');
-        await supabase
+        const { error: reactivateError } = await supabase
           .from('private_chats')
           .update({ 
             deleted_by_participant_1: false,
@@ -394,6 +394,12 @@ export const PrivateChatWithReply: React.FC = () => {
             updated_at: new Date().toISOString()
           })
           .eq('id', selectedChat.id);
+
+        if (reactivateError) {
+          console.error('Error reactivating chat:', reactivateError);
+        } else {
+          console.log('✅ Chat reactivated successfully');
+        }
       }
 
       console.log('📤 Inserting message to database...');
