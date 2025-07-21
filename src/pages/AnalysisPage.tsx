@@ -1073,9 +1073,57 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             </p>
           </div>
 
-          {/* Analysis Options Grid - Reimpostazione completa per evitare sovrapposizioni */}
-          <div className="space-y-8">
-            {/* Upload Methods - Layout verticale */}
+          {/* Come Scegliere il Metodo Giusto - Spostato in alto */}
+          <Card className="p-8 mb-8">
+            <div className="text-center mb-8">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-primary/20 rounded-xl">
+                  <Brain className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Come Scegliere il Metodo Giusto?</h3>
+              <p className="text-muted-foreground">Seleziona il metodo di analisi più adatto alla tua situazione</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700 min-h-[160px] flex flex-col justify-between">
+                <div>
+                  <Upload className="h-10 w-10 text-blue-500 mx-auto mb-4" />
+                  <p className="font-bold text-lg mb-2">Upload File</p>
+                </div>
+                <p className="text-sm text-blue-700 dark:text-blue-300">Hai già registrazioni o video del tuo pet</p>
+              </div>
+              
+              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-xl border border-green-200 dark:border-green-700 min-h-[160px] flex flex-col justify-between">
+                <div>
+                  <Mic className="h-10 w-10 text-green-500 mx-auto mb-4" />
+                  <p className="font-bold text-lg mb-2">Registra Ora</p>
+                </div>
+                <p className="text-sm text-green-700 dark:text-green-300">Vuoi catturare l'emozione in tempo reale</p>
+              </div>
+              
+              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700 min-h-[160px] flex flex-col justify-between">
+                <div>
+                  <FileText className="h-10 w-10 text-purple-500 mx-auto mb-4" />
+                  <p className="font-bold text-lg mb-2">Descrivi Testo</p>
+                </div>
+                <p className="text-sm text-purple-700 dark:text-purple-300">Preferisci descrivere il comportamento</p>
+              </div>
+              
+              <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 rounded-xl border border-pink-200 dark:border-orange-700 min-h-[160px] flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-center gap-2 mb-4">
+                    <Heart className="h-5 w-5 text-red-500" />
+                    <Brain className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="font-bold text-lg mb-2">Analisi Doppia</p>
+                </div>
+                <p className="text-sm text-pink-700 dark:text-pink-300">Vuoi analizzare anche le tue emozioni</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Upload Methods - Layout verticale */}
             <div className="space-y-6">
               {/* File Upload Card */}
               <Card className="p-6">
@@ -1160,57 +1208,9 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             </div>
             </div>
 
-            {/* Help Section */}
-            <Card className="p-8">
-              <div className="text-center mb-8">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-primary/20 rounded-xl">
-                    <Brain className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Come Scegliere il Metodo Giusto?</h3>
-                <p className="text-muted-foreground">Seleziona il metodo di analisi più adatto alla tua situazione</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700 min-h-[160px] flex flex-col justify-between">
-                  <div>
-                    <Upload className="h-10 w-10 text-blue-500 mx-auto mb-4" />
-                    <p className="font-bold text-lg mb-2">Upload File</p>
-                  </div>
-                  <p className="text-sm text-blue-700 dark:text-blue-300">Hai già registrazioni o video del tuo pet</p>
-                </div>
-                
-                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-xl border border-green-200 dark:border-green-700 min-h-[160px] flex flex-col justify-between">
-                  <div>
-                    <Mic className="h-10 w-10 text-green-500 mx-auto mb-4" />
-                    <p className="font-bold text-lg mb-2">Registra Ora</p>
-                  </div>
-                  <p className="text-sm text-green-700 dark:text-green-300">Vuoi catturare l'emozione in tempo reale</p>
-                </div>
-                
-                <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700 min-h-[160px] flex flex-col justify-between">
-                  <div>
-                    <FileText className="h-10 w-10 text-purple-500 mx-auto mb-4" />
-                    <p className="font-bold text-lg mb-2">Descrivi Testo</p>
-                  </div>
-                  <p className="text-sm text-purple-700 dark:text-purple-300">Preferisci descrivere il comportamento</p>
-                </div>
-                
-                <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 rounded-xl border border-pink-200 dark:border-orange-700 min-h-[160px] flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-center gap-2 mb-4">
-                      <Heart className="h-5 w-5 text-red-500" />
-                      <Brain className="h-5 w-5 text-primary" />
-                    </div>
-                    <p className="font-bold text-lg mb-2">Analisi Doppia</p>
-                  </div>
-                  <p className="text-sm text-pink-700 dark:text-pink-300">Vuoi analizzare anche le tue emozioni</p>
-                </div>
-              </div>
-            </Card>
           </div>
 
+          </div>
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
