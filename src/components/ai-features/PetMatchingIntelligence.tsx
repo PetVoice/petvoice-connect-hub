@@ -39,12 +39,10 @@ import {
   ChevronDown,
   BarChart3,
   Target,
-  Zap,
-  PawPrint,
-  Brain
+  Zap
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { usePetMatching } from '@/hooks/usePetMatching';
+import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 
 // Enhanced Types
@@ -315,8 +313,7 @@ export const PetMatchingIntelligence: React.FC = () => {
   const { toast } = useToast();
   
   // Real data hooks with proper loading states
-  const { data: matchingData, isLoading: petsLoading } = usePetMatching();
-  const petTwins = matchingData?.pet_twins || [];
+  const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
   
   // Training protocol creation
   const createProtocol = useCreateProtocol();

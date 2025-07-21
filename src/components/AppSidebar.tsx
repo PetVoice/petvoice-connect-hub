@@ -37,6 +37,7 @@ const navigationItems = [
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'AI Music Therapy', url: '/ai-music-therapy', icon: Music },
   { title: 'AI Training', url: '/training', icon: Brain },
+  { title: 'Pet Matching', url: '/pet-matching', icon: Network },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Benessere', url: '/wellness', icon: Heart },
   { title: 'Statistiche', url: '/stats', icon: BarChart3 },

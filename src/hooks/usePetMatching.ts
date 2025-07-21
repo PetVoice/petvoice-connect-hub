@@ -7,19 +7,12 @@ export interface PetMatch {
   type: string;
   breed: string;
   age: number;
-  photo_url?: string;
-  owner_display_name: string;
-  compatibility_score: number;
-  common_traits: string[];
-  completed_protocols: string[];
-  matching_protocols: number;
-  behavioral_compatibility: number;
-  // Existing properties for backward compatibility
   location: string;
   user_id: string;
   owner_name: string;
   match_score: number;
   created_at: string;
+  // Additional properties for UI
   avatar: string;
   owner: string;
   matchScore: number;
@@ -34,11 +27,6 @@ export interface PetMatch {
   anxietyLevel: number;
   trainingProgress: number;
   isBookmarked: boolean;
-}
-
-export interface PetMatchingData {
-  total_pets: number;
-  pet_twins: PetMatch[];
 }
 
 export interface MentorProfile {
@@ -72,240 +60,173 @@ export interface MentorProfile {
   isBookmarked: boolean;
 }
 
-const calculateCompatibilityScore = (userPet: any, otherPet: any, userProtocols: any[], otherProtocols: any[]): { 
-  score: number; 
-  traits: string[]; 
-  matchingProtocols: number;
-  behavioralScore: number;
-} => {
-  let score = 0;
-  const traits: string[] = [];
-  
-  // 1. BREED MATCHING (peso: 30%)
-  if (userPet.breed?.toLowerCase() === otherPet.breed?.toLowerCase()) {
-    score += 30;
-    traits.push(`Stessa razza (${userPet.breed})`);
-  }
-  
-  // 2. SPECIES MATCHING (peso: 20%)
-  if (userPet.type?.toLowerCase() === otherPet.type?.toLowerCase()) {
-    score += 20;
-    traits.push(`Stessa specie (${userPet.type})`);
-  }
-  
-  // 3. AGE PROXIMITY (peso: 15%)
-  if (userPet.age && otherPet.age) {
-    const ageDiff = Math.abs(userPet.age - otherPet.age);
-    if (ageDiff === 0) {
-      score += 15;
-      traits.push(`Stessa età (${userPet.age} anni)`);
-    } else if (ageDiff <= 1) {
-      score += 10;
-      traits.push(`Età simile (differenza ${ageDiff} anno)`);
-    } else if (ageDiff <= 2) {
-      score += 5;
-      traits.push(`Età compatibile (differenza ${ageDiff} anni)`);
-    }
-  }
-  
-  // 4. COMPLETED PROTOCOLS MATCHING (peso: 25%) - NUOVO
-  const userCompletedProtocols = userProtocols.filter(p => p.status === 'completed');
-  const otherCompletedProtocols = otherProtocols.filter(p => p.status === 'completed');
-  
-  const userProtocolTitles = new Set(userCompletedProtocols.map(p => p.title.toLowerCase()));
-  const otherProtocolTitles = new Set(otherCompletedProtocols.map(p => p.title.toLowerCase()));
-  
-  const commonProtocols = [...userProtocolTitles].filter(title => otherProtocolTitles.has(title));
-  const protocolMatchPercentage = commonProtocols.length > 0 ? 
-    (commonProtocols.length / Math.max(userProtocolTitles.size, otherProtocolTitles.size)) * 100 : 0;
-  
-  const protocolScore = Math.min(25, protocolMatchPercentage * 0.25);
-  score += protocolScore;
-  
-  if (commonProtocols.length > 0) {
-    traits.push(`${commonProtocols.length} protocolli in comune`);
-  }
-  
-  // 5. BEHAVIORAL ANALYSIS COMPATIBILITY (peso: 10%)
-  let behavioralScore = 0;
-  
-  // Simula analisi comportamentale basata sui protocolli e sui dati
-  if (userCompletedProtocols.length > 0 && otherCompletedProtocols.length > 0) {
-    const userAvgSuccess = userCompletedProtocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / userCompletedProtocols.length;
-    const otherAvgSuccess = otherCompletedProtocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / otherCompletedProtocols.length;
-    
-    const successDiff = Math.abs(userAvgSuccess - otherAvgSuccess);
-    if (successDiff < 10) {
-      behavioralScore = 10;
-      traits.push('Livello di training simile');
-    } else if (successDiff < 20) {
-      behavioralScore = 7;
-      traits.push('Training compatibile');
-    } else if (successDiff < 30) {
-      behavioralScore = 4;
-    }
-  }
-  
-  score += behavioralScore;
-  
-  return { 
-    score: Math.min(100, Math.round(score)), 
-    traits,
-    matchingProtocols: commonProtocols.length,
-    behavioralScore: Math.round(behavioralScore)
-  };
-};
-
 export const usePetMatching = () => {
   return useQuery({
     queryKey: ['pet-matching'],
-    queryFn: async (): Promise<PetMatchingData> => {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      // Get user's pets
-      const { data: userPets, error: userPetsError } = await supabase
+    queryFn: async () => {
+      const { data: pets, error: petsError } = await supabase
         .from('pets')
         .select('*')
-        .eq('user_id', user.id);
+        .order('created_at', { ascending: false });
 
-      if (userPetsError) throw userPetsError;
-      if (!userPets || userPets.length === 0) {
-        return { total_pets: 0, pet_twins: [] };
-      }
+      if (petsError) throw petsError;
 
-      // Get user's training protocols for each pet
-      const { data: userProtocols, error: userProtocolsError } = await supabase
+      const { data: protocols, error: protocolsError } = await supabase
         .from('ai_training_protocols')
         .select('*')
-        .eq('user_id', user.id);
-
-      if (userProtocolsError) throw userProtocolsError;
-
-      // Get all other pets (excluding user's own pets) with profiles
-      const { data: allOtherPets, error: allPetsError } = await supabase
-        .from('pets')
-        .select('*')
-        .neq('user_id', user.id);
-
-      if (allPetsError) throw allPetsError;
-
-      // Get profiles for all pet owners
-      const ownerIds = [...new Set(allOtherPets?.map(pet => pet.user_id) || [])];
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, display_name')
-        .in('user_id', ownerIds);
-
-      if (profilesError) throw profilesError;
-
-      // Create owner map
-      const ownerMap = profiles?.reduce((acc, profile) => {
-        acc[profile.user_id] = profile.display_name || 'Utente';
-        return acc;
-      }, {} as Record<string, string>) || {};
-
-      if (allPetsError) throw allPetsError;
-
-      // Get protocols for all other pet owners
-      const otherUserIds = ownerIds;
-      const { data: allOtherProtocols, error: protocolsError } = await supabase
-        .from('ai_training_protocols')
-        .select('*')
-        .in('user_id', otherUserIds);
+        .eq('status', 'completed');
 
       if (protocolsError) throw protocolsError;
 
-      // Calculate matches for each user pet
-      const allMatches: PetMatch[] = [];
+      const { data: communityMessages, error: messagesError } = await supabase
+        .from('community_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      userPets.forEach(userPet => {
-        const userPetProtocols = userProtocols?.filter(p => p.pet_id === userPet.id || !p.pet_id) || [];
-        
-        allOtherPets?.forEach(otherPet => {
-          const otherPetProtocols = allOtherProtocols?.filter(p => 
-            p.user_id === otherPet.user_id && (p.pet_id === otherPet.id || !p.pet_id)
-          ) || [];
-          
-          const { score, traits, matchingProtocols, behavioralScore } = calculateCompatibilityScore(
-            userPet, 
-            otherPet, 
-            userPetProtocols,
-            otherPetProtocols
-          );
+      if (messagesError) throw messagesError;
 
-          // Only include pets with compatibility score > 20%
-          if (score > 20) {
-            const completedProtocolTitles = otherPetProtocols
-              .filter(p => p.status === 'completed')
-              .map(p => p.title);
-
-            allMatches.push({
-              id: otherPet.id,
-              name: otherPet.name,
-              type: otherPet.type,
-              breed: otherPet.breed || 'Misto',
-              age: otherPet.age || 0,
-              photo_url: otherPet.avatar_url,
-              owner_display_name: ownerMap[otherPet.user_id] || 'Utente',
-              compatibility_score: score,
-              common_traits: traits,
-              completed_protocols: completedProtocolTitles,
-              matching_protocols: matchingProtocols,
-              behavioral_compatibility: behavioralScore,
-              // Backward compatibility properties
-              location: 'Italia',
-              user_id: otherPet.user_id,
-              owner_name: ownerMap[otherPet.user_id] || 'Utente',
-              match_score: score,
-              created_at: otherPet.created_at,
-              avatar: otherPet.avatar_url || '/placeholder.svg',
-              owner: ownerMap[otherPet.user_id] || 'Utente',
-              matchScore: score,
-              distance: Math.floor(Math.random() * 20) + 1,
-              behavioralDNA: traits,
-              commonTraits: traits,
-              differences: ['Caratteristiche uniche'],
-              successStories: Math.floor(Math.random() * 5) + 1,
-              lastActive: '2 ore fa',
-              energyLevel: Math.floor(Math.random() * 40) + 60,
-              socialScore: Math.floor(Math.random() * 40) + 60,
-              anxietyLevel: Math.floor(Math.random() * 40) + 20,
-              trainingProgress: Math.floor(Math.random() * 40) + 60,
-              isBookmarked: false
-            });
-          }
-        });
-      });
-
-      // Sort by compatibility score (highest first) and remove duplicates
-      const uniqueMatches = allMatches
-        .sort((a, b) => b.compatibility_score - a.compatibility_score)
-        .filter((match, index, arr) => 
-          arr.findIndex(m => m.id === match.id) === index
-        )
-        .slice(0, 10); // Top 10 matches
+      // Calculate statistics
+      const petTwins = pets?.filter(pet => pet.type && pet.breed).length || 0;
+      const mentorsActive = Math.floor(pets?.length / 3) || 0; // Mock calculation
+      const averageImprovement = protocols?.length > 0 
+        ? Math.round(protocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / protocols.length)
+        : 0;
+      const successStories = communityMessages?.length || 0;
 
       return {
-        total_pets: allOtherPets?.length || 0,
-        pet_twins: uniqueMatches
+        petTwins,
+        mentorsActive,
+        averageImprovement,
+        successStories,
+        pets: pets || [],
+        protocols: protocols || [],
+        communityMessages: communityMessages || []
       };
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 
 export const usePetTwins = () => {
-  // Use the new enhanced pet matching
-  const petMatchingQuery = usePetMatching();
-  
-  return {
-    ...petMatchingQuery,
-    data: petMatchingQuery.data?.pet_twins || []
-  };
+  return useQuery({
+    queryKey: ['pet-twins'],
+    queryFn: async () => {
+      // Get current user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Get all pets except current user's pets
+      const { data: pets, error } = await supabase
+        .from('pets')
+        .select('*')
+        .neq('user_id', user.id) // Exclude current user's pets
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Get profiles for owner names
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', pets?.map(pet => pet.user_id) || []);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of user_id to display_name
+      const ownerNames = profiles?.reduce((acc, profile) => {
+        acc[profile.user_id] = profile.display_name;
+        return acc;
+      }, {} as Record<string, string>) || {};
+
+      // Get current user's pets to calculate matches
+      const { data: myPets, error: myPetsError } = await supabase
+        .from('pets')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (myPetsError) throw myPetsError;
+
+      if (!myPets?.length) return []; // No pets to match against
+
+      // Get pet analyses for better matching
+      const { data: analyses, error: analysesError } = await supabase
+        .from('pet_analyses')
+        .select('pet_id, primary_emotion, primary_confidence, behavioral_insights');
+
+      if (analysesError) throw analysesError;
+
+      // Create analysis map
+      const analysisMap = analyses?.reduce((acc, analysis) => {
+        if (!acc[analysis.pet_id]) acc[analysis.pet_id] = [];
+        acc[analysis.pet_id].push(analysis);
+        return acc;
+      }, {} as Record<string, any[]>) || {};
+
+      // Transform to PetMatch format with real matching logic
+      return pets?.map(pet => {
+        const myPet = myPets[0]; // Use first pet for matching (could be enhanced)
+        const petAnalyses = analysisMap[pet.id] || [];
+        const myPetAnalyses = analysisMap[myPet.id] || [];
+        
+        // Calculate match score based on multiple criteria
+        let matchScore = 50; // Base score
+        
+        // Same breed bonus
+        if (pet.breed === myPet.breed) matchScore += 25;
+        
+        // Same type (species) bonus
+        if (pet.type === myPet.type) matchScore += 15;
+        
+        // Age similarity (within 2 years)
+        const ageDiff = Math.abs((pet.age || 0) - (myPet.age || 0));
+        if (ageDiff <= 2) matchScore += 10;
+        
+        // Similar emotions/behaviors from analyses
+        if (petAnalyses.length && myPetAnalyses.length) {
+          const commonEmotions = petAnalyses.filter(pa => 
+            myPetAnalyses.some(mpa => mpa.primary_emotion === pa.primary_emotion)
+          ).length;
+          matchScore += commonEmotions * 5;
+        }
+        
+        // Ensure score is within bounds
+        matchScore = Math.min(100, Math.max(60, matchScore));
+
+        return {
+          id: pet.id,
+          name: pet.name,
+          type: pet.type,
+          breed: pet.breed || 'Misto',
+          age: pet.age || 0,
+          location: 'Italia', // Mock location, could be enhanced with real locations
+          user_id: pet.user_id,
+          owner_name: ownerNames[pet.user_id] || 'Utente',
+          match_score: matchScore,
+          created_at: pet.created_at,
+          // Additional properties for UI
+          avatar: '/placeholder.svg',
+          owner: ownerNames[pet.user_id] || 'Utente',
+          matchScore: matchScore,
+          distance: Math.floor(Math.random() * 20) + 1, // Mock distance for now
+          behavioralDNA: petAnalyses.map(a => a.primary_emotion).filter(Boolean) || ['Socievole', 'Energico'],
+          commonTraits: [
+            pet.breed === myPet.breed ? `Stessa razza: ${pet.breed}` : null,
+            pet.type === myPet.type ? `Stesso tipo: ${pet.type}` : null,
+            ageDiff <= 2 ? `Età simile (${pet.age || 0} anni)` : null
+          ].filter(Boolean),
+          differences: ['Caratteristiche uniche', 'Temperamento diverso'],
+          successStories: Math.floor(Math.random() * 5) + 1,
+          lastActive: '2 ore fa',
+          energyLevel: Math.floor(Math.random() * 40) + 60,
+          socialScore: Math.floor(Math.random() * 40) + 60,
+          anxietyLevel: Math.floor(Math.random() * 40) + 20,
+          trainingProgress: Math.floor(Math.random() * 40) + 60,
+          isBookmarked: false
+        };
+      })
+      .sort((a, b) => b.matchScore - a.matchScore) // Sort by match score
+      .slice(0, 20) || []; // Limit to top 20 matches
+    },
+  });
 };
 
 export const useMentors = () => {
