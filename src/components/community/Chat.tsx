@@ -84,7 +84,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         .from('community_messages')
         .select('*')
         .eq('channel_name', channelId)
-        .is('deleted_at', null)
+        .eq('deleted_by_all', false)
+        .or(`deleted_by_user.eq.false,user_id.eq.${user?.id}`)
         .order('created_at', { ascending: true })
         .limit(100);
 
@@ -232,21 +233,43 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
-  const deleteMessage = async (messageId: string) => {
-    try {
-      const { error } = await supabase
-        .from('community_messages')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', messageId)
-        .eq('user_id', user?.id);
+  const deleteMessage = async (messageId: string, deleteForAll: boolean = false) => {
+    const message = messages.find(msg => msg.id === messageId);
+    if (!message) return;
 
-      if (error) throw error;
+    const isMyMessage = message.user_id === user?.id;
+
+    try {
+      if (deleteForAll && isMyMessage) {
+        // Solo i miei messaggi possono essere eliminati per tutti
+        const { error } = await supabase
+          .from('community_messages')
+          .update({ 
+            deleted_by_all: true,
+            user_deleted_at: new Date().toISOString()
+          })
+          .eq('id', messageId)
+          .eq('user_id', user?.id);
+
+        if (error) throw error;
+      } else {
+        // Elimina solo per me
+        const { error } = await supabase
+          .from('community_messages')
+          .update({ 
+            deleted_by_user: true,
+            user_deleted_at: new Date().toISOString()
+          })
+          .eq('id', messageId);
+
+        if (error) throw error;
+      }
 
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
 
       toast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato con successo"
+        description: deleteForAll && isMyMessage ? "Il messaggio è stato eliminato per tutti" : "Il messaggio è stato eliminato solo per te"
       });
     } catch (error) {
       console.error('Error deleting message:', error);
@@ -318,15 +341,18 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     setSelectedMessages([]);
   };
 
-  const deleteSelectedMessages = async () => {
+  const deleteSelectedMessagesForMe = async () => {
     if (selectedMessages.length === 0) return;
 
     try {
+      // Elimina tutti i messaggi selezionati solo per me
       const { error } = await supabase
         .from('community_messages')
-        .update({ deleted_at: new Date().toISOString() })
-        .in('id', selectedMessages)
-        .eq('user_id', user?.id);
+        .update({ 
+          deleted_by_user: true,
+          user_deleted_at: new Date().toISOString()
+        })
+        .in('id', selectedMessages);
 
       if (error) throw error;
 
@@ -337,16 +363,93 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       toast({
         title: "Messaggi eliminati",
-        description: `${selectedMessages.length} messaggi sono stati eliminati con successo`
+        description: `${selectedMessages.length} messaggi eliminati solo per te`
       });
     } catch (error) {
-      console.error('Error deleting messages:', error);
+      console.error('Error deleting messages for me:', error);
       toast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
         variant: "destructive"
       });
     }
+  };
+
+  const deleteSelectedMessagesForAll = async () => {
+    if (selectedMessages.length === 0) return;
+
+    try {
+      // Separa messaggi inviati da quelli ricevuti
+      const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+      const sentMessages = selectedMessageObjects.filter(msg => msg.user_id === user?.id);
+      const receivedMessages = selectedMessageObjects.filter(msg => msg.user_id !== user?.id);
+
+      // Elimina messaggi inviati per tutti
+      if (sentMessages.length > 0) {
+        const { error: sentError } = await supabase
+          .from('community_messages')
+          .update({ 
+            deleted_by_all: true,
+            user_deleted_at: new Date().toISOString()
+          })
+          .in('id', sentMessages.map(msg => msg.id));
+
+        if (sentError) throw sentError;
+      }
+
+      // Messaggi ricevuti possono essere eliminati solo per me
+      if (receivedMessages.length > 0) {
+        const { error: receivedError } = await supabase
+          .from('community_messages')
+          .update({ 
+            deleted_by_user: true,
+            user_deleted_at: new Date().toISOString()
+          })
+          .in('id', receivedMessages.map(msg => msg.id));
+
+        if (receivedError) throw receivedError;
+      }
+
+      setMessages(prev => prev.filter(msg => !selectedMessages.includes(msg.id)));
+      setSelectedMessages([]);
+      setIsSelectionMode(false);
+      setShowBulkDeleteDialog(false);
+
+      const sentCount = sentMessages.length;
+      const receivedCount = receivedMessages.length;
+      let description = "";
+      
+      if (sentCount > 0 && receivedCount > 0) {
+        description = `${sentCount} messaggi eliminati per tutti, ${receivedCount} eliminati solo per te`;
+      } else if (sentCount > 0) {
+        description = `${sentCount} messaggi eliminati per tutti`;
+      } else {
+        description = `${receivedCount} messaggi eliminati solo per te`;
+      }
+
+      toast({
+        title: "Messaggi eliminati",
+        description: description
+      });
+    } catch (error) {
+      console.error('Error deleting messages for all:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi selezionati",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Helper per determinare il tipo di messaggi selezionati
+  const getSelectedMessagesType = () => {
+    const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+    const sentCount = selectedMessageObjects.filter(msg => msg.user_id === user?.id).length;
+    const receivedCount = selectedMessageObjects.filter(msg => msg.user_id !== user?.id).length;
+    
+    if (sentCount > 0 && receivedCount === 0) return 'sent'; // Solo messaggi inviati
+    if (receivedCount > 0 && sentCount === 0) return 'received'; // Solo messaggi ricevuti
+    return 'mixed'; // Misto
   };
 
   if (loading) {
@@ -444,19 +547,41 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare {selectedMessages.length} messaggi selezionati? Questa azione non può essere annullata.
+              {(() => {
+                const messageType = getSelectedMessagesType();
+                const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+                const sentCount = selectedMessageObjects.filter(msg => msg.user_id === user?.id).length;
+                const receivedCount = selectedMessageObjects.filter(msg => msg.user_id !== user?.id).length;
+                
+                if (messageType === 'sent') {
+                  return `Come vuoi eliminare i ${sentCount} messaggi inviati selezionati?`;
+                } else if (messageType === 'received') {
+                  return `I ${receivedCount} messaggi ricevuti selezionati possono essere eliminati solo per te.`;
+                } else {
+                  return `Hai selezionato ${sentCount} messaggi inviati e ${receivedCount} messaggi ricevuti. I messaggi inviati possono essere eliminati per tutti, quelli ricevuti solo per te.`;
+                }
+              })()}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={deleteSelectedMessages}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            <Button
+              variant="outline"
+              onClick={deleteSelectedMessagesForMe}
+              className="w-full sm:w-auto"
             >
-              Elimina {selectedMessages.length} messaggi
-            </AlertDialogAction>
+              Elimina solo per me
+            </Button>
+            {getSelectedMessagesType() !== 'received' && (
+              <AlertDialogAction
+                onClick={deleteSelectedMessagesForAll}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+              >
+                {getSelectedMessagesType() === 'sent' ? 'Elimina per tutti' : 'Elimina (misto)'}
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

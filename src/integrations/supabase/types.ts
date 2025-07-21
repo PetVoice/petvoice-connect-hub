@@ -709,6 +709,8 @@ export type Database = {
           content: string | null
           created_at: string
           deleted_at: string | null
+          deleted_by_all: boolean | null
+          deleted_by_user: boolean | null
           file_url: string | null
           id: string
           is_emergency: boolean | null
@@ -716,6 +718,7 @@ export type Database = {
           metadata: Json | null
           reply_to_id: string | null
           updated_at: string
+          user_deleted_at: string | null
           user_id: string
           voice_duration: number | null
         }
@@ -725,6 +728,8 @@ export type Database = {
           content?: string | null
           created_at?: string
           deleted_at?: string | null
+          deleted_by_all?: boolean | null
+          deleted_by_user?: boolean | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null
@@ -732,6 +737,7 @@ export type Database = {
           metadata?: Json | null
           reply_to_id?: string | null
           updated_at?: string
+          user_deleted_at?: string | null
           user_id: string
           voice_duration?: number | null
         }
@@ -741,6 +747,8 @@ export type Database = {
           content?: string | null
           created_at?: string
           deleted_at?: string | null
+          deleted_by_all?: boolean | null
+          deleted_by_user?: boolean | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null
@@ -748,6 +756,7 @@ export type Database = {
           metadata?: Json | null
           reply_to_id?: string | null
           updated_at?: string
+          user_deleted_at?: string | null
           user_id?: string
           voice_duration?: number | null
         }
