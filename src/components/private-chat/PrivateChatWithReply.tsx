@@ -352,7 +352,7 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('chat_id', chat.id)
             .eq('recipient_id', user.id)
             .eq('is_read', false)
-            .neq('deleted_by_recipient', true);
+            .not('deleted_by_recipient', 'eq', true);
 
           const displayName = userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
 
