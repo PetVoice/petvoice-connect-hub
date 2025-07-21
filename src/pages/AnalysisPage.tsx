@@ -1136,104 +1136,144 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      {(() => {
-                        if (analyses.length >= 2) {
-                          const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
-                          const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
-                          const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
-                          const avgConfidenceOld = oldAnalyses.length > 0 
-                            ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
-                            : avgConfidenceRecent;
-                          
-                          const trend = avgConfidenceRecent - avgConfidenceOld;
-                          
-                          if (trend > 5) {
-                            return <TrendingUp className="h-5 w-5 text-green-600" />;
-                          } else if (trend < -5) {
-                            return <TrendingDown className="h-5 w-5 text-red-600" />;
-                          } else {
-                            return <div className="h-5 w-5 bg-yellow-500 rounded-full" />;
-                          }
-                        } else {
-                          return <div className="h-5 w-5 bg-gray-400 rounded-full" />;
-                        }
-                      })()}
-                      <span className="font-medium">
-                        {(() => {
-                          if (analyses.length >= 2) {
-                            const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
-                            const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
-                            const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
-                            const avgConfidenceOld = oldAnalyses.length > 0 
-                              ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
-                              : avgConfidenceRecent;
+                  {(() => {
+                    if (analyses.length === 0) {
+                      return (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Carica alcune analisi per visualizzare le previsioni</p>
+                        </div>
+                      );
+                    }
+
+                    // Analisi cronologica corretta
+                    const sortedAnalyses = [...analyses].sort((a, b) => 
+                      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    );
+
+                    let trend = 0;
+                    let trendLabel = 'Insufficienti Dati';
+                    let trendColor = 'text-gray-500';
+                    let trendIcon = <div className="h-5 w-5 bg-gray-400 rounded-full" />;
+                    let trendDescription = 'Aggiungi più analisi per calcolare le previsioni.';
+
+                    if (sortedAnalyses.length >= 3) {
+                      // Dividere in tre terzi per avere trend più stabile
+                      const thirdSize = Math.floor(sortedAnalyses.length / 3);
+                      const oldAnalyses = sortedAnalyses.slice(0, thirdSize);
+                      const middleAnalyses = sortedAnalyses.slice(thirdSize, thirdSize * 2);
+                      const recentAnalyses = sortedAnalyses.slice(thirdSize * 2);
+
+                      const oldAvgConfidence = oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length;
+                      const recentAvgConfidence = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                      
+                      trend = recentAvgConfidence - oldAvgConfidence;
+
+                      if (trend > 10) {
+                        trendLabel = 'Miglioramento Significativo';
+                        trendColor = 'text-green-600';
+                        trendIcon = <TrendingUp className="h-5 w-5 text-green-600" />;
+                        trendDescription = 'Il benessere del tuo pet sta migliorando costantemente. Ottimo lavoro!';
+                      } else if (trend > 3) {
+                        trendLabel = 'Leggero Miglioramento';
+                        trendColor = 'text-green-500';
+                        trendIcon = <TrendingUp className="h-5 w-5 text-green-500" />;
+                        trendDescription = 'Il benessere mostra segni di miglioramento. Continua con le attuali cure.';
+                      } else if (trend < -10) {
+                        trendLabel = 'Peggioramento Significativo';
+                        trendColor = 'text-red-600';
+                        trendIcon = <TrendingDown className="h-5 w-5 text-red-600" />;
+                        trendDescription = 'Il benessere mostra un declino preoccupante. Consulta urgentemente un veterinario.';
+                      } else if (trend < -3) {
+                        trendLabel = 'Leggero Peggioramento';
+                        trendColor = 'text-orange-500';
+                        trendIcon = <TrendingDown className="h-5 w-5 text-orange-500" />;
+                        trendDescription = 'Il benessere mostra segni di declino. Considera una visita veterinaria.';
+                      } else {
+                        trendLabel = 'Stabile';
+                        trendColor = 'text-blue-600';
+                        trendIcon = <div className="h-5 w-5 bg-blue-500 rounded-full" />;
+                        trendDescription = 'Il benessere è stabile. Mantieni la routine attuale e continua il monitoraggio.';
+                      }
+                    }
+
+                    const currentConfidence = sortedAnalyses.length > 0 ? sortedAnalyses[sortedAnalyses.length - 1].primary_confidence : 0;
+                    const predictedConfidence = Math.max(0, Math.min(100, currentConfidence + (trend * 1.5)));
+
+                    return (
+                      <>
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            {trendIcon}
+                            <span className={`font-medium ${trendColor}`}>{trendLabel}</span>
+                            {sortedAnalyses.length >= 3 && (
+                              <span className="text-xs text-muted-foreground ml-2">
+                                ({trend > 0 ? '+' : ''}{trend.toFixed(1)}%)
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{trendDescription}</p>
+                        </div>
+                        
+                        {sortedAnalyses.length > 0 && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Confidenza Attuale</span>
+                              <span>{Math.round(currentConfidence)}%</span>
+                            </div>
+                            <Progress value={currentConfidence} className="h-2" />
+                            <div className="flex justify-between text-sm">
+                              <span>Previsione 30gg</span>
+                              <span className={sortedAnalyses.length >= 3 ? trendColor : 'text-muted-foreground'}>
+                                {Math.round(predictedConfidence)}%
+                              </span>
+                            </div>
                             
-                            const trend = avgConfidenceRecent - avgConfidenceOld;
-                            
-                            return trend > 5 ? 'Miglioramento' : 
-                                   trend < -5 ? 'Peggioramento' : 'Stabile';
-                          } else {
-                            return 'Insufficienti Dati';
-                          }
-                        })()}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {(() => {
-                        if (analyses.length >= 2) {
-                          const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
-                          const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
-                          const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
-                          const avgConfidenceOld = oldAnalyses.length > 0 
-                            ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
-                            : avgConfidenceRecent;
-                          
-                          const trend = avgConfidenceRecent - avgConfidenceOld;
-                          
-                          return trend > 5 ? 
-                            'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
-                            trend < -5 ?
-                            'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
-                            'Il benessere è stabile. Mantieni la routine attuale.';
-                        } else {
-                          return 'Aggiungi più analisi per ricevere previsioni accurate del benessere.';
-                        }
-                      })()}
-                    </p>
-                  </div>
-                  
-                  {analyses.length > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Confidenza Attuale</span>
-                        <span>{analyses.length > 0 ? Math.round(analyses[0].primary_confidence) : 0}%</span>
-                      </div>
-                      <Progress value={analyses.length > 0 ? analyses[0].primary_confidence : 0} className="h-2" />
-                      <div className="flex justify-between text-sm">
-                        <span>Previsione 30gg</span>
-                        <span>
-                          {(() => {
-                            if (analyses.length >= 2) {
-                              const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
-                              const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
-                              const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
-                              const avgConfidenceOld = oldAnalyses.length > 0 
-                                ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
-                                : avgConfidenceRecent;
-                              
-                              const trend = avgConfidenceRecent - avgConfidenceOld;
-                              const prediction = Math.max(0, Math.min(100, avgConfidenceRecent + trend * 2));
-                              return Math.round(prediction) + '%';
-                            } else {
-                              return analyses.length > 0 ? Math.round(analyses[0].primary_confidence) + '%' : '0%';
-                            }
-                          })()}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                            {/* Grafico di tendenza semplificato */}
+                            {sortedAnalyses.length >= 3 && (
+                              <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+                                <h4 className="text-sm font-medium mb-2">Tendenza Ultimi Periodi</h4>
+                                <div className="flex items-end justify-between h-16">
+                                  {(() => {
+                                    const thirdSize = Math.floor(sortedAnalyses.length / 3);
+                                    const periods = [
+                                      { 
+                                        label: 'Inizio', 
+                                        value: sortedAnalyses.slice(0, thirdSize).reduce((sum, a) => sum + a.primary_confidence, 0) / thirdSize 
+                                      },
+                                      { 
+                                        label: 'Metà', 
+                                        value: sortedAnalyses.slice(thirdSize, thirdSize * 2).reduce((sum, a) => sum + a.primary_confidence, 0) / thirdSize 
+                                      },
+                                      { 
+                                        label: 'Recente', 
+                                        value: sortedAnalyses.slice(thirdSize * 2).reduce((sum, a) => sum + a.primary_confidence, 0) / (sortedAnalyses.length - thirdSize * 2)
+                                      }
+                                    ];
+
+                                    return periods.map((period, index) => (
+                                      <div key={period.label} className="text-center flex-1">
+                                        <div 
+                                          className={`w-8 mx-auto rounded-t ${
+                                            index === 0 ? 'bg-gray-400' :
+                                            index === 1 ? 'bg-blue-400' : 
+                                            trend > 3 ? 'bg-green-500' : trend < -3 ? 'bg-red-500' : 'bg-blue-500'
+                                          }`}
+                                          style={{ height: `${(period.value / 100) * 48}px` }}
+                                        ></div>
+                                        <p className="text-xs text-muted-foreground mt-1">{period.label}</p>
+                                        <p className="text-xs font-medium">{Math.round(period.value)}%</p>
+                                      </div>
+                                    ));
+                                  })()}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </CardContent>
             </Card>
@@ -1257,116 +1297,269 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                     if (analyses.length === 0) {
                       recommendations.push({
                         type: 'info',
-                        text: 'Carica alcune analisi per ricevere raccomandazioni personalizzate.'
+                        text: 'Carica alcune analisi per ricevere raccomandazioni personalizzate.',
+                        priority: 1
                       });
                     } else {
-                      // Check for stress patterns
-                      const stressEmotions = ['stress', 'ansioso', 'agitato', 'nervoso'];
-                      const stressAnalyses = analyses.filter(a => 
-                        stressEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                      );
-                      
-                      if (stressAnalyses.length > analyses.length * 0.3) {
+                      // Analisi delle emozioni dominanti
+                      const emotionCounts = analyses.reduce((acc: Record<string, number>, a) => {
+                        acc[a.primary_emotion] = (acc[a.primary_emotion] || 0) + 1;
+                        return acc;
+                      }, {});
+
+                      const totalAnalyses = analyses.length;
+                      const sortedEmotions = Object.entries(emotionCounts)
+                        .sort(([,a], [,b]) => b - a);
+
+                      // Check per emozioni negative dominanti
+                      const negativeEmotions = ['stress', 'ansioso', 'agitato', 'nervoso', 'paura', 'triste', 'depresso'];
+                      const negativeCount = analyses.filter(a => 
+                        negativeEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion.toLowerCase()))
+                      ).length;
+
+                      if (negativeCount > totalAnalyses * 0.4) {
                         recommendations.push({
                           type: 'warning',
-                          text: 'Rilevati livelli di stress elevati. Considera attività rilassanti e consulta un veterinario.'
+                          text: `Rilevate emozioni negative nel ${Math.round((negativeCount / totalAnalyses) * 100)}% delle analisi. Considera di ridurre i fattori di stress ambientali e consulta un veterinario.`,
+                          priority: 3
                         });
                       }
-                      
-                      // Check for low confidence
+
+                      // Check per confidenza bassa persistente
                       const avgConfidence = analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / analyses.length;
-                      if (avgConfidence < 70) {
+                      if (avgConfidence < 60) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: `Confidenza media bassa (${Math.round(avgConfidence)}%). Verifica la qualità delle registrazioni e l'ambiente di ripresa.`,
+                          priority: 2
+                        });
+                      } else if (avgConfidence < 75) {
                         recommendations.push({
                           type: 'info',
-                          text: 'La qualità delle registrazioni potrebbe essere migliorata per analisi più precise.'
+                          text: `La qualità delle registrazioni può essere migliorata per analisi più precise (confidenza attuale: ${Math.round(avgConfidence)}%).`,
+                          priority: 1
                         });
                       }
-                      
-                      // Check for positive emotions
-                      const positiveEmotions = ['felice', 'giocoso', 'contento', 'rilassato'];
-                      const positiveAnalyses = analyses.filter(a => 
-                        positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                      );
-                      
-                      if (positiveAnalyses.length > analyses.length * 0.6) {
+
+                      // Check per emozioni positive
+                      const positiveEmotions = ['felice', 'giocoso', 'contento', 'rilassato', 'calmo', 'sereno'];
+                      const positiveCount = analyses.filter(a => 
+                        positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion.toLowerCase()))
+                      ).length;
+
+                      if (positiveCount > totalAnalyses * 0.7) {
                         recommendations.push({
                           type: 'success',
-                          text: 'Ottimi livelli di benessere! Continua con le attuali strategie di cura.'
+                          text: `Ottimi livelli di benessere! ${Math.round((positiveCount / totalAnalyses) * 100)}% di emozioni positive. Continua con le attuali strategie.`,
+                          priority: 1
                         });
                       }
-                      
-                      // Check for recent activity
-                      const recentAnalyses = analyses.filter(a => {
-                        const analysisDate = new Date(a.created_at);
-                        const weekAgo = new Date();
-                        weekAgo.setDate(weekAgo.getDate() - 7);
-                        return analysisDate >= weekAgo;
-                      });
-                      
-                      if (recentAnalyses.length < 2 && analyses.length > 5) {
+
+                      // Analisi temporale
+                      const oneWeekAgo = new Date();
+                      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                      const recentAnalyses = analyses.filter(a => new Date(a.created_at) >= oneWeekAgo);
+
+                      if (recentAnalyses.length < 2 && analyses.length > 10) {
                         recommendations.push({
                           type: 'info',
-                          text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
+                          text: 'Non ci sono analisi recenti. Aumenta la frequenza di monitoraggio per previsioni più accurate.',
+                          priority: 2
                         });
                       }
-                      
+
+                      // Check per variazioni drastiche
+                      if (analyses.length >= 3) {
+                        const sortedAnalyses = [...analyses].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                        const recent = sortedAnalyses.slice(-2);
+                        const confidenceVariation = Math.abs(recent[1].primary_confidence - recent[0].primary_confidence);
+                        
+                        if (confidenceVariation > 30) {
+                          recommendations.push({
+                            type: 'warning',
+                            text: 'Rilevate variazioni significative nel benessere. Monitora attentamente e considera fattori ambientali recenti.',
+                            priority: 3
+                          });
+                        }
+                      }
+
+                      // Check per diversità emotiva
+                      const uniqueEmotions = Object.keys(emotionCounts).length;
+                      if (uniqueEmotions === 1 && analyses.length > 5) {
+                        recommendations.push({
+                          type: 'info',
+                          text: 'Emozione molto costante rilevata. Potrebbe indicare una routine stabile o necessità di maggior stimolazione.',
+                          priority: 1
+                        });
+                      }
+
                       if (recommendations.length === 0) {
                         recommendations.push({
-                          type: 'info',
-                          text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
+                          type: 'success',
+                          text: 'Parametri nella norma. Continua il monitoraggio regolare per mantenere il benessere ottimale.',
+                          priority: 1
                         });
                       }
                     }
                     
-                    return recommendations.slice(0, 4).map((rec, index) => (
-                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
-                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
-                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
-                        'bg-blue-50 border-blue-400'
-                      }`}>
-                        <p className="text-sm">{rec.text}</p>
-                      </div>
-                    ));
+                    // Ordina per priorità e mostra solo le prime 4
+                    return recommendations
+                      .sort((a, b) => b.priority - a.priority)
+                      .slice(0, 4)
+                      .map((rec, index) => (
+                        <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                          rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
+                          rec.type === 'success' ? 'bg-green-50 border-green-400' :
+                          'bg-blue-50 border-blue-400'
+                        }`}>
+                          <p className="text-sm">{rec.text}</p>
+                        </div>
+                      ));
                   })()}
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Seasonal Predictions */}
+          {/* Seasonal Predictions - Basate sui dati reali */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
-                Previsioni Stagionali
+                Pattern Temporali e Previsioni
               </CardTitle>
               <CardDescription>
-                Analisi dei pattern stagionali del comportamento
+                Analisi dei pattern comportamentali basata sui tuoi dati
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
-                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
-                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
-                  
+              {(() => {
+                if (analyses.length < 3) {
                   return (
-                    <div key={season} className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-2">{season}</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Attività:</span>
-                          <span className="font-medium">{activity}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Umore:</span>
-                          <span className="font-medium">{mood}</span>
-                        </div>
-                      </div>
+                    <div className="text-center py-8 text-muted-foreground">
+                      <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>Servono almeno 3 analisi per identificare pattern temporali</p>
                     </div>
                   );
-                })}
-              </div>
+                }
+
+                // Analisi per ora del giorno
+                const timeAnalysis = analyses.reduce((acc: Record<string, { count: number, avgConfidence: number, emotions: string[] }>, analysis) => {
+                  const date = new Date(analysis.created_at);
+                  const hour = date.getHours();
+                  
+                  let period;
+                  if (hour >= 6 && hour < 12) period = 'Mattina';
+                  else if (hour >= 12 && hour < 18) period = 'Pomeriggio';
+                  else if (hour >= 18 && hour < 22) period = 'Sera';
+                  else period = 'Notte';
+
+                  if (!acc[period]) {
+                    acc[period] = { count: 0, avgConfidence: 0, emotions: [] };
+                  }
+                  
+                  acc[period].count++;
+                  acc[period].avgConfidence = (acc[period].avgConfidence * (acc[period].count - 1) + analysis.primary_confidence) / acc[period].count;
+                  acc[period].emotions.push(analysis.primary_emotion);
+                  
+                  return acc;
+                }, {});
+
+                // Analisi per giorno della settimana
+                const dayAnalysis = analyses.reduce((acc: Record<string, { count: number, avgConfidence: number }>, analysis) => {
+                  const date = new Date(analysis.created_at);
+                  const dayNames = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+                  const dayName = dayNames[date.getDay()];
+                  
+                  if (!acc[dayName]) {
+                    acc[dayName] = { count: 0, avgConfidence: 0 };
+                  }
+                  
+                  acc[dayName].count++;
+                  acc[dayName].avgConfidence = (acc[dayName].avgConfidence * (acc[dayName].count - 1) + analysis.primary_confidence) / acc[dayName].count;
+                  
+                  return acc;
+                }, {});
+
+                return (
+                  <div className="space-y-6">
+                    {/* Pattern per ora del giorno */}
+                    <div>
+                      <h4 className="font-medium mb-3">Pattern per Momento del Giorno</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {Object.entries(timeAnalysis).map(([period, data]) => {
+                          const mostCommonEmotion = data.emotions.reduce((acc: Record<string, number>, emotion) => {
+                            acc[emotion] = (acc[emotion] || 0) + 1;
+                            return acc;
+                          }, {});
+                          
+                          const dominantEmotion = Object.entries(mostCommonEmotion)
+                            .sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
+
+                          return (
+                            <div key={period} className="p-4 border rounded-lg">
+                              <h5 className="font-medium mb-2">{period}</h5>
+                              <div className="space-y-1 text-sm">
+                                <div className="flex justify-between">
+                                  <span>Analisi:</span>
+                                  <span className="font-medium">{data.count}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Benessere:</span>
+                                  <span className={`font-medium ${
+                                    data.avgConfidence > 80 ? 'text-green-600' :
+                                    data.avgConfidence > 60 ? 'text-yellow-600' : 'text-red-600'
+                                  }`}>
+                                    {Math.round(data.avgConfidence)}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Emozione:</span>
+                                  <span className="font-medium text-xs">{dominantEmotion}</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Pattern per giorno della settimana - solo se ci sono dati sufficienti */}
+                    {Object.keys(dayAnalysis).length >= 3 && (
+                      <div>
+                        <h4 className="font-medium mb-3">Pattern Settimanali</h4>
+                        <div className="grid grid-cols-7 gap-2">
+                          {['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'].map(day => {
+                            const data = dayAnalysis[day];
+                            if (!data) return (
+                              <div key={day} className="p-2 text-center border rounded opacity-50">
+                                <div className="text-xs font-medium">{day.slice(0, 3)}</div>
+                                <div className="text-xs text-muted-foreground">N/D</div>
+                              </div>
+                            );
+
+                            return (
+                              <div key={day} className="p-2 text-center border rounded">
+                                <div className="text-xs font-medium">{day.slice(0, 3)}</div>
+                                <div className={`text-xs font-bold ${
+                                  data.avgConfidence > 80 ? 'text-green-600' :
+                                  data.avgConfidence > 60 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
+                                  {Math.round(data.avgConfidence)}%
+                                </div>
+                                <div className="text-xs text-muted-foreground">({data.count})</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          I numeri tra parentesi indicano il numero di analisi per quel giorno
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         </TabsContent>
