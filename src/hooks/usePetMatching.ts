@@ -115,6 +115,7 @@ export const usePetTwins = () => {
       // Get current user ID
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       console.log('👤 Current user:', user?.id, 'Error:', userError);
+      console.log('👤 User email:', user?.email);
       
       if (!user) {
         console.log('❌ No user authenticated');
@@ -124,6 +125,7 @@ export const usePetTwins = () => {
       console.log('🚀 About to query pets...');
 
       // Get all pets except current user's pets
+      console.log('🔍 Querying pets excluding user:', user.id);
       const { data: pets, error } = await supabase
         .from('pets')
         .select('*')
@@ -131,6 +133,7 @@ export const usePetTwins = () => {
         .order('created_at', { ascending: false });
 
       console.log('🐕 Found pets:', pets?.length, 'Error:', error);
+      console.log('🐕 Pets details:', pets);
       if (error) {
         console.log('❌ Error details:', error);
         throw error;
