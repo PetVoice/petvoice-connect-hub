@@ -36,7 +36,9 @@ import {
   FileText,
   Trash2,
   Share2,
-  Lightbulb
+  Lightbulb,
+  MessageSquare,
+  Users
 } from 'lucide-react';
 
 import { format } from 'date-fns';
@@ -57,6 +59,8 @@ import AudioRecorder from '@/components/analysis/AudioRecorder';
 import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
 import ProcessingAnimation from '@/components/analysis/ProcessingAnimation';
+import TextAnalysis from '@/components/analysis/TextAnalysis';
+import VoiceAnalysis from '@/components/analysis/VoiceAnalysis';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 // Types
@@ -95,7 +99,7 @@ const AnalysisPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(() => {
     // Leggi il parametro tab dall'URL, default a 'upload'
     const tab = searchParams.get('tab');
-    return ['upload', 'results', 'history'].includes(tab || '') ? tab || 'upload' : 'upload';
+    return ['upload', 'results', 'history', 'predictions', 'text-analysis', 'voice-analysis'].includes(tab || '') ? tab || 'upload' : 'upload';
   });
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<AnalysisData[]>([]);
@@ -1032,10 +1036,18 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Nuova Analisi
+          </TabsTrigger>
+          <TabsTrigger value="text-analysis" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Analisi Testo
+          </TabsTrigger>
+          <TabsTrigger value="voice-analysis" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Analisi Vocale
           </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
@@ -1062,6 +1074,58 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
               onStartRecording={handleStartRecording}
               autoAnalyze={true}
             />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="text-analysis" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TextAnalysis onAnalysisComplete={() => loadAllData()} />
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                Come Funziona
+              </h3>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div>
+                  <strong>1. Descrivi il comportamento</strong>
+                  <p>Scrivi dettagliatamente cosa sta facendo il tuo pet e in che situazione si trova</p>
+                </div>
+                <div>
+                  <strong>2. Analisi AI</strong>
+                  <p>L'intelligenza artificiale analizza il testo per identificare l'emozione predominante</p>
+                </div>
+                <div>
+                  <strong>3. Risultati</strong>
+                  <p>Ricevi emozione rilevata, livello di confidenza e consigli comportamentali</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="voice-analysis" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Analisi Combinata
+              </h3>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div>
+                  <strong>1. Registra la tua voce</strong>
+                  <p>Descrivi vocalmente cosa sta facendo il tuo pet e come ti senti</p>
+                </div>
+                <div>
+                  <strong>2. Doppia analisi AI</strong>
+                  <p>L'AI analizza sia l'emozione del pet (dalle tue descrizioni) che la tua emozione (dal tono di voce)</p>
+                </div>
+                <div>
+                  <strong>3. Consigli personalizzati</strong>
+                  <p>Ricevi raccomandazioni che tengono conto di entrambe le emozioni per migliorare il benessere di tutti</p>
+                </div>
+              </div>
+            </Card>
           </div>
         </TabsContent>
 
