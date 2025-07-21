@@ -1156,7 +1156,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </div>
 
           {/* Help Section */}
-          <div className="space-y-8">
+          <div className="space-y-12">
             {/* Cosa Descrivere - Row 1 */}
             <div className="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-6 rounded-xl border border-amber-200 dark:border-amber-700">
               <div className="flex items-center gap-3 mb-6">
