@@ -1217,7 +1217,16 @@ export const PrivateChatWithReply: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Elimina Messaggio</AlertDialogTitle>
             <AlertDialogDescription>
-              Come vuoi eliminare questo messaggio?
+              {(() => {
+                const messageToDeleteObj = messageToDelete ? messages.find(m => m.id === messageToDelete) : null;
+                const isOwnMessage = messageToDeleteObj?.sender_id === user?.id;
+                
+                if (isOwnMessage) {
+                  return "Come vuoi eliminare questo messaggio?";
+                } else {
+                  return "Questo messaggio verrà eliminato solo per te.";
+                }
+              })()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
@@ -1229,12 +1238,22 @@ export const PrivateChatWithReply: React.FC = () => {
             >
               Elimina solo per me
             </Button>
-            <AlertDialogAction
-              onClick={deleteSingleMessageForBoth}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
-            >
-              Elimina per entrambi
-            </AlertDialogAction>
+            {(() => {
+              const messageToDeleteObj = messageToDelete ? messages.find(m => m.id === messageToDelete) : null;
+              const isOwnMessage = messageToDeleteObj?.sender_id === user?.id;
+              
+              if (isOwnMessage) {
+                return (
+                  <AlertDialogAction
+                    onClick={deleteSingleMessageForBoth}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+                  >
+                    Elimina per entrambi
+                  </AlertDialogAction>
+                );
+              }
+              return null;
+            })()}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
