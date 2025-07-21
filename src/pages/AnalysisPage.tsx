@@ -99,6 +99,15 @@ const AnalysisPage: React.FC = () => {
   });
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<AnalysisData[]>([]);
+  
+  // Additional data for comprehensive predictions
+  const [diaryData, setDiaryData] = useState<any[]>([]);
+  const [healthData, setHealthData] = useState<any[]>([]);
+  const [wellnessData, setWellnessData] = useState<any[]>([]);
+  const [healthAlerts, setHealthAlerts] = useState<any[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [petData, setPetData] = useState<any>(null);
+  
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState<ProcessingState>({
     isProcessing: false,
@@ -119,7 +128,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   // Load analyses
   useEffect(() => {
     if (selectedPet) {
-      loadAnalyses();
+      loadAllData();
     }
   }, [selectedPet]);
 
@@ -136,29 +145,113 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
     applyFilters();
   }, [analyses, searchTerm, emotionFilter, confidenceFilter, dateRange]);
 
-  const loadAnalyses = async () => {
+  // Load analyses and all related data
+  useEffect(() => {
+    if (selectedPet) {
+      loadAllData();
+    }
+  }, [selectedPet]);
+
+  const loadAllData = async () => {
     if (!selectedPet) return;
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Load analyses
+      const analysesPromise = supabase
         .from('pet_analyses')
         .select('*')
         .eq('pet_id', selectedPet.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setAnalyses(data || []);
+      // Load diary entries
+      const diaryPromise = supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('entry_date', { ascending: false });
+
+      // Load health metrics
+      const healthPromise = supabase
+        .from('health_metrics')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('recorded_at', { ascending: false });
+
+      // Load wellness scores
+      const wellnessPromise = supabase
+        .from('pet_wellness_scores')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false });
+
+      // Load health alerts
+      const alertsPromise = supabase
+        .from('health_alerts')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false });
+
+      // Load calendar events
+      const eventsPromise = supabase
+        .from('calendar_events')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .order('start_time', { ascending: false });
+
+      // Load pet data
+      const petPromise = supabase
+        .from('pets')
+        .select('*')
+        .eq('id', selectedPet.id)
+        .single();
+
+      // Execute all queries in parallel
+      const [
+        { data: analysesData, error: analysesError },
+        { data: diaryDataRes, error: diaryError },
+        { data: healthDataRes, error: healthError },
+        { data: wellnessDataRes, error: wellnessError },
+        { data: alertsData, error: alertsError },
+        { data: eventsData, error: eventsError },
+        { data: petDataRes, error: petError }
+      ] = await Promise.all([
+        analysesPromise,
+        diaryPromise,
+        healthPromise,
+        wellnessPromise,
+        alertsPromise,
+        eventsPromise,
+        petPromise
+      ]);
+
+      if (analysesError) throw analysesError;
+      if (diaryError) console.warn('Error loading diary data:', diaryError);
+      if (healthError) console.warn('Error loading health data:', healthError);
+      if (wellnessError) console.warn('Error loading wellness data:', wellnessError);
+      if (alertsError) console.warn('Error loading alerts data:', alertsError);
+      if (eventsError) console.warn('Error loading events data:', eventsError);
+      if (petError) console.warn('Error loading pet data:', petError);
+
+      setAnalyses(analysesData || []);
+      setDiaryData(diaryDataRes || []);
+      setHealthData(healthDataRes || []);
+      setWellnessData(wellnessDataRes || []);
+      setHealthAlerts(alertsData || []);
+      setCalendarEvents(eventsData || []);
+      setPetData(petDataRes || null);
+
     } catch (error: any) {
       toast({
         title: "Errore",
-        description: "Impossibile caricare le analisi",
+        description: "Impossibile caricare tutti i dati",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
+
 
   const applyFilters = () => {
     let filtered = [...analyses];
@@ -223,7 +316,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       }
       
       setActiveTab('results');
-      loadAnalyses();
+      loadAllData();
       
       toast({
         title: "Successo!",
@@ -799,7 +892,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       });
 
       setSelectedAnalyses([]);
-      loadAnalyses();
+      loadAllData();
     } catch (error: any) {
       toast({
         title: "Errore",
@@ -888,7 +981,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       });
 
       setSelectedAnalyses(prev => prev.filter(id => id !== deleteConfirm.analysisId));
-      loadAnalyses();
+      loadAllData();
     } catch (error: any) {
       toast({
         title: "Errore",
@@ -1137,68 +1230,219 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
               <CardContent>
                 <div className="space-y-4">
                   {(() => {
-                    if (analyses.length === 0) {
+                    if (analyses.length === 0 && diaryData.length === 0 && healthData.length === 0 && wellnessData.length === 0) {
                       return (
                         <div className="text-center py-8 text-muted-foreground">
                           <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                          <p>Carica alcune analisi per visualizzare le previsioni</p>
+                          <p>Carica dati per visualizzare le previsioni avanzate</p>
                         </div>
                       );
                     }
 
-                    // Analisi cronologica corretta
+                    // ANALISI COMPLETA MULTIDIMENSIONALE usando TUTTI i dati disponibili
                     const sortedAnalyses = [...analyses].sort((a, b) => 
                       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
                     );
 
-                    let trend = 0;
-                    let trendLabel = 'Insufficienti Dati';
-                    let trendColor = 'text-gray-500';
-                    let trendIcon = <div className="h-5 w-5 bg-gray-400 rounded-full" />;
-                    let trendDescription = 'Aggiungi più analisi per calcolare le previsioni.';
+                    // DATI DIARIO - analisi mood e comportamento
+                    const sortedDiary = [...diaryData].sort((a, b) => 
+                      new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime()
+                    );
+                    
+                    // DATI SALUTE - metriche vitali
+                    const sortedHealth = [...healthData].sort((a, b) => 
+                      new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
+                    );
+                    
+                    // DATI BENESSERE - punteggi wellness
+                    const sortedWellness = [...wellnessData].sort((a, b) => 
+                      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    );
 
+                    // CALCOLO TREND MULTIDIMENSIONALE
+                    let overallTrend = 0;
+                    let trendComponents = [];
+                    let confidenceScore = 0;
+                    let totalDataPoints = 0;
+
+                    // 1. TREND DA ANALISI EMOTIVE
                     if (sortedAnalyses.length >= 3) {
-                      // Dividere in tre terzi per avere trend più stabile
                       const thirdSize = Math.floor(sortedAnalyses.length / 3);
                       const oldAnalyses = sortedAnalyses.slice(0, thirdSize);
-                      const middleAnalyses = sortedAnalyses.slice(thirdSize, thirdSize * 2);
                       const recentAnalyses = sortedAnalyses.slice(thirdSize * 2);
 
-                      const oldAvgConfidence = oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length;
-                      const recentAvgConfidence = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                      const oldAvg = oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length;
+                      const recentAvg = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
                       
-                      trend = recentAvgConfidence - oldAvgConfidence;
+                      const emotionTrend = recentAvg - oldAvg;
+                      overallTrend += emotionTrend * 0.4; // 40% del peso
+                      trendComponents.push({ source: 'Analisi Emotive', trend: emotionTrend, weight: 0.4 });
+                      totalDataPoints += sortedAnalyses.length;
+                    }
 
-                      if (trend > 10) {
+                    // 2. TREND DA MOOD SCORE DEL DIARIO
+                    if (sortedDiary.length >= 3) {
+                      const moodEntries = sortedDiary.filter(entry => entry.mood_score !== null);
+                      if (moodEntries.length >= 3) {
+                        const thirdSize = Math.floor(moodEntries.length / 3);
+                        const oldMoods = moodEntries.slice(0, thirdSize);
+                        const recentMoods = moodEntries.slice(thirdSize * 2);
+
+                        const oldMoodAvg = oldMoods.reduce((sum, entry) => sum + entry.mood_score, 0) / oldMoods.length;
+                        const recentMoodAvg = recentMoods.reduce((sum, entry) => sum + entry.mood_score, 0) / recentMoods.length;
+                        
+                        const moodTrend = ((recentMoodAvg - oldMoodAvg) / 10) * 100; // Normalizza a percentuale
+                        overallTrend += moodTrend * 0.3; // 30% del peso
+                        trendComponents.push({ source: 'Mood Diario', trend: moodTrend, weight: 0.3 });
+                        totalDataPoints += moodEntries.length;
+                      }
+                    }
+
+                    // 3. TREND DA METRICHE DI SALUTE
+                    if (sortedHealth.length >= 3) {
+                      const healthTrends = {};
+                      const healthMetrics = ['peso', 'temperatura', 'battito_cardiaco', 'respirazione'];
+                      
+                      let healthTrendSum = 0;
+                      let healthTrendCount = 0;
+
+                      healthMetrics.forEach(metric => {
+                        const metricData = sortedHealth.filter(h => h.metric_type === metric && h.value !== null);
+                        if (metricData.length >= 3) {
+                          const thirdSize = Math.floor(metricData.length / 3);
+                          const oldValues = metricData.slice(0, thirdSize);
+                          const recentValues = metricData.slice(thirdSize * 2);
+
+                          const oldAvg = oldValues.reduce((sum, v) => sum + parseFloat(v.value), 0) / oldValues.length;
+                          const recentAvg = recentValues.reduce((sum, v) => sum + parseFloat(v.value), 0) / recentValues.length;
+                          
+                          // Calcola trend normalizzato per tipo di metrica
+                          let normalizedTrend = 0;
+                          if (metric === 'peso') {
+                            // Per il peso, stabilità è positiva
+                            const weightChange = Math.abs(recentAvg - oldAvg);
+                            normalizedTrend = Math.max(-10, Math.min(10, (3 - weightChange) * 3)); // Meno variazione = meglio
+                          } else if (metric === 'temperatura') {
+                            // Per la temperatura, vicinanza alla norma (38-39°C per cani) è positiva  
+                            const optimalTemp = 38.5;
+                            const oldDistance = Math.abs(oldAvg - optimalTemp);
+                            const recentDistance = Math.abs(recentAvg - optimalTemp);
+                            normalizedTrend = (oldDistance - recentDistance) * 20; // Avvicinamento alla norma = positivo
+                          }
+                          
+                          healthTrendSum += normalizedTrend;
+                          healthTrendCount++;
+                        }
+                      });
+
+                      if (healthTrendCount > 0) {
+                        const avgHealthTrend = healthTrendSum / healthTrendCount;
+                        overallTrend += avgHealthTrend * 0.2; // 20% del peso
+                        trendComponents.push({ source: 'Metriche Salute', trend: avgHealthTrend, weight: 0.2 });
+                        totalDataPoints += sortedHealth.length;
+                      }
+                    }
+
+                    // 4. TREND DA WELLNESS SCORES
+                    if (sortedWellness.length >= 3) {
+                      const thirdSize = Math.floor(sortedWellness.length / 3);
+                      const oldWellness = sortedWellness.slice(0, thirdSize);
+                      const recentWellness = sortedWellness.slice(thirdSize * 2);
+
+                      const oldWellnessAvg = oldWellness.reduce((sum, w) => sum + w.wellness_score, 0) / oldWellness.length;
+                      const recentWellnessAvg = recentWellness.reduce((sum, w) => sum + w.wellness_score, 0) / recentWellness.length;
+                      
+                      const wellnessTrend = recentWellnessAvg - oldWellnessAvg;
+                      overallTrend += wellnessTrend * 0.1; // 10% del peso
+                      trendComponents.push({ source: 'Punteggi Wellness', trend: wellnessTrend, weight: 0.1 });
+                      totalDataPoints += sortedWellness.length;
+                    }
+
+                    // FATTORI DI RISCHIO DA HEALTH ALERTS
+                    let riskFactor = 0;
+                    const activeAlerts = healthAlerts.filter(alert => !alert.is_resolved);
+                    if (activeAlerts.length > 0) {
+                      riskFactor = activeAlerts.length * -5; // Ogni alert riduce di 5 punti
+                      overallTrend += riskFactor;
+                    }
+
+                    // FATTORI POSITIVI DA EVENTI CALENDARIO
+                    let activityBonus = 0;
+                    const recentEvents = calendarEvents.filter(event => {
+                      const eventDate = new Date(event.start_time);
+                      const weekAgo = new Date();
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      return eventDate >= weekAgo && ['vet', 'grooming', 'exercise', 'training'].includes(event.category);
+                    });
+                    if (recentEvents.length > 0) {
+                      activityBonus = Math.min(recentEvents.length * 2, 10); // Max 10 punti bonus
+                      overallTrend += activityBonus;
+                    }
+
+                    // FATTORI PET-SPECIFICI
+                    let ageFactor = 0;
+                    if (petData && petData.age) {
+                      // I pet più anziani potrebbero avere trend più lenti
+                      if (petData.age > 7) {
+                        ageFactor = -2; // Piccolo malus per età avanzata
+                      } else if (petData.age < 2) {
+                        ageFactor = 2; // Piccolo bonus per pet giovani
+                      }
+                      overallTrend += ageFactor;
+                    }
+
+                    // CALCOLO CONFIDENZA BASATA SU QUANTITÀ E VARIETÀ DATI
+                    const dataVariety = [
+                      analyses.length > 0,
+                      diaryData.length > 0, 
+                      healthData.length > 0,
+                      wellnessData.length > 0,
+                      healthAlerts.length > 0,
+                      calendarEvents.length > 0
+                    ].filter(Boolean).length;
+                    
+                    confidenceScore = Math.min(95, Math.max(20, 
+                      (totalDataPoints * 2) + (dataVariety * 10) - (activeAlerts.length * 5)
+                    ));
+
+                    // DETERMINAZIONE ETICHETTE E COLORI
+                    let trendLabel = 'Dati Insufficienti';
+                    let trendColor = 'text-gray-500';
+                    let trendIcon = <div className="h-5 w-5 bg-gray-400 rounded-full" />;
+                    let trendDescription = 'Aggiungi più dati per previsioni accurate.';
+
+                    if (totalDataPoints >= 5) {
+                      if (overallTrend > 15) {
                         trendLabel = 'Miglioramento Significativo';
                         trendColor = 'text-green-600';
                         trendIcon = <TrendingUp className="h-5 w-5 text-green-600" />;
-                        trendDescription = 'Il benessere del tuo pet sta migliorando costantemente. Ottimo lavoro!';
-                      } else if (trend > 3) {
+                        trendDescription = `Eccellente! Il benessere sta migliorando costantemente. Confidenza: ${Math.round(confidenceScore)}%`;
+                      } else if (overallTrend > 5) {
                         trendLabel = 'Leggero Miglioramento';
                         trendColor = 'text-green-500';
                         trendIcon = <TrendingUp className="h-5 w-5 text-green-500" />;
-                        trendDescription = 'Il benessere mostra segni di miglioramento. Continua con le attuali cure.';
-                      } else if (trend < -10) {
-                        trendLabel = 'Peggioramento Significativo';
+                        trendDescription = `Il benessere mostra segni positivi. Continua così! Confidenza: ${Math.round(confidenceScore)}%`;
+                      } else if (overallTrend < -15) {
+                        trendLabel = 'Declino Significativo';
                         trendColor = 'text-red-600';
                         trendIcon = <TrendingDown className="h-5 w-5 text-red-600" />;
-                        trendDescription = 'Il benessere mostra un declino preoccupante. Consulta urgentemente un veterinario.';
-                      } else if (trend < -3) {
+                        trendDescription = `Attenzione: trend negativo rilevato. Consulta urgentemente un veterinario. Confidenza: ${Math.round(confidenceScore)}%`;
+                      } else if (overallTrend < -5) {
                         trendLabel = 'Leggero Peggioramento';
                         trendColor = 'text-orange-500';
                         trendIcon = <TrendingDown className="h-5 w-5 text-orange-500" />;
-                        trendDescription = 'Il benessere mostra segni di declino. Considera una visita veterinaria.';
+                        trendDescription = `Trend in calo. Monitora attentamente e considera controlli veterinari. Confidenza: ${Math.round(confidenceScore)}%`;
                       } else {
                         trendLabel = 'Stabile';
                         trendColor = 'text-blue-600';
                         trendIcon = <div className="h-5 w-5 bg-blue-500 rounded-full" />;
-                        trendDescription = 'Il benessere è stabile. Mantieni la routine attuale e continua il monitoraggio.';
+                        trendDescription = `Benessere stabile. Mantieni routine attuale. Confidenza: ${Math.round(confidenceScore)}%`;
                       }
                     }
 
-                    const currentConfidence = sortedAnalyses.length > 0 ? sortedAnalyses[sortedAnalyses.length - 1].primary_confidence : 0;
-                    const predictedConfidence = Math.max(0, Math.min(100, currentConfidence + (trend * 1.5)));
+                    // CALCOLO PREVISIONE
+                    const currentValue = analyses.length > 0 ? sortedAnalyses[sortedAnalyses.length - 1].primary_confidence : 75;
+                    const predictedValue = Math.max(0, Math.min(100, currentValue + (overallTrend * 0.8)));
 
                     return (
                       <>
@@ -1206,69 +1450,76 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                           <div className="flex items-center gap-2 mb-2">
                             {trendIcon}
                             <span className={`font-medium ${trendColor}`}>{trendLabel}</span>
-                            {sortedAnalyses.length >= 3 && (
-                              <span className="text-xs text-muted-foreground ml-2">
-                                ({trend > 0 ? '+' : ''}{trend.toFixed(1)}%)
-                              </span>
-                            )}
+                            <span className="text-xs text-muted-foreground ml-2">
+                              ({totalDataPoints} punti dati, {dataVariety}/6 fonti)
+                            </span>
                           </div>
                           <p className="text-sm text-muted-foreground">{trendDescription}</p>
+                          
+                          {/* Breakdown dei fattori contributivi */}
+                          {trendComponents.length > 0 && (
+                            <div className="mt-3 p-2 bg-muted/30 rounded text-xs">
+                              <div className="font-medium mb-1">Fattori Contribuenti:</div>
+                              {trendComponents.map((comp, idx) => (
+                                <div key={idx} className="flex justify-between">
+                                  <span>{comp.source}:</span>
+                                  <span className={comp.trend > 0 ? 'text-green-600' : comp.trend < 0 ? 'text-red-600' : 'text-gray-600'}>
+                                    {comp.trend > 0 ? '+' : ''}{comp.trend.toFixed(1)} 
+                                  </span>
+                                </div>
+                              ))}
+                              {riskFactor !== 0 && (
+                                <div className="flex justify-between text-red-600">
+                                  <span>Alert Attivi:</span>
+                                  <span>{riskFactor.toFixed(1)}</span>
+                                </div>
+                              )}
+                              {activityBonus > 0 && (
+                                <div className="flex justify-between text-green-600">
+                                  <span>Attività Recenti:</span>
+                                  <span>+{activityBonus.toFixed(1)}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         
-                        {sortedAnalyses.length > 0 && (
+                        {totalDataPoints > 0 && (
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span>Confidenza Attuale</span>
-                              <span>{Math.round(currentConfidence)}%</span>
+                              <span>Benessere Attuale</span>
+                              <span>{Math.round(currentValue)}%</span>
                             </div>
-                            <Progress value={currentConfidence} className="h-2" />
+                            <Progress value={currentValue} className="h-2" />
                             <div className="flex justify-between text-sm">
                               <span>Previsione 30gg</span>
-                              <span className={sortedAnalyses.length >= 3 ? trendColor : 'text-muted-foreground'}>
-                                {Math.round(predictedConfidence)}%
+                              <span className={trendColor}>
+                                {Math.round(predictedValue)}%
                               </span>
                             </div>
                             
-                            {/* Grafico di tendenza semplificato */}
-                            {sortedAnalyses.length >= 3 && (
-                              <div className="mt-4 p-3 bg-muted/30 rounded-lg">
-                                <h4 className="text-sm font-medium mb-2">Tendenza Ultimi Periodi</h4>
-                                <div className="flex items-end justify-between h-16">
-                                  {(() => {
-                                    const thirdSize = Math.floor(sortedAnalyses.length / 3);
-                                    const periods = [
-                                      { 
-                                        label: 'Inizio', 
-                                        value: sortedAnalyses.slice(0, thirdSize).reduce((sum, a) => sum + a.primary_confidence, 0) / thirdSize 
-                                      },
-                                      { 
-                                        label: 'Metà', 
-                                        value: sortedAnalyses.slice(thirdSize, thirdSize * 2).reduce((sum, a) => sum + a.primary_confidence, 0) / thirdSize 
-                                      },
-                                      { 
-                                        label: 'Recente', 
-                                        value: sortedAnalyses.slice(thirdSize * 2).reduce((sum, a) => sum + a.primary_confidence, 0) / (sortedAnalyses.length - thirdSize * 2)
-                                      }
-                                    ];
-
-                                    return periods.map((period, index) => (
-                                      <div key={period.label} className="text-center flex-1">
-                                        <div 
-                                          className={`w-8 mx-auto rounded-t ${
-                                            index === 0 ? 'bg-gray-400' :
-                                            index === 1 ? 'bg-blue-400' : 
-                                            trend > 3 ? 'bg-green-500' : trend < -3 ? 'bg-red-500' : 'bg-blue-500'
-                                          }`}
-                                          style={{ height: `${(period.value / 100) * 48}px` }}
-                                        ></div>
-                                        <p className="text-xs text-muted-foreground mt-1">{period.label}</p>
-                                        <p className="text-xs font-medium">{Math.round(period.value)}%</p>
-                                      </div>
-                                    ));
-                                  })()}
+                            {/* Grafico multidimensionale */}
+                            <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+                              <h4 className="text-sm font-medium mb-2">Analisi Multidimensionale</h4>
+                              <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div>
+                                  <div className="font-medium">Fonti Dati Attive:</div>
+                                  {analyses.length > 0 && <div>• Analisi Emotive ({analyses.length})</div>}
+                                  {diaryData.length > 0 && <div>• Diario ({diaryData.length})</div>}
+                                  {healthData.length > 0 && <div>• Metriche Salute ({healthData.length})</div>}
+                                  {wellnessData.length > 0 && <div>• Wellness ({wellnessData.length})</div>}
+                                  {healthAlerts.length > 0 && <div>• Health Alerts ({healthAlerts.length})</div>}
+                                  {calendarEvents.length > 0 && <div>• Eventi ({calendarEvents.length})</div>}
+                                </div>
+                                <div>
+                                  <div className="font-medium">Fattori Aggiuntivi:</div>
+                                  {petData?.age && <div>• Età: {petData.age} anni</div>}
+                                  {petData?.breed && <div>• Razza: {petData.breed}</div>}
+                                  {activeAlerts.length > 0 && <div className="text-red-600">• Alert attivi: {activeAlerts.length}</div>}
+                                  {recentEvents.length > 0 && <div className="text-green-600">• Attività recenti: {recentEvents.length}</div>}
                                 </div>
                               </div>
-                            )}
+                            </div>
                           </div>
                         )}
                       </>
