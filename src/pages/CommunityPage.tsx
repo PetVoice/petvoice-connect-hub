@@ -426,9 +426,18 @@ const CommunityPage = () => {
                     </div>
                     <div className="space-y-3">
                       {myGroups.map(group => (
-                        <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                        <div 
+                          key={group.id} 
+                          className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                            activeChat === group.id 
+                              ? 'bg-primary/10 border-primary/50 shadow-md' 
+                              : 'bg-card hover:bg-muted/50'
+                          }`}
+                        >
                           <div>
-                            <div className="font-medium">{group.name}</div>
+                            <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
+                              {group.name}
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
                             </div>
@@ -436,7 +445,7 @@ const CommunityPage = () => {
                           <div className="flex gap-2">
                             <Button 
                               size="sm" 
-                              variant="outline"
+                              variant={activeChat === group.id ? "default" : "outline"}
                               onClick={() => openChat(group.id)}
                             >
                               Apri
