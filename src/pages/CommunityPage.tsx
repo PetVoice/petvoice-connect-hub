@@ -290,9 +290,7 @@ const CommunityPage = () => {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 rounded-lg bg-gradient-to-r from-primary to-primary/80 shadow-lg">
-          <Users className="h-6 w-6 text-white" />
-        </div>
+        <Users className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-foreground">
             Community
