@@ -218,7 +218,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
             <Button
               onClick={isRecording ? stopRecording : startRecording}
               disabled={isAnalyzing}
-              className={`w-20 h-20 rounded-full ${
+              className={`w-32 h-32 rounded-full ${
                 isRecording 
                   ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
                   : 'bg-primary hover:bg-primary/90'
