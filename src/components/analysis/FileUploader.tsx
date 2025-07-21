@@ -233,10 +233,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             Formati supportati: MP3, WAV, M4A, MP4, MOV, AVI
           </p>
           <Button 
-            variant="outline" 
             type="button" 
             disabled={isProcessing}
-            className="border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950/30"
           >
             Seleziona File
           </Button>
