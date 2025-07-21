@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { Chat } from '@/components/community/Chat';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 import { PrivateChatWithReply } from '@/components/private-chat/PrivateChatWithReply';
@@ -108,6 +109,7 @@ const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 
 const CommunityPage = () => {
   const { user } = useAuth();
+  const { showToast } = useToastWithIcon();
   
   const [activeTab, setActiveTab] = useState('groups');
   const [myGroups, setMyGroups] = useState([]);
@@ -328,18 +330,19 @@ const CommunityPage = () => {
       
       await loadMyGroups();
       
-      toast({
+      showToast({
         title: "Ingresso completato",
-        description: "Ti sei unito al gruppo con successo"
+        description: "Ti sei unito al gruppo con successo",
+        type: 'success'
       });
       
     } catch (error) {
       if (!error.message.includes('duplicate')) {
         console.error('Errore join:', error);
-        toast({
+        showToast({
           title: "Errore",
           description: "Impossibile entrare nel gruppo",
-          variant: "destructive"
+          type: 'error'
         });
       }
     }
@@ -359,17 +362,18 @@ const CommunityPage = () => {
         setActiveChat(null);
       }
       
-      toast({
+      showToast({
         title: "Uscita completata",
-        description: "Hai lasciato il gruppo"
+        description: "Hai lasciato il gruppo",
+        type: 'info'
       });
       
     } catch (error) {
       console.error('Errore leave:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile uscire dal gruppo",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };

@@ -60,10 +60,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       if (error) {
-        toast({
+        showToast({
           title: "Errore di accesso",
           description: error.message,
-          variant: "destructive",
+          type: 'error'
         });
       } else {
         toast({
@@ -110,10 +110,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       
       if (error) {
-        toast({
-          title: "Errore di registrazione",
+        showToast({
+          title: "Errore di registrazione", 
           description: error.message,
-          variant: "destructive",
+          type: 'error'
         });
         
         return { error };

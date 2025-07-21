@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MessageCircle, User, Clock, ArrowLeft, Send, X, Reply, CheckSquare, Square, Trash2, MoreVertical } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { PrivateMessageList, PrivateMessage } from './PrivateMessageList';
@@ -42,6 +43,7 @@ interface PrivateChat {
 export const PrivateChatWithReply: React.FC = () => {
   console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
+  const { showToast } = useToastWithIcon();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
@@ -372,11 +374,11 @@ export const PrivateChatWithReply: React.FC = () => {
       setChats(chatsWithDetails);
     } catch (error) {
       console.error('Error loading chats:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare le chat",
-        variant: "destructive"
-      });
+        showToast({
+          title: "Errore",
+          description: "Impossibile caricare le chat",
+          type: 'error'
+        });
     } finally {
       setLoading(false);
     }
@@ -471,16 +473,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setSelectedChat(null);
       setShowChatDeleteDialog(false);
 
-      toast({
+      showToast({
         title: "Chat eliminata",
-        description: "La chat è stata eliminata solo per te"
+        description: "La chat è stata eliminata solo per te",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting chat for me:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare la chat",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -505,16 +508,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setSelectedChat(null);
       setShowChatDeleteDialog(false);
 
-      toast({
+      showToast({
         title: "Chat eliminata",
-        description: "La chat è stata eliminata per entrambi"
+        description: "La chat è stata eliminata per entrambi",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting chat for both:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare la chat",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -547,10 +551,10 @@ export const PrivateChatWithReply: React.FC = () => {
 
       if (error) {
         console.error('❌ Error sending message:', error);
-        toast({
+        showToast({
           title: "Errore",
           description: "Impossibile inviare il messaggio",
-          variant: "destructive"
+          type: 'error'
         });
         return;
       }
@@ -586,10 +590,10 @@ export const PrivateChatWithReply: React.FC = () => {
 
     } catch (error) {
       console.error('💥 Unexpected error sending message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     } finally {
       setSendingMessage(false);
@@ -637,16 +641,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setShowSingleDeleteDialog(false);
       setMessageToDelete(null);
 
-      toast({
+      showToast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato solo per te"
+        description: "Il messaggio è stato eliminato solo per te",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -671,16 +676,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setShowSingleDeleteDialog(false);
       setMessageToDelete(null);
 
-      toast({
+      showToast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato per entrambi"
+        description: "Il messaggio è stato eliminato per entrambi",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting single message for both:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -708,16 +714,17 @@ export const PrivateChatWithReply: React.FC = () => {
         )
       );
 
-      toast({
+      showToast({
         title: "Messaggio modificato",
-        description: "Il messaggio è stato modificato con successo"
+        description: "Il messaggio è stato modificato con successo",
+        type: 'success'
       });
     } catch (error) {
       console.error('Error editing message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile modificare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -785,16 +792,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setShowBulkDeleteDialog(false);
       await loadMessages(selectedChat.id);
 
-      toast({
+      showToast({
         title: "Messaggi eliminati",
-        description: `${selectedMessages.length} messaggi eliminati solo per te`
+        description: `${selectedMessages.length} messaggi eliminati solo per te`,
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting messages:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -852,16 +860,17 @@ export const PrivateChatWithReply: React.FC = () => {
         description = `${receivedCount} messaggi eliminati solo per te`;
       }
 
-      toast({
+      showToast({
         title: "Messaggi eliminati",
-        description: description
+        description: description,
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting messages for both:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };

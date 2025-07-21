@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
 import { toast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { CheckSquare, Square, Trash2, X } from 'lucide-react';
@@ -32,6 +33,7 @@ export interface Message {
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
+  const { showToast } = useToastWithIcon();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -145,16 +147,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           }
         });
 
-      toast({
+      showToast({
         title: "Chat privata avviata!",
         description: `Hai iniziato una conversazione privata con ${targetUserName}. Vai alla sezione Chat Private per continuare.`,
+        type: 'message'
       });
     } catch (error) {
       console.error('Error starting private chat:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Non è stato possibile avviare la chat privata. Riprova.",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -224,10 +227,10 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       setMessages(filteredMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile caricare i messaggi",
-        variant: "destructive"
+        type: 'error'
       });
     } finally {
       setLoading(false);
@@ -355,10 +358,10 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -385,16 +388,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       setShowSingleDeleteDialog(false);
       setMessageToDelete(null);
 
-      toast({
+      showToast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato solo per te"
+        description: "Il messaggio è stato eliminato solo per te",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting message for me:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -417,16 +421,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       setShowSingleDeleteDialog(false);
       setMessageToDelete(null);
 
-      toast({
+      showToast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato per tutti"
+        description: "Il messaggio è stato eliminato per tutti",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting message for all:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -463,16 +468,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
 
-      toast({
+      showToast({
         title: "Messaggio eliminato",
-        description: deleteForAll && isMyMessage ? "Il messaggio è stato eliminato per tutti" : "Il messaggio è stato eliminato solo per te"
+        description: deleteForAll && isMyMessage ? "Il messaggio è stato eliminato per tutti" : "Il messaggio è stato eliminato solo per te",
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -492,16 +498,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: "Messaggio modificato",
-        description: "Il messaggio è stato modificato con successo"
+        description: "Il messaggio è stato modificato con successo",
+        type: 'success'
       });
     } catch (error) {
       console.error('Error editing message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile modificare il messaggio",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -558,16 +565,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       setIsSelectionMode(false);
       setShowBulkDeleteDialog(false);
 
-      toast({
+      showToast({
         title: "Messaggi eliminati",
-        description: `${selectedMessages.length} messaggi eliminati solo per te`
+        description: `${selectedMessages.length} messaggi eliminati solo per te`,
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting messages for me:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
@@ -624,16 +632,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         description = `${receivedCount} messaggi eliminati solo per te`;
       }
 
-      toast({
+      showToast({
         title: "Messaggi eliminati",
-        description: description
+        description: description,
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting messages for all:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
