@@ -809,19 +809,21 @@ export const PrivateChatWithReply: React.FC = () => {
               <Separator />
               <CardContent className="p-0 flex flex-col h-[500px]">
                  {/* Messages */}
-                 <PrivateMessageList
-                   messages={messages}
-                   currentUserId={user.id}
-                   otherUserName={selectedChat.other_user.display_name}
-                   onDeleteMessage={deleteMessage}
-                   onEditMessage={editMessage}
-                   onReply={handleReply}
-                   onScrollToMessage={scrollToMessage}
-                   isSelectionMode={isSelectionMode}
-                   selectedMessages={selectedMessages}
-                   onToggleSelection={toggleMessageSelection}
-                 />
-                 <div ref={messagesEndRef} className="h-1" />
+                 <ScrollArea className="flex-1 p-4">
+                   <PrivateMessageList
+                     messages={messages}
+                     currentUserId={user.id}
+                     otherUserName={selectedChat.other_user.display_name}
+                     onDeleteMessage={deleteMessage}
+                     onEditMessage={editMessage}
+                     onReply={handleReply}
+                     onScrollToMessage={scrollToMessage}
+                     isSelectionMode={isSelectionMode}
+                     selectedMessages={selectedMessages}
+                     onToggleSelection={toggleMessageSelection}
+                   />
+                   <div ref={messagesEndRef} className="h-1" />
+                 </ScrollArea>
 
                 {/* Message Input */}
                 <div className="p-4 border-t">
