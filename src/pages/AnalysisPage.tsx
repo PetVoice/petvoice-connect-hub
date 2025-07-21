@@ -1157,34 +1157,6 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
 
           {/* Help Section */}
           <div className="space-y-12">
-            {/* Cosa Descrivere - Row 1 */}
-            <div className="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-6 rounded-xl border border-amber-200 dark:border-amber-700">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
-                  <Lightbulb className="h-6 w-6 text-amber-600" />
-                </div>
-                <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200">Cosa Descrivere</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                  <span className="text-amber-600 font-bold mt-1">•</span>
-                  <span className="text-gray-700 dark:text-gray-300">Comportamento specifico osservato</span>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                  <span className="text-amber-600 font-bold mt-1">•</span>
-                  <span className="text-gray-700 dark:text-gray-300">Contesto e situazione</span>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                  <span className="text-amber-600 font-bold mt-1">•</span>
-                  <span className="text-gray-700 dark:text-gray-300">Cambiamenti rispetto al solito</span>
-                </div>
-                <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                  <span className="text-amber-600 font-bold mt-1">•</span>
-                  <span className="text-gray-700 dark:text-gray-300">Postura e segnali del corpo</span>
-                </div>
-              </div>
-            </div>
-
             {/* Come Scegliere il Metodo Giusto - Row 2 */}
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
               <div className="text-center mb-6">
