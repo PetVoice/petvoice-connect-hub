@@ -483,6 +483,68 @@ export const PetMatchingIntelligence: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            Pet Matching Intelligence
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Trova pet simili, mentori esperti e modelli di successo nella community
+          </p>
+        </div>
+        
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-full bg-blue-100 dark:bg-blue-900">
+                <Heart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="text-2xl font-bold">{filteredPetTwins.length}</div>
+              <div className="text-xs text-muted-foreground">Pet Gemelli</div>
+              <div className="text-xs text-blue-600">match comportamentali</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-full bg-green-100 dark:bg-green-900">
+                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="text-2xl font-bold">{mockMentors.filter(m => m.isOnline).length}</div>
+              <div className="text-xs text-muted-foreground">Mentori Attivi</div>
+              <div className="text-xs text-green-600">proprietari esperti</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-full bg-yellow-100 dark:bg-yellow-900">
+                <TrendingUp className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div className="text-2xl font-bold">
+                {mockSuccessPatterns.reduce((acc, p) => acc + p.successRate, 0) / mockSuccessPatterns.length}%
+              </div>
+              <div className="text-xs text-muted-foreground">Progressi Similari</div>
+              <div className="text-xs text-yellow-600">miglioramento medio</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                <Trophy className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div className="text-2xl font-bold">
+                {mockSuccessPatterns.reduce((acc, p) => acc + p.similarCases, 0)}
+              </div>
+              <div className="text-xs text-muted-foreground">Successi Condivisi</div>
+              <div className="text-xs text-purple-600">casi di successo</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
       {/* Success Alert - only show if there's a real high match */}
       {highestMatch && (
         <Alert className="border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
