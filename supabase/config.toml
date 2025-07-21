@@ -45,6 +45,3 @@ verify_jwt = false
 
 [functions.get-weather]
 verify_jwt = false
-
-[functions.generate-predictive-analysis]
-verify_jwt = true

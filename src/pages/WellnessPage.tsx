@@ -140,7 +140,6 @@ const translateMetricType = (type: string): string => {
     'heart_rate': 'Frequenza Cardiaca', 
     'respiration': 'Respirazione',
     'gum_color': 'Colore Gengive',
-    'weight': 'Peso',
     'checkup': 'Controllo',
     'blood_pressure': 'Pressione Sanguigna',
     'respiratory_rate': 'Frequenza Respiratoria'
