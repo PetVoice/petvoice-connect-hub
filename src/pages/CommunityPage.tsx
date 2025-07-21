@@ -130,14 +130,19 @@ const CommunityPage = () => {
   // Calcola i messaggi non letti per un gruppo specifico (stessa logica delle chat private)
   const calculateUnreadCount = async (channelName) => {
     try {
+      // Ottieni l'ultima volta che l'utente ha visualizzato questo gruppo (da localStorage)
+      const lastReadKey = `group_last_read_${channelName}_${user.id}`;
+      const lastReadTimestamp = localStorage.getItem(lastReadKey);
+      const lastRead = lastReadTimestamp ? new Date(lastReadTimestamp) : new Date(0);
+
       // Prima otteniamo tutti i messaggi del gruppo non eliminati globalmente
       const { data: allMessages, error: messagesError } = await supabase
         .from('community_messages')
-        .select('id')
+        .select('id, created_at')
         .eq('channel_name', channelName)
-        .neq('user_id', user.id) // Messaggi non dell'utente corrente
+        .neq('user_id', user.id) // ESCLUDE sempre i messaggi dell'utente corrente
         .is('deleted_at', null) // Solo messaggi non eliminati globalmente
-        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Ultimi 24 ore
+        .gt('created_at', lastRead.toISOString()); // Solo messaggi dopo l'ultima lettura
 
       if (messagesError || !allMessages) {
         console.error('Error fetching messages:', messagesError);
@@ -183,6 +188,10 @@ const CommunityPage = () => {
 
   // Marca i messaggi come letti quando si apre una chat
   const markGroupAsRead = async (groupId) => {
+    // Salva il timestamp corrente nel localStorage per questo gruppo
+    const lastReadKey = `group_last_read_${groupId}_${user.id}`;
+    localStorage.setItem(lastReadKey, new Date().toISOString());
+    
     // Rimuovi il conteggio non letti per questo gruppo
     setUnreadCounts(prev => {
       const newCounts = { ...prev };
