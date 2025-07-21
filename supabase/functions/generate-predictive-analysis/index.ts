@@ -219,7 +219,15 @@ Rispondi SOLO con JSON valido, senza altro testo.`;
   const analysisText = data_ai.choices[0].message.content;
   
   try {
-    return JSON.parse(analysisText);
+    // Rimuovi eventuali backticks markdown e spazi extra
+    let cleanedJson = analysisText.trim();
+    if (cleanedJson.startsWith('```json')) {
+      cleanedJson = cleanedJson.replace(/```json\s*/, '').replace(/```\s*$/, '');
+    } else if (cleanedJson.startsWith('```')) {
+      cleanedJson = cleanedJson.replace(/```\s*/, '').replace(/```\s*$/, '');
+    }
+    
+    return JSON.parse(cleanedJson);
   } catch (e) {
     console.error('Failed to parse AI response:', analysisText);
     // Fallback analysis
@@ -300,20 +308,38 @@ async function generateEarlyWarnings(supabase: any, petId: string, userId: strin
 async function generateInterventions(supabase: any, petId: string, userId: string, analysis: any) {
   const interventions = [];
   
+  // Prima ottieni i protocolli esistenti per collegare gli interventi
+  const { data: availableProtocols } = await supabase
+    .from('ai_training_protocols')
+    .select('id, title, category, difficulty')
+    .eq('is_public', true)
+    .eq('status', 'available');
+  
   for (const intervention of analysis.interventions || []) {
+    // Cerca un protocollo compatibile per l'intervento
+    const matchingProtocol = availableProtocols?.find((protocol: any) => 
+      protocol.category.toLowerCase().includes(intervention.type?.toLowerCase()) ||
+      intervention.type?.toLowerCase().includes(protocol.category.toLowerCase()) ||
+      protocol.title.toLowerCase().includes('comportamento') ||
+      protocol.title.toLowerCase().includes('training')
+    );
+    
     const interventionData = {
       user_id: userId,
       pet_id: petId,
-      intervention_type: intervention.type || 'behavioral_training',
+      intervention_type: intervention.intervention || intervention.type || 'behavioral_training',
       priority_level: intervention.priority || 'medium',
-      reasoning: intervention.reasoning || 'Basato sui pattern comportamentali identificati',
+      reasoning: intervention.reasoning || `Basato sui pattern comportamentali identificati: ${analysis.behavioral_patterns?.map((p: any) => p.pattern).join(', ')}`,
       recommended_timing: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       success_probability: intervention.success_probability || 0.75,
       estimated_cost: intervention.estimated_cost || null,
       expected_outcomes: {
         behavioral_improvement: intervention.expected_improvement || 'moderate',
         timeline: intervention.timeline || '2-4 weeks',
-        success_indicators: intervention.success_indicators || []
+        success_indicators: intervention.success_indicators || [],
+        // Collega al protocollo se trovato
+        related_protocol_id: matchingProtocol?.id || null,
+        related_protocol_title: matchingProtocol?.title || null
       }
     };
     

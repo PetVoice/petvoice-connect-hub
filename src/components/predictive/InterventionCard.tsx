@@ -121,8 +121,25 @@ export const InterventionCard: React.FC<InterventionCardProps> = ({
         {intervention.expected_outcomes && Object.keys(intervention.expected_outcomes).length > 0 && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Risultati Attesi</h4>
+            
+            {/* Mostra protocollo correlato se disponibile */}
+            {intervention.expected_outcomes.related_protocol_title && (
+              <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="h-4 w-4 text-purple-600" />
+                  <p className="text-sm font-medium text-purple-800">Protocollo Raccomandato</p>
+                </div>
+                <p className="text-sm text-purple-700 mb-2">{intervention.expected_outcomes.related_protocol_title}</p>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                  Training disponibile
+                </Badge>
+              </div>
+            )}
+            
             <div className="flex flex-wrap gap-1">
-              {Object.entries(intervention.expected_outcomes).map(([key, value]) => (
+              {Object.entries(intervention.expected_outcomes)
+                .filter(([key]) => !key.startsWith('related_protocol')) // Escludi i campi del protocollo già mostrati
+                .map(([key, value]) => (
                 <Badge key={key} variant="secondary" className="text-xs">
                   {key}: {String(value)}
                 </Badge>
@@ -134,7 +151,18 @@ export const InterventionCard: React.FC<InterventionCardProps> = ({
         {/* Action Buttons */}
         {intervention.status === 'pending' && (
           <div className="flex gap-2 pt-4 border-t">
-            {onSchedule && (
+            {/* Pulsante per accedere al protocollo se disponibile */}
+            {intervention.expected_outcomes?.related_protocol_id && (
+              <Button 
+                onClick={() => window.location.href = `/training?protocol=${intervention.expected_outcomes.related_protocol_id}`}
+                className="flex-1 bg-purple-600 hover:bg-purple-700"
+                size="sm"
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Inizia Protocollo
+              </Button>
+            )}
+            {onSchedule && !intervention.expected_outcomes?.related_protocol_id && (
               <Button 
                 onClick={() => onSchedule(intervention.id)}
                 className="flex-1"
@@ -149,6 +177,7 @@ export const InterventionCard: React.FC<InterventionCardProps> = ({
                 variant="outline" 
                 onClick={() => onDismiss(intervention.id)}
                 size="sm"
+                className="min-w-[80px]"
               >
                 Ignora
               </Button>

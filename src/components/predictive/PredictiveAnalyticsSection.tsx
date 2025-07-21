@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,23 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
   const activePredictions = getActivePredictions(currentPetId);
   const criticalWarnings = getCriticalWarnings(currentPetId);
 
+  // Caricamento automatico dei dati al primo accesso
+  useEffect(() => {
+    // Se non ci sono dati e non stiamo già caricando, genera automaticamente le previsioni
+    if (
+      currentPetId && 
+      user?.id && 
+      !loading && 
+      !isGenerating &&
+      activePredictions.length === 0 && 
+      interventions.length === 0 &&
+      !latestRisk
+    ) {
+      console.log('Auto-generating predictions for first-time user...');
+      handleGenerateAnalysis();
+    }
+  }, [currentPetId, user?.id, loading, activePredictions.length, interventions.length, latestRisk]);
+
   // Funzione per generare nuove previsioni
   const handleGenerateAnalysis = async () => {
     if (!currentPetId || !user?.id) {
@@ -55,7 +72,7 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
     const result = await generatePredictiveAnalysis(currentPetId, user.id);
     if (result.success) {
       // Aggiorna i dati dopo la generazione
-      refreshData();
+      setTimeout(() => refreshData(), 1000); // Piccolo delay per permettere al DB di processare
     }
   };
 
@@ -78,7 +95,7 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
 
   return (
     <div className="space-y-6">
-      {/* Header with action buttons */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Analisi Predittive</h2>
@@ -86,31 +103,25 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
             Previsioni comportamentali e raccomandazioni AI per il benessere del tuo pet
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={handleGenerateAnalysis} 
-            variant="default"
-            size="sm"
-            disabled={isGenerating || !currentPetId}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-          >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                Analizzando...
-              </>
-            ) : (
-              <>
-                <Wand2 className="h-4 w-4 mr-2" />
-                Genera Previsioni AI
-              </>
-            )}
-          </Button>
-          <Button onClick={refreshData} variant="outline" size="sm" disabled={isGenerating}>
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Aggiorna Dati
-          </Button>
-        </div>
+        <Button 
+          onClick={handleGenerateAnalysis} 
+          variant="default"
+          size="sm"
+          disabled={isGenerating || !currentPetId}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          {isGenerating ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+              Analizzando...
+            </>
+          ) : (
+            <>
+              <Wand2 className="h-4 w-4 mr-2" />
+              Genera Previsioni AI
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Info message se non ci sono dati */}
@@ -239,13 +250,9 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
               <div className="text-center">
                 <Brain className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nessuna Previsione Attiva</h3>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground">
                   Il sistema sta ancora raccogliendo dati sufficienti per generare previsioni accurate.
                 </p>
-                <Button onClick={refreshData} variant="outline">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Verifica Aggiornamenti
-                </Button>
               </div>
             </CardContent>
           </Card>
