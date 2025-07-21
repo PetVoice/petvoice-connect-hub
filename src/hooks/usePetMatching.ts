@@ -85,13 +85,29 @@ export const usePetMatching = () => {
 
       if (messagesError) throw messagesError;
 
-      // Calculate statistics
+      // Get unique users with pets for mentors count
+      const uniqueUserIds = [...new Set(pets?.map(pet => pet.user_id))];
+      
+      // Get profiles for mentors - users with completed protocols could be considered mentors
+      const { data: mentorProfiles, error: mentorError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', uniqueUserIds);
+
+      // Calculate statistics with real data
       const petTwins = pets?.filter(pet => pet.type && pet.breed).length || 0;
-      const mentorsActive = Math.floor(pets?.length / 3) || 0; // Mock calculation
+      
+      // Count active mentors as users who have completed at least one protocol
+      const usersWithProtocols = [...new Set(protocols?.map(p => p.user_id))];
+      const mentorsActive = usersWithProtocols.length || 0;
+      
+      // Calculate real average improvement from completed protocols
       const averageImprovement = protocols?.length > 0 
         ? Math.round(protocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / protocols.length)
         : 0;
-      const successStories = communityMessages?.length || 0;
+        
+      // Count success stories as completed protocols or recent community messages
+      const successStories = protocols?.length || 0;
 
       return {
         petTwins,
