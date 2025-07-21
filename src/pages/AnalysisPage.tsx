@@ -1156,37 +1156,105 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </div>
 
           {/* Help Section */}
-          <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Lightbulb className="h-8 w-8 text-amber-500" />
-              </div>
-              <h3 className="text-xl font-semibold">💡 Come Scegliere il Metodo Giusto?</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div className="text-center space-y-2">
-                  <Upload className="h-6 w-6 text-blue-500 mx-auto" />
-                  <p><strong>Upload File</strong></p>
-                  <p className="text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
-                </div>
-                <div className="text-center space-y-2">
-                  <Mic className="h-6 w-6 text-green-500 mx-auto" />
-                  <p><strong>Registra Ora</strong></p>
-                  <p className="text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
-                </div>
-                <div className="text-center space-y-2">
-                  <FileText className="h-6 w-6 text-purple-500 mx-auto" />
-                  <p><strong>Descrivi Testo</strong></p>
-                  <p className="text-muted-foreground">Preferisci descrivere il comportamento</p>
-                </div>
-                <div className="text-center space-y-2">
-                  <div className="flex justify-center gap-1">
-                    <Heart className="h-3 w-3 text-red-500" />
-                    <Brain className="h-3 w-3 text-primary" />
+          <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-8 rounded-xl border border-primary/10">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              {/* Cosa Descrivere */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <Lightbulb className="h-5 w-5 text-amber-600" />
                   </div>
-                  <p><strong>Analisi Doppia</strong></p>
-                  <p className="text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
+                  <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">Cosa Descrivere</h3>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600">•</span>
+                    <span>Comportamento specifico osservato</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600">•</span>
+                    <span>Contesto e situazione</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600">•</span>
+                    <span>Cambiamenti rispetto al solito</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-amber-600">•</span>
+                    <span>Postura e segnali del corpo</span>
+                  </div>
                 </div>
               </div>
+
+              {/* Come Scegliere il Metodo Giusto */}
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Brain className="h-5 w-5 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-semibold">Come Scegliere il Metodo Giusto?</h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+                    <Upload className="h-6 w-6 text-blue-500 mx-auto mb-2" />
+                    <p className="font-medium text-sm">Upload File</p>
+                    <p className="text-xs text-muted-foreground mt-1">Hai già registrazioni o video del tuo pet</p>
+                  </div>
+                  
+                  <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+                    <Mic className="h-6 w-6 text-green-500 mx-auto mb-2" />
+                    <p className="font-medium text-sm">Registra Ora</p>
+                    <p className="text-xs text-muted-foreground mt-1">Vuoi catturare l'emozione in tempo reale</p>
+                  </div>
+                  
+                  <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+                    <FileText className="h-6 w-6 text-purple-500 mx-auto mb-2" />
+                    <p className="font-medium text-sm">Descrivi Testo</p>
+                    <p className="text-xs text-muted-foreground mt-1">Preferisci descrivere il comportamento</p>
+                  </div>
+                  
+                  <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+                    <div className="flex justify-center gap-1 mb-2">
+                      <Heart className="h-3 w-3 text-red-500" />
+                      <Brain className="h-3 w-3 text-primary" />
+                    </div>
+                    <p className="font-medium text-sm">Analisi Doppia</p>
+                    <p className="text-xs text-muted-foreground mt-1">Vuoi analizzare anche le tue emozioni</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Doppia Analisi AI */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 rounded-lg">
+                    <div className="flex gap-1">
+                      <Heart className="h-4 w-4 text-red-500" />
+                      <Brain className="h-4 w-4 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-semibold">Doppia Analisi AI</h3>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-red-500">•</span>
+                    <span><strong>Pet:</strong> Emozione rilevata dalle tue descrizioni</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span><strong>Tu:</strong> Emozione rilevata dal tuo tono di voce</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">•</span>
+                    <span><strong>Risultato:</strong> Consigli personalizzati per entrambi</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
