@@ -110,22 +110,13 @@ serve(async (req) => {
 
             logStep("Successfully updated subscription", { email: customerEmail, tier: subscriptionTier, data });
 
-            // 🚀 CONVERTI REFERRAL AL PAGAMENTO - CHIAMATA DIRETTA RPC
+            // ⚠️ SKIP REFERRAL PER ORA - solo log pagamento
             if (customerEmail) {
-              try {
-                logStep("Attempting referral conversion", { email: customerEmail });
-                const { data: referralResult, error: referralError } = await supabaseClient
-                  .rpc('convert_referral_on_payment', { user_email: customerEmail });
-                
-                if (referralError) {
-                  logStep("Referral conversion error", { error: referralError.message, email: customerEmail });
-                } else {
-                  logStep("Referral conversion result", { result: referralResult, email: customerEmail });
-                }
-              } catch (referralError) {
-                logStep("Referral conversion exception", { error: referralError.message, email: customerEmail });
-                // Non fallire il webhook per errori referral
-              }
+              logStep("Subscription checkout completed for user", { 
+                email: customerEmail, 
+                userId: userId,
+                subscriptionId: subscription.id 
+              });
             }
           } catch (error) {
             logStep("Error processing subscription", { error: error.message });
@@ -137,27 +128,58 @@ serve(async (req) => {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
         
-        logStep("Subscription updated", { subscriptionId: subscription.id, status: subscription.status });
+        logStep("Subscription updated", { 
+          subscriptionId: subscription.id, 
+          status: subscription.status,
+          current_period_end: subscription.current_period_end,
+          current_period_start: subscription.current_period_start 
+        });
+
+        // ⚠️ SAFE TIMESTAMP CONVERSION - con logging dettagliato
+        let subscriptionEnd: string | null = null;
+        let currentPeriodStart: string | null = null;
+        
+        try {
+          if (subscription.current_period_end) {
+            logStep("Converting current_period_end", { timestamp: subscription.current_period_end });
+            subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+            logStep("Converted subscriptionEnd", { subscriptionEnd });
+          }
+          
+          if (subscription.current_period_start) {
+            logStep("Converting current_period_start", { timestamp: subscription.current_period_start });
+            currentPeriodStart = new Date(subscription.current_period_start * 1000).toISOString();
+            logStep("Converted currentPeriodStart", { currentPeriodStart });
+          }
+        } catch (timeError) {
+          logStep("ERROR during timestamp conversion", { 
+            error: timeError.message,
+            current_period_end: subscription.current_period_end,
+            current_period_start: subscription.current_period_start
+          });
+          throw timeError;
+        }
+
+        let customer: Stripe.Customer;
+        try {
+          customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
+          logStep("Customer retrieved", { customerId: customer.id, email: customer.email });
+        } catch (customerError) {
+          logStep("ERROR retrieving customer", { 
+            error: customerError.message,
+            customerId: subscription.customer 
+          });
+          throw customerError;
+        }
 
         const priceId = subscription.items.data[0].price.id;
         const price = await stripe.prices.retrieve(priceId);
         const amount = price.unit_amount || 0;
         logStep("Price details", { priceId, amount });
 
-        let subscriptionTier = 'premium'; // Solo Premium disponibile
-
+        const subscriptionTier = 'premium';
         const isActive = subscription.status === 'active';
-        
-        // ⚠️ SAFE TIMESTAMP CONVERSION - evita "Invalid time value"
-        const subscriptionEnd = subscription.current_period_end 
-          ? new Date(subscription.current_period_end * 1000).toISOString()
-          : null;
-          
-        const currentPeriodStart = subscription.current_period_start 
-          ? new Date(subscription.current_period_start * 1000).toISOString()
-          : null;
 
         // Ottieni user_id dai metadata della subscription o cerca per email
         let userId = subscription.metadata?.user_id || null;
@@ -181,21 +203,44 @@ serve(async (req) => {
           status: subscription.status
         });
 
-        await supabaseClient.from("subscribers").upsert({
-          email: customer.email,
-          user_id: userId,
-          stripe_customer_id: subscription.customer,
-          subscribed: isActive,
-          subscription_status: subscription.status,
-          subscription_tier: isActive ? 'premium' : null,
-          subscription_end: subscriptionEnd,
-          current_period_start: currentPeriodStart,
-          current_period_end: subscriptionEnd,
-          stripe_subscription_id: subscription.id,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'email' });
+        try {
+          logStep("About to update database", { 
+            email: customer.email, 
+            userId: userId,
+            tier: subscriptionTier, 
+            subscriptionId: subscription.id,
+            subscriptionEnd,
+            currentPeriodStart,
+            status: subscription.status
+          });
 
-        logStep("Updated database with subscription info", { subscribed: isActive, subscriptionTier });
+          await supabaseClient.from("subscribers").upsert({
+            email: customer.email,
+            user_id: userId,
+            stripe_customer_id: subscription.customer,
+            subscribed: isActive,
+            subscription_status: subscription.status,
+            subscription_tier: isActive ? 'premium' : null,
+            subscription_end: subscriptionEnd,
+            current_period_start: currentPeriodStart,
+            current_period_end: subscriptionEnd,
+            stripe_subscription_id: subscription.id,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'email' });
+
+          logStep("Updated database with subscription info", { subscribed: isActive, subscriptionTier });
+        } catch (dbError) {
+          logStep("ERROR during database update", { 
+            error: dbError.message,
+            data: {
+              email: customer.email,
+              userId: userId,
+              subscriptionEnd,
+              currentPeriodStart
+            }
+          });
+          throw dbError;
+        }
         break;
       }
 
