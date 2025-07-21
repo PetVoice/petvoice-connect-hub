@@ -1,140 +1,117 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, TrendingUp } from 'lucide-react';
-
-interface PredictionData {
-  time: string;
-  predicted_value: number;
-  confidence: number;
-  behavior_type: string;
-}
+import { Brain } from 'lucide-react';
 
 interface PredictionChartProps {
-  predictions: PredictionData[];
-  timeHorizon: '24h' | '48h';
-  showConfidence?: boolean;
-  className?: string;
+  prediction: {
+    id: string;
+    prediction_date: string;
+    prediction_window: string;
+    predicted_behaviors: Record<string, number>;
+    confidence_scores: Record<string, number>;
+    contributing_factors: Record<string, any>;
+  };
 }
 
-export const PredictionChart: React.FC<PredictionChartProps> = ({ 
-  predictions, 
-  timeHorizon, 
-  showConfidence = true,
-  className = "" 
-}) => {
-  const formatTime = (timeStr: string) => {
-    const date = new Date(timeStr);
-    return date.toLocaleTimeString('it-IT', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
+export const PredictionChart: React.FC<PredictionChartProps> = ({ prediction }) => {
+  if (!prediction) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-muted-foreground">
+            Nessuna previsione disponibile
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-emerald-600';
-    if (confidence >= 0.6) return 'text-yellow-600';
-    return 'text-red-600';
-  };
+  // Prepare data for chart
+  const chartData = Object.entries(prediction.predicted_behaviors).map(([behavior, value]) => ({
+    name: behavior.charAt(0).toUpperCase() + behavior.slice(1),
+    probability: Math.round((value as number) * 100),
+    confidence: Math.round(((prediction.confidence_scores[behavior] as number) || 0) * 100),
+  })).sort((a, b) => b.probability - a.probability);
 
-  const averageConfidence = predictions.length > 0 
-    ? predictions.reduce((sum, pred) => sum + pred.confidence, 0) / predictions.length 
-    : 0;
+  const getBarColor = (probability: number) => {
+    if (probability >= 70) return '#ef4444'; // red
+    if (probability >= 40) return '#f59e0b'; // amber
+    return '#10b981'; // emerald
+  };
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Previsioni Comportamentali
-          </span>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {timeHorizon}
-            </Badge>
-            {showConfidence && (
-              <Badge 
-                variant="outline" 
-                className={getConfidenceColor(averageConfidence)}
-              >
-                {Math.round(averageConfidence * 100)}% confidenza
-              </Badge>
-            )}
-          </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Brain className="h-5 w-5 mr-2" />
+          Previsione Comportamentale
         </CardTitle>
+        <CardDescription>
+          Probabilità per {prediction.prediction_window.replace('_', ' ')} - 
+          Data: {new Date(prediction.prediction_date).toLocaleDateString('it-IT')}
+        </CardDescription>
       </CardHeader>
-
       <CardContent>
-        {predictions.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            <div className="text-center">
-              <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nessuna previsione disponibile</p>
-              <p className="text-sm">I dati verranno aggiornati automaticamente</p>
-            </div>
-          </div>
-        ) : (
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={predictions}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="time"
-                  tickFormatter={formatTime}
-                  stroke="hsl(var(--muted-foreground))"
-                />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  labelFormatter={formatTime}
-                  formatter={(value: number, name: string) => [
-                    name === 'predicted_value' ? `${value}%` : `${Math.round(value * 100)}%`,
-                    name === 'predicted_value' ? 'Probabilità' : 'Confidenza'
-                  ]}
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                
-                {showConfidence && (
-                  <Area
-                    type="monotone"
-                    dataKey="confidence"
-                    stroke="hsl(var(--muted-foreground))"
-                    fill="hsl(var(--muted))"
-                    fillOpacity={0.3}
-                  />
-                )}
-                
-                <Line
-                  type="monotone"
-                  dataKey="predicted_value"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        <div className="h-64 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="name" 
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+              />
+              <Tooltip 
+                formatter={(value: number, name: string) => [
+                  `${value}%`,
+                  name === 'probability' ? 'Probabilità' : 'Confidenza'
+                ]}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px'
+                }}
+              />
+              <Bar 
+                dataKey="probability" 
+                fill="hsl(var(--primary))"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
 
-        {/* Behavior Types Legend */}
-        {predictions.length > 0 && (
-          <div className="mt-4 pt-4 border-t">
-            <div className="flex flex-wrap gap-2">
-              {[...new Set(predictions.map(p => p.behavior_type))].map(behaviorType => (
-                <Badge key={behaviorType} variant="secondary" className="text-xs">
-                  {behaviorType}
-                </Badge>
-              ))}
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          {chartData.map((item) => (
+            <div key={item.name} className="flex justify-between items-center p-2 bg-secondary/50 rounded">
+              <span className="font-medium">{item.name}</span>
+              <div className="text-right">
+                <div className="font-bold">{item.probability}%</div>
+                <div className="text-xs text-muted-foreground">
+                  {item.confidence}% confidenza
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+
+        {/* Fattori Contribuenti */}
+        <div className="mt-4">
+          <h4 className="font-semibold mb-2">Fattori Contribuenti:</h4>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(prediction.contributing_factors).map(([factor, value]) => (
+              <Badge key={factor} variant="secondary" className="text-xs">
+                {factor}: {String(value)}
+              </Badge>
+            ))}
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -9,12 +9,12 @@ interface InterventionCardProps {
     id: string;
     intervention_type: string;
     recommended_timing: string;
-    priority_level: 'low' | 'medium' | 'high' | 'critical';
+    priority_level: string;
     success_probability: number;
     estimated_cost?: number;
     reasoning: string;
     expected_outcomes: Record<string, any>;
-    status: 'pending' | 'scheduled' | 'completed' | 'dismissed';
+    status: string;
   };
   onSchedule?: (interventionId: string) => void;
   onDismiss?: (interventionId: string) => void;

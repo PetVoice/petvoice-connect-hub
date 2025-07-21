@@ -71,6 +71,7 @@ import {
   BarChart2
 } from 'lucide-react';
 import { InsightsEngine } from '@/components/insights/InsightsEngine';
+import { PredictiveAnalyticsSection } from '@/components/predictive/PredictiveAnalyticsSection';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1556,164 +1557,9 @@ export default function StatsPage() {
           </Card>
         </TabsContent>
 
-        {/* Predictions Tab */}
+        {/* Predictions Tab - AI Predictive Analytics */}
         <TabsContent value="predictions" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Wellness Trend Prediction */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Trend Benessere Futuro
-                </CardTitle>
-                <CardDescription>
-                  Previsione del benessere basata sui dati storici
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      {displayAnalytics.wellnessTrend > 0 ? (
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                      ) : displayAnalytics.wellnessTrend < 0 ? (
-                        <TrendingDown className="h-5 w-5 text-red-600" />
-                      ) : (
-                        <div className="h-5 w-5 bg-yellow-500 rounded-full" />
-                      )}
-                      <span className="font-medium">
-                        {displayAnalytics.wellnessTrend > 0 ? 'Miglioramento' : 
-                         displayAnalytics.wellnessTrend < 0 ? 'Peggioramento' : 'Stabile'}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {displayAnalytics.wellnessTrend > 0 ? 
-                        'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
-                        displayAnalytics.wellnessTrend < 0 ?
-                        'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
-                        'Il benessere è stabile. Mantieni la routine attuale.'}
-                    </p>
-                  </div>
-                  
-                  {displayAnalytics.averageWellnessScore > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Score Attuale</span>
-                        <span>{displayAnalytics.averageWellnessScore}%</span>
-                      </div>
-                      <Progress value={displayAnalytics.averageWellnessScore} className="h-2" />
-                      <div className="flex justify-between text-sm">
-                        <span>Previsione 30gg</span>
-                        <span>{Math.max(0, Math.min(100, displayAnalytics.averageWellnessScore + displayAnalytics.wellnessTrend * 2))}%</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Health Recommendations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5" />
-                  Raccomandazioni AI
-                </CardTitle>
-                <CardDescription>
-                  Suggerimenti basati sui pattern rilevati
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {(() => {
-                    const recommendations = [];
-                    
-                    if (displayAnalytics.healthMetricsSummary.criticalValues > 0) {
-                      recommendations.push({
-                        type: 'warning',
-                        text: 'Rilevati parametri vitali anomali. Consulta un veterinario.'
-                      });
-                    }
-                    
-                    if (displayAnalytics.activeDays < displayAnalytics.timeSpan * 0.3) {
-                      recommendations.push({
-                        type: 'info',
-                        text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
-                      });
-                    }
-                    
-                    if (displayAnalytics.emotionDistribution.some(e => e.emotion === 'ansioso' && e.percentage > 30)) {
-                      recommendations.push({
-                        type: 'warning',
-                        text: 'Livelli di ansia elevati. Considera attività rilassanti.'
-                      });
-                    }
-                    
-                    if (displayAnalytics.wellnessTrend > 5) {
-                      recommendations.push({
-                        type: 'success',
-                        text: 'Ottimo miglioramento! Continua con le attuali strategie.'
-                      });
-                    }
-                    
-                    if (recommendations.length === 0) {
-                      recommendations.push({
-                        type: 'info',
-                        text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
-                      });
-                    }
-                    
-                    return recommendations.slice(0, 4).map((rec, index) => (
-                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
-                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
-                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
-                        'bg-blue-50 border-blue-400'
-                      }`}>
-                        <p className="text-sm">{rec.text}</p>
-                      </div>
-                    ));
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Seasonal Predictions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
-                Previsioni Stagionali
-              </CardTitle>
-              <CardDescription>
-                Analisi dei pattern stagionali del comportamento
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
-                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
-                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
-                  
-                  return (
-                    <div key={season} className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-2">{season}</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Attività:</span>
-                          <span className="font-medium">{activity}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Umore:</span>
-                          <span className="font-medium">{mood}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <PredictiveAnalyticsSection petId={activePet?.id} />
         </TabsContent>
 
         {/* Reports Tab */}

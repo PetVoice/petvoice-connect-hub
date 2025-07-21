@@ -8,7 +8,7 @@ interface EarlyWarningAlertProps {
   warning: {
     id: string;
     warning_type: string;
-    severity_level: 'low' | 'medium' | 'high' | 'critical';
+    severity_level: string;
     alert_message: string;
     pattern_detected: Record<string, any>;
     suggested_actions: string[];
