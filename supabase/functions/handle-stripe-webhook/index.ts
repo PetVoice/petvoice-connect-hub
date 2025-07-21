@@ -102,14 +102,15 @@ serve(async (req) => {
               }
             }
 
-            // Update subscriber in database
+            // Update subscriber in database using correct column names
             const { data, error } = await supabaseClient.from("subscribers").upsert({
               email: customerEmail,
               user_id: userId,
               stripe_customer_id: session.customer,
-              subscribed: true,
-              subscription_tier: subscriptionTier,
-              subscription_end: subscriptionEnd,
+              subscription_status: 'active',
+              subscription_plan: 'premium',
+              subscription_end_date: subscriptionEnd,
+              is_cancelled: false,
               updated_at: new Date().toISOString(),
             }, { onConflict: 'email' });
 
@@ -123,7 +124,7 @@ serve(async (req) => {
               throw new Error(`Database error: ${error.message} (${error.code})`);
             }
 
-            logStep("Updated database with subscription info", { subscribed: true, subscriptionTier });
+            logStep("Updated database with subscription info", { subscription_status: 'active', subscription_plan: 'premium' });
 
             // Log successful checkout completion
             logStep("Subscription checkout completed successfully", { 
@@ -242,16 +243,16 @@ serve(async (req) => {
             email: customer.email,
             user_id: userId,
             stripe_customer_id: subscription.customer,
-            subscribed: isActive,
             subscription_status: subscription.status,
-            subscription_tier: isActive ? 'premium' : null,
-            subscription_end: subscriptionEnd,
+            subscription_plan: isActive ? 'premium' : null,
+            subscription_end_date: subscriptionEnd,
             current_period_start: currentPeriodStart,
             current_period_end: subscriptionEnd,
+            is_cancelled: !isActive,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'email' });
 
-          logStep("Updated database with subscription info", { subscribed: isActive, subscriptionTier });
+          logStep("Updated database with subscription info", { subscription_status: subscription.status, subscription_plan: isActive ? 'premium' : null });
         } catch (dbError) {
           logStep("ERROR during database update", { 
             error: dbError.message,
@@ -276,9 +277,10 @@ serve(async (req) => {
         await supabaseClient.from("subscribers").upsert({
           email: customer.email,
           stripe_customer_id: subscription.customer,
-          subscribed: false,
-          subscription_tier: null,
-          subscription_end: null,
+          subscription_status: 'canceled',
+          subscription_plan: null,
+          subscription_end_date: null,
+          is_cancelled: true,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'email' });
 
