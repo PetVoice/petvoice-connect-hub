@@ -672,6 +672,22 @@ export const PrivateChatWithReply: React.FC = () => {
     if (!selectedChat) return;
 
     try {
+      // Prima elimina tutti i messaggi della chat per entrambi gli utenti
+      const { error: messagesError } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_by_recipient: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('chat_id', selectedChat.id);
+
+      if (messagesError) {
+        console.error('Error deleting messages:', messagesError);
+        // Non fermiamo l'operazione se fallisce la cancellazione dei messaggi
+      }
+
+      // Poi elimina la chat per entrambi
       const { error } = await supabase
         .from('private_chats')
         .update({ 
@@ -690,7 +706,7 @@ export const PrivateChatWithReply: React.FC = () => {
 
       toast({
         title: "Chat eliminata",
-        description: "La chat è stata eliminata per entrambi gli utenti"
+        description: "La chat e tutti i messaggi sono stati eliminati per entrambi gli utenti"
       });
     } catch (error) {
       console.error('Error deleting chat for both:', error);
