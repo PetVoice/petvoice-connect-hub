@@ -270,14 +270,13 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
       {/* Analysis List */}
       <div className="space-y-4">
         {sortedAnalyses.map((analysis) => (
-          <Card 
+          <div 
             key={analysis.id} 
             className={cn(
-              "transition-all duration-200",
+              "bg-card rounded-lg border p-4 transition-all duration-200",
               selectedAnalyses.includes(analysis.id) && "ring-2 ring-coral bg-coral/5"
             )}
           >
-            <CardContent className="p-4">
               <div className="flex items-start gap-4">
                 {/* Selection Checkbox */}
                 <Checkbox
@@ -431,14 +430,13 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                           Elimina
                         </Button>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                     </div>
+                   )}
+                 </div>
+               </div>
+             </div>
+         ))}
+       </div>
 
       {/* Load More / Pagination */}
       {analyses.length >= 10 && (
