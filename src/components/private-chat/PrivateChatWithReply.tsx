@@ -1075,8 +1075,13 @@ export const PrivateChatWithReply: React.FC = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('🖱️ Send button clicked');
-                        if (!newMessage.trim() || sendingMessage) return;
+                        console.log('🖱️ Send button clicked!!!');
+                        console.log('📝 Message content:', newMessage);
+                        console.log('📤 Selected chat:', selectedChat?.id);
+                        if (!newMessage.trim() || sendingMessage) {
+                          console.log('⚠️ Cannot send - message empty or already sending');
+                          return;
+                        }
                         sendMessage();
                       }}
                       disabled={!newMessage.trim() || sendingMessage}
