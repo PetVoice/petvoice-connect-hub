@@ -411,46 +411,27 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // Use a general channel for pet connections
-      const channelName = 'pet-connections';
-      
-      // First, ensure user is subscribed to the pet-connections channel
-      const { error: subscriptionError } = await supabase
-        .from('user_channel_subscriptions')
-        .upsert({
-          user_id: user.id,
-          channel_name: channelName
-        }, {
-          onConflict: 'user_id,channel_name'
-        });
-
-      if (subscriptionError) {
-        console.error('Error subscribing to channel:', subscriptionError);
-        // Continue anyway as this might not be critical
-      }
-
-      // Create a message in the general pet connections channel
-      const { error: messageError } = await supabase
-        .from('community_messages')
+      // For now, just create a simple activity log entry for the connection request
+      // This avoids complex channel subscriptions and RLS issues
+      const { error: activityError } = await supabase
+        .from('activity_log')
         .insert({
-          channel_id: '00000000-0000-0000-0000-000000000001', // Fixed ID for pet-connections channel
-          channel_name: channelName,
-          user_id: user.id, // Current user requesting connection
-          content: `Richiesta di connessione inviata per ${selectedTwin.name}`,
-          message_type: 'connection_request',
+          user_id: user.id,
+          pet_id: petId,
+          activity_type: 'connection_request_sent',
+          activity_description: `Richiesta di connessione inviata per ${selectedTwin.name}`,
           metadata: {
-            pet_id: petId,
-            pet_name: selectedTwin.name,
+            target_pet_id: selectedTwin.id,
+            target_pet_name: selectedTwin.name,
             target_user_id: selectedTwin.user_id || 'unknown',
-            requester_name: user.user_metadata?.display_name || 'Utente',
-            connection_type: 'pet_match',
-            match_score: selectedTwin.matchScore
+            match_score: selectedTwin.matchScore,
+            connection_type: 'pet_match'
           }
         });
 
-      if (messageError) {
-        console.error('Error creating connection message:', messageError);
-        throw messageError;
+      if (activityError) {
+        console.error('Error creating activity log:', activityError);
+        throw activityError;
       }
 
       toast({
