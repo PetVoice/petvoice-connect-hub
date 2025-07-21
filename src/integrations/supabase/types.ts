@@ -3239,10 +3239,6 @@ export type Database = {
         Args: { email_to_check: string }
         Returns: boolean
       }
-      convert_referral: {
-        Args: { p_user_id: string; p_email: string }
-        Returns: Json
-      }
       convert_referral_on_payment: {
         Args: { user_email: string }
         Returns: Json
@@ -3252,10 +3248,6 @@ export type Database = {
         Returns: undefined
       }
       execute_affiliation_reset: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      force_convert_all_now: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
@@ -3290,14 +3282,6 @@ export type Database = {
           max_pets_allowed: number
           cancellation_effective_date: string
         }[]
-      }
-      process_all_payments: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      process_recurring_commissions: {
-        Args: { p_user_id: string }
-        Returns: Json
       }
       reactivate_user_subscription: {
         Args: { p_user_id: string }
