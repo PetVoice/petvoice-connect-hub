@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Users } from 'lucide-react';
+import { Users, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -114,6 +114,8 @@ const CommunityPage = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
+  const [showGroupDeleteDialog, setShowGroupDeleteDialog] = useState(false);
+  const [selectedGroupForDelete, setSelectedGroupForDelete] = useState(null);
   
   useEffect(() => {
     if (user?.id) {
@@ -287,6 +289,120 @@ const CommunityPage = () => {
     setActiveChat(groupId);
   };
   
+  // Funzioni per eliminazione messaggi gruppo (stessa logica delle chat private)
+  const deleteGroupMessagesForMe = async (groupId) => {
+    if (!user?.id) return;
+
+    try {
+      // Inserisci record di eliminazione per tutti i messaggi del gruppo per questo utente
+      const { data: allMessages } = await supabase
+        .from('community_messages')
+        .select('id')
+        .eq('channel_name', groupId)
+        .eq('deleted_by_all', false);
+
+      if (allMessages && allMessages.length > 0) {
+        const deleteRecords = allMessages.map(msg => ({
+          message_id: msg.id,
+          user_id: user.id
+        }));
+
+        const { error } = await supabase
+          .from('community_message_deletions')
+          .insert(deleteRecords);
+
+        if (error) {
+          // Ignora errori di duplicati
+          if (!error.message.includes('duplicate') && error.code !== '23505') {
+            throw error;
+          }
+        }
+      }
+
+      const groupName = myGroups.find(g => g.id === groupId)?.name || groupId;
+
+      toast({
+        title: "Messaggi eliminati",
+        description: `Tutti i messaggi del gruppo "${groupName}" sono stati eliminati solo per te`
+      });
+
+      setShowGroupDeleteDialog(false);
+      setSelectedGroupForDelete(null);
+    } catch (error) {
+      console.error('Error deleting group messages for me:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi del gruppo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteGroupMessagesForAll = async (groupId) => {
+    if (!user?.id) return;
+
+    try {
+      // Elimina per tutti solo i messaggi inviati dall'utente corrente
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ 
+          deleted_by_all: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('channel_name', groupId)
+        .eq('user_id', user.id)
+        .eq('deleted_by_all', false);
+
+      if (error) throw error;
+
+      // Per i messaggi ricevuti, eliminali solo per l'utente corrente
+      const { data: receivedMessages } = await supabase
+        .from('community_messages')
+        .select('id')
+        .eq('channel_name', groupId)
+        .neq('user_id', user.id)
+        .eq('deleted_by_all', false);
+
+      if (receivedMessages && receivedMessages.length > 0) {
+        const deleteRecords = receivedMessages.map(msg => ({
+          message_id: msg.id,
+          user_id: user.id
+        }));
+
+        const { error: deleteError } = await supabase
+          .from('community_message_deletions')
+          .insert(deleteRecords);
+
+        if (deleteError && !deleteError.message.includes('duplicate') && deleteError.code !== '23505') {
+          throw deleteError;
+        }
+      }
+
+      const groupName = myGroups.find(g => g.id === groupId)?.name || groupId;
+
+      toast({
+        title: "Messaggi eliminati",
+        description: `I tuoi messaggi del gruppo "${groupName}" sono stati eliminati per tutti, gli altri solo per te`
+      });
+
+      setShowGroupDeleteDialog(false);
+      setSelectedGroupForDelete(null);
+    } catch (error) {
+      console.error('Error deleting group messages for all:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi del gruppo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleGroupDeleteClick = (group, e) => {
+    e.stopPropagation();
+    setSelectedGroupForDelete(group);
+    setShowGroupDeleteDialog(true);
+  };
+  
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -448,38 +564,17 @@ const CommunityPage = () => {
                             <div className="text-sm text-muted-foreground">
                               {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
                             </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button 
-                                  size="sm" 
-                                  variant="destructive"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Esci
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Conferma uscita dal gruppo</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Sei sicuro di voler uscire dal gruppo "{group.name}"? 
-                                    Non riceverai più messaggi da questo gruppo.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => leaveGroup(group.id)}
-                                    className="bg-destructive hover:bg-destructive/90"
-                                  >
-                                    Esci dal gruppo
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                           </div>
+                           <div className="flex items-center gap-2">
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={(e) => handleGroupDeleteClick(group, e)}
+                               className="text-red-500 hover:text-red-600 hover:bg-red-50 p-1 h-7 w-7 opacity-70 hover:opacity-100"
+                             >
+                               <Trash2 className="h-3.5 w-3.5" />
+                             </Button>
+                           </div>
                         </div>
                       ))}
                       {myGroups.length === 0 && (
@@ -522,6 +617,34 @@ const CommunityPage = () => {
             <PetMatchingIntelligence />
           </TabsContent>
         </Tabs>
+
+        {/* Group Messages Delete Dialog */}
+        <AlertDialog open={showGroupDeleteDialog} onOpenChange={setShowGroupDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
+              <AlertDialogDescription>
+                Come vuoi eliminare i messaggi del gruppo "{selectedGroupForDelete?.name}"?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel>Annulla</AlertDialogCancel>
+              <Button
+                variant="outline"
+                onClick={() => deleteGroupMessagesForMe(selectedGroupForDelete?.id)}
+                className="w-full sm:w-auto"
+              >
+                Elimina solo per me
+              </Button>
+              <AlertDialogAction
+                onClick={() => deleteGroupMessagesForAll(selectedGroupForDelete?.id)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+              >
+                Elimina per tutti (solo i miei)
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 };
