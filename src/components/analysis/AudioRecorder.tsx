@@ -334,8 +334,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mic className="h-5 w-5" />
-          Registrazione Audio
+          <Mic className="h-5 w-5 text-green-500" />
+          Registrazione Diretta
         </CardTitle>
         <CardDescription>
           Registra direttamente dal microfono (max {Math.floor(maxDuration / 60)} minuti)
@@ -365,7 +365,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "gradient-coral hover:scale-105 shadow-lg"
+                  : "bg-green-500 hover:bg-green-600 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -402,7 +402,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {audioLevels.map((level, index) => (
                 <div
                   key={index}
-                  className="bg-coral rounded-sm transition-all duration-100"
+                  className="bg-green-500 rounded-sm transition-all duration-100"
                   style={{
                     width: '8px',
                     height: `${Math.max(4, (level / 100) * 60)}px`,
@@ -478,7 +478,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="gradient-coral text-white flex items-center gap-2"
+                className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
                 Analizza
@@ -504,17 +504,18 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </div>
         )}
 
-        {/* Tips */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p>💡 <strong>Suggerimenti per registrazioni migliori:</strong></p>
-          <p>• Registra in un ambiente silenzioso</p>
-          <p>• Tieni il microfono vicino al pet</p>
-          <p>• Durata ottimale: 30 secondi - 2 minuti</p>
-          <p>• Cattura vocalizzi naturali (non forzati)</p>
+        {/* Help Section */}
+        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+          <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
+          <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+            <p>• Registra in un ambiente silenzioso</p>
+            <p>• Posizionati vicino al tuo pet</p>
+            <p>• Durata consigliata: 10-60 secondi</p>
+            <p>• Massimo {Math.floor(maxDuration / 60)} minuti di registrazione</p>
+          </div>
         </div>
       </CardContent>
     </Card>
-  );
 };
 
 export default AudioRecorder;

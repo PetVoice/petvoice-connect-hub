@@ -198,7 +198,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <div className="flex items-center gap-1">
@@ -221,7 +221,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
               className={`w-20 h-20 rounded-full ${
                 isRecording 
                   ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                  : 'bg-primary hover:bg-primary/90'
+                  : 'bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600'
               }`}
             >
               {isRecording ? (
@@ -284,7 +284,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
             <Button 
               onClick={analyzeRecording}
               disabled={isAnalyzing || !selectedPet}
-              className="w-full"
+              className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white"
             >
               {isAnalyzing ? (
                 <>
@@ -311,10 +311,16 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
           </div>
         )}
 
-        {/* Help */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-          <h4 className="font-medium mb-2">🎯 Cosa analizza l'IA:</h4>
-          <div className="text-sm text-muted-foreground space-y-1">
+        {!selectedPet && (
+          <p className="text-sm text-muted-foreground text-center">
+            Seleziona un pet per iniziare l'analisi
+          </p>
+        )}
+
+        {/* Help Section */}
+        <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
+          <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
             <div className="flex items-center gap-2">
               <Heart className="h-4 w-4 text-red-500" />
               <span><strong>Emozione del pet</strong> - dalle tue descrizioni del comportamento</span>
@@ -328,12 +334,6 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
             </div>
           </div>
         </div>
-
-        {!selectedPet && (
-          <p className="text-sm text-muted-foreground text-center">
-            Seleziona un pet per iniziare l'analisi
-          </p>
-        )}
       </CardContent>
     </Card>
   );

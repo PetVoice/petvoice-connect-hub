@@ -78,11 +78,11 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          Analisi Emotiva Testuale
+          <Brain className="h-5 w-5 text-purple-500" />
+          Analisi Comportamentale Testuale
         </CardTitle>
         <CardDescription>
           Descrivi cosa sta facendo il tuo pet e in che situazione si trova. L'IA analizzerà il comportamento per rilevare le emozioni.
@@ -105,20 +105,10 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
           </div>
         </div>
 
-        <div className="bg-muted/30 p-4 rounded-lg">
-          <h4 className="font-medium mb-2">💡 Suggerimenti per una migliore analisi:</h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Descrivi il comportamento specifico che osservi</li>
-            <li>• Includi il contesto (dove, quando, cosa è successo prima)</li>
-            <li>• Menziona eventuali cambiamenti rispetto al solito</li>
-            <li>• Descrivi la postura e i segnali del corpo</li>
-          </ul>
-        </div>
-
         <Button 
           onClick={handleAnalyze} 
           disabled={!text.trim() || isAnalyzing || !selectedPet}
-          className="w-full"
+          className="w-full bg-purple-500 hover:bg-purple-600 text-white"
         >
           {isAnalyzing ? (
             <>
@@ -138,6 +128,17 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
             Seleziona un pet per iniziare l'analisi
           </p>
         )}
+
+        {/* Help Section */}
+        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+          <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
+          <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+            <p>• Comportamento specifico osservato</p>
+            <p>• Contesto e situazione (dove, quando)</p>
+            <p>• Cambiamenti rispetto al solito</p>
+            <p>• Postura e segnali del corpo</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

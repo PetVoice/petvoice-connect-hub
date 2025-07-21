@@ -201,8 +201,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5" />
-          Carica File Audio/Video
+          <Upload className="h-5 w-5 text-blue-500" />
+          Upload File Audio/Video
         </CardTitle>
         <CardDescription>
           Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max {maxSizePerFile}MB)
@@ -213,7 +213,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <div
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
-            dragActive ? "border-coral bg-coral/5" : "border-muted-foreground/25 hover:border-coral/50",
+            dragActive ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-muted-foreground/25 hover:border-blue-500/50",
             isProcessing && "pointer-events-none opacity-50"
           )}
           onDragEnter={handleDrag}
@@ -224,7 +224,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         >
           <Upload className={cn(
             "h-12 w-12 mx-auto mb-4 transition-colors",
-            dragActive ? "text-coral" : "text-muted-foreground"
+            dragActive ? "text-blue-500" : "text-muted-foreground"
           )} />
           <p className="text-lg font-medium mb-2">
             {dragActive ? "Rilascia i file qui" : "Carica i tuoi file"}
@@ -313,7 +313,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               <Button 
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
-                className="w-full gradient-coral text-white"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
               >
                 {isProcessing ? (
                   <>
@@ -351,11 +351,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         )}
 
-        {/* File Limits Info */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p>• Massimo {maxFiles} file per sessione</p>
-          <p>• Dimensione massima per file: {maxSizePerFile}MB</p>
-          <p>• Durata consigliata: 10 secondi - 5 minuti</p>
+        {/* Help Section */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+          <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
+          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+            <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
+            <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
+            <p>• <strong>Dimensione max:</strong> {maxSizePerFile}MB per file</p>
+            <p>• <strong>Durata consigliata:</strong> 10 secondi - 5 minuti</p>
+          </div>
         </div>
       </CardContent>
     </Card>
