@@ -51,7 +51,7 @@ export const PrivateChatWithReply: React.FC = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
-  const [showDeleteChatDialog, setShowDeleteChatDialog] = useState(false);
+  
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -314,13 +314,6 @@ export const PrivateChatWithReply: React.FC = () => {
 
       const chatsWithDetails = await Promise.all(
         (chatsData || [])
-          .filter(chat => {
-            // Filtra chat eliminate dall'utente corrente
-            const isParticipant1 = chat.participant_1_id === user.id;
-            if (isParticipant1 && chat.deleted_by_participant_1 === true) return false;
-            if (!isParticipant1 && chat.deleted_by_participant_2 === true) return false;
-            return true;
-          })
           .map(async (chat) => {
           const otherUserId = chat.participant_1_id === user.id 
             ? chat.participant_2_id 
@@ -456,40 +449,6 @@ export const PrivateChatWithReply: React.FC = () => {
     try {
       setSendingMessage(true);
 
-      // Prima di inviare il messaggio, controlla se la chat è stata eliminata da qualcuno
-      // e riattivala se necessario
-      console.log('🔍 Checking if chat needs reactivation for chat:', selectedChat.id);
-      const { data: chatData } = await supabase
-        .from('private_chats')
-        .select('deleted_by_participant_1, deleted_by_participant_2, participant_1_id, participant_2_id')
-        .eq('id', selectedChat.id)
-        .single();
-
-      console.log('🔍 Chat data:', chatData);
-
-      if (chatData && (chatData.deleted_by_participant_1 || chatData.deleted_by_participant_2)) {
-        console.log('🔄 Chat was deleted by someone, reactivating before sending message...');
-        console.log('🔄 Deleted by participant 1:', chatData.deleted_by_participant_1);
-        console.log('🔄 Deleted by participant 2:', chatData.deleted_by_participant_2);
-        
-        const { error: reactivateError } = await supabase
-          .from('private_chats')
-          .update({ 
-            deleted_by_participant_1: false,
-            deleted_by_participant_2: false,
-            last_message_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', selectedChat.id);
-
-        if (reactivateError) {
-          console.error('❌ Error reactivating chat:', reactivateError);
-        } else {
-          console.log('✅ Chat reactivated successfully');
-        }
-      } else {
-        console.log('ℹ️ Chat does not need reactivation');
-      }
 
       console.log('📤 Inserting message to database...');
       const { data, error } = await supabase
@@ -516,18 +475,6 @@ export const PrivateChatWithReply: React.FC = () => {
       }
 
       console.log('✅ Message inserted successfully:', data);
-      
-      // CRITICAL: Always update chat timestamp and ensure it's visible
-      console.log('🔄 Force updating chat timestamp to ensure visibility...');
-      await supabase
-        .from('private_chats')
-        .update({ 
-          last_message_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_by_participant_1: false,
-          deleted_by_participant_2: false
-        })
-        .eq('id', selectedChat.id);
       
       setNewMessage('');
       setReplyToMessage(null);
@@ -743,89 +690,6 @@ export const PrivateChatWithReply: React.FC = () => {
     }
   };
 
-  const deleteChatForMe = async () => {
-    if (!selectedChat) return;
-
-    try {
-      const isParticipant1 = selectedChat.participant_1_id === user.id;
-      const updateField = isParticipant1 ? 'deleted_by_participant_1' : 'deleted_by_participant_2';
-
-      const { error } = await supabase
-        .from('private_chats')
-        .update({ [updateField]: true })
-        .eq('id', selectedChat.id);
-
-      if (error) throw error;
-
-      // Rimuovi temporaneamente la chat dalla lista locale
-      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
-      setSelectedChat(null);
-      setMessages([]);
-      setShowDeleteChatDialog(false);
-
-      toast({
-        title: "Chat eliminata",
-        description: "La chat è stata eliminata dal tuo account"
-      });
-    } catch (error) {
-      console.error('Error deleting chat for me:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare la chat",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const deleteChatForBoth = async () => {
-    if (!selectedChat) return;
-
-    try {
-      // Prima elimina tutti i messaggi della chat per entrambi gli utenti
-      const { error: messagesError } = await supabase
-        .from('private_messages')
-        .update({ 
-          deleted_by_sender: true,
-          deleted_by_recipient: true,
-          deleted_at: new Date().toISOString()
-        })
-        .eq('chat_id', selectedChat.id);
-
-      if (messagesError) {
-        console.error('Error deleting messages:', messagesError);
-        // Non fermiamo l'operazione se fallisce la cancellazione dei messaggi
-      }
-
-      // Poi elimina la chat per entrambi
-      const { error } = await supabase
-        .from('private_chats')
-        .update({ 
-          deleted_by_participant_1: true,
-          deleted_by_participant_2: true,
-          deleted_at: new Date().toISOString()
-        })
-        .eq('id', selectedChat.id);
-
-      if (error) throw error;
-
-      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
-      setSelectedChat(null);
-      setMessages([]);
-      setShowDeleteChatDialog(false);
-
-      toast({
-        title: "Chat eliminata",
-        description: "La chat e tutti i messaggi sono stati eliminati per entrambi gli utenti"
-      });
-    } catch (error) {
-      console.error('Error deleting chat for both:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare la chat",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     console.log('⌨️ Key pressed:', e.key, 'shiftKey:', e.shiftKey);
@@ -857,7 +721,7 @@ export const PrivateChatWithReply: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              Chat Private ({chats.filter(chat => !chat.hiddenForUser).length})
+              Chat Private ({chats.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -872,7 +736,7 @@ export const PrivateChatWithReply: React.FC = () => {
                 </div>
               ) : (
                 <div className="divide-y">
-                   {chats.filter(chat => !chat.hiddenForUser).map((chat) => (
+                   {chats.map((chat) => (
                      <div
                        key={chat.id}
                        className={`p-4 cursor-pointer transition-colors relative ${
@@ -901,19 +765,6 @@ export const PrivateChatWithReply: React.FC = () => {
                                  <Badge variant="secondary" className="text-xs">
                                    {chat.unread_count}
                                  </Badge>
-                               )}
-                               {selectedChat?.id === chat.id && (
-                                 <Button
-                                   variant="ghost"
-                                   size="sm"
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     setShowDeleteChatDialog(true);
-                                   }}
-                                   className="text-destructive hover:text-destructive h-6 w-6 p-0"
-                                 >
-                                   <Trash2 className="h-3 w-3" />
-                                 </Button>
                                )}
                              </div>
                            </div>
@@ -1147,33 +998,6 @@ export const PrivateChatWithReply: React.FC = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Delete Chat Dialog */}
-      <AlertDialog open={showDeleteChatDialog} onOpenChange={setShowDeleteChatDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Chat</AlertDialogTitle>
-            <AlertDialogDescription>
-              Come vuoi eliminare questa chat?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <Button
-              variant="outline"
-              onClick={deleteChatForMe}
-              className="w-full sm:w-auto"
-            >
-              Elimina solo per me
-            </Button>
-            <AlertDialogAction
-              onClick={deleteChatForBoth}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
-            >
-              Elimina per entrambi
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
