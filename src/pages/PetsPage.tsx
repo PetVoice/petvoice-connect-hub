@@ -303,7 +303,7 @@ const PetsPage: React.FC = () => {
         <Dialog open={showForm} onOpenChange={setShowForm}>
           <DialogTrigger asChild>
             <Button 
-              variant="outline"
+              variant="default"
               onClick={() => setShowForm(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
