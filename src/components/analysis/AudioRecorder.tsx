@@ -334,7 +334,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mic className="h-5 w-5 text-green-500" />
+          <Mic className="h-5 w-5 text-primary" />
           Registrazione Diretta
         </CardTitle>
         <CardDescription>
@@ -365,7 +365,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "bg-green-500 hover:bg-green-600 hover:scale-105 shadow-lg"
+                  : "bg-primary hover:bg-primary/90 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -402,7 +402,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {audioLevels.map((level, index) => (
                 <div
                   key={index}
-                  className="bg-green-500 rounded-sm transition-all duration-100"
+                  className="bg-primary rounded-sm transition-all duration-100"
                   style={{
                     width: '8px',
                     height: `${Math.max(4, (level / 100) * 60)}px`,
@@ -478,7 +478,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
                 Analizza
@@ -505,16 +505,16 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         )}
 
         {/* Help Section */}
-        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-          <h4 className="font-medium mb-3 text-green-800 dark:text-green-200">🎯 Cosa Analizza</h4>
-          <div className="text-sm text-green-700 dark:text-green-300 space-y-2">
+        <div className="bg-muted/30 p-4 rounded-lg border border-border">
+          <h4 className="font-medium mb-3 text-foreground">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-muted-foreground space-y-2">
             <p>• <strong>Tono emotivo:</strong> Gioia, stress, paura dalle vocalizzazioni</p>
             <p>• <strong>Intensità:</strong> Livello di eccitazione o calma del pet</p>
             <p>• <strong>Frequenza:</strong> Pattern vocali caratteristici di ogni emozione</p>
           </div>
           
-          <h4 className="font-medium mb-2 mt-4 text-green-800 dark:text-green-200">💡 Consigli per il Miglior Risultato</h4>
-          <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+          <h4 className="font-medium mb-2 mt-4 text-foreground">💡 Consigli per il Miglior Risultato</h4>
+          <div className="text-sm text-muted-foreground space-y-1">
             <p>• Registra quando il pet vocalizza naturalmente</p>
             <p>• Mantieni il microfono a 30-50cm dal pet</p>
             <p>• Scegli un ambiente silenzioso senza echi</p>

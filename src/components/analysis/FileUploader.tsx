@@ -201,7 +201,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5 text-blue-500" />
+          <Upload className="h-5 w-5 text-primary" />
           Upload File Audio/Video
         </CardTitle>
         <CardDescription>
@@ -213,7 +213,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <div
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
-            dragActive ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20" : "border-muted-foreground/25 hover:border-blue-500/50",
+            dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50",
             isProcessing && "pointer-events-none opacity-50"
           )}
           onDragEnter={handleDrag}
@@ -224,7 +224,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         >
           <Upload className={cn(
             "h-12 w-12 mx-auto mb-4 transition-colors",
-            dragActive ? "text-blue-500" : "text-muted-foreground"
+            dragActive ? "text-primary" : "text-muted-foreground"
           )} />
           <p className="text-lg font-medium mb-2">
             {dragActive ? "Rilascia i file qui" : "Carica i tuoi file"}
@@ -313,7 +313,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               <Button 
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                className="w-full bg-primary hover:bg-primary/90 text-white"
               >
                 {isProcessing ? (
                   <>
@@ -352,16 +352,16 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         )}
 
         {/* Help Section */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-          <h4 className="font-medium mb-3 text-blue-800 dark:text-blue-200">🎯 Cosa Analizza</h4>
-          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+        <div className="bg-muted/30 p-4 rounded-lg border border-border">
+          <h4 className="font-medium mb-3 text-foreground">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-muted-foreground space-y-2">
             <p>• <strong>Audio:</strong> Tono, frequenza e intensità delle vocalizzazioni del pet</p>
             <p>• <strong>Video:</strong> Movimenti corporei, postura e espressioni facciali</p>
             <p>• <strong>Contesto:</strong> Ambiente circostante e situazioni scatenanti</p>
           </div>
           
-          <h4 className="font-medium mb-2 mt-4 text-blue-800 dark:text-blue-200">💡 Consigli per il Miglior Risultato</h4>
-          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+          <h4 className="font-medium mb-2 mt-4 text-foreground">💡 Consigli per il Miglior Risultato</h4>
+          <div className="text-sm text-muted-foreground space-y-1">
             <p>• Registra in momenti di emozione spontanea del pet</p>
             <p>• Mantieni una distanza di 1-2 metri per audio chiaro</p>
             <p>• Evita rumori di fondo o distrazioni durante la registrazione</p>

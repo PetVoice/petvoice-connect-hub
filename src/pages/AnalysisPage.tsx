@@ -482,40 +482,40 @@ const AnalysisPage: React.FC = () => {
               <p className="text-muted-foreground">Seleziona il metodo di analisi più adatto alla tua situazione</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700 min-h-[160px] flex flex-col justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
                 <div>
-                  <Upload className="h-10 w-10 text-blue-500 mx-auto mb-4" />
-                  <p className="font-bold text-lg mb-2">Upload File</p>
+                  <Upload className="h-8 w-8 text-primary mx-auto mb-3" />
+                  <p className="font-medium text-base mb-1">Upload File</p>
                 </div>
-                <p className="text-sm text-blue-700 dark:text-blue-300">Hai già registrazioni o video del tuo pet</p>
+                <p className="text-xs text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-xl border border-green-200 dark:border-green-700 min-h-[160px] flex flex-col justify-between">
+              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
                 <div>
-                  <Mic className="h-10 w-10 text-green-500 mx-auto mb-4" />
-                  <p className="font-bold text-lg mb-2">Registra Ora</p>
+                  <Mic className="h-8 w-8 text-primary mx-auto mb-3" />
+                  <p className="font-medium text-base mb-1">Registra Ora</p>
                 </div>
-                <p className="text-sm text-green-700 dark:text-green-300">Vuoi catturare l'emozione in tempo reale</p>
+                <p className="text-xs text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700 min-h-[160px] flex flex-col justify-between">
+              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
                 <div>
-                  <FileText className="h-10 w-10 text-purple-500 mx-auto mb-4" />
-                  <p className="font-bold text-lg mb-2">Descrivi Testo</p>
+                  <FileText className="h-8 w-8 text-primary mx-auto mb-3" />
+                  <p className="font-medium text-base mb-1">Descrivi Testo</p>
                 </div>
-                <p className="text-sm text-purple-700 dark:text-purple-300">Preferisci descrivere il comportamento</p>
+                <p className="text-xs text-muted-foreground">Preferisci descrivere il comportamento</p>
               </div>
               
-              <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 rounded-xl border border-pink-200 dark:border-orange-700 min-h-[160px] flex flex-col justify-between">
+              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-center gap-2 mb-4">
-                    <Heart className="h-5 w-5 text-red-500" />
-                    <Brain className="h-5 w-5 text-primary" />
+                  <div className="flex justify-center gap-1 mb-3">
+                    <Heart className="h-4 w-4 text-primary" />
+                    <Brain className="h-4 w-4 text-primary" />
                   </div>
-                  <p className="font-bold text-lg mb-2">Analisi Doppia</p>
+                  <p className="font-medium text-base mb-1">Analisi Doppia</p>
                 </div>
-                <p className="text-sm text-pink-700 dark:text-pink-300">Vuoi analizzare anche le tue emozioni</p>
+                <p className="text-xs text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
               </div>
             </div>
           </Card>

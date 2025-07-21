@@ -81,7 +81,7 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-purple-500" />
+          <Brain className="h-5 w-5 text-primary" />
           Analisi Comportamentale Testuale
         </CardTitle>
         <CardDescription>
@@ -108,7 +108,7 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
         <Button 
           onClick={handleAnalyze} 
           disabled={!text.trim() || isAnalyzing || !selectedPet}
-          className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+          className="w-full bg-primary hover:bg-primary/90 text-white"
         >
           {isAnalyzing ? (
             <>
@@ -130,16 +130,16 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
         )}
 
         {/* Help Section */}
-        <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-          <h4 className="font-medium mb-3 text-purple-800 dark:text-purple-200">🎯 Cosa Analizza</h4>
-          <div className="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+        <div className="bg-muted/30 p-4 rounded-lg border border-border">
+          <h4 className="font-medium mb-3 text-foreground">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-muted-foreground space-y-2">
             <p>• <strong>Comportamenti:</strong> Azioni specifiche e pattern comportamentali</p>
             <p>• <strong>Contesto emotivo:</strong> Situazioni e trigger che influenzano l'umore</p>
             <p>• <strong>Linguaggio corporeo:</strong> Postura, movimenti e segnali fisici</p>
           </div>
           
-          <h4 className="font-medium mb-2 mt-4 text-purple-800 dark:text-purple-200">💡 Consigli per il Miglior Risultato</h4>
-          <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+          <h4 className="font-medium mb-2 mt-4 text-foreground">💡 Consigli per il Miglior Risultato</h4>
+          <div className="text-sm text-muted-foreground space-y-1">
             <p>• Descrivi comportamenti specifici, non interpretazioni</p>
             <p>• Includi il contesto: dove, quando, cosa è successo prima</p>
             <p>• Menziona cambiamenti rispetto al comportamento normale</p>

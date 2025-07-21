@@ -221,7 +221,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
               className={`w-20 h-20 rounded-full ${
                 isRecording 
                   ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                  : 'bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600'
+                  : 'bg-primary hover:bg-primary/90'
               }`}
             >
               {isRecording ? (
@@ -284,7 +284,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
             <Button 
               onClick={analyzeRecording}
               disabled={isAnalyzing || !selectedPet}
-              className="w-full bg-gradient-to-r from-red-500 to-blue-500 hover:from-red-600 hover:to-blue-600 text-white"
+              className="w-full bg-primary hover:bg-primary/90 text-white"
             >
               {isAnalyzing ? (
                 <>
@@ -318,11 +318,11 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
         )}
 
         {/* Help Section */}
-        <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
-          <h4 className="font-medium mb-3 text-gray-800 dark:text-gray-200">🎯 Cosa Analizza</h4>
-          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+        <div className="bg-muted/30 p-4 rounded-lg border border-border">
+          <h4 className="font-medium mb-3 text-foreground">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-muted-foreground space-y-2">
             <div className="flex items-center gap-2">
-              <Heart className="h-4 w-4 text-red-500" />
+              <Heart className="h-4 w-4 text-destructive" />
               <span><strong>Emozione del pet:</strong> Dedotta dalle tue descrizioni comportamentali</span>
             </div>
             <div className="flex items-center gap-2">
@@ -332,8 +332,8 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
             <p>• <strong>Correlazione emotiva:</strong> Come le tue emozioni influenzano quelle del pet</p>
           </div>
           
-          <h4 className="font-medium mb-2 mt-4 text-gray-800 dark:text-gray-200">💡 Consigli per il Miglior Risultato</h4>
-          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <h4 className="font-medium mb-2 mt-4 text-foreground">💡 Consigli per il Miglior Risultato</h4>
+          <div className="text-sm text-muted-foreground space-y-1">
             <p>• Parla naturalmente, senza forzare il tono di voce</p>
             <p>• Descrivi sia quello che vedi che quello che provi</p>
             <p>• Sii spontaneo: le emozioni autentiche danno risultati migliori</p>
