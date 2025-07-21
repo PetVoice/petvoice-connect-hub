@@ -149,7 +149,15 @@ serve(async (req) => {
         let subscriptionTier = 'premium'; // Solo Premium disponibile
 
         const isActive = subscription.status === 'active';
-        const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        
+        // ⚠️ SAFE TIMESTAMP CONVERSION - evita "Invalid time value"
+        const subscriptionEnd = subscription.current_period_end 
+          ? new Date(subscription.current_period_end * 1000).toISOString()
+          : null;
+          
+        const currentPeriodStart = subscription.current_period_start 
+          ? new Date(subscription.current_period_start * 1000).toISOString()
+          : null;
 
         // Ottieni user_id dai metadata della subscription o cerca per email
         let userId = subscription.metadata?.user_id || null;
@@ -175,14 +183,14 @@ serve(async (req) => {
 
         await supabaseClient.from("subscribers").upsert({
           email: customer.email,
-          user_id: userId, // 🔥 IMPORTANTE: aggiunge user_id
+          user_id: userId,
           stripe_customer_id: subscription.customer,
           subscribed: isActive,
-          subscription_status: subscription.status, // 🔥 IMPORTANTE: aggiunge subscription_status per il trigger!
+          subscription_status: subscription.status,
           subscription_tier: isActive ? 'premium' : null,
           subscription_end: subscriptionEnd,
-          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(), // 🔥 Per i rinnovi
-          current_period_end: subscriptionEnd, // 🔥 Per i rinnovi
+          current_period_start: currentPeriodStart,
+          current_period_end: subscriptionEnd,
           stripe_subscription_id: subscription.id,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'email' });
