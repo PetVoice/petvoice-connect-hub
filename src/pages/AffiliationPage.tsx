@@ -494,6 +494,27 @@ export default function AffiliationPage() {
             <span className="inline-block w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse" title="Aggiornamento in tempo reale"></span>
           </p>
         </div>
+        
+        {/* Bottone temporaneo per testare conversione referral */}
+        <Button 
+          onClick={convertPendingReferrals}
+          disabled={converting}
+          variant="outline"
+          size="sm"
+          className="bg-orange-50 border-orange-200 text-orange-800 hover:bg-orange-100"
+        >
+          {converting ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              Convertendo...
+            </>
+          ) : (
+            <>
+              <Zap className="h-4 w-4 mr-2" />
+              Test Conversioni
+            </>
+          )}
+        </Button>
       </div>
 
       {/* My Referrer Card */}
@@ -519,30 +540,9 @@ export default function AffiliationPage() {
                   </div>
                   <div>
                     <p className="font-medium">{myReferrer.display_name}</p>
-                    <p className="text-xs text-muted-foreground">Referente PetVoice</p>
-        </div>
-        
-        {/* Bottone temporaneo per testare conversione referral */}
-        <Button 
-          onClick={convertPendingReferrals}
-          disabled={converting}
-          variant="outline"
-          size="sm"
-          className="bg-orange-50 border-orange-200 text-orange-800 hover:bg-orange-100"
-        >
-          {converting ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Convertendo...
-            </>
-          ) : (
-            <>
-              <Zap className="h-4 w-4 mr-2" />
-              Test Conversioni
-            </>
-          )}
-        </Button>
-      </div>
+                     <p className="text-xs text-muted-foreground">Referente PetVoice</p>
+                   </div>
+                 </div>
                 <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                   {myReferrer.referral_code}
                 </Badge>
