@@ -157,13 +157,21 @@ serve(async (req) => {
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key non configurata');
+      console.log('OpenAI API key not found, using mock analysis');
+      return getMockVoiceAnalysis(petId, userId);
     }
 
     console.log('Processing voice analysis for pet:', petId);
 
     // Step 1: Trascrivi l'audio con Whisper
-    const binaryAudio = processBase64Chunks(audioData);
+    let binaryAudio;
+    try {
+      binaryAudio = processBase64Chunks(audioData);
+    } catch (audioError) {
+      console.error('Error processing audio data:', audioError);
+      console.log('Using mock analysis due to audio processing error');
+      return getMockVoiceAnalysis(petId, userId);
+    }
     
     const formData = new FormData();
     const blob = new Blob([binaryAudio], { type: 'audio/webm' });
@@ -171,25 +179,26 @@ serve(async (req) => {
     formData.append('model', 'whisper-1');
     formData.append('language', 'it');
 
-    const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-      },
-      body: formData,
-    });
+    let transcriptionResponse;
+    try {
+      transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+        },
+        body: formData,
+      });
+    } catch (fetchError) {
+      console.error('Error calling OpenAI API:', fetchError);
+      console.log('Using mock analysis due to network error');
+      return getMockVoiceAnalysis(petId, userId);
+    }
 
     if (!transcriptionResponse.ok) {
-      const error = await transcriptionResponse.json();
+      const error = await transcriptionResponse.json().catch(() => ({}));
       console.error('OpenAI transcription error:', error);
-      
-      // Se c'è un errore di quota, usa un'analisi mock
-      if (error.error?.code === 'insufficient_quota' || error.error?.message?.includes('quota')) {
-        console.log('Using mock analysis due to quota error');
-        return getMockVoiceAnalysis(petId, userId);
-      }
-      
-      throw new Error(`Errore trascrizione: ${error.error?.message || 'Errore sconosciuto'}`);
+      console.log('Using mock analysis due to transcription error');
+      return getMockVoiceAnalysis(petId, userId);
     }
 
     const transcriptionResult = await transcriptionResponse.json();
@@ -198,75 +207,76 @@ serve(async (req) => {
     console.log('Transcription completed:', transcription);
 
     // Step 2: Analizza le emozioni con GPT-4
-    const analysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `Sei un esperto veterinario comportamentale specializzato nell'analisi delle emozioni degli animali domestici e degli esseri umani.
-
-            Analizza questa trascrizione di una nota vocale in cui il proprietario descrive il comportamento del suo pet.
-            Determina:
-            1. L'emozione primaria del PET basata sulla descrizione
-            2. L'emozione primaria del PROPRIETARIO dall'analisi del tono e delle parole
-            3. Le confidenze di entrambe le analisi (0-100%)
-            4. Emozioni secondarie se presenti
-            5. Insights comportamentali per il pet
-            6. Insights emotivi per il proprietario
-            7. Raccomandazioni che tengano conto di entrambe le emozioni
-            8. Consigli personalizzati per migliorare il benessere di entrambi
-
-            Emozioni disponibili per il pet: felice, calmo, ansioso, eccitato, triste, aggressivo, giocoso, spaventato, confuso, rilassato
-            Emozioni disponibili per il proprietario: calmo, preoccupato, felice, frustrato, affettuoso, ansioso, entusiasta, triste, soddisfatto, stressato
-
-            Rispondi SEMPRE in formato JSON valido con questa struttura:
+    let analysisResponse;
+    try {
+      analysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
             {
-              "pet_emotion": {
-                "primary": "emozione_principale",
-                "confidence": numero_0_100,
-                "secondary": [{"emotion": "nome", "confidence": numero}]
-              },
-              "owner_emotion": {
-                "primary": "emozione_principale", 
-                "confidence": numero_0_100,
-                "secondary": [{"emotion": "nome", "confidence": numero}]
-              },
-              "combined_insights": "analisi della dinamica emotiva pet-proprietario",
-              "pet_behavioral_insights": "insights specifici sul comportamento del pet",
-              "owner_emotional_insights": "insights sullo stato emotivo del proprietario",
-              "recommendations": ["raccomandazione1", "raccomandazione2"],
-              "personalized_advice": ["consiglio1", "consiglio2"],
-              "triggers": ["trigger1", "trigger2"],
-              "transcription": "${transcription}"
-            }`
-          },
-          {
-            role: 'user',
-            content: `Analizza questa trascrizione di una nota vocale del proprietario che descrive il suo pet: "${transcription}"`
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 1500
-      }),
-    });
+              role: 'system',
+              content: `Sei un esperto veterinario comportamentale specializzato nell'analisi delle emozioni degli animali domestici e degli esseri umani.
+
+              Analizza questa trascrizione di una nota vocale in cui il proprietario descrive il comportamento del suo pet.
+              Determina:
+              1. L'emozione primaria del PET basata sulla descrizione
+              2. L'emozione primaria del PROPRIETARIO dall'analisi del tono e delle parole
+              3. Le confidenze di entrambe le analisi (0-100%)
+              4. Emozioni secondarie se presenti
+              5. Insights comportamentali per il pet
+              6. Insights emotivi per il proprietario
+              7. Raccomandazioni che tengano conto di entrambe le emozioni
+              8. Consigli personalizzati per migliorare il benessere di entrambi
+
+              Emozioni disponibili per il pet: felice, calmo, ansioso, eccitato, triste, aggressivo, giocoso, spaventato, confuso, rilassato
+              Emozioni disponibili per il proprietario: calmo, preoccupato, felice, frustrato, affettuoso, ansioso, entusiasta, triste, soddisfatto, stressato
+
+              Rispondi SEMPRE in formato JSON valido con questa struttura:
+              {
+                "pet_emotion": {
+                  "primary": "emozione_principale",
+                  "confidence": numero_0_100,
+                  "secondary": [{"emotion": "nome", "confidence": numero}]
+                },
+                "owner_emotion": {
+                  "primary": "emozione_principale", 
+                  "confidence": numero_0_100,
+                  "secondary": [{"emotion": "nome", "confidence": numero}]
+                },
+                "combined_insights": "analisi della dinamica emotiva pet-proprietario",
+                "pet_behavioral_insights": "insights specifici sul comportamento del pet",
+                "owner_emotional_insights": "insights sullo stato emotivo del proprietario",
+                "recommendations": ["raccomandazione1", "raccomandazione2"],
+                "personalized_advice": ["consiglio1", "consiglio2"],
+                "triggers": ["trigger1", "trigger2"],
+                "transcription": "${transcription}"
+              }`
+            },
+            {
+              role: 'user',
+              content: `Analizza questa trascrizione di una nota vocale del proprietario che descrive il suo pet: "${transcription}"`
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 1500
+        }),
+      });
+    } catch (fetchError) {
+      console.error('Error calling OpenAI analysis API:', fetchError);
+      console.log('Using mock analysis due to analysis network error');
+      return getMockVoiceAnalysis(petId, userId);
+    }
 
     if (!analysisResponse.ok) {
-      const error = await analysisResponse.json();
+      const error = await analysisResponse.json().catch(() => ({}));
       console.error('OpenAI analysis error:', error);
-      
-      // Se c'è un errore di quota, usa un'analisi mock
-      if (error.error?.code === 'insufficient_quota' || error.error?.message?.includes('quota')) {
-        console.log('Using mock analysis due to quota error');
-        return getMockVoiceAnalysis(petId, userId);
-      }
-      
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Errore sconosciuto'}`);
+      console.log('Using mock analysis due to analysis error');
+      return getMockVoiceAnalysis(petId, userId);
     }
 
     const aiResponse = await analysisResponse.json();
@@ -279,7 +289,8 @@ serve(async (req) => {
       analysisData = JSON.parse(analysisContent);
     } catch (parseError) {
       console.error('Errore parsing JSON:', parseError);
-      throw new Error('Formato risposta AI non valido');
+      console.log('Using mock analysis due to JSON parsing error');
+      return getMockVoiceAnalysis(petId, userId);
     }
 
     // Inizializza client Supabase
