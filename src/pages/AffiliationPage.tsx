@@ -324,7 +324,6 @@ export default function AffiliationPage() {
     if (!referralProfile) return null;
     
     const conversions = referralProfile.total_conversions;
-    console.log('Debug - total_conversions:', conversions);
     
     // Calculate tier based on total conversions
     let currentTierName = 'Bronzo';
@@ -338,13 +337,9 @@ export default function AffiliationPage() {
       currentTierName = 'Bronzo';
     }
     
-    console.log('Debug - calculated tier:', currentTierName);
-    
     const tier = TIER_CONFIG[currentTierName as keyof typeof TIER_CONFIG];
-    console.log('Debug - tier config:', tier);
     
     if (!tier) {
-      console.error('CRITICAL: tier is undefined!');
       return {
         minConversions: 0,
         color: 'bg-amber-600',
@@ -373,11 +368,10 @@ export default function AffiliationPage() {
     
     if (!user?.id) return;
     
-    // Polling automatico ogni 10 secondi per verificare nuovi referral
+    // Polling automatico ogni 30 secondi per verificare nuovi referral
     const pollingInterval = setInterval(() => {
-      console.log('🔄 Auto-refresh referral data...');
       loadReferralData(true);
-    }, 10000);
+    }, 30000);
     
     // Canale per aggiornamenti real-time su TUTTE le tabelle referral
     const channel = supabase
@@ -391,8 +385,6 @@ export default function AffiliationPage() {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('🔄 Real-time update - referrer_stats:', payload);
-          // Passa true per indicare che è un aggiornamento real-time
           loadReferralData(true);
         }
       )
@@ -405,7 +397,6 @@ export default function AffiliationPage() {
           filter: `referrer_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('🔄 Real-time update - referrals:', payload);
           loadReferralData(true);
         }
       )
@@ -418,13 +409,10 @@ export default function AffiliationPage() {
           filter: `referrer_id=eq.${user.id}`
         },
         (payload) => {
-          console.log('🔄 Real-time update - referral_commissions:', payload);
           loadReferralData(true);
         }
       )
-      .subscribe((status) => {
-        console.log('📡 Real-time subscription status:', status);
-      });
+      .subscribe();
     
     return () => {
       clearInterval(pollingInterval);
