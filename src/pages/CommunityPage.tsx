@@ -120,12 +120,50 @@ const CommunityPage = () => {
   useEffect(() => {
     if (user?.id) {
       loadMyGroups();
+      setupRealtimeSubscription(); // Aggiungi subscription per aggiornamenti in tempo reale
     }
   }, [user?.id]);
   
   useEffect(() => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
+
+  // Subscription per aggiornare i conteggi in tempo reale
+  const setupRealtimeSubscription = () => {
+    const channel = supabase
+      .channel('community-messages-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'community_messages'
+        },
+        (payload) => {
+          const newMessage = payload.new;
+          console.log('📨 New community message received:', newMessage);
+          
+          // Se il messaggio non è dell'utente corrente, aggiorna il conteggio
+          if (newMessage.user_id !== user.id) {
+            updateUnreadCountForGroup(newMessage.channel_name);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  // Aggiorna il conteggio per un singolo gruppo
+  const updateUnreadCountForGroup = async (channelName) => {
+    const count = await calculateUnreadCount(channelName);
+    setUnreadCounts(prev => ({
+      ...prev,
+      [channelName]: count
+    }));
+  };
 
   // Calcola i messaggi non letti per un gruppo specifico (stessa logica delle chat private)
   const calculateUnreadCount = async (channelName) => {
