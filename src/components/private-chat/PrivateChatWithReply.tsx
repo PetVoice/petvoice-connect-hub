@@ -125,7 +125,7 @@ export const PrivateChatWithReply: React.FC = () => {
   };
 
   const setupRealtimeSubscription = () => {
-    const channel = supabase
+    const messagesChannel = supabase
       .channel('private-messages-realtime')
       .on(
         'postgres_changes',
@@ -169,8 +169,30 @@ export const PrivateChatWithReply: React.FC = () => {
       )
       .subscribe();
 
+    // Subscription per aggiornamenti alle chat (riattivazioni, ecc.)
+    const chatsChannel = supabase
+      .channel('private-chats-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'private_chats'
+        },
+        (payload) => {
+          const updatedChat = payload.new as any;
+          // Verifica se l'utente corrente partecipa a questa chat
+          if (updatedChat.participant_1_id === user?.id || updatedChat.participant_2_id === user?.id) {
+            console.log('🔄 Chat updated via realtime, reloading chats...');
+            loadChats();
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(chatsChannel);
     };
   };
 

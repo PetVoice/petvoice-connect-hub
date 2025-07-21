@@ -431,7 +431,8 @@ export const PetMatchingIntelligence: React.FC = () => {
             .from('private_chats')
             .update({ 
               deleted_by_participant_1: false,
-              deleted_by_participant_2: false 
+              deleted_by_participant_2: false,
+              last_message_at: new Date().toISOString() // Forza l'aggiornamento per il real-time
             })
             .eq('id', existingChat.id);
 
