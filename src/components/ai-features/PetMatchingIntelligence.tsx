@@ -411,33 +411,110 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // For now, just create a simple activity log entry for the connection request
-      // This avoids complex channel subscriptions and RLS issues
-      const { error: activityError } = await supabase
+      // Create a unique channel name for this connection
+      const channelName = `pet-match-${user.id}-${selectedTwin.user_id}`;
+      
+      // First, create or get the private channel
+      const { data: existingChannel } = await supabase
+        .from('community_channels')
+        .select('id')
+        .eq('name', channelName)
+        .single();
+
+      let channelId = existingChannel?.id;
+
+      if (!channelId) {
+        // Create new private channel
+        const { data: newChannel, error: channelError } = await supabase
+          .from('community_channels')
+          .insert({
+            name: channelName,
+            description: `Chat privata per connessione pet: ${selectedTwin.name}`,
+            channel_type: 'pet_type', // Using existing type
+            is_active: true,
+            emoji: '💬'
+          })
+          .select('id')
+          .single();
+
+        if (channelError) {
+          console.error('Error creating channel:', channelError);
+          throw channelError;
+        }
+        channelId = newChannel.id;
+      }
+
+      // Subscribe both users to the channel
+      const subscriptions = [
+        {
+          user_id: user.id,
+          channel_id: channelId,
+          channel_name: channelName
+        },
+        {
+          user_id: selectedTwin.user_id,
+          channel_id: channelId,
+          channel_name: channelName
+        }
+      ];
+
+      const { error: subscriptionError } = await supabase
+        .from('user_channel_subscriptions')
+        .upsert(subscriptions, {
+          onConflict: 'user_id,channel_id'
+        });
+
+      if (subscriptionError) {
+        console.error('Error creating subscriptions:', subscriptionError);
+        throw subscriptionError;
+      }
+
+      // Send initial connection message
+      const { error: messageError } = await supabase
+        .from('community_messages')
+        .insert({
+          channel_id: channelId,
+          channel_name: channelName,
+          user_id: user.id,
+          content: `👋 Ciao! Ho visto che abbiamo pet simili. Il mio ${selectedTwin.name} potrebbe essere un ottimo compagno per il tuo!`,
+          message_type: 'connection_request',
+          metadata: {
+            pet_id: petId,
+            pet_name: selectedTwin.name,
+            target_user_id: selectedTwin.user_id,
+            connection_type: 'pet_match',
+            match_score: selectedTwin.matchScore
+          }
+        });
+
+      if (messageError) {
+        console.error('Error creating message:', messageError);
+        throw messageError;
+      }
+
+      // Log the activity
+      await supabase
         .from('activity_log')
         .insert({
           user_id: user.id,
           pet_id: petId,
           activity_type: 'connection_request_sent',
-          activity_description: `Richiesta di connessione inviata per ${selectedTwin.name}`,
+          activity_description: `Chat creata con proprietario di ${selectedTwin.name}`,
           metadata: {
+            channel_id: channelId,
+            channel_name: channelName,
             target_pet_id: selectedTwin.id,
-            target_pet_name: selectedTwin.name,
-            target_user_id: selectedTwin.user_id || 'unknown',
-            match_score: selectedTwin.matchScore,
-            connection_type: 'pet_match'
+            target_user_id: selectedTwin.user_id
           }
         });
 
-      if (activityError) {
-        console.error('Error creating activity log:', activityError);
-        throw activityError;
-      }
-
       toast({
-        title: "Connessione inviata!",
-        description: `La richiesta di connessione è stata registrata per ${selectedTwin.name}.`,
+        title: "Chat creata!",
+        description: `Vai nella sezione Community per chattare con il proprietario di ${selectedTwin.name}.`,
       });
+
+      // Navigate to community section (you might want to add router navigation here)
+      
     } catch (error) {
       console.error('Connection error:', error);
       toast({
