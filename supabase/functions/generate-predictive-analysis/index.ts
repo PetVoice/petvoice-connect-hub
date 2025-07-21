@@ -247,28 +247,78 @@ Rispondi SOLO con JSON valido, senza altro testo.`;
 async function createBehaviorPredictions(supabase: any, petId: string, userId: string, analysis: any) {
   const predictions = [];
   
-  for (const behavior of analysis.predicted_behaviors || []) {
-    const prediction = {
-      user_id: userId,
-      pet_id: petId,
-      prediction_date: new Date().toISOString().split('T')[0],
-      prediction_window: 'next_7_days',
-      predicted_behaviors: { [behavior.type || 'general']: behavior },
-      confidence_scores: { [behavior.type || 'general']: behavior.confidence || 0.7 },
-      contributing_factors: {
-        diary_entries_analyzed: analysis.diary_entries_count || 0,
-        health_metrics_analyzed: analysis.health_metrics_count || 0,
-        patterns_identified: analysis.behavioral_patterns?.length || 0
-      }
-    };
-    
-    const { data, error } = await supabase
-      .from('behavior_predictions')
-      .insert([prediction])
-      .select()
-      .single();
+  // Se l'AI ha generato comportamenti previsti, crea le prediction entries
+  if (analysis.predicted_behaviors && analysis.predicted_behaviors.length > 0) {
+    for (const behavior of analysis.predicted_behaviors) {
+      const prediction = {
+        user_id: userId,
+        pet_id: petId,
+        prediction_date: new Date().toISOString().split('T')[0],
+        prediction_window: 'next_7_days',
+        predicted_behaviors: {
+          behavior_type: typeof behavior === 'string' ? behavior : behavior.type || 'general',
+          description: typeof behavior === 'string' ? behavior : behavior.description || behavior,
+          likelihood: typeof behavior === 'object' && behavior.likelihood ? behavior.likelihood : 'medium'
+        },
+        confidence_scores: {
+          overall: analysis.confidence_level || 0.7,
+          specific: typeof behavior === 'object' && behavior.confidence ? behavior.confidence : 0.7
+        },
+        contributing_factors: {
+          behavioral_patterns: analysis.behavioral_patterns?.map((p: any) => p.pattern || p) || [],
+          health_trends: analysis.health_trends || 'stable',
+          data_quality: analysis.diary_entries_count > 5 ? 'high' : 'medium'
+        }
+      };
       
-    if (!error && data) predictions.push(data);
+      const { data, error } = await supabase
+        .from('behavior_predictions')
+        .insert([prediction])
+        .select()
+        .single();
+        
+      if (!error && data) {
+        predictions.push(data);
+        console.log(`Created behavior prediction: ${behavior}`);
+      } else {
+        console.error('Error creating behavior prediction:', error);
+      }
+    }
+  } else {
+    // Se l'AI non ha generato comportamenti specifici, crea una prediction generica basata sui pattern
+    if (analysis.behavioral_patterns && analysis.behavioral_patterns.length > 0) {
+      const genericPrediction = {
+        user_id: userId,
+        pet_id: petId,
+        prediction_date: new Date().toISOString().split('T')[0],
+        prediction_window: 'next_7_days',
+        predicted_behaviors: {
+          behavior_type: 'pattern_based',
+          description: `Continuo monitoraggio dei pattern: ${analysis.behavioral_patterns.map((p: any) => p.pattern || p).join(', ')}`,
+          likelihood: 'medium'
+        },
+        confidence_scores: {
+          overall: analysis.confidence_level || 0.7,
+          pattern_based: Math.max(...(analysis.behavioral_patterns.map((p: any) => p.confidence || 0.7)))
+        },
+        contributing_factors: {
+          behavioral_patterns: analysis.behavioral_patterns?.map((p: any) => p.pattern || p) || [],
+          health_trends: analysis.health_trends || 'stable',
+          risk_score: analysis.overall_risk_score || 50
+        }
+      };
+      
+      const { data, error } = await supabase
+        .from('behavior_predictions')
+        .insert([genericPrediction])
+        .select()
+        .single();
+        
+      if (!error && data) {
+        predictions.push(data);
+        console.log('Created generic behavior prediction based on patterns');
+      }
+    }
   }
   
   return predictions;
