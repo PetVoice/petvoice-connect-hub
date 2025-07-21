@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MessageCircle, User, Clock, ArrowLeft, Send, X, Reply, CheckSquare, Square, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MessageCircle, User, Clock, ArrowLeft, Send, X, Reply, CheckSquare, Square, Trash2, MoreVertical } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -53,6 +54,7 @@ export const PrivateChatWithReply: React.FC = () => {
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [showSingleDeleteDialog, setShowSingleDeleteDialog] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [showChatDeleteDialog, setShowChatDeleteDialog] = useState(false);
   
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -309,14 +311,21 @@ export const PrivateChatWithReply: React.FC = () => {
         .eq('is_active', true)
         .order('last_message_at', { ascending: false });
 
+      // Filter out deleted chats for the current user
+      const filteredChats = (chatsData || []).filter(chat => {
+        const isParticipant1 = chat.participant_1_id === user.id;
+        return isParticipant1 
+          ? !chat.deleted_by_participant_1 
+          : !chat.deleted_by_participant_2;
+      });
+
       if (chatsError) {
         console.error('Error loading chats:', chatsError);
         return;
       }
 
       const chatsWithDetails = await Promise.all(
-        (chatsData || [])
-          .map(async (chat) => {
+        filteredChats.map(async (chat) => {
           const otherUserId = chat.participant_1_id === user.id 
             ? chat.participant_2_id 
             : chat.participant_1_id;
@@ -437,6 +446,76 @@ export const PrivateChatWithReply: React.FC = () => {
         .eq('is_read', false);
     } catch (error) {
       console.error('Error marking messages as read:', error);
+    }
+  };
+
+  // Chat deletion functions
+  const deleteChatForMe = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const isParticipant1 = selectedChat.participant_1_id === user.id;
+      const updateData = isParticipant1 
+        ? { deleted_by_participant_1: true }
+        : { deleted_by_participant_2: true };
+
+      const { error } = await supabase
+        .from('private_chats')
+        .update(updateData)
+        .eq('id', selectedChat.id);
+
+      if (error) throw error;
+
+      // Remove chat from local state
+      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
+      setSelectedChat(null);
+      setShowChatDeleteDialog(false);
+
+      toast({
+        title: "Chat eliminata",
+        description: "La chat è stata eliminata solo per te"
+      });
+    } catch (error) {
+      console.error('Error deleting chat for me:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la chat",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteChatForBoth = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_chats')
+        .update({ 
+          deleted_by_participant_1: true,
+          deleted_by_participant_2: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', selectedChat.id);
+
+      if (error) throw error;
+
+      // Remove chat from local state
+      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
+      setSelectedChat(null);
+      setShowChatDeleteDialog(false);
+
+      toast({
+        title: "Chat eliminata",
+        description: "La chat è stata eliminata per entrambi"
+      });
+    } catch (error) {
+      console.error('Error deleting chat for both:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la chat",
+        variant: "destructive"
+      });
     }
   };
 
@@ -866,18 +945,36 @@ export const PrivateChatWithReply: React.FC = () => {
                          <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
                          <p className="text-xs text-muted-foreground">Chat privata</p>
                        </div>
+                     </div>
+                     <div className="flex items-center gap-2">
+                       <Button
+                         variant="ghost"
+                         size="sm"
+                         onClick={toggleSelectionMode}
+                         className="text-muted-foreground hover:text-foreground"
+                       >
+                         <CheckSquare className="h-4 w-4 mr-2" />
+                         Seleziona
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => setShowChatDeleteDialog(true)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Elimina chat
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                     </div>
                     </div>
-                     <Button
-                       variant="ghost"
-                       size="sm"
-                       onClick={toggleSelectionMode}
-                       className="text-muted-foreground hover:text-foreground"
-                     >
-                       <CheckSquare className="h-4 w-4 mr-2" />
-                       Seleziona
-                     </Button>
-                  </div>
-                ) : (
+                 ) : (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Button
@@ -1063,6 +1160,34 @@ export const PrivateChatWithReply: React.FC = () => {
             </Button>
             <AlertDialogAction
               onClick={deleteSingleMessageForBoth}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+            >
+              Elimina per entrambi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Chat Delete Dialog */}
+      <AlertDialog open={showChatDeleteDialog} onOpenChange={setShowChatDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Elimina Chat</AlertDialogTitle>
+            <AlertDialogDescription>
+              Come vuoi eliminare questa conversazione?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={deleteChatForMe}
+              className="w-full sm:w-auto"
+            >
+              Elimina solo per me
+            </Button>
+            <AlertDialogAction
+              onClick={deleteChatForBoth}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
             >
               Elimina per entrambi
