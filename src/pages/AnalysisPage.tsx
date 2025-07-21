@@ -1157,40 +1157,40 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
 
           {/* Help Section */}
           <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-8 rounded-xl border border-primary/10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
               
               {/* Cosa Descrivere */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
                     <Lightbulb className="h-6 w-6 text-amber-600" />
                   </div>
                   <h3 className="text-xl font-bold text-amber-800 dark:text-amber-200">Cosa Descrivere</h3>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <span className="text-amber-600 font-bold mt-1">•</span>
-                    <span className="text-gray-700 dark:text-gray-300">Comportamento specifico osservato</span>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <span className="text-amber-600 font-bold mt-1 text-lg">•</span>
+                    <span className="text-gray-700 dark:text-gray-300 leading-relaxed">Comportamento specifico osservato</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <span className="text-amber-600 font-bold mt-1">•</span>
-                    <span className="text-gray-700 dark:text-gray-300">Contesto e situazione</span>
+                  <div className="flex items-start gap-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <span className="text-amber-600 font-bold mt-1 text-lg">•</span>
+                    <span className="text-gray-700 dark:text-gray-300 leading-relaxed">Contesto e situazione</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <span className="text-amber-600 font-bold mt-1">•</span>
-                    <span className="text-gray-700 dark:text-gray-300">Cambiamenti rispetto al solito</span>
+                  <div className="flex items-start gap-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <span className="text-amber-600 font-bold mt-1 text-lg">•</span>
+                    <span className="text-gray-700 dark:text-gray-300 leading-relaxed">Cambiamenti rispetto al solito</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <span className="text-amber-600 font-bold mt-1">•</span>
-                    <span className="text-gray-700 dark:text-gray-300">Postura e segnali del corpo</span>
+                  <div className="flex items-start gap-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <span className="text-amber-600 font-bold mt-1 text-lg">•</span>
+                    <span className="text-gray-700 dark:text-gray-300 leading-relaxed">Postura e segnali del corpo</span>
                   </div>
                 </div>
               </div>
 
               {/* Come Scegliere il Metodo Giusto */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div className="text-center">
-                  <div className="flex justify-center mb-3">
+                  <div className="flex justify-center mb-4">
                     <div className="p-3 bg-primary/20 rounded-xl">
                       <Brain className="h-6 w-6 text-primary" />
                     </div>
@@ -1198,38 +1198,38 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   <h3 className="text-xl font-bold">Come Scegliere il Metodo Giusto?</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                    <Upload className="h-8 w-8 text-blue-500 mx-auto mb-3" />
-                    <p className="font-bold text-lg mb-2">Upload File</p>
-                    <p className="text-sm text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
+                    <Upload className="h-10 w-10 text-blue-500 mx-auto mb-4" />
+                    <p className="font-bold text-lg mb-3">Upload File</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Hai già registrazioni o video del tuo pet</p>
                   </div>
                   
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                    <Mic className="h-8 w-8 text-green-500 mx-auto mb-3" />
-                    <p className="font-bold text-lg mb-2">Registra Ora</p>
-                    <p className="text-sm text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
+                  <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
+                    <Mic className="h-10 w-10 text-green-500 mx-auto mb-4" />
+                    <p className="font-bold text-lg mb-3">Registra Ora</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Vuoi catturare l'emozione in tempo reale</p>
                   </div>
                   
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                    <FileText className="h-8 w-8 text-purple-500 mx-auto mb-3" />
-                    <p className="font-bold text-lg mb-2">Descrivi Testo</p>
-                    <p className="text-sm text-muted-foreground">Preferisci descrivere il comportamento</p>
+                  <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
+                    <FileText className="h-10 w-10 text-purple-500 mx-auto mb-4" />
+                    <p className="font-bold text-lg mb-3">Descrivi Testo</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Preferisci descrivere il comportamento</p>
                   </div>
                   
-                  <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                    <div className="flex justify-center gap-2 mb-3">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <Brain className="h-4 w-4 text-primary" />
+                  <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
+                    <div className="flex justify-center gap-2 mb-4">
+                      <Heart className="h-5 w-5 text-red-500" />
+                      <Brain className="h-5 w-5 text-primary" />
                     </div>
-                    <p className="font-bold text-lg mb-2">Analisi Doppia</p>
-                    <p className="text-sm text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
+                    <p className="font-bold text-lg mb-3">Analisi Doppia</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Vuoi analizzare anche le tue emozioni</p>
                   </div>
                 </div>
               </div>
 
               {/* Doppia Analisi AI */}
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 rounded-xl">
                     <div className="flex gap-2">
@@ -1239,26 +1239,26 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   </div>
                   <h3 className="text-xl font-bold">Doppia Analisi AI</h3>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                     <Heart className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-red-700 dark:text-red-300">Pet</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Emozione rilevata dalle tue descrizioni</p>
+                      <p className="font-semibold text-red-700 dark:text-red-300 mb-2">Pet</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Emozione rilevata dalle tue descrizioni</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <Brain className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-blue-700 dark:text-blue-300">Tu</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Emozione rilevata dal tuo tono di voce</p>
+                      <p className="font-semibold text-blue-700 dark:text-blue-300 mb-2">Tu</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Emozione rilevata dal tuo tono di voce</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-start gap-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <CheckCircle2 className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-green-700 dark:text-green-300">Risultato</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Consigli personalizzati per entrambi</p>
+                      <p className="font-semibold text-green-700 dark:text-green-300 mb-2">Risultato</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Consigli personalizzati per entrambi</p>
                     </div>
                   </div>
                 </div>
