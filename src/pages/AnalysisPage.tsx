@@ -1156,8 +1156,8 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </div>
 
           {/* Help Section */}
-          <div className="space-y-12">
-            {/* Come Scegliere il Metodo Giusto - Row 2 */}
+          <div className="space-y-16 mt-16">
+            {/* Come Scegliere il Metodo Giusto */}
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
               <div className="text-center mb-6">
                 <div className="flex justify-center mb-3">
