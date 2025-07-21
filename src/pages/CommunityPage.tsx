@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Chat } from '@/components/community/Chat';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
-import { PrivateChat } from '@/components/private-chat/PrivateChat';
+import { PrivateChatWithReply } from '@/components/private-chat/PrivateChatWithReply';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -505,7 +505,7 @@ const CommunityPage = () => {
           </TabsContent>
 
           <TabsContent value="private" className="space-y-6">
-            <PrivateChat />
+            <PrivateChatWithReply />
           </TabsContent>
           
           <TabsContent value="matching" className="space-y-6">
