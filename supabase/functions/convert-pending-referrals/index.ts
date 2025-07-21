@@ -107,7 +107,7 @@ serve(async (req) => {
           .from("referrer_stats")
           .update({
             total_conversions: totalConversions,
-            available_credits: referrerStats?.available_credits || 0 + commissionAmount,
+            available_credits: (referrerStats?.available_credits || 0) + commissionAmount,
             total_credits_earned: (referrerStats?.total_credits_earned || 0) + commissionAmount,
             current_tier: tier,
             updated_at: new Date().toISOString()
