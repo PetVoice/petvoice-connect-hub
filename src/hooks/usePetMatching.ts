@@ -110,9 +110,16 @@ export const usePetTwins = () => {
   return useQuery({
     queryKey: ['pet-twins'],
     queryFn: async () => {
+      console.log('🔍 Starting pet twins query...');
+      
       // Get current user ID
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('👤 Current user:', user?.id, 'Error:', userError);
+      
+      if (!user) {
+        console.log('❌ No user authenticated');
+        throw new Error('User not authenticated');
+      }
 
       // Get all pets except current user's pets
       const { data: pets, error } = await supabase
@@ -121,6 +128,7 @@ export const usePetTwins = () => {
         .neq('user_id', user.id) // Exclude current user's pets
         .order('created_at', { ascending: false });
 
+      console.log('🐕 Found pets:', pets?.length, 'Error:', error);
       if (error) throw error;
 
       // Get profiles for owner names
@@ -128,6 +136,8 @@ export const usePetTwins = () => {
         .from('profiles')
         .select('user_id, display_name')
         .in('user_id', pets?.map(pet => pet.user_id) || []);
+
+      console.log('👥 Found profiles:', profiles?.length, 'Error:', profilesError);
 
       if (profilesError) throw profilesError;
 
@@ -143,9 +153,13 @@ export const usePetTwins = () => {
         .select('*')
         .eq('user_id', user.id);
 
+      console.log('🏠 My pets:', myPets?.length, 'Error:', myPetsError);
       if (myPetsError) throw myPetsError;
 
-      if (!myPets?.length) return []; // No pets to match against
+      if (!myPets?.length) {
+        console.log('❌ No pets to match against');
+        return []; // No pets to match against
+      }
 
       // Get pet analyses for better matching
       const { data: analyses, error: analysesError } = await supabase
