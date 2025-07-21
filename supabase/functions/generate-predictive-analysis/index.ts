@@ -365,6 +365,48 @@ async function generateInterventions(supabase: any, petId: string, userId: strin
     .eq('is_public', true)
     .eq('status', 'available');
   
+  // Mapping per tradurre i titoli in italiano
+  const interventionTitles: {[key: string]: string} = {
+    'behavioral_therapy_for_anxiety': 'Terapia comportamentale per ansia',
+    'behavioral therapy for anxiety': 'Terapia comportamentale per ansia',
+    'regular_vet_checkups': 'Controlli veterinari regolari',
+    'regular vet check-ups to monitor health': 'Controlli veterinari per monitoraggio salute',
+    'increased_physical_activity': 'Aumento attività fisica e stimolazione mentale',
+    'increased physical activity and mental stimulation': 'Aumento attività fisica e stimolazione mentale',
+    'dietary_changes': 'Modifiche dietetiche',
+    'environmental_enrichment': 'Arricchimento ambientale',
+    'training_protocol': 'Protocollo di addestramento',
+    'socialization_training': 'Addestramento socializzazione',
+    'stress_reduction': 'Riduzione dello stress',
+    'behavioral_modification': 'Modifica comportamentale'
+  };
+
+  // Genera percentuali realistiche basate sui dati
+  const calculateRealisticProbability = (intervention: any, analysis: any): number => {
+    let baseProbability = 0.6; // Base del 60%
+    
+    // Aggiusta in base alla priorità
+    if (intervention.priority === 'high' || intervention.priority === 'critical') {
+      baseProbability += 0.1; // +10% per priorità alta
+    }
+    
+    // Aggiusta in base al confidence level dell'analisi
+    if (analysis.confidence_level && analysis.confidence_level > 0.8) {
+      baseProbability += 0.15; // +15% per alta confidenza
+    } else if (analysis.confidence_level && analysis.confidence_level > 0.6) {
+      baseProbability += 0.05; // +5% per media confidenza
+    }
+    
+    // Aggiusta in base ai pattern comportamentali
+    const strongPatterns = analysis.behavioral_patterns?.filter((p: any) => (p.confidence || 0.5) > 0.7) || [];
+    if (strongPatterns.length > 2) {
+      baseProbability += 0.1; // +10% per pattern forti
+    }
+    
+    // Limita tra 45% e 95%
+    return Math.min(0.95, Math.max(0.45, baseProbability));
+  };
+  
   for (const intervention of analysis.interventions || []) {
     // Cerca un protocollo compatibile per l'intervento
     const matchingProtocol = availableProtocols?.find((protocol: any) => 
@@ -374,14 +416,18 @@ async function generateInterventions(supabase: any, petId: string, userId: strin
       protocol.title.toLowerCase().includes('training')
     );
     
+    // Traduce il titolo dell'intervento
+    const originalTitle = intervention.intervention || intervention.type || 'behavioral_training';
+    const translatedTitle = interventionTitles[originalTitle.toLowerCase()] || interventionTitles[originalTitle] || originalTitle;
+    
     const interventionData = {
       user_id: userId,
       pet_id: petId,
-      intervention_type: intervention.intervention || intervention.type || 'behavioral_training',
+      intervention_type: translatedTitle,
       priority_level: intervention.priority || 'medium',
       reasoning: intervention.reasoning || `Basato sui pattern comportamentali identificati: ${analysis.behavioral_patterns?.map((p: any) => p.pattern).join(', ')}`,
       recommended_timing: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      success_probability: intervention.success_probability || 0.75,
+      success_probability: calculateRealisticProbability(intervention, analysis),
       estimated_cost: intervention.estimated_cost || null,
       expected_outcomes: {
         behavioral_improvement: intervention.expected_improvement || 'moderate',

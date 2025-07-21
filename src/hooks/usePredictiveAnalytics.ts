@@ -200,6 +200,33 @@ export const usePredictiveAnalytics = (petId?: string) => {
     if (!user) return;
 
     try {
+      // Get intervention details first
+      const intervention = interventions.find(i => i.id === interventionId);
+      if (!intervention) return;
+
+      // Create calendar event
+      const eventData = {
+        user_id: user.id,
+        pet_id: intervention.pet_id,
+        title: `Intervento: ${intervention.intervention_type}`,
+        description: intervention.reasoning,
+        start_time: intervention.recommended_timing,
+        end_time: new Date(new Date(intervention.recommended_timing).getTime() + 60 * 60 * 1000).toISOString(), // +1 hour
+        category: 'intervention',
+        status: 'scheduled',
+        reminder_settings: {
+          enabled: true,
+          times: ['24h', '2h']
+        }
+      };
+
+      const { error: calendarError } = await supabase
+        .from('calendar_events')
+        .insert([eventData]);
+
+      if (calendarError) throw calendarError;
+
+      // Update intervention status
       const { error: updateError } = await supabase
         .from('intervention_recommendations')
         .update({ status: 'scheduled' })
