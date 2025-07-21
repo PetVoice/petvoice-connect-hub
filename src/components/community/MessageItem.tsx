@@ -276,32 +276,37 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         </div>
         
         {!isSelectionMode && (
-          <div className="flex-shrink-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleReply}>
-                  <Reply className="h-4 w-4 mr-2" />
-                  Rispondi
-                </DropdownMenuItem>
-                {isOwn && (
-                  <>
-                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Modifica
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Elimina
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex-shrink-0 flex items-center gap-1">
+            {/* Always show Reply button */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={handleReply}
+            >
+              <Reply className="h-4 w-4" />
+            </Button>
+            
+            {/* Show Edit/Delete menu only for own messages */}
+            {isOwn && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Modifica
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Elimina
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         )}
       </div>
