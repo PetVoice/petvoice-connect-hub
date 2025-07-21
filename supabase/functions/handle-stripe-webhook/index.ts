@@ -49,11 +49,11 @@ serve(async (req) => {
 
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        logStep("Checkout session completed", { sessionId: session.id, customerEmail: session.customer_details?.email });
+        try {
+          const session = event.data.object as Stripe.Checkout.Session;
+          logStep("Checkout session completed", { sessionId: session.id, customerEmail: session.customer_details?.email });
 
-        if (session.mode === 'subscription' && session.subscription) {
-          try {
+          if (session.mode === 'subscription' && session.subscription) {
             const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
             logStep("Subscription retrieved", { subscriptionId: subscription.id, status: subscription.status });
             
@@ -64,8 +64,17 @@ serve(async (req) => {
 
             const subscriptionTier = 'premium'; // Solo piano Premium disponibile
 
+            // Validate subscription end timestamp
+            if (!subscription.current_period_end || subscription.current_period_end <= 0) {
+              throw new Error(`Invalid subscription period end: ${subscription.current_period_end}`);
+            }
+            
             const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
             const customerEmail = session.customer_details?.email || session.customer_email;
+
+            if (!customerEmail) {
+              throw new Error("No customer email found in session");
+            }
 
             logStep("About to update database", { 
               email: customerEmail, 
@@ -79,11 +88,17 @@ serve(async (req) => {
             
             if (!userId && customerEmail) {
               // Find user by email using service role
-              const { data: authUsers } = await supabaseClient.auth.admin.listUsers();
-              const user = authUsers.users.find(u => u.email === customerEmail);
-              
-              if (user) {
-                userId = user.id;
+              const { data: authUsers, error: authError } = await supabaseClient.auth.admin.listUsers();
+              if (authError) {
+                logStep("Error fetching users", { error: authError.message });
+              } else {
+                const user = authUsers.users.find(u => u.email === customerEmail);
+                if (user) {
+                  userId = user.id;
+                  logStep("Found user by email", { userId, email: customerEmail });
+                } else {
+                  logStep("No user found with email", { email: customerEmail });
+                }
               }
             }
 
@@ -104,24 +119,38 @@ serve(async (req) => {
             }, { onConflict: 'email' });
 
             if (error) {
-              logStep("Database update error", { error: error.message });
-              throw error;
-            }
-
-            logStep("Successfully updated subscription", { email: customerEmail, tier: subscriptionTier, data });
-
-            // ⚠️ SKIP REFERRAL PER ORA - solo log pagamento
-            if (customerEmail) {
-              logStep("Subscription checkout completed for user", { 
-                email: customerEmail, 
-                userId: userId,
-                subscriptionId: subscription.id 
+              logStep("Database update error", { 
+                error: error.message, 
+                code: error.code, 
+                details: error.details,
+                hint: error.hint 
               });
+              throw new Error(`Database error: ${error.message} (${error.code})`);
             }
-          } catch (error) {
-            logStep("Error processing subscription", { error: error.message });
-            throw error;
+
+            logStep("Updated database with subscription info", { subscribed: true, subscriptionTier });
+
+            // Log successful checkout completion
+            logStep("Subscription checkout completed successfully", { 
+              email: customerEmail, 
+              userId: userId,
+              subscriptionId: subscription.id,
+              tier: subscriptionTier
+            });
+          } else {
+            logStep("Session is not subscription mode or missing subscription", { 
+              mode: session.mode, 
+              subscription: session.subscription 
+            });
           }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logStep("Error processing checkout session", { 
+            error: errorMessage,
+            errorType: error?.constructor?.name,
+            stack: error instanceof Error ? error.stack : undefined
+          });
+          throw new Error(`Checkout session processing failed: ${errorMessage}`);
         }
         break;
       }
