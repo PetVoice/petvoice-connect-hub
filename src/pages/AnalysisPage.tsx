@@ -1075,8 +1075,8 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
 
           {/* Analysis Options Grid - Reimpostazione completa per evitare sovrapposizioni */}
           <div className="space-y-8">
-            {/* Upload Methods */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Upload Methods - Layout verticale */}
+            <div className="space-y-6">
               {/* File Upload Card */}
               <Card className="p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -1117,10 +1117,9 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   </div>
                 </div>
               </Card>
-            </div>
             
-            {/* Text & Voice Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Text & Voice Analysis - Layout verticale */}
+            <div className="space-y-6">
               {/* Text Analysis Card */}
               <Card className="p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -1158,6 +1157,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
                   </div>
                 </div>
               </Card>
+            </div>
             </div>
 
             {/* Help Section */}
