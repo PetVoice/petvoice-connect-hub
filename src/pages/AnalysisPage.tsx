@@ -470,55 +470,6 @@ const AnalysisPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-8">
-          {/* Come Scegliere il Metodo Giusto - Spostato in alto */}
-          <Card className="p-8">
-            <div className="text-center mb-8">
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-primary/20 rounded-xl">
-                  <Brain className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Come Scegliere il Metodo Giusto?</h3>
-              <p className="text-muted-foreground">Seleziona il metodo di analisi più adatto alla tua situazione</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
-                <div>
-                  <Upload className="h-8 w-8 text-primary mx-auto mb-3" />
-                  <p className="font-medium text-base mb-1">Upload File</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
-              </div>
-              
-              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
-                <div>
-                  <Mic className="h-8 w-8 text-primary mx-auto mb-3" />
-                  <p className="font-medium text-base mb-1">Registra Ora</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
-              </div>
-              
-              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
-                <div>
-                  <FileText className="h-8 w-8 text-primary mx-auto mb-3" />
-                  <p className="font-medium text-base mb-1">Descrivi Testo</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Preferisci descrivere il comportamento</p>
-              </div>
-              
-              <div className="text-center p-4 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-center gap-1 mb-3">
-                    <Heart className="h-4 w-4 text-primary" />
-                    <Brain className="h-4 w-4 text-primary" />
-                  </div>
-                  <p className="font-medium text-base mb-1">Analisi Doppia</p>
-                </div>
-                <p className="text-xs text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
-              </div>
-            </div>
-          </Card>
 
           {/* Upload Methods - Layout griglia 2x2 */}
           <div className="space-y-6">
