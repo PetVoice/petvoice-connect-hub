@@ -140,7 +140,7 @@ const EmotionDistributionCard: React.FC<{ predictions: any }> = ({ predictions }
                 <div key={emotion} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium capitalize">{emotion}</span>
-                    <span className="text-sm text-muted-foreground">{percentage}%</span>
+                    <span className="text-sm text-muted-foreground">{percentage as number}%</span>
                   </div>
                   <Progress 
                     value={percentage as number} 
