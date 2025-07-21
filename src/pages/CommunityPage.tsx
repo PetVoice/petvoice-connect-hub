@@ -127,24 +127,40 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
 
-  // Calcola i messaggi non letti per un gruppo specifico
+  // Calcola i messaggi non letti per un gruppo specifico (stessa logica delle chat private)
   const calculateUnreadCount = async (channelName) => {
     try {
-      // Contiamo i messaggi degli altri utenti delle ultime 24 ore
-      const { count, error } = await supabase
+      // Prima otteniamo tutti i messaggi del gruppo non eliminati globalmente
+      const { data: allMessages, error: messagesError } = await supabase
         .from('community_messages')
-        .select('*', { count: 'exact' })
+        .select('id')
         .eq('channel_name', channelName)
         .neq('user_id', user.id) // Messaggi non dell'utente corrente
-        .is('deleted_at', null) // Solo messaggi non eliminati
+        .is('deleted_at', null) // Solo messaggi non eliminati globalmente
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Ultimi 24 ore
 
-      if (error) {
-        console.error('Error calculating unread count:', error);
+      if (messagesError || !allMessages) {
+        console.error('Error fetching messages:', messagesError);
         return 0;
       }
 
-      return count || 0;
+      // Poi otteniamo i messaggi che l'utente ha eliminato individualmente
+      const { data: deletedMessages, error: deletedError } = await supabase
+        .from('community_message_deletions')
+        .select('message_id')
+        .eq('user_id', user.id)
+        .in('message_id', allMessages.map(m => m.id));
+
+      if (deletedError) {
+        console.error('Error fetching deleted messages:', deletedError);
+        return 0;
+      }
+
+      // Filtriamo i messaggi eliminati dall'utente
+      const deletedMessageIds = new Set(deletedMessages?.map(d => d.message_id) || []);
+      const unreadMessages = allMessages.filter(msg => !deletedMessageIds.has(msg.id));
+
+      return unreadMessages.length;
     } catch (error) {
       console.error('Error calculating unread count:', error);
       return 0;
@@ -365,7 +381,7 @@ const CommunityPage = () => {
         }
       }} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="groups">Gruppi Community</TabsTrigger>
+            <TabsTrigger value="groups">Gruppi</TabsTrigger>
             <TabsTrigger value="private">Chat Private</TabsTrigger>
             <TabsTrigger value="matching">Pet Matching</TabsTrigger>
           </TabsList>
@@ -501,11 +517,11 @@ const CommunityPage = () => {
                                <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
                                  {group.name}
                                </div>
-                               {unreadCounts[group.id] && unreadCounts[group.id] > 0 && activeChat !== group.id && (
-                                 <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
-                                   {unreadCounts[group.id]}
-                                 </Badge>
-                               )}
+                                {unreadCounts[group.id] && unreadCounts[group.id] > 0 && activeChat !== group.id && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {unreadCounts[group.id]}
+                                  </Badge>
+                                )}
                              </div>
                              <div className="text-sm text-muted-foreground">
                                {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
