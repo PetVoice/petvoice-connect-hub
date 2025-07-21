@@ -740,12 +740,8 @@ export const PrivateChatWithReply: React.FC = () => {
 
       if (error) throw error;
 
-      // Non rimuovere la chat dalla lista locale, ma marcala come nascosta per mantenere il real-time
-      setChats(prev => prev.map(chat => 
-        chat.id === selectedChat.id 
-          ? { ...chat, hiddenForUser: true }
-          : chat
-      ));
+      // Rimuovi temporaneamente la chat dalla lista locale
+      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
       setSelectedChat(null);
       setMessages([]);
       setShowDeleteChatDialog(false);
