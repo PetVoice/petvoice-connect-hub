@@ -217,8 +217,8 @@ export const PrivateChatWithReply: React.FC = () => {
           .filter(chat => {
             // Filtra chat eliminate dall'utente corrente
             const isParticipant1 = chat.participant_1_id === user.id;
-            if (isParticipant1 && chat.deleted_by_participant_1) return false;
-            if (!isParticipant1 && chat.deleted_by_participant_2) return false;
+            if (isParticipant1 && chat.deleted_by_participant_1 === true) return false;
+            if (!isParticipant1 && chat.deleted_by_participant_2 === true) return false;
             return true;
           })
           .map(async (chat) => {

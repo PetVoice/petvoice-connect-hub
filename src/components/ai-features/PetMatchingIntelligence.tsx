@@ -411,15 +411,24 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // Check if chat already exists between these users
+      // Check if chat already exists between these users (and not deleted by current user)
       const { data: existingChat } = await supabase
         .from('private_chats')
-        .select('id')
+        .select('id, deleted_by_participant_1, deleted_by_participant_2, participant_1_id')
         .or(`and(participant_1_id.eq.${user.id},participant_2_id.eq.${selectedTwin.user_id}),and(participant_1_id.eq.${selectedTwin.user_id},participant_2_id.eq.${user.id})`)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      let chatId = existingChat?.id;
+      // Check if the existing chat is not deleted by current user
+      let chatId = null;
+      if (existingChat) {
+        const isParticipant1 = existingChat.participant_1_id === user.id;
+        const isDeletedByCurrentUser = isParticipant1 ? existingChat.deleted_by_participant_1 : existingChat.deleted_by_participant_2;
+        
+        if (!isDeletedByCurrentUser) {
+          chatId = existingChat.id;
+        }
+      }
 
       // Create new chat if it doesn't exist
       if (!chatId) {
