@@ -163,7 +163,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
           </div>
           <AudioRecorder 
             onRecordingComplete={onRecordingComplete} 
-            onStartRecording={onStartRecording}
+            onStartRecording={() => { onStartRecording(); return true; }}
             autoAnalyze={true}
           />
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">

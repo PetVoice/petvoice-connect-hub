@@ -166,6 +166,10 @@ export const HistorySection: React.FC<HistorySectionProps> = ({
 
       <AnalysisHistory 
         analyses={filteredAnalyses}
+        loading={false}
+        selectedAnalyses={[]}
+        onSelectionChange={() => {}}
+        petName="Pet"
       />
     </div>
   );

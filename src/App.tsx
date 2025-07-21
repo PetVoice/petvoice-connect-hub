@@ -12,7 +12,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
-import AnalysisPage from "@/pages/AnalysisPage";
+import AnalysisPage from "@/pages/analysis/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
