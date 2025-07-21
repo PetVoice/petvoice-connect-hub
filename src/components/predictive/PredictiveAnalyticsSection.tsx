@@ -3,12 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Brain, TrendingUp, Calendar, CheckCircle, X } from 'lucide-react';
+import { AlertTriangle, Brain, TrendingUp, Calendar, CheckCircle, Wand2, Sparkles } from 'lucide-react';
 import { RiskScoreGauge } from './RiskScoreGauge';
 import { PredictionChart } from './PredictionChart';
 import { InterventionCard } from './InterventionCard';
 import { EarlyWarningAlert } from './EarlyWarningAlert';
 import { usePredictiveAnalytics } from '@/hooks/usePredictiveAnalytics';
+import { usePredictiveGeneration } from '@/hooks/usePredictiveGeneration';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePets } from '@/contexts/PetContext';
 
 interface PredictiveAnalyticsSectionProps {
   petId?: string;
@@ -17,6 +20,12 @@ interface PredictiveAnalyticsSectionProps {
 export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProps> = ({ 
   petId 
 }) => {
+  const { user } = useAuth();
+  const { selectedPet } = usePets();
+  const currentPetId = petId || selectedPet?.id;
+  
+  const { generatePredictiveAnalysis, isGenerating } = usePredictiveGeneration();
+  
   const {
     behaviorPredictions,
     riskAssessments,
@@ -31,11 +40,24 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
     getActivePredictions,
     getCriticalWarnings,
     refreshData
-  } = usePredictiveAnalytics(petId);
+  } = usePredictiveAnalytics(currentPetId);
 
-  const latestRisk = getLatestRiskAssessment(petId);
-  const activePredictions = getActivePredictions(petId);
-  const criticalWarnings = getCriticalWarnings(petId);
+  const latestRisk = getLatestRiskAssessment(currentPetId);
+  const activePredictions = getActivePredictions(currentPetId);
+  const criticalWarnings = getCriticalWarnings(currentPetId);
+
+  // Funzione per generare nuove previsioni
+  const handleGenerateAnalysis = async () => {
+    if (!currentPetId || !user?.id) {
+      return;
+    }
+    
+    const result = await generatePredictiveAnalysis(currentPetId, user.id);
+    if (result.success) {
+      // Aggiorna i dati dopo la generazione
+      refreshData();
+    }
+  };
 
   if (loading) {
     return (
@@ -56,7 +78,7 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
 
   return (
     <div className="space-y-6">
-      {/* Header with refresh button */}
+      {/* Header with action buttons */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Analisi Predittive</h2>
@@ -64,11 +86,59 @@ export const PredictiveAnalyticsSection: React.FC<PredictiveAnalyticsSectionProp
             Previsioni comportamentali e raccomandazioni AI per il benessere del tuo pet
           </p>
         </div>
-        <Button onClick={refreshData} variant="outline" size="sm">
-          <TrendingUp className="h-4 w-4 mr-2" />
-          Aggiorna Dati
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleGenerateAnalysis} 
+            variant="default"
+            size="sm"
+            disabled={isGenerating || !currentPetId}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          >
+            {isGenerating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                Analizzando...
+              </>
+            ) : (
+              <>
+                <Wand2 className="h-4 w-4 mr-2" />
+                Genera Previsioni AI
+              </>
+            )}
+          </Button>
+          <Button onClick={refreshData} variant="outline" size="sm" disabled={isGenerating}>
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Aggiorna Dati
+          </Button>
+        </div>
       </div>
+
+      {/* Info message se non ci sono dati */}
+      {!loading && activePredictions.length === 0 && interventions.length === 0 && earlyWarnings.length === 0 && (
+        <Card className="border-dashed border-2">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <Sparkles className="h-12 w-12 mx-auto text-purple-500 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Genera la Tua Prima Analisi Predittiva</h3>
+              <p className="text-muted-foreground mb-4">
+                Il sistema analizzerà tutti i dati disponibili del tuo pet (diario, metriche di salute, attività) 
+                per generare previsioni comportamentali personalizzate e raccomandazioni intelligenti.
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                <strong>Tip:</strong> Più dati hai nel diario del pet, più accurate saranno le previsioni!
+              </p>
+              <Button 
+                onClick={handleGenerateAnalysis}
+                disabled={!currentPetId || isGenerating}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Wand2 className="h-4 w-4 mr-2" />
+                Inizia Analisi AI
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Critical Warnings */}
       {criticalWarnings.length > 0 && (
