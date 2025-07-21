@@ -732,53 +732,56 @@ const TrainingDashboard: React.FC = () => {
               {/* Completion Button */}
               <Separator />
               
-              <Button
-                onClick={async () => {
-                  // SEMPLIFICAZIONE: Solo completamento esercizi, il cambio giorno è automatico
-                  handleCompleteExercise();
-                }}
-                disabled={currentExercise !== dailyCompletedExercises}
-                className={`w-full ${
-                  currentExercise === dailyCompletedExercises 
-                    ? 'bg-primary hover:bg-primary/90 focus:bg-primary/90 active:bg-primary/80 text-primary-foreground font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50'
-                    : 'opacity-50 cursor-not-allowed'
-                } disabled:opacity-50`}
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Esercizio {currentExercise + 1} Completato
-              </Button>
+              {/* Pulsanti Azione */}
+              <div className="flex gap-3 w-full">
+                <Button
+                  onClick={async () => {
+                    // SEMPLIFICAZIONE: Solo completamento esercizi, il cambio giorno è automatico
+                    handleCompleteExercise();
+                  }}
+                  disabled={currentExercise !== dailyCompletedExercises}
+                  className={`flex-1 ${
+                    currentExercise === dailyCompletedExercises 
+                      ? 'bg-primary hover:bg-primary/90 focus:bg-primary/90 active:bg-primary/80 text-primary-foreground font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50'
+                      : 'opacity-50 cursor-not-allowed'
+                  } disabled:opacity-50`}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Esercizio {currentExercise + 1} Completato
+                </Button>
 
-              {/* Pulsante Interrompi Protocollo */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="destructive"
-                    size="sm" 
-                    className="w-full mt-3"
-                  >
-                    <Square className="h-4 w-4 mr-2" />
-                    Interrompi Protocollo
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                    <AlertDialogDescription>
-                       Sei sicuro di voler interrompere definitivamente il protocollo "{protocol?.title || 'Caricamento...'}"? 
-                       Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annulla</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={handleInterruptProtocol}
-                      className="bg-red-600 hover:bg-red-700"
+                {/* Pulsante Interrompi Protocollo */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      variant="destructive"
+                      size="sm" 
+                      className="flex-shrink-0 py-3 px-4"
                     >
-                      Sì, interrompi
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                      <Square className="h-4 w-4 mr-2" />
+                      Interrompi
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                      <AlertDialogDescription>
+                         Sei sicuro di voler interrompere definitivamente il protocollo "{protocol?.title || 'Caricamento...'}"? 
+                         Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleInterruptProtocol}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Sì, interrompi
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
 
             </CardContent>
           </Card>

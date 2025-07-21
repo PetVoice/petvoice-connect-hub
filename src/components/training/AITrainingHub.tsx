@@ -47,7 +47,11 @@ import {
   Check,
   Trophy,
   Wifi,
-  WifiOff
+  WifiOff,
+  FileText,
+  Tag,
+  Package,
+  AlertTriangle
 } from 'lucide-react';
 
 // Import hooks for real data
@@ -66,13 +70,13 @@ import {
   SuggestedProtocol,
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
-import { useToast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export const AITrainingHub: React.FC = () => {
-  const { toast } = useToast();
+  const { showToast } = useToastWithIcon();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -266,10 +270,10 @@ export const AITrainingHub: React.FC = () => {
 
   const handleCreateProtocol = async () => {
     if (!wizardData.title || !wizardData.category) {
-      toast({
+      showToast({
         title: 'Dati mancanti',
         description: 'Completa tutti i campi obbligatori',
-        variant: 'destructive',
+        type: 'error'
       });
       return;
     }
@@ -358,9 +362,10 @@ export const AITrainingHub: React.FC = () => {
     );
 
     if (existingActiveProtocol) {
-      toast({
+      showToast({
         title: 'Protocollo già attivo',
         description: `Il protocollo "${protocol.title}" è già attivo. Ti porto alla scheda Attivi.`,
+        type: 'warning'
       });
       // Reindirizza alla scheda "Attivi" invece che alla dashboard
       setCurrentView('active');
@@ -373,10 +378,10 @@ export const AITrainingHub: React.FC = () => {
       if (!protocol.user_id) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          toast({
+          showToast({
             title: 'Accesso richiesto',
             description: 'Devi essere autenticato per usare un protocollo',
-            variant: 'destructive',
+            type: 'error'
           });
           return;
         }
@@ -451,17 +456,18 @@ export const AITrainingHub: React.FC = () => {
 
           if (copyError) {
             console.error('Errore nella copia degli esercizi:', copyError);
-            toast({
+            showToast({
               title: 'Attenzione',
               description: 'Protocollo avviato ma alcuni esercizi potrebbero non essere disponibili',
-              variant: 'destructive',
+              type: 'warning'
             });
           }
         }
 
-        toast({
+        showToast({
           title: 'Protocollo avviato',
           description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+          type: 'complete'
         });
         
         // Reindirizza alla dashboard del nuovo protocollo
@@ -489,9 +495,10 @@ export const AITrainingHub: React.FC = () => {
         await queryClient.refetchQueries({ queryKey: ['completed-protocols'] });
         await queryClient.refetchQueries({ queryKey: ['training-protocols'] });
         
-        toast({
+        showToast({
           title: 'Protocollo riavviato',
           description: `Il protocollo "${protocol.title}" è stato riavviato da capo`,
+          type: 'complete'
         });
         
         // Reindirizza alla dashboard del protocollo resettato
@@ -508,9 +515,10 @@ export const AITrainingHub: React.FC = () => {
           }
         });
         
-        toast({
+        showToast({
           title: 'Protocollo avviato',
           description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+          type: 'complete'
         });
         
         // Reindirizza alla dashboard del protocollo
@@ -520,10 +528,10 @@ export const AITrainingHub: React.FC = () => {
       }
     } catch (error) {
       console.error('Error starting protocol:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Impossibile avviare il protocollo',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -578,16 +586,17 @@ export const AITrainingHub: React.FC = () => {
       setEditTitle('');
       setEditDescription('');
       
-      toast({
+      showToast({
         title: 'Protocollo aggiornato',
         description: 'Le modifiche sono state salvate con successo',
+        type: 'success'
       });
     } catch (error) {
       console.error('Error updating protocol:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Impossibile salvare le modifiche',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -597,16 +606,17 @@ export const AITrainingHub: React.FC = () => {
     try {
       await deleteProtocol.mutateAsync(protocolId);
       
-      toast({
+      showToast({
         title: 'Protocollo eliminato',
         description: 'Il protocollo è stato eliminato con successo',
+        type: 'delete'
       });
     } catch (error) {
       console.error('Error deleting protocol:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Impossibile eliminare il protocollo',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -627,22 +637,24 @@ export const AITrainingHub: React.FC = () => {
       });
       
       if (newStatus === 'paused') {
-        toast({
+        showToast({
           title: 'Protocollo interrotto',
           description: `Il protocollo "${protocol?.title || 'Sconosciuto'}" è stato interrotto con successo`,
+          type: 'success'
         });
       } else {
-        toast({
+        showToast({
           title: 'Status aggiornato',
           description: `Il protocollo è stato aggiornato`,
+          type: 'success'
         });
       }
     } catch (error) {
       console.error('Error updating protocol status:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Impossibile aggiornare lo status del protocollo',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -1253,48 +1265,168 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Protocol Details Modal */}
       <Dialog open={!!selectedProtocol} onOpenChange={() => setSelectedProtocol(null)}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedProtocol?.title}</DialogTitle>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${
+                selectedProtocol?.difficulty === 'facile' ? 'bg-green-100 text-green-700' :
+                selectedProtocol?.difficulty === 'medio' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {selectedProtocol?.difficulty === 'facile' ? '🟢' :
+                 selectedProtocol?.difficulty === 'medio' ? '🟡' : '🔴'}
+              </div>
+              {selectedProtocol?.title}
+            </DialogTitle>
           </DialogHeader>
           
           {selectedProtocol && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-3">Dettagli Protocollo</h3>
-                  <div className="space-y-2 text-sm">
-                    <div><strong>Categoria:</strong> {selectedProtocol.category}</div>
-                    <div><strong>Difficoltà:</strong> {selectedProtocol.difficulty}</div>
-                    <div><strong>Durata:</strong> {selectedProtocol.duration_days} giorni</div>
-                    <div><strong>Giorno corrente:</strong> {selectedProtocol.current_day}</div>
-                    <div><strong>Progresso:</strong> {selectedProtocol.progress_percentage}%</div>
-                    <div><strong>Tasso di successo:</strong> {Math.round(selectedProtocol.success_rate)}%</div>
+            <div className="space-y-8">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{selectedProtocol.duration_days}</div>
+                    <div className="text-sm text-muted-foreground">Giorni</div>
                   </div>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-3">Materiali richiesti</h3>
-                  <div className="space-y-1">
-                    {selectedProtocol.required_materials?.map((material, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        {material}
+                </Card>
+                <Card className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{selectedProtocol.progress_percentage}%</div>
+                    <div className="text-sm text-muted-foreground">Completato</div>
+                  </div>
+                </Card>
+                <Card className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">{selectedProtocol.current_day}</div>
+                    <div className="text-sm text-muted-foreground">Giorno corrente</div>
+                  </div>
+                </Card>
+                <Card className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate)}%</div>
+                    <div className="text-sm text-muted-foreground">Successo</div>
+                  </div>
+                </Card>
+              </div>
+
+              {/* Main Content */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  {/* Description */}
+                  <Card className="p-6">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-primary" />
+                      Descrizione
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">{selectedProtocol.description}</p>
+                  </Card>
+
+                  {/* Category & Difficulty */}
+                  <Card className="p-6">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <Tag className="h-5 w-5 text-primary" />
+                      Dettagli
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Categoria:</span>
+                        <Badge variant="secondary">{selectedProtocol.category}</Badge>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Difficoltà:</span>
+                        <Badge variant={
+                          selectedProtocol.difficulty === 'facile' ? 'default' :
+                          selectedProtocol.difficulty === 'medio' ? 'secondary' : 'destructive'
+                        }>
+                          {selectedProtocol.difficulty}
+                        </Badge>
+                      </div>
+                      {selectedProtocol.target_behavior && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Comportamento target:</span>
+                          <span className="font-medium">{selectedProtocol.target_behavior}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6">
+                  {/* Materials */}
+                  {selectedProtocol.required_materials && selectedProtocol.required_materials.length > 0 && (
+                    <Card className="p-6">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <Package className="h-5 w-5 text-primary" />
+                        Materiali richiesti
+                      </h3>
+                      <div className="space-y-2">
+                        {selectedProtocol.required_materials.map((material, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span className="text-sm">{material}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Triggers */}
+                  {selectedProtocol.triggers && selectedProtocol.triggers.length > 0 && (
+                    <Card className="p-6">
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-primary" />
+                        Trigger comportamentali
+                      </h3>
+                      <div className="space-y-2">
+                        {selectedProtocol.triggers.map((trigger, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <AlertCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                            <span className="text-sm">{trigger}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  )}
+
+                  {/* Status Indicators */}
+                  <Card className="p-6">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-primary" />
+                      Indicatori qualità
+                    </h3>
+                    <div className="space-y-3">
+                      {selectedProtocol.veterinary_approved && (
+                        <div className="flex items-center gap-3 text-green-600">
+                          <CheckCircle className="h-4 w-4" />
+                          <span className="text-sm">Approvato da veterinario</span>
+                        </div>
+                      )}
+                      {selectedProtocol.mentor_recommended && (
+                        <div className="flex items-center gap-3 text-blue-600">
+                          <Star className="h-4 w-4" />
+                          <span className="text-sm">Raccomandato da mentor</span>
+                        </div>
+                      )}
+                      {selectedProtocol.community_usage > 10 && (
+                        <div className="flex items-center gap-3 text-purple-600">
+                          <Users className="h-4 w-4" />
+                          <span className="text-sm">{selectedProtocol.community_usage} utenti l'hanno usato</span>
+                        </div>
+                      )}
+                    </div>
+                  </Card>
                 </div>
               </div>
               
-              <div>
-                <h3 className="font-semibold mb-3">Descrizione</h3>
-                <p className="text-sm text-muted-foreground">{selectedProtocol.description}</p>
-              </div>
-              
-              <div className="flex justify-end gap-3">
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={() => setSelectedProtocol(null)}
+                  className="min-w-24"
                 >
                   Chiudi
                 </Button>
@@ -1304,7 +1436,7 @@ export const AITrainingHub: React.FC = () => {
                     setSelectedProtocol(null);
                   }}
                   disabled={selectedProtocol.status === 'active'}
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 min-w-32"
                 >
                   <Play className="h-4 w-4 mr-2" />
                   {selectedProtocol.status === 'active' ? 'Già Attivo' : 'Avvia Protocollo'}
