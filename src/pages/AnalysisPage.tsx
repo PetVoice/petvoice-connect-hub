@@ -1074,7 +1074,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </div>
 
           {/* Analysis Options Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* File Upload */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
