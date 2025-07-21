@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -291,7 +291,7 @@ const CommunityPage = () => {
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <div className="p-3 rounded-lg bg-gradient-to-r from-primary to-primary/80 shadow-lg">
-          <MessageSquare className="h-6 w-6 text-white" />
+          <Users className="h-6 w-6 text-white" />
         </div>
         <div>
           <h1 className="text-3xl font-bold text-foreground">
