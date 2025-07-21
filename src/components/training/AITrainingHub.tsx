@@ -47,7 +47,8 @@ import {
   Check,
   Trophy,
   Wifi,
-  WifiOff
+  WifiOff,
+  Network
 } from 'lucide-react';
 
 // Import hooks for real data
@@ -70,6 +71,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 
 export const AITrainingHub: React.FC = () => {
   const { toast } = useToast();
@@ -122,7 +124,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'community' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'petmatching' | 'completed'>('protocols');
 
   // Check URL parameters to set initial tab
   useEffect(() => {
@@ -734,7 +736,10 @@ export const AITrainingHub: React.FC = () => {
           <TabsTrigger value="active">Attivi</TabsTrigger>
           <TabsTrigger value="completed">Completati</TabsTrigger>
           <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
-          <TabsTrigger value="community">Community</TabsTrigger>
+          <TabsTrigger value="petmatching">
+            <Network className="h-4 w-4 mr-2" />
+            Pet Matching Intelligence
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="protocols" className="space-y-4">
@@ -1215,38 +1220,8 @@ export const AITrainingHub: React.FC = () => {
         </TabsContent>
 
 
-        <TabsContent value="community" className="space-y-4">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  Template Più Popolari
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {templates.slice(0, 5).map((template) => (
-                    <div key={template.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <h4 className="font-medium">{template.name}</h4>
-                        <p className="text-sm text-muted-foreground">{template.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getDifficultyColor(template.difficulty)}>
-                          {template.difficulty}
-                        </Badge>
-                        <div className="text-right">
-                          <div className="text-sm font-medium">{Math.round(template.success_rate)}%</div>
-                          <div className="text-xs text-muted-foreground">successo</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="petmatching" className="space-y-4">
+          <PetMatchingIntelligence />
         </TabsContent>
       </Tabs>
 
