@@ -184,7 +184,25 @@ export const PrivateChatWithReply: React.FC = () => {
           // Verifica se l'utente corrente partecipa a questa chat
           if (updatedChat.participant_1_id === user?.id || updatedChat.participant_2_id === user?.id) {
             console.log('🔄 Chat updated via realtime, reloading chats...');
-            loadChats();
+            
+            // Se la chat è stata riattivata (entrambi i deleted_by sono false) e l'utente non ha una chat selezionata,
+            // seleziona automaticamente questa chat riattivata
+            const wasReactivated = !updatedChat.deleted_by_participant_1 && !updatedChat.deleted_by_participant_2;
+            const currentChatId = selectedChat?.id;
+            
+            loadChats().then(() => {
+              // Se la chat è stata riattivata e non c'è una chat selezionata, selezionala automaticamente
+              if (wasReactivated && !currentChatId) {
+                console.log('🎯 Auto-selecting reactivated chat:', updatedChat.id);
+                setChats(prevChats => {
+                  const reactivatedChat = prevChats.find(chat => chat.id === updatedChat.id);
+                  if (reactivatedChat) {
+                    setSelectedChat(reactivatedChat);
+                  }
+                  return prevChats;
+                });
+              }
+            });
           }
         }
       )
