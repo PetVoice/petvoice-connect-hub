@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -286,9 +287,23 @@ const CommunityPage = () => {
   };
   
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="p-3 rounded-lg bg-gradient-to-r from-primary to-primary/80 shadow-lg">
+          <MessageSquare className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Community
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Connettiti con altri proprietari di animali e trova supporto nella community
+          </p>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="groups">Gruppi Community</TabsTrigger>
             <TabsTrigger value="matching">Pet Matching</TabsTrigger>
@@ -299,9 +314,6 @@ const CommunityPage = () => {
               
               <div className="lg:col-span-3">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Filtri Community</CardTitle>
-                  </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -350,9 +362,6 @@ const CommunityPage = () => {
               
               <div className="lg:col-span-1 space-y-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Gruppi Disponibili</CardTitle>
-                  </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
                       {availableGroups
@@ -384,9 +393,9 @@ const CommunityPage = () => {
                 </Card>
                 
                 <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold">I Tuoi Gruppi ({myGroups.length})</h3>
                       {myGroups.length > 0 && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -415,8 +424,6 @@ const CommunityPage = () => {
                         </AlertDialog>
                       )}
                     </div>
-                  </CardHeader>
-                  <CardContent>
                     <div className="space-y-3">
                       {myGroups.map(group => (
                         <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
@@ -477,9 +484,6 @@ const CommunityPage = () => {
               
               <div className="lg:col-span-2">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Chat Community</CardTitle>
-                  </CardHeader>
                   <CardContent className="p-0">
                     <div className="h-[600px]">
                       {activeChat ? (
@@ -504,7 +508,6 @@ const CommunityPage = () => {
             <PetMatchingIntelligence />
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 };
