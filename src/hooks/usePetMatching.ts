@@ -131,7 +131,10 @@ export const usePetTwins = () => {
         .order('created_at', { ascending: false });
 
       console.log('🐕 Found pets:', pets?.length, 'Error:', error);
-      if (error) throw error;
+      if (error) {
+        console.log('❌ Error details:', error);
+        throw error;
+      }
 
       // Get profiles for owner names
       const { data: profiles, error: profilesError } = await supabase
