@@ -411,7 +411,7 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // Check if chat already exists between these users (and not deleted by current user)
+      // Check if chat already exists between these users
       const { data: existingChat } = await supabase
         .from('private_chats')
         .select('id, deleted_by_participant_1, deleted_by_participant_2, participant_1_id')
@@ -419,19 +419,30 @@ export const PetMatchingIntelligence: React.FC = () => {
         .eq('is_active', true)
         .maybeSingle();
 
-      // Check if the existing chat is not deleted by current user
       let chatId = null;
+
       if (existingChat) {
         const isParticipant1 = existingChat.participant_1_id === user.id;
         const isDeletedByCurrentUser = isParticipant1 ? existingChat.deleted_by_participant_1 : existingChat.deleted_by_participant_2;
         
-        if (!isDeletedByCurrentUser) {
-          chatId = existingChat.id;
-        }
-      }
+        if (isDeletedByCurrentUser) {
+          // Riattiva la chat eliminata dall'utente corrente
+          const updateField = isParticipant1 ? 'deleted_by_participant_1' : 'deleted_by_participant_2';
+          
+          const { error: reactivateError } = await supabase
+            .from('private_chats')
+            .update({ [updateField]: false })
+            .eq('id', existingChat.id);
 
-      // Create new chat if it doesn't exist
-      if (!chatId) {
+          if (reactivateError) {
+            console.error('Error reactivating chat:', reactivateError);
+            throw reactivateError;
+          }
+        }
+        
+        chatId = existingChat.id;
+      } else {
+        // Create new chat if it doesn't exist
         const { data: newChat, error: chatError } = await supabase
           .from('private_chats')
           .insert({
