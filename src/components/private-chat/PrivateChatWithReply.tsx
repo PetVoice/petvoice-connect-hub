@@ -240,6 +240,8 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('user_id', otherUserId)
             .single();
 
+          console.log('🔍 User profile for', otherUserId, ':', userProfile);
+
           const { data: lastMessage } = await supabase
             .from('private_messages')
             .select('content, sender_id, created_at')
@@ -255,11 +257,14 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('recipient_id', user.id)
             .eq('is_read', false);
 
+          const displayName = userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
+          console.log('📝 Final display name:', displayName, 'from original:', userProfile?.display_name);
+
           return {
             ...chat,
             other_user: {
               id: otherUserId,
-              display_name: userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto',
+              display_name: displayName,
               avatar_url: userProfile?.avatar_url
             },
             last_message: lastMessage,
@@ -302,9 +307,13 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('user_id', message.sender_id)
             .single();
 
+          console.log('💬 Message sender profile for', message.sender_id, ':', senderProfile);
+          const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
+          console.log('📝 Final sender name:', senderName, 'from original:', senderProfile?.display_name);
+
           return {
             ...message,
-            sender_name: senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto'
+            sender_name: senderName
           };
         })
       );
