@@ -451,7 +451,7 @@ const CommunityPage = () => {
                           <div className="flex gap-2">
                             <Button 
                               size="sm" 
-                              variant={activeChat === group.id ? "default" : "outline"}
+                              variant="outline"
                               onClick={() => openChat(group.id)}
                             >
                               Apri

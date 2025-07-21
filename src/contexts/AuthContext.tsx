@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         toast({
           title: "Accesso effettuato",
-          description: `Benvenuto in PetVoice${user?.user_metadata?.display_name ? `, ${user.user_metadata.display_name}` : ''}!`,
+          description: `Benvenuto in PetVoice${user?.user_metadata?.display_name ? `, ${user.user_metadata.display_name.split(' ')[0]}` : ''}!`,
         });
       }
       

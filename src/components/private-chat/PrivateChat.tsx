@@ -134,7 +134,7 @@ export const PrivateChat: React.FC = () => {
             ...chat,
             other_user: {
               id: otherUserId,
-              display_name: userProfile?.display_name || 'Utente Sconosciuto',
+              display_name: userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto',
               avatar_url: userProfile?.avatar_url
             },
             last_message: lastMessage,
@@ -182,7 +182,7 @@ export const PrivateChat: React.FC = () => {
 
           return {
             ...message,
-            sender_name: senderProfile?.display_name || 'Utente Sconosciuto'
+            sender_name: senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto'
           };
         })
       );
