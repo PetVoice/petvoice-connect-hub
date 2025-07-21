@@ -25,10 +25,10 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Test semplice - trova referrals registered
+    // Trova referrals registered con subscription attiva
     const { data: referrals, error } = await supabaseClient
       .from("referrals")
-      .select("id, referred_email, status, referred_user_id")
+      .select("id, referred_email, status, referred_user_id, referrer_id")
       .eq("status", "registered");
 
     logStep("Query executed", { error, count: referrals?.length || 0 });
@@ -37,26 +37,108 @@ serve(async (req) => {
       throw error;
     }
 
-    // Convertiamo solo il primo referral per test
     let convertedCount = 0;
     
     if (referrals && referrals.length > 0) {
-      const firstReferral = referrals[0];
-      
-      // Aggiorna status a converted
-      const { error: updateError } = await supabaseClient
-        .from("referrals")
-        .update({ 
-          status: "converted", 
-          converted_at: new Date().toISOString() 
-        })
-        .eq("id", firstReferral.id);
+      for (const referral of referrals) {
+        try {
+          // Controlla se ha subscription attiva
+          const { data: subscriber } = await supabaseClient
+            .from("subscribers")
+            .select("subscription_status")
+            .eq("user_id", referral.referred_user_id)
+            .single();
+          
+          if (subscriber && subscriber.subscription_status === 'active') {
+            logStep("Processing referral with active subscription", { id: referral.id });
+            
+            // Aggiorna referral a converted
+            const { error: updateError } = await supabaseClient
+              .from("referrals")
+              .update({ 
+                status: "converted", 
+                converted_at: new Date().toISOString() 
+              })
+              .eq("id", referral.id);
 
-      if (updateError) {
-        logStep("Update error", { error: updateError });
-      } else {
-        convertedCount = 1;
-        logStep("Successfully converted referral", { id: firstReferral.id });
+            if (updateError) {
+              logStep("Update error", { error: updateError });
+              continue;
+            }
+
+            // Calcola tier e commissione
+            const { data: referrerStats } = await supabaseClient
+              .from("referrer_stats")
+              .select("*")
+              .eq("user_id", referral.referrer_id)
+              .single();
+
+            const totalConversions = (referrerStats?.total_conversions || 0) + 1;
+            
+            let tier = 'Bronzo';
+            let rate = 0.05;
+            
+            if (totalConversions >= 20) {
+              tier = 'Platino';
+              rate = 0.20;
+            } else if (totalConversions >= 10) {
+              tier = 'Oro';  
+              rate = 0.15;
+            } else if (totalConversions >= 5) {
+              tier = 'Argento';
+              rate = 0.10;
+            }
+
+            const commissionAmount = 0.97 * rate;
+            
+            // Crea commissione
+            const { error: commissionError } = await supabaseClient
+              .from("referral_commissions")
+              .insert({
+                referrer_id: referral.referrer_id,
+                referred_user_id: referral.referred_user_id,
+                amount: commissionAmount,
+                commission_rate: rate,
+                tier: tier,
+                commission_type: 'first_payment',
+                subscription_amount: 0.97,
+                status: 'active',
+                billing_period_start: new Date().toISOString().split('T')[0],
+                billing_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+              });
+
+            if (commissionError) {
+              logStep("Commission creation error", { error: commissionError });
+              continue;
+            }
+
+            // Aggiorna statistiche referrer
+            const { error: statsError } = await supabaseClient
+              .from("referrer_stats")
+              .update({
+                total_conversions: totalConversions,
+                available_credits: (referrerStats?.available_credits || 0) + commissionAmount,
+                total_credits_earned: (referrerStats?.total_credits_earned || 0) + commissionAmount,
+                current_tier: tier,
+                updated_at: new Date().toISOString()
+              })
+              .eq("user_id", referral.referrer_id);
+
+            if (statsError) {
+              logStep("Stats update error", { error: statsError });
+              continue;
+            }
+
+            convertedCount++;
+            logStep("Successfully converted referral with credits", { 
+              id: referral.id, 
+              commission: commissionAmount, 
+              tier: tier 
+            });
+          }
+        } catch (error) {
+          logStep("Error processing referral", { error: error.message });
+        }
       }
     }
 
