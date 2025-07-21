@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Chat } from '@/components/community/Chat';
+import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -104,6 +106,7 @@ const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 const CommunityPage = () => {
   const { user } = useAuth();
   
+  const [activeTab, setActiveTab] = useState('groups');
   const [myGroups, setMyGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
@@ -285,209 +288,222 @@ const CommunityPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="groups">Gruppi Community</TabsTrigger>
+            <TabsTrigger value="matching">Pet Matching</TabsTrigger>
+          </TabsList>
           
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Filtri Community</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Paese</label>
-                    <Select 
-                      value={selectedCountry} 
-                      onValueChange={(value) => setSelectedCountry(value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona paese" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tutti i paesi</SelectItem>
-                        {COUNTRIES.map(country => (
-                          <SelectItem key={country} value={country}>
-                            {country}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Razza</label>
-                    <Select 
-                      value={selectedBreed} 
-                      onValueChange={(value) => setSelectedBreed(value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleziona razza" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tutte le razze</SelectItem>
-                        {ALL_BREEDS.map(breed => (
-                          <SelectItem key={breed} value={breed}>
-                            {breed}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="lg:col-span-1 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gruppi Disponibili</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {availableGroups
-                    .filter(group => !myGroups.some(my => my.id === group.id))
-                    .map(group => (
-                      <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                        <div>
-                          <div className="font-medium">{group.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
-                          </div>
-                        </div>
-                        <Button 
-                          size="sm" 
-                          onClick={() => joinGroup(group.id)}
-                          className="ml-2"
-                        >
-                          Entra
-                        </Button>
-                      </div>
-                    ))}
-                  {availableGroups.filter(group => !myGroups.some(my => my.id === group.id)).length === 0 && (
-                    <div className="text-center py-4 text-muted-foreground">
-                      Nessun gruppo disponibile
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
-                  {myGroups.length > 0 && (
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive">
-                          Esci da tutti i gruppi
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Conferma uscita da tutti i gruppi</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Sei sicuro di voler uscire da tutti i {myGroups.length} gruppi? 
-                            Non riceverai più messaggi da nessun gruppo.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Annulla</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={leaveAllGroups}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Esci da tutti i gruppi
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {myGroups.map(group => (
-                    <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+          <TabsContent value="groups" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <div className="lg:col-span-3">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Filtri Community</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <div className="font-medium">{group.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => openChat(group.id)}
+                        <label className="text-sm font-medium mb-2 block">Paese</label>
+                        <Select 
+                          value={selectedCountry} 
+                          onValueChange={(value) => setSelectedCountry(value)}
                         >
-                          Apri
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona paese" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Tutti i paesi</SelectItem>
+                            {COUNTRIES.map(country => (
+                              <SelectItem key={country} value={country}>
+                                {country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Razza</label>
+                        <Select 
+                          value={selectedBreed} 
+                          onValueChange={(value) => setSelectedBreed(value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleziona razza" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Tutte le razze</SelectItem>
+                            {ALL_BREEDS.map(breed => (
+                              <SelectItem key={breed} value={breed}>
+                                {breed}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="lg:col-span-1 space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Gruppi Disponibili</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {availableGroups
+                        .filter(group => !myGroups.some(my => my.id === group.id))
+                        .map(group => (
+                          <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                            <div>
+                              <div className="font-medium">{group.name}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
+                              </div>
+                            </div>
                             <Button 
                               size="sm" 
-                              variant="destructive"
+                              onClick={() => joinGroup(group.id)}
+                              className="ml-2"
                             >
-                              Esci
+                              Entra
+                            </Button>
+                          </div>
+                        ))}
+                      {availableGroups.filter(group => !myGroups.some(my => my.id === group.id)).length === 0 && (
+                        <div className="text-center py-4 text-muted-foreground">
+                          Nessun gruppo disponibile
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>I Tuoi Gruppi ({myGroups.length})</CardTitle>
+                      {myGroups.length > 0 && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="destructive">
+                              Esci da tutti i gruppi
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Conferma uscita dal gruppo</AlertDialogTitle>
+                              <AlertDialogTitle>Conferma uscita da tutti i gruppi</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Sei sicuro di voler uscire dal gruppo "{group.name}"? 
-                                Non riceverai più messaggi da questo gruppo.
+                                Sei sicuro di voler uscire da tutti i {myGroups.length} gruppi? 
+                                Non riceverai più messaggi da nessun gruppo.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Annulla</AlertDialogCancel>
                               <AlertDialogAction 
-                                onClick={() => leaveGroup(group.id)}
+                                onClick={leaveAllGroups}
                                 className="bg-destructive hover:bg-destructive/90"
                               >
-                                Esci dal gruppo
+                                Esci da tutti i gruppi
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
-                      </div>
+                      )}
                     </div>
-                  ))}
-                  {myGroups.length === 0 && (
-                    <div className="text-center py-4 text-muted-foreground">
-                      Non sei iscritto a nessun gruppo
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {myGroups.map(group => (
+                        <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                          <div>
+                            <div className="font-medium">{group.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => openChat(group.id)}
+                            >
+                              Apri
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                >
+                                  Esci
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Conferma uscita dal gruppo</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Sei sicuro di voler uscire dal gruppo "{group.name}"? 
+                                    Non riceverai più messaggi da questo gruppo.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => leaveGroup(group.id)}
+                                    className="bg-destructive hover:bg-destructive/90"
+                                  >
+                                    Esci dal gruppo
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      ))}
+                      {myGroups.length === 0 && (
+                        <div className="text-center py-4 text-muted-foreground">
+                          Non sei iscritto a nessun gruppo
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Chat Community</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="h-[600px]">
+                      {activeChat ? (
+                        <Chat 
+                          channelId={activeChat} 
+                          channelName={myGroups.find(g => g.id === activeChat)?.name || activeChat}
+                        />
+                      ) : (
+                        <div className="text-center text-muted-foreground flex items-center justify-center h-full">
+                          Seleziona un gruppo per iniziare a chattare
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+            </div>
+          </TabsContent>
           
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Chat Community</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[600px]">
-                  {activeChat ? (
-                    <Chat 
-                      channelId={activeChat} 
-                      channelName={myGroups.find(g => g.id === activeChat)?.name || activeChat}
-                    />
-                  ) : (
-                    <div className="text-center text-muted-foreground flex items-center justify-center h-full">
-                      Seleziona un gruppo per iniziare a chattare
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-        </div>
+          <TabsContent value="matching" className="space-y-6">
+            <PetMatchingIntelligence />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
