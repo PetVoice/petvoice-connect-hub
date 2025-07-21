@@ -761,11 +761,11 @@ export const PrivateChatWithReply: React.FC = () => {
                                {chat.other_user.display_name}
                              </h4>
                              <div className="flex items-center gap-2">
-                               {chat.unread_count > 0 && (
-                                 <Badge variant="secondary" className="text-xs">
-                                   {chat.unread_count}
-                                 </Badge>
-                               )}
+                                {chat.unread_count > 0 && selectedChat?.id !== chat.id && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {chat.unread_count}
+                                  </Badge>
+                                )}
                              </div>
                            </div>
                            {chat.last_message && (
