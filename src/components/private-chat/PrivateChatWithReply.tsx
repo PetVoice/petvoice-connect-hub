@@ -952,18 +952,18 @@ export const PrivateChatWithReply: React.FC = () => {
                                      {chat.unread_count}
                                    </Badge>
                                  )}
-                                 <Button
-                                   variant="ghost"
-                                   size="sm"
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     setSelectedChat(chat);
-                                     setShowChatDeleteDialog(true);
-                                   }}
-                                   className="text-red-500 hover:text-red-600 hover:bg-red-50 p-1 h-7 w-7 opacity-70 hover:opacity-100"
-                                 >
-                                   <Trash2 className="h-3.5 w-3.5" />
-                                 </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedChat(chat);
+                                      setShowChatDeleteDialog(true);
+                                    }}
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-50 p-1 h-8 w-8 opacity-90 hover:opacity-100 transition-opacity"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
                               </div>
                             </div>
                            {chat.last_message && (
