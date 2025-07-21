@@ -434,11 +434,12 @@ const CommunityPage = () => {
                       {myGroups.map(group => (
                         <div 
                           key={group.id} 
-                          className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                          className={`flex items-center justify-between p-3 rounded-lg border transition-colors cursor-pointer ${
                             activeChat === group.id 
                               ? 'bg-primary/10 border-primary/50 shadow-md' 
                               : 'bg-card hover:bg-muted/50'
                           }`}
+                          onClick={() => openChat(group.id)}
                         >
                           <div>
                             <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
@@ -449,18 +450,12 @@ const CommunityPage = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => openChat(group.id)}
-                            >
-                              Apri
-                            </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button 
                                   size="sm" 
                                   variant="destructive"
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   Esci
                                 </Button>

@@ -743,26 +743,15 @@ export const PrivateChatWithReply: React.FC = () => {
                          <p className="text-xs text-muted-foreground">Chat privata</p>
                        </div>
                     </div>
-                     <div className="flex items-center gap-2">
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={toggleSelectionMode}
-                         className="text-muted-foreground hover:text-foreground"
-                       >
-                         <CheckSquare className="h-4 w-4 mr-2" />
-                         Seleziona
-                       </Button>
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={() => setShowDeleteChatDialog(true)}
-                         className="text-destructive hover:text-destructive"
-                       >
-                         <Trash2 className="h-4 w-4 mr-2" />
-                         Elimina Chat
-                       </Button>
-                     </div>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       onClick={toggleSelectionMode}
+                       className="text-muted-foreground hover:text-foreground"
+                     >
+                       <CheckSquare className="h-4 w-4 mr-2" />
+                       Seleziona
+                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
@@ -799,7 +788,6 @@ export const PrivateChatWithReply: React.FC = () => {
                         onClick={() => setShowBulkDeleteDialog(true)}
                         disabled={selectedMessages.length === 0}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
                         Elimina ({selectedMessages.length})
                       </Button>
                     </div>
