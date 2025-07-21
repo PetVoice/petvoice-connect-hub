@@ -878,20 +878,32 @@ export const PrivateChatWithReply: React.FC = () => {
                            </AvatarFallback>
                          </Avatar>
                          <div className="flex-1 min-w-0">
-                           <div className="flex items-center justify-between">
-                             <h4 className={`font-medium text-sm truncate ${
-                               selectedChat?.id === chat.id ? 'text-primary font-semibold' : ''
-                             }`}>
-                               {chat.other_user.display_name}
-                             </h4>
-                             <div className="flex items-center gap-2">
-                                {chat.unread_count > 0 && selectedChat?.id !== chat.id && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {chat.unread_count}
-                                  </Badge>
-                                )}
-                             </div>
-                           </div>
+                            <div className="flex items-center justify-between">
+                              <h4 className={`font-medium text-sm truncate ${
+                                selectedChat?.id === chat.id ? 'text-primary font-semibold' : ''
+                              }`}>
+                                {chat.other_user.display_name}
+                              </h4>
+                              <div className="flex items-center gap-2">
+                                 {chat.unread_count > 0 && selectedChat?.id !== chat.id && (
+                                   <Badge variant="secondary" className="text-xs">
+                                     {chat.unread_count}
+                                   </Badge>
+                                 )}
+                                 <Button
+                                   variant="ghost"
+                                   size="sm"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     setSelectedChat(chat);
+                                     setShowChatDeleteDialog(true);
+                                   }}
+                                   className="text-red-500 hover:text-red-600 hover:bg-red-50 p-1 h-7 w-7 opacity-70 hover:opacity-100"
+                                 >
+                                   <Trash2 className="h-3.5 w-3.5" />
+                                 </Button>
+                              </div>
+                            </div>
                            {chat.last_message && (
                              <p className="text-xs text-muted-foreground truncate mt-1">
                                {chat.last_message.sender_id === user.id ? 'Tu: ' : ''}
@@ -946,34 +958,16 @@ export const PrivateChatWithReply: React.FC = () => {
                          <p className="text-xs text-muted-foreground">Chat privata</p>
                        </div>
                      </div>
-                     <div className="flex items-center gap-2">
-                       <Button
-                         variant="ghost"
-                         size="sm"
-                         onClick={toggleSelectionMode}
-                         className="text-muted-foreground hover:text-foreground"
-                       >
-                         <CheckSquare className="h-4 w-4 mr-2" />
-                         Seleziona
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => setShowChatDeleteDialog(true)}
-                              className="text-red-600 focus:text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Elimina chat
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                     </div>
-                    </div>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       onClick={toggleSelectionMode}
+                       className="text-muted-foreground hover:text-foreground"
+                     >
+                       <CheckSquare className="h-4 w-4 mr-2" />
+                       Seleziona
+                     </Button>
+                   </div>
                  ) : (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
