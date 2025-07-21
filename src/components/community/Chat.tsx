@@ -38,6 +38,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showSingleDeleteDialog, setShowSingleDeleteDialog] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -80,18 +82,30 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     try {
       const userNamesMap = await loadUserNames();
       
-      const { data, error } = await supabase
+      // Prima query: ottieni tutti i messaggi non eliminati per tutti
+      const { data: allMessages, error: messagesError } = await supabase
         .from('community_messages')
         .select('*')
         .eq('channel_name', channelId)
         .eq('deleted_by_all', false)
-        .or(`deleted_by_user.eq.false,user_id.eq.${user?.id}`)
         .order('created_at', { ascending: true })
         .limit(100);
 
-      if (error) throw error;
+      if (messagesError) throw messagesError;
+
+      // Seconda query: ottieni i messaggi che l'utente ha eliminato per sé
+      const { data: deletedByUser, error: deletionsError } = await supabase
+        .from('community_message_deletions')
+        .select('message_id')
+        .eq('user_id', user?.id);
+
+      if (deletionsError) throw deletionsError;
+
+      // Filtra i messaggi eliminati dall'utente
+      const deletedMessageIds = new Set(deletedByUser?.map(d => d.message_id) || []);
+      const filteredMessages = allMessages?.filter(msg => !deletedMessageIds.has(msg.id)) || [];
       
-      setMessages(data || []);
+      setMessages(filteredMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast({
@@ -233,6 +247,74 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     }
   };
 
+  const showDeleteDialog = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setShowSingleDeleteDialog(true);
+  };
+
+  const deleteSingleMessageForMe = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('community_message_deletions')
+        .insert([{
+          message_id: messageToDelete,
+          user_id: user?.id
+        }]);
+
+      if (error) throw error;
+
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
+      setShowSingleDeleteDialog(false);
+      setMessageToDelete(null);
+
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato eliminato solo per te"
+      });
+    } catch (error) {
+      console.error('Error deleting message for me:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteSingleMessageForAll = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('community_messages')
+        .update({ 
+          deleted_by_all: true
+        })
+        .eq('id', messageToDelete)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
+      setShowSingleDeleteDialog(false);
+      setMessageToDelete(null);
+
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato eliminato per tutti"
+      });
+    } catch (error) {
+      console.error('Error deleting message for all:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+
   const deleteMessage = async (messageId: string, deleteForAll: boolean = false) => {
     const message = messages.find(msg => msg.id === messageId);
     if (!message) return;
@@ -245,22 +327,20 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         const { error } = await supabase
           .from('community_messages')
           .update({ 
-            deleted_by_all: true,
-            user_deleted_at: new Date().toISOString()
+            deleted_by_all: true
           })
           .eq('id', messageId)
           .eq('user_id', user?.id);
 
         if (error) throw error;
       } else {
-        // Elimina solo per me
+        // Elimina solo per me - aggiungi alla tabella delle eliminazioni
         const { error } = await supabase
-          .from('community_messages')
-          .update({ 
-            deleted_by_user: true,
-            user_deleted_at: new Date().toISOString()
-          })
-          .eq('id', messageId);
+          .from('community_message_deletions')
+          .insert([{
+            message_id: messageId,
+            user_id: user?.id
+          }]);
 
         if (error) throw error;
       }
@@ -345,14 +425,15 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     if (selectedMessages.length === 0) return;
 
     try {
-      // Elimina tutti i messaggi selezionati solo per me
+      // Crea record di eliminazione per ogni messaggio selezionato
+      const deletionRecords = selectedMessages.map(messageId => ({
+        message_id: messageId,
+        user_id: user?.id
+      }));
+
       const { error } = await supabase
-        .from('community_messages')
-        .update({ 
-          deleted_by_user: true,
-          user_deleted_at: new Date().toISOString()
-        })
-        .in('id', selectedMessages);
+        .from('community_message_deletions')
+        .insert(deletionRecords);
 
       if (error) throw error;
 
@@ -389,8 +470,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         const { error: sentError } = await supabase
           .from('community_messages')
           .update({ 
-            deleted_by_all: true,
-            user_deleted_at: new Date().toISOString()
+            deleted_by_all: true
           })
           .in('id', sentMessages.map(msg => msg.id));
 
@@ -399,13 +479,14 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       // Messaggi ricevuti possono essere eliminati solo per me
       if (receivedMessages.length > 0) {
+        const deletionRecords = receivedMessages.map(msg => ({
+          message_id: msg.id,
+          user_id: user?.id
+        }));
+
         const { error: receivedError } = await supabase
-          .from('community_messages')
-          .update({ 
-            deleted_by_user: true,
-            user_deleted_at: new Date().toISOString()
-          })
-          .in('id', receivedMessages.map(msg => msg.id));
+          .from('community_message_deletions')
+          .insert(deletionRecords);
 
         if (receivedError) throw receivedError;
       }
@@ -525,7 +606,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             messages={messages}
             currentUserId={user?.id || ''}
             userNames={userNames}
-            onDeleteMessage={deleteMessage}
+            onDeleteMessage={showDeleteDialog}
             onEditMessage={editMessage}
             onReply={handleReply}
             onScrollToMessage={scrollToMessage}
@@ -582,6 +663,53 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
                 {getSelectedMessagesType() === 'sent' ? 'Elimina per tutti' : 'Elimina (misto)'}
               </AlertDialogAction>
             )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Single Message Delete Dialog */}
+      <AlertDialog open={showSingleDeleteDialog} onOpenChange={setShowSingleDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Elimina Messaggio</AlertDialogTitle>
+            <AlertDialogDescription>
+              {(() => {
+                const message = messages.find(msg => msg.id === messageToDelete);
+                const isMyMessage = message?.user_id === user?.id;
+                
+                if (isMyMessage) {
+                  return "Come vuoi eliminare questo messaggio?";
+                } else {
+                  return "Questo messaggio può essere eliminato solo per te.";
+                }
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={deleteSingleMessageForMe}
+              className="w-full sm:w-auto"
+            >
+              Elimina solo per me
+            </Button>
+            {(() => {
+              const message = messages.find(msg => msg.id === messageToDelete);
+              const isMyMessage = message?.user_id === user?.id;
+              
+              if (isMyMessage) {
+                return (
+                  <AlertDialogAction
+                    onClick={deleteSingleMessageForAll}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+                  >
+                    Elimina per tutti
+                  </AlertDialogAction>
+                );
+              }
+              return null;
+            })()}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

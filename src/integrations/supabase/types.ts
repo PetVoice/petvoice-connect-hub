@@ -702,6 +702,38 @@ export type Database = {
         }
         Relationships: []
       }
+      community_message_deletions: {
+        Row: {
+          created_at: string
+          deleted_at: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_message_deletions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_messages: {
         Row: {
           channel_id: string
@@ -710,7 +742,6 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           deleted_by_all: boolean | null
-          deleted_by_user: boolean | null
           file_url: string | null
           id: string
           is_emergency: boolean | null
@@ -718,7 +749,6 @@ export type Database = {
           metadata: Json | null
           reply_to_id: string | null
           updated_at: string
-          user_deleted_at: string | null
           user_id: string
           voice_duration: number | null
         }
@@ -729,7 +759,6 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           deleted_by_all?: boolean | null
-          deleted_by_user?: boolean | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null
@@ -737,7 +766,6 @@ export type Database = {
           metadata?: Json | null
           reply_to_id?: string | null
           updated_at?: string
-          user_deleted_at?: string | null
           user_id: string
           voice_duration?: number | null
         }
@@ -748,7 +776,6 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           deleted_by_all?: boolean | null
-          deleted_by_user?: boolean | null
           file_url?: string | null
           id?: string
           is_emergency?: boolean | null
@@ -756,7 +783,6 @@ export type Database = {
           metadata?: Json | null
           reply_to_id?: string | null
           updated_at?: string
-          user_deleted_at?: string | null
           user_id?: string
           voice_duration?: number | null
         }
