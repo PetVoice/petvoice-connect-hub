@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -114,6 +115,7 @@ const CommunityPage = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
+  const [unreadCounts, setUnreadCounts] = useState({}); // Traccia i messaggi non letti per gruppo
   
   useEffect(() => {
     if (user?.id) {
@@ -124,6 +126,54 @@ const CommunityPage = () => {
   useEffect(() => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
+
+  // Calcola i messaggi non letti per un gruppo specifico
+  const calculateUnreadCount = async (channelName) => {
+    try {
+      // Contiamo i messaggi degli altri utenti delle ultime 24 ore
+      const { count, error } = await supabase
+        .from('community_messages')
+        .select('*', { count: 'exact' })
+        .eq('channel_name', channelName)
+        .neq('user_id', user.id) // Messaggi non dell'utente corrente
+        .is('deleted_at', null) // Solo messaggi non eliminati
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Ultimi 24 ore
+
+      if (error) {
+        console.error('Error calculating unread count:', error);
+        return 0;
+      }
+
+      return count || 0;
+    } catch (error) {
+      console.error('Error calculating unread count:', error);
+      return 0;
+    }
+  };
+
+  // Carica i conteggi dei messaggi non letti per tutti i gruppi
+  const loadUnreadCounts = async (groups) => {
+    const newUnreadCounts = {};
+    
+    for (const group of groups) {
+      const count = await calculateUnreadCount(group.id);
+      if (count > 0) {
+        newUnreadCounts[group.id] = count;
+      }
+    }
+    
+    setUnreadCounts(newUnreadCounts);
+  };
+
+  // Marca i messaggi come letti quando si apre una chat
+  const markGroupAsRead = async (groupId) => {
+    // Rimuovi il conteggio non letti per questo gruppo
+    setUnreadCounts(prev => {
+      const newCounts = { ...prev };
+      delete newCounts[groupId];
+      return newCounts;
+    });
+  };
   
   const loadMyGroups = async () => {
     try {
@@ -146,6 +196,9 @@ const CommunityPage = () => {
       const groups = Array.from(groupsMap.values());
       setMyGroups(groups);
       console.log('I MIEI GRUPPI:', groups);
+      
+      // Carica i conteggi dei messaggi non letti
+      await loadUnreadCounts(groups);
       
     } catch (error) {
       console.error('Errore caricamento gruppi:', error);
@@ -285,6 +338,8 @@ const CommunityPage = () => {
   
   const openChat = (groupId) => {
     setActiveChat(groupId);
+    // Marca il gruppo come letto quando viene aperto
+    markGroupAsRead(groupId);
   };
   
   return (
@@ -440,15 +495,22 @@ const CommunityPage = () => {
                               : 'bg-card hover:bg-muted/50'
                           }`}
                           onClick={() => openChat(group.id)}
-                        >
-                          <div>
-                            <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
-                              {group.name}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
-                            </div>
-                          </div>
+                         >
+                           <div>
+                             <div className="flex items-center gap-2">
+                               <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
+                                 {group.name}
+                               </div>
+                               {unreadCounts[group.id] && unreadCounts[group.id] > 0 && activeChat !== group.id && (
+                                 <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground">
+                                   {unreadCounts[group.id]}
+                                 </Badge>
+                               )}
+                             </div>
+                             <div className="text-sm text-muted-foreground">
+                               {group.type === 'general' ? 'Gruppo generale' : 'Gruppo specifico'}
+                             </div>
+                           </div>
                           <div className="flex gap-2">
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
