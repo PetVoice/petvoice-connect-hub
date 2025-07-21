@@ -453,7 +453,7 @@ const DiaryPage: React.FC = () => {
     setShowDeleteAllConfirm(false);
   };
 
-  const resetForm = () => {
+  const resetForm = (selectedDate?: Date) => {
     setFormData({
       title: '',
       content: '',
@@ -463,7 +463,7 @@ const DiaryPage: React.FC = () => {
       voice_note_url: null,
       weather_condition: '',
       temperature: null,
-      entry_date: format(new Date(), 'yyyy-MM-dd')
+      entry_date: format(selectedDate || new Date(), 'yyyy-MM-dd')
     });
     setEditingEntry(null);
   };
@@ -719,7 +719,7 @@ const DiaryPage: React.FC = () => {
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={resetForm} variant="default">
+              <Button onClick={() => resetForm()} variant="default">
                 <Plus className="h-4 w-4 mr-2" />
                 Nuova Voce
               </Button>
@@ -1526,8 +1526,7 @@ const DiaryPage: React.FC = () => {
                   <Button
                     variant="default"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
-                      resetForm();
+                      resetForm(dayEntriesModal.date);
                       setDayEntriesModal({ ...dayEntriesModal, open: false });
                       setIsDialogOpen(true);
                     }}
