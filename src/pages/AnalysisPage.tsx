@@ -316,7 +316,7 @@ const AnalysisPage: React.FC = () => {
 
     return {
       primary_emotion: primaryEmotion,
-      primary_confidence: confidence,
+      primary_confidence: confidence / 100, // Converte da percentuale (70-99) a decimale (0.70-0.99)
       secondary_emotions: secondaryEmotions,
       behavioral_insights: `Analisi comportamentale per ${file.name}`,
       recommendations: ['Raccomandazione 1', 'Raccomandazione 2'],
