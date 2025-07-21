@@ -448,6 +448,9 @@ export const PrivateChatWithReply: React.FC = () => {
     if (!newMessage.trim() || !selectedChat || sendingMessage) return;
 
     console.log('🚀 Starting to send message:', newMessage.trim());
+    console.log('📋 User ID:', user?.id);
+    console.log('📋 Selected chat ID:', selectedChat?.id);
+    console.log('📋 Selected chat participants:', selectedChat?.participant_1_id, selectedChat?.participant_2_id);
     
     try {
       setSendingMessage(true);
