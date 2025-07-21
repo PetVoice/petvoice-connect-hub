@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
 import { useToast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -56,6 +57,7 @@ const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showToast } = useToastWithIcon();
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
   const updateProtocol = useUpdateProtocol();
@@ -91,10 +93,10 @@ const TrainingDashboard: React.FC = () => {
         
       if (error) {
         console.error('Error fetching protocol:', error);
-        toast({
+        showToast({
           title: 'Errore',
           description: 'Non è stato possibile caricare il protocollo',
-          variant: 'destructive',
+          type: 'error'
         });
         navigate('/training');
         return;
@@ -201,19 +203,19 @@ const TrainingDashboard: React.FC = () => {
     try {
       // Verifica che esista un esercizio corrente
       if (!todayExercises || todayExercises.length === 0) {
-        toast({
+        showToast({
           title: 'Errore',
           description: 'Nessun esercizio disponibile per oggi.',
-          variant: 'destructive',
+          type: 'error'
         });
         return;
       }
 
       if (currentExercise >= todayExercises.length || currentExercise < 0) {
-        toast({
+        showToast({
           title: 'Errore',
           description: 'Esercizio non valido.',
-          variant: 'destructive',
+          type: 'error'
         });
         return;
       }
@@ -221,10 +223,10 @@ const TrainingDashboard: React.FC = () => {
       const currentEx = todayExercises[currentExercise];
       
       if (!currentEx) {
-        toast({
+        showToast({
           title: 'Errore',
           description: 'Esercizio non trovato.',
-          variant: 'destructive',
+          type: 'error'
         });
         return;
       }
@@ -271,9 +273,10 @@ const TrainingDashboard: React.FC = () => {
         
         if (isLastDay) {
           // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
-          toast({
-            title: `✅ Esercizio ${currentExercise + 1} completato!`,
-            description: "🏆 Hai completato tutto il protocollo! Valuta la tua esperienza.",
+          showToast({
+            title: `Esercizio ${currentExercise + 1} completato!`,
+            description: "Hai completato tutto il protocollo! Valuta la tua esperienza.",
+            type: 'achievement'
           });
           
           setTimeout(() => {
@@ -283,9 +286,10 @@ const TrainingDashboard: React.FC = () => {
           // PASSA AL GIORNO SUCCESSIVO AUTOMATICAMENTE
           
           // 1. Toast per esercizio completato
-          toast({
-            title: `✅ Esercizio ${currentExercise + 1} completato!`,
-            description: `🎉 Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
+          showToast({
+            title: `Esercizio ${currentExercise + 1} completato!`,
+            description: `Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
+            type: 'complete'
           });
           
           // 2. Aggiorna il database: current_day + 1
@@ -332,17 +336,19 @@ const TrainingDashboard: React.FC = () => {
             setCurrentExercise(0);
             
             // 6. Toast di congratulazioni per il nuovo giorno
-            toast({
-              title: "🎉 Nuovo giorno iniziato!",
+            showToast({
+              title: "Nuovo giorno iniziato!",
               description: `Benvenuto al giorno ${newCurrentDay}! Progresso: ${Math.min(newProgressPercentage, 100)}%`,
+              type: 'complete'
             });
           }, 2000);
         }
       } else {
         // NON è l'ultimo esercizio del giorno - solo toast normale e passa al prossimo
-        toast({
-          title: `✅ Esercizio ${currentExercise + 1} completato!`,
+        showToast({
+          title: `Esercizio ${currentExercise + 1} completato!`,
           description: `Ottimo lavoro! Continua con l'esercizio ${currentExercise + 2}.`,
+          type: 'exercise'
         });
 
         // Passa al prossimo esercizio
@@ -351,10 +357,10 @@ const TrainingDashboard: React.FC = () => {
 
     } catch (error) {
       console.error('Error completing exercise:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Non è stato possibile completare l\'esercizio. Riprova.',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -362,10 +368,10 @@ const TrainingDashboard: React.FC = () => {
   // Funzione per interrompere il protocollo
   const handleInterruptProtocol = async () => {
     if (!protocol) {
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Protocollo non trovato.',
-        variant: 'destructive',
+        type: 'error'
       });
       return;
     }
@@ -381,9 +387,10 @@ const TrainingDashboard: React.FC = () => {
         }
       });
 
-      toast({
+      showToast({
         title: 'Protocollo interrotto',
         description: `Il protocollo "${protocol.title}" è stato interrotto con successo`,
+        type: 'info'
       });
 
       // Torna alla dashboard principale
@@ -392,10 +399,10 @@ const TrainingDashboard: React.FC = () => {
       }, 1500);
     } catch (error) {
       console.error('Error pausing protocol:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Non è stato possibile interrompere il protocollo.',
-        variant: 'destructive',
+        type: 'error'
       });
     }
   };
@@ -418,10 +425,10 @@ const TrainingDashboard: React.FC = () => {
 
       if (error) {
         console.error('Errore inserimento valutazione:', error);
-        toast({
+        showToast({
           title: 'Errore',
           description: 'Non è stato possibile salvare la valutazione. Riprova.',
-          variant: 'destructive',
+          type: 'error'
         });
         return;
       }
@@ -437,9 +444,10 @@ const TrainingDashboard: React.FC = () => {
       });
 
       // Toast di successo
-      toast({
-        title: "🏆 PROTOCOLLO COMPLETATO!",
+      showToast({
+        title: "PROTOCOLLO COMPLETATO!",
         description: `Complimenti! Hai completato con successo tutto il protocollo "${protocol?.title || 'questo protocollo'}" e la tua valutazione è stata salvata!`,
+        type: 'achievement'
       });
 
       // Chiudi dialog e reindirizza
@@ -450,10 +458,10 @@ const TrainingDashboard: React.FC = () => {
 
     } catch (error) {
       console.error('Errore completamento protocollo:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Non è stato possibile completare il protocollo. Riprova.',
-        variant: 'destructive',
+        type: 'error'
       });
     } finally {
       setIsSubmittingRating(false);

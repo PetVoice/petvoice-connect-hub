@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from "@/hooks/use-toast";
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { 
   CheckCircle, 
   Clock, 
@@ -136,6 +137,7 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
   overallProgress
 }) => {
   const { toast } = useToast();
+  const { showToast } = useToastWithIcon();
   const [selectedExercise, setSelectedExercise] = useState<DailyExercise | null>(null);
   const [feedback, setFeedback] = useState('');
   const [effectiveness, setEffectiveness] = useState(5);
@@ -168,9 +170,10 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
       exercise.feedback = feedback;
       exercise.effectiveness = effectiveness;
       
-      toast({
-        title: "Esercizio Completato! 🎉",
+      showToast({
+        title: "Esercizio Completato!",
         description: `"${exercise.title}" è stato completato con successo.`,
+        type: 'complete'
       });
       
       setSelectedExercise(null);
@@ -180,9 +183,10 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
   };
 
   const handleUploadVideo = (exerciseId: string) => {
-    toast({
+    showToast({
       title: "Video Caricato!",
       description: "Il video dell'esercizio è stato caricato per l'analisi AI.",
+      type: 'upload'
     });
   };
 
