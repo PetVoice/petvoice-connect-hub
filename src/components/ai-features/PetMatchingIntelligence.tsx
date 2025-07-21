@@ -411,79 +411,59 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // Create a unique channel name for this connection
-      const channelName = `pet-match-${user.id}-${selectedTwin.user_id}`;
-      
-      // First, create or get the private channel
-      const { data: existingChannel } = await supabase
-        .from('community_channels')
-        .select('id')
-        .eq('name', channelName)
+      // Get current user profile for display name
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', user.id)
         .single();
 
-      let channelId = existingChannel?.id;
+      const userName = userProfile?.display_name || user.user_metadata?.display_name || 'Utente';
 
-      if (!channelId) {
-        // Create new private channel
-        const { data: newChannel, error: channelError } = await supabase
-          .from('community_channels')
-          .insert({
-            name: channelName,
-            description: `Chat privata per connessione pet: ${selectedTwin.name}`,
-            channel_type: 'pet_type', // Using existing type
-            is_active: true,
-            emoji: '💬'
-          })
-          .select('id')
-          .single();
+      // Use the general "cane" channel for connection messages
+      const { data: channelData } = await supabase
+        .from('community_channels')
+        .select('id, name')
+        .eq('channel_type', 'pet_type')
+        .limit(1)
+        .single();
 
-        if (channelError) {
-          console.error('Error creating channel:', channelError);
-          throw channelError;
-        }
-        channelId = newChannel.id;
+      if (!channelData) {
+        throw new Error('Nessun canale disponibile');
       }
 
-      // Subscribe both users to the channel
-      const subscriptions = [
-        {
-          user_id: user.id,
-          channel_id: channelId,
-          channel_name: channelName
-        },
-        {
-          user_id: selectedTwin.user_id,
-          channel_id: channelId,
-          channel_name: channelName
-        }
-      ];
-
+      // Subscribe current user to the channel if not already subscribed
       const { error: subscriptionError } = await supabase
         .from('user_channel_subscriptions')
-        .upsert(subscriptions, {
+        .upsert({
+          user_id: user.id,
+          channel_id: channelData.id,
+          channel_name: channelData.name
+        }, {
           onConflict: 'user_id,channel_id'
         });
 
       if (subscriptionError) {
-        console.error('Error creating subscriptions:', subscriptionError);
-        throw subscriptionError;
+        console.log('Subscription error (non-critical):', subscriptionError);
+        // Continue anyway
       }
 
-      // Send initial connection message
+      // Send a connection request message
       const { error: messageError } = await supabase
         .from('community_messages')
         .insert({
-          channel_id: channelId,
-          channel_name: channelName,
+          channel_id: channelData.id,
+          channel_name: channelData.name,
           user_id: user.id,
-          content: `👋 Ciao! Ho visto che abbiamo pet simili. Il mio ${selectedTwin.name} potrebbe essere un ottimo compagno per il tuo!`,
+          content: `👋 Ciao! Sono ${userName} e ho visto il tuo ${selectedTwin.name}. I nostri pet potrebbero essere ottimi compagni! Scrivimiù in privato se vuoi organizzare un incontro.`,
           message_type: 'connection_request',
           metadata: {
             pet_id: petId,
-            pet_name: selectedTwin.name,
+            target_pet_name: selectedTwin.name,
             target_user_id: selectedTwin.user_id,
             connection_type: 'pet_match',
-            match_score: selectedTwin.matchScore
+            match_score: selectedTwin.matchScore,
+            is_connection_request: true
           }
         });
 
@@ -499,21 +479,18 @@ export const PetMatchingIntelligence: React.FC = () => {
           user_id: user.id,
           pet_id: petId,
           activity_type: 'connection_request_sent',
-          activity_description: `Chat creata con proprietario di ${selectedTwin.name}`,
+          activity_description: `Messaggio di connessione inviato nel canale ${channelData.name}`,
           metadata: {
-            channel_id: channelId,
-            channel_name: channelName,
-            target_pet_id: selectedTwin.id,
+            channel_id: channelData.id,
+            target_pet_name: selectedTwin.name,
             target_user_id: selectedTwin.user_id
           }
         });
 
       toast({
-        title: "Chat creata!",
-        description: `Vai nella sezione Community per chattare con il proprietario di ${selectedTwin.name}.`,
+        title: "Messaggio inviato!",
+        description: `Il tuo messaggio di connessione è stato pubblicato nel canale ${channelData.name}. Vai alla sezione Community per vedere le risposte.`,
       });
-
-      // Navigate to community section (you might want to add router navigation here)
       
     } catch (error) {
       console.error('Connection error:', error);
