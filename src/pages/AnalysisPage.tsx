@@ -321,7 +321,7 @@ const AnalysisPage: React.FC = () => {
       behavioral_insights: `Analisi comportamentale per ${file.name}`,
       recommendations: ['Raccomandazione 1', 'Raccomandazione 2'],
       triggers: ['Trigger 1', 'Trigger 2'],
-      analysis_duration: '30 secondi'
+      analysis_duration: '30 seconds'
     };
   };
 
