@@ -144,23 +144,50 @@ serve(async (req) => {
         const priceId = subscription.items.data[0].price.id;
         const price = await stripe.prices.retrieve(priceId);
         const amount = price.unit_amount || 0;
+        logStep("Price details", { priceId, amount });
 
         let subscriptionTier = 'premium'; // Solo Premium disponibile
 
         const isActive = subscription.status === 'active';
         const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
+        // Ottieni user_id dai metadata della subscription o cerca per email
+        let userId = subscription.metadata?.user_id || null;
+        
+        if (!userId && customer.email) {
+          // Cerca utente per email
+          const { data: authUsers } = await supabaseClient.auth.admin.listUsers();
+          const user = authUsers.users.find(u => u.email === customer.email);
+          
+          if (user) {
+            userId = user.id;
+          }
+        }
+
+        logStep("About to update database", { 
+          email: customer.email, 
+          userId: userId,
+          tier: subscriptionTier, 
+          subscriptionId: subscription.id,
+          subscriptionEnd,
+          status: subscription.status
+        });
+
         await supabaseClient.from("subscribers").upsert({
           email: customer.email,
+          user_id: userId, // 🔥 IMPORTANTE: aggiunge user_id
           stripe_customer_id: subscription.customer,
           subscribed: isActive,
+          subscription_status: subscription.status, // 🔥 IMPORTANTE: aggiunge subscription_status per il trigger!
           subscription_tier: isActive ? 'premium' : null,
           subscription_end: subscriptionEnd,
+          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(), // 🔥 Per i rinnovi
+          current_period_end: subscriptionEnd, // 🔥 Per i rinnovi
           stripe_subscription_id: subscription.id,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'email' });
 
-        logStep("Updated subscription status", { email: customer.email, active: isActive, tier: subscriptionTier });
+        logStep("Updated database with subscription info", { subscribed: isActive, subscriptionTier });
         break;
       }
 
