@@ -37,6 +37,93 @@ function processBase64Chunks(base64String: string, chunkSize = 32768) {
   return result;
 }
 
+// Funzione per generare analisi mock quando OpenAI non è disponibile
+async function getMockVoiceAnalysis(petId: string, userId: string) {
+  const emotions = ['felice', 'calmo', 'ansioso', 'eccitato', 'giocoso'];
+  const ownerEmotions = ['calmo', 'preoccupato', 'affettuoso', 'entusiasta'];
+  
+  const petEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+  const ownerEmotion = ownerEmotions[Math.floor(Math.random() * ownerEmotions.length)];
+  
+  const mockData = {
+    pet_emotion: {
+      primary: petEmotion,
+      confidence: Math.floor(Math.random() * 30) + 70,
+      secondary: [{ emotion: emotions.find(e => e !== petEmotion) || 'calmo', confidence: 30 }]
+    },
+    owner_emotion: {
+      primary: ownerEmotion,
+      confidence: Math.floor(Math.random() * 25) + 75,
+      secondary: [{ emotion: ownerEmotions.find(e => e !== ownerEmotion) || 'calmo', confidence: 25 }]
+    },
+    combined_insights: `Analisi della dinamica emotiva tra il pet (${petEmotion}) e il proprietario (${ownerEmotion}). L'interazione mostra una correlazione positiva tra gli stati emotivi.`,
+    pet_behavioral_insights: `Il pet mostra segni di ${petEmotion}. Questo stato emotivo è tipico e suggerisce un buon equilibrio comportamentale.`,
+    owner_emotional_insights: `Il proprietario appare ${ownerEmotion} nell'interazione con il pet, indicando un legame positivo.`,
+    recommendations: [
+      'Continua a monitorare il comportamento per identificare pattern',
+      'Mantieni routine regolari per stabilità emotiva'
+    ],
+    personalized_advice: [
+      'Osserva come le tue emozioni influenzano quelle del pet',
+      'Crea momenti di qualità insieme per rafforzare il legame'
+    ],
+    triggers: ['cambiamenti ambientali', 'nuove persone'],
+    transcription: 'Analisi mock generata per problemi di quota API'
+  };
+
+  // Inizializza client Supabase
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  // Salva l'analisi nel database
+  const { data: savedAnalysis, error: saveError } = await supabase
+    .from('pet_analyses')
+    .insert({
+      user_id: userId,
+      pet_id: petId,
+      file_name: 'Analisi Vocale Combinata (Simulata)',
+      file_type: 'voice_analysis',
+      file_size: 1024,
+      storage_path: null,
+      primary_emotion: mockData.pet_emotion.primary,
+      primary_confidence: mockData.pet_emotion.confidence / 100,
+      secondary_emotions: mockData.pet_emotion.secondary,
+      behavioral_insights: mockData.combined_insights,
+      recommendations: mockData.recommendations.concat(mockData.personalized_advice),
+      triggers: mockData.triggers,
+      analysis_duration: null,
+      metadata: {
+        analysis_type: 'voice_combined_mock',
+        transcription: mockData.transcription,
+        pet_emotion: mockData.pet_emotion,
+        owner_emotion: mockData.owner_emotion,
+        pet_behavioral_insights: mockData.pet_behavioral_insights,
+        owner_emotional_insights: mockData.owner_emotional_insights,
+        combined_insights: mockData.combined_insights,
+        mock: true
+      }
+    })
+    .select()
+    .single();
+
+  if (saveError) {
+    console.error('Errore salvataggio database:', saveError);
+    throw saveError;
+  }
+
+  console.log('Mock analysis saved successfully:', savedAnalysis.id);
+
+  return new Response(JSON.stringify({
+    success: true,
+    analysisId: savedAnalysis.id,
+    analysis: mockData,
+    transcription: mockData.transcription
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -76,6 +163,14 @@ serve(async (req) => {
 
     if (!transcriptionResponse.ok) {
       const error = await transcriptionResponse.json();
+      console.error('OpenAI transcription error:', error);
+      
+      // Se c'è un errore di quota, usa un'analisi mock
+      if (error.error?.code === 'insufficient_quota' || error.error?.message?.includes('quota')) {
+        console.log('Using mock analysis due to quota error');
+        return getMockVoiceAnalysis(petId, userId);
+      }
+      
       throw new Error(`Errore trascrizione: ${error.error?.message || 'Errore sconosciuto'}`);
     }
 
@@ -145,6 +240,14 @@ serve(async (req) => {
 
     if (!analysisResponse.ok) {
       const error = await analysisResponse.json();
+      console.error('OpenAI analysis error:', error);
+      
+      // Se c'è un errore di quota, usa un'analisi mock
+      if (error.error?.code === 'insufficient_quota' || error.error?.message?.includes('quota')) {
+        console.log('Using mock analysis due to quota error');
+        return getMockVoiceAnalysis(petId, userId);
+      }
+      
       throw new Error(`OpenAI API error: ${error.error?.message || 'Errore sconosciuto'}`);
     }
 

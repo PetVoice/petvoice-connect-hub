@@ -61,6 +61,11 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
         const blob = new Blob(chunks, { type: 'audio/webm' });
         setRecordedBlob(blob);
         stream.getTracks().forEach(track => track.stop());
+        
+        // Auto-analizza quando si ferma la registrazione (come Registrazione Diretta)
+        setTimeout(() => {
+          analyzeBlob(blob);
+        }, 500); // Piccolo delay per far vedere che la registrazione è finita
       };
       
       mediaRecorderRef.current = mediaRecorder;
@@ -113,8 +118,9 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
     }
   };
 
-  const analyzeRecording = async () => {
-    if (!recordedBlob) {
+  const analyzeBlob = async (blob?: Blob) => {
+    const recordingToAnalyze = blob || recordedBlob;
+    if (!recordingToAnalyze) {
       toast({
         title: "Errore",
         description: "Nessuna registrazione disponibile",
@@ -146,7 +152,7 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
       if (!user) throw new Error('Utente non autenticato');
 
       // Converti il blob in base64
-      const arrayBuffer = await recordedBlob.arrayBuffer();
+      const arrayBuffer = await recordingToAnalyze.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
       let binaryString = '';
       const chunkSize = 0x8000;
@@ -204,6 +210,9 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
       // Qui gestiamo solo il caso di errore
     }
   };
+
+  // Alias per compatibilità con i controlli esistenti
+  const analyzeRecording = () => analyzeBlob();
 
   const resetRecording = () => {
     setRecordedBlob(null);
@@ -263,62 +272,26 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
             <p className="text-sm text-muted-foreground">
               {isRecording 
                 ? "Descrivi cosa sta facendo il tuo pet..." 
-                : recordedBlob 
-                  ? "Registrazione completata"
+                : isAnalyzing
+                  ? "Analisi in corso..."
                   : "Tocca per iniziare a registrare"
               }
             </p>
+            {isAnalyzing && (
+              <p className="text-xs text-primary font-medium">
+                L'analisi si avvierà automaticamente al termine della registrazione
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Recording Controls */}
-        {recordedBlob && !isRecording && (
-          <div className="space-y-3">
-            <div className="flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={playRecording}
-                disabled={isAnalyzing}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="h-4 w-4 mr-2" />
-                    Pausa
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-4 w-4 mr-2" />
-                    Ascolta
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={resetRecording}
-                disabled={isAnalyzing}
-              >
-                Elimina
-              </Button>
+        {/* Stato dell'analisi */}
+        {isAnalyzing && (
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Analizzando emozioni...</span>
             </div>
-
-            <Button 
-              onClick={analyzeRecording}
-              disabled={isAnalyzing || !selectedPet}
-              className="w-full bg-primary hover:bg-primary/90 text-white"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Analizzando emozioni...
-                </>
-              ) : (
-                <>
-                  <Brain className="h-4 w-4 mr-2" />
-                  Analizza Emozioni (Pet + Proprietario)
-                </>
-              )}
-            </Button>
           </div>
         )}
 
