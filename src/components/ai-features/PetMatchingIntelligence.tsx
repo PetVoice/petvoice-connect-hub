@@ -44,6 +44,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
+import { supabase } from "@/integrations/supabase/client";
 
 // Enhanced Types
 interface PetTwin {
@@ -394,16 +395,67 @@ export const PetMatchingIntelligence: React.FC = () => {
     return bookmarkedItems.has(`${type}-${id}`);
   };
 
-  const handleConnect = (petId: string) => {
+  const handleConnect = async (petId: string) => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    const selectedTwin = filteredPetTwins.find(twin => twin.id === petId);
+    if (!selectedTwin) {
       setIsLoading(false);
+      return;
+    }
+
+    try {
+      // Create a connection notification in the database
+      const { error } = await supabase
+        .from('community_notifications')
+        .insert({
+          user_id: selectedTwin.user_id, // The owner of the pet we want to connect with
+          channel_id: selectedTwin.id, // Using pet ID as channel reference
+          message_id: selectedTwin.id, // Reference to the connection request
+          is_read: false
+        });
+
+      if (error) {
+        console.error('Error creating connection notification:', error);
+        throw error;
+      }
+
+      // Also create a message in community to track the connection request
+      const { error: messageError } = await supabase
+        .from('community_messages')
+        .insert({
+          channel_id: selectedTwin.id,
+          channel_name: `pet-connection-${selectedTwin.id}`,
+          user_id: selectedTwin.user_id, // Current user requesting connection
+          content: `Richiesta di connessione per ${selectedTwin.name}`,
+          message_type: 'connection_request',
+          metadata: {
+            pet_id: petId,
+            pet_name: selectedTwin.name,
+            requester_name: 'Current User', // This should come from user profile
+            connection_type: 'pet_match'
+          }
+        });
+
+      if (messageError) {
+        console.error('Error creating connection message:', messageError);
+        // Don't throw here as the notification was created successfully
+      }
+
       toast({
         title: "Connessione inviata!",
-        description: "La richiesta di connessione è stata inviata al proprietario del pet.",
+        description: `La richiesta di connessione è stata inviata al proprietario di ${selectedTwin.name}.`,
       });
-    }, 1500);
+    } catch (error) {
+      console.error('Connection error:', error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile inviare la richiesta di connessione. Riprova.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContactMentor = (mentorId: string) => {
