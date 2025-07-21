@@ -209,8 +209,27 @@ export const PrivateChat: React.FC = () => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedChat || sendingMessage) return;
 
+    console.log('🚀 PrivateChat - Starting to send message:', newMessage.trim());
+    console.log('📋 PrivateChat - Selected chat ID:', selectedChat?.id);
+
     try {
       setSendingMessage(true);
+
+      // First, reactivate the chat if it was deleted by either user
+      console.log('🔄 PrivateChat - Checking if chat needs reactivation...');
+      const { error: reactivateError } = await supabase
+        .from('private_chats')
+        .update({
+          deleted_by_participant_1: false,
+          deleted_by_participant_2: false,
+        })
+        .eq('id', selectedChat.id);
+
+      if (reactivateError) {
+        console.error('❌ PrivateChat - Error reactivating chat:', reactivateError);
+      } else {
+        console.log('✅ PrivateChat - Chat reactivated successfully');
+      }
 
       const { error } = await supabase
         .from('private_messages')
