@@ -353,12 +353,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
         {/* Help Section */}
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-          <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
+          <h4 className="font-medium mb-3 text-blue-800 dark:text-blue-200">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+            <p>• <strong>Audio:</strong> Tono, frequenza e intensità delle vocalizzazioni del pet</p>
+            <p>• <strong>Video:</strong> Movimenti corporei, postura e espressioni facciali</p>
+            <p>• <strong>Contesto:</strong> Ambiente circostante e situazioni scatenanti</p>
+          </div>
+          
+          <h4 className="font-medium mb-2 mt-4 text-blue-800 dark:text-blue-200">💡 Consigli per il Miglior Risultato</h4>
           <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-            <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
-            <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
-            <p>• <strong>Dimensione max:</strong> {maxSizePerFile}MB per file</p>
-            <p>• <strong>Durata consigliata:</strong> 10 secondi - 5 minuti</p>
+            <p>• Registra in momenti di emozione spontanea del pet</p>
+            <p>• Mantieni una distanza di 1-2 metri per audio chiaro</p>
+            <p>• Evita rumori di fondo o distrazioni durante la registrazione</p>
+            <p>• Cattura almeno 10-30 secondi di comportamento continuativo</p>
+            <p>• Includi il volto del pet nel video per analisi più accurate</p>
           </div>
         </div>
       </CardContent>

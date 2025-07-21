@@ -319,19 +319,26 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
 
         {/* Help Section */}
         <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
-          <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
-          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+          <h4 className="font-medium mb-3 text-gray-800 dark:text-gray-200">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
             <div className="flex items-center gap-2">
               <Heart className="h-4 w-4 text-red-500" />
-              <span><strong>Emozione del pet</strong> - dalle tue descrizioni del comportamento</span>
+              <span><strong>Emozione del pet:</strong> Dedotta dalle tue descrizioni comportamentali</span>
             </div>
             <div className="flex items-center gap-2">
               <Brain className="h-4 w-4 text-primary" />
-              <span><strong>La tua emozione</strong> - dal tono di voce e dalle parole</span>
+              <span><strong>La tua emozione:</strong> Rilevata dal tono di voce e scelta delle parole</span>
             </div>
-            <div className="mt-2 text-xs">
-              💡 <strong>Consigli personalizzati</strong> basati su entrambe le emozioni rilevate
-            </div>
+            <p>• <strong>Correlazione emotiva:</strong> Come le tue emozioni influenzano quelle del pet</p>
+          </div>
+          
+          <h4 className="font-medium mb-2 mt-4 text-gray-800 dark:text-gray-200">💡 Consigli per il Miglior Risultato</h4>
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+            <p>• Parla naturalmente, senza forzare il tono di voce</p>
+            <p>• Descrivi sia quello che vedi che quello che provi</p>
+            <p>• Sii spontaneo: le emozioni autentiche danno risultati migliori</p>
+            <p>• Registra 30-60 secondi per analisi complete</p>
+            <p>• Includi il tuo stato d'animo attuale nella descrizione</p>
           </div>
         </div>
       </CardContent>

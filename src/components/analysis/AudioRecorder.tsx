@@ -506,12 +506,20 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
         {/* Help Section */}
         <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-          <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
+          <h4 className="font-medium mb-3 text-green-800 dark:text-green-200">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-green-700 dark:text-green-300 space-y-2">
+            <p>• <strong>Tono emotivo:</strong> Gioia, stress, paura dalle vocalizzazioni</p>
+            <p>• <strong>Intensità:</strong> Livello di eccitazione o calma del pet</p>
+            <p>• <strong>Frequenza:</strong> Pattern vocali caratteristici di ogni emozione</p>
+          </div>
+          
+          <h4 className="font-medium mb-2 mt-4 text-green-800 dark:text-green-200">💡 Consigli per il Miglior Risultato</h4>
           <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
-            <p>• Registra in un ambiente silenzioso</p>
-            <p>• Posizionati vicino al tuo pet</p>
-            <p>• Durata consigliata: 10-60 secondi</p>
-            <p>• Massimo {Math.floor(maxDuration / 60)} minuti di registrazione</p>
+            <p>• Registra quando il pet vocalizza naturalmente</p>
+            <p>• Mantieni il microfono a 30-50cm dal pet</p>
+            <p>• Scegli un ambiente silenzioso senza echi</p>
+            <p>• Cattura diversi tipi di suoni: abbaio, mugolare, fusa</p>
+            <p>• Evita di forzare il pet a fare suoni</p>
           </div>
         </div>
       </CardContent>

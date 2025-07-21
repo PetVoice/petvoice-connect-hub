@@ -131,12 +131,20 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
 
         {/* Help Section */}
         <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-          <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
+          <h4 className="font-medium mb-3 text-purple-800 dark:text-purple-200">🎯 Cosa Analizza</h4>
+          <div className="text-sm text-purple-700 dark:text-purple-300 space-y-2">
+            <p>• <strong>Comportamenti:</strong> Azioni specifiche e pattern comportamentali</p>
+            <p>• <strong>Contesto emotivo:</strong> Situazioni e trigger che influenzano l'umore</p>
+            <p>• <strong>Linguaggio corporeo:</strong> Postura, movimenti e segnali fisici</p>
+          </div>
+          
+          <h4 className="font-medium mb-2 mt-4 text-purple-800 dark:text-purple-200">💡 Consigli per il Miglior Risultato</h4>
           <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
-            <p>• Comportamento specifico osservato</p>
-            <p>• Contesto e situazione (dove, quando)</p>
-            <p>• Cambiamenti rispetto al solito</p>
-            <p>• Postura e segnali del corpo</p>
+            <p>• Descrivi comportamenti specifici, non interpretazioni</p>
+            <p>• Includi il contesto: dove, quando, cosa è successo prima</p>
+            <p>• Menziona cambiamenti rispetto al comportamento normale</p>
+            <p>• Usa dettagli concreti: "orecchie abbassate" vs "triste"</p>
+            <p>• Descrivi la durata e l'intensità del comportamento</p>
           </div>
         </div>
       </CardContent>
