@@ -522,84 +522,24 @@ const AnalysisPage: React.FC = () => {
 
           {/* Upload Methods - Layout verticale */}
           <div className="space-y-6">
-            {/* File Upload Card */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Upload className="h-5 w-5 text-blue-500" />
-                <h3 className="text-lg font-semibold">Upload File Audio/Video</h3>
-              </div>
-              <FileUploader 
-                onFilesSelected={handleFileUpload} 
-                autoAnalyzeAudio={true}
-              />
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
-                <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
-                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
-                  <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
-                  <p>• <strong>Dimensione max:</strong> 50MB per file</p>
-                </div>
-              </div>
-            </Card>
+            {/* File Upload */}
+            <FileUploader 
+              onFilesSelected={handleFileUpload} 
+              autoAnalyzeAudio={true}
+            />
             
-            {/* Audio Recorder Card */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Mic className="h-5 w-5 text-green-500" />
-                <h3 className="text-lg font-semibold">Registrazione Diretta</h3>
-              </div>
-              <AudioRecorder 
-                onRecordingComplete={handleRecordingComplete} 
-                onStartRecording={handleStartRecording}
-                autoAnalyze={true}
-              />
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg mt-4">
-                <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
-                <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                  <p>• Registra in un ambiente silenzioso</p>
-                  <p>• Posizionati vicino al tuo pet</p>
-                  <p>• Durata consigliata: 10-60 secondi</p>
-                </div>
-              </div>
-            </Card>
+            {/* Audio Recorder */}
+            <AudioRecorder 
+              onRecordingComplete={handleRecordingComplete} 
+              onStartRecording={handleStartRecording}
+              autoAnalyze={true}
+            />
           
-            {/* Text Analysis Card */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="h-5 w-5 text-purple-500" />
-                <h3 className="text-lg font-semibold">Analisi Comportamentale Testuale</h3>
-              </div>
-              <TextAnalysis onAnalysisComplete={() => loadAllData()} />
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg mt-4">
-                <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
-                <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
-                  <p>• Comportamento specifico osservato</p>
-                  <p>• Contesto e situazione</p>
-                  <p>• Cambiamenti rispetto al solito</p>
-                  <p>• Postura e segnali del corpo</p>
-                </div>
-              </div>
-            </Card>
+            {/* Text Analysis */}
+            <TextAnalysis onAnalysisComplete={() => loadAllData()} />
             
-            {/* Voice Analysis Card */}
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1">
-                  <Heart className="h-5 w-5 text-red-500" />
-                  <Brain className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Analisi Emotiva Combinata</h3>
-              </div>
-              <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
-              <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg mt-4">
-                <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
-                <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                  <p>• <strong>Pet:</strong> Emozione rilevata dalle tue descrizioni</p>
-                  <p>• <strong>Tu:</strong> Emozione rilevata dal tuo tono di voce</p>
-                  <p>• <strong>Risultato:</strong> Consigli personalizzati per entrambi</p>
-                </div>
-              </div>
-            </Card>
+            {/* Voice Analysis */}
+            <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
           </div>
         </TabsContent>
 
