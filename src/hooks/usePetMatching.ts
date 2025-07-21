@@ -121,6 +121,8 @@ export const usePetTwins = () => {
         throw new Error('User not authenticated');
       }
 
+      console.log('🚀 About to query pets...');
+
       // Get all pets except current user's pets
       const { data: pets, error } = await supabase
         .from('pets')
