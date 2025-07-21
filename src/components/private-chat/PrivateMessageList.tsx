@@ -266,7 +266,7 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                       ) : (
                         <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-destructive">
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Elimina solo per me
+                          Elimina
                         </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
