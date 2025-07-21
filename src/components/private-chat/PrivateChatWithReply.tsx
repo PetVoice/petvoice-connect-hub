@@ -79,19 +79,20 @@ export const PrivateChatWithReply: React.FC = () => {
   }, [selectedChat]);
 
   useEffect(() => {
-    console.log('📜 Messages updated, hasUnreadMessages:', hasUnreadMessages);
-    if (hasUnreadMessages) {
+    console.log('📜 Messages updated, count:', messages.length, 'hasUnreadMessages:', hasUnreadMessages);
+    
+    // Solo quando carico i messaggi per la prima volta (apertura chat)
+    if (hasUnreadMessages && messages.length > 0) {
       scrollToFirstUnreadMessage();
-    } else {
-      scrollToBottom();
+    } else if (messages.length > 0 && !hasUnreadMessages) {
+      // Scroll normale in fondo solo se non ci sono messaggi non letti
+      setTimeout(() => scrollToBottom(), 100);
     }
-  }, [messages, hasUnreadMessages]);
+  }, [messages.length]); // Dipende solo dal numero di messaggi, non dall'array completo
 
   const scrollToBottom = () => {
     console.log('⬇️ Scrolling to bottom');
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const scrollToFirstUnreadMessage = () => {
@@ -150,11 +151,24 @@ export const PrivateChatWithReply: React.FC = () => {
           
           // Solo se il messaggio è per la chat selezionata
           if (selectedChat && newMessage.chat_id === selectedChat.id) {
-            setMessages(prev => [...prev, { ...newMessage, sender_name: 'Utente' }]);
+            // Aggiungi il messaggio con il nome del mittente
+            const messageWithName = {
+              ...newMessage,
+              sender_name: newMessage.sender_id === user?.id ? 'Tu' : selectedChat.other_user.display_name
+            };
+            
+            setMessages(prev => {
+              // Evita duplicati
+              if (prev.some(msg => msg.id === newMessage.id)) {
+                return prev;
+              }
+              return [...prev, messageWithName];
+            });
+            
             // Se il messaggio è mio, scrolla sempre in basso
             if (newMessage.sender_id === user?.id) {
-              console.log('📤 My message, scrolling to bottom');
-              setTimeout(() => scrollToBottom(), 100);
+              console.log('📤 My message received, scrolling to bottom');
+              setTimeout(() => scrollToBottom(), 50);
             }
           }
           // Ricarica la lista delle chat per aggiornare l'ultimo messaggio
@@ -321,15 +335,10 @@ export const PrivateChatWithReply: React.FC = () => {
       setNewMessage('');
       setReplyToMessage(null);
       
-      console.log('💬 Message sent, reloading messages and scrolling to bottom');
-      await loadMessages(selectedChat.id);
-      await loadChats();
-      
-      // Forza scroll in basso dopo l'invio
-      setTimeout(() => {
-        console.log('⬇️ Force scroll to bottom after sending message');
-        scrollToBottom();
-      }, 200);
+      console.log('💬 Message sent successfully, waiting for realtime update');
+      // NON ricaricare i messaggi - lascia che il realtime gestisca tutto
+      // Solo aggiorna la lista delle chat per l'ultimo messaggio
+      loadChats();
 
     } catch (error) {
       console.error('Error sending message:', error);
