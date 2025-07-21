@@ -516,6 +516,19 @@ export const PrivateChatWithReply: React.FC = () => {
       }
 
       console.log('✅ Message inserted successfully:', data);
+      
+      // CRITICAL: Always update chat timestamp and ensure it's visible
+      console.log('🔄 Force updating chat timestamp to ensure visibility...');
+      await supabase
+        .from('private_chats')
+        .update({ 
+          last_message_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_by_participant_1: false,
+          deleted_by_participant_2: false
+        })
+        .eq('id', selectedChat.id);
+      
       setNewMessage('');
       setReplyToMessage(null);
       
