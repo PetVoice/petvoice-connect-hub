@@ -44,6 +44,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
+import { supabase } from '@/integrations/supabase/client';
 
 // Enhanced Types
 interface PetTwin {
@@ -394,16 +395,47 @@ export const PetMatchingIntelligence: React.FC = () => {
     return bookmarkedItems.has(`${type}-${id}`);
   };
 
-  const handleConnect = (petId: string) => {
+  const handleConnect = async (petId: string) => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      const targetPet = filteredPetTwins.find(pet => pet.id === petId);
+      if (!targetPet) {
+        throw new Error('Pet non trovato');
+      }
+
+      // Ottieni l'ID utente corrente
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Utente non autenticato');
+      }
+
+      // Crea un messaggio privato
+      const { error } = await supabase
+        .from('private_messages')
+        .insert({
+          sender_id: user.id,
+          recipient_id: targetPet.user_id,
+          content: `Ciao! Ho visto il tuo ${targetPet.type} ${targetPet.name} su Pet Matching e mi piacerebbe connettere i nostri animali. Il mio pet ha delle caratteristiche simili e penso potrebbero andare d'accordo!`,
+          message_type: 'text'
+        });
+
+      if (error) throw error;
+
       toast({
-        title: "Connessione inviata!",
-        description: "La richiesta di connessione è stata inviata al proprietario del pet.",
+        title: "Chat privata creata!",
+        description: "La conversazione è stata avviata. Vai alla sezione Chat Private per continuare.",
       });
-    }, 1500);
+    } catch (error) {
+      console.error('Errore creazione chat:', error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile creare la chat privata. Riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContactMentor = (mentorId: string) => {
