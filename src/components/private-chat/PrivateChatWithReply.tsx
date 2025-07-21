@@ -749,16 +749,36 @@ export const PrivateChatWithReply: React.FC = () => {
     if (selectedMessages.length === 0) return;
 
     try {
-      const { error } = await supabase
-        .from('private_messages')
-        .update({ 
-          deleted_by_sender: true,
-          deleted_at: new Date().toISOString()
-        })
-        .in('id', selectedMessages)
-        .eq('sender_id', user.id);
+      // Separa messaggi inviati da quelli ricevuti
+      const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+      const sentMessages = selectedMessageObjects.filter(msg => msg.sender_id === user.id);
+      const receivedMessages = selectedMessageObjects.filter(msg => msg.sender_id !== user.id);
 
-      if (error) throw error;
+      // Elimina messaggi inviati per il sender
+      if (sentMessages.length > 0) {
+        const { error: sentError } = await supabase
+          .from('private_messages')
+          .update({ 
+            deleted_by_sender: true,
+            deleted_at: new Date().toISOString()
+          })
+          .in('id', sentMessages.map(msg => msg.id));
+
+        if (sentError) throw sentError;
+      }
+
+      // Elimina messaggi ricevuti per il recipient
+      if (receivedMessages.length > 0) {
+        const { error: receivedError } = await supabase
+          .from('private_messages')
+          .update({ 
+            deleted_by_recipient: true,
+            deleted_at: new Date().toISOString()
+          })
+          .in('id', receivedMessages.map(msg => msg.id));
+
+        if (receivedError) throw receivedError;
+      }
 
       setSelectedMessages([]);
       setIsSelectionMode(false);
@@ -783,26 +803,58 @@ export const PrivateChatWithReply: React.FC = () => {
     if (selectedMessages.length === 0) return;
 
     try {
-      const { error } = await supabase
-        .from('private_messages')
-        .update({ 
-          deleted_by_sender: true,
-          deleted_by_recipient: true,
-          deleted_at: new Date().toISOString()
-        })
-        .in('id', selectedMessages)
-        .eq('sender_id', user.id);
+      // Solo messaggi inviati dall'utente possono essere eliminati per entrambi
+      const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+      const sentMessages = selectedMessageObjects.filter(msg => msg.sender_id === user.id);
+      const receivedMessages = selectedMessageObjects.filter(msg => msg.sender_id !== user.id);
 
-      if (error) throw error;
+      // Elimina messaggi inviati per entrambi
+      if (sentMessages.length > 0) {
+        const { error: sentError } = await supabase
+          .from('private_messages')
+          .update({ 
+            deleted_by_sender: true,
+            deleted_by_recipient: true,
+            deleted_at: new Date().toISOString()
+          })
+          .in('id', sentMessages.map(msg => msg.id));
+
+        if (sentError) throw sentError;
+      }
+
+      // Messaggi ricevuti possono essere eliminati solo per l'utente corrente
+      if (receivedMessages.length > 0) {
+        const { error: receivedError } = await supabase
+          .from('private_messages')
+          .update({ 
+            deleted_by_recipient: true,
+            deleted_at: new Date().toISOString()
+          })
+          .in('id', receivedMessages.map(msg => msg.id));
+
+        if (receivedError) throw receivedError;
+      }
 
       setSelectedMessages([]);
       setIsSelectionMode(false);
       setShowBulkDeleteDialog(false);
       await loadMessages(selectedChat.id);
 
+      const sentCount = sentMessages.length;
+      const receivedCount = receivedMessages.length;
+      let description = "";
+      
+      if (sentCount > 0 && receivedCount > 0) {
+        description = `${sentCount} messaggi eliminati per entrambi, ${receivedCount} eliminati solo per te`;
+      } else if (sentCount > 0) {
+        description = `${sentCount} messaggi eliminati per entrambi`;
+      } else {
+        description = `${receivedCount} messaggi eliminati solo per te`;
+      }
+
       toast({
         title: "Messaggi eliminati",
-        description: `${selectedMessages.length} messaggi eliminati per entrambi`
+        description: description
       });
     } catch (error) {
       console.error('Error deleting messages for both:', error);
@@ -813,7 +865,17 @@ export const PrivateChatWithReply: React.FC = () => {
       });
     }
   };
-
+  
+  // Helper per determinare il tipo di messaggi selezionati
+  const getSelectedMessagesType = () => {
+    const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+    const sentCount = selectedMessageObjects.filter(msg => msg.sender_id === user.id).length;
+    const receivedCount = selectedMessageObjects.filter(msg => msg.sender_id !== user.id).length;
+    
+    if (sentCount > 0 && receivedCount === 0) return 'sent'; // Solo messaggi inviati
+    if (receivedCount > 0 && sentCount === 0) return 'received'; // Solo messaggi ricevuti
+    return 'mixed'; // Misto
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     console.log('⌨️ Key pressed:', e.key, 'shiftKey:', e.shiftKey);
@@ -1112,7 +1174,20 @@ export const PrivateChatWithReply: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
             <AlertDialogDescription>
-              Come vuoi eliminare i {selectedMessages.length} messaggi selezionati?
+              {(() => {
+                const messageType = getSelectedMessagesType();
+                const selectedMessageObjects = messages.filter(msg => selectedMessages.includes(msg.id));
+                const sentCount = selectedMessageObjects.filter(msg => msg.sender_id === user.id).length;
+                const receivedCount = selectedMessageObjects.filter(msg => msg.sender_id !== user.id).length;
+                
+                if (messageType === 'sent') {
+                  return `Come vuoi eliminare i ${sentCount} messaggi inviati selezionati?`;
+                } else if (messageType === 'received') {
+                  return `I ${receivedCount} messaggi ricevuti selezionati possono essere eliminati solo per te.`;
+                } else {
+                  return `Hai selezionato ${sentCount} messaggi inviati e ${receivedCount} messaggi ricevuti. I messaggi inviati possono essere eliminati per entrambi, quelli ricevuti solo per te.`;
+                }
+              })()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
@@ -1124,12 +1199,14 @@ export const PrivateChatWithReply: React.FC = () => {
             >
               Elimina solo per me
             </Button>
-            <AlertDialogAction
-              onClick={deleteSelectedMessagesForBoth}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
-            >
-              Elimina per entrambi
-            </AlertDialogAction>
+            {getSelectedMessagesType() !== 'received' && (
+              <AlertDialogAction
+                onClick={deleteSelectedMessagesForBoth}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+              >
+                {getSelectedMessagesType() === 'sent' ? 'Elimina per entrambi' : 'Elimina (misto)'}
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
