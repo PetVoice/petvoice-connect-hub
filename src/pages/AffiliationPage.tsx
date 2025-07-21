@@ -97,7 +97,8 @@ export default function AffiliationPage() {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   
-  // Filters for referrals
+   // Filters for referrals
+   const [converting, setConverting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [emailFilter, setEmailFilter] = useState('');
@@ -290,6 +291,33 @@ export default function AffiliationPage() {
 
     if (shareUrl) {
       window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+  };
+
+  // Funzione per convertire referral pendenti (TEMPORANEA - per debug)
+  const convertPendingReferrals = async () => {
+    setConverting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('convert-pending-referrals');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Conversione completata!",
+        description: `${data.converted}/${data.total} referral convertiti con successo`,
+      });
+      
+      // Ricarica i dati
+      await loadReferralData(true);
+      
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: error.message || "Errore durante la conversione",
+        variant: "destructive"
+      });
+    } finally {
+      setConverting(false);
     }
   };
 
@@ -492,8 +520,29 @@ export default function AffiliationPage() {
                   <div>
                     <p className="font-medium">{myReferrer.display_name}</p>
                     <p className="text-xs text-muted-foreground">Referente PetVoice</p>
-                  </div>
-                </div>
+        </div>
+        
+        {/* Bottone temporaneo per testare conversione referral */}
+        <Button 
+          onClick={convertPendingReferrals}
+          disabled={converting}
+          variant="outline"
+          size="sm"
+          className="bg-orange-50 border-orange-200 text-orange-800 hover:bg-orange-100"
+        >
+          {converting ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              Convertendo...
+            </>
+          ) : (
+            <>
+              <Zap className="h-4 w-4 mr-2" />
+              Test Conversioni
+            </>
+          )}
+        </Button>
+      </div>
                 <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                   {myReferrer.referral_code}
                 </Badge>

@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CONVERT-PENDING-REFERRALS] ${step}${detailsStr}`);
+  console.log(`[CONVERT-REFERRALS] ${step}${detailsStr}`);
 };
 
 serve(async (req) => {
@@ -25,102 +25,107 @@ serve(async (req) => {
   try {
     logStep("Starting conversion of pending referrals");
 
-    // Trova tutti i referral "registered" che hanno pagato ma non sono stati convertiti
-    const { data: pendingReferrals, error: selectError } = await supabaseClient
-      .from('referrals')
+    // Trova tutti i referral "registered" i cui utenti hanno una subscription attiva
+    const { data: pendingReferrals, error: referralError } = await supabaseClient
+      .from("referrals")
       .select(`
-        id,
-        referred_email,
-        referrer_id,
-        created_at,
-        user_referrals!inner(referral_code)
+        *,
+        subscribers!inner(subscription_status, user_id)
       `)
-      .eq('status', 'registered');
+      .eq("status", "registered")
+      .eq("subscribers.subscription_status", "active");
 
-    if (selectError) {
-      logStep("Error fetching pending referrals", { error: selectError });
-      throw selectError;
+    if (referralError) {
+      logStep("Error fetching pending referrals", { error: referralError });
+      throw referralError;
     }
 
     logStep("Found pending referrals", { count: pendingReferrals?.length || 0 });
 
     if (!pendingReferrals || pendingReferrals.length === 0) {
-      return new Response(JSON.stringify({ 
-        message: "No pending referrals found",
-        converted: 0 
-      }), {
+      return new Response(JSON.stringify({ converted: 0, message: "No pending referrals found" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    const results = [];
+    let convertedCount = 0;
 
-    // Per ogni referral, controlla se l'utente ha un abbonamento attivo
     for (const referral of pendingReferrals) {
-      logStep("Processing referral", { email: referral.referred_email });
+      try {
+        logStep("Processing referral", { referralId: referral.id });
 
-      // Controlla se l'utente ha un abbonamento attivo
-      const { data: subscriber } = await supabaseClient
-        .from('subscribers')
-        .select('email, subscription_status, user_id')
-        .eq('email', referral.referred_email)
-        .eq('subscription_status', 'active')
-        .single();
+        // Calcola tier del referrer
+        const { data: referrerStats } = await supabaseClient
+          .from("referrer_stats")
+          .select("total_conversions")
+          .eq("user_id", referral.referrer_id)
+          .single();
 
-      if (subscriber) {
-        logStep("Found active subscriber, converting referral", { 
-          email: referral.referred_email 
-        });
-
-        // Chiama la funzione RPC per convertire il referral
-        const { data: conversionResult, error: conversionError } = await supabaseClient
-          .rpc('convert_referral_on_payment', { 
-            user_email: referral.referred_email 
-          });
-
-        if (conversionError) {
-          logStep("Conversion error", { 
-            email: referral.referred_email,
-            error: conversionError.message 
-          });
-          results.push({
-            email: referral.referred_email,
-            status: 'error',
-            error: conversionError.message
-          });
-        } else {
-          logStep("Conversion successful", { 
-            email: referral.referred_email,
-            result: conversionResult 
-          });
-          results.push({
-            email: referral.referred_email,
-            status: 'converted',
-            result: conversionResult
-          });
+        const totalConversions = (referrerStats?.total_conversions || 0) + 1;
+        
+        let tier = 'Bronzo';
+        let rate = 0.05;
+        
+        if (totalConversions >= 20) {
+          tier = 'Platino';
+          rate = 0.20;
+        } else if (totalConversions >= 10) {
+          tier = 'Oro';  
+          rate = 0.15;
+        } else if (totalConversions >= 5) {
+          tier = 'Argento';
+          rate = 0.10;
         }
-      } else {
-        logStep("No active subscription found", { email: referral.referred_email });
-        results.push({
-          email: referral.referred_email,
-          status: 'no_subscription'
-        });
+
+        const commissionAmount = 0.97 * rate;
+
+        // Converti referral
+        await supabaseClient
+          .from("referrals")
+          .update({ status: "converted", converted_at: new Date().toISOString() })
+          .eq("id", referral.id);
+
+        // Crea commissione
+        await supabaseClient
+          .from("referral_commissions")
+          .insert({
+            referrer_id: referral.referrer_id,
+            referred_user_id: referral.referred_user_id,
+            amount: commissionAmount,
+            commission_rate: rate,
+            tier: tier,
+            commission_type: 'first_payment',
+            subscription_amount: 0.97,
+            status: 'active',
+            billing_period_start: new Date().toISOString().split('T')[0],
+            billing_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+          });
+
+        // Aggiorna stats
+        await supabaseClient
+          .from("referrer_stats")
+          .update({
+            total_conversions: totalConversions,
+            available_credits: referrerStats?.available_credits || 0 + commissionAmount,
+            total_credits_earned: (referrerStats?.total_credits_earned || 0) + commissionAmount,
+            current_tier: tier,
+            updated_at: new Date().toISOString()
+          })
+          .eq("user_id", referral.referrer_id);
+
+        convertedCount++;
+        logStep("Successfully converted referral", { referralId: referral.id });
+
+      } catch (error) {
+        logStep("Error processing referral", { error: error.message });
       }
     }
 
-    const converted = results.filter(r => r.status === 'converted').length;
-    
-    logStep("Conversion process completed", { 
-      total: results.length,
-      converted,
-      results 
-    });
-
     return new Response(JSON.stringify({ 
-      message: `Processed ${results.length} referrals, converted ${converted}`,
-      converted,
-      results 
+      converted: convertedCount,
+      total: pendingReferrals.length,
+      message: `Successfully converted ${convertedCount} referrals` 
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -128,7 +133,7 @@ serve(async (req) => {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in convert-pending-referrals", { message: errorMessage });
+    logStep("ERROR in conversion", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
