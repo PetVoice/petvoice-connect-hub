@@ -178,8 +178,9 @@ export const PrivateChatWithReply: React.FC = () => {
             console.log('ℹ️ Message not for current chat or no chat selected');
           }
           
-          // Ricarica la lista delle chat per aggiornare l'ultimo messaggio
-          loadChats();
+          console.log('🔄 Updating chat list from realtime...');
+          // Solo aggiorna l'ultimo messaggio senza ricaricare tutto
+          updateLastMessageInChatList(newMessage);
         }
       )
       .subscribe();
@@ -187,6 +188,27 @@ export const PrivateChatWithReply: React.FC = () => {
     return () => {
       supabase.removeChannel(channel);
     };
+  };
+
+  const updateLastMessageInChatList = (newMessage: PrivateMessage) => {
+    setChats(prevChats => 
+      prevChats.map(chat => {
+        if (chat.id === newMessage.chat_id) {
+          return {
+            ...chat,
+            last_message: {
+              content: newMessage.content,
+              sender_id: newMessage.sender_id,
+              created_at: newMessage.created_at
+            },
+            last_message_at: newMessage.created_at,
+            // Aggiorna unread count solo se il messaggio non è mio
+            unread_count: newMessage.sender_id === user?.id ? chat.unread_count : chat.unread_count + 1
+          };
+        }
+        return chat;
+      })
+    );
   };
 
   const loadChats = async () => {
@@ -372,8 +394,8 @@ export const PrivateChatWithReply: React.FC = () => {
         }, 50);
       }
       
-      console.log('🔄 Updating chat list...');
-      loadChats();
+      console.log('🔄 NOT reloading chats to avoid component re-render');
+      // NON chiamare loadChats() qui - causa il reload del componente
 
     } catch (error) {
       console.error('💥 Unexpected error sending message:', error);
@@ -397,9 +419,12 @@ export const PrivateChatWithReply: React.FC = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
+    console.log('⌨️ Key pressed:', e.key, 'shiftKey:', e.shiftKey);
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      console.log('🎯 Enter pressed, sending message');
+      e.stopPropagation();
+      console.log('🎯 Enter pressed, preventing default and sending message');
+      if (!newMessage.trim() || sendingMessage) return;
       sendMessage();
     }
   };
@@ -622,27 +647,39 @@ export const PrivateChatWithReply: React.FC = () => {
                     </div>
                   )}
                   
-                  <div className="flex gap-2">
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🚫 Form submit prevented');
+                      if (!newMessage.trim() || sendingMessage) return;
+                      sendMessage();
+                    }}
+                    className="flex gap-2"
+                  >
                     <Input
                       placeholder={replyToMessage ? "Rispondi..." : "Scrivi un messaggio..."}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       disabled={sendingMessage}
+                      className="flex-1"
                     />
                     <Button 
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         console.log('🖱️ Send button clicked');
+                        if (!newMessage.trim() || sendingMessage) return;
                         sendMessage();
                       }}
                       disabled={!newMessage.trim() || sendingMessage}
                       size="sm"
-                      type="button"
+                      type="submit"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </form>
                 </div>
               </CardContent>
             </>
