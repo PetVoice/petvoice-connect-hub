@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { Chat } from '@/components/community/Chat';
-import { PrivateChat } from '@/components/private-chat/PrivateChat';
+import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -304,7 +304,7 @@ const CommunityPage = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="groups">Gruppi Community</TabsTrigger>
-            <TabsTrigger value="private-chats">Chat Private</TabsTrigger>
+            <TabsTrigger value="matching">Pet Matching</TabsTrigger>
           </TabsList>
           
           <TabsContent value="groups" className="space-y-6">
@@ -502,8 +502,8 @@ const CommunityPage = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="private-chats" className="space-y-6">
-            <PrivateChat />
+          <TabsContent value="matching" className="space-y-6">
+            <PetMatchingIntelligence />
           </TabsContent>
         </Tabs>
     </div>
