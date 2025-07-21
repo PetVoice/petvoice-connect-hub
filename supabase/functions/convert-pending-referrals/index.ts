@@ -25,25 +25,46 @@ serve(async (req) => {
   try {
     logStep("Starting conversion of pending referrals");
 
-    // Trova tutti i referral "registered" i cui utenti hanno una subscription attiva
-    const { data: pendingReferrals, error: referralError } = await supabaseClient
+    // Prima trova tutti i referrals con status "registered"
+    const { data: registeredReferrals, error: referralError } = await supabaseClient
       .from("referrals")
-      .select(`
-        *,
-        subscribers!inner(subscription_status, user_id)
-      `)
-      .eq("status", "registered")
-      .eq("subscribers.subscription_status", "active");
+      .select("*")
+      .eq("status", "registered");
 
     if (referralError) {
-      logStep("Error fetching pending referrals", { error: referralError });
+      logStep("Error fetching registered referrals", { error: referralError });
       throw referralError;
     }
 
-    logStep("Found pending referrals", { count: pendingReferrals?.length || 0 });
+    logStep("Found registered referrals", { count: registeredReferrals?.length || 0 });
 
-    if (!pendingReferrals || pendingReferrals.length === 0) {
-      return new Response(JSON.stringify({ converted: 0, message: "No pending referrals found" }), {
+    if (!registeredReferrals || registeredReferrals.length === 0) {
+      return new Response(JSON.stringify({ converted: 0, message: "No registered referrals found" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Filtra solo quelli con subscription attiva
+    const pendingReferrals = [];
+    for (const referral of registeredReferrals) {
+      if (referral.referred_user_id) {
+        const { data: subscriber } = await supabaseClient
+          .from("subscribers")
+          .select("subscription_status")
+          .eq("user_id", referral.referred_user_id)
+          .single();
+        
+        if (subscriber && subscriber.subscription_status === 'active') {
+          pendingReferrals.push(referral);
+        }
+      }
+    }
+
+    logStep("Found referrals with active subscriptions", { count: pendingReferrals.length });
+
+    if (pendingReferrals.length === 0) {
+      return new Response(JSON.stringify({ converted: 0, message: "No referrals with active subscriptions found" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
