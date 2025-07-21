@@ -130,11 +130,22 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
           <p className="text-sm break-words">{message.content}</p>
         )}
         
-        {message.updated_at !== message.created_at && (
-          <div className="text-xs text-muted-foreground mt-1">
-            (modificato)
-          </div>
-        )}
+        {(() => {
+          // Considera il messaggio modificato solo se la differenza è > 5 secondi
+          const createdTime = new Date(message.created_at).getTime();
+          const updatedTime = new Date(message.updated_at).getTime();
+          const timeDifference = Math.abs(updatedTime - createdTime);
+          const wasActuallyModified = timeDifference > 5000; // 5 secondi
+          
+          if (wasActuallyModified) {
+            return (
+              <div className="text-xs text-muted-foreground mt-1">
+                (modificato)
+              </div>
+            );
+          }
+          return null;
+        })()}
       </div>
     );
   };
