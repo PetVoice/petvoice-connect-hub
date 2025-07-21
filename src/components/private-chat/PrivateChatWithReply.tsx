@@ -138,6 +138,7 @@ export const PrivateChatWithReply: React.FC = () => {
           const newMessage = payload.new as PrivateMessage;
           console.log('📨 Realtime message received:', newMessage.id, 'sender:', newMessage.sender_id);
           
+          // Se il messaggio è per la chat corrente selezionata
           if (selectedChat && newMessage.chat_id === selectedChat.id) {
             console.log('✅ Message is for current chat, processing...');
             
@@ -159,8 +160,58 @@ export const PrivateChatWithReply: React.FC = () => {
               console.log('📬 Received message from other user, scrolling to bottom');
               setTimeout(() => scrollToBottom(), 50);
             }
+          } 
+          // Se non c'è chat selezionata ma il messaggio è per l'utente corrente (potrebbero aver eliminato la chat)
+          else if (!selectedChat && newMessage.recipient_id === user?.id) {
+            console.log('📱 Message received for user with no chat selected - checking if chat was reactivated');
+            
+            // Controlla se questo messaggio ha riattivato una chat
+            setTimeout(async () => {
+              try {
+                const { data: reactivatedChat } = await supabase
+                  .from('private_chats')
+                  .select('*')
+                  .eq('id', newMessage.chat_id)
+                  .eq('deleted_by_participant_1', false)
+                  .eq('deleted_by_participant_2', false)
+                  .single();
+                
+                if (reactivatedChat) {
+                  console.log('🔄 Found reactivated chat, auto-selecting and loading messages');
+                  
+                  // Ottieni il profilo dell'altro utente
+                  const otherUserId = reactivatedChat.participant_1_id === user.id 
+                    ? reactivatedChat.participant_2_id 
+                    : reactivatedChat.participant_1_id;
+                  
+                  const { data: otherUserProfile } = await supabase
+                    .from('profiles')
+                    .select('display_name, avatar_url')
+                    .eq('user_id', otherUserId)
+                    .single();
+                  
+                  const chatToSelect = {
+                    ...reactivatedChat,
+                    other_user: {
+                      id: otherUserId,
+                      display_name: otherUserProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto',
+                      avatar_url: otherUserProfile?.avatar_url
+                    },
+                    unread_count: 1
+                  };
+                  
+                  // Ricarica le chat per aggiornare la lista
+                  await loadChats();
+                  
+                  // Seleziona automaticamente la chat riattivata
+                  setSelectedChat(chatToSelect);
+                }
+              } catch (error) {
+                console.error('Error checking for reactivated chat:', error);
+              }
+            }, 100);
           } else {
-            console.log('ℹ️ Message not for current chat or no chat selected');
+            console.log('ℹ️ Message not for current chat or user');
           }
           
           console.log('🔄 Updating chat list from realtime...');
