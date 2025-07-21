@@ -39,6 +39,7 @@ interface PrivateChat {
 }
 
 export const PrivateChatWithReply: React.FC = () => {
+  console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
