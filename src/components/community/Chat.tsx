@@ -42,14 +42,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    const scrollElement = messagesEndRef.current;
-    if (scrollElement) {
-      scrollElement.scrollIntoView({ behavior: 'instant', block: 'end' });
-      const chatContainer = scrollElement.closest('.overflow-y-auto, .overflow-auto');
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const scrollToMessage = (messageId: string) => {
@@ -69,11 +62,19 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     setupRealtimeSubscription();
   }, [channelId]);
 
+  // Scroll automatico quando entro nel canale
   useEffect(() => {
-    setTimeout(() => {
-      scrollToBottom();
-    }, 500);
-  }, [messages]);
+    if (messages.length > 0) {
+      setTimeout(() => scrollToBottom(), 100);
+    }
+  }, [channelId]);
+
+  // Scroll automatico quando arrivano nuovi messaggi
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => scrollToBottom(), 100);
+    }
+  }, [messages.length]);
 
   const loadMessages = async () => {
     try {
