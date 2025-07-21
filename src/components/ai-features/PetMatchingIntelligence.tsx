@@ -426,12 +426,13 @@ export const PetMatchingIntelligence: React.FC = () => {
         const isDeletedByCurrentUser = isParticipant1 ? existingChat.deleted_by_participant_1 : existingChat.deleted_by_participant_2;
         
         if (isDeletedByCurrentUser) {
-          // Riattiva la chat eliminata dall'utente corrente
-          const updateField = isParticipant1 ? 'deleted_by_participant_1' : 'deleted_by_participant_2';
-          
+          // Riattiva la chat per entrambi gli utenti quando qualcuno clicca "Connetti"
           const { error: reactivateError } = await supabase
             .from('private_chats')
-            .update({ [updateField]: false })
+            .update({ 
+              deleted_by_participant_1: false,
+              deleted_by_participant_2: false 
+            })
             .eq('id', existingChat.id);
 
           if (reactivateError) {
