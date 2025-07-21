@@ -432,7 +432,8 @@ export const PetMatchingIntelligence: React.FC = () => {
             .update({ 
               deleted_by_participant_1: false,
               deleted_by_participant_2: false,
-              last_message_at: new Date().toISOString() // Forza l'aggiornamento per il real-time
+              last_message_at: new Date().toISOString(), // Forza l'aggiornamento per il real-time
+              updated_at: new Date().toISOString() // Forza anche updated_at
             })
             .eq('id', existingChat.id);
 
