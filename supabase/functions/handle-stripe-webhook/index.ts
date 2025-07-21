@@ -110,11 +110,6 @@ serve(async (req) => {
               subscribed: true,
               subscription_tier: subscriptionTier,
               subscription_end: subscriptionEnd,
-              stripe_subscription_id: subscription.id,
-              is_cancelled: false,
-              cancellation_type: null,
-              cancellation_date: null,
-              cancellation_effective_date: null,
               updated_at: new Date().toISOString(),
             }, { onConflict: 'email' });
 
@@ -253,7 +248,6 @@ serve(async (req) => {
             subscription_end: subscriptionEnd,
             current_period_start: currentPeriodStart,
             current_period_end: subscriptionEnd,
-            stripe_subscription_id: subscription.id,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'email' });
 
@@ -285,11 +279,6 @@ serve(async (req) => {
           subscribed: false,
           subscription_tier: null,
           subscription_end: null,
-          stripe_subscription_id: null,
-          is_cancelled: true,
-          cancellation_type: 'immediate',
-          cancellation_date: new Date().toISOString(),
-          cancellation_effective_date: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'email' });
 
