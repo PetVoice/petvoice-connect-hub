@@ -43,6 +43,122 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Funzione per iniziare una chat privata (stessa logica del Pet Matching)
+  const startPrivateChat = async (targetUserId: string, targetUserName: string) => {
+    if (!user || targetUserId === user.id) return;
+
+    try {
+      // Check if chat already exists between these users
+      const { data: existingChat } = await supabase
+        .from('private_chats')
+        .select('id, deleted_by_participant_1, deleted_by_participant_2, participant_1_id')
+        .or(`and(participant_1_id.eq.${user.id},participant_2_id.eq.${targetUserId}),and(participant_1_id.eq.${targetUserId},participant_2_id.eq.${user.id})`)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      let chatId = null;
+
+      if (existingChat) {
+        const isParticipant1 = existingChat.participant_1_id === user.id;
+        const isDeletedByCurrentUser = isParticipant1 ? existingChat.deleted_by_participant_1 : existingChat.deleted_by_participant_2;
+        
+        if (isDeletedByCurrentUser) {
+          // Riattiva la chat per entrambi gli utenti
+          const { error: reactivateError } = await supabase
+            .from('private_chats')
+            .update({ 
+              deleted_by_participant_1: false,
+              deleted_by_participant_2: false,
+              last_message_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingChat.id);
+
+          if (reactivateError) {
+            console.error('Error reactivating chat:', reactivateError);
+            throw reactivateError;
+          }
+        }
+        
+        chatId = existingChat.id;
+      } else {
+        // Create new chat if it doesn't exist
+        const { data: newChat, error: chatError } = await supabase
+          .from('private_chats')
+          .insert({
+            participant_1_id: user.id,
+            participant_2_id: targetUserId,
+            initiated_by: user.id
+          })
+          .select('id')
+          .single();
+
+        if (chatError) {
+          console.error('Error creating chat:', chatError);
+          throw chatError;
+        }
+
+        chatId = newChat.id;
+      }
+
+      // Send initial message
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      const userName = userProfile?.display_name?.split(' ')[0] || user.user_metadata?.display_name?.split(' ')[0] || 'Utente';
+
+      const { error: messageError } = await supabase
+        .from('private_messages')
+        .insert({
+          chat_id: chatId,
+          sender_id: user.id,
+          recipient_id: targetUserId,
+          content: `👋 Ciao ${targetUserName}! Ti ho visto nel gruppo ${channelName} e mi piacerebbe continuare la conversazione in privato.`,
+          message_type: 'text',
+          metadata: {
+            connection_type: 'community_chat',
+            source_channel: channelName,
+            is_connection_request: true
+          }
+        });
+
+      if (messageError) {
+        console.error('Error sending message:', messageError);
+        throw messageError;
+      }
+
+      // Log the activity
+      await supabase
+        .from('activity_log')
+        .insert({
+          user_id: user.id,
+          activity_type: 'private_chat_started',
+          activity_description: `Avviata chat privata con ${targetUserName} dal gruppo ${channelName}`,
+          metadata: {
+            target_user_id: targetUserId,
+            target_user_name: targetUserName,
+            source_channel: channelName,
+            connection_type: 'community_chat'
+          }
+        });
+
+      toast({
+        title: "Chat privata avviata!",
+        description: `Hai iniziato una conversazione privata con ${targetUserName}. Vai alla sezione Chat Private per continuare.`,
+      });
+    } catch (error) {
+      console.error('Error starting private chat:', error);
+      toast({
+        title: "Errore",
+        description: "Non è stato possibile avviare la chat privata. Riprova.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -610,6 +726,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
             onEditMessage={editMessage}
             onReply={handleReply}
             onScrollToMessage={scrollToMessage}
+            onStartPrivateChat={startPrivateChat}
             isSelectionMode={isSelectionMode}
             selectedMessages={selectedMessages}
             onToggleSelection={toggleMessageSelection}

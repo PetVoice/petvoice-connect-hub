@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { MoreVertical, Edit, Trash2, Check, X, Reply } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Check, X, Reply, MessageCircle } from 'lucide-react';
 import { Message } from './Chat';
 
 interface MessageItemProps {
@@ -17,6 +17,7 @@ interface MessageItemProps {
   onEdit: (newContent: string) => void;
   onReply: (message: Message) => void;
   onScrollToMessage: (messageId: string) => void;
+  onStartPrivateChat: (targetUserId: string, targetUserName: string) => void;
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: () => void;
@@ -33,6 +34,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   onEdit,
   onReply,
   onScrollToMessage,
+  onStartPrivateChat,
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
@@ -287,26 +289,37 @@ export const MessageItem: React.FC<MessageItemProps> = ({
               <Reply className="h-4 w-4" />
             </Button>
             
-            {/* Show Edit/Delete menu only for own messages */}
-            {isOwn && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Modifica
+            {/* Show menu with appropriate options */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Show private chat option for other users' messages */}
+                {!isOwn && (
+                  <DropdownMenuItem onClick={() => onStartPrivateChat(message.user_id, userName)}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Contatta in privato
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Elimina
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                )}
+                
+                {/* Show Edit/Delete only for own messages */}
+                {isOwn && (
+                  <>
+                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Modifica
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Elimina
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>

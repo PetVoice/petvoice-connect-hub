@@ -10,6 +10,7 @@ interface MessageListProps {
   onEditMessage: (messageId: string, newContent: string) => void;
   onReply: (message: Message) => void;
   onScrollToMessage: (messageId: string) => void;
+  onStartPrivateChat: (targetUserId: string, targetUserName: string) => void;
   isSelectionMode?: boolean;
   selectedMessages?: string[];
   onToggleSelection?: (messageId: string) => void;
@@ -23,6 +24,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   onEditMessage,
   onReply,
   onScrollToMessage,
+  onStartPrivateChat,
   isSelectionMode = false,
   selectedMessages = [],
   onToggleSelection
@@ -45,6 +47,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             onEdit={(newContent) => onEditMessage(message.id, newContent)}
             onReply={onReply}
             onScrollToMessage={onScrollToMessage}
+            onStartPrivateChat={(targetUserId, targetUserName) => onStartPrivateChat(targetUserId, targetUserName)}
             isSelectionMode={isSelectionMode}
             isSelected={selectedMessages.includes(message.id)}
             onToggleSelection={() => onToggleSelection?.(message.id)}
