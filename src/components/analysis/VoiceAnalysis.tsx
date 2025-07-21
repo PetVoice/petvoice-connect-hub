@@ -7,11 +7,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePets } from '@/contexts/PetContext';
 
-interface VoiceAnalysisProps {
-  onAnalysisComplete?: (analysisId: string) => void;
+interface ProcessingState {
+  isProcessing: boolean;
+  progress: number;
+  stage: string;
+  currentFile?: string;
 }
 
-const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => {
+interface VoiceAnalysisProps {
+  onAnalysisComplete?: (analysisId: string) => void;
+  setProcessing?: React.Dispatch<React.SetStateAction<ProcessingState>>;
+}
+
+const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setProcessing }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -126,6 +134,13 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
 
     setIsAnalyzing(true);
 
+    // Attiva processing animation se disponibile
+    setProcessing?.({
+      isProcessing: true,
+      progress: 10,
+      stage: 'Analisi vocale in corso...'
+    });
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utente non autenticato');
@@ -157,6 +172,13 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
         throw new Error(data.error || 'Errore durante l\'analisi');
       }
 
+      // Aggiorna progresso
+      setProcessing?.({
+        isProcessing: true,
+        progress: 90,
+        stage: 'Salvataggio risultati...'
+      });
+
       setTranscription(data.transcription);
 
       toast({
@@ -178,6 +200,8 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
       });
     } finally {
       setIsAnalyzing(false);
+      // Il processing viene gestito dal parent in caso di successo
+      // Qui gestiamo solo il caso di errore
     }
   };
 

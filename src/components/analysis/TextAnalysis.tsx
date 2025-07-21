@@ -8,11 +8,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePets } from '@/contexts/PetContext';
 
-interface TextAnalysisProps {
-  onAnalysisComplete?: (analysisId: string) => void;
+interface ProcessingState {
+  isProcessing: boolean;
+  progress: number;
+  stage: string;
+  currentFile?: string;
 }
 
-const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
+interface TextAnalysisProps {
+  onAnalysisComplete?: (analysisId: string) => void;
+  setProcessing?: React.Dispatch<React.SetStateAction<ProcessingState>>;
+}
+
+const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete, setProcessing }) => {
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { selectedPet } = usePets();
@@ -38,6 +46,13 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
     }
 
     setIsAnalyzing(true);
+    
+    // Attiva processing animation se disponibile
+    setProcessing?.({
+      isProcessing: true,
+      progress: 10,
+      stage: 'Analisi in corso...'
+    });
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -57,6 +72,13 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
         throw new Error(data.error || 'Errore durante l\'analisi');
       }
 
+      // Aggiorna progresso
+      setProcessing?.({
+        isProcessing: true,
+        progress: 90,
+        stage: 'Salvataggio risultati...'
+      });
+
       toast({
         title: "Analisi completata!",
         description: `Emozione rilevata: ${data.analysis.primary_emotion} (${data.analysis.primary_confidence}% di confidenza)`,
@@ -74,6 +96,8 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete }) => {
       });
     } finally {
       setIsAnalyzing(false);
+      // Il processing viene gestito dal parent in caso di successo
+      // Qui gestiamo solo il caso di errore
     }
   };
 

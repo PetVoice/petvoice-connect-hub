@@ -339,6 +339,35 @@ const AnalysisPage: React.FC = () => {
     return true;
   };
 
+  const handleAnalysisComplete = async (analysisId?: string) => {
+    // Mostra processing animation
+    setProcessing({
+      isProcessing: true,
+      progress: 80,
+      stage: 'Completamento analisi...'
+    });
+
+    // Simula un breve delay per far vedere l'animazione
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Ricarica i dati
+    await loadAllData();
+    
+    // Vai al tab risultati per vedere l'analisi appena completata
+    setActiveTab('results');
+    
+    // Nascondi processing animation
+    setProcessing({
+      isProcessing: false,
+      progress: 100,
+      stage: 'Completato!'
+    });
+
+    if (analysisId) {
+      triggerAnalysisCompleted(selectedPet!.name);
+    }
+  };
+
   const handleAnalysisDownload = (analysis: AnalysisData) => {
     try {
       const pdf = new jsPDF();
@@ -488,8 +517,14 @@ const AnalysisPage: React.FC = () => {
             
             {/* Seconda riga - due analisi affiancate */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextAnalysis onAnalysisComplete={() => loadAllData()} />
-              <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+              <TextAnalysis 
+                onAnalysisComplete={handleAnalysisComplete} 
+                setProcessing={setProcessing}
+              />
+              <VoiceAnalysis 
+                onAnalysisComplete={handleAnalysisComplete}
+                setProcessing={setProcessing}
+              />
             </div>
           </div>
         </TabsContent>
