@@ -1073,141 +1073,142 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             </p>
           </div>
 
-          {/* Analysis Options Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* File Upload */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Upload className="h-5 w-5 text-blue-500" />
-                <h3 className="text-lg font-semibold">Upload File Audio/Video</h3>
-              </div>
-              <FileUploader 
-                onFilesSelected={handleFileUpload} 
-                autoAnalyzeAudio={true}
-              />
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
-                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
-                  <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
-                  <p>• <strong>Dimensione max:</strong> 50MB per file</p>
+          {/* Analysis Options Grid - Reimpostazione completa per evitare sovrapposizioni */}
+          <div className="space-y-8">
+            {/* Upload Methods */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* File Upload Card */}
+              <Card className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Upload className="h-5 w-5 text-blue-500" />
+                  <h3 className="text-lg font-semibold">Upload File Audio/Video</h3>
                 </div>
-              </div>
+                <FileUploader 
+                  onFilesSelected={handleFileUpload} 
+                  autoAnalyzeAudio={true}
+                />
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
+                  <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
+                  <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                    <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
+                    <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
+                    <p>• <strong>Dimensione max:</strong> 50MB per file</p>
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Audio Recorder Card */}
+              <Card className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Mic className="h-5 w-5 text-green-500" />
+                  <h3 className="text-lg font-semibold">Registrazione Diretta</h3>
+                </div>
+                <AudioRecorder 
+                  onRecordingComplete={handleRecordingComplete} 
+                  onStartRecording={handleStartRecording}
+                  autoAnalyze={true}
+                />
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg mt-4">
+                  <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
+                  <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                    <p>• Registra in un ambiente silenzioso</p>
+                    <p>• Posizionati vicino al tuo pet</p>
+                    <p>• Durata consigliata: 10-60 secondi</p>
+                  </div>
+                </div>
+              </Card>
             </div>
             
-            {/* Audio Recorder */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Mic className="h-5 w-5 text-green-500" />
-                <h3 className="text-lg font-semibold">Registrazione Diretta</h3>
-              </div>
-              <AudioRecorder 
-                onRecordingComplete={handleRecordingComplete} 
-                onStartRecording={handleStartRecording}
-                autoAnalyze={true}
-              />
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
-                <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                  <p>• Registra in un ambiente silenzioso</p>
-                  <p>• Posizionati vicino al tuo pet</p>
-                  <p>• Durata consigliata: 10-60 secondi</p>
+            {/* Text & Voice Analysis */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Text Analysis Card */}
+              <Card className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="h-5 w-5 text-purple-500" />
+                  <h3 className="text-lg font-semibold">Analisi Comportamentale Testuale</h3>
                 </div>
-              </div>
+                <TextAnalysis onAnalysisComplete={() => loadAllData()} />
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg mt-4">
+                  <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
+                  <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+                    <p>• Comportamento specifico osservato</p>
+                    <p>• Contesto e situazione</p>
+                    <p>• Cambiamenti rispetto al solito</p>
+                    <p>• Postura e segnali del corpo</p>
+                  </div>
+                </div>
+              </Card>
+              
+              {/* Voice Analysis Card */}
+              <Card className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Heart className="h-5 w-5 text-red-500" />
+                    <Brain className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Analisi Emotiva Combinata</h3>
+                </div>
+                <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+                <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg mt-4">
+                  <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
+                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                    <p>• <strong>Pet:</strong> Emozione rilevata dalle tue descrizioni</p>
+                    <p>• <strong>Tu:</strong> Emozione rilevata dal tuo tono di voce</p>
+                    <p>• <strong>Risultato:</strong> Consigli personalizzati per entrambi</p>
+                  </div>
+                </div>
+              </Card>
             </div>
-            
-            {/* Text Analysis */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="h-5 w-5 text-purple-500" />
-                <h3 className="text-lg font-semibold">Analisi Comportamentale Testuale</h3>
-              </div>
-              <TextAnalysis onAnalysisComplete={() => loadAllData()} />
-              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
-                <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
-                  <p>• Comportamento specifico osservato</p>
-                  <p>• Contesto e situazione</p>
-                  <p>• Cambiamenti rispetto al solito</p>
-                  <p>• Postura e segnali del corpo</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Voice Analysis */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1">
-                  <Heart className="h-5 w-5 text-red-500" />
-                  <Brain className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Analisi Emotiva Combinata</h3>
-              </div>
-              <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
-              <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
-                <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                  <p>• <strong>Pet:</strong> Emozione rilevata dalle tue descrizioni</p>
-                  <p>• <strong>Tu:</strong> Emozione rilevata dal tuo tono di voce</p>
-                  <p>• <strong>Risultato:</strong> Consigli personalizzati per entrambi</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Help Section */}
-          <div className="space-y-16 mt-16">
-            {/* Come Scegliere il Metodo Giusto */}
-            <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
-              <div className="text-center mb-6">
-                <div className="flex justify-center mb-3">
+            {/* Help Section */}
+            <Card className="p-8">
+              <div className="text-center mb-8">
+                <div className="flex justify-center mb-4">
                   <div className="p-3 bg-primary/20 rounded-xl">
                     <Brain className="h-6 w-6 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold">Come Scegliere il Metodo Giusto?</h3>
+                <h3 className="text-2xl font-bold mb-2">Come Scegliere il Metodo Giusto?</h3>
+                <p className="text-muted-foreground">Seleziona il metodo di analisi più adatto alla tua situazione</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-xl border border-blue-200 dark:border-blue-700 min-h-[160px] flex flex-col justify-between">
                   <div>
-                    <Upload className="h-8 w-8 text-blue-500 mx-auto mb-3" />
+                    <Upload className="h-10 w-10 text-blue-500 mx-auto mb-4" />
                     <p className="font-bold text-lg mb-2">Upload File</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">Hai già registrazioni o video del tuo pet</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-xl border border-green-200 dark:border-green-700 min-h-[160px] flex flex-col justify-between">
                   <div>
-                    <Mic className="h-8 w-8 text-green-500 mx-auto mb-3" />
+                    <Mic className="h-10 w-10 text-green-500 mx-auto mb-4" />
                     <p className="font-bold text-lg mb-2">Registra Ora</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
+                  <p className="text-sm text-green-700 dark:text-green-300">Vuoi catturare l'emozione in tempo reale</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-xl border border-purple-200 dark:border-purple-700 min-h-[160px] flex flex-col justify-between">
                   <div>
-                    <FileText className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+                    <FileText className="h-10 w-10 text-purple-500 mx-auto mb-4" />
                     <p className="font-bold text-lg mb-2">Descrivi Testo</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">Preferisci descrivere il comportamento</p>
+                  <p className="text-sm text-purple-700 dark:text-purple-300">Preferisci descrivere il comportamento</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                <div className="text-center p-6 bg-gradient-to-br from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 rounded-xl border border-pink-200 dark:border-orange-700 min-h-[160px] flex flex-col justify-between">
                   <div>
-                    <div className="flex justify-center gap-2 mb-3">
-                      <Heart className="h-4 w-4 text-red-500" />
-                      <Brain className="h-4 w-4 text-primary" />
+                    <div className="flex justify-center gap-2 mb-4">
+                      <Heart className="h-5 w-5 text-red-500" />
+                      <Brain className="h-5 w-5 text-primary" />
                     </div>
                     <p className="font-bold text-lg mb-2">Analisi Doppia</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
+                  <p className="text-sm text-pink-700 dark:text-pink-300">Vuoi analizzare anche le tue emozioni</p>
                 </div>
               </div>
-          </div>
-          
-          {/* Extra spacing to prevent overlap */}
-          <div className="h-8"></div>
+            </Card>
           </div>
 
         </TabsContent>
