@@ -1198,41 +1198,6 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
               </div>
             </div>
 
-            {/* Doppia Analisi AI - Row 3 */}
-            <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="p-3 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 rounded-xl">
-                  <div className="flex gap-2">
-                    <Heart className="h-5 w-5 text-red-500" />
-                    <Brain className="h-5 w-5 text-primary" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold">Doppia Analisi AI</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <Heart className="h-5 w-5 text-red-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-red-700 dark:text-red-300">Pet</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Emozione rilevata dalle tue descrizioni</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <Brain className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-blue-700 dark:text-blue-300">Tu</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Emozione rilevata dal tuo tono di voce</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-green-700 dark:text-green-300">Risultato</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Consigli personalizzati per entrambi</p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Stats Preview */}
