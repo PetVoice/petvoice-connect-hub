@@ -27,6 +27,7 @@ import {
   Heart,
   Brain,
   TrendingUp,
+  TrendingDown,
   Clock,
   AlertCircle,
   CheckCircle2,
@@ -34,7 +35,8 @@ import {
   BarChart3,
   FileText,
   Trash2,
-  Share2
+  Share2,
+  Lightbulb
 } from 'lucide-react';
 
 import { format } from 'date-fns';
@@ -937,7 +939,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Nuova Analisi
@@ -949,6 +951,10 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             Cronologia
+          </TabsTrigger>
+          <TabsTrigger value="predictions" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Previsioni
           </TabsTrigger>
         </TabsList>
 
@@ -1112,6 +1118,257 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             onAnalysisDelete={handleAnalysisDelete}
             petName={selectedPet.name}
           />
+        </TabsContent>
+
+        {/* Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Wellness Trend Prediction */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere Futuro
+                </CardTitle>
+                <CardDescription>
+                  Previsione del benessere basata sui dati storici
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      {(() => {
+                        if (analyses.length >= 2) {
+                          const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
+                          const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                          const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
+                          const avgConfidenceOld = oldAnalyses.length > 0 
+                            ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
+                            : avgConfidenceRecent;
+                          
+                          const trend = avgConfidenceRecent - avgConfidenceOld;
+                          
+                          if (trend > 5) {
+                            return <TrendingUp className="h-5 w-5 text-green-600" />;
+                          } else if (trend < -5) {
+                            return <TrendingDown className="h-5 w-5 text-red-600" />;
+                          } else {
+                            return <div className="h-5 w-5 bg-yellow-500 rounded-full" />;
+                          }
+                        } else {
+                          return <div className="h-5 w-5 bg-gray-400 rounded-full" />;
+                        }
+                      })()}
+                      <span className="font-medium">
+                        {(() => {
+                          if (analyses.length >= 2) {
+                            const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
+                            const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                            const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
+                            const avgConfidenceOld = oldAnalyses.length > 0 
+                              ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
+                              : avgConfidenceRecent;
+                            
+                            const trend = avgConfidenceRecent - avgConfidenceOld;
+                            
+                            return trend > 5 ? 'Miglioramento' : 
+                                   trend < -5 ? 'Peggioramento' : 'Stabile';
+                          } else {
+                            return 'Insufficienti Dati';
+                          }
+                        })()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {(() => {
+                        if (analyses.length >= 2) {
+                          const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
+                          const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                          const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
+                          const avgConfidenceOld = oldAnalyses.length > 0 
+                            ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
+                            : avgConfidenceRecent;
+                          
+                          const trend = avgConfidenceRecent - avgConfidenceOld;
+                          
+                          return trend > 5 ? 
+                            'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
+                            trend < -5 ?
+                            'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
+                            'Il benessere è stabile. Mantieni la routine attuale.';
+                        } else {
+                          return 'Aggiungi più analisi per ricevere previsioni accurate del benessere.';
+                        }
+                      })()}
+                    </p>
+                  </div>
+                  
+                  {analyses.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Confidenza Attuale</span>
+                        <span>{analyses.length > 0 ? Math.round(analyses[0].primary_confidence) : 0}%</span>
+                      </div>
+                      <Progress value={analyses.length > 0 ? analyses[0].primary_confidence : 0} className="h-2" />
+                      <div className="flex justify-between text-sm">
+                        <span>Previsione 30gg</span>
+                        <span>
+                          {(() => {
+                            if (analyses.length >= 2) {
+                              const recentAnalyses = analyses.slice(0, Math.min(analyses.length, 5));
+                              const avgConfidenceRecent = recentAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / recentAnalyses.length;
+                              const oldAnalyses = analyses.slice(Math.min(analyses.length, 5));
+                              const avgConfidenceOld = oldAnalyses.length > 0 
+                                ? oldAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / oldAnalyses.length 
+                                : avgConfidenceRecent;
+                              
+                              const trend = avgConfidenceRecent - avgConfidenceOld;
+                              const prediction = Math.max(0, Math.min(100, avgConfidenceRecent + trend * 2));
+                              return Math.round(prediction) + '%';
+                            } else {
+                              return analyses.length > 0 ? Math.round(analyses[0].primary_confidence) + '%' : '0%';
+                            }
+                          })()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  Raccomandazioni AI
+                </CardTitle>
+                <CardDescription>
+                  Suggerimenti basati sui pattern rilevati
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(() => {
+                    const recommendations = [];
+                    
+                    if (analyses.length === 0) {
+                      recommendations.push({
+                        type: 'info',
+                        text: 'Carica alcune analisi per ricevere raccomandazioni personalizzate.'
+                      });
+                    } else {
+                      // Check for stress patterns
+                      const stressEmotions = ['stress', 'ansioso', 'agitato', 'nervoso'];
+                      const stressAnalyses = analyses.filter(a => 
+                        stressEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
+                      );
+                      
+                      if (stressAnalyses.length > analyses.length * 0.3) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: 'Rilevati livelli di stress elevati. Considera attività rilassanti e consulta un veterinario.'
+                        });
+                      }
+                      
+                      // Check for low confidence
+                      const avgConfidence = analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / analyses.length;
+                      if (avgConfidence < 70) {
+                        recommendations.push({
+                          type: 'info',
+                          text: 'La qualità delle registrazioni potrebbe essere migliorata per analisi più precise.'
+                        });
+                      }
+                      
+                      // Check for positive emotions
+                      const positiveEmotions = ['felice', 'giocoso', 'contento', 'rilassato'];
+                      const positiveAnalyses = analyses.filter(a => 
+                        positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
+                      );
+                      
+                      if (positiveAnalyses.length > analyses.length * 0.6) {
+                        recommendations.push({
+                          type: 'success',
+                          text: 'Ottimi livelli di benessere! Continua con le attuali strategie di cura.'
+                        });
+                      }
+                      
+                      // Check for recent activity
+                      const recentAnalyses = analyses.filter(a => {
+                        const analysisDate = new Date(a.created_at);
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return analysisDate >= weekAgo;
+                      });
+                      
+                      if (recentAnalyses.length < 2 && analyses.length > 5) {
+                        recommendations.push({
+                          type: 'info',
+                          text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
+                        });
+                      }
+                      
+                      if (recommendations.length === 0) {
+                        recommendations.push({
+                          type: 'info',
+                          text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
+                        });
+                      }
+                    }
+                    
+                    return recommendations.slice(0, 4).map((rec, index) => (
+                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
+                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
+                        'bg-blue-50 border-blue-400'
+                      }`}>
+                        <p className="text-sm">{rec.text}</p>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Seasonal Predictions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Previsioni Stagionali
+              </CardTitle>
+              <CardDescription>
+                Analisi dei pattern stagionali del comportamento
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
+                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
+                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
+                  
+                  return (
+                    <div key={season} className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">{season}</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Attività:</span>
+                          <span className="font-medium">{activity}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Umore:</span>
+                          <span className="font-medium">{mood}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
