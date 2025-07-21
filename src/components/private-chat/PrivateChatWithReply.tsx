@@ -198,6 +198,8 @@ export const PrivateChatWithReply: React.FC = () => {
     try {
       setLoading(true);
       
+      const isParticipant1 = (chat: any) => chat.participant_1_id === user.id;
+      
       const { data: chatsData, error: chatsError } = await supabase
         .from('private_chats')
         .select('*')
@@ -211,7 +213,15 @@ export const PrivateChatWithReply: React.FC = () => {
       }
 
       const chatsWithDetails = await Promise.all(
-        (chatsData || []).map(async (chat) => {
+        (chatsData || [])
+          .filter(chat => {
+            // Filtra chat eliminate dall'utente corrente
+            const isParticipant1 = chat.participant_1_id === user.id;
+            if (isParticipant1 && chat.deleted_by_participant_1) return false;
+            if (!isParticipant1 && chat.deleted_by_participant_2) return false;
+            return true;
+          })
+          .map(async (chat) => {
           const otherUserId = chat.participant_1_id === user.id 
             ? chat.participant_2_id 
             : chat.participant_1_id;
@@ -226,16 +236,19 @@ export const PrivateChatWithReply: React.FC = () => {
             .from('private_messages')
             .select('content, sender_id, created_at')
             .eq('chat_id', chat.id)
+            .not('deleted_by_sender', 'eq', true)
+            .not('deleted_by_recipient', 'eq', true)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           const { count: unreadCount } = await supabase
             .from('private_messages')
             .select('*', { count: 'exact' })
             .eq('chat_id', chat.id)
             .eq('recipient_id', user.id)
-            .eq('is_read', false);
+            .eq('is_read', false)
+            .neq('deleted_by_recipient', true);
 
           const displayName = userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
 
@@ -278,8 +291,20 @@ export const PrivateChatWithReply: React.FC = () => {
         return;
       }
 
+      // Filtra i messaggi eliminati dall'utente corrente
+      const filteredMessages = (messagesData || []).filter(message => {
+        // Se l'utente è il sender, controlla se ha eliminato il messaggio
+        if (message.sender_id === user.id) {
+          return !message.deleted_by_sender;
+        }
+        // Se l'utente è il recipient, controlla se ha eliminato il messaggio
+        else {
+          return !message.deleted_by_recipient;
+        }
+      });
+
       const messagesWithNames = await Promise.all(
-        (messagesData || []).map(async (message) => {
+        filteredMessages.map(async (message) => {
           const { data: senderProfile } = await supabase
             .from('profiles')
             .select('display_name')
