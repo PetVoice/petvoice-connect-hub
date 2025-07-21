@@ -1053,27 +1053,180 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="upload" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="upload" className="space-y-8">
+          {/* Header Section */}
+          <div className="text-center space-y-4">
+            <div className="flex justify-center items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-full">
+                <Brain className="h-8 w-8 text-primary" />
+              </div>
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-full">
+                <Heart className="h-8 w-8 text-red-500" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-foreground">
+              Scegli il Tipo di Analisi Emotiva
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Scopri le emozioni di {selectedPet.name} attraverso diversi metodi di analisi. 
+              Ogni opzione offre insights unici per comprendere meglio il benessere del tuo pet.
+            </p>
+          </div>
+
+          {/* Analysis Options Grid */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             {/* File Upload */}
-            <FileUploader 
-              onFilesSelected={handleFileUpload} 
-              autoAnalyzeAudio={true}
-            />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Upload className="h-5 w-5 text-blue-500" />
+                <h3 className="text-lg font-semibold">Upload File Audio/Video</h3>
+              </div>
+              <FileUploader 
+                onFilesSelected={handleFileUpload} 
+                autoAnalyzeAudio={true}
+              />
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-200">📁 Formati Supportati</h4>
+                <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                  <p>• <strong>Audio:</strong> MP3, WAV, M4A, WEBM</p>
+                  <p>• <strong>Video:</strong> MP4, MOV, AVI, WEBM</p>
+                  <p>• <strong>Dimensione max:</strong> 50MB per file</p>
+                </div>
+              </div>
+            </div>
             
             {/* Audio Recorder */}
-            <AudioRecorder 
-              onRecordingComplete={handleRecordingComplete} 
-              onStartRecording={handleStartRecording}
-              autoAnalyze={true}
-            />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Mic className="h-5 w-5 text-green-500" />
+                <h3 className="text-lg font-semibold">Registrazione Diretta</h3>
+              </div>
+              <AudioRecorder 
+                onRecordingComplete={handleRecordingComplete} 
+                onStartRecording={handleStartRecording}
+                autoAnalyze={true}
+              />
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-green-800 dark:text-green-200">🎤 Suggerimenti per la Registrazione</h4>
+                <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                  <p>• Registra in un ambiente silenzioso</p>
+                  <p>• Posizionati vicino al tuo pet</p>
+                  <p>• Durata consigliata: 10-60 secondi</p>
+                </div>
+              </div>
+            </div>
             
             {/* Text Analysis */}
-            <TextAnalysis onAnalysisComplete={() => loadAllData()} />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="h-5 w-5 text-purple-500" />
+                <h3 className="text-lg font-semibold">Analisi Comportamentale Testuale</h3>
+              </div>
+              <TextAnalysis onAnalysisComplete={() => loadAllData()} />
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-purple-800 dark:text-purple-200">✍️ Cosa Descrivere</h4>
+                <div className="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+                  <p>• Comportamento specifico osservato</p>
+                  <p>• Contesto e situazione</p>
+                  <p>• Cambiamenti rispetto al solito</p>
+                  <p>• Postura e segnali del corpo</p>
+                </div>
+              </div>
+            </div>
             
             {/* Voice Analysis */}
-            <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-1">
+                  <Heart className="h-5 w-5 text-red-500" />
+                  <Brain className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold">Analisi Emotiva Combinata</h3>
+              </div>
+              <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+              <div className="bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/20 dark:to-blue-900/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">🔄 Doppia Analisi AI</h4>
+                <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                  <p>• <strong>Pet:</strong> Emozione rilevata dalle tue descrizioni</p>
+                  <p>• <strong>Tu:</strong> Emozione rilevata dal tuo tono di voce</p>
+                  <p>• <strong>Risultato:</strong> Consigli personalizzati per entrambi</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Help Section */}
+          <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-6 rounded-xl border border-primary/10">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <Lightbulb className="h-8 w-8 text-amber-500" />
+              </div>
+              <h3 className="text-xl font-semibold">💡 Come Scegliere il Metodo Giusto?</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="text-center space-y-2">
+                  <Upload className="h-6 w-6 text-blue-500 mx-auto" />
+                  <p><strong>Upload File</strong></p>
+                  <p className="text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <Mic className="h-6 w-6 text-green-500 mx-auto" />
+                  <p><strong>Registra Ora</strong></p>
+                  <p className="text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <FileText className="h-6 w-6 text-purple-500 mx-auto" />
+                  <p><strong>Descrivi Testo</strong></p>
+                  <p className="text-muted-foreground">Preferisci descrivere il comportamento</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <div className="flex justify-center gap-1">
+                    <Heart className="h-3 w-3 text-red-500" />
+                    <Brain className="h-3 w-3 text-primary" />
+                  </div>
+                  <p><strong>Analisi Doppia</strong></p>
+                  <p className="text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Preview */}
+          {analyses.length > 0 && (
+            <div className="bg-muted/30 p-6 rounded-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Le Tue Analisi Recenti
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('results')}
+                  className="text-primary hover:text-primary/80"
+                >
+                  Vedi Tutti i Risultati
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-background rounded-lg border">
+                  <p className="text-2xl font-bold text-primary">{analyses.length}</p>
+                  <p className="text-sm text-muted-foreground">Analisi Totali</p>
+                </div>
+                <div className="text-center p-4 bg-background rounded-lg border">
+                  <p className="text-2xl font-bold text-green-600">
+                    {Math.round((analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / analyses.length) * 100)}%
+                  </p>
+                  <p className="text-sm text-muted-foreground">Confidenza Media</p>
+                </div>
+                <div className="text-center p-4 bg-background rounded-lg border">
+                  <p className="text-2xl font-bold text-blue-600">
+                    {analyses[0]?.primary_emotion || 'N/A'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Ultima Emozione</p>
+                </div>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="results" className="space-y-6">
