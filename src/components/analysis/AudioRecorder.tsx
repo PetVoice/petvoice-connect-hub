@@ -516,6 +516,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         </div>
       </CardContent>
     </Card>
+  );
 };
 
 export default AudioRecorder;
