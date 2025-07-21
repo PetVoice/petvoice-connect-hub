@@ -57,7 +57,6 @@ import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
 import ProcessingAnimation from '@/components/analysis/ProcessingAnimation';
 import TextAnalysis from '@/components/analysis/TextAnalysis';
-import VoiceAnalysis from '@/components/analysis/VoiceAnalysis';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 // Types
@@ -515,16 +514,14 @@ const AnalysisPage: React.FC = () => {
               />
             </div>
             
-            {/* Seconda riga - due analisi affiancate */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TextAnalysis 
-                onAnalysisComplete={handleAnalysisComplete} 
-                setProcessing={setProcessing}
-              />
-              <VoiceAnalysis 
-                onAnalysisComplete={handleAnalysisComplete}
-                setProcessing={setProcessing}
-              />
+            {/* Seconda riga - analisi testuale centrata */}
+            <div className="flex justify-center">
+              <div className="w-full md:w-1/2">
+                <TextAnalysis 
+                  onAnalysisComplete={handleAnalysisComplete} 
+                  setProcessing={setProcessing}
+                />
+              </div>
             </div>
           </div>
         </TabsContent>
