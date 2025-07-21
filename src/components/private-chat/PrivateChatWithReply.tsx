@@ -446,14 +446,20 @@ export const PrivateChatWithReply: React.FC = () => {
 
       // Prima di inviare il messaggio, controlla se la chat è stata eliminata da qualcuno
       // e riattivala se necessario
+      console.log('🔍 Checking if chat needs reactivation for chat:', selectedChat.id);
       const { data: chatData } = await supabase
         .from('private_chats')
-        .select('deleted_by_participant_1, deleted_by_participant_2')
+        .select('deleted_by_participant_1, deleted_by_participant_2, participant_1_id, participant_2_id')
         .eq('id', selectedChat.id)
         .single();
 
+      console.log('🔍 Chat data:', chatData);
+
       if (chatData && (chatData.deleted_by_participant_1 || chatData.deleted_by_participant_2)) {
         console.log('🔄 Chat was deleted by someone, reactivating before sending message...');
+        console.log('🔄 Deleted by participant 1:', chatData.deleted_by_participant_1);
+        console.log('🔄 Deleted by participant 2:', chatData.deleted_by_participant_2);
+        
         const { error: reactivateError } = await supabase
           .from('private_chats')
           .update({ 
@@ -465,10 +471,12 @@ export const PrivateChatWithReply: React.FC = () => {
           .eq('id', selectedChat.id);
 
         if (reactivateError) {
-          console.error('Error reactivating chat:', reactivateError);
+          console.error('❌ Error reactivating chat:', reactivateError);
         } else {
           console.log('✅ Chat reactivated successfully');
         }
+      } else {
+        console.log('ℹ️ Chat does not need reactivation');
       }
 
       console.log('📤 Inserting message to database...');
