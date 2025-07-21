@@ -102,6 +102,20 @@ serve(async (req) => {
               }
             }
 
+            // Se non abbiamo trovato userId dall'email, controlliamo se esiste già un subscriber per questo customer
+            if (!userId && session.customer) {
+              const { data: existingSubscriber } = await supabaseClient
+                .from("subscribers")
+                .select("user_id")
+                .eq("stripe_customer_id", session.customer)
+                .single();
+              
+              if (existingSubscriber) {
+                userId = existingSubscriber.user_id;
+                logStep("Found existing subscriber for customer", { userId, customerId: session.customer });
+              }
+            }
+
             // Update subscriber in database using correct column names
             const { data, error } = await supabaseClient.from("subscribers").upsert({
               email: customerEmail,
