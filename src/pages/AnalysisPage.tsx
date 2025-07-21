@@ -1169,33 +1169,41 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                  <Upload className="h-8 w-8 text-blue-500 mx-auto mb-3" />
-                  <p className="font-bold text-lg mb-2">Upload File</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                  <div>
+                    <Upload className="h-8 w-8 text-blue-500 mx-auto mb-3" />
+                    <p className="font-bold text-lg mb-2">Upload File</p>
+                  </div>
                   <p className="text-sm text-muted-foreground">Hai già registrazioni o video del tuo pet</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                  <Mic className="h-8 w-8 text-green-500 mx-auto mb-3" />
-                  <p className="font-bold text-lg mb-2">Registra Ora</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                  <div>
+                    <Mic className="h-8 w-8 text-green-500 mx-auto mb-3" />
+                    <p className="font-bold text-lg mb-2">Registra Ora</p>
+                  </div>
                   <p className="text-sm text-muted-foreground">Vuoi catturare l'emozione in tempo reale</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                  <FileText className="h-8 w-8 text-purple-500 mx-auto mb-3" />
-                  <p className="font-bold text-lg mb-2">Descrivi Testo</p>
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                  <div>
+                    <FileText className="h-8 w-8 text-purple-500 mx-auto mb-3" />
+                    <p className="font-bold text-lg mb-2">Descrivi Testo</p>
+                  </div>
                   <p className="text-sm text-muted-foreground">Preferisci descrivere il comportamento</p>
                 </div>
                 
-                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm">
-                  <div className="flex justify-center gap-2 mb-3">
-                    <Heart className="h-4 w-4 text-red-500" />
-                    <Brain className="h-4 w-4 text-primary" />
+                <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-xl border shadow-sm min-h-[140px] flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-center gap-2 mb-3">
+                      <Heart className="h-4 w-4 text-red-500" />
+                      <Brain className="h-4 w-4 text-primary" />
+                    </div>
+                    <p className="font-bold text-lg mb-2">Analisi Doppia</p>
                   </div>
-                  <p className="font-bold text-lg mb-2">Analisi Doppia</p>
                   <p className="text-sm text-muted-foreground">Vuoi analizzare anche le tue emozioni</p>
+                </div>
               </div>
-            </div>
           </div>
           
           {/* Extra spacing to prevent overlap */}
