@@ -375,6 +375,27 @@ export const PrivateChatWithReply: React.FC = () => {
     try {
       setSendingMessage(true);
 
+      // Prima di inviare il messaggio, controlla se la chat è stata eliminata da qualcuno
+      // e riattivala se necessario
+      const { data: chatData } = await supabase
+        .from('private_chats')
+        .select('deleted_by_participant_1, deleted_by_participant_2')
+        .eq('id', selectedChat.id)
+        .single();
+
+      if (chatData && (chatData.deleted_by_participant_1 || chatData.deleted_by_participant_2)) {
+        console.log('🔄 Chat was deleted by someone, reactivating before sending message...');
+        await supabase
+          .from('private_chats')
+          .update({ 
+            deleted_by_participant_1: false,
+            deleted_by_participant_2: false,
+            last_message_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', selectedChat.id);
+      }
+
       console.log('📤 Inserting message to database...');
       const { data, error } = await supabase
         .from('private_messages')
