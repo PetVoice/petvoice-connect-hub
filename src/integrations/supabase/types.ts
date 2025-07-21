@@ -1934,6 +1934,9 @@ export type Database = {
       private_chats: {
         Row: {
           created_at: string
+          deleted_at: string | null
+          deleted_by_participant_1: boolean | null
+          deleted_by_participant_2: boolean | null
           id: string
           initiated_by: string
           is_active: boolean | null
@@ -1944,6 +1947,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deleted_at?: string | null
+          deleted_by_participant_1?: boolean | null
+          deleted_by_participant_2?: boolean | null
           id?: string
           initiated_by: string
           is_active?: boolean | null
@@ -1954,6 +1960,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deleted_at?: string | null
+          deleted_by_participant_1?: boolean | null
+          deleted_by_participant_2?: boolean | null
           id?: string
           initiated_by?: string
           is_active?: boolean | null
@@ -1969,6 +1978,7 @@ export type Database = {
           chat_id: string | null
           content: string | null
           created_at: string
+          deleted_at: string | null
           deleted_by_recipient: boolean | null
           deleted_by_sender: boolean | null
           file_url: string | null
@@ -1986,6 +1996,7 @@ export type Database = {
           chat_id?: string | null
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           deleted_by_recipient?: boolean | null
           deleted_by_sender?: boolean | null
           file_url?: string | null
@@ -2003,6 +2014,7 @@ export type Database = {
           chat_id?: string | null
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           deleted_by_recipient?: boolean | null
           deleted_by_sender?: boolean | null
           file_url?: string | null

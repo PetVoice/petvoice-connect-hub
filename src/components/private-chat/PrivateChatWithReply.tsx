@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { MessageCircle, Send, ArrowLeft, User, Clock, Reply, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { MessageCircle, User, Clock, ArrowLeft, Send, X, Reply, CheckSquare, Square, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { PrivateMessageList, PrivateMessage } from './PrivateMessageList';
 
 interface PrivateChat {
   id: string;
@@ -35,34 +37,22 @@ interface PrivateChat {
   unread_count: number;
 }
 
-interface PrivateMessage {
-  id: string;
-  chat_id: string;
-  sender_id: string;
-  recipient_id: string;
-  content: string;
-  message_type: string;
-  reply_to_id: string | null;
-  is_read: boolean;
-  created_at: string;
-  updated_at: string;
-  metadata?: any;
-  sender_name: string;
-}
-
 export const PrivateChatWithReply: React.FC = () => {
   const { user } = useAuth();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [replyToMessage, setReplyToMessage] = useState<PrivateMessage | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [replyToMessage, setReplyToMessage] = useState<PrivateMessage | null>(null);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showDeleteChatDialog, setShowDeleteChatDialog] = useState(false);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -82,14 +72,12 @@ export const PrivateChatWithReply: React.FC = () => {
   useEffect(() => {
     console.log('📜 Messages updated, count:', messages.length, 'hasUnreadMessages:', hasUnreadMessages);
     
-    // Solo quando carico i messaggi per la prima volta (apertura chat)
     if (hasUnreadMessages && messages.length > 0) {
       scrollToFirstUnreadMessage();
     } else if (messages.length > 0 && !hasUnreadMessages) {
-      // Scroll normale in fondo solo se non ci sono messaggi non letti
       setTimeout(() => scrollToBottom(), 100);
     }
-  }, [messages.length]); // Dipende solo dal numero di messaggi, non dall'array completo
+  }, [messages.length]);
 
   const scrollToBottom = () => {
     console.log('⬇️ Scrolling to bottom');
@@ -150,18 +138,15 @@ export const PrivateChatWithReply: React.FC = () => {
           const newMessage = payload.new as PrivateMessage;
           console.log('📨 Realtime message received:', newMessage.id, 'sender:', newMessage.sender_id);
           
-          // Solo se il messaggio è per la chat selezionata
           if (selectedChat && newMessage.chat_id === selectedChat.id) {
             console.log('✅ Message is for current chat, processing...');
             
-            // Aggiungi il messaggio con il nome del mittente
             const messageWithName = {
               ...newMessage,
               sender_name: newMessage.sender_id === user?.id ? 'Tu' : selectedChat.other_user.display_name
             };
             
             setMessages(prev => {
-              // Evita duplicati
               if (prev.some(msg => msg.id === newMessage.id)) {
                 console.log('⚠️ Duplicate message detected, skipping');
                 return prev;
@@ -170,7 +155,6 @@ export const PrivateChatWithReply: React.FC = () => {
               return [...prev, messageWithName];
             });
             
-            // Se il messaggio NON è mio (messaggio ricevuto), scrolla
             if (newMessage.sender_id !== user?.id) {
               console.log('📬 Received message from other user, scrolling to bottom');
               setTimeout(() => scrollToBottom(), 50);
@@ -180,7 +164,6 @@ export const PrivateChatWithReply: React.FC = () => {
           }
           
           console.log('🔄 Updating chat list from realtime...');
-          // Solo aggiorna l'ultimo messaggio senza ricaricare tutto
           updateLastMessageInChatList(newMessage);
         }
       )
@@ -198,12 +181,11 @@ export const PrivateChatWithReply: React.FC = () => {
           return {
             ...chat,
             last_message: {
-              content: newMessage.content,
+              content: newMessage.content || '',
               sender_id: newMessage.sender_id,
               created_at: newMessage.created_at
             },
             last_message_at: newMessage.created_at,
-            // Aggiorna unread count solo se il messaggio non è mio
             unread_count: newMessage.sender_id === user?.id ? chat.unread_count : chat.unread_count + 1
           };
         }
@@ -239,8 +221,6 @@ export const PrivateChatWithReply: React.FC = () => {
             .select('user_id, display_name, avatar_url')
             .eq('user_id', otherUserId)
             .maybeSingle();
-
-          
 
           const { data: lastMessage } = await supabase
             .from('private_messages')
@@ -317,7 +297,6 @@ export const PrivateChatWithReply: React.FC = () => {
 
       setMessages(messagesWithNames);
       
-      // Verifica se ci sono messaggi non letti quando carico i messaggi
       const hasUnread = messagesWithNames.some(
         msg => !msg.is_read && msg.recipient_id === user?.id
       );
@@ -377,7 +356,6 @@ export const PrivateChatWithReply: React.FC = () => {
       setNewMessage('');
       setReplyToMessage(null);
       
-      // Aggiungi immediatamente il messaggio alla UI per feedback istantaneo
       if (data) {
         console.log('📝 Adding message to UI immediately');
         const messageWithName = {
@@ -394,7 +372,6 @@ export const PrivateChatWithReply: React.FC = () => {
           return [...prev, messageWithName];
         });
         
-        // Scroll immediato
         setTimeout(() => {
           console.log('⬇️ Scrolling to bottom after UI update');
           scrollToBottom();
@@ -402,7 +379,6 @@ export const PrivateChatWithReply: React.FC = () => {
       }
       
       console.log('🔄 NOT reloading chats to avoid component re-render');
-      // NON chiamare loadChats() qui - causa il reload del componente
 
     } catch (error) {
       console.error('💥 Unexpected error sending message:', error);
@@ -421,7 +397,6 @@ export const PrivateChatWithReply: React.FC = () => {
     console.log('💬 Reply button clicked, setting reply message and focusing input');
     setReplyToMessage(message);
     
-    // Focus automatico sull'input dopo un breve delay
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -432,6 +407,196 @@ export const PrivateChatWithReply: React.FC = () => {
 
   const cancelReply = () => {
     setReplyToMessage(null);
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato eliminato con successo"
+      });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const editMessage = async (messageId: string, newContent: string) => {
+    if (!newContent.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          content: newContent.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, content: newContent.trim(), updated_at: new Date().toISOString() }
+            : msg
+        )
+      );
+
+      toast({
+        title: "Messaggio modificato",
+        description: "Il messaggio è stato modificato con successo"
+      });
+    } catch (error) {
+      console.error('Error editing message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile modificare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    setSelectedMessages([]);
+  };
+
+  const toggleMessageSelection = (messageId: string) => {
+    setSelectedMessages(prev => 
+      prev.includes(messageId) 
+        ? prev.filter(id => id !== messageId)
+        : [...prev, messageId]
+    );
+  };
+
+  const selectAllMessages = () => {
+    const userMessages = messages.filter(msg => msg.sender_id === user.id);
+    const allUserMessageIds = userMessages.map(msg => msg.id);
+    setSelectedMessages(allUserMessageIds);
+  };
+
+  const deselectAllMessages = () => {
+    setSelectedMessages([]);
+  };
+
+  const deleteSelectedMessages = async () => {
+    if (selectedMessages.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_at: new Date().toISOString()
+        })
+        .in('id', selectedMessages)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+
+      setMessages(prev => prev.filter(msg => !selectedMessages.includes(msg.id)));
+      setSelectedMessages([]);
+      setIsSelectionMode(false);
+      setShowBulkDeleteDialog(false);
+
+      toast({
+        title: "Messaggi eliminati",
+        description: `${selectedMessages.length} messaggi sono stati eliminati con successo`
+      });
+    } catch (error) {
+      console.error('Error deleting messages:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare i messaggi selezionati",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteChatForMe = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const isParticipant1 = selectedChat.participant_1_id === user.id;
+      const updateField = isParticipant1 ? 'deleted_by_participant_1' : 'deleted_by_participant_2';
+
+      const { error } = await supabase
+        .from('private_chats')
+        .update({ [updateField]: true })
+        .eq('id', selectedChat.id);
+
+      if (error) throw error;
+
+      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
+      setSelectedChat(null);
+      setMessages([]);
+      setShowDeleteChatDialog(false);
+
+      toast({
+        title: "Chat eliminata",
+        description: "La chat è stata eliminata dal tuo account"
+      });
+    } catch (error) {
+      console.error('Error deleting chat for me:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la chat",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteChatForBoth = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_chats')
+        .update({ 
+          deleted_by_participant_1: true,
+          deleted_by_participant_2: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', selectedChat.id);
+
+      if (error) throw error;
+
+      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
+      setSelectedChat(null);
+      setMessages([]);
+      setShowDeleteChatDialog(false);
+
+      toast({
+        title: "Chat eliminata",
+        description: "La chat è stata eliminata per entrambi gli utenti"
+      });
+    } catch (error) {
+      console.error('Error deleting chat for both:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la chat",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -541,106 +706,108 @@ export const PrivateChatWithReply: React.FC = () => {
           {selectedChat ? (
             <>
               <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="lg:hidden"
-                    onClick={() => setSelectedChat(null)}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </Button>
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={selectedChat.other_user.avatar_url} />
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
-                    <p className="text-xs text-muted-foreground">Chat privata</p>
+                {!isSelectionMode ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="lg:hidden"
+                        onClick={() => setSelectedChat(null)}
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                      </Button>
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={selectedChat.other_user.avatar_url} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
+                        <p className="text-xs text-muted-foreground">Chat privata</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggleSelectionMode}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <CheckSquare className="h-4 w-4 mr-2" />
+                        Seleziona
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowDeleteChatDialog(true)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Elimina Chat
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={toggleSelectionMode}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <span className="font-semibold">
+                        {selectedMessages.length} selezionati
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={selectedMessages.length === messages.filter(msg => msg.sender_id === user.id).length ? deselectAllMessages : selectAllMessages}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        {selectedMessages.length === messages.filter(msg => msg.sender_id === user.id).length ? (
+                          <Square className="h-4 w-4 mr-2" />
+                        ) : (
+                          <CheckSquare className="h-4 w-4 mr-2" />
+                        )}
+                        {selectedMessages.length === messages.filter(msg => msg.sender_id === user.id).length ? 'Deseleziona' : 'Seleziona tutto'}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setShowBulkDeleteDialog(true)}
+                        disabled={selectedMessages.length === 0}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Elimina ({selectedMessages.length})
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardHeader>
               <Separator />
               <CardContent className="p-0 flex flex-col h-[500px]">
                 {/* Messages */}
                 <ScrollArea className="flex-1 p-4">
-                  <div className="space-y-4">
-                    {messages.map((message) => {
-                      const isOwn = message.sender_id === user.id;
-                      const replyToMessage = message.reply_to_id ? 
-                        messages.find(m => m.id === message.reply_to_id) : null;
-
-                      return (
-                        <div
-                          key={message.id}
-                          id={`private-message-${message.id}`}
-                          className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div className={`max-w-[70%] rounded-lg px-3 py-2 ${
-                            isOwn ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                          }`}>
-                            {/* Reply Quote */}
-                            {replyToMessage && (
-                              <div 
-                                className="mb-2 cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => scrollToMessage(replyToMessage.id)}
-                              >
-                                <div className={`p-2 rounded border-l-2 ${
-                                  isOwn 
-                                    ? 'bg-primary-foreground/10 border-primary-foreground/30' 
-                                    : 'bg-muted-foreground/10 border-muted-foreground/30'
-                                }`}>
-                                  <div className={`text-xs font-medium ${
-                                    isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                                  }`}>
-                                    {replyToMessage.sender_id === user.id ? 'Tu' : selectedChat.other_user.display_name}
-                                  </div>
-                                  <div className={`text-xs ${
-                                    isOwn ? 'text-primary-foreground/60' : 'text-muted-foreground/80'
-                                  }`}>
-                                    {truncateText(replyToMessage.content || '', 50)}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                            
-                            <div className="flex items-end gap-2">
-                              <div className="flex-1">
-                                <p className="text-sm">{message.content}</p>
-                                <div className={`flex items-center gap-1 mt-1 ${
-                                  isOwn ? 'justify-end' : 'justify-start'
-                                }`}>
-                                  <span className={`text-xs ${
-                                    isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                                  }`}>
-                                    {formatDistanceToNow(new Date(message.created_at), {
-                                      addSuffix: true,
-                                      locale: it
-                                    })}
-                                  </span>
-                                </div>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className={`h-6 w-6 p-0 ${
-                                  isOwn 
-                                    ? 'hover:bg-primary-foreground/20 text-primary-foreground/70' 
-                                    : 'hover:bg-muted-foreground/20 text-muted-foreground'
-                                }`}
-                                onClick={() => handleReply(message)}
-                              >
-                                <Reply className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef} />
-                  </div>
+                  <PrivateMessageList
+                    messages={messages}
+                    currentUserId={user.id}
+                    otherUserName={selectedChat.other_user.display_name}
+                    onDeleteMessage={deleteMessage}
+                    onEditMessage={editMessage}
+                    onReply={handleReply}
+                    onScrollToMessage={scrollToMessage}
+                    isSelectionMode={isSelectionMode}
+                    selectedMessages={selectedMessages}
+                    onToggleSelection={toggleMessageSelection}
+                  />
+                  <div ref={messagesEndRef} className="h-1" />
                 </ScrollArea>
 
                 {/* Message Input */}
@@ -715,6 +882,55 @@ export const PrivateChatWithReply: React.FC = () => {
           )}
         </Card>
       </div>
+
+      {/* Bulk Delete Dialog */}
+      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare {selectedMessages.length} messaggi selezionati? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteSelectedMessages}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Elimina {selectedMessages.length} messaggi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Chat Dialog */}
+      <AlertDialog open={showDeleteChatDialog} onOpenChange={setShowDeleteChatDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Elimina Chat</AlertDialogTitle>
+            <AlertDialogDescription>
+              Come vuoi eliminare questa chat?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={deleteChatForMe}
+              className="w-full sm:w-auto"
+            >
+              Elimina solo per me
+            </Button>
+            <AlertDialogAction
+              onClick={deleteChatForBoth}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+            >
+              Elimina per entrambi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
