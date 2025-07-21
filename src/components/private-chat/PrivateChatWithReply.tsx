@@ -51,6 +51,8 @@ export const PrivateChatWithReply: React.FC = () => {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [showSingleDeleteDialog, setShowSingleDeleteDialog] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -532,7 +534,14 @@ export const PrivateChatWithReply: React.FC = () => {
     setReplyToMessage(null);
   };
 
-  const deleteMessage = async (messageId: string) => {
+  const deleteMessage = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setShowSingleDeleteDialog(true);
+  };
+
+  const deleteSingleMessageForMe = async () => {
+    if (!messageToDelete) return;
+
     try {
       const { error } = await supabase
         .from('private_messages')
@@ -540,19 +549,55 @@ export const PrivateChatWithReply: React.FC = () => {
           deleted_by_sender: true,
           deleted_at: new Date().toISOString()
         })
-        .eq('id', messageId)
+        .eq('id', messageToDelete)
         .eq('sender_id', user.id);
 
       if (error) throw error;
 
-      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
+      setShowSingleDeleteDialog(false);
+      setMessageToDelete(null);
 
       toast({
         title: "Messaggio eliminato",
-        description: "Il messaggio è stato eliminato con successo"
+        description: "Il messaggio è stato eliminato solo per te"
       });
     } catch (error) {
       console.error('Error deleting message:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteSingleMessageForBoth = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from('private_messages')
+        .update({ 
+          deleted_by_sender: true,
+          deleted_by_recipient: true,
+          deleted_at: new Date().toISOString()
+        })
+        .eq('id', messageToDelete)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
+      setShowSingleDeleteDialog(false);
+      setMessageToDelete(null);
+
+      toast({
+        title: "Messaggio eliminato",
+        description: "Il messaggio è stato eliminato per entrambi"
+      });
+    } catch (error) {
+      console.error('Error deleting single message for both:', error);
       toast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
@@ -990,6 +1035,34 @@ export const PrivateChatWithReply: React.FC = () => {
             </Button>
             <AlertDialogAction
               onClick={deleteSelectedMessagesForBoth}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
+            >
+              Elimina per entrambi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Single Message Delete Dialog */}
+      <AlertDialog open={showSingleDeleteDialog} onOpenChange={setShowSingleDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Elimina Messaggio</AlertDialogTitle>
+            <AlertDialogDescription>
+              Come vuoi eliminare questo messaggio?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={deleteSingleMessageForMe}
+              className="w-full sm:w-auto"
+            >
+              Elimina solo per me
+            </Button>
+            <AlertDialogAction
+              onClick={deleteSingleMessageForBoth}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
             >
               Elimina per entrambi
