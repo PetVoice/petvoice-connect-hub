@@ -62,6 +62,7 @@ export const PrivateChatWithReply: React.FC = () => {
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -411,7 +412,16 @@ export const PrivateChatWithReply: React.FC = () => {
   };
 
   const handleReply = (message: PrivateMessage) => {
+    console.log('💬 Reply button clicked, setting reply message and focusing input');
     setReplyToMessage(message);
+    
+    // Focus automatico sull'input dopo un breve delay
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        console.log('🎯 Input focused for reply');
+      }
+    }, 100);
   };
 
   const cancelReply = () => {
@@ -658,6 +668,7 @@ export const PrivateChatWithReply: React.FC = () => {
                     className="flex gap-2"
                   >
                     <Input
+                      ref={inputRef}
                       placeholder={replyToMessage ? "Rispondi..." : "Scrivi un messaggio..."}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
