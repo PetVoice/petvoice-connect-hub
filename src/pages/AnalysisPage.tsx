@@ -520,26 +520,26 @@ const AnalysisPage: React.FC = () => {
             </div>
           </Card>
 
-          {/* Upload Methods - Layout verticale */}
+          {/* Upload Methods - Layout griglia 2x2 */}
           <div className="space-y-6">
-            {/* File Upload */}
-            <FileUploader 
-              onFilesSelected={handleFileUpload} 
-              autoAnalyzeAudio={true}
-            />
+            {/* Prima riga - due analisi affiancate */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FileUploader 
+                onFilesSelected={handleFileUpload} 
+                autoAnalyzeAudio={true}
+              />
+              <AudioRecorder 
+                onRecordingComplete={handleRecordingComplete} 
+                onStartRecording={handleStartRecording}
+                autoAnalyze={true}
+              />
+            </div>
             
-            {/* Audio Recorder */}
-            <AudioRecorder 
-              onRecordingComplete={handleRecordingComplete} 
-              onStartRecording={handleStartRecording}
-              autoAnalyze={true}
-            />
-          
-            {/* Text Analysis */}
-            <TextAnalysis onAnalysisComplete={() => loadAllData()} />
-            
-            {/* Voice Analysis */}
-            <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+            {/* Seconda riga - due analisi affiancate */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TextAnalysis onAnalysisComplete={() => loadAllData()} />
+              <VoiceAnalysis onAnalysisComplete={() => loadAllData()} />
+            </div>
           </div>
         </TabsContent>
 
