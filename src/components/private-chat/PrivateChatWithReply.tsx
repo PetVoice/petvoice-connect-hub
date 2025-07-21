@@ -147,10 +147,12 @@ export const PrivateChatWithReply: React.FC = () => {
         },
         (payload) => {
           const newMessage = payload.new as PrivateMessage;
-          console.log('📨 New message received via realtime:', newMessage.id);
+          console.log('📨 Realtime message received:', newMessage.id, 'sender:', newMessage.sender_id);
           
           // Solo se il messaggio è per la chat selezionata
           if (selectedChat && newMessage.chat_id === selectedChat.id) {
+            console.log('✅ Message is for current chat, processing...');
+            
             // Aggiungi il messaggio con il nome del mittente
             const messageWithName = {
               ...newMessage,
@@ -160,17 +162,22 @@ export const PrivateChatWithReply: React.FC = () => {
             setMessages(prev => {
               // Evita duplicati
               if (prev.some(msg => msg.id === newMessage.id)) {
+                console.log('⚠️ Duplicate message detected, skipping');
                 return prev;
               }
+              console.log('➕ Adding realtime message to UI');
               return [...prev, messageWithName];
             });
             
-            // Se il messaggio è mio, scrolla sempre in basso
-            if (newMessage.sender_id === user?.id) {
-              console.log('📤 My message received, scrolling to bottom');
+            // Se il messaggio NON è mio (messaggio ricevuto), scrolla
+            if (newMessage.sender_id !== user?.id) {
+              console.log('📬 Received message from other user, scrolling to bottom');
               setTimeout(() => scrollToBottom(), 50);
             }
+          } else {
+            console.log('ℹ️ Message not for current chat or no chat selected');
           }
+          
           // Ricarica la lista delle chat per aggiornare l'ultimo messaggio
           loadChats();
         }
@@ -308,10 +315,13 @@ export const PrivateChatWithReply: React.FC = () => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedChat || sendingMessage) return;
 
+    console.log('🚀 Starting to send message:', newMessage.trim());
+    
     try {
       setSendingMessage(true);
 
-      const { error } = await supabase
+      console.log('📤 Inserting message to database...');
+      const { data, error } = await supabase
         .from('private_messages')
         .insert({
           chat_id: selectedChat.id,
@@ -320,10 +330,12 @@ export const PrivateChatWithReply: React.FC = () => {
           content: newMessage.trim(),
           message_type: 'text',
           reply_to_id: replyToMessage?.id || null
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
-        console.error('Error sending message:', error);
+        console.error('❌ Error sending message:', error);
         toast({
           title: "Errore",
           description: "Impossibile inviare il messaggio",
@@ -332,16 +344,39 @@ export const PrivateChatWithReply: React.FC = () => {
         return;
       }
 
+      console.log('✅ Message inserted successfully:', data);
       setNewMessage('');
       setReplyToMessage(null);
       
-      console.log('💬 Message sent successfully, waiting for realtime update');
-      // NON ricaricare i messaggi - lascia che il realtime gestisca tutto
-      // Solo aggiorna la lista delle chat per l'ultimo messaggio
+      // Aggiungi immediatamente il messaggio alla UI per feedback istantaneo
+      if (data) {
+        console.log('📝 Adding message to UI immediately');
+        const messageWithName = {
+          ...data,
+          sender_name: 'Tu'
+        };
+        
+        setMessages(prev => {
+          if (prev.some(msg => msg.id === data.id)) {
+            console.log('⚠️ Message already exists in UI');
+            return prev;
+          }
+          console.log('➕ Adding new message to UI');
+          return [...prev, messageWithName];
+        });
+        
+        // Scroll immediato
+        setTimeout(() => {
+          console.log('⬇️ Scrolling to bottom after UI update');
+          scrollToBottom();
+        }, 50);
+      }
+      
+      console.log('🔄 Updating chat list...');
       loadChats();
 
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('💥 Unexpected error sending message:', error);
       toast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
@@ -349,6 +384,7 @@ export const PrivateChatWithReply: React.FC = () => {
       });
     } finally {
       setSendingMessage(false);
+      console.log('🏁 Send message completed');
     }
   };
 
@@ -363,6 +399,7 @@ export const PrivateChatWithReply: React.FC = () => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      console.log('🎯 Enter pressed, sending message');
       sendMessage();
     }
   };
@@ -594,9 +631,14 @@ export const PrivateChatWithReply: React.FC = () => {
                       disabled={sendingMessage}
                     />
                     <Button 
-                      onClick={sendMessage} 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        console.log('🖱️ Send button clicked');
+                        sendMessage();
+                      }}
                       disabled={!newMessage.trim() || sendingMessage}
                       size="sm"
+                      type="button"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
