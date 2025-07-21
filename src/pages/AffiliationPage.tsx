@@ -307,8 +307,8 @@ export default function AffiliationPage() {
         description: `${data.converted}/${data.total} referral convertiti con successo`,
       });
       
-      // Ricarica i dati
-      await loadReferralData(true);
+      // Ricarica i dati immediatamente
+      await loadReferralData(false);
       
     } catch (error) {
       toast({
