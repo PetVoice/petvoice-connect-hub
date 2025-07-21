@@ -154,12 +154,30 @@ export const usePetTwins = () => {
 
       if (analysesError) throw analysesError;
 
+      // Get completed protocols for matching
+      const { data: allProtocols, error: protocolsError } = await supabase
+        .from('ai_training_protocols')
+        .select('user_id, title, category, status')
+        .eq('status', 'completed');
+
+      if (protocolsError) throw protocolsError;
+
       // Create analysis map
       const analysisMap = analyses?.reduce((acc, analysis) => {
         if (!acc[analysis.pet_id]) acc[analysis.pet_id] = [];
         acc[analysis.pet_id].push(analysis);
         return acc;
       }, {} as Record<string, any[]>) || {};
+
+      // Create protocols map by user
+      const protocolsByUser = allProtocols?.reduce((acc, protocol) => {
+        if (!acc[protocol.user_id]) acc[protocol.user_id] = [];
+        acc[protocol.user_id].push(protocol);
+        return acc;
+      }, {} as Record<string, any[]>) || {};
+
+      // Get current user's completed protocols
+      const myProtocols = protocolsByUser[user.id] || [];
 
       // Transform to PetMatch format with real matching logic
       return pets?.map(pet => {
@@ -168,24 +186,36 @@ export const usePetTwins = () => {
         const myPetAnalyses = analysisMap[myPet.id] || [];
         
         // Calculate match score based on multiple criteria
-        let matchScore = 50; // Base score
+        let matchScore = 40; // Base score
         
-        // Same breed bonus
-        if (pet.breed === myPet.breed) matchScore += 25;
+        // Same breed bonus (30%)
+        if (pet.breed === myPet.breed) matchScore += 30;
         
-        // Same type (species) bonus
-        if (pet.type === myPet.type) matchScore += 15;
+        // Same type (species) bonus (20%)
+        if (pet.type === myPet.type) matchScore += 20;
         
-        // Age similarity (within 2 years)
+        // Age similarity (within 2 years) (15%)
         const ageDiff = Math.abs((pet.age || 0) - (myPet.age || 0));
-        if (ageDiff <= 2) matchScore += 10;
+        if (ageDiff <= 2) matchScore += 15;
         
-        // Similar emotions/behaviors from analyses
+        // Similar completed protocols (25%)
+        const otherUserProtocols = protocolsByUser[pet.user_id] || [];
+        const commonProtocols = myProtocols.filter(myProtocol => 
+          otherUserProtocols.some(otherProtocol => 
+            otherProtocol.title === myProtocol.title && 
+            otherProtocol.category === myProtocol.category
+          )
+        );
+        if (commonProtocols.length > 0) {
+          matchScore += Math.min(25, commonProtocols.length * 8);
+        }
+        
+        // Similar emotions/behaviors from analyses (10%)
         if (petAnalyses.length && myPetAnalyses.length) {
           const commonEmotions = petAnalyses.filter(pa => 
             myPetAnalyses.some(mpa => mpa.primary_emotion === pa.primary_emotion)
           ).length;
-          matchScore += commonEmotions * 5;
+          matchScore += Math.min(10, commonEmotions * 3);
         }
         
         // Ensure score is within bounds
@@ -208,11 +238,12 @@ export const usePetTwins = () => {
           matchScore: matchScore,
           distance: Math.floor(Math.random() * 20) + 1, // Mock distance for now
           behavioralDNA: petAnalyses.map(a => a.primary_emotion).filter(Boolean) || ['Socievole', 'Energico'],
-          commonTraits: [
-            pet.breed === myPet.breed ? `Stessa razza: ${pet.breed}` : null,
-            pet.type === myPet.type ? `Stesso tipo: ${pet.type}` : null,
-            ageDiff <= 2 ? `Età simile (${pet.age || 0} anni)` : null
-          ].filter(Boolean),
+           commonTraits: [
+             pet.breed === myPet.breed ? `Stessa razza: ${pet.breed}` : null,
+             pet.type === myPet.type ? `Stesso tipo: ${pet.type}` : null,
+             ageDiff <= 2 ? `Età simile (${pet.age || 0} anni)` : null,
+             commonProtocols.length > 0 ? `${commonProtocols.length} protocolli completati in comune` : null
+           ].filter(Boolean),
           differences: ['Caratteristiche uniche', 'Temperamento diverso'],
           successStories: Math.floor(Math.random() * 5) + 1,
           lastActive: '2 ore fa',

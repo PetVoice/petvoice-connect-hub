@@ -122,7 +122,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'community' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'completed'>('protocols');
 
   // Check URL parameters to set initial tab
   useEffect(() => {
