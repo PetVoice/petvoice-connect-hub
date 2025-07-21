@@ -1931,8 +1931,42 @@ export type Database = {
         }
         Relationships: []
       }
+      private_chats: {
+        Row: {
+          created_at: string
+          id: string
+          initiated_by: string
+          is_active: boolean | null
+          last_message_at: string | null
+          participant_1_id: string
+          participant_2_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          initiated_by: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          participant_1_id: string
+          participant_2_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          initiated_by?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          participant_1_id?: string
+          participant_2_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       private_messages: {
         Row: {
+          chat_id: string | null
           content: string | null
           created_at: string
           deleted_by_recipient: boolean | null
@@ -1949,6 +1983,7 @@ export type Database = {
           voice_duration: number | null
         }
         Insert: {
+          chat_id?: string | null
           content?: string | null
           created_at?: string
           deleted_by_recipient?: boolean | null
@@ -1965,6 +2000,7 @@ export type Database = {
           voice_duration?: number | null
         }
         Update: {
+          chat_id?: string | null
           content?: string | null
           created_at?: string
           deleted_by_recipient?: boolean | null
@@ -1981,6 +2017,13 @@ export type Database = {
           voice_duration?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "private_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "private_chats"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "private_messages_reply_to_id_fkey"
             columns: ["reply_to_id"]

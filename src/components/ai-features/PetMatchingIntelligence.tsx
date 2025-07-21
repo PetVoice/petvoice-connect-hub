@@ -411,7 +411,37 @@ export const PetMatchingIntelligence: React.FC = () => {
         throw new Error('User not authenticated');
       }
 
-      // Get current user profile for display name
+      // Check if chat already exists between these users
+      const { data: existingChat } = await supabase
+        .from('private_chats')
+        .select('id')
+        .or(`and(participant_1_id.eq.${user.id},participant_2_id.eq.${selectedTwin.user_id}),and(participant_1_id.eq.${selectedTwin.user_id},participant_2_id.eq.${user.id})`)
+        .eq('is_active', true)
+        .single();
+
+      let chatId = existingChat?.id;
+
+      // Create new chat if it doesn't exist
+      if (!chatId) {
+        const { data: newChat, error: chatError } = await supabase
+          .from('private_chats')
+          .insert({
+            participant_1_id: user.id,
+            participant_2_id: selectedTwin.user_id,
+            initiated_by: user.id
+          })
+          .select('id')
+          .single();
+
+        if (chatError) {
+          console.error('Error creating chat:', chatError);
+          throw chatError;
+        }
+
+        chatId = newChat.id;
+      }
+
+      // Send initial message
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('display_name')
@@ -420,47 +450,17 @@ export const PetMatchingIntelligence: React.FC = () => {
 
       const userName = userProfile?.display_name || user.user_metadata?.display_name || 'Utente';
 
-      // Use the general "cane" channel for connection messages
-      const { data: channelData } = await supabase
-        .from('community_channels')
-        .select('id, name')
-        .eq('channel_type', 'pet_type')
-        .limit(1)
-        .single();
-
-      if (!channelData) {
-        throw new Error('Nessun canale disponibile');
-      }
-
-      // Subscribe current user to the channel if not already subscribed
-      const { error: subscriptionError } = await supabase
-        .from('user_channel_subscriptions')
-        .upsert({
-          user_id: user.id,
-          channel_id: channelData.id,
-          channel_name: channelData.name
-        }, {
-          onConflict: 'user_id,channel_id'
-        });
-
-      if (subscriptionError) {
-        console.log('Subscription error (non-critical):', subscriptionError);
-        // Continue anyway
-      }
-
-      // Send a connection request message
       const { error: messageError } = await supabase
-        .from('community_messages')
+        .from('private_messages')
         .insert({
-          channel_id: channelData.id,
-          channel_name: channelData.name,
-          user_id: user.id,
-          content: `👋 Ciao! Sono ${userName} e ho visto il tuo ${selectedTwin.name}. I nostri pet potrebbero essere ottimi compagni! Scrivimi in privato se vuoi organizzare un incontro.`,
-          message_type: 'text', // Using valid message type
+          chat_id: chatId,
+          sender_id: user.id,
+          recipient_id: selectedTwin.user_id,
+          content: `👋 Ciao! Sono ${userName} e ho visto il tuo ${selectedTwin.name}. I nostri pet potrebbero essere ottimi compagni! Mi piacerebbe organizzare un incontro se sei interessato.`,
+          message_type: 'text',
           metadata: {
             pet_id: petId,
             target_pet_name: selectedTwin.name,
-            target_user_id: selectedTwin.user_id,
             connection_type: 'pet_match',
             match_score: selectedTwin.matchScore,
             is_connection_request: true
@@ -468,7 +468,7 @@ export const PetMatchingIntelligence: React.FC = () => {
         });
 
       if (messageError) {
-        console.error('Error creating message:', messageError);
+        console.error('Error sending message:', messageError);
         throw messageError;
       }
 
@@ -478,25 +478,25 @@ export const PetMatchingIntelligence: React.FC = () => {
         .insert({
           user_id: user.id,
           pet_id: petId,
-          activity_type: 'connection_request_sent',
-          activity_description: `Messaggio di connessione inviato nel canale ${channelData.name}`,
+          activity_type: 'private_connection_request_sent',
+          activity_description: `Messaggio di connessione privato inviato per ${selectedTwin.name}`,
           metadata: {
-            channel_id: channelData.id,
+            chat_id: chatId,
             target_pet_name: selectedTwin.name,
             target_user_id: selectedTwin.user_id
           }
         });
 
       toast({
-        title: "Messaggio inviato!",
-        description: `Il tuo messaggio di connessione è stato pubblicato nel canale ${channelData.name}. Vai alla sezione Community per vedere le risposte.`,
+        title: "Chat avviata!",
+        description: `Hai avviato una chat privata. Vai alla sezione "Chat Private" per continuare la conversazione.`,
       });
       
     } catch (error) {
       console.error('Connection error:', error);
       toast({
         title: "Errore",
-        description: "Non è stato possibile inviare la richiesta di connessione. Riprova.",
+        description: "Non è stato possibile avviare la chat privata. Riprova.",
         variant: "destructive",
       });
     } finally {
