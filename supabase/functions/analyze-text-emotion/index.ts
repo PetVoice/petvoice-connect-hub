@@ -72,17 +72,25 @@ serve(async (req) => {
             5. Raccomandazioni specifiche
             6. Possibili trigger comportamentali
 
-            Considera il contesto ambientale: ${timeOfDay}, temperatura ${temperature}°C, umidità ${environmentalData.humidity}%, livello rumore ${environmentalData.noiseLevel}, presenza umana ${environmentalData.humanPresence}.
+            IMPORTANTE: Usa ESATTAMENTE questi dati ambientali reali nella tua analisi:
+            - Orario: ${timeOfDay}
+            - Temperatura: ${temperature}°C
+            - Umidità: ${environmentalData.humidity}%
+            - Livello rumore: ${environmentalData.noiseLevel}
+            - Presenza umana: ${environmentalData.humanPresence}
+
+            Nel campo behavioral_insights, includi OBBLIGATORIAMENTE questo testo ESATTO:
+            "Contesto Ambientale: Analisi registrata durante orario ${timeOfDay}. Livelli di rumore ambientale: ${environmentalData.noiseLevel}. Temperatura stimata: ${temperature}°C. Presenza umana ${environmentalData.humanPresence}."
 
             Rispondi SEMPRE in formato JSON valido con questa struttura:
             {
               "primary_emotion": "emozione_principale",
               "confidence": numero_0_100,
               "secondary_emotions": [{"emotion": "nome", "confidence": numero}],
-              "behavioral_insights": "analisi dettagliata del comportamento",
+              "behavioral_insights": "analisi dettagliata del comportamento + OBBLIGATORIAMENTE il contesto ambientale sopra specificato",
               "recommendations": ["raccomandazione1", "raccomandazione2"],
               "triggers": ["trigger1", "trigger2"],
-              "environmental_context": "${timeOfDay}. Temperatura: ${temperature}°C. Umidità: ${environmentalData.humidity}%. Livello rumore: ${environmentalData.noiseLevel}. Presenza umana: ${environmentalData.humanPresence}."
+              "environmental_context": "Orario ${timeOfDay}. Temperatura: ${temperature}°C. Umidità: ${environmentalData.humidity}%. Livello rumore: ${environmentalData.noiseLevel}. Presenza umana: ${environmentalData.humanPresence}."
             }`
           },
           {
