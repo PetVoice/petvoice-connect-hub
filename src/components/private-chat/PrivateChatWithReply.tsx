@@ -240,7 +240,7 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('user_id', otherUserId)
             .maybeSingle();
 
-          console.log('🔍 User profile for', otherUserId, ':', userProfile);
+          
 
           const { data: lastMessage } = await supabase
             .from('private_messages')
@@ -258,7 +258,6 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('is_read', false);
 
           const displayName = userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
-          console.log('📝 Final display name:', displayName, 'from original:', userProfile?.display_name);
 
           return {
             ...chat,
@@ -307,9 +306,7 @@ export const PrivateChatWithReply: React.FC = () => {
             .eq('user_id', message.sender_id)
             .maybeSingle();
 
-          console.log('💬 Message sender profile for', message.sender_id, ':', senderProfile);
           const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
-          console.log('📝 Final sender name:', senderName, 'from original:', senderProfile?.display_name);
 
           return {
             ...message,
