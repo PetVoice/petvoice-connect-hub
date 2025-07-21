@@ -230,24 +230,21 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete }) => 
                 <Mic className="h-8 w-8 text-white" />
               )}
             </Button>
-            
-            {isRecording && (
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-                <Badge variant="destructive" className="animate-pulse">
-                  {formatTime(recordingTime)}
-                </Badge>
-              </div>
-            )}
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            {isRecording 
-              ? "Descrivi cosa sta facendo il tuo pet..." 
-              : recordedBlob 
-                ? "Registrazione completata"
-                : "Tocca per iniziare a registrare"
-            }
-          </p>
+          <div className="space-y-2">
+            <p className="text-lg font-mono">
+              {formatTime(recordingTime)}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {isRecording 
+                ? "Descrivi cosa sta facendo il tuo pet..." 
+                : recordedBlob 
+                  ? "Registrazione completata"
+                  : "Tocca per iniziare a registrare"
+              }
+            </p>
+          </div>
         </div>
 
         {/* Recording Controls */}
