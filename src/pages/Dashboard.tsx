@@ -277,10 +277,12 @@ const Dashboard: React.FC = () => {
 
   const getUserName = () => {
     if (userProfile?.display_name) {
-      return userProfile.display_name;
+      // Prendi solo il primo nome
+      return userProfile.display_name.split(' ')[0];
     }
     if (user?.user_metadata?.display_name) {
-      return user.user_metadata.display_name;
+      // Prendi solo il primo nome
+      return user.user_metadata.display_name.split(' ')[0];
     }
     return 'Caro utente';
   };

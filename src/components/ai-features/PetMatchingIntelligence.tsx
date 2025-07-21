@@ -448,7 +448,7 @@ export const PetMatchingIntelligence: React.FC = () => {
         .eq('user_id', user.id)
         .single();
 
-      const userName = userProfile?.display_name || user.user_metadata?.display_name || 'Utente';
+      const userName = userProfile?.display_name?.split(' ')[0] || user.user_metadata?.display_name?.split(' ')[0] || 'Utente';
 
       const { error: messageError } = await supabase
         .from('private_messages')

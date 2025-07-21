@@ -259,7 +259,7 @@ export const PrivateChatWithReply: React.FC = () => {
             ...chat,
             other_user: {
               id: otherUserId,
-              display_name: userProfile?.display_name || 'Utente Sconosciuto',
+              display_name: userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto',
               avatar_url: userProfile?.avatar_url
             },
             last_message: lastMessage,
@@ -304,7 +304,7 @@ export const PrivateChatWithReply: React.FC = () => {
 
           return {
             ...message,
-            sender_name: senderProfile?.display_name || 'Utente Sconosciuto'
+            sender_name: senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto'
           };
         })
       );
@@ -476,8 +476,10 @@ export const PrivateChatWithReply: React.FC = () => {
                   {chats.map((chat) => (
                     <div
                       key={chat.id}
-                      className={`p-4 cursor-pointer transition-colors hover:bg-muted/50 ${
-                        selectedChat?.id === chat.id ? 'bg-muted' : ''
+                      className={`p-4 cursor-pointer transition-colors ${
+                        selectedChat?.id === chat.id 
+                          ? 'bg-primary/10 border-r-2 border-primary shadow-sm' 
+                          : 'hover:bg-muted/50'
                       }`}
                       onClick={() => setSelectedChat(chat)}
                     >
@@ -490,7 +492,9 @@ export const PrivateChatWithReply: React.FC = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-sm truncate">
+                            <h4 className={`font-medium text-sm truncate ${
+                              selectedChat?.id === chat.id ? 'text-primary font-semibold' : ''
+                            }`}>
                               {chat.other_user.display_name}
                             </h4>
                             {chat.unread_count > 0 && (

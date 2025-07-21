@@ -302,7 +302,13 @@ const CommunityPage = () => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        // Reset active chat when switching tabs
+        if (value !== 'groups') {
+          setActiveChat(null);
+        }
+      }} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="groups">Gruppi Community</TabsTrigger>
             <TabsTrigger value="private">Chat Private</TabsTrigger>

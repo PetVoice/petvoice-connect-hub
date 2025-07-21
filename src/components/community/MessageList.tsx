@@ -39,7 +39,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             key={message.id}
             message={message}
             isOwn={message.user_id === currentUserId}
-            userName={userNames[message.user_id] || 'Utente sconosciuto'}
+            userName={userNames[message.user_id]?.split(' ')[0] || 'Utente sconosciuto'}
             currentUserId={currentUserId}
             onDelete={() => onDeleteMessage(message.id)}
             onEdit={(newContent) => onEditMessage(message.id, newContent)}

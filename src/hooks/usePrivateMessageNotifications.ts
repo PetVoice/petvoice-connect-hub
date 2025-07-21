@@ -30,7 +30,7 @@ export function usePrivateMessageNotifications() {
               .eq('user_id', payload.new.sender_id)
               .single();
 
-            const senderName = senderProfile?.display_name || 'Utente sconosciuto';
+            const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente sconosciuto';
             
             addNotification({
               title: 'Nuovo messaggio privato',
