@@ -483,17 +483,6 @@ export const PetMatchingIntelligence: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="text-center space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Pet Matching Intelligence
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Trova pet simili, mentori esperti e modelli di successo nella community
-          </p>
-        </div>
-        
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
           <Card className="hover:shadow-md transition-shadow">
@@ -544,7 +533,7 @@ export const PetMatchingIntelligence: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+
       {/* Success Alert - only show if there's a real high match */}
       {highestMatch && (
         <Alert className="border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20">
