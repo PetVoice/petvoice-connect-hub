@@ -48,7 +48,7 @@ function generatePatternInsights(data: InsightGeneratorData): Insight[] {
   const { analysisData, diaryData, petData } = data;
   
   // Emotion patterns analysis - Enhanced
-  if (Array.isArray(analysisData) && analysisData.length > 5) {
+  if (Array.isArray(analysisData) && analysisData.length > 0) {
     const emotionCounts = analysisData.reduce((acc: Record<string, number>, analysis: any) => {
       acc[analysis.primary_emotion] = (acc[analysis.primary_emotion] || 0) + 1;
       return acc;
@@ -87,12 +87,12 @@ function generatePatternInsights(data: InsightGeneratorData): Insight[] {
   }
   
   // Activity level patterns from diary
-  if (diaryData.length > 5) {
+  if (diaryData.length > 0) {
     const moodScores = diaryData
       .filter((entry: any) => entry.mood_score !== null && entry.mood_score !== undefined)
       .map((entry: any) => entry.mood_score);
     
-    if (moodScores.length >= 5) {
+    if (moodScores.length >= 1) {
       const avgMood = moodScores.reduce((a: number, b: number) => a + b, 0) / moodScores.length;
       
       // Check for consistently low mood
@@ -134,7 +134,7 @@ function generatePredictionInsights(data: InsightGeneratorData): Insight[] {
   const { analysisData, diaryData, healthData, petData } = data;
   
   // Advanced stress prediction based on multiple factors
-  if (analysisData.length > 10) {
+  if (analysisData.length > 2) {
     const recentAnalyses = analysisData.slice(-10);
     const stressIndicators = recentAnalyses.filter(analysis => 
       ['stress', 'fear', 'anxious', 'aggressive'].includes(analysis.primary_emotion)
@@ -171,7 +171,7 @@ function generatePredictionInsights(data: InsightGeneratorData): Insight[] {
   }
   
   // Health trend predictions based on metrics
-  if (healthData.length > 8) {
+  if (healthData.length > 2) {
     const metricGroups = healthData.reduce((groups: Record<string, any[]>, metric: any) => {
       if (!groups[metric.metric_type]) groups[metric.metric_type] = [];
       groups[metric.metric_type].push(metric);
@@ -219,7 +219,7 @@ function generateInterventionInsights(data: InsightGeneratorData): Insight[] {
   const { analysisData, diaryData, healthData, petData } = data;
   
   // Smart exercise intervention based on activity analysis
-  if (diaryData.length > 5) {
+  if (diaryData.length > 1) {
     const activityAnalysis = diaryData.map((entry: any) => {
       const lowEnergyTags = ['sedentario', 'inattivo', 'bassa_energia', 'pigro', 'stanco'];
       const hasLowEnergy = entry.behavioral_tags?.some((tag: string) => 
@@ -261,7 +261,7 @@ function generateInterventionInsights(data: InsightGeneratorData): Insight[] {
   }
   
   // Environmental enrichment intervention based on emotional analysis
-  if (analysisData.length > 8) {
+  if (analysisData.length > 1) {
     const negativeEmotions = ['stress', 'fear', 'sad', 'aggressive', 'anxious'];
     const negativeCount = analysisData.filter(analysis => 
       negativeEmotions.includes(analysis.primary_emotion)
@@ -300,7 +300,7 @@ function generateCorrelationInsights(data: InsightGeneratorData): Insight[] {
   const { analysisData, diaryData, healthData, petData } = data;
   
   // Weather-mood correlation
-  if (diaryData.length > 5) {
+  if (diaryData.length > 1) {
     const weatherMoodData = diaryData
       .filter((entry: any) => entry.weather_condition && entry.mood_score)
       .reduce((acc: Record<string, number[]>, entry: any) => {
@@ -353,7 +353,7 @@ function generateCorrelationInsights(data: InsightGeneratorData): Insight[] {
   }
   
   // Time-based emotion correlation
-  if (analysisData.length > 10) {
+  if (analysisData.length > 2) {
     const hourlyEmotions = analysisData.reduce((acc: Record<number, string[]>, analysis: any) => {
       const hour = new Date(analysis.created_at).getHours();
       if (!acc[hour]) {
