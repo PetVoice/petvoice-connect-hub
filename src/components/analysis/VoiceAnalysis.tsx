@@ -34,68 +34,6 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
   const { selectedPet } = usePets();
   const { toast } = useToast();
 
-  // Funzione per comprimere l'audio
-  const compressAudio = async (blob: Blob): Promise<Blob> => {
-    // Se il blob è già piccolo, non comprimere
-    if (blob.size < 1000000) { // 1MB
-      return blob;
-    }
-    
-    // Comprimi riducendo la qualità
-    return new Promise((resolve) => {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const arrayBuffer = e.target?.result as ArrayBuffer;
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-          
-          // Riduci sample rate per comprimere
-          const offlineContext = new OfflineAudioContext(1, audioBuffer.length / 2, 16000);
-          const source = offlineContext.createBufferSource();
-          source.buffer = audioBuffer;
-          source.connect(offlineContext.destination);
-          source.start();
-          
-          const renderedBuffer = await offlineContext.startRendering();
-          
-          // Converti di nuovo in blob
-          const length = renderedBuffer.length;
-          const arrayBuffer2 = new ArrayBuffer(length * 2);
-          const view = new DataView(arrayBuffer2);
-          const channelData = renderedBuffer.getChannelData(0);
-          
-          for (let i = 0; i < length; i++) {
-            view.setInt16(i * 2, channelData[i] * 0x7FFF, true);
-          }
-          
-          resolve(new Blob([arrayBuffer2], { type: 'audio/wav' }));
-        } catch (error) {
-          console.error('Audio compression failed:', error);
-          resolve(blob); // Fallback al blob originale
-        }
-      };
-      
-      reader.readAsArrayBuffer(blob);
-    });
-  };
-
-  // Funzione per convertire array buffer in base64 in modo efficiente
-  const arrayBufferToBase64 = async (uint8Array: Uint8Array): Promise<string> => {
-    return new Promise((resolve) => {
-      const chunkSize = 0x8000; // 32KB chunks
-      let binaryString = '';
-      
-      for (let i = 0; i < uint8Array.length; i += chunkSize) {
-        const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-        binaryString += String.fromCharCode.apply(null, Array.from(chunk));
-      }
-      
-      resolve(btoa(binaryString));
-    });
-  };
-
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -135,9 +73,21 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
       setIsRecording(true);
       setRecordingTime(0);
       
-      // Timer per il tempo di registrazione
+      // Timer per il tempo di registrazione con limite di 120 secondi
       intervalRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
+          // Stop automatico dopo 2 minuti per evitare file troppo grandi
+          if (newTime >= 120) {
+            stopRecording();
+            toast({
+              title: "Registrazione fermata",
+              description: "Limite di 2 minuti raggiunto per evitare timeout",
+              variant: "default"
+            });
+          }
+          return newTime;
+        });
       }, 1000);
       
     } catch (error) {
@@ -213,15 +163,9 @@ const VoiceAnalysis: React.FC<VoiceAnalysisProps> = ({ onAnalysisComplete, setPr
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utente non autenticato');
 
-      // Comprimi l'audio prima di convertirlo
-      const compressedBlob = await compressAudio(recordingToAnalyze);
-      
-      // Converti il blob compresso in base64
-      const arrayBuffer = await compressedBlob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      
-      // Processa in chunks più piccoli per evitare timeout
-      const base64Audio = await arrayBufferToBase64(uint8Array);
+      // Converti direttamente in base64 senza compressione (più veloce)
+      const arrayBuffer = await recordingToAnalyze.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
       const { data, error } = await supabase.functions.invoke('analyze-voice-emotions', {
         body: {
