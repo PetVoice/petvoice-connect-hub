@@ -24,6 +24,7 @@ interface PrivateChat {
   updated_at: string;
   last_message_at: string;
   is_active: boolean;
+  hiddenForUser?: boolean; // Campo locale per nascondere le chat eliminate dall'utente
   other_user: {
     id: string;
     display_name: string;
@@ -277,6 +278,7 @@ export const PrivateChatWithReply: React.FC = () => {
         if (chat.id === newMessage.chat_id) {
           return {
             ...chat,
+            hiddenForUser: false, // Riattiva la chat se era nascosta
             last_message: {
               content: newMessage.content || '',
               sender_id: newMessage.sender_id,
@@ -738,7 +740,12 @@ export const PrivateChatWithReply: React.FC = () => {
 
       if (error) throw error;
 
-      setChats(prev => prev.filter(chat => chat.id !== selectedChat.id));
+      // Non rimuovere la chat dalla lista locale, ma marcala come nascosta per mantenere il real-time
+      setChats(prev => prev.map(chat => 
+        chat.id === selectedChat.id 
+          ? { ...chat, hiddenForUser: true }
+          : chat
+      ));
       setSelectedChat(null);
       setMessages([]);
       setShowDeleteChatDialog(false);
@@ -837,7 +844,7 @@ export const PrivateChatWithReply: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
-              Chat Private ({chats.length})
+              Chat Private ({chats.filter(chat => !chat.hiddenForUser).length})
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -852,7 +859,7 @@ export const PrivateChatWithReply: React.FC = () => {
                 </div>
               ) : (
                 <div className="divide-y">
-                   {chats.map((chat) => (
+                   {chats.filter(chat => !chat.hiddenForUser).map((chat) => (
                      <div
                        key={chat.id}
                        className={`p-4 cursor-pointer transition-colors relative ${
