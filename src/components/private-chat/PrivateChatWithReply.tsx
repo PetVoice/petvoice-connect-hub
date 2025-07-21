@@ -245,13 +245,19 @@ export const PrivateChatWithReply: React.FC = () => {
               // Se la chat è stata riattivata e non c'è una chat selezionata, selezionala automaticamente
               if (wasReactivated && !currentChatId) {
                 console.log('🎯 Auto-selecting reactivated chat:', updatedChat.id);
-                setChats(prevChats => {
-                  const reactivatedChat = prevChats.find(chat => chat.id === updatedChat.id);
-                  if (reactivatedChat) {
-                    setSelectedChat(reactivatedChat);
-                  }
-                  return prevChats;
-                });
+                // Aspetta che loadChats finisca completamente, poi cerca la chat nella lista aggiornata
+                setTimeout(() => {
+                  setChats(prevChats => {
+                    const reactivatedChat = prevChats.find(chat => chat.id === updatedChat.id);
+                    if (reactivatedChat) {
+                      console.log('✅ Found reactivated chat in list, selecting it');
+                      setSelectedChat(reactivatedChat);
+                    } else {
+                      console.log('❌ Reactivated chat not found in updated list');
+                    }
+                    return prevChats;
+                  });
+                }, 500); // Aspetta mezzo secondo per essere sicuri che loadChats sia finito
               }
             });
           }
