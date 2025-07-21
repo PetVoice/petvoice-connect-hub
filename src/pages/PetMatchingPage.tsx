@@ -11,9 +11,7 @@ const PetMatchingPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 rounded-lg gradient-azure shadow-glow">
-          <Network className="h-6 w-6 text-white" />
-        </div>
+        <Network className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold gradient-text">Pet Matching Intelligence</h1>
           <p className="text-muted-foreground mt-1">
