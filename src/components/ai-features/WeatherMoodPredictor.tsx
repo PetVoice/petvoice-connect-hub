@@ -71,22 +71,22 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
     pressure: 1013,
     uvIndex: 6,
     location: 'Simulato',
-    description: 'Dati simulati - errore API'
+    description: t('analysis.predictions.mockDataDescription')
   };
 
   const mockPredictions: BehaviorPrediction[] = [
     {
-      behavior: 'Comportamento normale',
+      behavior: t('analysis.predictions.normalBehavior'),
       probability: 75,
-      reasoning: 'Dati simulati - impossibile ottenere previsioni accurate',
-      recommendation: 'Controlla manualmente il comportamento del tuo animale'
+      reasoning: t('analysis.predictions.mockReasoningError'),
+      recommendation: t('analysis.predictions.manualCheckRecommendation')
     }
   ];
 
   const mockPlaylist: MoodPlaylist = {
-    name: 'Playlist Generica',
-    description: 'Musica di default - dati meteo non disponibili',
-    tracks: ['Suoni della natura', 'Musica rilassante', 'Ambiente calmo']
+    name: t('analysis.predictions.genericPlaylist'),
+    description: t('analysis.predictions.defaultMusicDescription'),
+    tracks: [t('analysis.predictions.natureSounds'), t('analysis.predictions.relaxingMusic'), t('analysis.predictions.calmEnvironment')]
   };
 
   useEffect(() => {
@@ -184,7 +184,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       // Notifica il parent component con i dati meteo
       onWeatherUpdate?.(weatherData);
       
-      toast.success('Dati meteo aggiornati automaticamente!');
+      toast.success(t('analysis.predictions.weatherUpdated'));
       
     } catch (error) {
       console.error('Error fetching weather:', error);
@@ -195,7 +195,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       setPredictions(mockPredictions);
       setPlaylist(mockPlaylist);
       
-      toast.error('Errore nel caricamento dati meteo - usando dati simulati');
+      toast.error(t('analysis.predictions.weatherError'));
     } finally {
       setIsLoading(false);
     }
@@ -207,58 +207,58 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
     // Previsioni basate sulla temperatura
     if (weather.temperature > 25) {
       predictions.push({
-        behavior: 'Ricerca ombra',
+        behavior: t('analysis.predictions.seekingShade'),
         probability: 85,
-        reasoning: 'Temperature elevate spingono gli animali a cercare refrigerio',
-        recommendation: 'Assicurati che abbia accesso a zone fresche e acqua fresca'
+        reasoning: t('analysis.predictions.highTempReasoning'),
+        recommendation: t('analysis.predictions.coolZoneRecommendation')
       });
       
       predictions.push({
-        behavior: 'Aumento sete',
+        behavior: t('analysis.predictions.increasedThirst'),
         probability: 90,
-        reasoning: 'Il calore incrementa notevolmente il fabbisogno idrico',
-        recommendation: 'Controlla frequentemente la ciotola dell\'acqua'
+        reasoning: t('analysis.predictions.heatThirstReasoning'),
+        recommendation: t('analysis.predictions.waterBowlRecommendation')
       });
     } else if (weather.temperature < 10) {
       predictions.push({
-        behavior: 'Ricerca calore',
+        behavior: t('analysis.predictions.seekingWarmth'),
         probability: 80,
-        reasoning: 'Temperature basse spingono gli animali a cercare fonti di calore',
-        recommendation: 'Prepara un posto caldo e accogliente'
+        reasoning: t('analysis.predictions.coldTempReasoning'),
+        recommendation: t('analysis.predictions.warmPlaceRecommendation')
       });
     }
     
     // Previsioni basate sulle condizioni meteo
     if (weather.condition === 'sunny') {
       predictions.push({
-        behavior: 'Iperattività',
+        behavior: t('analysis.predictions.hyperactivity'),
         probability: 75,
-        reasoning: 'Le giornate soleggiate aumentano l\'energia e la voglia di giocare',
-        recommendation: 'Programma attività fisica extra e giochi all\'aperto'
+        reasoning: t('analysis.predictions.sunnyDayReasoning'),
+        recommendation: t('analysis.predictions.outdoorActivityRecommendation')
       });
     } else if (weather.condition === 'rainy') {
       predictions.push({
-        behavior: 'Letargia',
+        behavior: t('analysis.predictions.lethargy'),
         probability: 70,
-        reasoning: 'La pioggia tende a rendere gli animali più calmi e pigri',
-        recommendation: 'Attività indoor e coccole sono l\'ideale'
+        reasoning: t('analysis.predictions.rainyDayReasoning'),
+        recommendation: t('analysis.predictions.indoorActivityRecommendation')
       });
     } else if (weather.condition === 'stormy') {
       predictions.push({
-        behavior: 'Ansia',
+        behavior: t('analysis.predictions.anxiety'),
         probability: 85,
-        reasoning: 'Temporali e tuoni possono causare stress e paura',
-        recommendation: 'Crea un ambiente sicuro e rassicurante'
+        reasoning: t('analysis.predictions.stormReasoning'),
+        recommendation: t('analysis.predictions.safeEnvironmentRecommendation')
       });
     }
     
     // Previsioni basate sulla pressione
     if (weather.pressure < 1000) {
       predictions.push({
-        behavior: 'Irrequietezza',
+        behavior: t('analysis.predictions.restlessness'),
         probability: 65,
-        reasoning: 'La bassa pressione può influire sul comportamento',
-        recommendation: 'Monitora eventuali cambiamenti comportamentali'
+        reasoning: t('analysis.predictions.lowPressureReasoning'),
+        recommendation: t('analysis.predictions.monitorBehaviorRecommendation')
       });
     }
     
@@ -268,8 +268,8 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
   const generatePlaylistSuggestion = (weather: WeatherData): MoodPlaylist => {
     if (weather.condition === 'sunny') {
       return {
-        name: 'Giornata Soleggiata',
-        description: 'Musica energica per giornate luminose e calde',
+        name: t('analysis.predictions.sunnyDayPlaylist'),
+        description: t('analysis.predictions.energeticMusicDescription'),
         tracks: [
           'Upbeat Nature Sounds',
           'Happy Dog Park',
@@ -280,8 +280,8 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       };
     } else if (weather.condition === 'rainy') {
       return {
-        name: 'Relax Piovoso',
-        description: 'Suoni rilassanti per giornate piovose',
+        name: t('analysis.predictions.rainyRelaxPlaylist'),
+        description: t('analysis.predictions.relaxingSoundsDescription'),
         tracks: [
           'Gentle Rain Sounds',
           'Cozy Indoor Vibes',
@@ -362,7 +362,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               disabled={isLoading}
             >
               <MapPin className="h-4 w-4 mr-2" />
-              {isLoading ? 'Caricamento...' : 'Attiva Geolocalizzazione'}
+              {isLoading ? t('analysis.predictions.loading') : t('analysis.predictions.activateGeolocation')}
             </Button>
           </div>
         </CardContent>
@@ -493,7 +493,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
                     {prediction.reasoning}
                   </p>
                   <div className="bg-blue-50 p-2 rounded text-sm">
-                    <strong>Raccomandazione:</strong> {prediction.recommendation}
+                    <strong>{t('analysis.predictions.recommendation')}</strong> {prediction.recommendation}
                   </div>
                 </div>
               ))}
