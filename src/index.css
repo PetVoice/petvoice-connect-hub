@@ -467,11 +467,11 @@ button:not(.no-hover):hover,
   }
   
   .petvoice-button {
-    @apply bg-gradient-to-br from-primary to-white text-foreground border border-border hover:bg-muted/50 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+    @apply bg-primary text-primary-foreground border border-border hover:bg-primary/90 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
   }
   
   .petvoice-button-primary {
-    @apply bg-gradient-to-br from-primary to-white text-primary-foreground border-0 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+    @apply bg-primary text-primary-foreground border-0 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
   }
   
   .petvoice-input {
