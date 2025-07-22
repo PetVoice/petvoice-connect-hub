@@ -44,23 +44,25 @@ export const EventForm: React.FC<EventFormProps> = ({
     notes: ''
   });
 
-  // Reset form data when event or initialDate changes
+  // Reset form data when event, initialDate, or isOpen changes
   useEffect(() => {
-    setFormData({
-      title: event?.title || '',
-      description: event?.description || '',
-      location: event?.location || '',
-      category: event?.category || 'other',
-      start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : format(new Date(), 'yyyy-MM-dd\'T\'HH:mm')),
-      end_time: event?.end_time || '',
-      is_all_day: event?.is_all_day || false,
-      recurring_pattern: event?.recurring_pattern || 'none',
-      attendees: event?.attendees || [],
-      cost: event?.cost || null,
-      status: event?.status || 'scheduled',
-      notes: event?.notes || ''
-    });
-  }, [event, initialDate]);
+    if (isOpen) {
+      setFormData({
+        title: event?.title || '',
+        description: event?.description || '',
+        location: event?.location || '',
+        category: event?.category || 'other',
+        start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : format(new Date(), 'yyyy-MM-dd\'T\'HH:mm')),
+        end_time: event?.end_time || '',
+        is_all_day: event?.is_all_day || false,
+        recurring_pattern: event?.recurring_pattern || 'none',
+        attendees: event?.attendees || [],
+        cost: event?.cost || null,
+        status: event?.status || 'scheduled',
+        notes: event?.notes || ''
+      });
+    }
+  }, [event, initialDate, isOpen]);
 
   const handleSave = () => {
     const data = {
