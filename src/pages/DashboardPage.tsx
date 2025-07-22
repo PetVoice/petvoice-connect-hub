@@ -168,7 +168,13 @@ const DashboardPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button onClick={() => navigate('/pets?add=true')} data-guide="pet-selector">
+            <Button 
+              onClick={() => {
+                console.log('Navigating to pets page with add=true');
+                navigate('/pets?add=true');
+              }} 
+              data-guide="pet-selector"
+            >
               <Plus className="h-4 w-4 mr-2" />
               {t('pets.addNew')}
             </Button>
