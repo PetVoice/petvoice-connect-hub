@@ -87,14 +87,6 @@ export const DiaryFilters: React.FC<DiaryFiltersProps> = ({
             >
               <List className="h-4 w-4" />
             </Button>
-            <Button
-              variant={viewMode === 'day' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => onViewModeChange('day')}
-              className="rounded-l-none"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
           
           <Button variant="outline" size="sm" onClick={onExport}>

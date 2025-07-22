@@ -330,18 +330,18 @@ const CalendarPage: React.FC = () => {
           // Event title and category
           doc.setFontSize(11);
           doc.setFont(undefined, 'bold');
-          const categoryEmoji = {
-            medical: '🏥', grooming: '✂️', training: '🎓', social: '🐕',
-            exercise: '🏃', feeding: '🍽️', travel: '✈️', other: '📅'
-          }[event.category] || '📅';
-          doc.text(`${categoryEmoji} ${event.title}`, 25, yPosition);
+          const categoryLabel = {
+            medical: 'MEDICO', grooming: 'TOELETTATURA', training: 'ADDESTRAMENTO', social: 'SOCIALE',
+            exercise: 'ESERCIZIO', feeding: 'ALIMENTAZIONE', travel: 'VIAGGIO', other: 'ALTRO'
+          }[event.category] || 'ALTRO';
+          doc.text(`[${categoryLabel}] ${event.title}`, 25, yPosition);
           yPosition += 6;
 
           // Location
           if (event.location) {
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            doc.text(`📍 ${event.location}`, 25, yPosition);
+            doc.text(`Luogo: ${event.location}`, 25, yPosition);
             yPosition += 5;
           }
 
@@ -357,16 +357,16 @@ const CalendarPage: React.FC = () => {
           // Cost
           if (event.cost) {
             doc.setFontSize(9);
-            doc.text(`💰 Costo: €${event.cost.toFixed(2)}`, 25, yPosition);
+            doc.text(`Costo: ${event.cost.toFixed(2)} EUR`, 25, yPosition);
             yPosition += 5;
           }
 
           // Status
           doc.setFontSize(9);
-          const statusEmoji = {
-            scheduled: '📅', completed: '✅', cancelled: '❌', rescheduled: '🔄'
-          }[event.status] || '📅';
-          doc.text(`${statusEmoji} ${event.status}`, 25, yPosition);
+          const statusLabel = {
+            scheduled: 'PROGRAMMATO', completed: 'COMPLETATO', cancelled: 'ANNULLATO', rescheduled: 'RIPROGRAMMATO'
+          }[event.status] || 'PROGRAMMATO';
+          doc.text(`Stato: ${statusLabel}`, 25, yPosition);
           yPosition += 8;
 
           yPosition += 5; // Space between events
