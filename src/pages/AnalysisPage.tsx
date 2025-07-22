@@ -843,7 +843,7 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 50,
-        stage: 'Analisi emozioni...'
+        stage: t('analysis.processing.emotionalAnalysis')
       }));
 
       // Save to database
