@@ -453,149 +453,149 @@ const AnalysisPage: React.FC = () => {
       secondaryEmotions[emotion] = Math.floor(Math.random() * 30) + 10;
     });
 
-    // Translation keys for insights - these will be translated when displayed
+    // Insights specifici per emozione
     const emotionSpecificInsights: Record<string, string[]> = {
       ansioso: [
-        "analysis.mockData.insights.ansioso.anxiety",
-        "analysis.mockData.insights.ansioso.avoidance",
-        "analysis.mockData.insights.ansioso.breathing",
-        "analysis.mockData.insights.ansioso.restlessness"
+        "Il pet manifesta segni di ansia generalizzata con tremori e irrequietezza",
+        "Comportamento di evitamento e ricerca costante di rifugi sicuri",
+        "Respirazione accelerata e ipervigilanza verso stimoli esterni",
+        "Difficoltà a rilassarsi, con tendenza al pacing e vocalizzazioni eccessive"
       ],
       triste: [
-        "analysis.mockData.insights.triste.activity",
-        "analysis.mockData.insights.triste.posture",
-        "analysis.mockData.insights.triste.social",
-        "analysis.mockData.insights.triste.appetite"
+        "Ridotta attività generale e diminuzione dell'interesse per il gioco",
+        "Postura corporea abbassata con orecchie all'indietro e coda bassa",
+        "Minore interazione sociale e tendenza all'isolamento",
+        "Appetito ridotto e sonno irregolare con segni di malinconia"
       ],
       aggressivo: [
-        "analysis.mockData.insights.aggressivo.tension",
-        "analysis.mockData.insights.aggressivo.vocalization",
-        "analysis.mockData.insights.aggressivo.territory",
-        "analysis.mockData.insights.aggressivo.challenge"
+        "Tensione muscolare elevata con postura rigida e minacciosa",
+        "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso",
+        "Territorialità esacerbata e reattività a stimoli specifici",
+        "Comportamento di sfida con fissazione prolungata e movimento rigido"
       ],
       felice: [
-        "analysis.mockData.insights.felice.reactivity",
-        "analysis.mockData.insights.felice.interaction",
-        "analysis.mockData.insights.felice.posture",
-        "analysis.mockData.insights.felice.energy"
+        "Elevata reattività positiva con movimenti fluidi e giocosi",
+        "Interazione sociale aumentata e ricerca attiva di contatto",
+        "Postura corporea rilassata con coda alzata e orecchie erette",
+        "Energia bilanciata con interesse spontaneo per l'ambiente circostante"
       ],
       eccitato: [
-        "analysis.mockData.insights.eccitato.hyperactivation",
-        "analysis.mockData.insights.eccitato.seeking",
-        "analysis.mockData.insights.eccitato.breathing",
-        "analysis.mockData.insights.eccitato.impulse"
+        "Iperattivazione con movimento frenetico e difficoltà di concentrazione",
+        "Ricerca compulsiva di stimoli e attività ad alta intensità",
+        "Respirazione rapida alternata a vocalizzazioni acute e frequenti",
+        "Difficoltà nel controllo degli impulsi con comportamenti ripetitivi"
       ],
       calmo: [
-        "analysis.mockData.insights.calmo.relaxation",
-        "analysis.mockData.insights.calmo.posture",
-        "analysis.mockData.insights.calmo.attention",
-        "analysis.mockData.insights.calmo.balance"
+        "Stato di rilassamento profondo con respirazione regolare e lenta",
+        "Postura distesa e confortevole con muscoli completamente decontratti",
+        "Attenzione diffusa ma non ipervigilante verso l'ambiente",
+        "Equilibrio emotivo stabile con risposte appropriate agli stimoli"
       ],
       giocoso: [
-        "analysis.mockData.insights.giocoso.behavior",
-        "analysis.mockData.insights.giocoso.interaction",
-        "analysis.mockData.insights.giocoso.energy",
-        "analysis.mockData.insights.giocoso.exploration"
+        "Attivazione comportamentale mirata al gioco con sequenze ripetitive",
+        "Interazione sociale dinamica con invitation al gioco verso altri",
+        "Energia focalizzata su attività ludiche con variazioni di intensità",
+        "Comportamento esplorativo con curiosità verso oggetti e spazi nuovi"
       ]
     };
 
-    // Translation keys for recommendations
+    // Raccomandazioni specifiche per emozione
     const emotionSpecificRecommendations: Record<string, string[]> = {
       ansioso: [
-        "analysis.mockData.recommendations.ansioso.desensitization",
-        "analysis.mockData.recommendations.ansioso.safeZone",
-        "analysis.mockData.recommendations.ansioso.breathing",
-        "analysis.mockData.recommendations.ansioso.pheromones",
-        "analysis.mockData.recommendations.ansioso.routine"
+        "Implementare tecniche di desensibilizzazione graduale ai trigger",
+        "Creare una zona sicura con comfort objects familiari",
+        "Introdurre esercizi di respirazione guidata e rilassamento muscolare",
+        "Valutare l'uso di feromoni calmanti o integratori naturali",
+        "Mantenere routine prevedibili per ridurre l'incertezza"
       ],
       triste: [
-        "analysis.mockData.recommendations.triste.activity",
-        "analysis.mockData.recommendations.triste.play",
-        "analysis.mockData.recommendations.triste.contact",
-        "analysis.mockData.recommendations.triste.diet",
-        "analysis.mockData.recommendations.triste.medical"
+        "Aumentare gradualmente le attività fisiche stimolanti",
+        "Implementare sessioni di gioco interattivo quotidiane",
+        "Incrementare il contatto sociale positivo e le coccole",
+        "Valutare cambiamenti nella dieta per migliorare l'energia",
+        "Monitorare per possibili cause mediche sottostanti"
       ],
       aggressivo: [
-        "analysis.mockData.recommendations.aggressivo.protocols",
-        "analysis.mockData.recommendations.aggressivo.leadership",
-        "analysis.mockData.recommendations.aggressivo.triggers",
-        "analysis.mockData.recommendations.aggressivo.expert",
-        "analysis.mockData.recommendations.aggressivo.environment"
+        "Implementare protocolli di gestione della reattività immediati",
+        "Lavorare sulla leadership positiva e controllo degli impulsi",
+        "Evitare trigger identificati fino al completamento del training",
+        "Consultare un esperto comportamentale qualificato",
+        "Valutare l'ambiente per rimuovere fattori scatenanti"
       ],
       felice: [
-        "analysis.mockData.recommendations.felice.maintain",
-        "analysis.mockData.recommendations.felice.continue",
-        "analysis.mockData.recommendations.felice.learning",
-        "analysis.mockData.recommendations.felice.document"
+        "Mantenere il livello attuale di stimolazione positiva",
+        "Continuare le attività che promuovono questo stato emotivo",
+        "Utilizzare questo stato per introdurre nuovi apprendimenti",
+        "Documentare le condizioni che favoriscono il benessere"
       ],
       eccitato: [
-        "analysis.mockData.recommendations.eccitato.control",
-        "analysis.mockData.recommendations.eccitato.reduce",
-        "analysis.mockData.recommendations.eccitato.breaks",
-        "analysis.mockData.recommendations.eccitato.commands",
-        "analysis.mockData.recommendations.eccitato.balance"
+        "Introdurre esercizi di autocontrollo e 'settle' training",
+        "Ridurre temporaneamente stimoli ad alta intensità",
+        "Implementare pause forzate durante le attività",
+        "Lavorare sui comandi di base per migliorare la concentrazione",
+        "Bilanciare attività fisiche con momenti di calma"
       ],
       calmo: [
-        "analysis.mockData.recommendations.calmo.maintain",
-        "analysis.mockData.recommendations.calmo.training",
-        "analysis.mockData.recommendations.calmo.experiences",
-        "analysis.mockData.recommendations.calmo.document"
+        "Mantenere l'ambiente attuale che favorisce la tranquillità",
+        "Utilizzare questo stato per sessioni di training avanzato",
+        "Introdurre gradualmente nuove esperienze positive",
+        "Documentare le routine che promuovono il rilassamento"
       ],
       giocoso: [
-        "analysis.mockData.recommendations.giocoso.channel",
-        "analysis.mockData.recommendations.giocoso.mental",
-        "analysis.mockData.recommendations.giocoso.balance",
-        "analysis.mockData.recommendations.giocoso.learning"
+        "Canalizzare l'energia ludica in attività strutturate",
+        "Introdurre giochi che stimolano la mente oltre al corpo",
+        "Bilanciare il gioco libero con quello guidato",
+        "Utilizzare il gioco come strumento di apprendimento"
       ]
     };
 
-    // Translation keys for triggers
+    // Trigger specifici per emozione
     const emotionSpecificTriggers: Record<string, string[]> = {
       ansioso: [
-        "analysis.mockData.triggers.ansioso.noise",
-        "analysis.mockData.triggers.ansioso.separation",
-        "analysis.mockData.triggers.ansioso.strangers",
-        "analysis.mockData.triggers.ansioso.routine",
-        "analysis.mockData.triggers.ansioso.confinement"
+        "Rumori improvvisi ad alta intensità (tuoni, fuochi d'artificio)",
+        "Separazione dal proprietario o figure di attaccamento",
+        "Presenza di estranei o animali sconosciuti nell'ambiente",
+        "Cambiamenti nella routine quotidiana o nell'ambiente domestico",
+        "Situazioni di confinamento o restrizione del movimento"
       ],
       triste: [
-        "analysis.mockData.triggers.triste.loss",
-        "analysis.mockData.triggers.triste.activities",
-        "analysis.mockData.triggers.triste.seasonal",
-        "analysis.mockData.triggers.triste.attention",
-        "analysis.mockData.triggers.triste.environment"
+        "Perdita o assenza prolungata di compagni (umani o animali)",
+        "Riduzione delle attività sociali e ricreative abituali",
+        "Cambiamenti stagionali o climatici significativi",
+        "Diminuzione dell'attenzione e dell'interazione sociale",
+        "Modifiche nell'ambiente domestico o nella routine"
       ],
       aggressivo: [
-        "analysis.mockData.triggers.aggressivo.territory",
-        "analysis.mockData.triggers.aggressivo.contact",
-        "analysis.mockData.triggers.aggressivo.competition",
-        "analysis.mockData.triggers.aggressivo.pain",
-        "analysis.mockData.triggers.aggressivo.specific"
+        "Invasione del territorio o delle risorse (cibo, giocattoli)",
+        "Contatto fisico non desiderato o forzato",
+        "Competizione con altri animali per risorse limitate",
+        "Dolore fisico o disagio medico non diagnosticato",
+        "Stimoli scatenanti specifici appresi (uniformi, oggetti)"
       ],
       felice: [
-        "analysis.mockData.triggers.felice.presence",
-        "analysis.mockData.triggers.felice.activities",
-        "analysis.mockData.triggers.felice.attention",
-        "analysis.mockData.triggers.felice.environment"
+        "Presenza del proprietario o di persone care",
+        "Attività ricreative preferite (passeggiate, giochi)",
+        "Ricevimento di attenzioni positive e rinforzi",
+        "Ambienti familiari e sicuri con routine stabili"
       ],
       eccitato: [
-        "analysis.mockData.triggers.eccitato.anticipation",
-        "analysis.mockData.triggers.eccitato.stimulation",
-        "analysis.mockData.triggers.eccitato.toys",
-        "analysis.mockData.triggers.eccitato.others",
-        "analysis.mockData.triggers.eccitato.physical"
+        "Anticipazione di eventi piacevoli (pasti, uscite)",
+        "Stimolazione sensoriale intensa (suoni, movimenti)",
+        "Interazione con giocattoli ad alta stimolazione",
+        "Presenza di altri animali o persone energiche",
+        "Attività fisiche intense o prolungate"
       ],
       calmo: [
-        "analysis.mockData.triggers.calmo.quiet",
-        "analysis.mockData.triggers.calmo.routine",
-        "analysis.mockData.triggers.calmo.absence",
-        "analysis.mockData.triggers.calmo.comfort"
+        "Ambienti tranquilli con illuminazione soffusa",
+        "Routine rilassanti consolidate (massaggi, coccole)",
+        "Assenza di stimoli stressanti o disturbanti",
+        "Presenza di comfort objects familiari"
       ],
       giocoso: [
-        "analysis.mockData.triggers.giocoso.toys",
-        "analysis.mockData.triggers.giocoso.interaction",
-        "analysis.mockData.triggers.giocoso.spaces",
-        "analysis.mockData.triggers.giocoso.schedule"
+        "Presenza di giocattoli interattivi o stimolanti",
+        "Interazione con altri animali giovani o giocosi",
+        "Ambienti spazi aperti che incoraggiano l'esplorazione",
+        "Orari specifici della giornata associati al gioco"
       ]
     };
 
