@@ -355,9 +355,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         {/* Analysis Description */}
         <div className="bg-gradient-to-r from-coral/5 to-coral/10 p-4 rounded-lg border border-coral/20">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-coral/10 rounded-lg">
-              <FileAudio className="h-5 w-5 text-coral" />
-            </div>
             <div className="flex-1">
               <h4 className="font-semibold text-foreground mb-2">📊 Analisi Audio/Video Avanzata</h4>
               <p className="text-sm text-muted-foreground mb-3">
