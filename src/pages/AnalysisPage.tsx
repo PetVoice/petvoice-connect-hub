@@ -288,13 +288,16 @@ const AnalysisPage: React.FC = () => {
         await processFile(file, i + 1, files.length);
       }
       
-      setActiveTab('results');
       const newAnalyses = await loadAnalyses();
       
-      // Seleziona automaticamente l'analisi più recente (appena completata)
+      // FORZA la selezione dell'analisi più recente (appena completata)
       if (newAnalyses && newAnalyses.length > 0) {
         setSelectedAnalysis(newAnalyses[0]);
+        // Forza il refresh del componente AnalysisResults
+        setAnalyses([...newAnalyses]);
       }
+      
+      setActiveTab('results');
       
       toast({
         title: "Successo!",

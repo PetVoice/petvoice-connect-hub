@@ -174,12 +174,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
-  // Seleziona automaticamente l'analisi più recente SOLO all'inizio
+  // FORZA la selezione della prima analisi quando l'array cambia
   useEffect(() => {
-    if (analyses.length > 0 && !selectedAnalysis) {
-      setSelectedAnalysis(analyses[0]);
+    if (analyses.length > 0) {
+      setSelectedAnalysis(analyses[0]); // SEMPRE seleziona la prima (più recente)
     }
-  }, [analyses.length]); // Usa solo la lunghezza, non tutto l'array
+  }, [analyses]); // Ascolta TUTTO l'array analyses
 
   useEffect(() => {
     loadSharingTemplates();
