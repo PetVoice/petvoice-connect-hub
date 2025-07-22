@@ -1024,8 +1024,8 @@ const AnalysisPage: React.FC = () => {
   const handleBatchExport = async () => {
     if (selectedAnalyses.length === 0) {
       toast({
-        title: "Errore",
-        description: "Seleziona almeno un'analisi da esportare",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.history.exportSelected'),
         variant: "destructive"
       });
       return;
@@ -1033,8 +1033,8 @@ const AnalysisPage: React.FC = () => {
 
     try {
       toast({
-        title: "Export in corso...",
-        description: `Generazione PDF per ${selectedAnalyses.length} analisi`,
+        title: t('analysis.processing.generating'),
+        description: `${t('analysis.processing.generating')} PDF per ${selectedAnalyses.length} ${t('analysis.history.analysisCount').replace('{{count}}', '')}`,
       });
 
       // Get selected analyses data
@@ -1097,13 +1097,13 @@ const AnalysisPage: React.FC = () => {
       }
 
       toast({
-        title: "Export completato!",
-        description: "Il file PDF è stato scaricato",
+        title: t('analysis.success.pdfGenerated'),
+        description: t('analysis.success.dataExported'),
       });
     } catch (error) {
       toast({
-        title: "Errore",
-        description: "Impossibile generare il report PDF",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.shareError'),
         variant: "destructive"
       });
     }
@@ -1112,8 +1112,8 @@ const AnalysisPage: React.FC = () => {
   const handleBatchCompare = async () => {
     if (selectedAnalyses.length < 2) {
       toast({
-        title: "Errore",
-        description: "Seleziona almeno 2 analisi per il confronto",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.modals.compare.selectTwo'),
         variant: "destructive"
       });
       return;
@@ -1272,13 +1272,13 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       toast({
-        title: "Follow-up programmato",
-        description: `Promemoria creato per ${format(followUpDate, 'dd/MM/yyyy')}`,
+        title: t('analysis.results.toasts.followUpScheduled'),
+        description: `${t('analysis.results.toasts.reminderCreated').replace('{{date}}', format(followUpDate, 'dd/MM/yyyy'))}`,
       });
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: "Impossibile creare il promemoria",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.results.toasts.cannotCreateReminder'),
         variant: "destructive"
       });
     }
@@ -1304,16 +1304,16 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       toast({
-        title: "Successo",
-        description: "Analisi eliminata",
+        title: t('success.deleted'),
+        description: t('analysis.success.analysisDeleted'),
       });
 
       setSelectedAnalyses(prev => prev.filter(id => id !== deleteConfirm.analysisId));
       loadAnalyses();
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.deleteError'),
         variant: "destructive"
       });
     }
@@ -1408,9 +1408,9 @@ const AnalysisPage: React.FC = () => {
           ) : (
             <Card className="text-center p-8">
               <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Nessuna Analisi Disponibile</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('analysis.noAnalysisTitle')}</h3>
               <p className="text-muted-foreground mb-4">
-                Carica il primo file audio o video per iniziare
+                {t('analysis.noAnalysisDesc')}
               </p>
               <Button onClick={() => setActiveTab('upload')} className="bg-primary text-primary-foreground">
                 <Upload className="h-4 w-4 mr-2" />
@@ -1426,17 +1426,17 @@ const AnalysisPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
-                Filtri Avanzati
+                {t('analysis.filterTitle')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Cerca</label>
+                  <label className="text-sm font-medium">{t('analysis.history.search')}</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Nome file, emozione..."
+                      placeholder={t('analysis.fileName')}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-9"
@@ -1445,32 +1445,32 @@ const AnalysisPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Emozione</label>
+                  <label className="text-sm font-medium">{t('analysis.history.emotion')}</label>
                   <Select value={emotionFilter} onValueChange={setEmotionFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Tutte le emozioni" />
+                      <SelectValue placeholder={t('analysis.history.allEmotionsPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tutte le emozioni</SelectItem>
-                      <SelectItem value="felice">Felice</SelectItem>
-                      <SelectItem value="calmo">Calmo</SelectItem>
-                      <SelectItem value="ansioso">Ansioso</SelectItem>
-                      <SelectItem value="eccitato">Eccitato</SelectItem>
-                      <SelectItem value="triste">Triste</SelectItem>
-                      <SelectItem value="aggressivo">Aggressivo</SelectItem>
-                      <SelectItem value="giocoso">Giocoso</SelectItem>
+                      <SelectItem value="all">{t('analysis.history.allEmotions')}</SelectItem>
+                      <SelectItem value="felice">{t('analysis.emotions.felice')}</SelectItem>
+                      <SelectItem value="calmo">{t('analysis.emotions.calmo')}</SelectItem>
+                      <SelectItem value="ansioso">{t('analysis.emotions.ansioso')}</SelectItem>
+                      <SelectItem value="eccitato">{t('analysis.emotions.eccitato')}</SelectItem>
+                      <SelectItem value="triste">{t('analysis.emotions.triste')}</SelectItem>
+                      <SelectItem value="aggressivo">{t('analysis.emotions.aggressivo')}</SelectItem>
+                      <SelectItem value="giocoso">{t('analysis.emotions.giocoso')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Confidence</label>
+                  <label className="text-sm font-medium">{t('analysis.confidence')}</label>
                   <Select value={confidenceFilter} onValueChange={setConfidenceFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Tutti i livelli" />
+                      <SelectValue placeholder={t('analysis.allLevelsPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tutti i livelli</SelectItem>
+                      <SelectItem value="all">{t('analysis.allLevels')}</SelectItem>
                       <SelectItem value="90">≥ 90%</SelectItem>
                       <SelectItem value="80">≥ 80%</SelectItem>
                       <SelectItem value="70">≥ 70%</SelectItem>
@@ -1480,7 +1480,7 @@ const AnalysisPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Periodo</label>
+                  <label className="text-sm font-medium">{t('analysis.history.period')}</label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start">
@@ -1492,7 +1492,7 @@ const AnalysisPage: React.FC = () => {
                             format(dateRange!.from, "dd/MM/yy", { locale: it })
                           )
                         ) : (
-                          "Seleziona periodo"
+                          t('analysis.history.selectPeriod')
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -1512,7 +1512,7 @@ const AnalysisPage: React.FC = () => {
               {(searchTerm || emotionFilter !== 'all' || confidenceFilter !== 'all' || dateRange?.from) && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {filteredAnalyses.length} di {analyses.length} analisi
+                    {t('analysis.filtersResults').replace('{{count}}', filteredAnalyses.length.toString()).replace('{{total}}', analyses.length.toString())}
                   </span>
                   <Button
                     variant="ghost"
@@ -1524,7 +1524,7 @@ const AnalysisPage: React.FC = () => {
                       setDateRange(undefined);
                     }}
                   >
-                    Cancella filtri
+                    {t('analysis.history.clearFilters')}
                   </Button>
                 </div>
               )}
@@ -1555,10 +1555,10 @@ const AnalysisPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                  Trend Benessere Futuro
+                  {t('analysis.predictions.futureTrend')}
                 </CardTitle>
                 <CardDescription>
-                  Previsione del benessere basata sui dati storici
+                  {t('analysis.predictions.predictionDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1583,7 +1583,7 @@ const AnalysisPage: React.FC = () => {
                           {(() => {
                             const trend = wellnessData.length > 1 ? 
                               (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
-                            return trend > 0 ? 'Miglioramento' : trend < 0 ? 'Peggioramento' : 'Stabile';
+                            return trend > 0 ? t('analysis.predictions.improvement') : trend < 0 ? t('analysis.predictions.decline') : t('analysis.predictions.stable');
                           })()}
                         </span>
                       </div>
@@ -1592,17 +1592,17 @@ const AnalysisPage: React.FC = () => {
                           const trend = wellnessData.length > 1 ? 
                             (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
                           return trend > 0 ? 
-                            'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
+                            t('analysis.predictions.wellnessImproving') :
                             trend < 0 ?
-                            'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
-                            'Il benessere è stabile. Mantieni la routine attuale.';
+                            t('analysis.predictions.wellnessDeclining') :
+                            t('analysis.predictions.wellnessStable');
                         })()}
                       </p>
                     </div>
                   ) : (
                     <div className="p-4 bg-muted/50 rounded-lg text-center">
                       <p className="text-sm text-muted-foreground">
-                        Nessun dato di benessere disponibile per generare previsioni.
+                        {t('analysis.predictions.noWellnessData')}
                       </p>
                     </div>
                   )}
@@ -1616,12 +1616,12 @@ const AnalysisPage: React.FC = () => {
                     return (
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>Score Attuale</span>
+                          <span>{t('analysis.predictions.currentScore')}</span>
                           <span>{Math.round(avgScore)}%</span>
                         </div>
                         <Progress value={avgScore} className="h-2" />
                         <div className="flex justify-between text-sm">
-                          <span>Previsione 30gg</span>
+                          <span>{t('analysis.predictions.prediction30Days')}</span>
                           <span>{Math.round(prediction)}%</span>
                         </div>
                       </div>
@@ -1636,10 +1636,10 @@ const AnalysisPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5" />
-                  Raccomandazioni AI
+                  {t('analysis.predictions.aiRecommendations')}
                 </CardTitle>
                 <CardDescription>
-                  Suggerimenti basati sui pattern rilevati
+                  {t('analysis.predictions.aiRecommendationsDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1673,13 +1673,13 @@ const AnalysisPage: React.FC = () => {
                       if (anxiousCount >= 3) {
                         recommendations.push({
                           type: 'warning',
-                          text: `⚠️ DATO REALE: ${anxiousCount} episodi di ansia negli ultimi 7 giorni. Raccomando consulto veterinario comportamentale.`,
+                          text: `⚠️ ${t('analysis.predictions.realData')}: ${anxiousCount} episodi di ansia negli ultimi 7 giorni. Raccomando consulto veterinario comportamentale.`,
                           priority: 'high'
                         });
                       } else if (anxiousCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `📊 ANALISI REALE: ${anxiousCount} episodi di ansia rilevati. Considera tecniche di rilassamento.`,
+                          text: `📊 ${t('analysis.predictions.analysisReal')}: ${anxiousCount} episodi di ansia rilevati. Considera tecniche di rilassamento.`,
                           priority: 'medium'
                         });
                       }
@@ -1687,7 +1687,7 @@ const AnalysisPage: React.FC = () => {
                       if (sadCount >= 2) {
                         recommendations.push({
                           type: 'warning',
-                          text: `😔 PATTERN REALE: ${sadCount} episodi di tristezza negli ultimi 7 giorni. Aumenta le attività stimolanti.`,
+                          text: `😔 ${t('analysis.predictions.patternReal')}: ${sadCount} episodi di tristezza negli ultimi 7 giorni. Aumenta le attività stimolanti.`,
                           priority: 'medium'
                         });
                       }
@@ -1695,7 +1695,7 @@ const AnalysisPage: React.FC = () => {
                       if (aggressiveCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `🚨 ALERT REALE: ${aggressiveCount} episodi aggressivi rilevati. Intervento comportamentale immediato consigliato.`,
+                          text: `🚨 ${t('analysis.predictions.alertReal')}: ${aggressiveCount} episodi aggressivi rilevati. Intervento comportamentale immediato consigliato.`,
                           priority: 'high'
                         });
                       }
@@ -1703,7 +1703,7 @@ const AnalysisPage: React.FC = () => {
                       if (happyCount >= 5) {
                         recommendations.push({
                           type: 'success',
-                          text: `🎉 TREND POSITIVO: ${happyCount} episodi felici negli ultimi 7 giorni! Mantieni le attuali strategie.`,
+                          text: `🎉 ${t('analysis.predictions.trendPositive')}: ${happyCount} episodi felici negli ultimi 7 giorni! Mantieni le attuali strategie.`,
                           priority: 'low'
                         });
                       }
@@ -1776,7 +1776,7 @@ const AnalysisPage: React.FC = () => {
                              '🟢 Bassa priorità'}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            Basato su {analyses.length} analisi totali
+                            {t('analysis.predictions.basedOnAnalyses').replace('{{count}}', analyses.length.toString())}
                           </span>
                         </div>
                       </div>
@@ -1792,10 +1792,10 @@ const AnalysisPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
-                Pattern Stagionali Reali
+                {t('analysis.predictions.seasonalPatterns')}
               </CardTitle>
               <CardDescription>
-                Analisi dei comportamenti per stagione basata sui dati reali
+                {t('analysis.predictions.seasonalPatternsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1803,17 +1803,17 @@ const AnalysisPage: React.FC = () => {
                 // Calcola pattern stagionali REALI dalle analisi
                 const getSeasonFromDate = (date: string) => {
                   const month = new Date(date).getMonth() + 1; // 1-12
-                  if (month >= 3 && month <= 5) return 'Primavera';
-                  if (month >= 6 && month <= 8) return 'Estate';
-                  if (month >= 9 && month <= 11) return 'Autunno';
-                  return 'Inverno';
+                  if (month >= 3 && month <= 5) return t('analysis.predictions.spring');
+                  if (month >= 6 && month <= 8) return t('analysis.predictions.summer');
+                  if (month >= 9 && month <= 11) return t('analysis.predictions.autumn');
+                  return t('analysis.predictions.winter');
                 };
                 
                 const seasonalData: Record<string, { total: number; positive: number; negative: number; analyses: any[] }> = {
-                  'Primavera': { total: 0, positive: 0, negative: 0, analyses: [] },
-                  'Estate': { total: 0, positive: 0, negative: 0, analyses: [] },
-                  'Autunno': { total: 0, positive: 0, negative: 0, analyses: [] },
-                  'Inverno': { total: 0, positive: 0, negative: 0, analyses: [] }
+                  [t('analysis.predictions.spring')]: { total: 0, positive: 0, negative: 0, analyses: [] },
+                  [t('analysis.predictions.summer')]: { total: 0, positive: 0, negative: 0, analyses: [] },
+                  [t('analysis.predictions.autumn')]: { total: 0, positive: 0, negative: 0, analyses: [] },
+                  [t('analysis.predictions.winter')]: { total: 0, positive: 0, negative: 0, analyses: [] }
                 };
                 
                 // Aggrega dati REALI per stagione
@@ -1848,34 +1848,34 @@ const AnalysisPage: React.FC = () => {
                           <h4 className="font-medium mb-3 flex items-center gap-2">
                             {season}
                             <Badge variant="outline" className="text-xs">
-                              {data.total} analisi
+                              {t('analysis.predictions.analysesCount').replace('{{count}}', data.total.toString())}
                             </Badge>
                           </h4>
                           
                           {data.total > 0 ? (
                             <div className="space-y-2 text-sm">
                               <div className="flex justify-between">
-                                <span>Umore positivo:</span>
+                                <span>{t('analysis.predictions.positiveEmotions')}</span>
                                 <span className="font-medium text-green-600">{positiveRate}%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Problemi rilevati:</span>
+                                <span>{t('analysis.predictions.problemsDetected')}</span>
                                 <span className="font-medium text-red-600">{negativeRate}%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Emozione prevalente:</span>
+                                <span>{t('analysis.predictions.predominantEmotion')}</span>
                                 <span className="font-medium capitalize">{topEmotion[0]}</span>
                               </div>
                               <div className="pt-2 border-t">
                                 <span className="text-xs text-muted-foreground">
-                                  Dati da {data.analyses.length} registrazioni reali
+                                  {t('analysis.predictions.dataFrom').replace('{{count}}', data.analyses.length.toString())}
                                 </span>
                               </div>
                             </div>
                           ) : (
                             <div className="text-center text-muted-foreground text-sm">
-                              <p>Nessun dato disponibile</p>
-                              <p className="text-xs">Continua ad analizzare per raccogliere dati stagionali</p>
+                              <p>{t('analysis.predictions.noDataAvailable')}</p>
+                              <p className="text-xs">{t('analysis.predictions.continueAnalyzing')}</p>
                             </div>
                           )}
                         </div>
@@ -1905,10 +1905,10 @@ const AnalysisPage: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Dettagli Analisi Emotiva
+              {t('analysis.modals.details.title')}
             </DialogTitle>
             <DialogDescription>
-              Visualizzazione completa dell'analisi per {detailsModal.analysis?.file_name}
+              {`${t('analysis.modals.details.overview')} ${detailsModal.analysis?.file_name}`}
             </DialogDescription>
           </DialogHeader>
           
@@ -1917,28 +1917,28 @@ const AnalysisPage: React.FC = () => {
               {/* File Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Informazioni File</CardTitle>
+                  <CardTitle className="text-lg">{t('analysis.results.fileInfo.file')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium">Nome File</Label>
+                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.file')}</Label>
                       <p className="text-sm">{detailsModal.analysis.file_name}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Tipo</Label>
+                      <Label className="text-sm font-medium">{t('pets.petType')}</Label>
                       <p className="text-sm">{detailsModal.analysis.file_type}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Dimensione</Label>
+                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.size')}</Label>
                       <p className="text-sm">{(detailsModal.analysis.file_size / 1024).toFixed(1)} KB</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Durata Analisi</Label>
+                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.duration')}</Label>
                       <p className="text-sm">{String(detailsModal.analysis.analysis_duration)}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Data Creazione</Label>
+                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.date')}</Label>
                       <p className="text-sm">{format(new Date(detailsModal.analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}</p>
                     </div>
                   </div>
@@ -1948,11 +1948,11 @@ const AnalysisPage: React.FC = () => {
               {/* Emotional Analysis */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Risultati Emotivi</CardTitle>
+                  <CardTitle className="text-lg">{t('analysis.results.tabs.emotions')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium">Emozione Principale</Label>
+                    <Label className="text-sm font-medium">{t('analysis.results.primaryEmotion')}</Label>
                     <div className="flex items-center gap-3 mt-2">
                       <Badge className="flex items-center gap-2 text-lg px-4 py-2">
                         <span className="text-2xl">
@@ -1975,7 +1975,7 @@ const AnalysisPage: React.FC = () => {
 
                   {Object.keys(detailsModal.analysis.secondary_emotions).length > 0 && (
                     <div>
-                      <Label className="text-sm font-medium">Emozioni Secondarie</Label>
+                      <Label className="text-sm font-medium">{t('analysis.results.secondaryEmotions')}</Label>
                        <div className="flex flex-wrap gap-2 mt-2">
                          {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
                            <Badge key={emotion} variant="outline" className="text-sm">
@@ -1994,7 +1994,7 @@ const AnalysisPage: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Brain className="h-5 w-5" />
-                      Insights Comportamentali
+                      {t('analysis.results.tabs.insights')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -2009,7 +2009,7 @@ const AnalysisPage: React.FC = () => {
               {detailsModal.analysis.recommendations.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Raccomandazioni</CardTitle>
+                    <CardTitle className="text-lg">{t('analysis.recommendations')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -2028,7 +2028,7 @@ const AnalysisPage: React.FC = () => {
               {detailsModal.analysis.triggers.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Trigger Identificati</CardTitle>
+                    <CardTitle className="text-lg">{t('analysis.results.triggers.title')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
@@ -2050,7 +2050,7 @@ const AnalysisPage: React.FC = () => {
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Scarica PDF
+                  {t('analysis.actions.downloadPDF')}
                 </Button>
               </div>
             </div>
@@ -2064,10 +2064,10 @@ const AnalysisPage: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              Confronto Analisi Emotive
+              {t('analysis.modals.compare.title')}
             </DialogTitle>
             <DialogDescription>
-              Analisi comparativa di {compareModal.analyses.length} risultati selezionati
+              {`${t('analysis.modals.compare.title')} di ${compareModal.analyses.length} risultati selezionati`}
             </DialogDescription>
           </DialogHeader>
           
@@ -2078,7 +2078,7 @@ const AnalysisPage: React.FC = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">{compareModal.analyses.length}</div>
-                    <p className="text-xs text-muted-foreground">Analisi Confrontate</p>
+                    <p className="text-xs text-muted-foreground">{t('analysis.modals.compare.title')}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -2086,7 +2086,7 @@ const AnalysisPage: React.FC = () => {
                     <div className="text-2xl font-bold">
                       {format(new Date(Math.min(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
                     </div>
-                    <p className="text-xs text-muted-foreground">Periodo Analizzato</p>
+                    <p className="text-xs text-muted-foreground">{t('analysis.history.period')}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -2094,7 +2094,7 @@ const AnalysisPage: React.FC = () => {
                     <div className="text-2xl font-bold">
                       {(compareModal.analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / compareModal.analyses.length).toFixed(1)}%
                     </div>
-                    <p className="text-xs text-muted-foreground">Confidenza Media</p>
+                    <p className="text-xs text-muted-foreground">{t('analysis.confidence')}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -2102,7 +2102,7 @@ const AnalysisPage: React.FC = () => {
               {/* Emotion Distribution */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Distribuzione Emozioni</CardTitle>
+                  <CardTitle className="text-lg">{t('analysis.results.tabs.emotions')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -2145,7 +2145,7 @@ const AnalysisPage: React.FC = () => {
               {/* Timeline */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Timeline Analisi</CardTitle>
+                  <CardTitle className="text-lg">{t('analysis.history.title')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -2179,13 +2179,13 @@ const AnalysisPage: React.FC = () => {
                       pdf.save(fileName);
                       
                       toast({
-                        title: "Download completato",
-                        description: `Report di confronto scaricato: ${fileName}`,
+                        title: t('analysis.success.pdfGenerated'),
+                        description: `${t('analysis.success.dataExported')}: ${fileName}`,
                       });
                     } catch (error) {
                       toast({
-                        title: "Errore",
-                        description: "Impossibile generare il report PDF",
+                        title: t('errors.somethingWentWrong'),
+                        description: t('analysis.errors.shareError'),
                         variant: "destructive"
                       });
                     }
@@ -2193,7 +2193,7 @@ const AnalysisPage: React.FC = () => {
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  Scarica PDF Confronto
+                  {t('analysis.actions.downloadPDF')} {t('analysis.modals.compare.title')}
                 </Button>
               </div>
             </div>
@@ -2205,14 +2205,14 @@ const AnalysisPage: React.FC = () => {
       <ConfirmDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}
-        title={deleteConfirm.isMultiple ? "Elimina Analisi Multiple" : "Elimina Analisi"}
+        title={deleteConfirm.isMultiple ? t('analysis.modals.deleteConfirm.title') : t('analysis.modals.deleteConfirm.title')}
         description={
           deleteConfirm.isMultiple 
-            ? `Sei sicuro di voler eliminare ${selectedAnalyses.length} analisi selezionate? Questa azione non può essere annullata.`
-            : "Sei sicuro di voler eliminare questa analisi? Questa azione non può essere annullata."
+            ? t('analysis.modals.deleteConfirm.multiple').replace('{{count}}', selectedAnalyses.length.toString())
+            : t('analysis.modals.deleteConfirm.single')
         }
-        confirmText="Elimina"
-        cancelText="Annulla"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
         variant="destructive"
         onConfirm={() => {
           if (deleteConfirm.isMultiple) {
