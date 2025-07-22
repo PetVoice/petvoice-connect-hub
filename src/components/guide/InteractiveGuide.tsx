@@ -92,16 +92,26 @@ const InteractiveGuide: React.FC<InteractiveGuideProps> = ({ isOpen, onClose, on
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
 
+  console.log('🎯 InteractiveGuide: Props received -', { isOpen, currentStep });
+
   const currentStepData = guideSteps[currentStep];
+  console.log('🎯 InteractiveGuide: Current step data -', currentStepData);
 
   useEffect(() => {
+    console.log('🎯 InteractiveGuide: useEffect triggered -', { isOpen, currentStepData: !!currentStepData, selector: currentStepData?.targetSelector });
+    
     if (!isOpen || !currentStepData) return;
 
     const findAndHighlightElement = () => {
+      console.log('🎯 InteractiveGuide: Looking for element with selector:', currentStepData.targetSelector);
       const element = document.querySelector(currentStepData.targetSelector) as HTMLElement;
+      console.log('🎯 InteractiveGuide: Found element:', element);
+      
       if (element) {
         setTargetElement(element);
-        setTargetRect(element.getBoundingClientRect());
+        const rect = element.getBoundingClientRect();
+        setTargetRect(rect);
+        console.log('🎯 InteractiveGuide: Element rect:', rect);
         
         // Scroll element into view
         element.scrollIntoView({ 
@@ -109,6 +119,8 @@ const InteractiveGuide: React.FC<InteractiveGuideProps> = ({ isOpen, onClose, on
           block: 'center',
           inline: 'center' 
         });
+      } else {
+        console.log('❌ InteractiveGuide: Element not found for selector:', currentStepData.targetSelector);
       }
     };
 
@@ -154,7 +166,10 @@ const InteractiveGuide: React.FC<InteractiveGuideProps> = ({ isOpen, onClose, on
     onClose();
   };
 
+  console.log('🎯 InteractiveGuide: Render check -', { isOpen, currentStepData: !!currentStepData, targetRect: !!targetRect });
+  
   if (!isOpen || !currentStepData || !targetRect) {
+    console.log('🎯 InteractiveGuide: Not rendering because -', { isOpen, hasStepData: !!currentStepData, hasTargetRect: !!targetRect });
     return null;
   }
 

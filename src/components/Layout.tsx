@@ -23,8 +23,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     loading, 
     isFirstTime, 
     forceGuide, 
-    shouldShowGuide
+    shouldShowGuide,
+    searchParams: Object.fromEntries(searchParams.entries())
   });
+
+  console.log('🎯 Layout: About to render InteractiveGuide with isOpen:', shouldShowGuide);
 
   return (
     <SidebarProvider>
