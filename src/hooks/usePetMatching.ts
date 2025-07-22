@@ -257,6 +257,32 @@ export const usePetTwins = () => {
         // Ensure score is within bounds
         matchScore = Math.min(100, Math.max(60, matchScore));
 
+        // Generate default avatar based on pet type and breed
+        const getDefaultAvatar = (type: string, breed: string, name: string) => {
+          if (type === 'Cane' || type === 'cane') {
+            // Use different dog avatars based on breed or name
+            const dogAvatars = [
+              'https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?w=150&h=150&fit=crop&crop=face'
+            ];
+            return dogAvatars[name.length % dogAvatars.length];
+          } else if (type === 'Gatto' || type === 'gatto') {
+            // Use different cat avatars
+            const catAvatars = [
+              'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1615789591457-74a63395c990?w=150&h=150&fit=crop&crop=face',
+              'https://images.unsplash.com/photo-1611267254323-4db7b39c732c?w=150&h=150&fit=crop&crop=face'
+            ];
+            return catAvatars[name.length % catAvatars.length];
+          }
+          return '/placeholder.svg';
+        };
+
         return {
           id: pet.id,
           name: pet.name,
@@ -269,7 +295,7 @@ export const usePetTwins = () => {
           match_score: matchScore,
           created_at: pet.created_at,
           // Additional properties for UI
-          avatar: pet.avatar_url || '/placeholder.svg',
+          avatar: pet.avatar_url || getDefaultAvatar(pet.type, pet.breed || '', pet.name),
           owner: ownerNames[pet.user_id] || 'Utente',
           matchScore: matchScore,
           distance: Math.floor(Math.random() * 20) + 1, // Mock distance for now
