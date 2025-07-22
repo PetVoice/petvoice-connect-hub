@@ -70,7 +70,6 @@ export const useToastWithIcon = () => {
     toast({
       title: (
         <div className="flex items-center gap-2">
-          <span className="text-lg">{iconConfig.emoji}</span>
           <IconComponent className={`h-5 w-5 ${iconConfig.className}`} />
           <span>{title}</span>
         </div>
