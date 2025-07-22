@@ -1081,7 +1081,8 @@
     }
   },
   "training": {
-    "title": "AI Training",
+    "title": "Protocolli di Training AI",
+    "subtitle": "Accedi a protocolli avanzati basati sull'intelligenza artificiale per ottimizzare il comportamento e il benessere del tuo animale",
     "protocols": "Protocolli",
     "exercises": "Esercizi",
     "progress": "Progresso",
@@ -1091,7 +1092,110 @@
     "instructions": "Istruzioni",
     "completed": "Completato",
     "inProgress": "In Corso",
-    "notStarted": "Non Iniziato"
+    "notStarted": "Non Iniziato",
+    "tabs": {
+      "all": "Tutti i Protocolli",
+      "active": "I Miei Attivi",
+      "completed": "Completati",
+      "community": "Community"
+    },
+    "stats": {
+      "active": "Protocolli Attivi",
+      "inProgress": "in corso",
+      "completed": "Completati", 
+      "success": "con successo",
+      "successRate": "Tasso di Successo",
+      "personalAverage": "media personale",
+      "community": "Community",
+      "sharedProtocols": "protocolli condivisi"
+    },
+    "difficulty": {
+      "facile": "facile",
+      "medio": "medio",
+      "difficile": "difficile"
+    },
+    "status": {
+      "available": "disponibile",
+      "active": "attivo",
+      "completed": "completato",
+      "paused": "in pausa"
+    },
+    "buttons": {
+      "details": "Dettagli",
+      "startProtocol": "Avvia Protocollo",
+      "continue": "Continua",
+      "alreadyActive": "Già Attivo"
+    },
+    "labels": {
+      "days": "giorni",
+      "success": "successo",
+      "uses": "utilizzi",
+      "difficulty": "Difficoltà",
+      "duration": "Durata",
+      "successRate": "Tasso di successo",
+      "communityUses": "Utilizzi community"
+    },
+    "protocols": {
+      "socializzazioneProgressiva": {
+        "title": "Socializzazione Progressiva",
+        "description": "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate."
+      },
+      "controlloAggressivitaReattiva": {
+        "title": "Controllo Aggressività Reattiva", 
+        "description": "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale."
+      },
+      "gestioneAnsiaSeparazione": {
+        "title": "Gestione Ansia da Separazione",
+        "description": "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale."
+      },
+      "rieducazioneAlimentareComportamentale": {
+        "title": "Rieducazione Alimentare Comportamentale",
+        "description": "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo."
+      },
+      "ottimizzazioneCicloSonnoVeglia": {
+        "title": "Ottimizzazione Ciclo Sonno-Veglia",
+        "description": "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori."
+      },
+      "superareFobiePaureSpecifiche": {
+        "title": "Superare Fobie e Paure Specifiche",
+        "description": "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali"
+      },
+      "stopComportamentiDistruttivi": {
+        "title": "Stop Comportamenti Distruttivi",
+        "description": "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici."
+      },
+      "gestioneGelosiaEPossessivita": {
+        "title": "Gestione Gelosia e Possessività",
+        "description": "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse."
+      },
+      "riattivazioneEnergiaMotivazione": {
+        "title": "Riattivazione Energia e Motivazione",
+        "description": "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale."
+      },
+      "gestioneIperattivatEDeficitAttenzione": {
+        "title": "Gestione Iperattività e Deficit Attenzione",
+        "description": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo."
+      }
+    },
+    "createProtocol": {
+      "title": "Crea Nuovo Protocollo",
+      "form": {
+        "title": "Titolo",
+        "description": "Descrizione",
+        "category": "Categoria",
+        "difficulty": "Difficoltà",
+        "durationDays": "Durata (giorni)",
+        "targetBehavior": "Comportamento target"
+      },
+      "buttons": {
+        "create": "Crea Protocollo",
+        "cancel": "Annulla"
+      }
+    },
+    "emptyState": {
+      "title": "Nessun protocollo trovato",
+      "description": "Inizia creando il tuo primo protocollo di training personalizzato."
+    }
   },
   "community": {
     "title": "Community",

@@ -1082,7 +1082,8 @@
     }
   },
   "training": {
-    "title": "AI Training",
+    "title": "AI Training Protocols",
+    "subtitle": "Access advanced AI-powered protocols to optimize your pet's behavior and wellbeing",
     "protocols": "Protocols",
     "exercises": "Exercises",
     "progress": "Progress",
@@ -1092,7 +1093,110 @@
     "instructions": "Instructions",
     "completed": "Completed",
     "inProgress": "In Progress",
-    "notStarted": "Not Started"
+    "notStarted": "Not Started",
+    "tabs": {
+      "all": "All Protocols",
+      "active": "My Active",
+      "completed": "Completed",
+      "community": "Community"
+    },
+    "stats": {
+      "active": "Active Protocols",
+      "inProgress": "in progress",
+      "completed": "Completed",
+      "success": "successfully",
+      "successRate": "Success Rate",
+      "personalAverage": "personal average",
+      "community": "Community",
+      "sharedProtocols": "shared protocols"
+    },
+    "difficulty": {
+      "facile": "easy",
+      "medio": "medium",
+      "difficile": "hard"
+    },
+    "status": {
+      "available": "available",
+      "active": "active",
+      "completed": "completed",
+      "paused": "paused"
+    },
+    "buttons": {
+      "details": "Details",
+      "startProtocol": "Start Protocol",
+      "continue": "Continue",
+      "alreadyActive": "Already Active"
+    },
+    "labels": {
+      "days": "days",
+      "success": "success",
+      "uses": "uses",
+      "difficulty": "Difficulty",
+      "duration": "Duration",
+      "successRate": "Success rate",
+      "communityUses": "Community uses"
+    },
+    "protocols": {
+      "socializzazioneProgressiva": {
+        "title": "Progressive Socialization",
+        "description": "5-day protocol to improve the animal's social skills with other animals and people. Gradual and positive approach for shy or poorly socialized animals, with focus on confidence building and controlled interactions."
+      },
+      "controlloAggressivitaReattiva": {
+        "title": "Reactive Aggression Control",
+        "description": "Advanced protocol for safe management of reactive aggression. Absolute priority on safety, impulse control and development of alternative behaviors. Requires professional supervision."
+      },
+      "gestioneAnsiaSeparazione": {
+        "title": "Separation Anxiety Management",
+        "description": "Scientific protocol to reduce separation anxiety through gradual desensitization. Develops independence and tranquility during owner absences with ultra-gradual approach."
+      },
+      "rieducazioneAlimentareComportamentale": {
+        "title": "Behavioral Food Re-education",
+        "description": "Intermediate protocol to resolve behavioral disorders related to feeding. Addresses compulsive eating, food refusal, food guarding and food anxiety through a gradual and non-punitive approach."
+      },
+      "ottimizzazioneCicloSonnoVeglia": {
+        "title": "Sleep-Wake Cycle Optimization",
+        "description": "Specialized protocol to establish healthy sleep patterns, reduce insomnia and night awakenings. Through pre-sleep routines, environmental optimization and circadian regulation, helps animals develop natural and restorative rest habits."
+      },
+      "superareFobiePaureSpecifiche": {
+        "title": "Overcoming Specific Phobias and Fears",
+        "description": "Advanced systematic desensitization program to overcome intense phobias of noises, objects and specific situations through gradual scientific techniques"
+      },
+      "stopComportamentiDistruttivi": {
+        "title": "Stop Destructive Behaviors",
+        "description": "Intensive protocol to eliminate destructive chewing, excessive digging and destruction of household objects."
+      },
+      "gestioneGelosiaEPossessivita": {
+        "title": "Jealousy and Possessiveness Management",
+        "description": "Specialized protocol to reduce possessive behaviors and jealousy in pets. Includes advanced desensitization techniques, sharing training and resource management."
+      },
+      "riattivazioneEnergiaMotivazione": {
+        "title": "Energy and Motivation Reactivation",
+        "description": "Gradual protocol to combat depression, apathy and loss of interest in animals. Gentle and progressive approach to awaken motivation through sensory stimuli, physical activation and restoration of social interest."
+      },
+      "gestioneIperattivatEDeficitAttenzione": {
+        "title": "Hyperactivity and Attention Deficit Management",
+        "description": "Complete protocol to reduce hyperactivity and improve concentration through a progressive approach: from constructive energy discharge to impulse control, up to relaxation and self-control."
+      }
+    },
+    "createProtocol": {
+      "title": "Create New Protocol",
+      "form": {
+        "title": "Title",
+        "description": "Description",
+        "category": "Category",
+        "difficulty": "Difficulty",
+        "durationDays": "Duration (days)",
+        "targetBehavior": "Target behavior"
+      },
+      "buttons": {
+        "create": "Create Protocol",
+        "cancel": "Cancel"
+      }
+    },
+    "emptyState": {
+      "title": "No protocols found",
+      "description": "Start by creating your first personalized training protocol."
+    }
   },
   "community": {
     "title": "Community",
