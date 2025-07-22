@@ -162,6 +162,8 @@ const CommunityPage = () => {
       setupRealtimeSubscription(); // Aggiungi subscription per aggiornamenti in tempo reale
       loadCommunityStats();
     }
+    // Force reload on component mount
+    loadCommunityStats();
   }, [user?.id]);
   
   useEffect(() => {
