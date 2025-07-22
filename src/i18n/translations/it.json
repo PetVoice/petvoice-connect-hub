@@ -62,7 +62,7 @@
   },
   "pets": {
     "title": "I Miei Pet",
-    "addNew": "Aggiungi Nuovo Pet",
+    "addNew": "Aggiungi Pet",
     "editPet": "Modifica Pet",
     "noPets": "Nessun Pet Aggiunto",
     "noPetsDesc": "Inizia aggiungendo il tuo primo amico peloso per sbloccare tutte le funzionalità di PetVoice.",
@@ -75,6 +75,45 @@
     "photo": "Foto",
     "noPetSelected": "Nessun Pet Selezionato",
     "selectPetDesc": "Seleziona un pet dalla pagina \"I Miei Pet\" per accedere a questa funzionalità",
+    "pageDescription": "Gestisci le informazioni dei tuoi amici a quattro zampe",
+    "form": {
+      "editDescription": "Modifica le informazioni del tuo pet",
+      "addDescription": "Inserisci tutte le informazioni del tuo nuovo pet",
+      "fields": {
+        "nameRequired": "Nome *",
+        "typeRequired": "Tipo *",
+        "breed": "Razza",
+        "weight": "Peso (kg)",
+        "birthDate": "Data di nascita",
+        "allergies": "Allergie", 
+        "fears": "Paure",
+        "favoriteActivities": "Attività preferite",
+        "healthConditions": "Condizioni di salute",
+        "personalityTraits": "Tratti di personalità",
+        "generalDescription": "Descrizione generale"
+      },
+      "placeholders": {
+        "petName": "Nome del pet",
+        "selectType": "Seleziona il tipo",
+        "selectBreed": "Seleziona la razza",
+        "weightExample": "Es. 5.2",
+        "day": "Giorno",
+        "month": "Mese", 
+        "year": "Anno",
+        "allergiesExample": "Es. Polline, alcuni cibi...",
+        "fearsExample": "Es. Tuoni, fuochi d'artificio...",
+        "activitiesExample": "Es. Giocare a riporto, dormire...",
+        "healthExample": "Es. Artrite, problemi cardiaci...",
+        "personalityExample": "Es. Giocherellone, timido, socievole...",
+        "descriptionExample": "Descrivi il carattere e le caratteristiche del tuo pet"
+      },
+      "buttons": {
+        "saving": "Salvando...",
+        "updatePet": "Aggiorna Pet", 
+        "addPet": "Aggiungi Pet",
+        "cancel": "Annulla"
+      }
+    },
     "types": {
       "dog": "Cane",
       "cat": "Gatto",
@@ -83,7 +122,27 @@
       "fish": "Pesce",
       "hamster": "Criceto",
       "other": "Altro"
-    }
+    },
+    "emptyState": {
+      "title": "Nessun Pet Registrato",
+      "description": "Non hai ancora aggiunto nessun pet. Inizia creando il profilo del tuo amico a quattro zampe!",
+      "addFirstPet": "Aggiungi il tuo primo Pet"
+    },
+    "petCard": {
+      "years": "anni",
+      "weight": "Peso:",
+      "personality": "Personalità:",
+      "loves": "Ama:",
+      "edit": "Modifica", 
+      "delete": "Elimina"
+    },
+    "deleteDialog": {
+      "title": "Elimina Pet",
+      "description": "Sei sicuro di voler eliminare {{name}}? Questa azione non può essere annullata.",
+      "confirm": "Elimina",
+      "cancel": "Annulla"
+    },
+    "ageCalculated": "Età: {{age}} anni"
   },
   "dashboard": {
     "welcome": "Benvenuto su PetVoice!",

@@ -62,7 +62,7 @@
   },
   "pets": {
     "title": "My Pets",
-    "addNew": "Add New Pet",
+    "addNew": "Add Pet",
     "editPet": "Edit Pet",
     "noPets": "No Pets Added",
     "noPetsDesc": "Start by adding your first furry friend to unlock all PetVoice features.",
@@ -75,6 +75,45 @@
     "photo": "Photo",
     "noPetSelected": "No Pet Selected",
     "selectPetDesc": "Select a pet from the \"My Pets\" page to access this feature",
+    "pageDescription": "Manage your furry friends' information",
+    "form": {
+      "editDescription": "Edit your pet's information",
+      "addDescription": "Enter all the information about your new pet",
+      "fields": {
+        "nameRequired": "Name *",
+        "typeRequired": "Type *",
+        "breed": "Breed",
+        "weight": "Weight (kg)",
+        "birthDate": "Birth Date",
+        "allergies": "Allergies",
+        "fears": "Fears", 
+        "favoriteActivities": "Favorite Activities",
+        "healthConditions": "Health Conditions",
+        "personalityTraits": "Personality Traits",
+        "generalDescription": "General Description"
+      },
+      "placeholders": {
+        "petName": "Pet name",
+        "selectType": "Select type",
+        "selectBreed": "Select breed",
+        "weightExample": "E.g. 5.2",
+        "day": "Day",
+        "month": "Month",
+        "year": "Year",
+        "allergiesExample": "E.g. Pollen, some foods...",
+        "fearsExample": "E.g. Thunder, fireworks...",
+        "activitiesExample": "E.g. Playing fetch, sleeping...",
+        "healthExample": "E.g. Arthritis, heart problems...",
+        "personalityExample": "E.g. Playful, shy, sociable...",
+        "descriptionExample": "Describe your pet's character and characteristics"
+      },
+      "buttons": {
+        "saving": "Saving...",
+        "updatePet": "Update Pet",
+        "addPet": "Add Pet",
+        "cancel": "Cancel"
+      }
+    },
     "types": {
       "dog": "Dog",
       "cat": "Cat",
@@ -83,7 +122,27 @@
       "fish": "Fish",
       "hamster": "Hamster",
       "other": "Other"
-    }
+    },
+    "emptyState": {
+      "title": "No Pets Registered",
+      "description": "You haven't added any pets yet. Start by creating your furry friend's profile!",
+      "addFirstPet": "Add Your First Pet"
+    },
+    "petCard": {
+      "years": "years",
+      "weight": "Weight:",
+      "personality": "Personality:",
+      "loves": "Loves:",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "deleteDialog": {
+      "title": "Delete Pet", 
+      "description": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "ageCalculated": "Age: {{age}} years"
   },
   "dashboard": {
     "welcome": "Welcome to PetVoice!",

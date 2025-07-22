@@ -316,20 +316,20 @@ const PetsPage: React.FC = () => {
             {t('navigation.pets')}
           </h1>
           <p className="text-muted-foreground">
-            Gestisci le informazioni dei tuoi amici a quattro zampe
+            {t('pets.pageDescription')}
           </p>
         </div>
         <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline"
-              onClick={() => setShowForm(true)}
-              data-guide="add-pet-button"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t('pets.addNew')}
-            </Button>
-          </DialogTrigger>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowForm(true)}
+                  data-guide="add-pet-button"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t('pets.addNew')}
+                </Button>
+              </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
             <div className="max-h-[80vh] overflow-y-auto px-1">
               <DialogHeader>
@@ -338,8 +338,8 @@ const PetsPage: React.FC = () => {
                 </DialogTitle>
                 <DialogDescription>
                   {editingPet 
-                    ? 'Modifica le informazioni del tuo pet'
-                    : 'Inserisci tutte le informazioni del tuo nuovo pet'
+                    ? t('pets.form.editDescription')
+                    : t('pets.form.addDescription')
                   }
                 </DialogDescription>
               </DialogHeader>
@@ -347,41 +347,41 @@ const PetsPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Nome *</Label>
+                  <Label htmlFor="name">{t('pets.form.fields.nameRequired')}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="Nome del pet"
+                    placeholder={t('pets.form.placeholders.petName')}
                     required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="type">Tipo *</Label>
+                  <Label htmlFor="type">{t('pets.form.fields.typeRequired')}</Label>
                   <Select 
                     value={formData.type} 
                     onValueChange={(value) => setFormData({...formData, type: value, breed: ''})}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleziona il tipo" />
+                      <SelectValue placeholder={t('pets.form.placeholders.selectType')} />
                     </SelectTrigger>
                      <SelectContent>
-                       <SelectItem value="Cane">Cane</SelectItem>
-                       <SelectItem value="Gatto">Gatto</SelectItem>
+                       <SelectItem value="Cane">{t('pets.types.dog')}</SelectItem>
+                       <SelectItem value="Gatto">{t('pets.types.cat')}</SelectItem>
                      </SelectContent>
                   </Select>
                 </div>
 
                 {formData.type && (
                   <div>
-                    <Label htmlFor="breed">Razza</Label>
+                    <Label htmlFor="breed">{t('pets.form.fields.breed')}</Label>
                     <Select 
                       value={formData.breed} 
                       onValueChange={(value) => setFormData({...formData, breed: value})}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona la razza" />
+                        <SelectValue placeholder={t('pets.form.placeholders.selectBreed')} />
                       </SelectTrigger>
                        <SelectContent>
                          {getAvailableBreeds().map((breed) => (
@@ -393,7 +393,7 @@ const PetsPage: React.FC = () => {
                 )}
 
                 <div>
-                  <Label htmlFor="weight">Peso (kg)</Label>
+                  <Label htmlFor="weight">{t('pets.form.fields.weight')}</Label>
                   <Input
                     id="weight"
                     type="number"
@@ -401,17 +401,17 @@ const PetsPage: React.FC = () => {
                     min="0"
                     value={formData.weight}
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
-                    placeholder="Es. 5.2"
+                    placeholder={t('pets.form.placeholders.weightExample')}
                     onWheel={(e) => e.currentTarget.blur()}
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label>Data di nascita</Label>
+                  <Label>{t('pets.form.fields.birthDate')}</Label>
                   <div className="grid grid-cols-3 gap-2">
                     <Select value={birthDate.day} onValueChange={(value) => setBirthDate({...birthDate, day: value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Giorno" />
+                        <SelectValue placeholder={t('pets.form.placeholders.day')} />
                       </SelectTrigger>
                        <SelectContent>
                          {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
@@ -422,7 +422,7 @@ const PetsPage: React.FC = () => {
 
                     <Select value={birthDate.month} onValueChange={(value) => setBirthDate({...birthDate, month: value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Mese" />
+                        <SelectValue placeholder={t('pets.form.placeholders.month')} />
                       </SelectTrigger>
                        <SelectContent>
                          {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
@@ -435,7 +435,7 @@ const PetsPage: React.FC = () => {
 
                     <Select value={birthDate.year} onValueChange={(value) => setBirthDate({...birthDate, year: value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Anno" />
+                        <SelectValue placeholder={t('pets.form.placeholders.year')} />
                       </SelectTrigger>
                        <SelectContent>
                          {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
@@ -446,68 +446,68 @@ const PetsPage: React.FC = () => {
                   </div>
                   {birthDate.day && birthDate.month && birthDate.year && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      Età: {calculateAge(birthDate)} anni
+                      {t('pets.ageCalculated').replace('{{age}}', calculateAge(birthDate)?.toString() || '0')}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="allergies">Allergie</Label>
+                  <Label htmlFor="allergies">{t('pets.form.fields.allergies')}</Label>
                   <Input
                     id="allergies"
                     value={formData.allergies}
                     onChange={(e) => setFormData({...formData, allergies: e.target.value})}
-                    placeholder="Es. Polline, alcuni cibi..."
+                    placeholder={t('pets.form.placeholders.allergiesExample')}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="fears">Paure</Label>
+                  <Label htmlFor="fears">{t('pets.form.fields.fears')}</Label>
                   <Input
                     id="fears"
                     value={formData.fears}
                     onChange={(e) => setFormData({...formData, fears: e.target.value})}
-                    placeholder="Es. Tuoni, fuochi d'artificio..."
+                    placeholder={t('pets.form.placeholders.fearsExample')}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="favorite_activities">Attività preferite</Label>
+                  <Label htmlFor="favorite_activities">{t('pets.form.fields.favoriteActivities')}</Label>
                   <Input
                     id="favorite_activities"
                     value={formData.favorite_activities}
                     onChange={(e) => setFormData({...formData, favorite_activities: e.target.value})}
-                    placeholder="Es. Giocare a riporto, dormire..."
+                    placeholder={t('pets.form.placeholders.activitiesExample')}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="health_conditions">Condizioni di salute</Label>
+                  <Label htmlFor="health_conditions">{t('pets.form.fields.healthConditions')}</Label>
                   <Input
                     id="health_conditions"
                     value={formData.health_conditions}
                     onChange={(e) => setFormData({...formData, health_conditions: e.target.value})}
-                    placeholder="Es. Artrite, problemi cardiaci..."
+                    placeholder={t('pets.form.placeholders.healthExample')}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="personality_traits">Tratti di personalità</Label>
+                  <Label htmlFor="personality_traits">{t('pets.form.fields.personalityTraits')}</Label>
                   <Input
                     id="personality_traits"
                     value={formData.personality_traits}
                     onChange={(e) => setFormData({...formData, personality_traits: e.target.value})}
-                    placeholder="Es. Giocherellone, timido, socievole..."
+                    placeholder={t('pets.form.placeholders.personalityExample')}
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label htmlFor="description">Descrizione generale</Label>
+                  <Label htmlFor="description">{t('pets.form.fields.generalDescription')}</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    placeholder="Descrivi il carattere e le caratteristiche del tuo pet"
+                    placeholder={t('pets.form.placeholders.descriptionExample')}
                     rows={3}
                   />
                 </div>
@@ -515,7 +515,7 @@ const PetsPage: React.FC = () => {
 
               <div className="flex gap-3 pt-4">
                 <Button type="submit" className="flex-1" disabled={loading}>
-                  {loading ? 'Salvando...' : (editingPet ? 'Aggiorna Pet' : 'Aggiungi Pet')}
+                  {loading ? t('pets.form.buttons.saving') : (editingPet ? t('pets.form.buttons.updatePet') : t('pets.form.buttons.addPet'))}
                 </Button>
                 <Button 
                   type="button" 
@@ -523,7 +523,7 @@ const PetsPage: React.FC = () => {
                   onClick={resetForm}
                   className="flex-1"
                 >
-                  Annulla
+                  {t('pets.form.buttons.cancel')}
                 </Button>
               </div>
             </form>
@@ -538,16 +538,16 @@ const PetsPage: React.FC = () => {
             <div className="w-20 h-20 rounded-full gradient-coral flex items-center justify-center mb-4">
               <PawPrint className="h-10 w-10 text-white" />
             </div>
-            <CardTitle className="text-xl mb-2">Nessun Pet Registrato</CardTitle>
+            <CardTitle className="text-xl mb-2">{t('pets.emptyState.title')}</CardTitle>
             <CardDescription className="mb-6 max-w-md">
-              Non hai ancora aggiunto nessun pet. Inizia creando il profilo del tuo amico a quattro zampe!
+              {t('pets.emptyState.description')}
             </CardDescription>
             <Button 
               onClick={() => setShowForm(true)}
               className="petvoice-button"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Aggiungi il tuo primo Pet
+              {t('pets.emptyState.addFirstPet')}
             </Button>
           </CardContent>
         </Card>
@@ -570,7 +570,7 @@ const PetsPage: React.FC = () => {
                     </CardDescription>
                     {pet.age && (
                       <Badge variant="secondary" className="mt-1">
-                        {pet.age} anni
+                        {pet.age} {t('pets.petCard.years')}
                       </Badge>
                     )}
                   </div>
@@ -580,21 +580,21 @@ const PetsPage: React.FC = () => {
                 <div className="space-y-3">
                   {pet.weight && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Peso:</span>
+                      <span className="text-muted-foreground">{t('pets.petCard.weight')}</span>
                       <span>{pet.weight} kg</span>
                     </div>
                   )}
                   
                   {pet.personality_traits && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Personalità:</span>
+                      <span className="text-muted-foreground">{t('pets.petCard.personality')}</span>
                       <span className="text-right">{pet.personality_traits}</span>
                     </div>
                   )}
 
                   {pet.favorite_activities && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Ama:</span>
+                      <span className="text-muted-foreground">{t('pets.petCard.loves')}</span>
                       <span className="text-right">{pet.favorite_activities}</span>
                     </div>
                   )}
@@ -613,7 +613,7 @@ const PetsPage: React.FC = () => {
                       className="flex-1"
                     >
                       <Edit className="h-4 w-4 mr-2" />
-                      Modifica
+                      {t('pets.petCard.edit')}
                     </Button>
                     <Button
                       variant="outline"
@@ -622,7 +622,7 @@ const PetsPage: React.FC = () => {
                       className="flex-1 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Elimina
+                      {t('pets.petCard.delete')}
                     </Button>
                   </div>
                 </div>
@@ -636,10 +636,10 @@ const PetsPage: React.FC = () => {
       <ConfirmDialog
         open={deletingPet !== null}
         onOpenChange={(open) => !open && setDeletingPet(null)}
-        title="Elimina Pet"
-        description={`Sei sicuro di voler eliminare ${deletingPet?.name}? Questa azione non può essere annullata.`}
-        confirmText="Elimina"
-        cancelText="Annulla"
+        title={t('pets.deleteDialog.title')}
+        description={t('pets.deleteDialog.description').replace('{{name}}', deletingPet?.name || '')}
+        confirmText={t('pets.deleteDialog.confirm')}
+        cancelText={t('pets.deleteDialog.cancel')}
         variant="destructive"
         onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
       />
