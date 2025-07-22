@@ -2,6 +2,7 @@ import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import Header from '@/components/Header';
+import { AILiveChatButton } from './AILiveChat';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,6 +19,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {children}
           </div>
         </main>
+        
+        {/* AI Live Chat available on all pages */}
+        <AILiveChatButton />
       </div>
     </SidebarProvider>
   );

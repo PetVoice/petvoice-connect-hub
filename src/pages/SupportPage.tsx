@@ -72,6 +72,7 @@ import {
   PlayCircle,
   Pause
 } from 'lucide-react';
+import { AILiveChatButton } from '@/components/AILiveChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -719,25 +720,6 @@ const SupportPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => {
-              setActiveTab('tickets');
-              setIsNewTicketDialogOpen(true);
-            }}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Ticket className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Nuovo Ticket</p>
-                  <p className="text-sm text-muted-foreground">Supporto tecnico</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
@@ -1769,6 +1751,9 @@ const SupportPage: React.FC = () => {
           </DialogContent>
         </Dialog>
       </div>
+      
+      {/* AI Live Chat */}
+      <AILiveChatButton />
     </Layout>
   );
 };
