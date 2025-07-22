@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -61,6 +62,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Flusso conversazionale gerarchico
   const mainFlow: FlowOption[] = [
@@ -533,7 +535,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-lg">
               <Bot className="h-5 w-5" />
-              <span>Assistente AI PetVoice</span>
+              <span>{t('header.aiAssistant')}</span>
               <Badge variant="secondary" className="text-xs bg-white/20 text-white">
                 <Sparkles className="h-3 w-3 mr-1" />
                 Live
