@@ -57,7 +57,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentFlow, setCurrentFlow] = useState<FlowOption[]>([]);
+  const [currentFlow, setCurrentFlow] = useState<FlowOption[]>([]); // Initialize empty, will be set by useEffect
   const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -504,25 +504,25 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setMessages(prev => [...prev, resetMessage]);
   };
 
-  // Initialize chat on open - fixed
+  // Initialize chat when opened - consolidated logic
   useEffect(() => {
     if (isOpen) {
-      console.log('Chat opened, current flow length:', currentFlow.length);
-      if (currentFlow.length === 0) {
-        console.log('Setting main flow and welcome message');
-        setCurrentFlow(mainFlow);
-      }
+      // Always set the main flow when chat opens
+      setCurrentFlow(mainFlow);
+      setFlowPath([]);
+      
+      // Add welcome message if no messages exist
       if (messages.length === 0) {
         const welcomeMessage: ChatMessage = {
           id: Date.now().toString(),
-          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse oppure scrivimi direttamente la tua domanda:",
+          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse qui sotto oppure scrivimi direttamente la tua domanda:",
           sender: 'ai',
           timestamp: new Date()
         };
         setMessages([welcomeMessage]);
       }
     }
-  }, [isOpen, currentFlow.length, messages.length]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
