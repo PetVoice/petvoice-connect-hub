@@ -58,6 +58,7 @@ import {
   ExternalLink,
   Sparkles,
   Bell,
+  Brain,
   Activity,
   Timer,
   Flag,
@@ -703,31 +704,13 @@ const SupportPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => setIsUserGuideDialogOpen(true)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Book className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Guida Utente</p>
-                  <p className="text-sm text-muted-foreground">Documentazione</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="features">Richieste</TabsTrigger>
+            <TabsTrigger value="guide">Guida</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
           </TabsList>
 
@@ -1205,6 +1188,130 @@ const SupportPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Guide Tab */}
+          <TabsContent value="guide" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Quick Start */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Zap className="h-5 w-5" />
+                    <span>Inizia Subito</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">1. Configura il Profilo</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Aggiungi i tuoi pet e completa le informazioni di base per iniziare
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">2. Primo Diario</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Registra le prime osservazioni comportamentali per creare una baseline
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">3. Analisi AI</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Carica foto, video o audio per ottenere insights comportamentali
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Features Overview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Brain className="h-5 w-5" />
+                    <span>Funzionalità Principali</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">📊 Dashboard Intelligente</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Monitora il benessere dei tuoi pet con grafici e metriche avanzate
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">🎯 Protocolli di Addestramento</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Piani personalizzati generati dall'AI per problemi comportamentali
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">🏥 Valutazione Rischi</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sistema di early warning per identificare problemi di salute
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Advanced Features */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Sparkles className="h-5 w-5" />
+                    <span>Funzioni Avanzate</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">🔬 Analisi Predittiva</h4>
+                    <p className="text-sm text-muted-foreground">
+                      L'AI prevede comportamenti futuri basandosi sui pattern storici
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">📱 Integrazione Wearable</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Sincronizza dati da dispositivi IoT e collari smart
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">👥 Community Insights</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Confronta i progressi con altri pet simili in modo anonimo
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Support */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Headphones className="h-5 w-5" />
+                    <span>Supporto</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">📞 Contatti di Emergenza</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Disponibile nella sezione Benessere - Emergenze per consultazioni rapide
+                    </p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="w-full mt-3"
+                    onClick={() => {
+                      setActiveTab('contact');
+                    }}
+                  >
+                    <MessageCircle className="h-3 w-3 mr-1" />
+                    Contatta Supporto
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           {/* Contact Tab */}
