@@ -283,17 +283,138 @@
       "latestAnalysis": "Último Análisis",
       "primaryEmotion": "Emoción Primaria",
       "confidence": "Confianza",
+      "confidenceLevel": {
+        "veryHigh": "Muy Alta",
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "fileInfo": {
+        "file": "Archivo",
+        "size": "Tamaño",
+        "duration": "Duración del análisis",
+        "date": "Fecha"
+      },
+      "detailedAnalysis": "Análisis Detallado",
+      "behavioralInsights": "Insights comportamentales y recomendaciones para {{petName}}",
+      "tabs": {
+        "emotions": "Emociones",
+        "insights": "Insights",
+        "recommendations": "Consejos",
+        "triggers": "Triggers",
+        "audio": "Audio"
+      },
       "secondaryEmotions": "Emociones Secundarias",
-      "behavioralInsights": "Insights Conductuales",
-      "recommendations": "Recomendaciones",
-      "triggers": "Posibles Desencadenantes",
-      "analysisDate": "Fecha de Análisis",
-      "fileName": "Nombre del Archivo",
-      "fileType": "Tipo de Archivo",
-      "duration": "Duración",
-      "selectAnalysis": "Selecciona un análisis del historial para ver detalles",
-      "noAnalysis": "No hay análisis disponibles",
-      "performFirstAnalysis": "Realiza tu primer análisis para ver resultados aquí"
+      "behavioralAnalysis": "Análisis Comportamental",
+      "environmentalContext": "Contexto Ambiental",
+      "musicTherapy": {
+        "title": "Lista de Reproducción de Musicoterapia IA Recomendada",
+        "petWell": "¡{{petName}} está bien!",
+        "positiveState": "Emoción \"{{emotion}}\" detectada. ¡Tu mascota está en un estado emocional positivo!",
+        "startSession": "Iniciar Sesión de Musicoterapia"
+      },
+      "trainingProtocol": {
+        "title": "Protocolo de Entrenamiento Recomendado",
+        "anxietySeparation": "Manejo de Ansiedad por Separación",
+        "aggressionControl": "Control de Agresividad",
+        "fearPhobias": "Superación de Miedos y Fobias",
+        "hyperactivity": "Manejo de Hiperactividad",
+        "emotionalSupport": "Apoyo Emocional y Bienestar",
+        "generalBehavior": "Manejo de Comportamiento General",
+        "descriptions": {
+          "anxiety": "Protocolo específico para reducir la ansiedad por separación y mejorar la confianza de la mascota.",
+          "aggression": "Técnicas de control para manejar comportamientos agresivos y reactivos.",
+          "fear": "Ejercicios de desensibilización para superar miedos específicos.",
+          "hyperactivity": "Actividades para canalizar la energía excesiva en comportamientos positivos.",
+          "emotional": "Apoyo emocional personalizado para mejorar el ánimo y bienestar de la mascota.",
+          "general": "Protocolo general para mejorar el comportamiento y bienestar general."
+        },
+        "startProtocol": "Iniciar Protocolo de Entrenamiento"
+      },
+      "personalizedRecommendations": {
+        "title": "Recomendaciones Personalizadas",
+        "age": "Edad ({{age}} años)",
+        "ageAdvice": {
+          "puppy": "Paciencia extra - los cachorros necesitan tiempos de adaptación más largos",
+          "young": "Energía juvenil - aumenta la actividad física para reducir el estrés",
+          "adult": "Fase adulta - mantén rutinas consistentes para estabilidad",
+          "senior": "Edad senior - reduce cambios bruscos y aumenta la comodidad"
+        },
+        "breed": "Raza ({{breed}})",
+        "breedAdvice": {
+          "border": "Raza inteligente - estímulos mentales diarios son esenciales",
+          "labrador": "Raza sociable - aumenta las interacciones positivas",
+          "golden": "Temperamento dulce - refuerzos positivos muy efectivos",
+          "shepherd": "Raza protectora - trabaja en socialización gradual",
+          "general": "Considera las características específicas de la raza para el entrenamiento"
+        },
+        "weight": "Peso ({{weight}}kg)",
+        "weightAdvice": {
+          "small": "Tamaño pequeño - sesiones cortas (5-10 min) pero frecuentes",
+          "medium": "Tamaño mediano - sesiones estándar (15-20 min)",
+          "large": "Tamaño grande - sesiones más largas (20-30 min) con descansos"
+        },
+        "healthConditions": "Condiciones de salud",
+        "healthAdvice": "Monitorea cuidadosamente las señales de estrés durante el entrenamiento. Consulta al veterinario antes de iniciar protocolos intensivos.",
+        "emotionAdvice": "Para la emoción \"{{emotion}}\"",
+        "emotionTips": {
+          "anxiety": "Crea un ambiente seguro y predecible. Evita cambios bruscos en la rutina.",
+          "aggression": "Mantén la calma y distancia de seguridad. Usa refuerzos positivos, nunca castigos.",
+          "fear": "Desensibilización gradual. No fuerces la exposición, procede con paciencia.",
+          "sadness": "Aumenta actividades gratificantes e interacciones sociales positivas.",
+          "general": "Mantén consistencia en el entrenamiento y celebra cada pequeño progreso."
+        },
+        "frequency": "Frecuencia recomendada",
+        "frequencyAdvice": {
+          "puppy": "2-3 sesiones cortas por día",
+          "confident": "1-2 sesiones por día",
+          "careful": "1 sesión por día para evitar sobreestimulación"
+        }
+      },
+      "triggers": {
+        "title": "Posibles Triggers Identificados",
+        "monitor": "Monitorea este factor para identificar patrones comportamentales"
+      },
+      "originalRecording": "Grabación Original",
+      "audioOnly": "Este archivo no es audio. Reproductor disponible solo para grabaciones de audio.",
+      "actions": {
+        "share": "Compartir",
+        "downloadReport": "Descargar Reporte",
+        "addToDiary": "Añadir al Diario",
+        "scheduleFollowUp": "Programar Seguimiento"
+      },
+      "patternRecognition": {
+        "title": "Reconocimiento de Patrones",
+        "subtitle": "Comparaciones con análisis anteriores",
+        "similarEpisode": "Episodio Similar",
+        "behaviorObserved": "Comportamiento similar observado el {{date}} con emoción \"{{emotion}}\" (confianza {{confidence}}%)",
+        "compareAnalyses": "Comparar Análisis",
+        "confidenceVariation": "Variación de Confianza",
+        "sinceLastAnalysis": "Desde el Último Análisis",
+        "today": "Hoy",
+        "oneDay": "1 día",
+        "days": "{{days}} días",
+        "consistency": "Consistencia del Patrón"
+      },
+      "selectAnalysis": "Seleccionar Análisis",
+      "showResults": "Mostrar resultados para {{count}} análisis recientes",
+      "noResults": "Sin Resultados",
+      "loadFileToSeeResults": "Carga un archivo para ver los resultados del análisis",
+      "noAnalysisAvailable": "No hay Análisis Disponible",
+      "loadFirstFile": "Carga el primer archivo de audio o video para comenzar",
+      "toasts": {
+        "error": "Error",
+        "noPetSelected": "No hay mascota seleccionada",
+        "success": "¡Éxito!",
+        "analysisAddedToDiary": "¡Análisis añadido al diario exitosamente!",
+        "cannotAddToDiary": "No se puede añadir el análisis al diario",
+        "followUpScheduled": "Seguimiento Programado",
+        "reminderCreated": "Recordatorio creado para {{date}} en el calendario",
+        "cannotCreateReminder": "No se puede crear recordatorio en el calendario",
+        "pdfDownloaded": "Reporte PDF Descargado",
+        "pdfSaved": "El reporte PDF ha sido guardado como {{fileName}}",
+        "cannotGeneratePdf": "No se puede generar el reporte PDF"
+      }
     },
     "history": {
       "title": "Historial de Análisis",

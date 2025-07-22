@@ -283,17 +283,138 @@
       "latestAnalysis": "Latest Analysis",
       "primaryEmotion": "Primary Emotion",
       "confidence": "Confidence",
+      "confidenceLevel": {
+        "veryHigh": "Very High",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "fileInfo": {
+        "file": "File",
+        "size": "Size",
+        "duration": "Analysis duration",
+        "date": "Date"
+      },
+      "detailedAnalysis": "Detailed Analysis",
+      "behavioralInsights": "Behavioral insights and recommendations for {{petName}}",
+      "tabs": {
+        "emotions": "Emotions",
+        "insights": "Insights",
+        "recommendations": "Advice",
+        "triggers": "Triggers",
+        "audio": "Audio"
+      },
       "secondaryEmotions": "Secondary Emotions",
-      "behavioralInsights": "Behavioral Insights",
-      "recommendations": "Recommendations",
-      "triggers": "Possible Triggers",
-      "analysisDate": "Analysis Date",
-      "fileName": "File Name",
-      "fileType": "File Type",
-      "duration": "Duration",
-      "selectAnalysis": "Select an analysis from history to see details",
-      "noAnalysis": "No analysis available",
-      "performFirstAnalysis": "Perform your first analysis to see results here"
+      "behavioralAnalysis": "Behavioral Analysis",
+      "environmentalContext": "Environmental Context",
+      "musicTherapy": {
+        "title": "Recommended AI Music Therapy Playlist",
+        "petWell": "{{petName}} is doing well!",
+        "positiveState": "Emotion \"{{emotion}}\" detected. Your pet is in a positive emotional state!",
+        "startSession": "Start Music Therapy Session"
+      },
+      "trainingProtocol": {
+        "title": "Recommended Training Protocol",
+        "anxietySeparation": "Separation Anxiety Management",
+        "aggressionControl": "Aggression Control",
+        "fearPhobias": "Overcoming Fears and Phobias",
+        "hyperactivity": "Hyperactivity Management",
+        "emotionalSupport": "Emotional Support and Wellbeing",
+        "generalBehavior": "General Behavior Management",
+        "descriptions": {
+          "anxiety": "Specific protocol to reduce separation anxiety and improve pet confidence.",
+          "aggression": "Control techniques to manage aggressive and reactive behaviors.",
+          "fear": "Desensitization exercises to overcome specific fears.",
+          "hyperactivity": "Activities to channel excessive energy into positive behaviors.",
+          "emotional": "Personalized emotional support to improve pet mood and wellbeing.",
+          "general": "General protocol to improve overall behavior and wellbeing."
+        },
+        "startProtocol": "Start Training Protocol"
+      },
+      "personalizedRecommendations": {
+        "title": "Personalized Recommendations",
+        "age": "Age ({{age}} years)",
+        "ageAdvice": {
+          "puppy": "Extra patience - puppies need longer adaptation times",
+          "young": "Youthful energy - increase physical activity to reduce stress",
+          "adult": "Adult phase - maintain consistent routines for stability",
+          "senior": "Senior age - reduce sudden changes and increase comfort"
+        },
+        "breed": "Breed ({{breed}})",
+        "breedAdvice": {
+          "border": "Intelligent breed - daily mental stimuli are essential",
+          "labrador": "Social breed - increase positive interactions",
+          "golden": "Gentle temperament - positive reinforcements very effective",
+          "shepherd": "Protective breed - work on gradual socialization",
+          "general": "Consider breed-specific characteristics for training"
+        },
+        "weight": "Weight ({{weight}}kg)",
+        "weightAdvice": {
+          "small": "Small size - short sessions (5-10 min) but frequent",
+          "medium": "Medium size - standard sessions (15-20 min)",
+          "large": "Large size - longer sessions (20-30 min) with breaks"
+        },
+        "healthConditions": "Health conditions",
+        "healthAdvice": "Monitor stress signs carefully during training. Consult veterinarian before starting intensive protocols.",
+        "emotionAdvice": "For emotion \"{{emotion}}\"",
+        "emotionTips": {
+          "anxiety": "Create a safe and predictable environment. Avoid sudden routine changes.",
+          "aggression": "Stay calm and maintain safe distance. Use positive reinforcement, never punishments.",
+          "fear": "Gradual desensitization. Don't force exposure, proceed with patience.",
+          "sadness": "Increase rewarding activities and positive social interactions.",
+          "general": "Maintain training consistency and celebrate every small progress."
+        },
+        "frequency": "Recommended frequency",
+        "frequencyAdvice": {
+          "puppy": "2-3 short sessions per day",
+          "confident": "1-2 sessions per day",
+          "careful": "1 session per day to avoid overstimulation"
+        }
+      },
+      "triggers": {
+        "title": "Possible Identified Triggers",
+        "monitor": "Monitor this factor to identify behavioral patterns"
+      },
+      "originalRecording": "Original Recording",
+      "audioOnly": "This file is not audio. Player available only for audio recordings.",
+      "actions": {
+        "share": "Share",
+        "downloadReport": "Download Report",
+        "addToDiary": "Add to Diary",
+        "scheduleFollowUp": "Schedule Follow-up"
+      },
+      "patternRecognition": {
+        "title": "Pattern Recognition",
+        "subtitle": "Comparisons with previous analyses",
+        "similarEpisode": "Similar Episode",
+        "behaviorObserved": "Similar behavior observed on {{date}} with emotion \"{{emotion}}\" (confidence {{confidence}}%)",
+        "compareAnalyses": "Compare Analyses",
+        "confidenceVariation": "Confidence Variation",
+        "sinceLastAnalysis": "Since Last Analysis",
+        "today": "Today",
+        "oneDay": "1 day",
+        "days": "{{days}} days",
+        "consistency": "Pattern Consistency"
+      },
+      "selectAnalysis": "Select Analysis",
+      "showResults": "Show results for {{count}} recent analyses",
+      "noResults": "No Results",
+      "loadFileToSeeResults": "Load a file to see analysis results",
+      "noAnalysisAvailable": "No Analysis Available",
+      "loadFirstFile": "Load the first audio or video file to start",
+      "toasts": {
+        "error": "Error",
+        "noPetSelected": "No pet selected",
+        "success": "Success!",
+        "analysisAddedToDiary": "Analysis added to diary successfully!",
+        "cannotAddToDiary": "Cannot add analysis to diary",
+        "followUpScheduled": "Follow-up Scheduled",
+        "reminderCreated": "Reminder created for {{date}} in calendar",
+        "cannotCreateReminder": "Cannot create reminder in calendar",
+        "pdfDownloaded": "PDF Report Downloaded",
+        "pdfSaved": "The PDF report has been saved as {{fileName}}",
+        "cannotGeneratePdf": "Cannot generate PDF report"
+      }
     },
     "history": {
       "title": "Analysis History",

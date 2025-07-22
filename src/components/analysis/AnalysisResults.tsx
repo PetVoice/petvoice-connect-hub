@@ -29,6 +29,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
@@ -163,6 +164,7 @@ const getRecommendedPlaylist = (emotion: string, confidence: number) => {
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { selectedPet } = usePets();
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
@@ -202,9 +204,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return (
       <Card className="text-center p-8">
         <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">Nessun Risultato</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('analysis.results.noResults')}</h3>
         <p className="text-muted-foreground">
-          Carica un file per vedere i risultati dell'analisi
+          {t('analysis.results.loadFileToSeeResults')}
         </p>
       </Card>
     );
@@ -226,10 +228,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 90) return 'Molto Alta';
-    if (confidence >= 75) return 'Alta';
-    if (confidence >= 60) return 'Media';
-    return 'Bassa';
+    if (confidence >= 90) return t('analysis.results.confidenceLevel.veryHigh');
+    if (confidence >= 75) return t('analysis.results.confidenceLevel.high');
+    if (confidence >= 60) return t('analysis.results.confidenceLevel.medium');
+    return t('analysis.results.confidenceLevel.low');
   };
 
   const addToDiary = async (analysis: AnalysisData) => {
