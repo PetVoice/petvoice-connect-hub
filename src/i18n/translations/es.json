@@ -431,7 +431,7 @@
       "analysisCount": "Número de análisis",
       "date": "Fecha"
     },
-      "title": "Historial de Análisis",
+    "history": {
       "filterByEmotion": "Filtrar por emoción",
       "filterByConfidence": "Filtrar por confianza",
       "searchPlaceholder": "Buscar análisis...",

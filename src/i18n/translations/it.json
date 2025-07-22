@@ -832,8 +832,8 @@
         }
       }
     }
-  },
-  "diary": {
+    },
+    "history": {
     "title": "Diario",
     "addEntry": "Aggiungi Voce",
     "editEntry": "Modifica Voce",

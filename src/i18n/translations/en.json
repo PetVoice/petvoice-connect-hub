@@ -430,8 +430,8 @@
       "pet": "Pet",
       "analysisCount": "Analysis count",
       "date": "Date"
-    }
-      "title": "Analysis History",
+    },
+    "history": {
       "filterByEmotion": "Filter by emotion",
       "filterByConfidence": "Filter by confidence",
       "searchPlaceholder": "Search analyses...",
