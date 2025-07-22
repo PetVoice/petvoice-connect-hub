@@ -271,9 +271,37 @@ const AnalysisPage: React.FC = () => {
       stage: `Analisi AI in corso...`
     }));
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    let analysisResult;
+    if (file.type.startsWith('audio/')) {
+      // Analisi audio reale con trascrizione
+      const fileBuffer = await file.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+      
+      const { data: audioAnalysis, error: audioError } = await supabase.functions.invoke('analyze-audio-real', {
+        body: {
+          audioData: base64Audio,
+          petId: selectedPet!.id,
+          userId: (await supabase.auth.getUser()).data.user!.id,
+          fileName: file.name
+        }
+      });
 
-    const mockAnalysis = generateMockAnalysis(file, uploadData.path);
+      if (audioError) throw audioError;
+      if (!audioAnalysis.success) throw new Error(audioAnalysis.error);
+      
+      analysisResult = {
+        primary_emotion: audioAnalysis.analysis.pet_emotion.primary,
+        primary_confidence: audioAnalysis.analysis.pet_emotion.confidence / 100,
+        secondary_emotions: audioAnalysis.analysis.pet_emotion.secondary,
+        behavioral_insights: audioAnalysis.analysis.behavioral_insights,
+        recommendations: audioAnalysis.analysis.recommendations,
+        triggers: audioAnalysis.analysis.triggers,
+        analysis_duration: '30 seconds'
+      };
+    } else {
+      // Per file non audio usa ancora il mock
+      analysisResult = generateMockAnalysis(file, uploadData.path);
+    }
 
     setProcessing(prev => ({
       ...prev,
@@ -290,7 +318,7 @@ const AnalysisPage: React.FC = () => {
         file_type: file.type,
         file_size: file.size,
         storage_path: uploadData.path,
-        ...mockAnalysis
+        ...analysisResult
       })
       .select()
       .single();
