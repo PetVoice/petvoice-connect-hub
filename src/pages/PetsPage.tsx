@@ -322,7 +322,6 @@ const PetsPage: React.FC = () => {
         <Dialog open={showForm} onOpenChange={setShowForm}>
               <DialogTrigger asChild>
                 <Button 
-                  variant="outline"
                   onClick={() => setShowForm(true)}
                   data-guide="add-pet-button"
                 >
