@@ -594,7 +594,7 @@ export const CancellationPolicy: React.FC<LegalDocumentProps> = ({ onClose }) =>
               <li>Pulsanti "Cancella Subito" o "Cancella a Fine Periodo"</li>
               <li>Portal di gestione Stripe integrato nell'app</li>
               <li>Contattando il supporto clienti prioritario</li>
-              <li>Tramite email a billing@petvoice.app</li>
+              <li>Tramite email a petvoice2025@gmail.com</li>
             </ul>
           </section>
 
@@ -670,7 +670,7 @@ export const CancellationPolicy: React.FC<LegalDocumentProps> = ({ onClose }) =>
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
               Per assistenza sulla cancellazione o riattivazione Premium, contatta: 
-              <span className="font-medium"> support@petvoice.app</span>
+              <span className="font-medium"> petvoice2025@gmail.com</span>
             </p>
           </div>
         </div>

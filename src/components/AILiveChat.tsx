@@ -200,7 +200,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
         {
           id: 'contact-support',
           title: 'Contattare il supporto',
-          response: 'Come ottenere assistenza:\n\n💬 **Chat Live (24/7):**\n• Risposta immediata\n• Assistenza in tempo reale\n• Disponibile sempre\n\n📧 **Email:**\n• support@petvoice.com\n• Risposta entro 24h\n• Per problemi complessi\n\n📱 **In-app:**\n• Supporto > Contatti Diretti\n• Screenshot automatici\n• Log errori inclusi\n\n🎫 **Sistema Ticket:** Per problemi che richiedono follow-up'
+          response: 'Come ottenere assistenza:\n\n💬 **Chat Live (24/7):**\n• Risposta immediata\n• Assistenza in tempo reale\n• Disponibile sempre\n\n📧 **Email:**\n• petvoice2025@gmail.com\n• Risposta entro 24h\n• Per problemi complessi\n\n📱 **In-app:**\n• Supporto > Contatti Diretti\n• Screenshot automatici\n• Log errori inclusi\n\n🎫 **Sistema Ticket:** Per problemi che richiedono follow-up'
         },
         {
           id: 'app-not-working',
@@ -244,7 +244,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       setCurrentFlow(mainFlow);
       setFlowPath([]);
     }
-  }, [isOpen]);
+  }, [isOpen, messages.length]);
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {

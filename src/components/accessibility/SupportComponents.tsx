@@ -67,7 +67,7 @@ export const ContactSupport: React.FC<SupportModalProps> = ({ onClose }) => {
                 <CardContent className="p-4 text-center">
                   <Mail className="h-8 w-8 mx-auto mb-2 text-blue-500" />
                   <h4 className="font-medium">Email</h4>
-                  <p className="text-sm text-muted-foreground">support@app.com</p>
+                  <p className="text-sm text-muted-foreground">petvoice2025@gmail.com</p>
                 </CardContent>
               </Card>
               

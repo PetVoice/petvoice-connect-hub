@@ -16,6 +16,7 @@ import {
   MessageCircle, 
   Ticket, 
   Book, 
+  BookOpen,
   Search, 
   Star, 
   Phone, 
@@ -69,6 +70,7 @@ import {
   Lock,
   Camera,
   Mic,
+  Music,
   PlayCircle,
   Pause
 } from 'lucide-react';
@@ -1253,7 +1255,7 @@ const SupportPage: React.FC = () => {
                     <div className="text-center">
                       <p className="font-medium text-lg">Email</p>
                       <p className="text-sm text-muted-foreground">
-                        support@petvoice.com
+                        petvoice2025@gmail.com
                       </p>
                     </div>
                     <Button size="lg" variant="outline">
@@ -1594,45 +1596,43 @@ const SupportPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Programma Affiliazione */}
+              {/* Funzionalità AI Avanzate */}
               <Card className="border-green-200">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-lg">
                     <Award className="h-5 w-5 text-green-600" />
-                    <span>🤝 Programma Affiliazione</span>
+                    <span>🤖 Funzionalità AI Avanzate</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
-                    <div>
-                      <h4 className="font-medium">Guadagna commissioni</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Ricevi crediti per ogni amico che si abbona al servizio
-                      </p>
+                  <div className="flex items-center space-x-3 p-2 bg-green-50 rounded-lg">
+                    <Bot className="h-4 w-4 text-green-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Analisi Comportamentale:</span> AI avanzata per interpretare video, audio e foto
                     </div>
                   </div>
-                  
-                  {/* Tier System */}
-                  <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                    <h5 className="font-medium text-sm mb-2">Sistema a Livelli:</h5>
-                    <div className="space-y-1 text-xs">
-                      <div className="flex justify-between">
-                        <span>🥉 Bronzo (0-4 conversioni):</span>
-                        <span className="font-medium">5% commissione</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>🥈 Argento (5-9 conversioni):</span>
-                        <span className="font-medium">10% commissione</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>🥇 Oro (10-19 conversioni):</span>
-                        <span className="font-medium">15% commissione</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>💎 Platino (20+ conversioni):</span>
-                        <span className="font-medium">20% commissione</span>
-                      </div>
+                  <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg">
+                    <Music className="h-4 w-4 text-blue-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Musicoterapia AI:</span> Brani personalizzati basati sull'umore del pet
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
+                    <BookOpen className="h-4 w-4 text-purple-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Protocolli Training:</span> Addestramento personalizzato generato da AI
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-orange-50 rounded-lg">
+                    <MessageCircle className="h-4 w-4 text-orange-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Chat AI Live:</span> Assistenza 24/7 con intelligenza artificiale
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-red-50 rounded-lg">
+                    <BarChart3 className="h-4 w-4 text-red-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Analytics Predittivi:</span> Previsioni sulla salute e comportamento
                     </div>
                   </div>
                 </CardContent>
