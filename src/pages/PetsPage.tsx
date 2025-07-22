@@ -572,9 +572,9 @@ const PetsPage: React.FC = () => {
                   </Avatar>
                   <div className="flex-1">
                     <CardTitle className="text-lg">{pet.name}</CardTitle>
-                    <CardDescription>
-                      {pet.type === 'Cane' ? t('pets.types.dog') : pet.type === 'Gatto' ? t('pets.types.cat') : pet.type} {pet.breed && `• ${pet.breed}`}
-                    </CardDescription>
+                     <CardDescription>
+                       {pet.type.toLowerCase() === 'cane' ? t('pets.types.dog') : pet.type.toLowerCase() === 'gatto' ? t('pets.types.cat') : pet.type} {pet.breed && `• ${pet.breed}`}
+                     </CardDescription>
                     {pet.age && (
                       <Badge variant="secondary" className="mt-1">
                         {pet.age} {t('pets.petCard.years')}
