@@ -43,8 +43,8 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
         <CardContent className="p-8 text-center space-y-6">
           {/* Animated Pet Icon */}
           <div className="relative mx-auto w-20 h-20">
-            <div className="absolute inset-0 bg-gradient-to-r from-coral to-coral-dark rounded-full animate-ping opacity-20"></div>
-            <div className="relative w-20 h-20 bg-gradient-to-r from-coral to-coral-dark rounded-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-20"></div>
+            <div className="relative w-20 h-20 bg-primary rounded-full flex items-center justify-center">
               <span className="text-2xl animate-bounce">🐾</span>
             </div>
           </div>

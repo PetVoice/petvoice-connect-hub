@@ -28,7 +28,7 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({
           Indietro
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl gradient-coral flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
             {icon}
           </div>
           <div>
@@ -40,8 +40,8 @@ const PlaceholderPage: React.FC<PlaceholderPageProps> = ({
 
       <Card className="petvoice-card text-center py-12">
         <CardHeader>
-          <div className="w-16 h-16 rounded-full gradient-hero flex items-center justify-center mx-auto mb-4">
-            <Construction className="h-8 w-8 text-white" />
+          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4">
+            <Construction className="h-8 w-8 text-primary-foreground" />
           </div>
           <CardTitle className="text-2xl">Sezione in Costruzione</CardTitle>
         </CardHeader>

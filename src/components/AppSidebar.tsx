@@ -92,7 +92,7 @@ const AppSidebar: React.FC = () => {
           </div>
           {(!isCollapsed || isMobile) && (
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold text-primary">
                 PetVoice
               </h1>
               <p className="text-xs text-muted-foreground">

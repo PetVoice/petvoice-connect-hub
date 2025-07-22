@@ -121,8 +121,8 @@ const SubscriptionTab = () => {
       <div className="text-center space-y-6 py-8">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-full blur-3xl"></div>
-          <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/70 shadow-2xl">
-            <Crown className="w-12 h-12 text-white drop-shadow-lg" />
+          <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary shadow-2xl">
+            <Crown className="w-12 h-12 text-primary-foreground drop-shadow-lg" />
           </div>
         </div>
         <div className="space-y-3">
@@ -266,8 +266,8 @@ const SubscriptionTab = () => {
           <CardHeader className="text-center pb-8 relative z-10">
             <div className="relative mb-8">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl"></div>
-              <div className="relative inline-flex items-center justify-center w-28 h-28 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/80 shadow-2xl">
-                <Crown className="w-14 h-14 text-white drop-shadow-lg" />
+              <div className="relative inline-flex items-center justify-center w-28 h-28 rounded-full bg-primary shadow-2xl">
+                <Crown className="w-14 h-14 text-primary-foreground drop-shadow-lg" />
               </div>
             </div>
             
