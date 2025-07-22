@@ -105,8 +105,8 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                 characterCount < minLength && "text-orange-600",
                 characterCount > maxLength && "text-destructive"
               )}>
-                {t('analysis.upload.textAnalyzer.characterCount', `${characterCount}/${maxLength} caratteri`)}
-                {characterCount < minLength && ` ${t('analysis.upload.textAnalyzer.minCharacters', `(minimo ${minLength})`)}`}
+                {t('analysis.upload.textAnalyzer.characterCount', `${characterCount}/${maxLength} caratteri`).replace('{{count}}', characterCount.toString()).replace('{{max}}', maxLength.toString())}
+                {characterCount < minLength && ` ${t('analysis.upload.textAnalyzer.minCharacters', `(minimo ${minLength})`).replace('{{min}}', minLength.toString())}`}
               </span>
             </div>
             <Badge 
