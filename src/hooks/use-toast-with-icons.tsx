@@ -21,26 +21,26 @@ import {
   Lock
 } from 'lucide-react';
 
-// Tipi di toast con le loro icone
+// Tipi di toast con le loro icone ed emoticon
 const toastIcons = {
-  success: { icon: CheckCircle, className: "text-green-500" },
-  error: { icon: XCircle, className: "text-red-500" },
-  warning: { icon: AlertCircle, className: "text-yellow-500" },
-  info: { icon: Info, className: "text-blue-500" },
-  delete: { icon: Trash2, className: "text-red-500" },
-  user: { icon: UserPlus, className: "text-blue-500" },
-  message: { icon: MessageCircle, className: "text-green-500" },
-  settings: { icon: Settings, className: "text-gray-500" },
-  upload: { icon: Upload, className: "text-blue-500" },
-  download: { icon: Download, className: "text-blue-500" },
-  rating: { icon: Star, className: "text-yellow-500" },
-  like: { icon: Heart, className: "text-red-500" },
-  complete: { icon: Zap, className: "text-green-500" },
-  achievement: { icon: Trophy, className: "text-gold-500" },
-  exercise: { icon: Target, className: "text-primary" },
-  time: { icon: Clock, className: "text-gray-500" },
-  security: { icon: Shield, className: "text-green-500" },
-  locked: { icon: Lock, className: "text-gray-500" },
+  success: { icon: CheckCircle, className: "text-green-500", emoji: "✅" },
+  error: { icon: XCircle, className: "text-red-500", emoji: "❌" },
+  warning: { icon: AlertCircle, className: "text-yellow-500", emoji: "⚠️" },
+  info: { icon: Info, className: "text-blue-500", emoji: "ℹ️" },
+  delete: { icon: Trash2, className: "text-red-500", emoji: "🗑️" },
+  user: { icon: UserPlus, className: "text-blue-500", emoji: "👤" },
+  message: { icon: MessageCircle, className: "text-green-500", emoji: "💬" },
+  settings: { icon: Settings, className: "text-gray-500", emoji: "⚙️" },
+  upload: { icon: Upload, className: "text-blue-500", emoji: "📤" },
+  download: { icon: Download, className: "text-blue-500", emoji: "📥" },
+  rating: { icon: Star, className: "text-yellow-500", emoji: "⭐" },
+  like: { icon: Heart, className: "text-red-500", emoji: "❤️" },
+  complete: { icon: Zap, className: "text-green-500", emoji: "⚡" },
+  achievement: { icon: Trophy, className: "text-gold-500", emoji: "🏆" },
+  exercise: { icon: Target, className: "text-primary", emoji: "🎯" },
+  time: { icon: Clock, className: "text-gray-500", emoji: "⏰" },
+  security: { icon: Shield, className: "text-green-500", emoji: "🛡️" },
+  locked: { icon: Lock, className: "text-gray-500", emoji: "🔒" },
 };
 
 type ToastType = keyof typeof toastIcons;
@@ -70,6 +70,7 @@ export const useToastWithIcon = () => {
     toast({
       title: (
         <div className="flex items-center gap-2">
+          <span className="text-lg">{iconConfig.emoji}</span>
           <IconComponent className={`h-5 w-5 ${iconConfig.className}`} />
           <span>{title}</span>
         </div>
