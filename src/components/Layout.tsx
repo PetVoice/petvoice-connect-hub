@@ -3,12 +3,16 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/AppSidebar';
 import Header from '@/components/Header';
 import { AILiveChatButton } from './AILiveChat';
+import InteractiveGuide from '@/components/guide/InteractiveGuide';
+import { useFirstTimeUser } from '@/hooks/useFirstTimeUser';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { isFirstTime, loading, markGuideAsSeen } = useFirstTimeUser();
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -23,6 +27,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* AI Live Chat available on all pages */}
         <AILiveChatButton />
       </div>
+
+      {/* Interactive Guide for first time users */}
+      <InteractiveGuide 
+        isOpen={!loading && isFirstTime} 
+        onClose={markGuideAsSeen}
+        onComplete={markGuideAsSeen}
+      />
     </SidebarProvider>
   );
 };
