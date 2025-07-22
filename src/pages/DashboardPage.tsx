@@ -65,7 +65,7 @@ const DashboardPage: React.FC = () => {
         <Card className="bg-gradient-subtle border-0 shadow-elegant">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
                 <span className="text-2xl">
                   {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
                    selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
@@ -100,8 +100,8 @@ const DashboardPage: React.FC = () => {
                 className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all"
                 onClick={action.onClick}
               >
-                <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${action.color} flex items-center justify-center`}>
-                  <action.icon className="h-6 w-6 text-white" />
+                <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
+                  <action.icon className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div className="text-center">
                   <h3 className="font-semibold">{action.title}</h3>
