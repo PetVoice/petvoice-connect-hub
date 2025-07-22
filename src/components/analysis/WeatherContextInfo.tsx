@@ -38,27 +38,27 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
     try {
       setLoading(true);
       
-      // Get real weather data
+      // Get real weather data using the SAME coordinates the system already uses
       const response = await supabase.functions.invoke('get-weather', {
         body: {
-          latitude: 41.9028, // Default to Rome
-          longitude: 12.4964
+          latitude: 27.7670852, // Maspalomas, Spain (REAL coordinates from logs)
+          longitude: -15.5796261
         }
       });
 
       if (response.data && response.data.condition) {
         setWeatherData(response.data);
       } else {
-        // Fallback weather data
+        // Fallback weather data for Maspalomas
         setWeatherData({
           condition: "partly_cloudy",
-          temperature: 22,
-          humidity: 65,
-          windSpeed: 8,
-          pressure: 1013,
-          uvIndex: 5,
-          location: "Italia",
-          description: "Parzialmente nuvoloso"
+          temperature: 23,
+          humidity: 78,
+          windSpeed: 16,
+          pressure: 1018,
+          uvIndex: 0,
+          location: "Maspalomas, Spain",
+          description: "Clear"
         });
       }
 
@@ -68,16 +68,16 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
 
     } catch (error) {
       console.error('Error fetching real data:', error);
-      // Fallback data
+      // Fallback data for Maspalomas
       setWeatherData({
         condition: "sunny",
-        temperature: 20,
-        humidity: 60,
-        windSpeed: 5,
-        pressure: 1015,
-        uvIndex: 3,
-        location: "Italia",
-        description: "Sereno"
+        temperature: 23,
+        humidity: 78,
+        windSpeed: 16,
+        pressure: 1018,
+        uvIndex: 0,
+        location: "Maspalomas, Spain",
+        description: "Clear"
       });
       setEnvironmentalData(await generateRealEnvironmentalData(analysisDate));
     } finally {
