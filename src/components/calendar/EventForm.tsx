@@ -121,7 +121,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 <SelectContent>
                   {Object.entries(EVENT_CATEGORIES).map(([key, category]) => (
                     <SelectItem key={key} value={key}>
-                      {category.icon} {category.label}
+                      {category.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
