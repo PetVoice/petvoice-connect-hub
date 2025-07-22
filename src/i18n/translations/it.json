@@ -420,7 +420,9 @@
         "relaxedPostureTailEars": "Postura corporea rilassata con coda alzata e orecchie erette", 
         "behavioralActivationPlay": "Attivazione comportamentale orientata al gioco con sequenze ripetitive",
         "deepRelaxationBreathing": "Stato di rilassamento profondo con respirazione regolare e lenta",
-        "aggressiveVocalizationsGrowling": "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso"
+        "aggressiveVocalizationsGrowling": "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso",
+        "difficultyImpulseControl": "Difficoltà nel controllo degli impulsi con comportamenti ripetitivi",
+        "exploratoryBehaviorCuriosity": "Comportamento esplorativo con curiosità verso nuovi oggetti e spazi"
       }
     },
     "history": {

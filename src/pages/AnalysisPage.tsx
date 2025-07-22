@@ -194,7 +194,9 @@ const AnalysisPage: React.FC = () => {
       'Postura corporea rilassata con coda alzata e orecchie erette': 'analysis.insights.relaxedPostureTailEars',
       'Behavioral activation aimed at play with repetitive sequences': 'analysis.insights.behavioralActivationPlay',
       'Stato di rilassamento profondo con respirazione regolare e lenta': 'analysis.insights.deepRelaxationBreathing',
-      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'analysis.insights.aggressiveVocalizationsGrowling'
+      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'analysis.insights.aggressiveVocalizationsGrowling',
+      'Difficulty in impulse control with repetitive behaviors': 'analysis.insights.difficultyImpulseControl',
+      'Exploratory behavior with curiosity towards new objects and spaces': 'analysis.insights.exploratoryBehaviorCuriosity'
     };
     
     const translationKey = keyMappings[insight];

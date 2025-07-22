@@ -420,7 +420,9 @@
         "relaxedPostureTailEars": "Relaxed body posture with raised tail and erect ears", 
         "behavioralActivationPlay": "Behavioral activation aimed at play with repetitive sequences",
         "deepRelaxationBreathing": "Deep relaxation state with regular and slow breathing",
-        "aggressiveVocalizationsGrowling": "Aggressive vocalizations accompanied by growling and intense barking"
+        "aggressiveVocalizationsGrowling": "Aggressive vocalizations accompanied by growling and intense barking",
+        "difficultyImpulseControl": "Difficulty in impulse control with repetitive behaviors",
+        "exploratoryBehaviorCuriosity": "Exploratory behavior with curiosity towards new objects and spaces"
       }
     },
     "history": {

@@ -420,7 +420,9 @@
         "relaxedPostureTailEars": "Postura corporal relajada con cola levantada y orejas erguidas", 
         "behavioralActivationPlay": "Activación conductual orientada al juego con secuencias repetitivas",
         "deepRelaxationBreathing": "Estado de relajación profunda con respiración regular y lenta",
-        "aggressiveVocalizationsGrowling": "Vocalizaciones agresivas acompañadas de gruñidos y ladridos intensos"
+        "aggressiveVocalizationsGrowling": "Vocalizaciones agresivas acompañadas de gruñidos y ladridos intensos",
+        "difficultyImpulseControl": "Dificultad en el control de impulsos con comportamientos repetitivos",
+        "exploratoryBehaviorCuriosity": "Comportamiento exploratorio con curiosidad hacia nuevos objetos y espacios"
       }
     },
     "history": {
