@@ -504,9 +504,10 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setMessages(prev => [...prev, resetMessage]);
   };
 
-  // Initialize chat on open
+  // Initialize chat on open - fixed dependency issue
   useEffect(() => {
     if (isOpen && messages.length === 0) {
+      console.log('Initializing chat with welcome message');
       setCurrentFlow(mainFlow);
       const welcomeMessage: ChatMessage = {
         id: Date.now().toString(),
@@ -516,7 +517,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       };
       setMessages([welcomeMessage]);
     }
-  }, [isOpen, messages.length, mainFlow]);
+  }, [isOpen]); // Remove messages.length and mainFlow from dependencies to avoid infinite loop
 
   if (!isOpen) return null;
 
