@@ -118,17 +118,53 @@ const CommunityPage = () => {
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
   const [unreadCounts, setUnreadCounts] = useState({}); // Traccia i messaggi non letti per gruppo
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [groupUserCounts, setGroupUserCounts] = useState({});
   
+  // Load community stats
+  const loadCommunityStats = async () => {
+    try {
+      // Load total users count
+      const { count: usersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      setTotalUsers(usersCount || 0);
+      
+      // Load user counts for each group in myGroups
+      const counts = {};
+      for (const group of myGroups) {
+        const { count } = await supabase
+          .from('user_channel_subscriptions')
+          .select('*', { count: 'exact', head: true })
+          .eq('channel_name', group.id);
+        
+        counts[group.id] = count || 0;
+      }
+      setGroupUserCounts(counts);
+    } catch (error) {
+      console.error('Error loading community stats:', error);
+    }
+  };
+
   useEffect(() => {
     if (user?.id) {
       loadMyGroups();
       setupRealtimeSubscription(); // Aggiungi subscription per aggiornamenti in tempo reale
+      loadCommunityStats();
     }
   }, [user?.id]);
   
   useEffect(() => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
+
+  // Reload stats when groups change
+  useEffect(() => {
+    if (myGroups.length > 0) {
+      loadCommunityStats();
+    }
+  }, [myGroups]);
 
   // Subscription per aggiornare i conteggi in tempo reale
   const setupRealtimeSubscription = () => {
@@ -388,15 +424,23 @@ const CommunityPage = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Users className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Community
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Connettiti con altri proprietari di animali e trova supporto nella community
-          </p>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Users className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Community
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Connettiti con altri proprietari di animali e trova supporto nella community
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-sm text-muted-foreground">Membri totali</div>
+            <div className="text-2xl font-bold text-primary">{totalUsers.toLocaleString()}</div>
+          </div>
         </div>
       </div>
 
@@ -517,6 +561,9 @@ const CommunityPage = () => {
                                <div className={`font-medium ${activeChat === group.id ? 'text-primary' : ''}`}>
                                  {group.name}
                                </div>
+                               <Badge variant="outline" className="text-xs">
+                                 👥 {groupUserCounts[group.id] || 0}
+                               </Badge>
                                 {unreadCounts[group.id] && unreadCounts[group.id] > 0 && activeChat !== group.id && (
                                   <Badge variant="secondary" className="text-xs">
                                     {unreadCounts[group.id]}

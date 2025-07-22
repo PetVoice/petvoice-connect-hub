@@ -65,6 +65,20 @@ const SubscriptionPage = () => {
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
     : '';
 
+  // Calcola giorni rimanenti al rinnovo
+  const calculateDaysToRenewal = () => {
+    if (!subscription.subscription_end) return null;
+    
+    const endDate = new Date(subscription.subscription_end);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const daysToRenewal = calculateDaysToRenewal();
+
   // Debug logging per troubleshooting
   console.log('🔍 Subscription Debug:', {
     subscribed: subscription.subscribed,
@@ -74,6 +88,7 @@ const SubscriptionPage = () => {
     isCancelled,
     isEndOfPeriodCancellation,
     canReactivate,
+    daysToRenewal,
     shouldShowReactivationSection: isEndOfPeriodCancellation
   });
 
@@ -136,8 +151,15 @@ const SubscriptionPage = () => {
                     <div className="text-sm font-medium text-muted-foreground mb-1">Piano Attivo</div>
                     <div className="text-2xl font-bold">Premium €0,97/mese</div>
                     {subscription.subscription_end && (
-                      <div className="text-sm mt-2 text-muted-foreground">
-                        Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                      <div className="text-sm mt-2 space-y-1">
+                        <div className="text-muted-foreground">
+                          Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                        </div>
+                        {daysToRenewal !== null && (
+                          <div className="font-medium text-primary">
+                            ⏱️ {daysToRenewal} giorni al rinnovo
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
