@@ -76,43 +76,6 @@ const EMOTION_ICONS: Record<string, string> = {
   giocoso: '😄'
 };
 
-// Helper function to normalize secondary emotions data
-const normalizeSecondaryEmotions = (secondaryEmotions: any): Record<string, number> => {
-  if (!secondaryEmotions) return {};
-  
-  // If it's already in the correct format (Record<string, number>)
-  if (typeof secondaryEmotions === 'object' && !Array.isArray(secondaryEmotions)) {
-    const firstKey = Object.keys(secondaryEmotions)[0];
-    if (firstKey && typeof secondaryEmotions[firstKey] === 'number') {
-      return secondaryEmotions;
-    }
-  }
-  
-  // If it's an array of objects with {emotion, confidence} structure
-  if (Array.isArray(secondaryEmotions)) {
-    const normalized: Record<string, number> = {};
-    secondaryEmotions.forEach((item: any) => {
-      if (item && typeof item === 'object' && item.emotion && typeof item.confidence === 'number') {
-        normalized[item.emotion] = item.confidence;
-      }
-    });
-    return normalized;
-  }
-  
-  // If it's an object with nested {emotion, confidence} objects
-  if (typeof secondaryEmotions === 'object') {
-    const normalized: Record<string, number> = {};
-    Object.values(secondaryEmotions).forEach((item: any) => {
-      if (item && typeof item === 'object' && item.emotion && typeof item.confidence === 'number') {
-        normalized[item.emotion] = item.confidence;
-      }
-    });
-    return normalized;
-  }
-  
-  return {};
-};
-
 const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   analyses,
   loading,
@@ -402,16 +365,16 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       </div>
 
                       {/* Secondary Emotions */}
-                       {Object.keys(normalizeSecondaryEmotions(analysis.secondary_emotions)).length > 0 && (
-                         <div>
-                           <h4 className="font-medium mb-2">Emozioni Secondarie</h4>
-                           <div className="flex flex-wrap gap-2">
-                             {Object.entries(normalizeSecondaryEmotions(analysis.secondary_emotions)).map(([emotion, confidence]) => (
-                               <Badge key={emotion} variant="outline" className="text-xs">
-                                 {EMOTION_ICONS[emotion]} {emotion} ({confidence}%)
-                               </Badge>
-                             ))}
-                           </div>
+                      {Object.keys(analysis.secondary_emotions).length > 0 && (
+                        <div>
+                          <h4 className="font-medium mb-2">Emozioni Secondarie</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => (
+                              <Badge key={emotion} variant="outline" className="text-xs">
+                                {EMOTION_ICONS[emotion]} {emotion} ({confidence}%)
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       )}
 

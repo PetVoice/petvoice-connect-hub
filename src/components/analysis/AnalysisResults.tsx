@@ -161,43 +161,6 @@ const getRecommendedPlaylist = (emotion: string, confidence: number) => {
   }
 };
 
-// Helper function to normalize secondary emotions data
-const normalizeSecondaryEmotions = (secondaryEmotions: any): Record<string, number> => {
-  if (!secondaryEmotions) return {};
-  
-  // If it's already in the correct format (Record<string, number>)
-  if (typeof secondaryEmotions === 'object' && !Array.isArray(secondaryEmotions)) {
-    const firstKey = Object.keys(secondaryEmotions)[0];
-    if (firstKey && typeof secondaryEmotions[firstKey] === 'number') {
-      return secondaryEmotions;
-    }
-  }
-  
-  // If it's an array of objects with {emotion, confidence} structure
-  if (Array.isArray(secondaryEmotions)) {
-    const normalized: Record<string, number> = {};
-    secondaryEmotions.forEach((item: any) => {
-      if (item && typeof item === 'object' && item.emotion && typeof item.confidence === 'number') {
-        normalized[item.emotion] = item.confidence;
-      }
-    });
-    return normalized;
-  }
-  
-  // If it's an object with nested {emotion, confidence} objects
-  if (typeof secondaryEmotions === 'object') {
-    const normalized: Record<string, number> = {};
-    Object.values(secondaryEmotions).forEach((item: any) => {
-      if (item && typeof item === 'object' && item.emotion && typeof item.confidence === 'number') {
-        normalized[item.emotion] = item.confidence;
-      }
-    });
-    return normalized;
-  }
-  
-  return {};
-};
-
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const { toast } = useToast();
   const { selectedPet } = usePets();
@@ -638,19 +601,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     <Activity className="h-4 w-4" />
                     Emozioni Secondarie
                   </h4>
-                   <div className="space-y-3">
-                     {Object.entries(normalizeSecondaryEmotions(selectedAnalysis.secondary_emotions)).map(([emotion, confidence]) => (
-                       <div key={emotion} className="space-y-1">
-                         <div className="flex justify-between text-sm">
-                           <span className="flex items-center gap-2">
-                             <span>{EMOTION_ICONS[emotion] || '🔹'}</span>
-                             {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
-                           </span>
-                           <span className="font-medium">{confidence}%</span>
-                         </div>
-                         <Progress value={confidence} className="h-2" />
-                       </div>
-                     ))}
+                  <div className="space-y-3">
+                    {Object.entries(selectedAnalysis.secondary_emotions).map(([emotion, confidence]) => (
+                      <div key={emotion} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="flex items-center gap-2">
+                            <span>{EMOTION_ICONS[emotion] || '🔹'}</span>
+                            {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
+                          </span>
+                          <span className="font-medium">{confidence}%</span>
+                        </div>
+                        <Progress value={confidence} className="h-2" />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </TabsContent>
@@ -684,33 +647,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 {/* AI Music Therapy Recommendations - Solo per emozioni negative */}
                 {(() => {
                   const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
-                  const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                  const negativeEmotions = [
-                    'ansia', 'ansioso', 'stress', 'stressato', 'paura', 'pauroso', 
-                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
-                    'tristezza', 'triste', 'melanconico', 
-                    'depressione', 'depresso', 'abbattuto',
-                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
-                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
-                    'dolore', 'sofferente', 'malessere'
-                  ];
-                  const isNegativeEmotion = negativeEmotions.some(emotion => 
-                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
-                  );
-                  
                   if (!playlist) {
                     return (
-                      <div className={`p-4 bg-gradient-to-r ${isNegativeEmotion ? 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30' : 'from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30'} rounded-lg border`}>
+                      <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 rounded-lg border">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 ${isNegativeEmotion ? 'bg-amber-100 dark:bg-amber-900/50' : 'bg-green-100 dark:bg-green-900/50'} rounded-lg`}>
-                            <Heart className={`h-5 w-5 ${isNegativeEmotion ? 'text-amber-600' : 'text-green-600'}`} />
+                          <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
+                            <Heart className="h-5 w-5 text-green-600" />
                           </div>
                           <div>
-                            <h5 className={`font-medium ${isNegativeEmotion ? 'text-amber-800 dark:text-amber-200' : 'text-green-800 dark:text-green-200'} mb-1`}>
-                              {isNegativeEmotion ? `⚠️ ${petName} potrebbe aver bisogno di attenzione` : `✨ ${petName} sta bene!`}
+                            <h5 className="font-medium text-green-800 dark:text-green-200 mb-1">
+                              ✨ {petName} sta bene!
                             </h5>
-                            <p className={`text-sm ${isNegativeEmotion ? 'text-amber-700 dark:text-amber-300' : 'text-green-700 dark:text-green-300'}`}>
-                              Emozione "{selectedAnalysis.primary_emotion}" rilevata. {isNegativeEmotion ? 'Il tuo pet potrebbe aver bisogno di supporto.' : 'Il tuo pet è in uno stato emotivo positivo!'}
+                            <p className="text-sm text-green-700 dark:text-green-300">
+                              Emozione "{selectedAnalysis.primary_emotion}" rilevata. Il tuo pet è in uno stato emotivo positivo!
                             </p>
                           </div>
                         </div>
@@ -1448,12 +1397,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       
                       <div className="space-y-2">
                         <h4 className="font-medium text-sm">Emozioni Secondarie</h4>
-                         {Object.entries(normalizeSecondaryEmotions(analysis.secondary_emotions)).slice(0, 3).map(([emotion, confidence]) => (
-                           <div key={emotion} className="flex justify-between text-sm">
-                             <span>{emotion}</span>
-                             <span>{confidence}%</span>
-                           </div>
-                         ))}
+                        {Object.entries(analysis.secondary_emotions).slice(0, 3).map(([emotion, confidence]) => (
+                          <div key={emotion} className="flex justify-between text-sm">
+                            <span>{emotion}</span>
+                            <span>{confidence}%</span>
+                          </div>
+                        ))}
                       </div>
                       
                       <div>

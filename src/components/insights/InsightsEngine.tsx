@@ -57,10 +57,10 @@ export function InsightsEngine({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            Insights Intelligenti Engine
+            Insights Intelligenti
           </CardTitle>
           <CardDescription>
-            Analisi avanzate basate su AI per ottimizzare il benessere del tuo pet
+            Analisi avanzate e raccomandazioni basate sui dati del tuo pet
           </CardDescription>
         </CardHeader>
         <CardContent>

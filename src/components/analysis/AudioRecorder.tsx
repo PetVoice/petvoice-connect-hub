@@ -334,8 +334,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mic className="h-5 w-5 text-primary" />
-          Registrazione Diretta
+          <Mic className="h-5 w-5" />
+          Registrazione Audio
         </CardTitle>
         <CardDescription>
           Registra direttamente dal microfono (max {Math.floor(maxDuration / 60)} minuti)
@@ -365,7 +365,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "bg-primary hover:bg-primary/90 hover:scale-105 shadow-lg"
+                  : "gradient-coral hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -381,7 +381,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {formatTime(recordingState.duration)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {recordingState.isRecording ? "Registrazione in corso..." : "Tocca per iniziare a registrare"}
+              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare'}
             </p>
           </div>
 
@@ -402,7 +402,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {audioLevels.map((level, index) => (
                 <div
                   key={index}
-                  className="bg-primary rounded-sm transition-all duration-100"
+                  className="bg-coral rounded-sm transition-all duration-100"
                   style={{
                     width: '8px',
                     height: `${Math.max(4, (level / 100) * 60)}px`,
@@ -478,7 +478,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
+                className="gradient-coral text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
                 Analizza
@@ -504,23 +504,13 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </div>
         )}
 
-        {/* Help Section */}
-        <div className="bg-muted/30 p-4 rounded-lg border border-border">
-          <h4 className="font-medium mb-3 text-foreground">🎯 Cosa Analizza</h4>
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p>• <strong>Tono emotivo:</strong> Gioia, stress, paura dalle vocalizzazioni</p>
-            <p>• <strong>Intensità:</strong> Livello di eccitazione o calma del pet</p>
-            <p>• <strong>Frequenza:</strong> Pattern vocali caratteristici di ogni emozione</p>
-          </div>
-          
-          <h4 className="font-medium mb-2 mt-4 text-foreground">💡 Consigli per il Miglior Risultato</h4>
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p>• Registra quando il pet vocalizza naturalmente</p>
-            <p>• Mantieni il microfono a 30-50cm dal pet</p>
-            <p>• Scegli un ambiente silenzioso senza echi</p>
-            <p>• Cattura diversi tipi di suoni: abbaio, mugolare, fusa</p>
-            <p>• Evita di forzare il pet a fare suoni</p>
-          </div>
+        {/* Tips */}
+        <div className="text-xs text-muted-foreground space-y-1">
+          <p>💡 <strong>Suggerimenti per registrazioni migliori:</strong></p>
+          <p>• Registra in un ambiente silenzioso</p>
+          <p>• Tieni il microfono vicino al pet</p>
+          <p>• Durata ottimale: 30 secondi - 2 minuti</p>
+          <p>• Cattura vocalizzi naturali (non forzati)</p>
         </div>
       </CardContent>
     </Card>

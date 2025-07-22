@@ -537,48 +537,6 @@ export type Database = {
         }
         Relationships: []
       }
-      behavior_predictions: {
-        Row: {
-          accuracy_feedback: Json | null
-          confidence_scores: Json
-          contributing_factors: Json | null
-          created_at: string | null
-          id: string
-          pet_id: string
-          predicted_behaviors: Json
-          prediction_date: string
-          prediction_window: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          accuracy_feedback?: Json | null
-          confidence_scores?: Json
-          contributing_factors?: Json | null
-          created_at?: string | null
-          id?: string
-          pet_id: string
-          predicted_behaviors?: Json
-          prediction_date: string
-          prediction_window: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          accuracy_feedback?: Json | null
-          confidence_scores?: Json
-          contributing_factors?: Json | null
-          created_at?: string | null
-          id?: string
-          pet_id?: string
-          predicted_behaviors?: Json
-          prediction_date?: string
-          prediction_window?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       calendar_events: {
         Row: {
           attendees: string[] | null
@@ -641,51 +599,6 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      care_approach_predictions: {
-        Row: {
-          approach_name: string
-          comparative_analysis: Json | null
-          confidence_level: number | null
-          created_at: string | null
-          estimated_cost: number
-          id: string
-          pet_id: string
-          predicted_benefits: Json | null
-          roi_score: number | null
-          time_horizon_days: number
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          approach_name: string
-          comparative_analysis?: Json | null
-          confidence_level?: number | null
-          created_at?: string | null
-          estimated_cost: number
-          id?: string
-          pet_id: string
-          predicted_benefits?: Json | null
-          roi_score?: number | null
-          time_horizon_days: number
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          approach_name?: string
-          comparative_analysis?: Json | null
-          confidence_level?: number | null
-          created_at?: string | null
-          estimated_cost?: number
-          id?: string
-          pet_id?: string
-          predicted_benefits?: Json | null
-          roi_score?: number | null
-          time_horizon_days?: number
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1126,51 +1039,6 @@ export type Database = {
         }
         Relationships: []
       }
-      early_warnings: {
-        Row: {
-          acknowledged_at: string | null
-          alert_message: string
-          created_at: string | null
-          expires_at: string | null
-          id: string
-          is_acknowledged: boolean | null
-          pattern_detected: Json
-          pet_id: string
-          severity_level: string
-          suggested_actions: Json | null
-          user_id: string
-          warning_type: string
-        }
-        Insert: {
-          acknowledged_at?: string | null
-          alert_message: string
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          is_acknowledged?: boolean | null
-          pattern_detected?: Json
-          pet_id: string
-          severity_level?: string
-          suggested_actions?: Json | null
-          user_id: string
-          warning_type: string
-        }
-        Update: {
-          acknowledged_at?: string | null
-          alert_message?: string
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          is_acknowledged?: boolean | null
-          pattern_detected?: Json
-          pet_id?: string
-          severity_level?: string
-          suggested_actions?: Json | null
-          user_id?: string
-          warning_type?: string
-        }
-        Relationships: []
-      }
       emergency_contacts: {
         Row: {
           address: string | null
@@ -1471,99 +1339,6 @@ export type Database = {
           unit?: string | null
           user_id?: string
           value?: number
-        }
-        Relationships: []
-      }
-      health_risk_assessments: {
-        Row: {
-          assessment_date: string
-          created_at: string | null
-          id: string
-          next_assessment_due: string | null
-          overall_risk_score: number
-          pet_id: string
-          recommendations: Json
-          risk_categories: Json
-          risk_factors: Json
-          trend_direction: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          assessment_date?: string
-          created_at?: string | null
-          id?: string
-          next_assessment_due?: string | null
-          overall_risk_score: number
-          pet_id: string
-          recommendations?: Json
-          risk_categories?: Json
-          risk_factors?: Json
-          trend_direction?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          assessment_date?: string
-          created_at?: string | null
-          id?: string
-          next_assessment_due?: string | null
-          overall_risk_score?: number
-          pet_id?: string
-          recommendations?: Json
-          risk_categories?: Json
-          risk_factors?: Json
-          trend_direction?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      intervention_recommendations: {
-        Row: {
-          created_at: string | null
-          estimated_cost: number | null
-          expected_outcomes: Json | null
-          id: string
-          intervention_type: string
-          pet_id: string
-          priority_level: string
-          reasoning: string | null
-          recommended_timing: string
-          status: string | null
-          success_probability: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          estimated_cost?: number | null
-          expected_outcomes?: Json | null
-          id?: string
-          intervention_type: string
-          pet_id: string
-          priority_level?: string
-          reasoning?: string | null
-          recommended_timing: string
-          status?: string | null
-          success_probability?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          estimated_cost?: number | null
-          expected_outcomes?: Json | null
-          id?: string
-          intervention_type?: string
-          pet_id?: string
-          priority_level?: string
-          reasoning?: string | null
-          recommended_timing?: string
-          status?: string | null
-          success_probability?: number | null
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -1993,13 +1768,12 @@ export type Database = {
           file_size: number
           file_type: string
           id: string
-          metadata: Json | null
           pet_id: string
           primary_confidence: number
           primary_emotion: string
           recommendations: string[] | null
           secondary_emotions: Json | null
-          storage_path: string | null
+          storage_path: string
           triggers: string[] | null
           updated_at: string
           user_id: string
@@ -2012,13 +1786,12 @@ export type Database = {
           file_size: number
           file_type: string
           id?: string
-          metadata?: Json | null
           pet_id: string
           primary_confidence: number
           primary_emotion: string
           recommendations?: string[] | null
           secondary_emotions?: Json | null
-          storage_path?: string | null
+          storage_path: string
           triggers?: string[] | null
           updated_at?: string
           user_id: string
@@ -2031,13 +1804,12 @@ export type Database = {
           file_size?: number
           file_type?: string
           id?: string
-          metadata?: Json | null
           pet_id?: string
           primary_confidence?: number
           primary_emotion?: string
           recommendations?: string[] | null
           secondary_emotions?: Json | null
-          storage_path?: string | null
+          storage_path?: string
           triggers?: string[] | null
           updated_at?: string
           user_id?: string
@@ -2401,48 +2173,6 @@ export type Database = {
           protocol_id?: string
           rating?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      seasonal_adjustments: {
-        Row: {
-          adjustment_data: Json
-          adjustment_type: string
-          created_at: string | null
-          effectiveness_score: number | null
-          geographic_region: string | null
-          id: string
-          is_active: boolean | null
-          pet_breed: string | null
-          pet_species: string
-          season: string
-          updated_at: string | null
-        }
-        Insert: {
-          adjustment_data?: Json
-          adjustment_type: string
-          created_at?: string | null
-          effectiveness_score?: number | null
-          geographic_region?: string | null
-          id?: string
-          is_active?: boolean | null
-          pet_breed?: string | null
-          pet_species: string
-          season: string
-          updated_at?: string | null
-        }
-        Update: {
-          adjustment_data?: Json
-          adjustment_type?: string
-          created_at?: string | null
-          effectiveness_score?: number | null
-          geographic_region?: string | null
-          id?: string
-          is_active?: boolean | null
-          pet_breed?: string | null
-          pet_species?: string
-          season?: string
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -3342,10 +3072,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      calculate_pet_risk_score: {
-        Args: { p_pet_id: string; p_user_id: string }
-        Returns: number
-      }
       calculate_protocol_success_rate: {
         Args: { p_protocol_id: string }
         Returns: number
