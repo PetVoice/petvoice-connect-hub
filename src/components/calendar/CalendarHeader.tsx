@@ -20,7 +20,7 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Calendar className="h-8 w-8 text-primary" />
-          Calendario {petName}
+          Calendario
         </h1>
         <p className="text-muted-foreground">
           Gestisci appuntamenti, visite e attività per {petName}
