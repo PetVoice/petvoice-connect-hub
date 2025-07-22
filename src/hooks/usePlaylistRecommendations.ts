@@ -114,21 +114,30 @@ export const usePlaylistRecommendations = (petId?: string) => {
     // Solo emozioni negative richiedono playlist terapeutiche
     switch (emotion) {
       case 'ansioso':
-      case 'stressato':
         return {
           name: "Calma Profonda",
-          description: "Frequenze specifiche per ridurre ansia e stress basate sull'analisi emotiva",
+          description: "Frequenze specifiche per ridurre ansia basate sull'analisi emotiva",
           frequency: "528Hz + 8Hz",
           duration: 25,
-          tracks: ["Healing Waves", "Stress Relief", "Deep Calm"],
-          reasoning: `Rilevato stato di ${emotion} con confidenza ${(analysis.primary_confidence * 100).toFixed(0)}%`
+          tracks: ["Healing Waves", "Anxiety Relief", "Deep Calm"],
+          reasoning: `Rilevato stato di ansia con confidenza ${(analysis.primary_confidence * 100).toFixed(0)}%`
+        };
+
+      case 'stressato':
+        return {
+          name: "Anti-Stress",
+          description: "Terapia per stress cronico e tensione accumulata",
+          frequency: "528Hz + 6Hz", 
+          duration: 30,
+          tracks: ["Stress Relief", "Tension Release", "Recovery Sounds"],
+          reasoning: `Rilevato stress acuto con confidenza ${(analysis.primary_confidence * 100).toFixed(0)}%`
         };
 
       case 'agitato':
       case 'iperattivo':
         return {
           name: "Relax Guidato", 
-          description: "Sequenze per calmare l'iperattivazione basate sul profilo emotivo",
+          description: "Sequenze per calmare iperattivazione basate sul profilo emotivo",
           frequency: "10-13Hz",
           duration: 20,
           tracks: ["Gentle Waves", "Calming Nature", "Peaceful Mind"],
@@ -154,6 +163,17 @@ export const usePlaylistRecommendations = (petId?: string) => {
           duration: 20,
           tracks: ["Peaceful Control", "Anger Release", "Calm Strength"],
           reasoning: `Comportamento aggressivo rilevato - necessario calmare`
+        };
+
+      case 'pauroso':
+      case 'spaventato':
+        return {
+          name: "Sicurezza Interiore",
+          description: "Frequenze protettive per animali paurosi e insicuri",
+          frequency: "111Hz + 8Hz",
+          duration: 25,
+          tracks: ["Security Shield", "Fear Relief", "Inner Strength"],
+          reasoning: `Paura rilevata - necessario supporto emotivo e sicurezza`
         };
 
       // Non generiamo raccomandazioni per emozioni positive

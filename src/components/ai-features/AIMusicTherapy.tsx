@@ -161,7 +161,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         console.log('🎵 Playlist data:', playlistData);
         
         // Verifica se l'emozione è negativa (solo per emozioni negative mostriamo playlist)
-        const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso', 'nervoso', 'irritato', 'agitato'];
+        const negativeEmotions = ['ansioso', 'stressato', 'triste', 'aggressivo', 'agitato', 'pauroso', 'spaventato', 'depresso', 'nervoso', 'irritato', 'iperattivo'];
         const currentEmotion = playlistData.emotion?.toLowerCase() || '';
         const isNegativeEmotion = negativeEmotions.includes(currentEmotion);
         
