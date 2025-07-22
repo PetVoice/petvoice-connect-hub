@@ -339,32 +339,41 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleAnalysisComplete = async (analysisId?: string) => {
+    console.log('Analysis completed with ID:', analysisId);
+    
     // Mostra processing animation
     setProcessing({
       isProcessing: true,
-      progress: 80,
-      stage: 'Completamento analisi...'
+      progress: 90,
+      stage: 'Finalizzazione...'
     });
 
-    // Simula un breve delay per far vedere l'animazione
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Attendi un momento per assicurarsi che il database sia aggiornato
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Ricarica i dati
+    // Ricarica i dati per essere sicuri di avere l'analisi più recente
     await loadAllData();
     
-    // Vai al tab risultati per vedere l'analisi appena completata
+    // FORZA il passaggio al tab results
     setActiveTab('results');
+    
+    // Aggiorna URL per essere sicuri
+    window.history.pushState({}, '', '/analysis?tab=results');
     
     // Nascondi processing animation
     setProcessing({
       isProcessing: false,
       progress: 100,
-      stage: 'Completato!'
+      stage: 'Analisi completata!'
     });
 
-    if (analysisId) {
-      triggerAnalysisCompleted(selectedPet!.name);
-    }
+    // Toast di conferma
+    toast({
+      title: "Analisi Completata!",
+      description: "La tua analisi è stata elaborata con successo.",
+    });
+
+    console.log('Redirected to results tab. Total analyses:', analyses.length);
   };
 
   const handleAnalysisDownload = (analysis: AnalysisData) => {

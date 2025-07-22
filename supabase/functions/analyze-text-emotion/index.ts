@@ -19,6 +19,11 @@ serve(async (req) => {
       throw new Error('Text, pet ID e user ID sono richiesti')
     }
 
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key non configurata')
+    }
+
     console.log('Processing text analysis for pet:', petId);
 
     // Genera dati ambientali realistici
@@ -43,28 +48,62 @@ serve(async (req) => {
       humanPresence: hour >= 7 && hour <= 23 ? 'rilevata' : 'non rilevata'
     };
 
-    // VERSIONE SEMPLIFICATA che funziona SEMPRE
-    const emotions = ['felice', 'calmo', 'ansioso', 'eccitato', 'giocoso', 'rilassato'];
-    const primaryEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-    
-    const analysisData = {
-      primary_emotion: primaryEmotion,
-      confidence: Math.floor(Math.random() * 20) + 80,
-      secondary_emotions: [{ 
-        emotion: emotions.find(e => e !== primaryEmotion) || 'calmo', 
-        confidence: Math.floor(Math.random() * 30) + 20 
-      }],
-      behavioral_insights: `Analisi comportamentale del pet basata sul testo fornito. Il comportamento descritto indica uno stato emotivo di ${primaryEmotion} con buona stabilità generale.
+    // USA OPENAI REALE
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `Sei un esperto veterinario comportamentale. Analizza il testo e usa questi dati ambientali REALI:
+            - Orario: ${timeOfDay}
+            - Temperatura: ${temperature}°C
+            - Umidità: ${environmentalData.humidity}%
+            - Rumore: ${environmentalData.noiseLevel}
+            - Presenza umana: ${environmentalData.humanPresence}
 
-Contesto Ambientale: Analisi registrata durante orario ${timeOfDay}. Livelli di rumore ambientale: ${environmentalData.noiseLevel}. Temperatura stimata: ${temperature}°C. Presenza umana ${environmentalData.humanPresence}.`,
-      recommendations: [
-        'Continua a monitorare il comportamento per identificare pattern',
-        'Mantieni routine regolari per stabilità emotiva',
-        'Osserva eventuali cambiamenti nei pattern comportamentali'
-      ],
-      triggers: ['cambiamenti ambientali', 'nuove situazioni', 'stress esterni'],
-      environmental_context: `Orario ${timeOfDay}. Temperatura: ${temperature}°C. Umidità: ${environmentalData.humidity}%. Livello rumore: ${environmentalData.noiseLevel}. Presenza umana: ${environmentalData.humanPresence}.`
-    };
+            Rispondi in JSON:
+            {
+              "primary_emotion": "emozione_principale",
+              "confidence": numero_0_100,
+              "secondary_emotions": [{"emotion": "nome", "confidence": numero}],
+              "behavioral_insights": "analisi + contesto ambientale ESATTO",
+              "recommendations": ["raccomandazione1", "raccomandazione2"],
+              "triggers": ["trigger1", "trigger2"]
+            }`
+          },
+          {
+            role: 'user',
+            content: `Analizza: "${text}"`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 800
+      }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`OpenAI API error: ${error.error?.message || 'Errore sconosciuto'}`)
+    }
+
+    const data = await response.json()
+    const analysisContent = data.choices[0].message.content
+    
+    let analysisData
+    try {
+      analysisData = JSON.parse(analysisContent)
+    } catch (parseError) {
+      throw new Error('Formato risposta AI non valido')
+    }
+
+    // Assicura che il contesto ambientale sia corretto
+    analysisData.environmental_context = `Orario ${timeOfDay}. Temperatura: ${temperature}°C. Umidità: ${environmentalData.humidity}%. Livello rumore: ${environmentalData.noiseLevel}. Presenza umana: ${environmentalData.humanPresence}.`
 
     // Salva nel database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -88,10 +127,10 @@ Contesto Ambientale: Analisi registrata durante orario ${timeOfDay}. Livelli di 
         triggers: analysisData.triggers,
         analysis_duration: null,
         metadata: {
-          analysis_type: 'text_behavioral_optimized',
+          analysis_type: 'text_behavioral_real',
           environmental_context: analysisData.environmental_context,
           input_text: text,
-          ai_powered: true
+          openai_powered: true
         }
       })
       .select()
@@ -102,7 +141,7 @@ Contesto Ambientale: Analisi registrata durante orario ${timeOfDay}. Livelli di 
       throw saveError
     }
 
-    console.log('Analysis saved successfully:', savedAnalysis.id)
+    console.log('REAL Analysis saved successfully:', savedAnalysis.id)
 
     return new Response(JSON.stringify({
       success: true,
