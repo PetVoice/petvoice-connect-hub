@@ -952,18 +952,14 @@ export const PetMatchingIntelligence: React.FC = () => {
                                   onClick={() => handleConnect(twin.id)}
                                   disabled={isLoading}
                                 >
-                                  {isLoading ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                  ) : (
-                                    <MessageCircle className="h-4 w-4 mr-2" />
-                                  )}
-                                  Connetti con {twin.owner}
-                                </Button>
-                                <Button variant="outline">
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  Programma Incontro
-                                </Button>
-                              </div>
+                                {isLoading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <MessageCircle className="h-4 w-4 mr-2" />
+                                )}
+                                Connetti con {twin.owner}
+                              </Button>
+                            </div>
                             </div>
                           </DialogContent>
                         </Dialog>
