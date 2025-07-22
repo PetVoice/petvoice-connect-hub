@@ -116,7 +116,7 @@ export const DayEventsModal: React.FC<DayEventsModalProps> = ({
                     onClick={handleDeleteMultiple}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Elimina {selectedEvents.length === 1 ? 'Evento' : `${selectedEvents.length} Eventi`}
+                    Elimina
                   </Button>
                 )}
                 <Button
