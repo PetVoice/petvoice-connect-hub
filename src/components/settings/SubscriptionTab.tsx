@@ -116,13 +116,16 @@ const SubscriptionTab = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold mb-4">
-          🎵 PetVoice Premium
-        </h2>
-        <p className="text-lg text-muted-foreground">
-          L'unico piano disponibile per sbloccare tutto il potenziale di PetVoice
+    <div className="space-y-8 max-w-4xl mx-auto">
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/80 mb-4">
+          <Crown className="w-10 h-10 text-white" />
+        </div>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+          PetVoice Premium
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Il piano completo per prenderti cura al meglio del tuo amico a quattro zampe
         </p>
       </div>
 

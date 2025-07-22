@@ -58,15 +58,6 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
   
   return (
     <div className="bg-background border border-orange-200 dark:border-orange-800 rounded-lg p-6 hover:border-orange-300 dark:hover:border-orange-700 transition-colors">
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-          <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-foreground">Eliminazione Account</h3>
-          <p className="text-sm text-muted-foreground">Elimina permanentemente il tuo account e tutti i dati associati</p>
-        </div>
-      </div>
       
       <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
         <div className="flex items-start space-x-2">
