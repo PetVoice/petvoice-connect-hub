@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,16 +31,33 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   initialDate
 }) => {
   const [formData, setFormData] = useState({
-    title: entry?.title || '',
-    content: entry?.content || '',
-    mood_score: entry?.mood_score || 5,
-    behavioral_tags: entry?.behavioral_tags || [],
-    photo_urls: entry?.photo_urls || [],
-    voice_note_url: entry?.voice_note_url || null,
-    weather_condition: entry?.weather_condition && entry.weather_condition !== '' ? entry.weather_condition : 'nessuna',
-    temperature: entry?.temperature || null,
-    entry_date: entry?.entry_date || initialDate || format(new Date(), 'yyyy-MM-dd')
+    title: '',
+    content: '',
+    mood_score: 5,
+    behavioral_tags: [],
+    photo_urls: [],
+    voice_note_url: null,
+    weather_condition: 'nessuna',
+    temperature: null,
+    entry_date: format(new Date(), 'yyyy-MM-dd')
   });
+
+  // Reset form data when entry, initialDate, or isOpen changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        title: entry?.title || '',
+        content: entry?.content || '',
+        mood_score: entry?.mood_score || 5,
+        behavioral_tags: entry?.behavioral_tags || [],
+        photo_urls: entry?.photo_urls || [],
+        voice_note_url: entry?.voice_note_url || null,
+        weather_condition: entry?.weather_condition && entry.weather_condition !== '' ? entry.weather_condition : 'nessuna',
+        temperature: entry?.temperature || null,
+        entry_date: entry?.entry_date || initialDate || format(new Date(), 'yyyy-MM-dd')
+      });
+    }
+  }, [entry, initialDate, isOpen]);
 
   const [customTag, setCustomTag] = useState('');
   const [isRecording, setIsRecording] = useState(false);
