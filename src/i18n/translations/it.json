@@ -86,15 +86,25 @@
     }
   },
   "dashboard": {
-    "welcome": "Benvenuto in PetVoice",
-    "welcomeDesc": "Il tuo compagno AI per comprendere e migliorare il benessere dei tuoi animali domestici",
+    "welcome": "Benvenuto su PetVoice!",
+    "welcomeDesc": "Monitora la salute e il benessere del tuo amico a quattro zampe con l'intelligenza artificiale",
     "quickActions": "Azioni Rapide",
+    "quickActionsDesc": "Azioni rapide per iniziare subito",
     "recentActivity": "Attività Recente",
     "insights": "Insights",
     "analytics": "Analytics",
     "healthStatus": "Stato di Salute",
-    "moodTrend": "Trend dell'Umore",
-    "behaviorScore": "Punteggio Comportamentale"
+    "moodTrend": "Tendenza Umore",
+    "behaviorScore": "Punteggio Comportamentale",
+    "analysisDesc": "Analizza l'umore del tuo pet",
+    "diaryDesc": "Aggiungi una nuova voce",
+    "calendarDesc": "Programma un evento",
+    "registeredPets": "Pets Registrati",
+    "petInFamily": "pet nella tua famiglia",
+    "petsInFamily": "pets nella tua famiglia",
+    "healthExcellent": "Ottimo",
+    "allPetsHealthy": "Tutti i pets in salute",
+    "improvementThisWeek": "Miglioramento questa settimana"
   },
   "analysis": {
     "title": "Analisi Emotiva",
