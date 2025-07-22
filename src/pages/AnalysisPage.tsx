@@ -145,7 +145,7 @@ const AnalysisPage: React.FC = () => {
       const fromStr = format(startOfDay(from), 'yyyy-MM-dd HH:mm:ss');
       const toStr = format(endOfDay(to), 'yyyy-MM-dd HH:mm:ss');
 
-      // Fetch diary entries per le previsioni
+      // Fetch REAL diary entries per le previsioni
       const { data: diaryEntries } = await supabase
         .from('diary_entries')
         .select('*')
@@ -154,7 +154,7 @@ const AnalysisPage: React.FC = () => {
         .lte('entry_date', format(to, 'yyyy-MM-dd'))
         .order('entry_date', { ascending: true });
 
-      // Fetch health metrics per le previsioni
+      // Fetch REAL health metrics per le previsioni
       const { data: healthMetrics } = await supabase
         .from('health_metrics')
         .select('*')
@@ -163,7 +163,7 @@ const AnalysisPage: React.FC = () => {
         .lte('recorded_at', toStr)
         .order('recorded_at', { ascending: true });
 
-      // Fetch wellness scores per le previsioni
+      // Fetch REAL wellness scores dal database
       const { data: wellnessScores } = await supabase
         .from('pet_wellness_scores')
         .select('*')
@@ -172,12 +172,65 @@ const AnalysisPage: React.FC = () => {
         .lte('score_date', format(to, 'yyyy-MM-dd'))
         .order('score_date', { ascending: true });
 
+      // Se non ci sono wellness scores, calcoliamo in base alle analisi REALI
+      if (!wellnessScores || wellnessScores.length === 0) {
+        const calculatedWellness = await calculateWellnessFromAnalyses();
+        setWellnessData(calculatedWellness);
+      } else {
+        setWellnessData(wellnessScores);
+      }
+
       setDiaryData(diaryEntries || []);
       setHealthData(healthMetrics || []);
-      setWellnessData(wellnessScores || []);
     } catch (error) {
-      console.error('Error loading prediction data:', error);
+      console.error('Error loading REAL prediction data:', error);
     }
+  };
+
+  // Calcola wellness scores REALI dalle analisi esistenti
+  const calculateWellnessFromAnalyses = async () => {
+    if (!selectedPet) return [];
+    
+    const emotionScores: Record<string, number> = {
+      'felice': 90,
+      'calmo': 85,
+      'giocoso': 88,
+      'eccitato': 75,
+      'ansioso': 40,
+      'triste': 30,
+      'aggressivo': 25
+    };
+
+    // Raggruppa analisi per giorno
+    const dailyScores: Record<string, { total: number; count: number; date: string }> = {};
+    
+    analyses.forEach(analysis => {
+      const date = format(new Date(analysis.created_at), 'yyyy-MM-dd');
+      const emotionScore = emotionScores[analysis.primary_emotion] || 50;
+      const confidenceBonus = (analysis.primary_confidence * 100 - 50) / 100 * 20;
+      const finalScore = emotionScore + confidenceBonus;
+      
+      if (!dailyScores[date]) {
+        dailyScores[date] = { total: 0, count: 0, date };
+      }
+      dailyScores[date].total += finalScore;
+      dailyScores[date].count += 1;
+    });
+
+    // Converti in formato wellness_scores
+    return Object.values(dailyScores).map(day => ({
+      id: crypto.randomUUID(),
+      pet_id: selectedPet!.id,
+      user_id: selectedPet!.user_id,
+      wellness_score: Math.round(day.total / day.count),
+      score_date: day.date,
+      factors: {
+        calculated_from_analyses: true,
+        total_analyses: day.count,
+        avg_emotion_score: day.total / day.count
+      },
+      created_at: new Date().toISOString()
+    }));
   };
 
   // Handle tab parameter from URL
@@ -1292,62 +1345,140 @@ const AnalysisPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   {(() => {
-                    const recommendations = [];
-                    
-                    // Controlla se ci sono emozioni ansiose nelle analisi recenti
-                    const recentAnxiousAnalyses = analyses.filter(a => 
-                      a.primary_emotion === 'ansioso' && 
-                      new Date(a.created_at) >= subDays(new Date(), 7)
-                    );
-                    
-                    if (recentAnxiousAnalyses.length > 0) {
-                      recommendations.push({
-                        type: 'warning',
-                        text: `Rilevate ${recentAnxiousAnalyses.length} analisi con ansia negli ultimi 7 giorni. Considera attività rilassanti.`
-                      });
-                    }
-                    
-                    // Controlla la consistenza delle analisi
-                    const recentAnalyses = analyses.filter(a => 
-                      new Date(a.created_at) >= subDays(new Date(), 7)
-                    );
-                    
-                    if (recentAnalyses.length < 2) {
-                      recommendations.push({
-                        type: 'info',
-                        text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
-                      });
-                    }
-                    
-                    // Controlla se ci sono miglioramenti
-                    if (analyses.length >= 2) {
-                      const recent = analyses.slice(0, 3);
-                      const positiveEmotions = recent.filter(a => 
-                        ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)
+                    // Genera raccomandazioni AI REALI basate sui dati veri
+                    const generateRealAIRecommendations = () => {
+                      const recommendations = [];
+                      
+                      // Analisi REALI degli ultimi 7 giorni
+                      const last7Days = analyses.filter(a => 
+                        new Date(a.created_at) >= subDays(new Date(), 7)
                       );
                       
-                      if (positiveEmotions.length >= 2) {
+                      // Analisi REALI degli ultimi 30 giorni
+                      const last30Days = analyses.filter(a => 
+                        new Date(a.created_at) >= subDays(new Date(), 30)
+                      );
+                      
+                      // Conta emozioni specifiche negli ultimi 7 giorni
+                      const anxiousCount = last7Days.filter(a => a.primary_emotion === 'ansioso').length;
+                      const sadCount = last7Days.filter(a => a.primary_emotion === 'triste').length;
+                      const aggressiveCount = last7Days.filter(a => a.primary_emotion === 'aggressivo').length;
+                      const happyCount = last7Days.filter(a => ['felice', 'giocoso', 'calmo'].includes(a.primary_emotion)).length;
+                      
+                      // Pattern di confidenza
+                      const avgConfidence = last7Days.length > 0 ? 
+                        last7Days.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / last7Days.length : 0;
+                      
+                      // Raccomandazioni basate su dati REALI
+                      if (anxiousCount >= 3) {
                         recommendations.push({
-                          type: 'success',
-                          text: 'Ottimi risultati nelle analisi recenti! Continua con le attuali strategie.'
+                          type: 'warning',
+                          text: `⚠️ DATO REALE: ${anxiousCount} episodi di ansia negli ultimi 7 giorni. Raccomando consulto veterinario comportamentale.`,
+                          priority: 'high'
+                        });
+                      } else if (anxiousCount > 0) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: `📊 ANALISI REALE: ${anxiousCount} episodi di ansia rilevati. Considera tecniche di rilassamento.`,
+                          priority: 'medium'
                         });
                       }
-                    }
+                      
+                      if (sadCount >= 2) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: `😔 PATTERN REALE: ${sadCount} episodi di tristezza negli ultimi 7 giorni. Aumenta le attività stimolanti.`,
+                          priority: 'medium'
+                        });
+                      }
+                      
+                      if (aggressiveCount > 0) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: `🚨 ALERT REALE: ${aggressiveCount} episodi aggressivi rilevati. Intervento comportamentale immediato consigliato.`,
+                          priority: 'high'
+                        });
+                      }
+                      
+                      if (happyCount >= 5) {
+                        recommendations.push({
+                          type: 'success',
+                          text: `🎉 TREND POSITIVO: ${happyCount} episodi felici negli ultimi 7 giorni! Mantieni le attuali strategie.`,
+                          priority: 'low'
+                        });
+                      }
+                      
+                      if (avgConfidence < 70) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `📈 QUALITÀ DATI: Confidenza media ${Math.round(avgConfidence)}%. Migliora le condizioni di registrazione.`,
+                          priority: 'low'
+                        });
+                      }
+                      
+                      if (last7Days.length < 3) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `📅 FREQUENZA: Solo ${last7Days.length} analisi negli ultimi 7 giorni. Aumenta il monitoraggio per dati più accurati.`,
+                          priority: 'medium'
+                        });
+                      }
+                      
+                      // Analisi pattern temporali REALI
+                      if (last30Days.length >= 10) {
+                        const recentTrend = last7Days.length > 0 ? 
+                          last7Days.filter(a => ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)).length / last7Days.length : 0;
+                        const previousTrend = last30Days.slice(7, 14).length > 0 ?
+                          last30Days.slice(7, 14).filter(a => ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)).length / last30Days.slice(7, 14).length : 0;
+                        
+                        if (recentTrend > previousTrend + 0.2) {
+                          recommendations.push({
+                            type: 'success',
+                            text: `📈 MIGLIORAMENTO REALE: +${Math.round((recentTrend - previousTrend) * 100)}% di emozioni positive rispetto alla settimana precedente.`,
+                            priority: 'low'
+                          });
+                        } else if (recentTrend < previousTrend - 0.2) {
+                          recommendations.push({
+                            type: 'warning',
+                            text: `📉 DECLINO RILEVATO: -${Math.round((previousTrend - recentTrend) * 100)}% di emozioni positive. Necessaria attenzione.`,
+                            priority: 'high'
+                          });
+                        }
+                      }
+                      
+                      if (recommendations.length === 0) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `✅ STATO NORMALE: ${last7Days.length} analisi recenti mostrano comportamento stabile. Continua il monitoraggio regolare.`,
+                          priority: 'low'
+                        });
+                      }
+                      
+                      return recommendations.sort((a, b) => {
+                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        return priorityOrder[b.priority] - priorityOrder[a.priority];
+                      }).slice(0, 4);
+                    };
                     
-                    if (recommendations.length === 0) {
-                      recommendations.push({
-                        type: 'info',
-                        text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
-                      });
-                    }
+                    const realRecommendations = generateRealAIRecommendations();
                     
-                    return recommendations.slice(0, 4).map((rec, index) => (
+                    return realRecommendations.map((rec, index) => (
                       <div key={index} className={`p-3 rounded-lg border-l-4 ${
-                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
-                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
-                        'bg-blue-50 border-blue-400'
+                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400 dark:bg-yellow-950/30' :
+                        rec.type === 'success' ? 'bg-green-50 border-green-400 dark:bg-green-950/30' :
+                        'bg-blue-50 border-blue-400 dark:bg-blue-950/30'
                       }`}>
-                        <p className="text-sm">{rec.text}</p>
+                        <p className="text-sm font-medium">{rec.text}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {rec.priority === 'high' ? '🔴 Alta priorità' : 
+                             rec.priority === 'medium' ? '🟡 Media priorità' : 
+                             '🟢 Bassa priorità'}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            Basato su {analyses.length} analisi totali
+                          </span>
+                        </div>
                       </div>
                     ));
                   })()}
@@ -1356,40 +1487,103 @@ const AnalysisPage: React.FC = () => {
             </Card>
           </div>
 
-          {/* Seasonal Predictions */}
+          {/* Seasonal Predictions REALI */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
-                Previsioni Stagionali
+                Pattern Stagionali Reali
               </CardTitle>
               <CardDescription>
-                Analisi dei pattern stagionali del comportamento
+                Analisi dei comportamenti per stagione basata sui dati reali
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
-                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
-                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
+              {(() => {
+                // Calcola pattern stagionali REALI dalle analisi
+                const getSeasonFromDate = (date: string) => {
+                  const month = new Date(date).getMonth() + 1; // 1-12
+                  if (month >= 3 && month <= 5) return 'Primavera';
+                  if (month >= 6 && month <= 8) return 'Estate';
+                  if (month >= 9 && month <= 11) return 'Autunno';
+                  return 'Inverno';
+                };
+                
+                const seasonalData: Record<string, { total: number; positive: number; negative: number; analyses: any[] }> = {
+                  'Primavera': { total: 0, positive: 0, negative: 0, analyses: [] },
+                  'Estate': { total: 0, positive: 0, negative: 0, analyses: [] },
+                  'Autunno': { total: 0, positive: 0, negative: 0, analyses: [] },
+                  'Inverno': { total: 0, positive: 0, negative: 0, analyses: [] }
+                };
+                
+                // Aggrega dati REALI per stagione
+                analyses.forEach(analysis => {
+                  const season = getSeasonFromDate(analysis.created_at);
+                  seasonalData[season].total++;
+                  seasonalData[season].analyses.push(analysis);
                   
-                  return (
-                    <div key={season} className="p-4 border rounded-lg">
-                      <h4 className="font-medium mb-2">{season}</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Attività:</span>
-                          <span className="font-medium">{activity}</span>
+                  if (['felice', 'calmo', 'giocoso'].includes(analysis.primary_emotion)) {
+                    seasonalData[season].positive++;
+                  } else if (['ansioso', 'triste', 'aggressivo'].includes(analysis.primary_emotion)) {
+                    seasonalData[season].negative++;
+                  }
+                });
+                
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {Object.entries(seasonalData).map(([season, data]) => {
+                      const positiveRate = data.total > 0 ? Math.round((data.positive / data.total) * 100) : 0;
+                      const negativeRate = data.total > 0 ? Math.round((data.negative / data.total) * 100) : 0;
+                      const mostCommonEmotion = data.analyses.length > 0 ? 
+                        data.analyses.reduce((acc, curr) => {
+                          acc[curr.primary_emotion] = (acc[curr.primary_emotion] || 0) + 1;
+                          return acc;
+                        }, {}) : {};
+                      
+                      const topEmotion = Object.keys(mostCommonEmotion).length > 0 ?
+                        Object.entries(mostCommonEmotion).sort(([,a], [,b]) => (b as number) - (a as number))[0] : ['N/A', 0];
+                      
+                      return (
+                        <div key={season} className="p-4 border rounded-lg bg-card">
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            {season}
+                            <Badge variant="outline" className="text-xs">
+                              {data.total} analisi
+                            </Badge>
+                          </h4>
+                          
+                          {data.total > 0 ? (
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span>Umore positivo:</span>
+                                <span className="font-medium text-green-600">{positiveRate}%</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Problemi rilevati:</span>
+                                <span className="font-medium text-red-600">{negativeRate}%</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Emozione prevalente:</span>
+                                <span className="font-medium capitalize">{topEmotion[0]}</span>
+                              </div>
+                              <div className="pt-2 border-t">
+                                <span className="text-xs text-muted-foreground">
+                                  Dati da {data.analyses.length} registrazioni reali
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center text-muted-foreground text-sm">
+                              <p>Nessun dato disponibile</p>
+                              <p className="text-xs">Continua ad analizzare per raccogliere dati stagionali</p>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex justify-between">
-                          <span>Umore:</span>
-                          <span className="font-medium">{mood}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
