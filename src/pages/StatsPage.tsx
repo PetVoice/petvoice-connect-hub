@@ -1647,15 +1647,6 @@ export default function StatsPage() {
             </Card>
           </div>
 
-          {/* Insights Intelligenti Engine */}
-          <InsightsEngine
-            analysisData={analysisData || []}
-            diaryData={diaryData || []}
-            healthData={healthData || []}
-            wellnessData={wellnessData || []}
-            petData={activePet}
-            timeRange={selectedTimeRange}
-          />
 
           {/* Detailed Analytics */}
           <Card>
