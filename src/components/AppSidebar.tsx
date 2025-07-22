@@ -87,17 +87,14 @@ const AppSidebar: React.FC = () => {
       <SidebarContent className="gap-0">
         {/* Logo and Title */}
         <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed && !isMobile ? "justify-center" : ""}`}>
-          <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow cursor-pointer group animate-gentle-float hover:animate-[bounce_0.6s_ease-in-out_2]">
-            <span className="text-white font-bold text-sm group-hover:scale-110 transition-transform duration-300">🐾</span>
+          <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow animate-gentle-float">
+            <span className="text-white font-bold text-sm">🐾</span>
           </div>
           {(!isCollapsed || isMobile) && (
             <div className="animate-fade-in">
-              <h1 className="text-lg font-bold text-primary hover:text-azure transition-colors duration-300 cursor-pointer">
+              <h1 className="text-lg font-bold text-primary">
                 PetVoice
               </h1>
-              <p className="text-xs text-muted-foreground animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                Dashboard
-              </p>
             </div>
           )}
         </div>
