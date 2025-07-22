@@ -123,14 +123,34 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
     
     return emotions[language]?.[emotion.toLowerCase()] || emotion;
   };
+
+  // Get type translation
+  const getTypeTranslation = (type: string) => {
+    const types: Record<string, Record<string, string>> = {
+      it: {
+        recording: 'Registrazione',
+        analysis: 'Analisi'
+      },
+      en: {
+        recording: 'Recording',
+        analysis: 'Analysis'
+      },
+      es: {
+        recording: 'Grabación',
+        analysis: 'Análisis'
+      }
+    };
+    
+    return types[language]?.[type] || type;
+  };
   
   const emotionName = getEmotionTranslation(analysis.primary_emotion);
   
   // Generate readable name based on file type
   if (analysis.file_type === 'text') {
-    return `Analisi ${emotionName} - ${day} ${month}`;
+    return `${getTypeTranslation('analysis')} ${emotionName} - ${day} ${month}`;
   } else {
-    return `Registrazione ${emotionName} - ${day} ${month} ${time}`;
+    return `${getTypeTranslation('recording')} ${emotionName} - ${day} ${month} ${time}`;
   }
 };
 
