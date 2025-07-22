@@ -245,6 +245,21 @@
           "stats": "🚀 Average time: 10-15 seconds • 🎯 Accuracy: 80-92% • ⏺️ Ideal for: Fresh vocalizations, ongoing behaviors, immediate analysis"
         }
       },
+      "textAnalyzer": {
+        "title": "Behavioral Text Analysis",
+        "description": "Describe your pet's behavior for behavioral analysis",
+        "placeholder": "Describe your pet's behavior in detail: how they're acting, what sounds they make, how they move, where they are...",
+        "characterCount": "{{count}}/{{max}} characters",
+        "minCharacters": "(minimum {{min}})",
+        "ready": "Ready",
+        "tooShort": "Too short",
+        "analysisInProgress": "Analysis in progress...",
+        "analyzeButton": "Analyze Behavior",
+        "errors": {
+          "tooShort": "Description must be at least 10 characters",
+          "tooLong": "Description cannot exceed 2000 characters"
+        }
+      }
     },
     "results": {
       "latestAnalysis": "Latest Analysis",

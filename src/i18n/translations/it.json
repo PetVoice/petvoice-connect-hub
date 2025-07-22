@@ -245,6 +245,21 @@
           "stats": "🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate"
         }
       },
+      "textAnalyzer": {
+        "title": "Analisi Testuale Comportamento",
+        "description": "Descrivi il comportamento del tuo pet per un'analisi comportamentale",
+        "placeholder": "Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova...",
+        "characterCount": "{{count}}/{{max}} caratteri",
+        "minCharacters": "(minimo {{min}})",
+        "ready": "Pronto",
+        "tooShort": "Troppo corto",
+        "analysisInProgress": "Analisi in corso...",
+        "analyzeButton": "Analizza Comportamento",
+        "errors": {
+          "tooShort": "La descrizione deve essere di almeno 10 caratteri",
+          "tooLong": "La descrizione non può superare i 2000 caratteri"
+        }
+      }
     },
     "results": {
       "latestAnalysis": "Ultima Analisi",

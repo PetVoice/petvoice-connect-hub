@@ -68,10 +68,10 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          Analisi Testuale Comportamento
+          {t('analysis.upload.textAnalyzer.title', 'Analisi Testuale Comportamento')}
         </CardTitle>
         <CardDescription>
-          Descrivi cosa sta facendo il tuo pet per analizzare il suo stato emotivo
+          {t('analysis.upload.textAnalyzer.description', 'Descrivi il comportamento del tuo pet per un\'analisi comportamentale')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -79,7 +79,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
         <div className="space-y-2">
           <div className="relative">
             <Textarea
-              placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
+              placeholder={t('analysis.upload.textAnalyzer.placeholder', 'Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova...')}
               value={description}
               onChange={(e) => handleTextChange(e.target.value)}
               disabled={isProcessing}
@@ -105,15 +105,15 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                 characterCount < minLength && "text-orange-600",
                 characterCount > maxLength && "text-destructive"
               )}>
-                {characterCount}/{maxLength} caratteri
-                {characterCount < minLength && ` (minimo ${minLength})`}
+                {t('analysis.upload.textAnalyzer.characterCount', `${characterCount}/${maxLength} caratteri`)}
+                {characterCount < minLength && ` ${t('analysis.upload.textAnalyzer.minCharacters', `(minimo ${minLength})`)}`}
               </span>
             </div>
             <Badge 
               variant={isValid ? "default" : "secondary"} 
               className="text-xs"
             >
-              {isValid ? "Pronto" : "Troppo corto"}
+              {isValid ? t('analysis.upload.textAnalyzer.ready', 'Pronto') : t('analysis.upload.textAnalyzer.tooShort', 'Troppo corto')}
             </Badge>
           </div>
 
@@ -134,12 +134,12 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           {isProcessing ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-              Analisi in corso...
+              {t('analysis.upload.textAnalyzer.analysisInProgress', 'Analisi in corso...')}
             </>
           ) : (
             <>
               <Send className="h-4 w-4 mr-2" />
-              Analizza Comportamento
+              {t('analysis.upload.textAnalyzer.analyzeButton', 'Analizza Comportamento')}
             </>
           )}
         </Button>

@@ -245,6 +245,21 @@
           "stats": "🚀 Tiempo promedio: 10-15 segundos • 🎯 Precisión: 80-92% • ⏺️ Ideal para: Vocalizaciones frescas, comportamientos en curso, análisis inmediatos"
         }
       },
+      "textAnalyzer": {
+        "title": "Análisis de Texto Conductual",
+        "description": "Describe el comportamiento de tu mascota para análisis conductual",
+        "placeholder": "Describe detalladamente el comportamiento de tu mascota: cómo se está comportando, qué sonidos hace, cómo se mueve, dónde está...",
+        "characterCount": "{{count}}/{{max}} caracteres",
+        "minCharacters": "(mínimo {{min}})",
+        "ready": "Listo",
+        "tooShort": "Muy corto",
+        "analysisInProgress": "Análisis en progreso...",
+        "analyzeButton": "Analizar Comportamiento",
+        "errors": {
+          "tooShort": "La descripción debe tener al menos 10 caracteres",
+          "tooLong": "La descripción no puede exceder los 2000 caracteres"
+        }
+      }
     },
     "results": {
       "latestAnalysis": "Último Análisis",
