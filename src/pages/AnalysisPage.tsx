@@ -1227,15 +1227,15 @@ const AnalysisPage: React.FC = () => {
       // Title
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('CONFRONTO ANALISI EMOTIVE - PET VOICE', 20, yPosition);
+      pdf.text(language === 'it' ? 'CONFRONTO ANALISI EMOTIVE - PET VOICE' : language === 'es' ? 'COMPARACIÓN DE ANÁLISIS EMOCIONALES - PET VOICE' : 'EMOTIONAL ANALYSIS COMPARISON - PET VOICE', 20, yPosition);
       yPosition += 15;
       
       pdf.setFontSize(14);
-      pdf.text(`Pet: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
+      pdf.text(`${language === 'it' ? 'Pet' : language === 'es' ? 'Mascota' : 'Pet'}: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
       yPosition += 10;
       
       pdf.setFontSize(12);
-      pdf.text(`Periodo: ${format(new Date(Math.min(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')} - ${format(new Date(Math.max(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')}`, 20, yPosition);
+      pdf.text(`${language === 'it' ? 'Periodo' : language === 'es' ? 'Período' : 'Period'}: ${format(new Date(Math.min(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')} - ${format(new Date(Math.max(...analysesToCompare.map(a => new Date(a.created_at).getTime()))), 'dd/MM/yyyy')}`, 20, yPosition);
       yPosition += 10;
 
       // Emotion distribution
@@ -1245,26 +1245,28 @@ const AnalysisPage: React.FC = () => {
       });
 
       pdf.setFont('helvetica', 'bold');
-      pdf.text('DISTRIBUZIONE EMOZIONI:', 20, yPosition);
+      pdf.text(language === 'it' ? 'DISTRIBUZIONE EMOZIONI:' : language === 'es' ? 'DISTRIBUCIÓN DE EMOCIONES:' : 'EMOTION DISTRIBUTION:', 20, yPosition);
       yPosition += lineHeight;
       
       pdf.setFont('helvetica', 'normal');
-      Object.entries(emotionCounts).forEach(([emotion, count]) => {
-        const percentage = ((count / analysesToCompare.length) * 100).toFixed(1);
-        pdf.text(`- ${emotion.charAt(0).toUpperCase() + emotion.slice(1)}: ${count} volte (${percentage}%)`, 25, yPosition);
+       Object.entries(emotionCounts).forEach(([emotion, count]) => {
+         const percentage = ((count / analysesToCompare.length) * 100).toFixed(1);
+         const translatedEmotion = getEmotionTranslation(emotion, language);
+         const timesText = language === 'it' ? 'volte' : language === 'es' ? 'veces' : 'times';
+         pdf.text(`- ${translatedEmotion}: ${count} ${timesText} (${percentage}%)`, 25, yPosition);
         yPosition += lineHeight;
       });
       yPosition += 5;
 
       // Average confidence
-      const avgConfidence = (analysesToCompare.reduce((sum, a) => sum + a.primary_confidence, 0) / analysesToCompare.length).toFixed(1);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`CONFIDENZA MEDIA: ${avgConfidence}%`, 20, yPosition);
+       const avgConfidence = (analysesToCompare.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / analysesToCompare.length).toFixed(1);
+       pdf.setFont('helvetica', 'bold');
+       pdf.text(`${language === 'it' ? 'CONFIDENZA MEDIA' : language === 'es' ? 'CONFIANZA PROMEDIO' : 'AVERAGE CONFIDENCE'}: ${avgConfidence}%`, 20, yPosition);
       yPosition += 10;
 
       // Timeline
       pdf.setFont('helvetica', 'bold');
-      pdf.text('CRONOLOGIA ANALISI:', 20, yPosition);
+      pdf.text(language === 'it' ? 'CRONOLOGIA ANALISI:' : language === 'es' ? 'CRONOLOGÍA DE ANÁLISIS:' : 'ANALYSIS TIMELINE:', 20, yPosition);
       yPosition += lineHeight;
       
       analysesToCompare
@@ -1276,7 +1278,7 @@ const AnalysisPage: React.FC = () => {
           }
           
           pdf.setFont('helvetica', 'normal');
-          pdf.text(`${index + 1}. ${format(new Date(analysis.created_at), 'dd/MM HH:mm')} - ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 25, yPosition);
+          pdf.text(`${index + 1}. ${format(new Date(analysis.created_at), 'dd/MM HH:mm')} - ${getEmotionTranslation(analysis.primary_emotion, language)} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
           yPosition += lineHeight;
         });
 
@@ -2201,7 +2203,7 @@ const AnalysisPage: React.FC = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">
-                      {(compareModal.analyses.reduce((sum, a) => sum + a.primary_confidence, 0) / compareModal.analyses.length).toFixed(1)}%
+                      {(compareModal.analyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / compareModal.analyses.length).toFixed(1)}%
                     </div>
                     <p className="text-xs text-muted-foreground">{t('analysis.confidence')}</p>
                   </CardContent>
@@ -2267,7 +2269,7 @@ const AnalysisPage: React.FC = () => {
                             <span className="text-sm font-medium">{getReadableAnalysisName(analysis, language)}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm">
-                            <span>{format(new Date(analysis.created_at), 'dd/MM HH:mm')}</span>
+                            <span>{format(new Date(analysis.created_at), 'dd/MM HH:mm', { locale: language === 'it' ? undefined : undefined })}</span>
                             <Badge variant="outline">{getEmotionTranslation(analysis.primary_emotion, language)}</Badge>
                             <span className="font-medium">{(analysis.primary_confidence * 100).toFixed(0)}%</span>
                           </div>
@@ -2284,7 +2286,9 @@ const AnalysisPage: React.FC = () => {
                   onClick={() => {
                     try {
                       const pdf = generateComparisonPDF(compareModal.analyses);
-                      const fileName = `confronto-analisi-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
+                       const fileName = language === 'it' ? `confronto-analisi-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf` :
+                                       language === 'es' ? `comparacion-analisis-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf` :
+                                       `analysis-comparison-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
                       pdf.save(fileName);
                       
                       toast({
@@ -2302,7 +2306,7 @@ const AnalysisPage: React.FC = () => {
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  {t('analysis.actions.downloadPDF')} {t('analysis.modals.compare.title')}
+                  {language === 'it' ? 'Scarica PDF' : language === 'es' ? 'Descargar PDF' : 'Download PDF'}
                 </Button>
               </div>
             </div>
