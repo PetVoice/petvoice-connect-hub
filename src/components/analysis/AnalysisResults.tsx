@@ -315,7 +315,68 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         monitorTrigger: 'Monitora questo fattore per identificare pattern comportamentali',
         originalRecording: 'Registrazione Originale',
         notAudioFile: 'Questo file non è un audio. Player disponibile solo per registrazioni audio.',
-        today: 'Oggi'
+        today: 'Oggi',
+        // Additional translations for hardcoded content
+        confidenceColon: 'Confidenza:',
+        recording: 'Registrazione:',
+        humidity: 'umidità',
+        wind: 'vento',
+        realEnvironmentalContext: 'Contesto Ambientale Reale:',
+        moderate: 'moderato',
+        moderateTraffic: 'Traffico moderato',
+        highActivity: 'Attività alta',
+        daylight: 'diurna',
+        disturbancesDetected: 'Disturbi rilevati: ambiente silenzioso',
+        analysisRecorded: 'Analisi registrata pomeriggio del',
+        uvIndex: 'Indice UV:',
+        environmentalConditions: 'Condizioni ambientali con disturbi moderati per l\'analisi comportamentale.',
+        quietEnvironmentsSoftLighting: 'Ambienti tranquilli con illuminazione soffusa',
+        consolidatedRelaxingRoutines: 'Routine rilassanti consolidate (massaggi, coccole)',
+        // Training protocol names
+        anxietySeparationManagement: 'Gestione Ansia da Separazione',
+        aggressionControl: 'Controllo Aggressività',
+        fearPhobiaOvercoming: 'Superamento Paure e Fobie',
+        hyperactivityManagement: 'Gestione Iperattività',
+        emotionalSupportWellness: 'Supporto Emotivo e Benessere',
+        generalBehaviorManagement: 'Gestione Comportamento Generale',
+        // Training protocol descriptions
+        anxietyProtocolDesc: 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.',
+        aggressionProtocolDesc: 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.',
+        fearProtocolDesc: 'Esercizi di desensibilizzazione per superare paure specifiche.',
+        hyperactivityProtocolDesc: 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.',
+        emotionalProtocolDesc: 'Supporto emotivo personalizzato per migliorare l\'umore e il benessere del pet.',
+        generalProtocolDesc: 'Protocollo generale per migliorare il comportamento e il benessere complessivo.',
+        // Training labels
+        days: 'giorni',
+        level: 'Livello:',
+        basedOn: 'Basato su:',
+        variable: 'Variabile',
+        personalized: 'Personalizzato',
+        difficult: 'Difficile',
+        // Health and recommendations
+        healthConditions: 'Condizioni di salute:',
+        healthAdvice: 'Monitora attentamente i segni di stress durante il training. Consulta il veterinario prima di iniziare protocolli intensivi.',
+        forEmotion: 'Per l\'emozione',
+        recommendedFrequency: 'Frequenza raccomandata:',
+        shortSessions23: '2-3 sessioni brevi al giorno',
+        sessions12: '1-2 sessioni al giorno',
+        session1: '1 sessione al giorno per evitare sovrastimolazione',
+        // Emotion-specific advice
+        anxietyAdvice: 'Crea un ambiente sicuro e prevedibile. Evita cambiamenti bruschi nella routine.',
+        aggressionAdvice: 'Mantieni calma e distanza di sicurezza. Usa rinforzi positivi, mai punizioni.',
+        fearAdvice: 'Desensibilizzazione graduale. Non forzare l\'esposizione, procedi con pazienza.',
+        sadnessAdvice: 'Aumenta attività gratificanti e interazioni sociali positive.',
+        generalAdvice: 'Mantieni coerenza nel training e celebra ogni piccolo progresso.',
+        // Comparison modal
+        emotionalAnalysisComparison: 'Confronto Analisi Emotive',
+        comparativeAnalysisOf: 'Analisi comparativa di',
+        results: 'risultati',
+        comparedAnalyses: 'Analisi Confrontate',
+        analyzedPeriod: 'Periodo Analizzato',
+        averageConfidence: 'Confidenza Media',
+        secondaryEmotionsShort: 'Emozioni Secondarie',
+        insightsShort: 'Insights',
+        analysis: 'Analisi'
       },
       en: {
         // Existing translations
@@ -392,7 +453,68 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         monitorTrigger: 'Monitor this factor to identify behavioral patterns',
         originalRecording: 'Original Recording',
         notAudioFile: 'This file is not audio. Player available only for audio recordings.',
-        today: 'Today'
+        today: 'Today',
+        // Additional translations for hardcoded content
+        confidenceColon: 'Confidence:',
+        recording: 'Recording:',
+        humidity: 'humidity',
+        wind: 'wind',
+        realEnvironmentalContext: 'Real Environmental Context:',
+        moderate: 'moderate',
+        moderateTraffic: 'Moderate traffic',
+        highActivity: 'High activity',
+        daylight: 'daylight',
+        disturbancesDetected: 'Disturbances detected: quiet environment',
+        analysisRecorded: 'Analysis recorded afternoon of',
+        uvIndex: 'UV Index:',
+        environmentalConditions: 'Environmental conditions with moderate disturbances for behavioral analysis.',
+        quietEnvironmentsSoftLighting: 'Quiet environments with soft lighting',
+        consolidatedRelaxingRoutines: 'Consolidated relaxing routines (massages, cuddles)',
+        // Training protocol names
+        anxietySeparationManagement: 'Separation Anxiety Management',
+        aggressionControl: 'Aggression Control',
+        fearPhobiaOvercoming: 'Fear and Phobia Overcoming',
+        hyperactivityManagement: 'Hyperactivity Management',
+        emotionalSupportWellness: 'Emotional Support and Wellness',
+        generalBehaviorManagement: 'General Behavior Management',
+        // Training protocol descriptions
+        anxietyProtocolDesc: 'Specific protocol to reduce separation anxiety and improve pet confidence.',
+        aggressionProtocolDesc: 'Control techniques to manage aggressive and reactive behaviors.',
+        fearProtocolDesc: 'Desensitization exercises to overcome specific fears.',
+        hyperactivityProtocolDesc: 'Activities to channel excessive energy into positive behaviors.',
+        emotionalProtocolDesc: 'Personalized emotional support to improve pet mood and wellness.',
+        generalProtocolDesc: 'General protocol to improve behavior and overall wellness.',
+        // Training labels
+        days: 'days',
+        level: 'Level:',
+        basedOn: 'Based on:',
+        variable: 'Variable',
+        personalized: 'Personalized',
+        difficult: 'Difficult',
+        // Health and recommendations
+        healthConditions: 'Health conditions:',
+        healthAdvice: 'Carefully monitor signs of stress during training. Consult veterinarian before starting intensive protocols.',
+        forEmotion: 'For emotion',
+        recommendedFrequency: 'Recommended frequency:',
+        shortSessions23: '2-3 short sessions per day',
+        sessions12: '1-2 sessions per day',
+        session1: '1 session per day to avoid overstimulation',
+        // Emotion-specific advice
+        anxietyAdvice: 'Create a safe and predictable environment. Avoid sudden routine changes.',
+        aggressionAdvice: 'Stay calm and maintain safe distance. Use positive reinforcement, never punishment.',
+        fearAdvice: 'Gradual desensitization. Don\'t force exposure, proceed with patience.',
+        sadnessAdvice: 'Increase gratifying activities and positive social interactions.',
+        generalAdvice: 'Maintain consistency in training and celebrate every small progress.',
+        // Comparison modal
+        emotionalAnalysisComparison: 'Emotional Analysis Comparison',
+        comparativeAnalysisOf: 'Comparative analysis of',
+        results: 'results',
+        comparedAnalyses: 'Compared Analyses',
+        analyzedPeriod: 'Analyzed Period',
+        averageConfidence: 'Average Confidence',
+        secondaryEmotionsShort: 'Secondary Emotions',
+        insightsShort: 'Insights',
+        analysis: 'Analysis'
       },
       es: {
         // Existing translations
@@ -469,7 +591,68 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         monitorTrigger: 'Monitorear este factor para identificar patrones de comportamiento',
         originalRecording: 'Grabación Original',
         notAudioFile: 'Este archivo no es audio. Reproductor disponible solo para grabaciones de audio.',
-        today: 'Hoy'
+        today: 'Hoy',
+        // Additional translations for hardcoded content
+        confidenceColon: 'Confianza:',
+        recording: 'Grabación:',
+        humidity: 'humedad',
+        wind: 'viento',
+        realEnvironmentalContext: 'Contexto Ambiental Real:',
+        moderate: 'moderado',
+        moderateTraffic: 'Tráfico moderado',
+        highActivity: 'Actividad alta',
+        daylight: 'diurna',
+        disturbancesDetected: 'Perturbaciones detectadas: ambiente silencioso',
+        analysisRecorded: 'Análisis registrado tarde del',
+        uvIndex: 'Índice UV:',
+        environmentalConditions: 'Condiciones ambientales con perturbaciones moderadas para el análisis conductual.',
+        quietEnvironmentsSoftLighting: 'Ambientes tranquilos con iluminación suave',
+        consolidatedRelaxingRoutines: 'Rutinas relajantes consolidadas (masajes, mimos)',
+        // Training protocol names
+        anxietySeparationManagement: 'Gestión de Ansiedad por Separación',
+        aggressionControl: 'Control de Agresión',
+        fearPhobiaOvercoming: 'Superación de Miedos y Fobias',
+        hyperactivityManagement: 'Gestión de Hiperactividad',
+        emotionalSupportWellness: 'Apoyo Emocional y Bienestar',
+        generalBehaviorManagement: 'Gestión General del Comportamiento',
+        // Training protocol descriptions
+        anxietyProtocolDesc: 'Protocolo específico para reducir la ansiedad por separación y mejorar la confianza de la mascota.',
+        aggressionProtocolDesc: 'Técnicas de control para manejar comportamientos agresivos y reactivos.',
+        fearProtocolDesc: 'Ejercicios de desensibilización para superar miedos específicos.',
+        hyperactivityProtocolDesc: 'Actividades para canalizar la energía excesiva en comportamientos positivos.',
+        emotionalProtocolDesc: 'Apoyo emocional personalizado para mejorar el estado de ánimo y bienestar de la mascota.',
+        generalProtocolDesc: 'Protocolo general para mejorar el comportamiento y bienestar general.',
+        // Training labels
+        days: 'días',
+        level: 'Nivel:',
+        basedOn: 'Basado en:',
+        variable: 'Variable',
+        personalized: 'Personalizado',
+        difficult: 'Difícil',
+        // Health and recommendations
+        healthConditions: 'Condiciones de salud:',
+        healthAdvice: 'Monitore cuidadosamente los signos de estrés durante el entrenamiento. Consulte al veterinario antes de comenzar protocolos intensivos.',
+        forEmotion: 'Para la emoción',
+        recommendedFrequency: 'Frecuencia recomendada:',
+        shortSessions23: '2-3 sesiones cortas por día',
+        sessions12: '1-2 sesiones por día',
+        session1: '1 sesión por día para evitar sobreestimulación',
+        // Emotion-specific advice
+        anxietyAdvice: 'Crear un ambiente seguro y predecible. Evitar cambios bruscos en la rutina.',
+        aggressionAdvice: 'Mantener la calma y distancia de seguridad. Usar refuerzo positivo, nunca castigo.',
+        fearAdvice: 'Desensibilización gradual. No forzar la exposición, proceder con paciencia.',
+        sadnessAdvice: 'Aumentar actividades gratificantes e interacciones sociales positivas.',
+        generalAdvice: 'Mantener consistencia en el entrenamiento y celebrar cada pequeño progreso.',
+        // Comparison modal
+        emotionalAnalysisComparison: 'Comparación de Análisis Emocional',
+        comparativeAnalysisOf: 'Análisis comparativo de',
+        results: 'resultados',
+        comparedAnalyses: 'Análisis Comparados',
+        analyzedPeriod: 'Período Analizado',
+        averageConfidence: 'Confianza Promedio',
+        secondaryEmotionsShort: 'Emociones Secundarias',
+        insightsShort: 'Información',
+        analysis: 'Análisis'
       }
     };
     return texts[language]?.[key] || texts.it[key] || key;
@@ -988,7 +1171,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
                               <span>🎵 {playlist.frequency}</span>
                               <span>⏱️ {playlist.duration} min</span>
-                              <span>🎯 Confidenza: {Math.round(selectedAnalysis.primary_confidence * 100)}%</span>
+                              <span>🎯 {getText('confidenceColon')} {Math.round(selectedAnalysis.primary_confidence * 100)}%</span>
                             </div>
                             <Button 
                               size="sm" 
@@ -1053,23 +1236,23 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
                                       emotion.includes('stress') || emotion.includes('stressato') ||
                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                    return 'Gestione Ansia da Separazione';
+                                    return getText('anxietySeparationManagement');
                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
                                              emotion.includes('irritato')) {
-                                    return 'Controllo Aggressività';
+                                    return getText('aggressionControl');
                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                    return 'Superamento Paure e Fobie';
+                                    return getText('fearPhobiaOvercoming');
                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                    return 'Gestione Iperattività';
+                                    return getText('hyperactivityManagement');
                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
                                              emotion.includes('depresso') || emotion.includes('depressione') ||
                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                    return 'Supporto Emotivo e Benessere';
+                                    return getText('emotionalSupportWellness');
                                   } else {
-                                    return 'Gestione Comportamento Generale';
+                                    return getText('generalBehaviorManagement');
                                   }
                                 })()}
                               </h5>
@@ -1080,23 +1263,23 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                    if (emotion.includes('ansia') || emotion.includes('ansioso') || 
                                        emotion.includes('stress') || emotion.includes('stressato') ||
                                        emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                     return 'Protocollo specifico per ridurre l\'ansia da separazione e migliorare la fiducia nel pet.';
-                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                              emotion.includes('irritato')) {
-                                     return 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.';
-                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                     return 'Esercizi di desensibilizzazione per superare paure specifiche.';
-                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                     return 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.';
-                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                              emotion.includes('depresso') || emotion.includes('depressione') ||
-                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                     return 'Supporto emotivo personalizzato per migliorare l\'umore e il benessere del pet.';
-                                   } else {
-                                     return 'Protocollo generale per migliorare il comportamento e il benessere complessivo.';
+                                      return getText('anxietyProtocolDesc');
+                                    } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
+                                               emotion.includes('rabbioso') || emotion.includes('frustrato') ||
+                                               emotion.includes('irritato')) {
+                                      return getText('aggressionProtocolDesc');
+                                    } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
+                                               emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
+                                      return getText('fearProtocolDesc');
+                                    } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
+                                               emotion.includes('nervoso') || emotion.includes('irrequieto')) {
+                                      return getText('hyperactivityProtocolDesc');
+                                    } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
+                                               emotion.includes('depresso') || emotion.includes('depressione') ||
+                                               emotion.includes('abbattuto') || emotion.includes('melanconico')) {
+                                      return getText('emotionalProtocolDesc');
+                                    } else {
+                                      return getText('generalProtocolDesc');
                                    }
                                  })()}
                               </p>
@@ -1110,9 +1293,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                        emotion.includes('preoccupato') || emotion.includes('inquieto')) {
                                      return (
                                        <>
-                                         <span>📅 3 giorni</span>
-                                         <span>🎯 Livello: Medio</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 3 {getText('days')}</span>
+                                          <span>🎯 {getText('level')} {getText('medium')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
@@ -1120,27 +1303,27 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                               emotion.includes('irritato')) {
                                      return (
                                        <>
-                                         <span>📅 3 giorni</span>
-                                         <span>🎯 Livello: Difficile</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 3 {getText('days')}</span>
+                                          <span>🎯 {getText('level')} {getText('difficult')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
                                               emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
                                      return (
                                        <>
-                                         <span>📅 42 giorni</span>
-                                         <span>🎯 Livello: Difficile</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 42 {getText('days')}</span>
+                                          <span>🎯 {getText('level')} {getText('difficult')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
                                               emotion.includes('nervoso') || emotion.includes('irrequieto')) {
                                      return (
                                        <>
-                                         <span>📅 28 giorni</span>
-                                         <span>🎯 Livello: Medio</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 28 {getText('days')}</span>
+                                          <span>🎯 {getText('level')} {getText('medium')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
@@ -1148,17 +1331,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                               emotion.includes('abbattuto') || emotion.includes('melanconico')) {
                                      return (
                                        <>
-                                         <span>📅 28 giorni</span>
-                                         <span>🎯 Livello: Medio</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 28 {getText('days')}</span>
+                                          <span>🎯 {getText('level')} {getText('medium')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    } else {
                                      return (
                                        <>
-                                         <span>📅 Variabile</span>
-                                         <span>🎯 Livello: Personalizzato</span>
-                                         <span>📊 Basato su: {selectedAnalysis.primary_emotion}</span>
+                                          <span>📅 {getText('variable')}</span>
+                                          <span>🎯 {getText('level')} {getText('personalized')}</span>
+                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
                                        </>
                                      );
                                    }
@@ -1398,16 +1581,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             {/* Raccomandazioni basate sulle condizioni di salute */}
                             {selectedPet.health_conditions && selectedPet.health_conditions.length > 0 && (
                               <div className="text-sm">
-                                <span className="font-medium text-blue-800 dark:text-blue-200">Condizioni di salute: </span>
+                                <span className="font-medium text-blue-800 dark:text-blue-200">{getText('healthConditions')} </span>
                                 <span className="text-blue-700 dark:text-blue-300">
-                                  Monitora attentamente i segni di stress durante il training. Consulta il veterinario prima di iniziare protocolli intensivi.
+                                  {getText('healthAdvice')}
                                 </span>
                               </div>
                             )}
                             
                             {/* Raccomandazione generale basata sull'emozione */}
                             <div className="text-sm">
-                              <span className="font-medium text-blue-800 dark:text-blue-200">Per l'emozione "{selectedAnalysis.primary_emotion}": </span>
+                              <span className="font-medium text-blue-800 dark:text-blue-200">{getText('forEmotion')} "{selectedAnalysis.primary_emotion}": </span>
                               <span className="text-blue-700 dark:text-blue-300">
                                 {(() => {
                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
@@ -1428,7 +1611,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             
                             {/* Frequenza delle sessioni personalizzata */}
                             <div className="text-sm">
-                              <span className="font-medium text-blue-800 dark:text-blue-200">Frequenza raccomandata: </span>
+                              <span className="font-medium text-blue-800 dark:text-blue-200">{getText('recommendedFrequency')} </span>
                               <span className="text-blue-700 dark:text-blue-300">
                                 {selectedPet.age && selectedPet.age < 1 ? "2-3 sessioni brevi al giorno" :
                                  selectedAnalysis.primary_confidence > 80 ? "1-2 sessioni al giorno" :
@@ -1632,10 +1815,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              Confronto Analisi Emotive
+              {getText('emotionalAnalysisComparison')}
             </DialogTitle>
             <DialogDescription>
-              Analisi comparativa di {comparedAnalyses.length} risultati
+              {getText('comparativeAnalysisOf')} {comparedAnalyses.length} {getText('results')}
             </DialogDescription>
           </DialogHeader>
           
@@ -1646,7 +1829,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">{comparedAnalyses.length}</div>
-                    <p className="text-xs text-muted-foreground">Analisi Confrontate</p>
+                    <p className="text-xs text-muted-foreground">{getText('comparedAnalyses')}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1654,7 +1837,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     <div className="text-2xl font-bold">
                       {format(new Date(Math.min(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
                     </div>
-                    <p className="text-xs text-muted-foreground">Periodo Analizzato</p>
+                    <p className="text-xs text-muted-foreground">{getText('analyzedPeriod')}</p>
                   </CardContent>
                 </Card>
                 <Card>
