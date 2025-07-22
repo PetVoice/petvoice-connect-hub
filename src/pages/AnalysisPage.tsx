@@ -207,8 +207,8 @@ const AnalysisPage: React.FC = () => {
     analyses.forEach(analysis => {
       const date = format(new Date(analysis.created_at), 'yyyy-MM-dd');
       const emotionScore = emotionScores[analysis.primary_emotion] || 50;
-      const confidenceBonus = (analysis.primary_confidence * 100 - 50) / 100 * 20;
-      const finalScore = emotionScore + confidenceBonus;
+      const confidenceBonus = (analysis.primary_confidence - 0.5) * 10; // Bonus più contenuto: -5 a +5
+      const finalScore = Math.max(0, Math.min(100, emotionScore + confidenceBonus)); // Limite tra 0-100
       
       if (!dailyScores[date]) {
         dailyScores[date] = { total: 0, count: 0, date };
