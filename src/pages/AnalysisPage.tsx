@@ -355,6 +355,11 @@ const AnalysisPage: React.FC = () => {
       
       setActiveTab('results');
       
+      // Scroll to top of page when analysis is completed
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+      
       toast({
         title: "Successo!",
         description: `${files.length} file analizzati con successo`,
@@ -876,6 +881,11 @@ const AnalysisPage: React.FC = () => {
 
       // Switch to results tab
       setActiveTab('results');
+      
+      // Scroll to top of page when analysis is completed
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
       
     } catch (error: any) {
       console.error('Text analysis error:', error);
