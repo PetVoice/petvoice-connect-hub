@@ -1378,7 +1378,7 @@ const AnalysisPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-guide="upload-button">
             <FileUploader 
               onFilesSelected={handleFileUpload} 
               autoAnalyzeAudio={true}
@@ -1397,7 +1397,7 @@ const AnalysisPage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="results" className="space-y-6">
+        <TabsContent value="results" className="space-y-6" data-guide="results-section">
           {analyses.length > 0 ? (
             <AnalysisResults 
               analyses={analyses.slice(0, 3)} 

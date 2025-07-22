@@ -306,6 +306,7 @@ const PetsPage: React.FC = () => {
             <Button 
               variant="outline"
               onClick={() => setShowForm(true)}
+              data-guide="add-pet-button"
             >
               <Plus className="h-4 w-4 mr-2" />
               {t('pets.addNew')}

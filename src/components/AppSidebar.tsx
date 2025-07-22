@@ -83,7 +83,7 @@ const AppSidebar: React.FC = () => {
   };
 
   return (
-    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon">
+    <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon" data-guide="sidebar">
       <SidebarContent className="gap-0">
         {/* Logo and Title */}
         <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed && !isMobile ? "justify-center" : ""}`}>
@@ -109,19 +109,35 @@ const AppSidebar: React.FC = () => {
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
             <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
-                    >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map((item) => {
+                // Add data-guide attributes for tutorial
+                const getDataGuide = (url: string) => {
+                  switch (url) {
+                    case '/': return 'dashboard-menu';
+                    case '/pets': return 'pets-menu';
+                    case '/analysis': return 'ai-analysis-menu';
+                    case '/ai-music-therapy': return 'music-therapy-menu';
+                    case '/training': return 'training-menu';
+                    case '/diary': return 'diary-menu';
+                    default: return undefined;
+                  }
+                };
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
+                        data-guide={getDataGuide(item.url)}
+                      >
+                        <item.icon className="h-5 w-5 shrink-0" />
+                        {(!isCollapsed || isMobile) && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
