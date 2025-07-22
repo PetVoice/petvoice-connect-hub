@@ -125,11 +125,16 @@ const CommunityPage = () => {
   const loadCommunityStats = async () => {
     try {
       // Load total users count
-      const { count: usersCount } = await supabase
+      const { data: usersData, error } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true });
+        .select('id');
       
-      setTotalUsers(usersCount || 0);
+      if (error) {
+        console.error('Error fetching users:', error);
+        setTotalUsers(0);
+      } else {
+        setTotalUsers(usersData?.length || 0);
+      }
       
       // Load user counts for each group in myGroups
       const counts = {};
