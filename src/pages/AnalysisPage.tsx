@@ -360,6 +360,9 @@ const AnalysisPage: React.FC = () => {
     // Aggiorna URL per essere sicuri
     window.history.pushState({}, '', '/analysis?tab=results');
     
+    // Scrolla in alto alla pagina
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     // Nascondi processing animation
     setProcessing({
       isProcessing: false,
