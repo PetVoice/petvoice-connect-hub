@@ -1594,16 +1594,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               <span className="text-blue-700 dark:text-blue-300">
                                 {(() => {
                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                  if (emotion.includes('ansia') || emotion.includes('stress')) {
-                                    return "Crea un ambiente sicuro e prevedibile. Evita cambiamenti bruschi nella routine.";
+                                   if (emotion.includes('ansia') || emotion.includes('stress')) {
+                                    return getText('anxietyAdvice');
                                   } else if (emotion.includes('aggressiv') || emotion.includes('frustrato')) {
-                                    return "Mantieni calma e distanza di sicurezza. Usa rinforzi positivi, mai punizioni.";
+                                    return getText('aggressionAdvice');
                                   } else if (emotion.includes('paura')) {
-                                    return "Desensibilizzazione graduale. Non forzare l'esposizione, procedi con pazienza.";
+                                    return getText('fearAdvice');
                                   } else if (emotion.includes('triste') || emotion.includes('depresso')) {
-                                    return "Aumenta attività gratificanti e interazioni sociali positive.";
+                                    return getText('sadnessAdvice');
                                   } else {
-                                    return "Mantieni coerenza nel training e celebra ogni piccolo progresso.";
+                                    return getText('generalAdvice');
                                   }
                                 })()}
                               </span>
@@ -1613,9 +1613,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <div className="text-sm">
                               <span className="font-medium text-blue-800 dark:text-blue-200">{getText('recommendedFrequency')} </span>
                               <span className="text-blue-700 dark:text-blue-300">
-                                {selectedPet.age && selectedPet.age < 1 ? "2-3 sessioni brevi al giorno" :
-                                 selectedAnalysis.primary_confidence > 80 ? "1-2 sessioni al giorno" :
-                                 "1 sessione al giorno per evitare sovrastimolazione"}
+                                {selectedPet.age && selectedPet.age < 1 ? getText('shortSessions23') :
+                                 selectedAnalysis.primary_confidence > 80 ? getText('sessions12') :
+                                 getText('session1')}
                               </span>
                             </div>
                           </div>
