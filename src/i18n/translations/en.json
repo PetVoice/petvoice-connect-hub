@@ -239,7 +239,8 @@
       "preparingFile": "Preparing file {{current}}/{{total}}...",
       "preparation": "Preparing...",
       "analyzing": "Analyzing Emotional Patterns...",
-      "generating": "Generating insights..."
+      "generating": "Generating insights...",
+      "emotionalAnalysis": "Analyzing emotions..."
     },
     "emotions": {
       "felice": "Happy",
