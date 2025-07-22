@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import { AILiveChatButton } from './AILiveChat';
 import InteractiveGuide from '@/components/guide/InteractiveGuide';
 import { useFirstTimeUser } from '@/hooks/useFirstTimeUser';
+import { useSearchParams } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isFirstTime, loading, markGuideAsSeen } = useFirstTimeUser();
+  const [searchParams] = useSearchParams();
+  
+  // Allow manual activation via URL parameter for testing
+  const forceGuide = searchParams.get('guide') === 'true';
+  const shouldShowGuide = !loading && (isFirstTime || forceGuide);
 
   return (
     <SidebarProvider>
@@ -30,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Interactive Guide for first time users */}
       <InteractiveGuide 
-        isOpen={!loading && isFirstTime} 
+        isOpen={shouldShowGuide} 
         onClose={markGuideAsSeen}
         onComplete={markGuideAsSeen}
       />
