@@ -1175,11 +1175,11 @@
       "gestioneIperattivatEDeficitAttenzione": {
         "title": "Gestione Iperattività e Deficit Attenzione",
         "description": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo."
+      }
     },
     "search": {
       "placeholder": "Cerca protocolli...",
       "allCategories": "Tutte le categorie"
-    }
     },
     "createProtocol": {
       "title": "Crea Nuovo Protocollo",

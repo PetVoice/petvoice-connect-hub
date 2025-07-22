@@ -1176,11 +1176,11 @@
       "gestioneIperattivatEDeficitAttenzione": {
         "title": "Hyperactivity and Attention Deficit Management",
         "description": "Complete protocol to reduce hyperactivity and improve concentration through a progressive approach: from constructive energy discharge to impulse control, up to relaxation and self-control."
+      }
     },
     "search": {
       "placeholder": "Search protocols...",
       "allCategories": "All categories"
-    }
     },
     "createProtocol": {
       "title": "Create New Protocol",
