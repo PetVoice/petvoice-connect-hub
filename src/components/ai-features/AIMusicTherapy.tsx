@@ -456,8 +456,14 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           if (rawMainFreq < 100) {
             // Frequenze sotto 100Hz sono difficili da sentire - usa come beat invece
             mainFreq = 220; // Frequenza udibile come carrier
-            beatFreq = rawMainFreq; // La frequenza originale diventa il beat
-            console.log(`🎵 Frequenza bassa corretta: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+            // CORREZIONE SPECIALE per 40Hz: troppo veloce come beat, ridimensiona
+            if (rawMainFreq === 40) {
+              beatFreq = 15; // Beat più percettibile per stimolazione energetica
+              console.log(`🎵 Frequenza 40Hz corretta per essere percettibile: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+            } else {
+              beatFreq = Math.min(rawMainFreq, 25); // Max 25Hz per beat efficaci
+              console.log(`🎵 Frequenza bassa corretta: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+            }
           } else {
             mainFreq = rawMainFreq;
             console.log(`🎵 Formato + normale: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
