@@ -12,9 +12,18 @@ const NotificationEventsContext = createContext<NotificationEventsContextType | 
 
 export const useNotificationEventsContext = () => {
   const context = useContext(NotificationEventsContext);
+  
+  // Se il contesto non è disponibile, restituisci una versione fallback invece di lanciare un errore
   if (!context) {
-    throw new Error('useNotificationEventsContext must be used within a NotificationEventsProvider');
+    console.warn('useNotificationEventsContext utilizzato fuori dal NotificationEventsProvider. Utilizzo funzioni fallback.');
+    return {
+      triggerAnalysisCompleted: () => console.warn('NotificationEvents not available'),
+      triggerDiaryAdded: () => console.warn('NotificationEvents not available'),
+      triggerWellnessReminder: () => console.warn('NotificationEvents not available'),
+      triggerAppointmentReminder: () => console.warn('NotificationEvents not available'),
+    };
   }
+  
   return context;
 };
 
