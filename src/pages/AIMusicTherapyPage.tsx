@@ -34,9 +34,12 @@ const AIMusicTherapyPage: React.FC = () => {
           <span className="text-white font-bold text-lg">🎵</span>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
             {t('navigation.aiMusicTherapy')}
           </h1>
+          <p className="text-muted-foreground">
+            Musicoterapia personalizzata per {selectedPet.name}
+          </p>
         </div>
       </div>
       
