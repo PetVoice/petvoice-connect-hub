@@ -685,8 +685,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 {(() => {
                   const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                  const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso', 'nervoso', 'irritato', 'tristezza'];
-                  const isNegativeEmotion = negativeEmotions.includes(emotion);
+                  const negativeEmotions = [
+                    'ansia', 'ansioso', 'stress', 'stressato', 'paura', 'pauroso', 
+                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
+                    'tristezza', 'triste', 'melanconico', 
+                    'depressione', 'depresso', 'abbattuto',
+                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
+                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
+                    'dolore', 'sofferente', 'malessere'
+                  ];
+                  const isNegativeEmotion = negativeEmotions.some(emotion => 
+                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
+                  );
                   
                   if (!playlist) {
                     return (
