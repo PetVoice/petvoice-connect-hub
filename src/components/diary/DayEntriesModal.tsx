@@ -81,7 +81,12 @@ export const DayEntriesModal: React.FC<DayEntriesModalProps> = ({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={() => onClose()}>
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setSelectedEntries([]); // Reset selection when closing
+        }
+        onClose();
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
