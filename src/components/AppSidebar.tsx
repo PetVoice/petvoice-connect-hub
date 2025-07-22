@@ -13,7 +13,8 @@ import {
   Settings,
   Network,
   Brain,
-  Music
+  Music,
+  Lightbulb
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -42,6 +43,7 @@ const navigationItems = [
 ];
 
 const communityItems = [
+  { title: 'Primi Passi', url: '/first-steps', icon: Lightbulb },
   { title: 'Community', url: '/community', icon: Users },
 ];
 
