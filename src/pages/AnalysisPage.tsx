@@ -83,6 +83,64 @@ interface AnalysisData {
   user_description?: string;
 }
 
+// Helper function to generate readable analysis names
+const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it') => {
+  const date = new Date(analysis.created_at);
+  
+  // Format date parts
+  const day = format(date, 'dd', { locale: it });
+  const month = format(date, 'MMMM', { locale: it });
+  const time = format(date, 'HH:mm', { locale: it });
+  
+  // Get emotion translation
+  const getEmotionTranslation = (emotion: string) => {
+    const emotions: Record<string, Record<string, string>> = {
+      it: {
+        felice: 'Felice',
+        calmo: 'Calmo',
+        ansioso: 'Ansioso',
+        eccitato: 'Eccitato',
+        triste: 'Triste',
+        aggressivo: 'Aggressivo',
+        giocoso: 'Giocoso',
+        rilassato: 'Rilassato'
+      },
+      en: {
+        felice: 'Happy',
+        calmo: 'Calm',
+        ansioso: 'Anxious',
+        eccitato: 'Excited',
+        triste: 'Sad',
+        aggressivo: 'Aggressive',
+        giocoso: 'Playful',
+        rilassato: 'Relaxed'
+      },
+      es: {
+        felice: 'Alegre',
+        calmo: 'Tranquilo',
+        ansioso: 'Ansioso',
+        eccitato: 'Emocionado',
+        triste: 'Triste',
+        aggressivo: 'Agresivo',
+        giocoso: 'Juguetón',
+        rilassato: 'Relajado'
+      }
+    };
+    
+    return emotions[language]?.[emotion.toLowerCase()] || emotion;
+  };
+  
+  const emotionName = getEmotionTranslation(analysis.primary_emotion);
+  
+  // Generate readable name based on file type
+  if (analysis.file_type === 'text') {
+    return `Analisi ${emotionName} - ${day} ${month}`;
+  } else {
+    return `Registrazione ${emotionName} - ${day} ${month} ${time}`;
+  }
+};
+
+
 interface ProcessingState {
   isProcessing: boolean;
   progress: number;
@@ -92,7 +150,7 @@ interface ProcessingState {
 
 const AnalysisPage: React.FC = () => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { toast } = useToast();
@@ -290,7 +348,7 @@ const AnalysisPage: React.FC = () => {
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(analysis => 
-        analysis.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getReadableAnalysisName(analysis, language).toLowerCase().includes(searchTerm.toLowerCase()) ||
         analysis.primary_emotion.toLowerCase().includes(searchTerm.toLowerCase()) ||
         analysis.behavioral_insights.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -857,7 +915,7 @@ const AnalysisPage: React.FC = () => {
 
       // Analysis info
       addText('INFORMAZIONI ANALISI', 14, true);
-      addText(`File: ${analysis.file_name}`);
+      addText(`File: ${getReadableAnalysisName(analysis, language)}`);
       addText(`Data: ${format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}`);
       addText(`Durata: ${String(analysis.analysis_duration)}`);
       addText(`Dimensione: ${(analysis.file_size / 1024).toFixed(1)} KB`);
@@ -964,7 +1022,7 @@ const AnalysisPage: React.FC = () => {
           }
           
           pdf.setFont('helvetica', 'bold');
-          pdf.text(`${index + 1}. ${analysis.file_name}`, 20, yPosition);
+          pdf.text(`${index + 1}. ${getReadableAnalysisName(analysis, language)}`, 20, yPosition);
           yPosition += lineHeight;
           
           pdf.setFont('helvetica', 'normal');
@@ -1814,7 +1872,7 @@ const AnalysisPage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium">{t('analysis.results.fileInfo.file')}</Label>
-                      <p className="text-sm">{detailsModal.analysis.file_name}</p>
+                      <p className="text-sm">{getReadableAnalysisName(detailsModal.analysis, language)}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">{t('pets.petType')}</Label>
@@ -2046,7 +2104,7 @@ const AnalysisPage: React.FC = () => {
                         <div key={analysis.id} className="flex items-center justify-between py-2 border-b last:border-0">
                           <div className="flex items-center gap-3">
                             <span className="text-sm text-muted-foreground">{index + 1}.</span>
-                            <span className="text-sm font-medium">{analysis.file_name}</span>
+                            <span className="text-sm font-medium">{getReadableAnalysisName(analysis, language)}</span>
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <span>{format(new Date(analysis.created_at), 'dd/MM HH:mm')}</span>
