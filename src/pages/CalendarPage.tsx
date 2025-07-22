@@ -439,6 +439,7 @@ const CalendarPage: React.FC = () => {
         events={filteredEvents}
         onDayClick={handleDayClick}
         onEventClick={handleEditEvent}
+        viewMode={viewMode}
       />
 
       {/* Event Form Modal */}

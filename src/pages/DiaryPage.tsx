@@ -384,6 +384,7 @@ const DiaryPage: React.FC = () => {
         onCurrentDateChange={setCurrentDate}
         entries={filteredEntries}
         onDayClick={handleDayClick}
+        viewMode={viewMode}
       />
 
       {/* Entry Form Modal */}
