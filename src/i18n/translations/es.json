@@ -331,7 +331,29 @@
       "preparation": "Preparando...",
       "analyzing": "Analizando Patrones Emocionales...",
       "generating": "Generando insights...",
-      "emotionalAnalysis": "Analizando emociones..."
+      "emotionalAnalysis": "Analizando emociones...",
+      "title": "Análisis en Progreso",
+      "currentFile": "Archivo",
+      "progress": "Progreso",
+      "pleaseWait": "Por favor espere...",
+      "didYouKnow": "¿Sabías que?",
+      "steps": {
+        "upload": "Subir",
+        "analysis": "Análisis IA",
+        "save": "Guardar",
+        "complete": "Completar",
+        "extractFeatures": "Extracción de características de audio",
+        "emotionalClassification": "Clasificación emocional",
+        "generateInsights": "Generando insights",
+        "createRecommendations": "Creando recomendaciones"
+      },
+      "funFacts": {
+        "uploading": "¡Los gatos tienen más de 100 vocalizaciones diferentes, mientras que los perros solo tienen 10!",
+        "analyzing": "La IA analiza más de 50 parámetros acústicos para identificar las emociones de tu mascota",
+        "saving": "Los análisis se guardan de forma segura y siempre son accesibles desde el historial",
+        "completed": "¡Análisis completado! Ahora puedes descubrir qué está pensando tu mascota 🎉",
+        "default": "¡Nuestra IA puede reconocer más de 15 emociones diferentes en tu mascota!"
+      }
     },
     "emotions": {
       "felice": "Feliz",

@@ -331,7 +331,29 @@
       "preparation": "Preparazione...",
       "analyzing": "Analizzando Patterns Emotivi...",
       "generating": "Generazione insights...",
-      "emotionalAnalysis": "Analisi emozioni..."
+      "emotionalAnalysis": "Analisi emozioni...",
+      "title": "Analisi in Corso",
+      "currentFile": "File",
+      "progress": "Progresso",
+      "pleaseWait": "Attendere prego...",
+      "didYouKnow": "Lo sapevi?",
+      "steps": {
+        "upload": "Upload",
+        "analysis": "AI Analysis",
+        "save": "Save",
+        "complete": "Complete",
+        "extractFeatures": "Estrazione features audio",
+        "emotionalClassification": "Classificazione emotiva",
+        "generateInsights": "Generazione insights",
+        "createRecommendations": "Creazione raccomandazioni"
+      },
+      "funFacts": {
+        "uploading": "I gatti hanno oltre 100 vocalizzi diversi, mentre i cani ne hanno solo 10!",
+        "analyzing": "L'AI analizza oltre 50 parametri acustici per identificare le emozioni del tuo pet",
+        "saving": "Le analisi vengono salvate in modo sicuro e sono sempre accessibili dalla cronologia",
+        "completed": "Analisi completata! Ora puoi scoprire cosa pensa il tuo pet 🎉",
+        "default": "La nostra IA può riconoscere oltre 15 diverse emozioni nel tuo pet!"
+      }
     },
     "emotions": {
       "felice": "Felice",

@@ -331,7 +331,29 @@
       "preparation": "Preparing...",
       "analyzing": "Analyzing Emotional Patterns...",
       "generating": "Generating insights...",
-      "emotionalAnalysis": "Analyzing emotions..."
+      "emotionalAnalysis": "Analyzing emotions...",
+      "title": "Analysis in Progress",
+      "currentFile": "File",
+      "progress": "Progress",
+      "pleaseWait": "Please wait...",
+      "didYouKnow": "Did you know?",
+      "steps": {
+        "upload": "Upload",
+        "analysis": "AI Analysis",
+        "save": "Save",
+        "complete": "Complete",
+        "extractFeatures": "Audio feature extraction",
+        "emotionalClassification": "Emotional classification",
+        "generateInsights": "Generating insights",
+        "createRecommendations": "Creating recommendations"
+      },
+      "funFacts": {
+        "uploading": "Cats have over 100 different vocalizations, while dogs only have 10!",
+        "analyzing": "AI analyzes over 50 acoustic parameters to identify your pet's emotions",
+        "saving": "Analyses are saved securely and are always accessible from history",
+        "completed": "Analysis completed! Now you can discover what your pet is thinking 🎉",
+        "default": "Our AI can recognize over 15 different emotions in your pet!"
+      }
     },
     "emotions": {
       "felice": "Happy",
