@@ -1161,7 +1161,7 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
