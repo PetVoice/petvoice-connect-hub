@@ -193,7 +193,20 @@ const AnalysisPage: React.FC = () => {
   const { toast } = useToast();
   const { subscription } = useSubscription();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
-  const { triggerAnalysisCompleted } = useNotificationEventsContext();
+  const notificationEvents = (() => {
+    try {
+      return useNotificationEventsContext();
+    } catch (error) {
+      console.warn('NotificationEventsContext not available:', error);
+      return {
+        triggerAnalysisCompleted: () => console.warn('Analysis completed notification not available'),
+        triggerDiaryAdded: () => console.warn('Diary added notification not available'),
+        triggerWellnessReminder: () => console.warn('Wellness reminder notification not available'),
+        triggerAppointmentReminder: () => console.warn('Appointment reminder notification not available'),
+      };
+    }
+  })();
+  const { triggerAnalysisCompleted } = notificationEvents;
   const [activeTab, setActiveTab] = useState(() => {
     // Leggi il parametro tab dall'URL, default a 'upload'
     const tab = searchParams.get('tab');

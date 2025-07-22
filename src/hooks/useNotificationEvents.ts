@@ -5,11 +5,12 @@ import { useNotifications } from './useNotifications';
 import { useTranslation } from './useTranslation';
 
 export function useNotificationEvents() {
-  const { user } = useAuth();
-  const { pets } = usePets();
-  const { addNotification } = useNotifications();
-  const { t } = useTranslation();
-  const previousPetsCount = useRef(pets.length);
+  try {
+    const { user } = useAuth();
+    const { pets } = usePets();
+    const { addNotification } = useNotifications();
+    const { t } = useTranslation();
+    const previousPetsCount = useRef(pets.length);
 
   // Notifica quando viene aggiunto un nuovo pet
   useEffect(() => {
@@ -111,4 +112,14 @@ export function useNotificationEvents() {
     triggerWellnessReminder,
     triggerAppointmentReminder
   };
+  } catch (error) {
+    console.error('Error in useNotificationEvents:', error);
+    // Return fallback functions
+    return {
+      triggerAnalysisCompleted: () => console.warn('Notification events not available'),
+      triggerDiaryAdded: () => console.warn('Notification events not available'),
+      triggerWellnessReminder: () => console.warn('Notification events not available'),
+      triggerAppointmentReminder: () => console.warn('Notification events not available'),
+    };
+  }
 }
