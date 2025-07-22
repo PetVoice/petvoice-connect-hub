@@ -378,7 +378,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         insightsShort: 'Insights',
         analysis: 'Analisi',
         shareAnalysisTitle: 'Condividi Analisi',
-        shareAnalysisDescription: 'Scegli come condividere i risultati dell\'analisi di'
+        shareAnalysisDescription: 'Scegli come condividere i risultati dell\'analisi di',
+        facebook: 'Facebook',
+        twitter: 'Twitter',
+        whatsapp: 'WhatsApp',
+        email: 'Email'
       },
       en: {
         // Existing translations
@@ -518,7 +522,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         insightsShort: 'Insights',
         analysis: 'Analysis',
         shareAnalysisTitle: 'Share Analysis',
-        shareAnalysisDescription: 'Choose how to share the analysis results of'
+        shareAnalysisDescription: 'Choose how to share the analysis results of',
+        facebook: 'Facebook',
+        twitter: 'Twitter',
+        whatsapp: 'WhatsApp',
+        email: 'Email'
       },
       es: {
         // Existing translations
@@ -658,7 +666,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         insightsShort: 'Información',
         analysis: 'Análisis',
         shareAnalysisTitle: 'Compartir Análisis',
-        shareAnalysisDescription: 'Elige cómo compartir los resultados del análisis de'
+        shareAnalysisDescription: 'Elige cómo compartir los resultados del análisis de',
+        facebook: 'Facebook',
+        twitter: 'Twitter',
+        whatsapp: 'WhatsApp',
+        email: 'Correo'
       }
     };
     return texts[language]?.[key] || texts.it[key] || key;
@@ -1983,7 +1995,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   setShareDialogOpen(false);
                 }}
               >
-                <div className="capitalize">{template.platform}</div>
+                <div>{getText(template.platform.toLowerCase())}</div>
               </Button>
             ))}
           </div>
