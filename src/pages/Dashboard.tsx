@@ -16,7 +16,8 @@ import {
   Clock,
   Star,
   Plus,
-  Cloud
+  Cloud,
+  Home
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -356,7 +357,7 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Activity className="h-8 w-8 text-primary" />
+            <Home className="h-8 w-8 text-primary" />
             Ciao {getUserName()}! 👋
           </h1>
           <p className="text-muted-foreground">

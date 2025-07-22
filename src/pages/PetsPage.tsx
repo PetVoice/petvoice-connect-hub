@@ -312,7 +312,7 @@ const PetsPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Heart className="h-8 w-8 text-primary" />
+            <PawPrint className="h-8 w-8 text-primary" />
             {t('navigation.pets')}
           </h1>
           <p className="text-muted-foreground">

@@ -36,7 +36,8 @@ import {
   FileText,
   Trash2,
   Share2,
-  Lightbulb
+  Lightbulb,
+  Microscope
 } from 'lucide-react';
 
 import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceInDays } from 'date-fns';
@@ -1338,7 +1339,7 @@ const AnalysisPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Brain className="h-8 w-8 text-primary" />
+            <Microscope className="h-8 w-8 text-primary" />
             {t('analysis.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
