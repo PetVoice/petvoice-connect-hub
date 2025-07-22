@@ -204,7 +204,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return (
       <Card className="text-center p-8">
         <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">Nessun Risultato</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('analysis.history.noResults')}</h3>
         <p className="text-muted-foreground">
           Carica un file per vedere i risultati dell'analisi
         </p>
@@ -229,7 +229,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
   const getConfidenceLabel = (confidence: number) => {
     if (confidence >= 90) return 'Molto Alta';
-    if (confidence >= 75) return 'Alta';
+    if (confidence >= 75) return 'Alta'; 
     if (confidence >= 60) return 'Media';
     return 'Bassa';
   };
@@ -237,8 +237,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const addToDiary = async (analysis: AnalysisData) => {
     if (!selectedPet) {
       toast({
-        title: "Errore",
-        description: "Nessun pet selezionato",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.selectPet'),
         variant: "destructive"
       });
       return;
@@ -272,7 +272,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     } catch (error) {
       console.error('Error adding to diary:', error);
       toast({
-        title: "Errore",
+        title: t('errors.somethingWentWrong'),
         description: "Impossibile aggiungere l'analisi al diario",
         variant: "destructive"
       });
