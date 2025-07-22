@@ -41,7 +41,7 @@ import {
 } from 'lucide-react';
 
 import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceInDays } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { it, enUS, es } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -88,10 +88,11 @@ interface AnalysisData {
 const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it') => {
   const date = new Date(analysis.created_at);
   
-  // Format date parts
-  const day = format(date, 'dd', { locale: it });
-  const month = format(date, 'MMMM', { locale: it });
-  const time = format(date, 'HH:mm', { locale: it });
+   // Format date parts based on language
+   const day = format(date, 'dd');
+   const locale = language === 'it' ? it : language === 'es' ? es : enUS;
+   const month = format(date, 'MMMM', { locale });
+   const time = format(date, 'HH:mm');
   
   // Get emotion translation
   const getEmotionTranslation = (emotion: string) => {
@@ -2175,10 +2176,12 @@ const AnalysisPage: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5" />
-              {t('analysis.modals.compare.title')}
+               {language === 'it' ? 'Confronta Analisi' : language === 'es' ? 'Comparar Análisis' : 'Compare Analyses'}
             </DialogTitle>
             <DialogDescription>
-              {`${t('analysis.modals.compare.title')} di ${compareModal.analyses.length} risultati selezionati`}
+               {language === 'it' ? `Confronto di ${compareModal.analyses.length} risultati selezionati` : 
+                language === 'es' ? `Comparación de ${compareModal.analyses.length} resultados seleccionados` : 
+                `Comparison of ${compareModal.analyses.length} selected results`}
             </DialogDescription>
           </DialogHeader>
           
@@ -2189,7 +2192,7 @@ const AnalysisPage: React.FC = () => {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">{compareModal.analyses.length}</div>
-                    <p className="text-xs text-muted-foreground">{t('analysis.modals.compare.title')}</p>
+                    <p className="text-xs text-muted-foreground">{language === 'it' ? 'Confronta Analisi' : language === 'es' ? 'Comparar Análisis' : 'Compare Analyses'}</p>
                   </CardContent>
                 </Card>
                 <Card>
