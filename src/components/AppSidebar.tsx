@@ -138,14 +138,8 @@ const AppSidebar: React.FC = () => {
                   </SidebarMenuItem>
                 );
               })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Community & Business */}
-        <SidebarGroup>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
+              
+              {/* Community items */}
               {communityItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -159,14 +153,8 @@ const AppSidebar: React.FC = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Support */}
-        <SidebarGroup>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
+              
+              {/* Support items */}
               {supportItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
