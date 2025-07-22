@@ -169,7 +169,7 @@
     "title": "Emotional Analysis",
     "subtitle": "Understand your pet's mood and behavior",
     "tabs": {
-      "upload": "Upload",
+      "upload": "New Analysis",
       "results": "Results",
       "history": "History",
       "predictions": "Predictions"

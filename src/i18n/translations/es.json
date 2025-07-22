@@ -169,7 +169,7 @@
     "title": "Análisis Emocional",
     "subtitle": "Comprende el estado de ánimo y comportamiento de tu mascota",
     "tabs": {
-      "upload": "Subir",
+      "upload": "Nuevo Análisis",
       "results": "Resultados",
       "history": "Historial",
       "predictions": "Predicciones"
