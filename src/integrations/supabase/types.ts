@@ -3374,6 +3374,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3381,6 +3385,16 @@ export type Database = {
       get_protocol_ratings_count: {
         Args: { p_protocol_id: string }
         Returns: number
+      }
+      get_tier_info: {
+        Args: { conversions_count: number }
+        Returns: {
+          tier: string
+          rate: number
+          name: string
+          min_conversions: number
+          benefits: string[]
+        }[]
       }
       get_user_subscription: {
         Args: { p_user_id: string }
@@ -3392,6 +3406,25 @@ export type Database = {
           max_pets_allowed: number
           cancellation_effective_date: string
         }[]
+      }
+      get_user_tier: {
+        Args: { p_user_id: string }
+        Returns: {
+          tier: string
+          rate: number
+          name: string
+          min_conversions: number
+          benefits: string[]
+          current_conversions: number
+        }[]
+      }
+      is_referral_code_unique: {
+        Args: { code: string }
+        Returns: boolean
+      }
+      process_pending_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       reactivate_user_subscription: {
         Args: { p_user_id: string }
