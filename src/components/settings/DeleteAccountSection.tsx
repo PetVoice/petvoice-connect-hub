@@ -58,17 +58,6 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
   
   return (
     <div className="bg-background border border-orange-200 dark:border-orange-800 rounded-lg p-6 hover:border-orange-300 dark:hover:border-orange-700 transition-colors">
-      
-      <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 mb-4">
-        <div className="flex items-start space-x-2">
-          <AlertTriangle className="w-4 h-4 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-orange-800 dark:text-orange-200">
-            <p className="font-medium mb-1">⚠️ Attenzione: Azione irreversibile</p>
-            <p>L'eliminazione dell'account è permanente e non può essere annullata. Tutti i tuoi dati, pets, analisi e abbonamenti verranno eliminati.</p>
-          </div>
-        </div>
-      </div>
-      
       <Button
         onClick={() => setShowConfirm(true)}
         variant="destructive"
