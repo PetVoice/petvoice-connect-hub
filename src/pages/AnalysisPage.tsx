@@ -219,13 +219,14 @@ const AnalysisPage: React.FC = () => {
     });
 
     try {
+      let lastAnalysisId;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        await processFile(file, i + 1, files.length);
+        lastAnalysisId = await processFile(file, i + 1, files.length);
       }
       
-      setActiveTab('results');
-      loadAllData();
+      // Usa handleAnalysisComplete per navigare al risultato specifico
+      await handleAnalysisComplete(lastAnalysisId);
       
       toast({
         title: "Successo!",
@@ -280,7 +281,7 @@ const AnalysisPage: React.FC = () => {
       stage: `Salvataggio risultati...`
     }));
 
-    const { error: dbError } = await supabase
+    const { data: analysisData, error: dbError } = await supabase
       .from('pet_analyses')
       .insert({
         user_id: (await supabase.auth.getUser()).data.user!.id,
@@ -290,7 +291,9 @@ const AnalysisPage: React.FC = () => {
         file_size: file.size,
         storage_path: uploadData.path,
         ...mockAnalysis
-      });
+      })
+      .select()
+      .single();
 
     if (dbError) throw dbError;
 
@@ -301,6 +304,8 @@ const AnalysisPage: React.FC = () => {
       progress: fileProgress + 100 / total,
       stage: current === total ? 'Completato!' : `Preparazione file ${current + 1}...`
     }));
+
+    return analysisData.id; // Ritorna l'ID dell'analisi creata
   };
 
   const generateMockAnalysis = (file: File, storagePath: string) => {

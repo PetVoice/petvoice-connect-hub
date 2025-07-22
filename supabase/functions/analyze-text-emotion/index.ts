@@ -26,27 +26,8 @@ serve(async (req) => {
 
     console.log('Processing text analysis for pet:', petId);
 
-    // Genera dati ambientali realistici
-    const now = new Date();
-    const hour = now.getHours();
-    const month = now.getMonth();
-    
-    const timeOfDay = hour < 6 ? 'notturno' : 
-                     hour < 12 ? 'mattutino' : 
-                     hour < 18 ? 'pomeridiano' : 'serale';
-    
-    const baseTemp = month >= 5 && month <= 8 ? 25 : 
-                     month >= 9 && month <= 11 ? 18 : 15;
-    const tempVariation = (Math.random() - 0.5) * 6;
-    const temperature = Math.round(baseTemp + tempVariation);
-    
-    const environmentalData = {
-      timeOfDay,
-      temperature,
-      humidity: Math.round(60 + Math.random() * 30),
-      noiseLevel: hour >= 8 && hour <= 20 ? 'moderato' : 'basso',
-      humanPresence: hour >= 7 && hour <= 23 ? 'rilevata' : 'non rilevata'
-    };
+    // Per l'analisi testuale NON generiamo dati ambientali finti
+    // L'analisi si basa solo sul contenuto del testo
 
     // USA OPENAI REALE
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -60,19 +41,14 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Sei un esperto veterinario comportamentale. Analizza il testo e usa questi dati ambientali REALI:
-            - Orario: ${timeOfDay}
-            - Temperatura: ${temperature}°C
-            - Umidità: ${environmentalData.humidity}%
-            - Rumore: ${environmentalData.noiseLevel}
-            - Presenza umana: ${environmentalData.humanPresence}
+            content: `Sei un esperto veterinario comportamentale. Analizza SOLO il testo fornito senza inventare dati ambientali che non conosci.
 
             Rispondi in JSON:
             {
               "primary_emotion": "emozione_principale",
               "confidence": numero_0_100,
               "secondary_emotions": [{"emotion": "nome", "confidence": numero}],
-              "behavioral_insights": "analisi + contesto ambientale ESATTO",
+              "behavioral_insights": "analisi comportamentale basata esclusivamente sul testo fornito",
               "recommendations": ["raccomandazione1", "raccomandazione2"],
               "triggers": ["trigger1", "trigger2"]
             }`
@@ -109,14 +85,13 @@ serve(async (req) => {
         primary_emotion: "calmo",
         confidence: 75,
         secondary_emotions: [{"emotion": "curioso", "confidence": 60}],
-        behavioral_insights: `Analisi comportamentale basata su contesto ambientale reale. ${analysisContent}`,
-        recommendations: ["Continuare il monitoraggio", "Mantenere ambiente stabile"],
-        triggers: ["Cambiamenti ambientali", "Presenza umana"]
+        behavioral_insights: `Analisi comportamentale basata sul testo fornito. ${analysisContent}`,
+        recommendations: ["Continuare il monitoraggio", "Valutare comportamento nel tempo"],
+        triggers: ["Situazioni descritte nel testo"]
       }
     }
 
-    // Assicura che il contesto ambientale sia corretto
-    analysisData.environmental_context = `Orario ${timeOfDay}. Temperatura: ${temperature}°C. Umidità: ${environmentalData.humidity}%. Livello rumore: ${environmentalData.noiseLevel}. Presenza umana: ${environmentalData.humanPresence}.`
+    // Per analisi testuale, NON aggiungiamo contesto ambientale finto
 
     // Salva nel database
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -141,7 +116,6 @@ serve(async (req) => {
         analysis_duration: null,
         metadata: {
           analysis_type: 'text_behavioral_real',
-          environmental_context: analysisData.environmental_context,
           input_text: text,
           openai_powered: true
         }
