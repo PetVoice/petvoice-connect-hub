@@ -78,10 +78,10 @@ const THERAPY_CATEGORIES: TherapySession[] = [
   {
     id: 'triste',
     category: 'Umore Basso',
-    title: 'Energia Positiva - 528Hz',
+    title: 'Energia Positiva - 40Hz',
     duration: 15,
-    description: 'Frequenza di guarigione per migliorare umore depresso e letargia',
-    frequency: '528Hz + 12Hz',
+    description: 'Stimolazione dolce per migliorare umore depresso e letargia',
+    frequency: '40Hz + 10Hz',
     icon: Zap,
     color: 'bg-azure-700',
     benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
@@ -454,16 +454,10 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           
           // CORREZIONE: Se la frequenza carrier è troppo bassa, renderla udibile
           if (rawMainFreq < 100) {
-            // Frequenze sotto 100Hz sono difficili da sentire - usa come beat invece
-            mainFreq = 220; // Frequenza udibile come carrier
-            // CORREZIONE SPECIALE per 40Hz: troppo veloce come beat, ridimensiona
-            if (rawMainFreq === 40) {
-              beatFreq = 15; // Beat più percettibile per stimolazione energetica
-              console.log(`🎵 Frequenza 40Hz corretta per essere percettibile: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
-            } else {
-              beatFreq = Math.min(rawMainFreq, 25); // Max 25Hz per beat efficaci
-              console.log(`🎵 Frequenza bassa corretta: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
-            }
+            // Frequenze sotto 100Hz: usa come carrier invece di beat per renderle udibili
+            mainFreq = rawMainFreq + 200; // Sposta in gamma udibile (es: 40Hz → 240Hz)
+            beatFreq = beatFreq; // Mantieni il beat originale
+            console.log(`🎵 Frequenza bassa spostata in gamma udibile: carrier=${mainFreq}Hz (da ${rawMainFreq}Hz), beat=${beatFreq}Hz`);
           } else {
             mainFreq = rawMainFreq;
             console.log(`🎵 Formato + normale: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
