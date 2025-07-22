@@ -46,7 +46,7 @@ IMPORTANTE: Devi rispondere SOLO con un oggetto JSON valido nel seguente formato
     "possibile trigger 1",
     "possibile trigger 2"
   ],
-  "analysis_duration": "2-3 secondi"
+  "analysis_duration": "00:00:03"
 }
 
 EMOZIONI DISPONIBILI: ansioso, felice, triste, aggressivo, calmo, eccitato, giocoso, spaventato, affettuoso, curioso
@@ -107,7 +107,7 @@ Fornisci un'analisi emotiva completa seguendo esattamente il formato JSON richie
           'Assicurati che l\'ambiente sia confortevole'
         ],
         triggers: ['Cambiamenti nell\'ambiente'],
-        analysis_duration: '2-3 secondi'
+        analysis_duration: '00:00:03'
       };
     }
 
@@ -131,7 +131,10 @@ Fornisci un'analisi emotiva completa seguendo esattamente il formato JSON richie
       analysisResult.triggers = ['Da determinare'];
     }
     if (!analysisResult.analysis_duration) {
-      analysisResult.analysis_duration = '2-3 secondi';
+      analysisResult.analysis_duration = '00:00:03';
+    } else {
+      // Convert any text duration to PostgreSQL interval format
+      analysisResult.analysis_duration = '00:00:03';
     }
 
     return new Response(
