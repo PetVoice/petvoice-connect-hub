@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Cloud, Thermometer, Droplets, Wind, Volume2, VolumeX, Car, Users } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface WeatherContextInfoProps {
   analysisDate: string;
@@ -26,9 +27,170 @@ interface EnvironmentalData {
 }
 
 const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate }) => {
+  const { language } = useTranslation();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Traduzioni per WeatherContextInfo
+  const getText = (key: string) => {
+    const texts: Record<string, Record<string, string>> = {
+      it: {
+        humidity: 'umidità',
+        wind: 'vento',
+        realEnvironmentalContext: 'Contesto Ambientale Reale:',
+        traffic: 'Traffico',
+        activity: 'Attività',
+        disturbancesDetected: 'Disturbi rilevati:',
+        loading: 'Caricamento dati ambientali reali...',
+        unavailable: 'Dati ambientali non disponibili.',
+        analysisRecorded: 'Analisi registrata',
+        during: 'durante',
+        uvIndex: 'Indice UV:',
+        favorableConditions: 'favorevoli',
+        moderateDisturbances: 'con disturbi moderati',
+        forBehavioralAnalysis: 'per l\'analisi comportamentale.',
+        environmentalConditions: 'Condizioni ambientali',
+        // Time of day
+        morning: 'mattina',
+        afternoon: 'pomeriggio',
+        evening: 'sera',
+        night: 'notte',
+        // Noise levels
+        silent: 'silenzioso',
+        quiet: 'tranquillo',
+        moderate: 'moderato',
+        noisy: 'rumoroso',
+        veryNoisy: 'molto rumoroso',
+        // Traffic levels
+        molto_basso: 'molto basso',
+        basso: 'basso',
+        moderato: 'moderato',
+        alto: 'alto',
+        molto_alto: 'molto alto',
+        // Activity levels
+        minima: 'minima',
+        limitata: 'limitata',
+        moderata: 'moderata',
+        alta: 'alta',
+        intensa: 'intensa',
+        molto_intensa: 'molto intensa',
+        // Disturbances
+        quietEnvironment: 'ambiente silenzioso',
+        vehicularTraffic: 'traffico veicolare',
+        humanVoices: 'voci umane',
+        commercialActivity: 'attività commerciali',
+        recreationalActivity: 'attività ricreative',
+        publicTransport: 'trasporto pubblico',
+        roadworks: 'lavori stradali',
+        nightVehicles: 'veicoli notturni',
+        emergencySirens: 'sirene emergenza'
+      },
+      en: {
+        humidity: 'humidity',
+        wind: 'wind',
+        realEnvironmentalContext: 'Real Environmental Context:',
+        traffic: 'Traffic',
+        activity: 'Activity',
+        disturbancesDetected: 'Disturbances detected:',
+        loading: 'Loading real environmental data...',
+        unavailable: 'Environmental data not available.',
+        analysisRecorded: 'Analysis recorded',
+        during: 'during',
+        uvIndex: 'UV Index:',
+        favorableConditions: 'favorable',
+        moderateDisturbances: 'with moderate disturbances',
+        forBehavioralAnalysis: 'for behavioral analysis.',
+        // Time of day
+        morning: 'morning',
+        afternoon: 'afternoon',
+        evening: 'evening',
+        night: 'night',
+        // Noise levels
+        silent: 'silent',
+        quiet: 'quiet',
+        moderate: 'moderate',
+        noisy: 'noisy',
+        veryNoisy: 'very noisy',
+        // Traffic levels
+        molto_basso: 'very low',
+        basso: 'low',
+        moderato: 'moderate',
+        alto: 'high',
+        molto_alto: 'very high',
+        // Activity levels
+        minima: 'minimal',
+        limitata: 'limited',
+        moderata: 'moderate',
+        alta: 'high',
+        intensa: 'intense',
+        molto_intensa: 'very intense',
+        // Disturbances
+        quietEnvironment: 'quiet environment',
+        vehicularTraffic: 'vehicular traffic',
+        humanVoices: 'human voices',
+        commercialActivity: 'commercial activity',
+        recreationalActivity: 'recreational activities',
+        publicTransport: 'public transport',
+        roadworks: 'roadworks',
+        nightVehicles: 'night vehicles',
+        emergencySirens: 'emergency sirens',
+        environmentalConditions: 'Environmental conditions'
+      },
+      es: {
+        humidity: 'humedad',
+        wind: 'viento',
+        realEnvironmentalContext: 'Contexto Ambiental Real:',
+        traffic: 'Tráfico',
+        activity: 'Actividad',
+        disturbancesDetected: 'Perturbaciones detectadas:',
+        loading: 'Cargando datos ambientales reales...',
+        unavailable: 'Datos ambientales no disponibles.',
+        analysisRecorded: 'Análisis registrado',
+        during: 'durante',
+        uvIndex: 'Índice UV:',
+        favorableConditions: 'favorables',
+        moderateDisturbances: 'con perturbaciones moderadas',
+        forBehavioralAnalysis: 'para análisis conductual.',
+        // Time of day
+        morning: 'mañana',
+        afternoon: 'tarde',
+        evening: 'noche',
+        night: 'madrugada',
+        // Noise levels
+        silent: 'silencioso',
+        quiet: 'tranquilo',
+        moderate: 'moderado',
+        noisy: 'ruidoso',
+        veryNoisy: 'muy ruidoso',
+        // Traffic levels
+        molto_basso: 'muy bajo',
+        basso: 'bajo',
+        moderato: 'moderado',
+        alto: 'alto',
+        molto_alto: 'muy alto',
+        // Activity levels
+        minima: 'mínima',
+        limitata: 'limitada',
+        moderata: 'moderada',
+        alta: 'alta',
+        intensa: 'intensa',
+        molto_intensa: 'muy intensa',
+        // Disturbances
+        quietEnvironment: 'ambiente silencioso',
+        vehicularTraffic: 'tráfico vehicular',
+        humanVoices: 'voces humanas',
+        commercialActivity: 'actividad comercial',
+        recreationalActivity: 'actividades recreativas',
+        publicTransport: 'transporte público',
+        roadworks: 'trabajos viales',
+        nightVehicles: 'vehículos nocturnos',
+        emergencySirens: 'sirenas de emergencia',
+        environmentalConditions: 'Condiciones ambientales'
+      }
+    };
+    return texts[language]?.[key] || texts.it[key] || key;
+  };
 
   useEffect(() => {
     fetchRealData();
@@ -141,22 +303,22 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
     // Estimated disturbances based on real factors
     const disturbances: string[] = [];
     
-    if (finalNoiseLevel > 60) disturbances.push('traffico veicolare');
+    if (finalNoiseLevel > 60) disturbances.push(getText('vehicularTraffic'));
     if (humanActivity === 'intensa' || humanActivity === 'molto intensa') {
-      disturbances.push('voci umane');
-      disturbances.push('attività commerciali');
+      disturbances.push(getText('humanVoices'));
+      disturbances.push(getText('commercialActivity'));
     }
     if (isWeekend && hour >= 10 && hour <= 16) {
-      disturbances.push('attività ricreative');
+      disturbances.push(getText('recreationalActivity'));
     }
     if (hour >= 7 && hour <= 9 && !isWeekend) {
-      disturbances.push('trasporto pubblico');
+      disturbances.push(getText('publicTransport'));
     }
-    if (Math.random() > 0.7) disturbances.push('lavori stradali');
+    if (Math.random() > 0.7) disturbances.push(getText('roadworks'));
     if (hour >= 22 || hour <= 6) {
-      if (Math.random() > 0.8) disturbances.push('veicoli notturni');
+      if (Math.random() > 0.8) disturbances.push(getText('nightVehicles'));
     } else {
-      if (Math.random() > 0.6) disturbances.push('sirene emergenza');
+      if (Math.random() > 0.6) disturbances.push(getText('emergencySirens'));
     }
 
     return {
@@ -164,7 +326,7 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
       trafficIntensity,
       humanActivity,
       lightingConditions,
-      estimatedDisturbances: disturbances.length > 0 ? disturbances : ['ambiente silenzioso']
+      estimatedDisturbances: disturbances.length > 0 ? disturbances : [getText('quietEnvironment')]
     };
   };
 
@@ -188,25 +350,25 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
   };
 
   const getNoiseDescription = (level: number) => {
-    if (level < 40) return 'silenzioso';
-    if (level < 50) return 'tranquillo';
-    if (level < 60) return 'moderato';
-    if (level < 70) return 'rumoroso';
-    return 'molto rumoroso';
+    if (level < 40) return getText('silent');
+    if (level < 50) return getText('quiet');
+    if (level < 60) return getText('moderate');
+    if (level < 70) return getText('noisy');
+    return getText('veryNoisy');
   };
 
   const getTimeOfDay = () => {
     const hour = new Date(analysisDate).getHours();
-    if (hour >= 6 && hour < 12) return 'mattina';
-    if (hour >= 12 && hour < 18) return 'pomeriggio';
-    if (hour >= 18 && hour < 22) return 'sera';
-    return 'notte';
+    if (hour >= 6 && hour < 12) return getText('morning');
+    if (hour >= 12 && hour < 18) return getText('afternoon');
+    if (hour >= 18 && hour < 22) return getText('evening');
+    return getText('night');
   };
 
   if (loading) {
     return (
       <p className="text-green-800 dark:text-green-200 text-sm">
-        Caricamento dati ambientali reali...
+        {getText('loading')}
       </p>
     );
   }
@@ -214,7 +376,7 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
   if (!weatherData || !environmentalData) {
     return (
       <p className="text-green-800 dark:text-green-200 text-sm">
-        Analisi registrata durante {getTimeOfDay()}. Dati ambientali non disponibili.
+        {getText('analysisRecorded')} {getText('during')} {getTimeOfDay()}. {getText('unavailable')}
       </p>
     );
   }
@@ -236,11 +398,11 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
         </div>
         <div className="flex items-center gap-1">
           <Droplets className="h-3 w-3" />
-          <span>{weatherData.humidity}% umidità</span>
+          <span>{weatherData.humidity}% {getText('humidity')}</span>
         </div>
         <div className="flex items-center gap-1">
           <Wind className="h-3 w-3" />
-          <span>{weatherData.windSpeed} km/h vento</span>
+          <span>{weatherData.windSpeed} km/h {getText('wind')}</span>
         </div>
         <div className="flex items-center gap-1">
           <Cloud className="h-3 w-3" />
@@ -250,7 +412,7 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
 
       {/* Real Environmental Data */}
       <div className="border-t border-green-200/30 pt-2 space-y-2">
-        <div className="font-medium text-xs">Contesto Ambientale Reale:</div>
+        <div className="font-medium text-xs">{getText('realEnvironmentalContext')}</div>
         
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="flex items-center gap-1">
@@ -259,11 +421,11 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
           </div>
           <div className="flex items-center gap-1">
             <Car className="h-3 w-3" />
-            <span>Traffico {environmentalData.trafficIntensity}</span>
+            <span>{getText('traffic')} {getText(environmentalData.trafficIntensity)}</span>
           </div>
           <div className="flex items-center gap-1">
             <Users className="h-3 w-3" />
-            <span>Attività {environmentalData.humanActivity}</span>
+            <span>{getText('activity')} {getText(environmentalData.humanActivity)}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-yellow-500">💡</span>
@@ -273,7 +435,7 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
 
         {environmentalData.estimatedDisturbances.length > 0 && (
           <div className="text-xs">
-            <span className="font-medium">Disturbi rilevati: </span>
+            <span className="font-medium">{getText('disturbancesDetected')} </span>
             <span className="opacity-75">
               {environmentalData.estimatedDisturbances.join(', ')}
             </span>
@@ -282,9 +444,9 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
       </div>
       
       <p className="text-xs opacity-75 mt-2 border-t border-green-200/30 pt-2">
-        Analisi registrata {getTimeOfDay()} del {new Date(analysisDate).toLocaleDateString('it-IT')}. 
-        Indice UV: {weatherData.uvIndex}/10. 
-        Condizioni ambientali {environmentalData.noiseLevel < 50 ? 'favorevoli' : 'con disturbi moderati'} per l'analisi comportamentale.
+        {getText('analysisRecorded')} {getTimeOfDay()} del {new Date(analysisDate).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'it-IT')}. 
+        {getText('uvIndex')} {weatherData.uvIndex}/10. 
+        {getText('environmentalConditions')} {environmentalData.noiseLevel < 50 ? getText('favorableConditions') : getText('moderateDisturbances')} {getText('forBehavioralAnalysis')}
       </p>
     </div>
   );
