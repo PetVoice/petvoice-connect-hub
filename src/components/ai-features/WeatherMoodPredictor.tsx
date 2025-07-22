@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface WeatherData {
   condition: string;
@@ -53,6 +54,7 @@ interface WeatherMoodPredictorProps {
 }
 
 export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredictorProps) => {
+  const { t } = useTranslation();
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [predictions, setPredictions] = useState<BehaviorPrediction[]>([]);
   const [playlist, setPlaylist] = useState<MoodPlaylist | null>(null);
@@ -348,9 +350,9 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
             <AlertCircle className="h-5 w-5 text-orange-600" />
           </div>
           <div>
-            <p className="text-orange-800 font-medium">Geolocalizzazione non disponibile</p>
+            <p className="text-orange-800 font-medium">{t('analysis.predictions.geolocationUnavailable')}</p>
             <p className="text-orange-600 text-sm">
-              Abilita la geolocalizzazione nel browser per utilizzare Weather Mood Predictor
+              {t('analysis.predictions.enableGeolocation')}
             </p>
             <Button 
               variant="outline" 
@@ -374,17 +376,17 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            Weather Mood Predictor
+            {t('analysis.predictions.weatherMoodPredictor')}
           </CardTitle>
           <CardDescription>
-            Previsioni comportamentali basate sul meteo
+            {t('analysis.predictions.weatherPredictionDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">Analizzando condizioni meteo...</p>
+              <p className="text-sm text-muted-foreground">{t('analysis.predictions.analyzingWeather')}</p>
             </div>
           </div>
         </CardContent>
@@ -399,10 +401,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            Weather Mood Predictor
+            {t('analysis.predictions.weatherMoodPredictor')}
           </CardTitle>
           <CardDescription>
-            Previsioni comportamentali basate sul meteo reale
+            {t('analysis.predictions.weatherPredictionDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -427,28 +429,28 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Droplets className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm">Umidità:</span>
+                  <span className="text-sm">{t('analysis.predictions.humidity')}</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.humidity}%</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Thermometer className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">Pressione:</span>
+                  <span className="text-sm">{t('analysis.predictions.pressure')}</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.pressure} hPa</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Wind className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">Vento:</span>
+                  <span className="text-sm">{t('analysis.predictions.wind')}</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.windSpeed} km/h</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Eye className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm">UV Index:</span>
+                  <span className="text-sm">{t('analysis.predictions.uvIndex')}</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.uvIndex}</span>
               </div>
@@ -457,10 +459,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
             <div className="flex justify-center items-center">
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">
-                  Aggiornamento automatico ogni 10 min
+                  {t('analysis.predictions.autoUpdate')}
                 </div>
                 <div className="text-xs text-green-600 font-medium mt-1">
-                  ● Dati in tempo reale
+                  {t('analysis.predictions.realTimeData')}
                 </div>
               </div>
             </div>
@@ -472,10 +474,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       {predictions.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
-              Previsioni Comportamentali
-            </CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            {t('analysis.predictions.behaviorPredictions')}
+          </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

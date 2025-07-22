@@ -1628,11 +1628,17 @@ const AnalysisPage: React.FC = () => {
                         new Date(a.created_at) >= subDays(new Date(), 30)
                       );
                       
+                      // Helper per mappare emozioni dal database alle traduzioni
+                      const isAnxiousEmotion = (emotion: string) => ['ansioso', 'anxious', 'ansioso'].includes(emotion.toLowerCase());
+                      const isSadEmotion = (emotion: string) => ['triste', 'sad', 'triste'].includes(emotion.toLowerCase());
+                      const isAggressiveEmotion = (emotion: string) => ['aggressivo', 'aggressive', 'agresivo'].includes(emotion.toLowerCase());
+                      const isHappyEmotion = (emotion: string) => ['felice', 'giocoso', 'calmo', 'happy', 'playful', 'calm', 'feliz', 'juguetón', 'tranquilo'].includes(emotion.toLowerCase());
+                      
                       // Conta emozioni specifiche negli ultimi 7 giorni
-                      const anxiousCount = last7Days.filter(a => a.primary_emotion === 'ansioso').length;
-                      const sadCount = last7Days.filter(a => a.primary_emotion === 'triste').length;
-                      const aggressiveCount = last7Days.filter(a => a.primary_emotion === 'aggressivo').length;
-                      const happyCount = last7Days.filter(a => ['felice', 'giocoso', 'calmo'].includes(a.primary_emotion)).length;
+                      const anxiousCount = last7Days.filter(a => isAnxiousEmotion(a.primary_emotion)).length;
+                      const sadCount = last7Days.filter(a => isSadEmotion(a.primary_emotion)).length;
+                      const aggressiveCount = last7Days.filter(a => isAggressiveEmotion(a.primary_emotion)).length;
+                      const happyCount = last7Days.filter(a => isHappyEmotion(a.primary_emotion)).length;
                       
                       // Pattern di confidenza
                       const avgConfidence = last7Days.length > 0 ? 
@@ -1642,13 +1648,13 @@ const AnalysisPage: React.FC = () => {
                       if (anxiousCount >= 3) {
                         recommendations.push({
                           type: 'warning',
-                          text: `⚠️ ${t('analysis.predictions.realData')}: ${anxiousCount} episodi di ansia negli ultimi 7 giorni. Raccomando consulto veterinario comportamentale.`,
+                          text: `⚠️ ${t('analysis.predictions.realData')}: ${anxiousCount} ${t('analysis.predictions.anxietyEpisodes')}`,
                           priority: 'high'
                         });
                       } else if (anxiousCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `📊 ${t('analysis.predictions.analysisReal')}: ${anxiousCount} episodi di ansia rilevati. Considera tecniche di rilassamento.`,
+                          text: `📊 ${t('analysis.predictions.analysisReal')}: ${anxiousCount} ${t('analysis.predictions.anxietyDetected')}`,
                           priority: 'medium'
                         });
                       }
@@ -1656,7 +1662,7 @@ const AnalysisPage: React.FC = () => {
                       if (sadCount >= 2) {
                         recommendations.push({
                           type: 'warning',
-                          text: `😔 ${t('analysis.predictions.patternReal')}: ${sadCount} episodi di tristezza negli ultimi 7 giorni. Aumenta le attività stimolanti.`,
+                          text: `😔 ${t('analysis.predictions.patternReal')}: ${sadCount} ${t('analysis.predictions.sadnessPattern')}`,
                           priority: 'medium'
                         });
                       }
@@ -1664,7 +1670,7 @@ const AnalysisPage: React.FC = () => {
                       if (aggressiveCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `🚨 ${t('analysis.predictions.alertReal')}: ${aggressiveCount} episodi aggressivi rilevati. Intervento comportamentale immediato consigliato.`,
+                          text: `🚨 ${t('analysis.predictions.alertReal')}: ${aggressiveCount} ${t('analysis.predictions.aggressiveAlert')}`,
                           priority: 'high'
                         });
                       }
@@ -1672,7 +1678,7 @@ const AnalysisPage: React.FC = () => {
                       if (happyCount >= 5) {
                         recommendations.push({
                           type: 'success',
-                          text: `🎉 ${t('analysis.predictions.trendPositive')}: ${happyCount} episodi felici negli ultimi 7 giorni! Mantieni le attuali strategie.`,
+                          text: `🎉 ${t('analysis.predictions.trendPositive')}: ${happyCount} ${t('analysis.predictions.happyTrend')}`,
                           priority: 'low'
                         });
                       }
@@ -1680,7 +1686,7 @@ const AnalysisPage: React.FC = () => {
                       if (avgConfidence < 70) {
                         recommendations.push({
                           type: 'info',
-                          text: `📈 QUALITÀ DATI: Confidenza media ${Math.round(avgConfidence)}%. Migliora le condizioni di registrazione.`,
+                          text: `📈 ${t('analysis.predictions.dataQuality')} ${Math.round(avgConfidence)}${t('analysis.predictions.improveRecording')}`,
                           priority: 'low'
                         });
                       }
@@ -1688,7 +1694,7 @@ const AnalysisPage: React.FC = () => {
                       if (last7Days.length < 3) {
                         recommendations.push({
                           type: 'info',
-                          text: `📅 FREQUENZA: Solo ${last7Days.length} analisi negli ultimi 7 giorni. Aumenta il monitoraggio per dati più accurati.`,
+                          text: `📅 ${t('analysis.predictions.frequency')} ${last7Days.length} ${t('analysis.predictions.analysisLast7Days')}`,
                           priority: 'medium'
                         });
                       }
@@ -1696,20 +1702,20 @@ const AnalysisPage: React.FC = () => {
                       // Analisi pattern temporali REALI
                       if (last30Days.length >= 10) {
                         const recentTrend = last7Days.length > 0 ? 
-                          last7Days.filter(a => ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)).length / last7Days.length : 0;
+                          last7Days.filter(a => isHappyEmotion(a.primary_emotion)).length / last7Days.length : 0;
                         const previousTrend = last30Days.slice(7, 14).length > 0 ?
-                          last30Days.slice(7, 14).filter(a => ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)).length / last30Days.slice(7, 14).length : 0;
+                          last30Days.slice(7, 14).filter(a => isHappyEmotion(a.primary_emotion)).length / last30Days.slice(7, 14).length : 0;
                         
                         if (recentTrend > previousTrend + 0.2) {
                           recommendations.push({
                             type: 'success',
-                            text: `📈 MIGLIORAMENTO REALE: +${Math.round((recentTrend - previousTrend) * 100)}% di emozioni positive rispetto alla settimana precedente.`,
+                            text: `📈 ${t('analysis.predictions.realImprovement')} +${Math.round((recentTrend - previousTrend) * 100)}${t('analysis.predictions.positiveEmotionsIncrease')}`,
                             priority: 'low'
                           });
                         } else if (recentTrend < previousTrend - 0.2) {
                           recommendations.push({
                             type: 'warning',
-                            text: `📉 DECLINO RILEVATO: -${Math.round((previousTrend - recentTrend) * 100)}% di emozioni positive. Necessaria attenzione.`,
+                            text: `📉 ${t('analysis.predictions.declineDetected')} -${Math.round((previousTrend - recentTrend) * 100)}${t('analysis.predictions.positiveEmotionsDecrease')}`,
                             priority: 'high'
                           });
                         }
@@ -1718,7 +1724,7 @@ const AnalysisPage: React.FC = () => {
                       if (recommendations.length === 0) {
                         recommendations.push({
                           type: 'info',
-                          text: `✅ STATO NORMALE: ${last7Days.length} analisi recenti mostrano comportamento stabile. Continua il monitoraggio regolare.`,
+                          text: `✅ ${t('analysis.predictions.normalState')} ${last7Days.length} ${t('analysis.predictions.recentAnalysesStable')}`,
                           priority: 'low'
                         });
                       }
@@ -1740,9 +1746,9 @@ const AnalysisPage: React.FC = () => {
                         <p className="text-sm font-medium">{rec.text}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-xs">
-                            {rec.priority === 'high' ? '🔴 Alta priorità' : 
-                             rec.priority === 'medium' ? '🟡 Media priorità' : 
-                             '🟢 Bassa priorità'}
+                            {rec.priority === 'high' ? t('analysis.predictions.highPriority') : 
+                             rec.priority === 'medium' ? t('analysis.predictions.mediumPriority') : 
+                             t('analysis.predictions.lowPriority')}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {t('analysis.predictions.basedOnAnalyses').replace('{{count}}', analyses.length.toString())}
