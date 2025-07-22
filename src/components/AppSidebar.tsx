@@ -103,7 +103,7 @@ const AppSidebar: React.FC = () => {
         </div>
 
         {/* Main Navigation */}
-        <SidebarGroup className="py-2" data-guide="main-navigation">
+        <SidebarGroup data-guide="main-navigation">
           <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
             {t('navigation.mainNavigation')}
           </SidebarGroupLabel>
@@ -143,7 +143,7 @@ const AppSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Community & Business */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup>
           <SidebarGroupContent className="px-2">
             <SidebarMenu className="space-y-1">
               {communityItems.map((item) => (
@@ -164,7 +164,7 @@ const AppSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Support */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup>
           <SidebarGroupContent className="px-2">
             <SidebarMenu className="space-y-1">
               {supportItems.map((item) => (
