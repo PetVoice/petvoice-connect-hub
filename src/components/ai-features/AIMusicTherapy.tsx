@@ -449,9 +449,19 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         if (frequency.includes('+')) {
           // Formato: "528Hz + 8Hz"
           const parts = frequency.split('+');
-          mainFreq = parseFloat(parts[0].replace('Hz', '').trim());
+          let rawMainFreq = parseFloat(parts[0].replace('Hz', '').trim());
           beatFreq = parseFloat(parts[1].replace('Hz', '').trim());
-          console.log(`🎵 Formato +: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+          
+          // CORREZIONE: Se la frequenza carrier è troppo bassa, renderla udibile
+          if (rawMainFreq < 100) {
+            // Frequenze sotto 100Hz sono difficili da sentire - usa come beat invece
+            mainFreq = 220; // Frequenza udibile come carrier
+            beatFreq = rawMainFreq; // La frequenza originale diventa il beat
+            console.log(`🎵 Frequenza bassa corretta: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+          } else {
+            mainFreq = rawMainFreq;
+            console.log(`🎵 Formato + normale: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
+          }
         } else if (frequency.includes('-')) {
           // Formato: "10-13Hz" - usa la frequenza media come beat
           const range = frequency.replace('Hz', '').split('-');
@@ -498,8 +508,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
         
-        // Imposta volume con logging specifico
-        const targetVolume = volume[0] / 100 * 0.1;
+        // Imposta volume più alto per frequenze più difficili da sentire
+        let targetVolume = volume[0] / 100 * 0.1;
+        
+        // Aumenta volume per frequenze basse che sono più difficili da percepire
+        if (mainFreq < 150 || beatFreq < 20) {
+          targetVolume = Math.min(targetVolume * 2, 0.3); // Raddoppia ma non oltre 0.3
+          console.log(`🎵 Volume aumentato per frequenze basse: ${targetVolume}`);
+        }
+        
         gainNode.gain.setValueAtTime(0, audioContext.currentTime);
         gainNode.gain.linearRampToValueAtTime(targetVolume, audioContext.currentTime + 0.1);
         
