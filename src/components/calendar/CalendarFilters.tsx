@@ -95,27 +95,6 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
           </Button>
         </div>
       </div>
-
-      {/* Category Filter */}
-      <div className="flex flex-wrap gap-2">
-        {Object.entries(EVENT_CATEGORIES).map(([key, category]) => (
-          <Badge
-            key={key}
-            variant={selectedCategories.includes(key) ? "default" : "outline"}
-            className={`cursor-pointer transition-colors ${
-              selectedCategories.includes(key) 
-                ? `${category.color}` 
-                : 'hover:bg-muted'
-            }`}
-            onClick={() => onCategoryToggle(key)}
-          >
-            {category.icon} {category.label}
-            {selectedCategories.includes(key) && (
-              <X className="h-3 w-3 ml-1" />
-            )}
-          </Badge>
-        ))}
-      </div>
     </div>
   );
 };

@@ -103,27 +103,6 @@ export const DiaryFilters: React.FC<DiaryFiltersProps> = ({
           </Button>
         </div>
       </div>
-
-      {/* Tags Filter */}
-      <div className="flex flex-wrap gap-2">
-        {allTags.map((tag) => (
-          <Badge
-            key={tag}
-            variant={selectedTags.includes(tag) ? "default" : "outline"}
-            className={`cursor-pointer transition-colors ${
-              selectedTags.includes(tag) 
-                ? `${getTagColor(tag)} text-white` 
-                : 'hover:bg-muted'
-            }`}
-            onClick={() => onTagToggle(tag)}
-          >
-            {tag}
-            {selectedTags.includes(tag) && (
-              <X className="h-3 w-3 ml-1" />
-            )}
-          </Badge>
-        ))}
-      </div>
     </div>
   );
 };
