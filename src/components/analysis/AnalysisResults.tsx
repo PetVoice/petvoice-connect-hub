@@ -971,7 +971,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     <div>
                       <h4 className="font-medium mb-3 flex items-center gap-2">
                         <AudioLines className="h-4 w-4" />
-                        Playlist IA Music Therapy Consigliata
+                        {getText('aiMusicTherapy')}
                       </h4>
                       <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
                         <div className="flex items-start gap-3">
@@ -1007,7 +1007,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               }}
                             >
                               <AudioLines className="h-3 w-3 mr-1" />
-                              Inizia Sessione Musicoterapia
+                              {getText('startMusicTherapy')}
                             </Button>
                           </div>
                         </div>
@@ -1038,7 +1038,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <div className="mt-6">
                         <h4 className="font-medium mb-3 flex items-center gap-2">
                           <Target className="h-4 w-4" />
-                          Protocollo di Training Raccomandato
+                          {getText('trainingProtocol')}
                         </h4>
                         <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border">
                           <div className="flex items-start gap-3">
@@ -1319,7 +1319,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                   }}
                                >
                                 <Target className="h-3 w-3 mr-1" />
-                                Inizia Protocollo Training
+                                {getText('startTrainingProtocol')}
                               </Button>
                             </div>
                           </div>
@@ -1352,7 +1352,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <div className="mt-6">
                         <h4 className="font-medium mb-3 flex items-center gap-2">
                           <Brain className="h-4 w-4" />
-                          Raccomandazioni Personalizzate
+                          {getText('personalizedRecommendations')}
                         </h4>
                         <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border">
                           <div className="space-y-3">
