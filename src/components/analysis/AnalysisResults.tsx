@@ -304,7 +304,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         withEmotion: 'con emozione',
         confidenceLevel: 'confidenza',
         daysSince: 'giorni',
-        day: 'giorno'
+        day: 'giorno',
+        followUpScheduled: 'Follow-up Programmato',
+        reminderCreated: 'Promemoria creato per il',
+        inCalendar: 'nel calendario',
+        cannotCreateReminder: 'Impossibile creare il promemoria nel calendario',
+        reportGenerated: 'Report PDF Scaricato',
+        reportSaved: 'Il report PDF è stato salvato come',
+        cannotGenerateReport: 'Impossibile generare il report PDF',
+        monitorTrigger: 'Monitora questo fattore per identificare pattern comportamentali',
+        originalRecording: 'Registrazione Originale',
+        notAudioFile: 'Questo file non è un audio. Player disponibile solo per registrazioni audio.',
+        today: 'Oggi'
       },
       en: {
         // Existing translations
@@ -370,7 +381,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         withEmotion: 'with emotion',
         confidenceLevel: 'confidence',
         daysSince: 'days',
-        day: 'day'
+        day: 'day',
+        followUpScheduled: 'Follow-up Scheduled',
+        reminderCreated: 'Reminder created for',
+        inCalendar: 'in calendar',
+        cannotCreateReminder: 'Unable to create calendar reminder',
+        reportGenerated: 'PDF Report Downloaded',
+        reportSaved: 'PDF report has been saved as',
+        cannotGenerateReport: 'Unable to generate PDF report',
+        monitorTrigger: 'Monitor this factor to identify behavioral patterns',
+        originalRecording: 'Original Recording',
+        notAudioFile: 'This file is not audio. Player available only for audio recordings.',
+        today: 'Today'
       },
       es: {
         // Existing translations
@@ -436,7 +458,18 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         withEmotion: 'con emoción',
         confidenceLevel: 'confianza',
         daysSince: 'días',
-        day: 'día'
+        day: 'día',
+        followUpScheduled: 'Seguimiento Programado',
+        reminderCreated: 'Recordatorio creado para el',
+        inCalendar: 'en el calendario',
+        cannotCreateReminder: 'No se puede crear el recordatorio del calendario',
+        reportGenerated: 'Reporte PDF Descargado',
+        reportSaved: 'El reporte PDF se ha guardado como',
+        cannotGenerateReport: 'No se puede generar el reporte PDF',
+        monitorTrigger: 'Monitorear este factor para identificar patrones de comportamiento',
+        originalRecording: 'Grabación Original',
+        notAudioFile: 'Este archivo no es audio. Reproductor disponible solo para grabaciones de audio.',
+        today: 'Hoy'
       }
     };
     return texts[language]?.[key] || texts.it[key] || key;
@@ -547,14 +580,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const scheduleFollowUp = async (analysis: AnalysisData) => {
-    if (!selectedPet) {
-      toast({
-        title: "Errore",
-        description: "Nessun pet selezionato",
-        variant: "destructive"
-      });
-      return;
-    }
+      if (!selectedPet) {
+        toast({
+          title: getText('error'),
+          description: getText('selectPet'),
+          variant: "destructive"
+        });
+        return;
+      }
 
     try {
       // Calculate suggested follow-up date (7 days from now)
@@ -580,14 +613,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       if (error) throw error;
 
       toast({
-        title: "Follow-up Programmato",
-        description: `Promemoria creato per il ${format(followUpDate, 'dd/MM/yyyy HH:mm', { locale: it })} nel calendario`,
+        title: getText('followUpScheduled'),
+        description: `${getText('reminderCreated')} ${format(followUpDate, 'dd/MM/yyyy HH:mm', { locale: it })} ${getText('inCalendar')}`,
       });
     } catch (error) {
       console.error('Error creating follow-up event:', error);
       toast({
-        title: "Errore",
-        description: "Impossibile creare il promemoria nel calendario",
+        title: getText('error'),
+        description: getText('cannotCreateReminder'),
         variant: "destructive"
       });
     }
@@ -729,14 +762,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       pdf.save(fileName);
       
       toast({
-        title: "Report PDF Scaricato",
-        description: `Il report PDF è stato salvato come ${fileName}`,
+        title: getText('reportGenerated'),
+        description: `${getText('reportSaved')} ${fileName}`,
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast({
-        title: "Errore",
-        description: "Impossibile generare il report PDF",
+        title: getText('error'),
+        description: getText('cannotGenerateReport'),
         variant: "destructive"
       });
     }
@@ -805,7 +838,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   EMOTION_COLORS[selectedAnalysis.primary_emotion] || 'text-gray-500 bg-gray-500/10'
                 )}
               >
-                {selectedAnalysis.primary_emotion.charAt(0).toUpperCase() + selectedAnalysis.primary_emotion.slice(1)}
+                {getEmotionTranslation(selectedAnalysis.primary_emotion, language)}
               </Badge>
               
               <div className="space-y-2">
@@ -877,7 +910,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         <div className="flex justify-between text-sm">
                           <span className="flex items-center gap-2">
                             <span>{EMOTION_ICONS[emotion] || '🔹'}</span>
-                            {emotion.charAt(0).toUpperCase() + emotion.slice(1)}
+                            {getEmotionTranslation(emotion, language)}
                           </span>
                           <span className="font-medium">{confidence}%</span>
                         </div>
@@ -1415,7 +1448,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4" />
-                    Possibili Trigger Identificati
+                    {getText('identifiedTriggers')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {selectedAnalysis.triggers.map((trigger, index) => (
@@ -1424,7 +1457,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           {trigger}
                         </p>
                         <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
-                          Monitora questo fattore per identificare pattern comportamentali
+                          {getText('monitorTrigger')}
                         </p>
                       </div>
                     ))}
@@ -1436,7 +1469,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
                     <AudioLines className="h-4 w-4" />
-                    Registrazione Originale
+                    {getText('originalRecording')}
                   </h4>
                   {selectedAnalysis.file_type.startsWith('audio/') ? (
                     <AudioPlayer 
@@ -1446,7 +1479,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   ) : (
                     <div className="p-4 bg-muted/50 border rounded-lg text-center">
                       <p className="text-muted-foreground">
-                        Questo file non è un audio. Player disponibile solo per registrazioni audio.
+                        {getText('notAudioFile')}
                       </p>
                     </div>
                   )}
@@ -1463,19 +1496,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => shareAnalysis(selectedAnalysis)} className="bg-azure hover:bg-azure/90 text-white">
               <Share2 className="h-4 w-4 mr-2" />
-              Condividi
+              {getText('share')}
             </Button>
             <Button onClick={() => downloadReport(selectedAnalysis)} variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Scarica Report
+              {getText('downloadReport')}
             </Button>
             <Button onClick={() => addToDiary(selectedAnalysis)} variant="outline">
               <BookOpen className="h-4 w-4 mr-2" />
-              Aggiungi al Diario
+              {getText('addToDiary')}
             </Button>
             <Button onClick={() => scheduleFollowUp(selectedAnalysis)} variant="outline">
               <Clock className="h-4 w-4 mr-2" />
-              Pianifica Follow-up
+              {getText('scheduleFollowUp')}
             </Button>
           </div>
         </CardContent>
@@ -1487,10 +1520,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Pattern Recognition
+              {getText('patternRecognition')}
             </CardTitle>
             <CardDescription>
-              Confronti con analisi precedenti
+              {getText('previousComparisons')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1505,10 +1538,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   <div className="p-4 bg-secondary/50 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Episodio Simile</span>
+                      <span className="font-medium">{getText('similarEpisode')}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} con emozione "{mostRecentOther.primary_emotion}" (confidenza {Math.round(mostRecentOther.primary_confidence * 100)}%)
+                      {getText('similarBehavior')} {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} {getText('withEmotion')} "{getEmotionTranslation(mostRecentOther.primary_emotion, language)}" ({getText('confidenceLevel')} {Math.round(mostRecentOther.primary_confidence * 100)}%)
                     </p>
                     <Button 
                       size="sm" 
@@ -1519,7 +1552,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         setShowComparisonModal(true);
                       }}
                     >
-                      Confronta Analisi
+                      {getText('compareAnalyses')}
                     </Button>
                   </div>
                 );
@@ -1548,7 +1581,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       return Number(clampedImprovement) > 0 ? `+${clampedImprovement.toFixed(1)}%` : `${clampedImprovement.toFixed(1)}%`;
                     })()}
                   </p>
-                  <p className="text-sm text-muted-foreground">Variazione Confidenza</p>
+                  <p className="text-sm text-muted-foreground">{getText('confidenceVariation')}</p>
                 </div>
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-blue-600">
@@ -1563,13 +1596,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                       
                       // Se è lo stesso giorno, mostra "Oggi"
-                      if (diffDays === 0) return 'Oggi';
-                      if (diffDays === 1) return '1 giorno';
+                      if (diffDays === 0) return getText('today');
+                      if (diffDays === 1) return `1 ${getText('day')}`;
                       
-                      return `${diffDays} giorni`;
+                      return `${diffDays} ${getText('daysSince')}`;
                     })()}
                   </p>
-                  <p className="text-sm text-muted-foreground">Dall'Ultima Analisi</p>
+                  <p className="text-sm text-muted-foreground">{getText('lastAnalysis')}</p>
                 </div>
                 <div className="p-3 border rounded-lg">
                   <p className="text-2xl font-bold text-purple-600">
@@ -1585,7 +1618,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       return `${Math.round(consistency)}%`;
                     })()}
                   </p>
-                  <p className="text-sm text-muted-foreground">Consistenza Emotiva</p>
+                  <p className="text-sm text-muted-foreground">{getText('emotionalConsistency')}</p>
                 </div>
               </div>
             </div>
