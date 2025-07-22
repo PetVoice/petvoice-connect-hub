@@ -187,8 +187,8 @@ const AnalysisPage: React.FC = () => {
     return emotionMappings[language]?.[emotion.toLowerCase()] || emotion;
   };
 
-  // Helper function to translate insights to Italian
-  const translateInsightToItalian = (insight: string) => {
+  // Helper function to translate insights using current language
+  const translateInsight = (insight: string) => {
     const keyMappings: Record<string, string> = {
       'Challenging behavior with prolonged staring and rigid movement': 'analysis.insights.challengingBehaviorStaringRigid',
       'Postura corporea rilassata con coda alzata e orecchie erette': 'analysis.insights.relaxedPostureTailEars',
@@ -1071,15 +1071,15 @@ const AnalysisPage: React.FC = () => {
         
         pdf.setFontSize(16);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('REPORT ANALISI MULTIPLE - PET VOICE', 20, yPosition);
+        pdf.text(t('analysis.pdf.multipleAnalysisTitle', 'MULTIPLE ANALYSIS REPORT - PET VOICE'), 20, yPosition);
         yPosition += 15;
         
         pdf.setFontSize(14);
-        pdf.text(`Pet: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
+        pdf.text(`${t('analysis.pdf.pet', 'Pet')}: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
         yPosition += 10;
         
         pdf.setFontSize(12);
-        pdf.text(`Numero analisi: ${selectedAnalysesData.length}`, 20, yPosition);
+        pdf.text(`${t('analysis.pdf.analysisCount', 'Analysis count')}: ${selectedAnalysesData.length}`, 20, yPosition);
         yPosition += 10;
         
         selectedAnalysesData.forEach((analysis, index) => {
@@ -1093,21 +1093,21 @@ const AnalysisPage: React.FC = () => {
           yPosition += lineHeight;
           
           pdf.setFont('helvetica', 'normal');
-          pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
+          pdf.text(`${t('analysis.pdf.date', 'Date')}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
           yPosition += lineHeight;
           
-          // Translate emotion to Italian
-          const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, 'it');
-          pdf.text(`Emozione: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
+          // Translate emotion to the current language
+          const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, language);
+          pdf.text(`${t('analysis.results.emotion', 'Emotion')}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
           yPosition += lineHeight;
           
           if (analysis.behavioral_insights) {
-            // Translate insights to Italian if they're in English
-            const translatedInsight = translateInsightToItalian(analysis.behavioral_insights);
+            // Translate insights using current language
+            const translatedInsight = translateInsight(analysis.behavioral_insights);
             const insight = translatedInsight.length > 100 
               ? translatedInsight.substring(0, 100) + '...'
               : translatedInsight;
-            pdf.text(`Insight: ${insight}`, 25, yPosition);
+            pdf.text(`${t('analysis.results.behavioralInsights', 'Behavioral Insights')}: ${insight}`, 25, yPosition);
             yPosition += lineHeight;
           }
           yPosition += 5;
