@@ -128,7 +128,7 @@ export const TermsOfService: React.FC<LegalDocumentProps> = ({ onClose }) => {
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
               Per domande sui Termini di Servizio, contatta il nostro team legale all'indirizzo: 
-              <span className="font-medium"> legal@petvoice.app</span>
+              <span className="font-medium"> petvoice2025@gmail.com</span>
             </p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export const PrivacyPolicy: React.FC<LegalDocumentProps> = ({ onClose }) => {
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
               Per esercitare i tuoi diritti o per domande sulla privacy, contatta il nostro Data Protection Officer: 
-              <span className="font-medium"> dpo@petvoice.app</span>
+              <span className="font-medium"> petvoice2025@gmail.com</span>
             </p>
           </div>
         </div>
