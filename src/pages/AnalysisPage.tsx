@@ -1792,6 +1792,17 @@ const AnalysisPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {(() => {
+                // Function to translate emotions from database (local scope)
+                const getEmotionTranslationLocal = (emotion: string, language: string): string => {
+                  const emotionMappings = {
+                    it: { felice: 'Felice', calmo: 'Calmo', ansioso: 'Ansioso', eccitato: 'Eccitato', triste: 'Triste', aggressivo: 'Aggressivo', giocoso: 'Giocoso', rilassato: 'Rilassato' },
+                    en: { felice: 'Happy', calmo: 'Calm', ansioso: 'Anxious', eccitato: 'Excited', triste: 'Sad', aggressivo: 'Aggressive', giocoso: 'Playful', rilassato: 'Relaxed' },
+                    es: { felice: 'Feliz', calmo: 'Tranquilo', ansioso: 'Ansioso', eccitato: 'Emocionado', triste: 'Triste', aggressivo: 'Agresivo', giocoso: 'Juguetón', rilassato: 'Relajado' }
+                  };
+                  
+                  return emotionMappings[language]?.[emotion.toLowerCase()] || emotion;
+                };
+                
                 // Calcola pattern stagionali REALI dalle analisi
                 const getSeasonFromDate = (date: string) => {
                   const month = new Date(date).getMonth() + 1; // 1-12
@@ -1856,7 +1867,7 @@ const AnalysisPage: React.FC = () => {
                               </div>
                               <div className="flex justify-between">
                                 <span>{t('analysis.predictions.predominantEmotion')}</span>
-                                <span className="font-medium capitalize">{getEmotionTranslation(topEmotion[0] as string, language)}</span>
+                                <span className="font-medium capitalize">{getEmotionTranslationLocal(topEmotion[0] as string, language)}</span>
                               </div>
                               <div className="pt-2 border-t">
                                 <span className="text-xs text-muted-foreground">
