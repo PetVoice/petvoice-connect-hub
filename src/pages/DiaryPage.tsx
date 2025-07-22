@@ -279,11 +279,36 @@ const DiaryPage: React.FC = () => {
     }
   };
 
-  const handleDeleteAllDayEntries = async (date: Date) => {
+  const handleDeleteEntry = async (entryId: string) => {
     try {
-      const dayEntries = entries.filter(entry => isSameDay(parseISO(entry.entry_date), date));
-      const entryIds = dayEntries.map(entry => entry.id);
+      const { error } = await supabase
+        .from('diary_entries')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) throw error;
       
+      toast({ title: "Voce eliminata", description: "La voce è stata eliminata con successo" });
+      
+      // Update modal state
+      setDayEntriesModal(prev => ({
+        ...prev,
+        entries: prev.entries.filter(entry => entry.id !== entryId)
+      }));
+      
+      loadEntries();
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare la voce",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteMultiple = async (entryIds: string[]) => {
+    try {
       const { error } = await supabase
         .from('diary_entries')
         .delete()
@@ -291,8 +316,17 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: "Voci eliminate", description: `${dayEntries.length} voci eliminate` });
-      setDayEntriesModal(prev => ({ ...prev, entries: [] }));
+      toast({ 
+        title: "Voci eliminate", 
+        description: `${entryIds.length} ${entryIds.length === 1 ? 'voce eliminata' : 'voci eliminate'} con successo` 
+      });
+      
+      // Update modal state
+      setDayEntriesModal(prev => ({
+        ...prev,
+        entries: prev.entries.filter(entry => !entryIds.includes(entry.id))
+      }));
+      
       loadEntries();
     } catch (error) {
       console.error('Error deleting entries:', error);
@@ -375,7 +409,8 @@ const DiaryPage: React.FC = () => {
           handleNewEntry(date);
         }}
         onEditEntry={handleEditEntry}
-        onDeleteAll={handleDeleteAllDayEntries}
+        onDeleteEntry={handleDeleteEntry}
+        onDeleteMultiple={handleDeleteMultiple}
       />
     </div>
   );
