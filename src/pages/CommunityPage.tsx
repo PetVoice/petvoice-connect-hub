@@ -124,16 +124,20 @@ const CommunityPage = () => {
   // Load community stats
   const loadCommunityStats = async () => {
     try {
+      console.log('🔄 Loading community stats...');
+      
       // Load total users count
       const { data: usersData, error } = await supabase
         .from('profiles')
         .select('id');
       
       if (error) {
-        console.error('Error fetching users:', error);
+        console.error('❌ Error fetching users:', error);
         setTotalUsers(0);
       } else {
-        setTotalUsers(usersData?.length || 0);
+        const userCount = usersData?.length || 0;
+        console.log('✅ Total users found:', userCount);
+        setTotalUsers(userCount);
       }
       
       // Load user counts for each group in myGroups
@@ -148,7 +152,7 @@ const CommunityPage = () => {
       }
       setGroupUserCounts(counts);
     } catch (error) {
-      console.error('Error loading community stats:', error);
+      console.error('❌ Error loading community stats:', error);
     }
   };
 
