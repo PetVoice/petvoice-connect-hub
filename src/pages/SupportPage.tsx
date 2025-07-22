@@ -704,25 +704,7 @@ const SupportPage: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer" 
-            onClick={() => setShowChatbot(true)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <MessageCircle className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-medium">Chat Live</p>
-                  <p className="text-sm text-muted-foreground">Assistenza immediata</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Card 
             className="hover:shadow-lg transition-shadow cursor-pointer"
             onClick={() => setIsUserGuideDialogOpen(true)}
