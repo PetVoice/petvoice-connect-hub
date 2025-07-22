@@ -228,6 +228,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const { selectedPet } = usePets();
+
+  // Helper function to translate analysis data
+  const translateAnalysisData = (analysis: AnalysisData | null) => {
+    if (!analysis) return { insights: '', recommendations: [], triggers: [] };
+    
+    return {
+      insights: t(analysis.behavioral_insights as any) || analysis.behavioral_insights,
+      recommendations: analysis.recommendations.map(rec => t(rec as any) || rec),
+      triggers: analysis.triggers.map(trigger => t(trigger as any) || trigger)
+    };
+  };
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -749,7 +760,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       const emotionTranslation = getEmotionTranslation(analysis.primary_emotion, language);
       const diaryData = {
         title: `${getText('emotionalAnalysis')} - ${emotionTranslation}`,
-        content: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\n${getText('primaryEmotion')}: ${emotionTranslation} (${Math.round(analysis.primary_confidence * 100)}% ${getText('confidence')})\n\n${getText('insights')}: ${analysis.behavioral_insights}\n\n${getText('recommendations')}:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\n${getText('identifiedTriggers')}: ${analysis.triggers.join(', ')}`,
+        content: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\n${getText('primaryEmotion')}: ${emotionTranslation} (${Math.round(analysis.primary_confidence * 100)}% ${getText('confidence')})\n\n${getText('insights')}: ${translateAnalysisData(analysis).insights}\n\n${getText('recommendations')}:\n${translateAnalysisData(analysis).recommendations.map(r => `• ${r}`).join('\n')}\n\n${getText('identifiedTriggers')}: ${translateAnalysisData(analysis).triggers.join(', ')}`,
         mood_score: analysis.primary_emotion === 'felice' ? 8 : 
                    analysis.primary_emotion === 'calmo' ? 7 : 
                    analysis.primary_emotion === 'triste' ? 3 : 
@@ -837,7 +848,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     content = content.replace(/\{\{pet_name\}\}/g, petName);
     content = content.replace(/\{\{emotion\}\}/g, analysis.primary_emotion);
     content = content.replace(/\{\{confidence\}\}/g, analysis.primary_confidence.toString());
-    content = content.replace(/\{\{insights\}\}/g, analysis.behavioral_insights);
+    content = content.replace(/\{\{insights\}\}/g, translateAnalysisData(analysis).insights);
     content = content.replace(/\{\{url\}\}/g, currentUrl);
 
     let shareUrl = '';
@@ -935,12 +946,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
       // Behavioral insights
       addText(getText('behavioralAnalysis').toUpperCase(), 14, true);
-      addText(analysis.behavioral_insights, 10);
+      addText(translateAnalysisData(analysis).insights, 10);
       yPosition += 10;
 
       // Recommendations
       addText('RACCOMANDAZIONI', 14, true);
-      analysis.recommendations.forEach((recommendation, index) => {
+      translateAnalysisData(analysis).recommendations.forEach((recommendation, index) => {
         addText(`${index + 1}. ${recommendation}`, 10);
       });
       yPosition += 10;
@@ -948,7 +959,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       // Triggers
       if (analysis.triggers && analysis.triggers.length > 0) {
         addText(getText('identifiedTriggers').toUpperCase(), 14, true);
-        analysis.triggers.forEach((trigger, index) => {
+        translateAnalysisData(analysis).triggers.forEach((trigger, index) => {
           addText(`• ${trigger}`, 10);
         });
         yPosition += 10;
@@ -1129,7 +1140,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     {getText('behavioralAnalysis')}
                   </h4>
                   <p className="text-blue-800 dark:text-blue-200">
-                    {selectedAnalysis.behavioral_insights}
+                    {translateAnalysisData(selectedAnalysis).insights}
                   </p>
                 </div>
 
@@ -1652,7 +1663,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     {getText('identifiedTriggers')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedAnalysis.triggers.map((trigger, index) => (
+                    {translateAnalysisData(selectedAnalysis).triggers.map((trigger, index) => (
                       <div key={index} className="p-3 border rounded-lg bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800">
                         <p className="font-medium text-orange-800 dark:text-orange-200">
                           {trigger}
