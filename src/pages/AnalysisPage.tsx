@@ -754,7 +754,7 @@ const AnalysisPage: React.FC = () => {
           file_size: description.length,
           storage_path: null,
           primary_emotion: fallbackAnalysis.primary_emotion,
-          primary_confidence: Math.round(fallbackAnalysis.primary_confidence * 100),
+          primary_confidence: fallbackAnalysis.primary_confidence, // Keep as decimal 0-1
           secondary_emotions: fallbackAnalysis.secondary_emotions,
           behavioral_insights: fallbackAnalysis.behavioral_insights,
           recommendations: fallbackAnalysis.recommendations,
@@ -822,7 +822,7 @@ const AnalysisPage: React.FC = () => {
         file_size: description.length,
         storage_path: null, // No storage path for text
         primary_emotion: data.analysis.primary_emotion,
-        primary_confidence: Math.round(data.analysis.primary_confidence * 100),
+        primary_confidence: data.analysis.primary_confidence, // Keep as decimal 0-1
         secondary_emotions: data.analysis.secondary_emotions,
         behavioral_insights: data.analysis.behavioral_insights,
         recommendations: data.analysis.recommendations,
