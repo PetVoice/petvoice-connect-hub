@@ -13,6 +13,7 @@ import {
   File
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FileUploaderProps {
   onFilesSelected: (files: FileList) => void;
@@ -46,6 +47,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   acceptedTypes = DEFAULT_ACCEPTED_TYPES,
   autoAnalyzeAudio = false // Default false per retrocompatibilità
 }) => {
+  const { t } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,23 +55,23 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const validateFile = useCallback((file: File): string | null => {
     // Check file type
     if (!acceptedTypes.includes(file.type)) {
-      return `Tipo file non supportato: ${file.type}`;
+      return t('analysis.upload.fileUploader.errors.unsupportedType', `Tipo file non supportato: ${file.type}`);
     }
 
     // Check file size
     const sizeInMB = file.size / (1024 * 1024);
     if (sizeInMB > maxSizePerFile) {
-      return `File troppo grande: ${sizeInMB.toFixed(1)}MB (max ${maxSizePerFile}MB)`;
+      return t('analysis.upload.fileUploader.errors.fileTooLarge', `File troppo grande: ${sizeInMB.toFixed(1)}MB (max ${maxSizePerFile}MB)`);
     }
 
     return null;
-  }, [acceptedTypes, maxSizePerFile]);
+  }, [acceptedTypes, maxSizePerFile, t]);
 
   const handleFiles = useCallback((files: FileList | File[]) => {
     const fileArray = Array.from(files);
     
     if (selectedFiles.length + fileArray.length > maxFiles) {
-      alert(`Massimo ${maxFiles} file consentiti`);
+      alert(t('analysis.upload.fileUploader.errors.maxFilesExceeded', `Massimo ${maxFiles} file consentiti`));
       return;
     }
 
@@ -202,10 +204,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          File Audio/Video
+          {t('analysis.upload.fileUploader.title', 'File Audio/Video')}
         </CardTitle>
         <CardDescription>
-          Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max {maxSizePerFile}MB)
+          {t('analysis.upload.fileUploader.description', `Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max ${maxSizePerFile}MB)`)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -227,13 +229,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             dragActive ? "text-coral" : "text-muted-foreground"
           )} />
           <p className="text-lg font-medium mb-2">
-            {dragActive ? "Rilascia i file qui" : "Carica i tuoi file"}
+            {dragActive ? t('analysis.upload.fileUploader.dropFilesHere', 'Rilascia i file qui') : t('analysis.upload.fileUploader.uploadFiles', 'Carica i tuoi file')}
           </p>
           <p className="text-sm text-muted-foreground mb-4">
-            Formati supportati: MP3, WAV, M4A, MP4, MOV, AVI
+            {t('analysis.upload.fileUploader.supportedFormats', 'Formati supportati: MP3, WAV, M4A, MP4, MOV, AVI')}
           </p>
           <Button variant="outline" type="button" disabled={isProcessing}>
-            Seleziona File
+            {t('analysis.upload.fileUploader.selectFiles', 'Seleziona File')}
           </Button>
           <input
             id="file-input"
@@ -250,7 +252,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         {selectedFiles.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">File Selezionati ({selectedFiles.length})</h4>
+              <h4 className="font-medium">{t('analysis.upload.fileUploader.selectedFiles', `File Selezionati (${selectedFiles.length})`)}</h4>
               <Button
                 variant="ghost"
                 size="sm"
@@ -261,7 +263,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   setSelectedFiles([]);
                 }}
               >
-                Cancella Tutti
+                {t('analysis.upload.fileUploader.clearAll', 'Cancella Tutti')}
               </Button>
             </div>
 
@@ -318,11 +320,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 {isProcessing ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                    Analisi in corso...
+                    {t('analysis.upload.fileUploader.analysisInProgress', 'Analisi in corso...')}
                   </>
                 ) : (
                   <>
-                    Inizia Analisi ({validFiles.length} file)
+                    {t('analysis.upload.fileUploader.startAnalysis', `Inizia Analisi (${validFiles.length} file)`)}
                   </>
                 )}
               </Button>
@@ -333,11 +335,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   <span className="font-medium text-green-800 dark:text-green-200">
-                    ✨ File audio caricato
+                    {t('analysis.upload.fileUploader.autoAnalysisMessage', '✨ File audio caricato')}
                   </span>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                  🚀 Avvio analisi automatica in corso...
+                  {t('analysis.upload.fileUploader.autoAnalysisSubtext', '🚀 Avvio analisi automatica in corso...')}
                 </p>
               </div>
             )}
@@ -345,7 +347,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             {hasErrors && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
                 <AlertCircle className="h-4 w-4" />
-                Alcuni file hanno errori. Correggi i problemi per procedere.
+                {t('analysis.upload.fileUploader.errorsFound', 'Alcuni file hanno errori. Correggi i problemi per procedere.')}
               </div>
             )}
           </div>
@@ -356,32 +358,30 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <div className="bg-gradient-to-r from-coral/5 to-coral/10 p-4 rounded-lg border border-coral/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">📊 Analisi Audio/Video Avanzata</h4>
+              <h4 className="font-semibold text-foreground mb-2">{t('analysis.upload.fileUploader.analysisDescription.title', '📊 Analisi Audio/Video Avanzata')}</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:
+                {t('analysis.upload.fileUploader.analysisDescription.subtitle', 'La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:')}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>🎵 Analisi delle vocalizzazioni e tono</span>
+                  <span>{t('analysis.upload.fileUploader.analysisDescription.features.vocalAnalysis', '🎵 Analisi delle vocalizzazioni e tono')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>📹 Riconoscimento espressioni facciali</span>
+                  <span>{t('analysis.upload.fileUploader.analysisDescription.features.facialRecognition', '📹 Riconoscimento espressioni facciali')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>🏃 Analisi dei movimenti corporei</span>
+                  <span>{t('analysis.upload.fileUploader.analysisDescription.features.bodyMovement', '🏃 Analisi dei movimenti corporei')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>💓 Rilevamento frequenza respiratoria</span>
+                  <span>{t('analysis.upload.fileUploader.analysisDescription.features.breathingRate', '💓 Rilevamento frequenza respiratoria')}</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                ⏱️ <strong>Tempo medio:</strong> 15-30 secondi per file • 
-                🎯 <strong>Accuratezza:</strong> 85-95% • 
-                🔬 <strong>Emozioni rilevate:</strong> Felice, Ansioso, Calmo, Triste, Aggressivo, Eccitato, Giocoso
+                {t('analysis.upload.fileUploader.analysisDescription.stats', '⏱️ Tempo medio: 15-30 secondi per file • 🎯 Accuratezza: 85-95% • 🔬 Emozioni rilevate: Felice, Ansioso, Calmo, Triste, Aggressivo, Eccitato, Giocoso')}
               </div>
             </div>
           </div>

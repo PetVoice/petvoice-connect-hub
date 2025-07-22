@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from '@/hooks/useTranslation';
+
 interface TextAnalyzerProps {
   onTextSubmitted: (description: string) => void;
   isProcessing?: boolean;
@@ -21,6 +23,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
   onTextSubmitted,
   isProcessing = false
 }) => {
+  const { t } = useTranslation();
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -28,12 +31,12 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
     const text = description.trim();
     
     if (text.length < 10) {
-      setError('La descrizione deve essere di almeno 10 caratteri');
+      setError(t('analysis.upload.textAnalyzer.errors.tooShort', 'La descrizione deve essere di almeno 10 caratteri'));
       return;
     }
     
     if (text.length > 2000) {
-      setError('La descrizione non può superare i 2000 caratteri');
+      setError(t('analysis.upload.textAnalyzer.errors.tooLong', 'La descrizione non può superare i 2000 caratteri'));
       return;
     }
 

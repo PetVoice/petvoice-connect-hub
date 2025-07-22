@@ -186,7 +186,65 @@
       "maxFileSize": "Maximum size: 50MB per file",
       "selectFiles": "Select Files",
       "or": "or",
-      "describeTextPrompt": "Describe your pet's behavior..."
+      "describeTextPrompt": "Describe your pet's behavior...",
+      "fileUploader": {
+        "title": "Audio/Video Files",
+        "description": "Drag files here or click to select. Supported: MP3, WAV, MP4, MOV (max {{maxSize}}MB)",
+        "dropFilesHere": "Drop files here",
+        "uploadFiles": "Upload your files",
+        "supportedFormats": "Supported formats: MP3, WAV, M4A, MP4, MOV, AVI",
+        "selectFiles": "Select Files",
+        "selectedFiles": "Selected Files ({{count}})",
+        "clearAll": "Clear All",
+        "startAnalysis": "Start Analysis ({{count}} files)",
+        "analysisInProgress": "Analysis in progress...",
+        "autoAnalysisMessage": "✨ Audio file uploaded",
+        "autoAnalysisSubtext": "🚀 Starting automatic analysis...",
+        "errorsFound": "Some files have errors. Fix the problems to proceed.",
+        "analysisDescription": {
+          "title": "📊 Advanced Audio/Video Analysis",
+          "subtitle": "Our AI analyzes multimedia files in depth to detect your pet's emotional state through:",
+          "features": {
+            "vocalAnalysis": "🎵 Vocal and tone analysis",
+            "facialRecognition": "📹 Facial expression recognition",
+            "bodyMovement": "🏃 Body movement analysis",
+            "breathingRate": "💓 Breathing rate detection"
+          },
+          "stats": "⏱️ Average time: 15-30 seconds per file • 🎯 Accuracy: 85-95% • 🔬 Detected emotions: Happy, Anxious, Calm, Sad, Aggressive, Excited, Playful"
+        },
+        "errors": {
+          "unsupportedType": "Unsupported file type: {{type}}",
+          "fileTooLarge": "File too large: {{size}}MB (max {{maxSize}}MB)",
+          "maxFilesExceeded": "Maximum {{maxFiles}} files allowed"
+        }
+      },
+      "audioRecorder": {
+        "title": "Audio Recording",
+        "description": "Record directly from microphone (max {{maxMinutes}} minutes)",
+        "permissionDenied": "Microphone access denied. Enable permissions in browser settings.",
+        "recordingInProgress": "Recording in progress...",
+        "clickToStart": "Click to start",
+        "audioLevels": "Audio Levels",
+        "recordingCompleted": "Recording completed",
+        "pause": "Pause",
+        "play": "Play",
+        "download": "Download",
+        "delete": "Delete", 
+        "analyze": "Analyze",
+        "autoAnalysisMessage": "✨ Recording completed",
+        "autoAnalysisSubtext": "🚀 Starting automatic analysis...",
+        "analysisDescription": {
+          "title": "🎙️ Real-Time Audio Analysis",
+          "subtitle": "Record directly from microphone for immediate analysis of your pet's vocalizations:",
+          "features": {
+            "toneAnalysis": "🔊 Vocal tone and intensity analysis",
+            "patternDetection": "📊 Sound pattern detection",
+            "instantProcessing": "⚡ Instant processing",
+            "immediateFeedback": "🎯 Immediate emotional feedback"
+          },
+          "stats": "🚀 Average time: 10-15 seconds • 🎯 Accuracy: 80-92% • ⏺️ Ideal for: Fresh vocalizations, ongoing behaviors, immediate analysis"
+        }
+      },
     },
     "results": {
       "latestAnalysis": "Latest Analysis",

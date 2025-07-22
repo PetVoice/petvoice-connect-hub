@@ -186,7 +186,65 @@
       "maxFileSize": "Tamaño máximo: 50MB por archivo",
       "selectFiles": "Seleccionar Archivos",
       "or": "o",
-      "describeTextPrompt": "Describe el comportamiento de tu mascota..."
+      "describeTextPrompt": "Describe el comportamiento de tu mascota...",
+      "fileUploader": {
+        "title": "Archivos Audio/Video",
+        "description": "Arrastra archivos aquí o haz clic para seleccionar. Soportados: MP3, WAV, MP4, MOV (máx {{maxSize}}MB)",
+        "dropFilesHere": "Suelta los archivos aquí",
+        "uploadFiles": "Sube tus archivos",
+        "supportedFormats": "Formatos soportados: MP3, WAV, M4A, MP4, MOV, AVI",
+        "selectFiles": "Seleccionar Archivos",
+        "selectedFiles": "Archivos Seleccionados ({{count}})",
+        "clearAll": "Limpiar Todo",
+        "startAnalysis": "Iniciar Análisis ({{count}} archivos)",
+        "analysisInProgress": "Análisis en progreso...",
+        "autoAnalysisMessage": "✨ Archivo de audio subido",
+        "autoAnalysisSubtext": "🚀 Iniciando análisis automático...",
+        "errorsFound": "Algunos archivos tienen errores. Corrige los problemas para continuar.",
+        "analysisDescription": {
+          "title": "📊 Análisis Audio/Video Avanzado",
+          "subtitle": "Nuestra IA analiza archivos multimedia en profundidad para detectar el estado emocional de tu mascota a través de:",
+          "features": {
+            "vocalAnalysis": "🎵 Análisis vocal y de tono",
+            "facialRecognition": "📹 Reconocimiento de expresiones faciales",
+            "bodyMovement": "🏃 Análisis de movimientos corporales",
+            "breathingRate": "💓 Detección de frecuencia respiratoria"
+          },
+          "stats": "⏱️ Tiempo promedio: 15-30 segundos por archivo • 🎯 Precisión: 85-95% • 🔬 Emociones detectadas: Feliz, Ansioso, Tranquilo, Triste, Agresivo, Emocionado, Juguetón"
+        },
+        "errors": {
+          "unsupportedType": "Tipo de archivo no soportado: {{type}}",
+          "fileTooLarge": "Archivo demasiado grande: {{size}}MB (máx {{maxSize}}MB)",
+          "maxFilesExceeded": "Máximo {{maxFiles}} archivos permitidos"
+        }
+      },
+      "audioRecorder": {
+        "title": "Grabación de Audio",
+        "description": "Graba directamente desde el micrófono (máx {{maxMinutes}} minutos)",
+        "permissionDenied": "Acceso al micrófono denegado. Habilita los permisos en la configuración del navegador.",
+        "recordingInProgress": "Grabación en progreso...",
+        "clickToStart": "Haz clic para comenzar",
+        "audioLevels": "Niveles de Audio",
+        "recordingCompleted": "Grabación completada",
+        "pause": "Pausa",
+        "play": "Reproducir",
+        "download": "Descargar",
+        "delete": "Eliminar",
+        "analyze": "Analizar",
+        "autoAnalysisMessage": "✨ Grabación completada",
+        "autoAnalysisSubtext": "🚀 Iniciando análisis automático...",
+        "analysisDescription": {
+          "title": "🎙️ Análisis de Audio en Tiempo Real",
+          "subtitle": "Graba directamente desde el micrófono para análisis inmediato de las vocalizaciones de tu mascota:",
+          "features": {
+            "toneAnalysis": "🔊 Análisis de tono e intensidad vocal",
+            "patternDetection": "📊 Detección de patrones sonoros",
+            "instantProcessing": "⚡ Procesamiento instantáneo",
+            "immediateFeedback": "🎯 Feedback emocional inmediato"
+          },
+          "stats": "🚀 Tiempo promedio: 10-15 segundos • 🎯 Precisión: 80-92% • ⏺️ Ideal para: Vocalizaciones frescas, comportamientos en curso, análisis inmediatos"
+        }
+      },
     },
     "results": {
       "latestAnalysis": "Último Análisis",

@@ -186,7 +186,65 @@
       "maxFileSize": "Dimensione massima: 50MB per file",
       "selectFiles": "Seleziona File",
       "or": "oppure",
-      "describeTextPrompt": "Descrivi il comportamento del tuo pet..."
+      "describeTextPrompt": "Descrivi il comportamento del tuo pet...",
+      "fileUploader": {
+        "title": "File Audio/Video",
+        "description": "Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max {{maxSize}}MB)",
+        "dropFilesHere": "Rilascia i file qui",
+        "uploadFiles": "Carica i tuoi file",
+        "supportedFormats": "Formati supportati: MP3, WAV, M4A, MP4, MOV, AVI",
+        "selectFiles": "Seleziona File",
+        "selectedFiles": "File Selezionati ({{count}})",
+        "clearAll": "Cancella Tutti",
+        "startAnalysis": "Inizia Analisi ({{count}} file)",
+        "analysisInProgress": "Analisi in corso...",
+        "autoAnalysisMessage": "✨ File audio caricato",
+        "autoAnalysisSubtext": "🚀 Avvio analisi automatica in corso...",
+        "errorsFound": "Alcuni file hanno errori. Correggi i problemi per procedere.",
+        "analysisDescription": {
+          "title": "📊 Analisi Audio/Video Avanzata",
+          "subtitle": "La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:",
+          "features": {
+            "vocalAnalysis": "🎵 Analisi delle vocalizzazioni e tono",
+            "facialRecognition": "📹 Riconoscimento espressioni facciali",
+            "bodyMovement": "🏃 Analisi dei movimenti corporei",
+            "breathingRate": "💓 Rilevamento frequenza respiratoria"
+          },
+          "stats": "⏱️ Tempo medio: 15-30 secondi per file • 🎯 Accuratezza: 85-95% • 🔬 Emozioni rilevate: Felice, Ansioso, Calmo, Triste, Aggressivo, Eccitato, Giocoso"
+        },
+        "errors": {
+          "unsupportedType": "Tipo file non supportato: {{type}}",
+          "fileTooLarge": "File troppo grande: {{size}}MB (max {{maxSize}}MB)",
+          "maxFilesExceeded": "Massimo {{maxFiles}} file consentiti"
+        }
+      },
+      "audioRecorder": {
+        "title": "Registrazione Audio",
+        "description": "Registra direttamente dal microfono (max {{maxMinutes}} minuti)",
+        "permissionDenied": "Accesso al microfono negato. Abilita i permessi nelle impostazioni del browser.",
+        "recordingInProgress": "Registrazione in corso...",
+        "clickToStart": "Clicca per iniziare",
+        "audioLevels": "Livelli Audio",
+        "recordingCompleted": "Registrazione completata",
+        "pause": "Pausa",
+        "play": "Riproduci",
+        "download": "Download", 
+        "delete": "Elimina",
+        "analyze": "Analizza",
+        "autoAnalysisMessage": "✨ Registrazione completata",
+        "autoAnalysisSubtext": "🚀 Avvio analisi automatica in corso...",
+        "analysisDescription": {
+          "title": "🎙️ Analisi Audio in Tempo Reale",
+          "subtitle": "Registra direttamente dal microfono per un'analisi immediata delle vocalizzazioni del tuo pet:",
+          "features": {
+            "toneAnalysis": "🔊 Analisi tono e intensità vocale",
+            "patternDetection": "📊 Rilevamento pattern sonori", 
+            "instantProcessing": "⚡ Processing istantaneo",
+            "immediateFeedback": "🎯 Feedback emotivo immediato"
+          },
+          "stats": "🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate"
+        }
+      },
     },
     "results": {
       "latestAnalysis": "Ultima Analisi",
