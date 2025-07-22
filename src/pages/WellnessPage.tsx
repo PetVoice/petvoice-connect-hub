@@ -1793,10 +1793,7 @@ const WellnessPage = () => {
     return medicalRecords.length;
   };
 
-  const getHealthScore = async () => {
-    // This function is now deprecated - use HealthScoreDisplay and HealthScoreCircle components
-    return null;
-  };
+  // Funzione deprecata rimossa - utilizzare HealthScoreDisplay e HealthScoreCircle components
 
   if (!selectedPet) {
     return (

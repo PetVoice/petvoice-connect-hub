@@ -91,6 +91,7 @@ import {
   LicenseAgreement 
 } from '@/components/legal/LegalDocuments';
 import { AccessibilityGuides } from '@/components/accessibility/AccessibilityGuides';
+import DataIntegrityDashboard from '@/components/admin/DataIntegrityDashboard';
 
 interface UserProfile {
   id: string;
@@ -1158,7 +1159,7 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
@@ -1182,6 +1183,10 @@ Continuare?
           <TabsTrigger value="accessibility" className="flex items-center gap-2">
             <Accessibility className="h-4 w-4" />
             Accessibilità
+          </TabsTrigger>
+          <TabsTrigger value="data" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Dati
           </TabsTrigger>
         </TabsList>
 
@@ -1896,6 +1901,11 @@ Continuare?
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Data Integrity Tab */}
+        <TabsContent value="data" className="space-y-6">
+          <DataIntegrityDashboard />
         </TabsContent>
 
 
