@@ -1176,7 +1176,11 @@
       "gestioneIperattivatEDeficitAttenzione": {
         "title": "Gestión de Hiperactividad y Déficit de Atención",
         "description": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
-      }
+    },
+    "search": {
+      "placeholder": "Buscar protocolos...",
+      "allCategories": "Todas las categorías"
+    }
     },
     "createProtocol": {
       "title": "Crear Nuevo Protocolo",
