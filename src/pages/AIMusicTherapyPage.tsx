@@ -4,37 +4,10 @@ import { usePets } from '@/contexts/PetContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { FirstTimeGuide } from '@/components/tutorial/FirstTimeGuide';
-import { useFirstTimeUser } from '@/hooks/useFirstTimeUser';
 
 const AIMusicTherapyPage: React.FC = () => {
   const { selectedPet } = usePets();
   const { t } = useTranslation();
-  const { isFirstTime, isLoading, markAsCompleted } = useFirstTimeUser('music_therapy');
-
-  const guideSteps = [
-    {
-      id: 'step-1',
-      title: '🎵 Analizza le Emozioni',
-      description: 'Clicca qui per far analizzare all\'intelligenza artificiale le emozioni del tuo pet attraverso i suoi comportamenti.',
-      targetSelector: '[data-tutorial="analyze-button"]',
-      position: 'bottom' as const
-    },
-    {
-      id: 'step-2', 
-      title: '🎼 Scegli la Terapia',
-      description: 'Una volta completata l\'analisi, apparirà una lista di terapie musicali specifiche per le emozioni rilevate. Clicca su una categoria per iniziare.',
-      targetSelector: '[data-tutorial="therapy-categories"]',
-      position: 'top' as const
-    },
-    {
-      id: 'step-3',
-      title: '🎧 Ascolta e Rilassa',
-      description: 'Premi play per far ascoltare al tuo pet le frequenze terapeutiche personalizzate. Osserva come si rilassa!',
-      targetSelector: '[data-tutorial="play-button"]', 
-      position: 'top' as const
-    }
-  ];
 
   if (!selectedPet) {
     return (
@@ -71,15 +44,6 @@ const AIMusicTherapyPage: React.FC = () => {
       </div>
       
       <AIMusicTherapy selectedPet={selectedPet} />
-      
-      {/* Guida per il primo accesso */}
-      {isFirstTime && !isLoading && (
-        <FirstTimeGuide
-          steps={guideSteps}
-          onComplete={markAsCompleted}
-          onSkip={markAsCompleted}
-        />
-      )}
     </div>
   );
 };
