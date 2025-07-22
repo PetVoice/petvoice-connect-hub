@@ -64,7 +64,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '528Hz + 8Hz',
     icon: Heart,
     color: 'bg-azure-500',
-    benefits: t('aiMusicTherapy.sessions.ansia.benefits').split(',')
+    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
   },
   {
     id: 'agitato',
@@ -75,7 +75,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '10-13Hz',
     icon: Waves,
     color: 'bg-azure-600',
-    benefits: t('aiMusicTherapy.sessions.iperattivazione.benefits').split(',')
+    benefits: ['Calma iperattivazione', 'Riduce agitazione', 'Rilassamento graduale', 'Controllo impulsi']
   },
   {
     id: 'triste',
@@ -86,7 +86,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '40Hz + 10Hz',
     icon: Zap,
     color: 'bg-azure-700',
-    benefits: t('aiMusicTherapy.sessions.umoreBasso.benefits').split(',')
+    benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
   },
   {
     id: 'aggressivo',
@@ -97,7 +97,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '432Hz + 8Hz',
     icon: Shield,
     color: 'bg-azure-800',
-    benefits: t('aiMusicTherapy.sessions.controlloComportamentale.benefits').split(',')
+    benefits: ['Riduce aggressività', 'Controllo emotivo', 'Calma reattività', 'Gestione impulsi']
   },
   {
     id: 'stressato',
@@ -108,7 +108,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '528Hz + 6Hz',
     icon: ShieldCheck,
     color: 'bg-azure-900',
-    benefits: t('aiMusicTherapy.sessions.stressAcuto.benefits').split(',')
+    benefits: ['Riduce cortisolo', 'Rilascia tensioni', 'Equilibra sistema nervoso', 'Recupero post-stress']
   },
   {
     id: 'pauroso',
@@ -119,7 +119,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '111Hz + 8Hz',
     icon: Moon,
     color: 'bg-azure-600',
-    benefits: t('aiMusicTherapy.sessions.supportoEmotivo.benefits').split(',')
+    benefits: ['Aumenta sicurezza', 'Riduce paure', 'Stabilizza emozioni', 'Supporto psicologico']
   }
 ];
 
@@ -194,7 +194,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           duration: playlistData.duration || 15,
           icon: Sparkles,
           color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          benefits: t('aiMusicTherapy.sessions.ansia.benefits').split(',')
+          benefits: ['Raccomandazione personalizzata', 'Basata su analisi', 'Ottimizzata per il tuo pet']
         };
         
         console.log('🎵 Setting session and hiding categories...');
