@@ -606,7 +606,149 @@
     "filterTitle": "Advanced Filters",
     "fileName": "File name, emotion...",
     "allLevelsPlaceholder": "All levels",
-    "filtersResults": "{{count}} of {{total}} analyses"
+    "filtersResults": "{{count}} of {{total}} analyses",
+    "mockData": {
+      "insights": {
+        "default": "Normal behavior observed during analysis",
+        "ansioso": {
+          "1": "Pet shows signs of generalized anxiety with tremors and restlessness",
+          "2": "Avoidance behavior and constant search for safe refuges",
+          "3": "Accelerated breathing and hypervigilance towards external stimuli",
+          "4": "Difficulty relaxing, with tendency to pace and excessive vocalizations"
+        },
+        "triste": {
+          "1": "Reduced general activity and decreased interest in play",
+          "2": "Lowered body posture with ears back and tail down",
+          "3": "Less social interaction and tendency towards isolation",
+          "4": "Reduced appetite and irregular sleep with signs of melancholy"
+        },
+        "aggressivo": {
+          "1": "High muscle tension with rigid and threatening posture",
+          "2": "Aggressive vocalizations accompanied by growling and intense barking",
+          "3": "Exacerbated territoriality and reactivity to specific stimuli",
+          "4": "Challenging behavior with prolonged staring and rigid movement"
+        },
+        "felice": {
+          "1": "High positive reactivity with fluid and playful movements",
+          "2": "Increased social interaction and active contact seeking",
+          "3": "Relaxed body posture with raised tail and erect ears",
+          "4": "Balanced energy with spontaneous interest in the surrounding environment"
+        },
+        "eccitato": {
+          "1": "Hyperactivation with frantic movement and difficulty concentrating",
+          "2": "Compulsive search for stimuli and high-intensity activities",
+          "3": "Rapid breathing alternating with acute and frequent vocalizations",
+          "4": "Difficulty in impulse control with repetitive behaviors"
+        },
+        "calmo": {
+          "1": "Deep relaxation state with regular and slow breathing",
+          "2": "Stretched and comfortable posture with completely relaxed muscles",
+          "3": "Diffuse but not hypervigilant attention towards the environment",
+          "4": "Stable emotional balance with appropriate responses to stimuli"
+        },
+        "giocoso": {
+          "1": "Behavioral activation aimed at play with repetitive sequences",
+          "2": "Dynamic social interaction with play invitation towards others",
+          "3": "Energy focused on playful activities with intensity variations",
+          "4": "Exploratory behavior with curiosity towards new objects and spaces"
+        }
+      },
+      "recommendations": {
+        "ansioso": {
+          "1": "Implement gradual desensitization techniques to triggers",
+          "2": "Create a safe zone with familiar comfort objects",
+          "3": "Introduce guided breathing exercises and muscle relaxation",
+          "4": "Evaluate the use of calming pheromones or natural supplements",
+          "5": "Maintain predictable routines to reduce uncertainty"
+        },
+        "triste": {
+          "1": "Gradually increase stimulating physical activities",
+          "2": "Implement daily interactive play sessions",
+          "3": "Increase positive social contact and cuddling",
+          "4": "Evaluate dietary changes to improve energy",
+          "5": "Monitor for possible underlying medical causes"
+        },
+        "aggressivo": {
+          "1": "Implement immediate reactivity management protocols",
+          "2": "Work on positive leadership and impulse control",
+          "3": "Avoid identified triggers until training completion",
+          "4": "Consult a qualified behavioral expert",
+          "5": "Evaluate the environment to remove triggering factors"
+        },
+        "felice": {
+          "1": "Maintain current level of positive stimulation",
+          "2": "Continue activities that promote this emotional state",
+          "3": "Use this state to introduce new learning",
+          "4": "Document conditions that favor wellbeing",
+          "5": "Maintain a balanced routine of activity and rest"
+        },
+        "eccitato": {
+          "1": "Introduce self-control exercises and 'settle' training",
+          "2": "Temporarily reduce high-intensity stimuli",
+          "3": "Implement forced breaks during activities",
+          "4": "Work on basic commands to improve concentration",
+          "5": "Balance physical activities with calm moments"
+        },
+        "calmo": {
+          "1": "Maintain current environment that favors tranquility",
+          "2": "Use this state for advanced training sessions",
+          "3": "Gradually introduce new positive experiences",
+          "4": "Document routines that promote relaxation",
+          "5": "Maintain a stable and predictable environment"
+        },
+        "giocoso": {
+          "1": "Channel playful energy into structured activities",
+          "2": "Introduce games that stimulate the mind beyond the body",
+          "3": "Balance free play with guided play",
+          "4": "Use play as a learning tool",
+          "5": "Schedule regular and varied play sessions"
+        }
+      },
+      "triggers": {
+        "ansioso": {
+          "1": "Sudden high-intensity noises (thunder, fireworks)",
+          "2": "Separation from owner or attachment figures",
+          "3": "Presence of strangers or unknown animals in the environment",
+          "4": "Changes in daily routine or home environment"
+        },
+        "triste": {
+          "1": "Loss or prolonged absence of companions (human or animal)",
+          "2": "Reduction of usual social and recreational activities",
+          "3": "Significant seasonal or climate changes",
+          "4": "Decreased attention and social interaction"
+        },
+        "aggressivo": {
+          "1": "Territory or resource invasion (food, toys)",
+          "2": "Unwanted or forced physical contact",
+          "3": "Competition with other animals for limited resources",
+          "4": "Physical pain or undiagnosed medical discomfort"
+        },
+        "felice": {
+          "1": "Presence of owner or loved ones",
+          "2": "Preferred recreational activities (walks, games)",
+          "3": "Receiving positive attention and reinforcement",
+          "4": "Familiar and safe environments with stable routines"
+        },
+        "eccitato": {
+          "1": "Anticipation of pleasant events (meals, outings)",
+          "2": "Intense sensory stimulation (sounds, movements)",
+          "3": "Interaction with high-stimulation toys",
+          "4": "Presence of other energetic animals or people"
+        },
+        "calmo": {
+          "1": "Quiet environments with soft lighting",
+          "2": "Established relaxing routines (massages, cuddles)",
+          "3": "Absence of stressful or disturbing stimuli",
+          "4": "Presence of familiar comfort objects"
+        },
+        "giocoso": {
+          "1": "Presence of interactive or stimulating toys",
+          "2": "Interaction with other young or playful animals",
+          "3": "Open spaces that encourage exploration",
+          "4": "Specific times of day associated with play"
+        }
+      }
+    }
   },
   "diary": {
     "title": "Diary",

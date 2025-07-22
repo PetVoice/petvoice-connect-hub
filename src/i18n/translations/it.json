@@ -606,7 +606,149 @@
     "filterTitle": "Filtri Avanzati",
     "fileName": "Nome file, emozione...",
     "allLevelsPlaceholder": "Tutti i livelli",
-    "filtersResults": "{{count}} di {{total}} analisi"
+    "filtersResults": "{{count}} di {{total}} analisi",
+    "mockData": {
+      "insights": {
+        "default": "Comportamento normale osservato durante l'analisi",
+        "ansioso": {
+          "1": "Il pet manifesta segni di ansia generalizzata con tremori e irrequietezza",
+          "2": "Comportamento di evitamento e ricerca costante di rifugi sicuri",
+          "3": "Respirazione accelerata e ipervigilanza verso stimoli esterni",
+          "4": "Difficoltà a rilassarsi, con tendenza al pacing e vocalizzazioni eccessive"
+        },
+        "triste": {
+          "1": "Ridotta attività generale e diminuzione dell'interesse per il gioco",
+          "2": "Postura corporea abbassata con orecchie all'indietro e coda bassa",
+          "3": "Minore interazione sociale e tendenza all'isolamento",
+          "4": "Appetito ridotto e sonno irregolare con segni di malinconia"
+        },
+        "aggressivo": {
+          "1": "Tensione muscolare elevata con postura rigida e minacciosa",
+          "2": "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso",
+          "3": "Territorialità esacerbata e reattività a stimoli specifici",
+          "4": "Comportamento di sfida con fissazione prolungata e movimento rigido"
+        },
+        "felice": {
+          "1": "Elevata reattività positiva con movimenti fluidi e giocosi",
+          "2": "Interazione sociale aumentata e ricerca attiva di contatto",
+          "3": "Postura corporea rilassata con coda alzata e orecchie erette",
+          "4": "Energia bilanciata con interesse spontaneo per l'ambiente circostante"
+        },
+        "eccitato": {
+          "1": "Iperattivazione con movimento frenetico e difficoltà di concentrazione",
+          "2": "Ricerca compulsiva di stimoli e attività ad alta intensità",
+          "3": "Respirazione rapida alternata a vocalizzazioni acute e frequenti",
+          "4": "Difficoltà nel controllo degli impulsi con comportamenti ripetitivi"
+        },
+        "calmo": {
+          "1": "Stato di rilassamento profondo con respirazione regolare e lenta",
+          "2": "Postura distesa e confortevole con muscoli completamente decontratti",
+          "3": "Attenzione diffusa ma non ipervigilante verso l'ambiente",
+          "4": "Equilibrio emotivo stabile con risposte appropriate agli stimoli"
+        },
+        "giocoso": {
+          "1": "Attivazione comportamentale mirata al gioco con sequenze ripetitive",
+          "2": "Interazione sociale dinamica con invitation al gioco verso altri",
+          "3": "Energia focalizzata su attività ludiche con variazioni di intensità",
+          "4": "Comportamento esplorativo con curiosità verso oggetti e spazi nuovi"
+        }
+      },
+      "recommendations": {
+        "ansioso": {
+          "1": "Implementare tecniche di desensibilizzazione graduale ai trigger",
+          "2": "Creare una zona sicura con comfort objects familiari",
+          "3": "Introdurre esercizi di respirazione guidata e rilassamento muscolare",
+          "4": "Valutare l'uso di feromoni calmanti o integratori naturali",
+          "5": "Mantenere routine prevedibili per ridurre l'incertezza"
+        },
+        "triste": {
+          "1": "Aumentare gradualmente le attività fisiche stimolanti",
+          "2": "Implementare sessioni di gioco interattivo quotidiane",
+          "3": "Incrementare il contatto sociale positivo e le coccole",
+          "4": "Valutare cambiamenti nella dieta per migliorare l'energia",
+          "5": "Monitorare per possibili cause mediche sottostanti"
+        },
+        "aggressivo": {
+          "1": "Implementare protocolli di gestione della reattività immediati",
+          "2": "Lavorare sulla leadership positiva e controllo degli impulsi",
+          "3": "Evitare trigger identificati fino al completamento del training",
+          "4": "Consultare un esperto comportamentale qualificato",
+          "5": "Valutare l'ambiente per rimuovere fattori scatenanti"
+        },
+        "felice": {
+          "1": "Mantenere il livello attuale di stimolazione positiva",
+          "2": "Continuare le attività che promuovono questo stato emotivo",
+          "3": "Utilizzare questo stato per introdurre nuovi apprendimenti",
+          "4": "Documentare le condizioni che favoriscono il benessere",
+          "5": "Mantenere una routine bilanciata di attività e riposo"
+        },
+        "eccitato": {
+          "1": "Introdurre esercizi di autocontrollo e 'settle' training",
+          "2": "Ridurre temporaneamente stimoli ad alta intensità",
+          "3": "Implementare pause forzate durante le attività",
+          "4": "Lavorare sui comandi di base per migliorare la concentrazione",
+          "5": "Bilanciare attività fisiche con momenti di calma"
+        },
+        "calmo": {
+          "1": "Mantenere l'ambiente attuale che favorisce la tranquillità",
+          "2": "Utilizzare questo stato per sessioni di training avanzato",
+          "3": "Introdurre gradualmente nuove esperienze positive",
+          "4": "Documentare le routine che promuovono il rilassamento",
+          "5": "Mantenere un ambiente stabile e prevedibile"
+        },
+        "giocoso": {
+          "1": "Canalizzare l'energia ludica in attività strutturate",
+          "2": "Introdurre giochi che stimolano la mente oltre al corpo",
+          "3": "Bilanciare il gioco libero con quello guidato",
+          "4": "Utilizzare il gioco come strumento di apprendimento",
+          "5": "Programmare sessioni di gioco regolari e varie"
+        }
+      },
+      "triggers": {
+        "ansioso": {
+          "1": "Rumori improvvisi ad alta intensità (tuoni, fuochi d'artificio)",
+          "2": "Separazione dal proprietario o figure di attaccamento",
+          "3": "Presenza di estranei o animali sconosciuti nell'ambiente",
+          "4": "Cambiamenti nella routine quotidiana o nell'ambiente domestico"
+        },
+        "triste": {
+          "1": "Perdita o assenza prolungata di compagni (umani o animali)",
+          "2": "Riduzione delle attività sociali e ricreative abituali",
+          "3": "Cambiamenti stagionali o climatici significativi",
+          "4": "Diminuzione dell'attenzione e dell'interazione sociale"
+        },
+        "aggressivo": {
+          "1": "Invasione del territorio o delle risorse (cibo, giocattoli)",
+          "2": "Contatto fisico non desiderato o forzato",
+          "3": "Competizione con altri animali per risorse limitate",
+          "4": "Dolore fisico o disagio medico non diagnosticato"
+        },
+        "felice": {
+          "1": "Presenza del proprietario o di persone care",
+          "2": "Attività ricreative preferite (passeggiate, giochi)",
+          "3": "Ricevimento di attenzioni positive e rinforzi",
+          "4": "Ambienti familiari e sicuri con routine stabili"
+        },
+        "eccitato": {
+          "1": "Anticipazione di eventi piacevoli (pasti, uscite)",
+          "2": "Stimolazione sensoriale intensa (suoni, movimenti)",
+          "3": "Interazione con giocattoli ad alta stimolazione",
+          "4": "Presenza di altri animali o persone energiche"
+        },
+        "calmo": {
+          "1": "Ambienti tranquilli con illuminazione soffusa",
+          "2": "Routine rilassanti consolidate (massaggi, coccole)",
+          "3": "Assenza di stimoli stressanti o disturbanti",
+          "4": "Presenza di comfort objects familiari"
+        },
+        "giocoso": {
+          "1": "Presenza di giocattoli interattivi o stimolanti",
+          "2": "Interazione con altri animali giovani o giocosi",
+          "3": "Ambienti spazi aperti che incoraggiano l'esplorazione",
+          "4": "Orari specifici della giornata associati al gioco"
+        }
+      }
+    }
   },
   "diary": {
     "title": "Diario",
