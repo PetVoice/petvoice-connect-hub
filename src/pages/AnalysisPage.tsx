@@ -187,6 +187,19 @@ const AnalysisPage: React.FC = () => {
     return emotionMappings[language]?.[emotion.toLowerCase()] || emotion;
   };
 
+  // Helper function to translate insights to Italian
+  const translateInsightToItalian = (insight: string) => {
+    const translations: Record<string, string> = {
+      'Challenging behavior with prolonged staring and rigid movement': 'Comportamento problematico con sguardo fisso prolungato e movimenti rigidi',
+      'Postura corporea rilassata con coda alzata e orecchie erette': 'Postura corporea rilassata con coda alzata e orecchie erette',
+      'Behavioral activation aimed at play with repetitive sequences': 'Attivazione comportamentale orientata al gioco con sequenze ripetitive',
+      'Stato di rilassamento profondo con respirazione regolare e lenta': 'Stato di rilassamento profondo con respirazione regolare e lenta',
+      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso'
+    };
+    
+    return translations[insight] || insight;
+  };
+
   const { user } = useAuth();
   const { t, language } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -1079,13 +1092,18 @@ const AnalysisPage: React.FC = () => {
           pdf.setFont('helvetica', 'normal');
           pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
           yPosition += lineHeight;
-          pdf.text(`Emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 25, yPosition);
+          
+          // Translate emotion to Italian
+          const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, 'it');
+          pdf.text(`Emozione: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
           yPosition += lineHeight;
           
           if (analysis.behavioral_insights) {
-            const insight = analysis.behavioral_insights.length > 100 
-              ? analysis.behavioral_insights.substring(0, 100) + '...'
-              : analysis.behavioral_insights;
+            // Translate insights to Italian if they're in English
+            const translatedInsight = translateInsightToItalian(analysis.behavioral_insights);
+            const insight = translatedInsight.length > 100 
+              ? translatedInsight.substring(0, 100) + '...'
+              : translatedInsight;
             pdf.text(`Insight: ${insight}`, 25, yPosition);
             yPosition += lineHeight;
           }
