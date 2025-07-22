@@ -55,17 +55,18 @@
     --ring: 217.2 91.2% 59.8%;
 
     /* Gradients - Light Theme */
-    --gradient-azure: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-light)));
-    --gradient-azure-white: linear-gradient(135deg, hsl(var(--azure)), hsl(0 0% 100%));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-light)), hsl(0 0% 100%));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(210 20% 98%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 20% 98%));
+    --gradient-azure: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(0 0% 100%));
+    --gradient-azure-white: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(0 0% 100%));
+    --gradient-hero: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 75%), hsl(0 0% 100%));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(240 4.8% 98%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4.8% 98%));
 
     /* Shadows */
-    --shadow-soft: 0 4px 6px -1px hsl(var(--azure) / 0.1), 0 2px 4px -1px hsl(var(--azure) / 0.05);
-    --shadow-medium: 0 10px 15px -3px hsl(var(--azure) / 0.15), 0 4px 6px -4px hsl(var(--azure) / 0.1);
-    --shadow-glow: 0 0 0 1px hsl(var(--azure) / 0.2), 0 0 30px hsl(var(--azure-glow) / 0.4);
-    --shadow-popup: 0 0 60px hsl(var(--azure-glow) / 0.3);
+    --shadow-soft: 0 4px 6px -1px hsl(217.2 91.2% 59.8% / 0.1), 0 2px 4px -1px hsl(217.2 91.2% 59.8% / 0.05);
+    --shadow-medium: 0 10px 15px -3px hsl(217.2 91.2% 59.8% / 0.15), 0 4px 6px -4px hsl(217.2 91.2% 59.8% / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(217.2 91.2% 59.8% / 0.2), 0 0 30px hsl(217.2 91.2% 75% / 0.4);
+    --shadow-popup: 0 0 60px hsl(217.2 91.2% 75% / 0.3);
+    --shadow-dialog: 0 0 100px hsl(217.2 91.2% 59.8% / 0.4);
 
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -373,11 +374,11 @@
     --ring: 217.2 91.2% 59.8%;
 
     /* Gradients - Dark Theme */
-    --gradient-azure: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-dark)));
-    --gradient-azure-navy: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--navy)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--azure)), hsl(var(--azure-dark)), hsl(var(--navy)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--navy)), hsl(var(--navy-light)));
-    --gradient-card: linear-gradient(135deg, hsl(var(--navy-light)), hsl(var(--navy)));
+    --gradient-azure: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(222.2 84% 4.9%));
+    --gradient-azure-white: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(222.2 84% 4.9%));
+    --gradient-hero: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 45%), hsl(222.2 84% 4.9%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 17.5%));
+    --gradient-card: linear-gradient(135deg, hsl(217.2 32.6% 17.5%), hsl(222.2 84% 4.9%));
 
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 210 40% 98%;
@@ -466,7 +467,11 @@ button:not(.no-hover):hover,
   }
   
   .petvoice-button {
-    @apply bg-background text-foreground border border-border hover:bg-muted/50 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+    @apply bg-gradient-to-br from-primary to-white text-foreground border border-border hover:bg-muted/50 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
+  }
+  
+  .petvoice-button-primary {
+    @apply bg-gradient-to-br from-primary to-white text-primary-foreground border-0 transition-spring hover:scale-105 active:scale-95 shadow-soft hover:shadow-glow;
   }
   
   .petvoice-input {
@@ -474,7 +479,11 @@ button:not(.no-hover):hover,
   }
   
   .petvoice-popup {
-    @apply shadow-popup backdrop-blur-sm;
+    @apply shadow-dialog backdrop-blur-sm;
+  }
+  
+  .petvoice-dialog {
+    @apply shadow-dialog backdrop-blur-lg;
   }
   
   /* Floating animations */

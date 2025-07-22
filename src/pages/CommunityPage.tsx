@@ -126,18 +126,29 @@ const CommunityPage = () => {
     try {
       console.log('🔄 Loading community stats...');
       
-      // Load total users count
-      const { data: usersData, error } = await supabase
+      // FORCE DIRECT COUNT - bypassing any potential caching
+      const { data: allProfiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id');
+        .select('*');
       
-      if (error) {
-        console.error('❌ Error fetching users:', error);
+      console.log('📊 RAW PROFILES DATA:', allProfiles);
+      console.log('❌ PROFILES ERROR:', profilesError);
+      
+      if (profilesError) {
+        console.error('❌ Error fetching users:', profilesError);
         setTotalUsers(0);
       } else {
-        const userCount = usersData?.length || 0;
-        console.log('✅ Total users found:', userCount);
-        setTotalUsers(userCount);
+        const actualCount = allProfiles ? allProfiles.length : 0;
+        console.log('✅ ACTUAL USER COUNT:', actualCount);
+        console.log('📝 PROFILES:', allProfiles?.map(p => ({ id: p.id, name: p.display_name })));
+        
+        // FORCE UPDATE
+        setTotalUsers(actualCount);
+        
+        // Also update the UI immediately
+        setTimeout(() => {
+          setTotalUsers(actualCount);
+        }, 100);
       }
       
       // Load user counts for each group in myGroups
