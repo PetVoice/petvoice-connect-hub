@@ -580,10 +580,11 @@ export const PrivateChatWithReply: React.FC = () => {
           return [...prev, messageWithName];
         });
         
+        // Scroll sempre al messaggio appena inviato
         setTimeout(() => {
-          console.log('⬇️ Scrolling to bottom after UI update');
+          console.log('⬇️ Scrolling to bottom after sending message');
           scrollToBottom();
-        }, 50);
+        }, 100); // Timeout più lungo per assicurarsi che il DOM sia aggiornato
       }
       
       console.log('🔄 NOT reloading chats to avoid component re-render');
@@ -1143,18 +1144,6 @@ export const PrivateChatWithReply: React.FC = () => {
                       className="flex-1"
                     />
                     <Button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        console.log('🖱️ Send button clicked!!!');
-                        console.log('📝 Message content:', newMessage);
-                        console.log('📤 Selected chat:', selectedChat?.id);
-                        if (!newMessage.trim() || sendingMessage) {
-                          console.log('⚠️ Cannot send - message empty or already sending');
-                          return;
-                        }
-                        sendMessage();
-                      }}
                       disabled={!newMessage.trim() || sendingMessage}
                       size="sm"
                       type="submit"
