@@ -81,7 +81,7 @@ const TextAnalysis: React.FC<TextAnalysisProps> = ({ onAnalysisComplete, setProc
 
       toast({
         title: "Analisi completata!",
-        description: `Emozione rilevata: ${data.analysis.primary_emotion} (${data.analysis.primary_confidence}% di confidenza)`,
+        description: `Emozione rilevata: ${data.analysis.primary_emotion} (${data.analysis.confidence}% di confidenza)`,
       });
 
       setText('');
