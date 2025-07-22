@@ -169,6 +169,86 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   petName
 }) => {
   const { t, language } = useTranslation();
+
+  // Helper function for component translations
+  const getText = (key: string) => {
+    const texts: Record<string, Record<string, string>> = {
+      it: {
+        loadingHistory: 'Caricamento cronologia...',
+        noAnalysisFound: 'Nessuna Analisi Trovata',
+        noAnalysisMatch: 'Non ci sono analisi che corrispondono ai filtri selezionati',
+        selectAll: 'Seleziona tutti',
+        sortBy: 'Ordina per:',
+        date: 'Data',
+        emotion: 'Emozione',
+        confidence: 'Confidenza',
+        export: 'Esporta',
+        compare: 'Confronta',
+        delete: 'Elimina',
+        behavioralInsights: 'Insights Comportamentali',
+        secondaryEmotions: 'Emozioni Secondarie',
+        recommendations: 'Raccomandazioni',
+        moreRecommendations: 'altre raccomandazioni',
+        identifiedTriggers: 'Trigger Identificati',
+        details: 'Dettagli',
+        download: 'Download',
+        schedule: 'Pianifica',
+        loadMore: 'Carica Altri Risultati',
+        showingResults: 'Mostra 10 di {count} analisi totali',
+        at: 'alle'
+      },
+      en: {
+        loadingHistory: 'Loading history...',
+        noAnalysisFound: 'No Analysis Found',
+        noAnalysisMatch: 'There are no analyses that match the selected filters',
+        selectAll: 'Select all',
+        sortBy: 'Sort by:',
+        date: 'Date',
+        emotion: 'Emotion',
+        confidence: 'Confidence',
+        export: 'Export',
+        compare: 'Compare',
+        delete: 'Delete',
+        behavioralInsights: 'Behavioral Insights',
+        secondaryEmotions: 'Secondary Emotions',
+        recommendations: 'Recommendations',
+        moreRecommendations: 'more recommendations',
+        identifiedTriggers: 'Identified Triggers',
+        details: 'Details',
+        download: 'Download',
+        schedule: 'Schedule',
+        loadMore: 'Load More Results',
+        showingResults: 'Showing 10 of {count} total analyses',
+        at: 'at'
+      },
+      es: {
+        loadingHistory: 'Cargando historial...',
+        noAnalysisFound: 'No se Encontraron Análisis',
+        noAnalysisMatch: 'No hay análisis que coincidan con los filtros seleccionados',
+        selectAll: 'Seleccionar todos',
+        sortBy: 'Ordenar por:',
+        date: 'Fecha',
+        emotion: 'Emoción',
+        confidence: 'Confianza',
+        export: 'Exportar',
+        compare: 'Comparar',
+        delete: 'Eliminar',
+        behavioralInsights: 'Insights Conductuales',
+        secondaryEmotions: 'Emociones Secundarias',
+        recommendations: 'Recomendaciones',
+        moreRecommendations: 'más recomendaciones',
+        identifiedTriggers: 'Disparadores Identificados',
+        details: 'Detalles',
+        download: 'Descargar',
+        schedule: 'Programar',
+        loadMore: 'Cargar Más Resultados',
+        showingResults: 'Mostrando 10 de {count} análisis totales',
+        at: 'a las'
+      }
+    };
+    
+    return texts[language]?.[key] || texts.it[key] || key;
+  };
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState<'date' | 'emotion' | 'confidence'>('date');
@@ -222,7 +302,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
     
     return {
       main: `${emotionIcon} ${readableName}`,
-      subtitle: `${date} alle ${time}`,
+      subtitle: `${date} ${getText('at')} ${time}`,
       confidence: analysis.primary_confidence
     };
   };
@@ -251,7 +331,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
         <CardContent className="p-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coral"></div>
-            <span className="ml-2">Caricamento cronologia...</span>
+            <span className="ml-2">{getText('loadingHistory')}</span>
           </div>
         </CardContent>
       </Card>
@@ -263,9 +343,9 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
       <Card>
         <CardContent className="text-center p-8">
           <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h3 className="text-lg font-semibold mb-2">Nessuna Analisi Trovata</h3>
+          <h3 className="text-lg font-semibold mb-2">{getText('noAnalysisFound')}</h3>
           <p className="text-muted-foreground">
-            Non ci sono analisi che corrispondono ai filtri selezionati
+            {getText('noAnalysisMatch')}
           </p>
         </CardContent>
       </Card>
@@ -285,19 +365,19 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                   onCheckedChange={toggleSelectAll}
                 />
                 <span className="text-sm">
-                  Seleziona tutti ({selectedAnalyses.length}/{analyses.length})
+                  {getText('selectAll')} ({selectedAnalyses.length}/{analyses.length})
                 </span>
               </div>
               
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Ordina per:</span>
+                <span className="text-sm text-muted-foreground">{getText('sortBy')}</span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setSortBy('date')}
                   className={sortBy === 'date' ? 'bg-secondary' : ''}
                 >
-                  Data
+                  {getText('date')}
                 </Button>
                 <Button
                   variant="outline"
@@ -305,7 +385,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                   onClick={() => setSortBy('emotion')}
                   className={sortBy === 'emotion' ? 'bg-secondary' : ''}
                 >
-                  Emozione
+                  {getText('emotion')}
                 </Button>
                 <Button
                   variant="outline"
@@ -313,7 +393,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                   onClick={() => setSortBy('confidence')}
                   className={sortBy === 'confidence' ? 'bg-secondary' : ''}
                 >
-                  Confidenza
+                  {getText('confidence')}
                 </Button>
                 <Button
                   variant="outline"
@@ -329,15 +409,15 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline" onClick={onBatchExport}>
                   <Download className="h-4 w-4 mr-2" />
-                  Esporta ({selectedAnalyses.length})
+                  {getText('export')} ({selectedAnalyses.length})
                 </Button>
                 <Button size="sm" variant="outline" onClick={onBatchCompare}>
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  Confronta
+                  {getText('compare')}
                 </Button>
                 <Button size="sm" variant="destructive" onClick={onBatchDelete}>
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Elimina
+                  {getText('delete')}
                 </Button>
               </div>
             )}
@@ -435,7 +515,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       <div>
                         <h4 className="font-medium mb-2 flex items-center gap-2">
                           <Brain className="h-4 w-4" />
-                          Insights Comportamentali
+                          {getText('behavioralInsights')}
                         </h4>
                         <p className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-lg">
                           {analysis.behavioral_insights}
@@ -445,7 +525,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       {/* Secondary Emotions */}
                       {Object.keys(analysis.secondary_emotions).length > 0 && (
                         <div>
-                          <h4 className="font-medium mb-2">Emozioni Secondarie</h4>
+                          <h4 className="font-medium mb-2">{getText('secondaryEmotions')}</h4>
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => (
                               <Badge key={emotion} variant="outline" className="text-xs">
@@ -459,7 +539,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       {/* Recommendations */}
                       {analysis.recommendations.length > 0 && (
                         <div>
-                          <h4 className="font-medium mb-2">Raccomandazioni</h4>
+                          <h4 className="font-medium mb-2">{getText('recommendations')}</h4>
                           <ul className="text-sm text-muted-foreground space-y-1">
                             {analysis.recommendations.slice(0, 2).map((rec, index) => (
                               <li key={index} className="flex items-start gap-2">
@@ -469,7 +549,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                             ))}
                             {analysis.recommendations.length > 2 && (
                               <li className="text-xs text-muted-foreground">
-                                +{analysis.recommendations.length - 2} altre raccomandazioni
+                                +{analysis.recommendations.length - 2} {getText('moreRecommendations')}
                               </li>
                             )}
                           </ul>
@@ -479,7 +559,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       {/* Triggers */}
                       {analysis.triggers.length > 0 && (
                         <div>
-                          <h4 className="font-medium mb-2">Trigger Identificati</h4>
+                          <h4 className="font-medium mb-2">{getText('identifiedTriggers')}</h4>
                           <div className="flex flex-wrap gap-2">
                             {analysis.triggers.map((trigger, index) => (
                               <Badge key={index} variant="destructive" className="text-xs">
@@ -494,19 +574,19 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                       <div className="flex flex-wrap gap-2 pt-2">
                         <Button size="sm" variant="outline" onClick={() => onAnalysisDetails?.(analysis)}>
                           <Eye className="h-3 w-3 mr-1" />
-                          Dettagli
+                          {getText('details')}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => onAnalysisDownload?.(analysis)}>
                           <Download className="h-3 w-3 mr-1" />
-                          Download
+                          {getText('download')}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => onAnalysisSchedule?.(analysis)}>
                           <Calendar className="h-3 w-3 mr-1" />
-                          Pianifica
+                          {getText('schedule')}
                         </Button>
                         <Button size="sm" variant="outline" className="text-destructive" onClick={() => onAnalysisDelete?.(analysis.id)}>
                           <Trash2 className="h-3 w-3 mr-1" />
-                          Elimina
+                          {getText('delete')}
                         </Button>
                       </div>
                     </div>
@@ -523,10 +603,10 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
         <Card>
           <CardContent className="p-4 text-center">
             <Button variant="outline" className="w-full">
-              Carica Altri Risultati
+              {getText('loadMore')}
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
-              Mostra 10 di {analyses.length} analisi totali
+              {getText('showingResults').replace('{count}', analyses.length.toString())}
             </p>
           </CardContent>
         </Card>
