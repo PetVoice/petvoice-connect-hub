@@ -78,10 +78,10 @@ const THERAPY_CATEGORIES: TherapySession[] = [
   {
     id: 'triste',
     category: 'Umore Basso',
-    title: 'Energia Positiva - 40Hz',
+    title: 'Energia Positiva - 528Hz',
     duration: 15,
-    description: 'Stimolazione dolce per migliorare umore depresso e letargia',
-    frequency: '40Hz + 10Hz',
+    description: 'Frequenza di guarigione per migliorare umore depresso e letargia',
+    frequency: '528Hz + 12Hz',
     icon: Zap,
     color: 'bg-azure-700',
     benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
