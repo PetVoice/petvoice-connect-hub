@@ -679,7 +679,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Music className="h-6 w-6 text-primary" />
+            <Music className="h-5 w-5" />
             AI Music Therapy per {selectedPet.name}
           </CardTitle>
           <CardDescription>
