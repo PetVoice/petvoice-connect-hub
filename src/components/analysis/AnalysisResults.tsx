@@ -228,6 +228,56 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const { t, language } = useTranslation();
   const { toast } = useToast();
   const { selectedPet } = usePets();
+
+  // Helper function to translate hardcoded analysis data
+  const translateAnalysisData = (text: string, type: 'insights' | 'recommendations' | 'triggers') => {
+    // If the text looks like a translation key, return it as is
+    if (text.startsWith('analysis.')) {
+      return t(text);
+    }
+    
+    // Translation mappings for hardcoded Italian content
+    const translations: Record<string, Record<string, Record<string, string>>> = {
+      insights: {
+        it: {
+          'Stato di rilassamento profondo con respirazione regolare e lenta': 'Stato di rilassamento profondo con respirazione regolare e lenta',
+          'Comportamento calmo e rilassato': 'Comportamento calmo e rilassato',
+          'Attività ridotta, posizione di riposo': 'Attività ridotta, posizione di riposo'
+        },
+        en: {
+          'Stato di rilassamento profondo con respirazione regolare e lenta': 'Deep relaxation state with regular and slow breathing',
+          'Comportamento calmo e rilassato': 'Calm and relaxed behavior',
+          'Attività ridotta, posizione di riposo': 'Reduced activity, resting position'
+        },
+        es: {
+          'Stato di rilassamento profondo con respirazione regolare e lenta': 'Estado de relajación profunda con respiración regular y lenta',
+          'Comportamento calmo e rilassato': 'Comportamiento calmado y relajado',
+          'Attività ridotta, posizione di riposo': 'Actividad reducida, posición de descanso'
+        }
+      },
+      triggers: {
+        it: {
+          'Ambienti tranquilli con illuminazione soffusa': 'Ambienti tranquilli con illuminazione soffusa',
+          'Routine rilassanti consolidate (massaggi, coccole)': 'Routine rilassanti consolidate (massaggi, coccole)'
+        },
+        en: {
+          'Ambienti tranquilli con illuminazione soffusa': 'Quiet environments with soft lighting',
+          'Routine rilassanti consolidate (massaggi, coccole)': 'Established relaxing routines (massages, cuddles)'
+        },
+        es: {
+          'Ambienti tranquilli con illuminazione soffusa': 'Ambientes tranquilos con iluminación suave',
+          'Routine rilassanti consolidate (massaggi, coccole)': 'Rutinas relajantes establecidas (masajes, mimos)'
+        }
+      },
+      recommendations: {
+        it: {},
+        en: {},
+        es: {}
+      }
+    };
+    
+    return translations[type]?.[language]?.[text] || text;
+  };
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -1129,7 +1179,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     {getText('behavioralAnalysis')}
                   </h4>
                   <p className="text-blue-800 dark:text-blue-200">
-                    {selectedAnalysis.behavioral_insights}
+                    {translateAnalysisData(selectedAnalysis.behavioral_insights, 'insights')}
                   </p>
                 </div>
 
@@ -1655,7 +1705,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     {selectedAnalysis.triggers.map((trigger, index) => (
                       <div key={index} className="p-3 border rounded-lg bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800">
                         <p className="font-medium text-orange-800 dark:text-orange-200">
-                          {trigger}
+                          {translateAnalysisData(trigger, 'triggers')}
                         </p>
                         <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
                           {getText('monitorTrigger')}
