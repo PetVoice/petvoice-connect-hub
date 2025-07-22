@@ -476,7 +476,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           }
         }
         
-        // Crea oscillatori per binaural beats (ottimizzato)
+        // Crea oscillatori per binaural beats
         const oscillator1 = audioContext.createOscillator();
         const oscillator2 = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
@@ -487,32 +487,37 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         oscillator1.frequency.setValueAtTime(mainFreq, audioContext.currentTime);
         oscillator2.frequency.setValueAtTime(mainFreq + beatFreq, audioContext.currentTime);
         
+        console.log(`🎵 Oscillatori configurati: OSC1=${mainFreq}Hz, OSC2=${mainFreq + beatFreq}Hz`);
+        
         // Connetti tutto PRIMA di impostare il volume
         oscillator1.connect(gainNode);
         oscillator2.connect(gainNode);
         gainNode.connect(audioContext.destination);
         
-        // Salva riferimenti SUBITO
+        // Salva riferimenti SUBITO per cleanup
         oscillatorsRef.current = [oscillator1, oscillator2];
         gainNodeRef.current = gainNode;
         
-        // Imposta volume fisso ottimale per smartphone
-        const vol = 0.08; // Volume fisso medio-basso
-        gainNode.gain.setValueAtTime(vol, audioContext.currentTime);
-        console.log('Volume fisso impostato a:', vol);
+        // Imposta volume con logging specifico
+        const targetVolume = volume[0] / 100 * 0.1;
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(targetVolume, audioContext.currentTime + 0.1);
+        
+        console.log(`🎵 Volume configurato: ${targetVolume} (slider: ${volume[0]}%)`);
         
         // Avvia oscillatori IMMEDIATAMENTE
         const startTime = audioContext.currentTime;
         oscillator1.start(startTime);
         oscillator2.start(startTime);
-        console.log('Oscillatori avviati al tempo:', startTime);
+        
+        console.log(`🎵 Oscillatori avviati per "${currentSession.title}" con frequenze ${mainFreq}Hz + ${beatFreq}Hz`);
         
         // Imposta stato immediatamente per feedback visivo
         setIsPlaying(true);
         
         toast({
-          title: "Riproduzione avviata",
-          description: `Sessione "${currentSession.title}" in corso`,
+          title: "🎵 Riproduzione avviata",
+          description: `"${currentSession.title}" - ${mainFreq}Hz + ${beatFreq}Hz`,
         });
         
         // Avvia il timer della sessione
