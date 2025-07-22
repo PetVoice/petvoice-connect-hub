@@ -1127,18 +1127,25 @@ const AnalysisPage: React.FC = () => {
         
         pdf.setFontSize(16);
         pdf.setFont('helvetica', 'bold');
-        const title = t('analysis.pdf.multipleAnalysisTitle', 'MULTIPLE ANALYSIS REPORT - PET VOICE');
+        // Titolo hardcoded per ogni lingua
+        const title = language === 'it' ? 'REPORT ANALISI MULTIPLE - PET VOICE' : 
+                    language === 'es' ? 'INFORME DE ANÁLISIS MÚLTIPLES - PET VOICE' : 
+                    'MULTIPLE ANALYSIS REPORT - PET VOICE';
         pdf.text(title, 20, yPosition);
         yPosition += 15;
         
         pdf.setFontSize(14);
-        const petText = `${t('analysis.pdf.pet', 'Pet')}: ${selectedPet?.name || 'N/A'}`;
-        pdf.text(petText, 20, yPosition);
+        // Etichetta pet hardcoded
+        const petLabel = language === 'it' ? 'Pet' : language === 'es' ? 'Mascota' : 'Pet';
+        pdf.text(`${petLabel}: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
         yPosition += 10;
         
         pdf.setFontSize(12);
-        const countText = `${t('analysis.pdf.analysisCount', 'Analysis count')}: ${selectedAnalysesData.length}`;
-        pdf.text(countText, 20, yPosition);
+        // Etichetta conteggio hardcoded
+        const countLabel = language === 'it' ? 'Numero analisi' : 
+                         language === 'es' ? 'Número de análisis' : 
+                         'Analysis count';
+        pdf.text(`${countLabel}: ${selectedAnalysesData.length}`, 20, yPosition);
         yPosition += 10;
         
         selectedAnalysesData.forEach((analysis, index) => {
@@ -1152,20 +1159,21 @@ const AnalysisPage: React.FC = () => {
           yPosition += lineHeight;
           
            pdf.setFont('helvetica', 'normal');
-           // Assicuriamoci di valutare completamente le traduzioni prima di inserirle nel PDF
-           const dateLabel = t('analysis.pdf.date', 'Date');
+           // Usa testo hardcoded basato sulla lingua
+           const dateLabel = language === 'it' ? 'Data' : language === 'es' ? 'Fecha' : 'Date';
            pdf.text(`${dateLabel}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
            yPosition += lineHeight;
            
-           // Translate emotion to the current language
-           const emotionLabel = t('analysis.results.emotion', 'Emotion');
+           // Usa etichette hardcoded per le emozioni
+           const emotionLabel = language === 'it' ? 'Emozione' : language === 'es' ? 'Emoción' : 'Emotion';
            const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, language);
            pdf.text(`${emotionLabel}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
            yPosition += lineHeight;
            
            if (analysis.behavioral_insights) {
-             // Translate insights using current language
-             const insightsLabel = t('analysis.results.behavioralInsights', 'Behavioral Insights');
+             // Usa etichette hardcoded per gli insights
+             const insightsLabel = language === 'it' ? 'Insight comportamentale' : 
+                                 language === 'es' ? 'Insight conductual' : 'Behavioral insight';
              const translatedInsight = translateInsight(analysis.behavioral_insights);
              const insight = translatedInsight.length > 100 
                ? translatedInsight.substring(0, 100) + '...'
