@@ -27,6 +27,7 @@ import {
   Heart,
   Brain,
   TrendingUp,
+  TrendingDown,
   Clock,
   AlertCircle,
   CheckCircle2,
@@ -34,10 +35,11 @@ import {
   BarChart3,
   FileText,
   Trash2,
-  Share2
+  Share2,
+  Lightbulb
 } from 'lucide-react';
 
-import { format } from 'date-fns';
+import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceInDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,7 +49,8 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
-
+import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -84,6 +87,7 @@ interface ProcessingState {
 }
 
 const AnalysisPage: React.FC = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { toast } = useToast();
@@ -93,7 +97,7 @@ const AnalysisPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(() => {
     // Leggi il parametro tab dall'URL, default a 'upload'
     const tab = searchParams.get('tab');
-    return ['upload', 'results', 'history'].includes(tab || '') ? tab || 'upload' : 'upload';
+    return ['upload', 'results', 'history', 'predictions'].includes(tab || '') ? tab || 'upload' : 'upload';
   });
   const [analyses, setAnalyses] = useState<AnalysisData[]>([]);
   const [filteredAnalyses, setFilteredAnalyses] = useState<AnalysisData[]>([]);
@@ -109,22 +113,77 @@ const AnalysisPage: React.FC = () => {
   const [emotionFilter, setEmotionFilter] = useState('all');
   const [confidenceFilter, setConfidenceFilter] = useState('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
+  const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   const [detailsModal, setDetailsModal] = useState<{ open: boolean; analysis: AnalysisData | null }>({ open: false, analysis: null });
   const [compareModal, setCompareModal] = useState<{ open: boolean; analyses: AnalysisData[] }>({ open: false, analyses: [] });
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; analysisId: string | null; isMultiple: boolean }>({ open: false, analysisId: null, isMultiple: false });
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(null);
+  
+  // State per le previsioni (dalla StatsPage)
+  const [diaryData, setDiaryData] = useState<any[]>([]);
+  const [healthData, setHealthData] = useState<any[]>([]);
+  const [wellnessData, setWellnessData] = useState<any[]>([]);
+  const [predictionDateRange, setPredictionDateRange] = useState<{ from: Date; to: Date }>({
+    from: subMonths(new Date(), 1),
+    to: new Date()
+  });
 
   // Load analyses
   useEffect(() => {
     if (selectedPet) {
       loadAnalyses();
+      loadPredictionData();
     }
   }, [selectedPet]);
+  
+  // Load prediction data (per la tab Previsioni)
+  const loadPredictionData = async () => {
+    if (!selectedPet) return;
+    
+    try {
+      const { from, to } = predictionDateRange;
+      const fromStr = format(startOfDay(from), 'yyyy-MM-dd HH:mm:ss');
+      const toStr = format(endOfDay(to), 'yyyy-MM-dd HH:mm:ss');
+
+      // Fetch diary entries per le previsioni
+      const { data: diaryEntries } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .gte('entry_date', format(from, 'yyyy-MM-dd'))
+        .lte('entry_date', format(to, 'yyyy-MM-dd'))
+        .order('entry_date', { ascending: true });
+
+      // Fetch health metrics per le previsioni
+      const { data: healthMetrics } = await supabase
+        .from('health_metrics')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .gte('recorded_at', fromStr)
+        .lte('recorded_at', toStr)
+        .order('recorded_at', { ascending: true });
+
+      // Fetch wellness scores per le previsioni
+      const { data: wellnessScores } = await supabase
+        .from('pet_wellness_scores')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .gte('score_date', format(from, 'yyyy-MM-dd'))
+        .lte('score_date', format(to, 'yyyy-MM-dd'))
+        .order('score_date', { ascending: true });
+
+      setDiaryData(diaryEntries || []);
+      setHealthData(healthMetrics || []);
+      setWellnessData(wellnessScores || []);
+    } catch (error) {
+      console.error('Error loading prediction data:', error);
+    }
+  };
 
   // Handle tab parameter from URL
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['upload', 'results', 'history'].includes(tab) && tab !== activeTab) {
+    if (tab && ['upload', 'results', 'history', 'predictions'].includes(tab) && tab !== activeTab) {
       setActiveTab(tab);
     }
   }, [searchParams, activeTab]);
@@ -146,13 +205,22 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAnalyses(data || []);
+      const newAnalyses = data || [];
+      setAnalyses(newAnalyses);
+      
+      // Se non c'è un'analisi selezionata e ci sono analisi disponibili, seleziona la più recente
+      if (!selectedAnalysis && newAnalyses.length > 0) {
+        setSelectedAnalysis(newAnalyses[0]);
+      }
+      
+      return newAnalyses;
     } catch (error: any) {
       toast({
         title: "Errore",
         description: "Impossibile caricare le analisi",
         variant: "destructive"
       });
+      return [];
     } finally {
       setLoading(false);
     }
@@ -221,7 +289,12 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       }
       
       setActiveTab('results');
-      loadAnalyses();
+      await loadAnalyses();
+      
+      // Seleziona automaticamente l'analisi più recente (appena completata)
+      if (analyses.length > 0) {
+        setSelectedAnalysis(analyses[0]);
+      }
       
       toast({
         title: "Successo!",
@@ -937,7 +1010,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Nuova Analisi
@@ -949,6 +1022,10 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
             Cronologia
+          </TabsTrigger>
+          <TabsTrigger value="predictions" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            Previsioni
           </TabsTrigger>
         </TabsList>
 
@@ -1112,6 +1189,216 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
             onAnalysisDelete={handleAnalysisDelete}
             petName={selectedPet.name}
           />
+        </TabsContent>
+
+        {/* Predictions Tab */}
+        <TabsContent value="predictions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Wellness Trend Prediction */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere Futuro
+                </CardTitle>
+                <CardDescription>
+                  Previsione del benessere basata sui dati storici
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {wellnessData.length > 0 ? (
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        {(() => {
+                          const avgScore = wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
+                          const trend = wellnessData.length > 1 ? 
+                            (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
+                          
+                          return trend > 0 ? (
+                            <TrendingUp className="h-5 w-5 text-green-600" />
+                          ) : trend < 0 ? (
+                            <TrendingDown className="h-5 w-5 text-red-600" />
+                          ) : (
+                            <div className="h-5 w-5 bg-yellow-500 rounded-full" />
+                          );
+                        })()}
+                        <span className="font-medium">
+                          {(() => {
+                            const trend = wellnessData.length > 1 ? 
+                              (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
+                            return trend > 0 ? 'Miglioramento' : trend < 0 ? 'Peggioramento' : 'Stabile';
+                          })()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {(() => {
+                          const trend = wellnessData.length > 1 ? 
+                            (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
+                          return trend > 0 ? 
+                            'Il benessere del tuo pet sta migliorando. Continua con le attuali cure.' :
+                            trend < 0 ?
+                            'Il benessere mostra segni di declino. Considera una visita veterinaria.' :
+                            'Il benessere è stabile. Mantieni la routine attuale.';
+                        })()}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-muted/50 rounded-lg text-center">
+                      <p className="text-sm text-muted-foreground">
+                        Nessun dato di benessere disponibile per generare previsioni.
+                      </p>
+                    </div>
+                  )}
+                  
+                  {wellnessData.length > 0 && (() => {
+                    const avgScore = wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
+                    const trend = wellnessData.length > 1 ? 
+                      (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
+                    const prediction = Math.max(0, Math.min(100, avgScore + trend * 2));
+                    
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Score Attuale</span>
+                          <span>{Math.round(avgScore)}%</span>
+                        </div>
+                        <Progress value={avgScore} className="h-2" />
+                        <div className="flex justify-between text-sm">
+                          <span>Previsione 30gg</span>
+                          <span>{Math.round(prediction)}%</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Health Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5" />
+                  Raccomandazioni AI
+                </CardTitle>
+                <CardDescription>
+                  Suggerimenti basati sui pattern rilevati
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(() => {
+                    const recommendations = [];
+                    
+                    // Controlla se ci sono emozioni ansiose nelle analisi recenti
+                    const recentAnxiousAnalyses = analyses.filter(a => 
+                      a.primary_emotion === 'ansioso' && 
+                      new Date(a.created_at) >= subDays(new Date(), 7)
+                    );
+                    
+                    if (recentAnxiousAnalyses.length > 0) {
+                      recommendations.push({
+                        type: 'warning',
+                        text: `Rilevate ${recentAnxiousAnalyses.length} analisi con ansia negli ultimi 7 giorni. Considera attività rilassanti.`
+                      });
+                    }
+                    
+                    // Controlla la consistenza delle analisi
+                    const recentAnalyses = analyses.filter(a => 
+                      new Date(a.created_at) >= subDays(new Date(), 7)
+                    );
+                    
+                    if (recentAnalyses.length < 2) {
+                      recommendations.push({
+                        type: 'info',
+                        text: 'Aumenta la frequenza di monitoraggio per analisi più accurate.'
+                      });
+                    }
+                    
+                    // Controlla se ci sono miglioramenti
+                    if (analyses.length >= 2) {
+                      const recent = analyses.slice(0, 3);
+                      const positiveEmotions = recent.filter(a => 
+                        ['felice', 'calmo', 'giocoso'].includes(a.primary_emotion)
+                      );
+                      
+                      if (positiveEmotions.length >= 2) {
+                        recommendations.push({
+                          type: 'success',
+                          text: 'Ottimi risultati nelle analisi recenti! Continua con le attuali strategie.'
+                        });
+                      }
+                    }
+                    
+                    if (recommendations.length === 0) {
+                      recommendations.push({
+                        type: 'info',
+                        text: 'Continua a monitorare regolarmente per ricevere consigli personalizzati.'
+                      });
+                    }
+                    
+                    return recommendations.slice(0, 4).map((rec, index) => (
+                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400' :
+                        rec.type === 'success' ? 'bg-green-50 border-green-400' :
+                        'bg-blue-50 border-blue-400'
+                      }`}>
+                        <p className="text-sm">{rec.text}</p>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Seasonal Predictions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Previsioni Stagionali
+              </CardTitle>
+              <CardDescription>
+                Analisi dei pattern stagionali del comportamento
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {['Primavera', 'Estate', 'Autunno', 'Inverno'].map((season, index) => {
+                  const activity = ['Alta', 'Molto Alta', 'Media', 'Bassa'][index];
+                  const mood = ['Positivo', 'Molto Positivo', 'Stabile', 'Variabile'][index];
+                  
+                  return (
+                    <div key={season} className="p-4 border rounded-lg">
+                      <h4 className="font-medium mb-2">{season}</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Attività:</span>
+                          <span className="font-medium">{activity}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Umore:</span>
+                          <span className="font-medium">{mood}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Weather Mood Predictor */}
+          {user && (
+            <WeatherMoodPredictor 
+              user={user}
+              onWeatherUpdate={(data) => {
+                console.log('Weather data updated:', data);
+              }}
+            />
+          )}
         </TabsContent>
       </Tabs>
 
