@@ -269,7 +269,7 @@ export const usePetTwins = () => {
           match_score: matchScore,
           created_at: pet.created_at,
           // Additional properties for UI
-          avatar: '/placeholder.svg',
+          avatar: pet.avatar_url || '/placeholder.svg',
           owner: ownerNames[pet.user_id] || 'Utente',
           matchScore: matchScore,
           distance: Math.floor(Math.random() * 20) + 1, // Mock distance for now
