@@ -236,7 +236,10 @@ export const DayEntriesModal: React.FC<DayEntriesModalProps> = ({
                           <AlertDialogFooter>
                             <AlertDialogCancel>Annulla</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDeleteSingle(entry.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteSingle(entry.id);
+                              }}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
                               Elimina
