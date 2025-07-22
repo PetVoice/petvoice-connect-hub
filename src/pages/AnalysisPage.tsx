@@ -189,18 +189,74 @@ const AnalysisPage: React.FC = () => {
 
   // Helper function to translate insights using current language
   const translateInsight = (insight: string) => {
-    const keyMappings: Record<string, string> = {
-      'Challenging behavior with prolonged staring and rigid movement': 'analysis.insights.challengingBehaviorStaringRigid',
-      'Postura corporea rilassata con coda alzata e orecchie erette': 'analysis.insights.relaxedPostureTailEars',
-      'Behavioral activation aimed at play with repetitive sequences': 'analysis.insights.behavioralActivationPlay',
-      'Stato di rilassamento profondo con respirazione regolare e lenta': 'analysis.insights.deepRelaxationBreathing',
-      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'analysis.insights.aggressiveVocalizationsGrowling',
-      'Difficulty in impulse control with repetitive behaviors': 'analysis.insights.difficultyImpulseControl',
-      'Exploratory behavior with curiosity towards new objects and spaces': 'analysis.insights.exploratoryBehaviorCuriosity'
-    };
-    
-    const translationKey = keyMappings[insight];
-    return translationKey ? t(translationKey, insight) : insight;
+    try {
+      // Mapping diretto delle stringhe di insight alle chiavi di traduzione
+      const keyMappings: Record<string, string> = {
+        'Challenging behavior with prolonged staring and rigid movement': 'analysis.insights.challengingBehaviorStaringRigid',
+        'Postura corporea rilassata con coda alzata e orecchie erette': 'analysis.insights.relaxedPostureTailEars',
+        'Behavioral activation aimed at play with repetitive sequences': 'analysis.insights.behavioralActivationPlay',
+        'Stato di rilassamento profondo con respirazione regolare e lenta': 'analysis.insights.deepRelaxationBreathing',
+        'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'analysis.insights.aggressiveVocalizationsGrowling',
+        'Difficulty in impulse control with repetitive behaviors': 'analysis.insights.difficultyImpulseControl',
+        'Exploratory behavior with curiosity towards new objects and spaces': 'analysis.insights.exploratoryBehaviorCuriosity'
+      };
+      
+      // Traduzioni concrete per ogni lingua (fallback diretto se qualcosa va storto)
+      const insightTranslations = {
+        it: {
+          'difficultyImpulseControl': 'Difficoltà nel controllo degli impulsi con comportamenti ripetitivi',
+          'exploratoryBehaviorCuriosity': 'Comportamento esplorativo con curiosità verso nuovi oggetti e spazi',
+          'challengingBehaviorStaringRigid': 'Comportamento problematico con sguardo fisso prolungato e movimenti rigidi',
+          'relaxedPostureTailEars': 'Postura corporea rilassata con coda alzata e orecchie erette',
+          'behavioralActivationPlay': 'Attivazione comportamentale orientata al gioco con sequenze ripetitive',
+          'deepRelaxationBreathing': 'Stato di rilassamento profondo con respirazione regolare e lenta',
+          'aggressiveVocalizationsGrowling': 'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso'
+        },
+        en: {
+          'difficultyImpulseControl': 'Difficulty in impulse control with repetitive behaviors',
+          'exploratoryBehaviorCuriosity': 'Exploratory behavior with curiosity towards new objects and spaces',
+          'challengingBehaviorStaringRigid': 'Challenging behavior with prolonged staring and rigid movement',
+          'relaxedPostureTailEars': 'Relaxed body posture with raised tail and erect ears',
+          'behavioralActivationPlay': 'Behavioral activation aimed at play with repetitive sequences',
+          'deepRelaxationBreathing': 'Deep relaxation state with regular and slow breathing',
+          'aggressiveVocalizationsGrowling': 'Aggressive vocalizations accompanied by growling and intense barking'
+        },
+        es: {
+          'difficultyImpulseControl': 'Dificultad en el control de impulsos con comportamientos repetitivos',
+          'exploratoryBehaviorCuriosity': 'Comportamiento exploratorio con curiosidad hacia nuevos objetos y espacios',
+          'challengingBehaviorStaringRigid': 'Comportamiento desafiante con mirada fija prolongada y movimiento rígido',
+          'relaxedPostureTailEars': 'Postura corporal relajada con cola levantada y orejas erguidas',
+          'behavioralActivationPlay': 'Activación conductual orientada al juego con secuencias repetitivas',
+          'deepRelaxationBreathing': 'Estado de relajación profunda con respiración regular y lenta',
+          'aggressiveVocalizationsGrowling': 'Vocalizaciones agresivas acompañadas de gruñidos y ladridos intensos'
+        }
+      };
+      
+      // Prima proviamo a trovare la chiave di traduzione corrispondente all'insight
+      const translationKey = keyMappings[insight];
+      
+      if (translationKey) {
+        // Estrai la chiave breve (solo l'ultima parte dopo l'ultimo punto)
+        const shortKey = translationKey.split('.').pop() || '';
+        
+        // Usa la traduzione diretta basata sulla lingua
+        if (shortKey && insightTranslations[language] && insightTranslations[language][shortKey]) {
+          return insightTranslations[language][shortKey];
+        }
+        
+        // Se non riusciamo a trovare una traduzione diretta, proviamo il metodo t()
+        const translation = t(translationKey, insight);
+        if (translation !== translationKey) {
+          return translation;
+        }
+      }
+      
+      // Fallback all'insight originale
+      return insight;
+    } catch (error) {
+      console.error('Error translating insight:', error);
+      return insight;
+    }
   };
 
   const { user } = useAuth();
@@ -1096,24 +1152,25 @@ const AnalysisPage: React.FC = () => {
           yPosition += lineHeight;
           
            pdf.setFont('helvetica', 'normal');
-           const dateText = `${t('analysis.pdf.date', 'Date')}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`;
-           pdf.text(dateText, 25, yPosition);
+           // Assicuriamoci di valutare completamente le traduzioni prima di inserirle nel PDF
+           const dateLabel = t('analysis.pdf.date', 'Date');
+           pdf.text(`${dateLabel}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
            yPosition += lineHeight;
            
            // Translate emotion to the current language
+           const emotionLabel = t('analysis.results.emotion', 'Emotion');
            const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, language);
-           const emotionText = `${t('analysis.results.emotion', 'Emotion')}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`;
-           pdf.text(emotionText, 25, yPosition);
-          yPosition += lineHeight;
-          
+           pdf.text(`${emotionLabel}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
+           yPosition += lineHeight;
+           
            if (analysis.behavioral_insights) {
              // Translate insights using current language
+             const insightsLabel = t('analysis.results.behavioralInsights', 'Behavioral Insights');
              const translatedInsight = translateInsight(analysis.behavioral_insights);
              const insight = translatedInsight.length > 100 
                ? translatedInsight.substring(0, 100) + '...'
                : translatedInsight;
-             const insightText = `${t('analysis.results.behavioralInsights', 'Behavioral Insights')}: ${insight}`;
-             pdf.text(insightText, 25, yPosition);
+             pdf.text(`${insightsLabel}: ${insight}`, 25, yPosition);
             yPosition += lineHeight;
           }
           yPosition += 5;
