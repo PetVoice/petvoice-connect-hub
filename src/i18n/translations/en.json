@@ -1056,6 +1056,29 @@
     "buttons": {
       "edit": "EDIT",
       "delete": "DELETE"
+    },
+    "stats": {
+      "activeProtocols": "Active Protocols",
+      "activeDescription": "in progress",
+      "completed": "Completed",
+      "completedDescription": "successfully",
+      "successRate": "Success Rate",
+      "successRateDescription": "personal average",
+      "community": "Community",
+      "communityDescription": "shared protocols"
+    },
+    "tabs": {
+      "protocols": "Protocols",
+      "active": "Active",
+      "completed": "Completed",
+      "suggestions": "AI Suggestions",
+      "community": "Community"
+    },
+    "actions": {
+      "start": "Start",
+      "continue": "Continue",
+      "view": "View",
+      "restart": "Restart"
     }
   },
   "training": {

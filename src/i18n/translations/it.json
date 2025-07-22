@@ -1055,6 +1055,29 @@
     "buttons": {
       "edit": "MODIFICA",
       "delete": "ELIMINA"
+    },
+    "stats": {
+      "activeProtocols": "Protocolli Attivi",
+      "activeDescription": "in corso",
+      "completed": "Completati", 
+      "completedDescription": "con successo",
+      "successRate": "Tasso di Successo",
+      "successRateDescription": "media personale",
+      "community": "Community",
+      "communityDescription": "protocolli condivisi"
+    },
+    "tabs": {
+      "protocols": "Protocolli",
+      "active": "Attivi",
+      "completed": "Completati",
+      "suggestions": "Suggerimenti AI",
+      "community": "Community"
+    },
+    "actions": {
+      "start": "Inizia",
+      "continue": "Continua",
+      "view": "Visualizza",
+      "restart": "Ricomincia"
     }
   },
   "training": {

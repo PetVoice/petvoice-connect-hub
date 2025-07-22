@@ -74,8 +74,10 @@ import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export const AITrainingHub: React.FC = () => {
+  const { t } = useTranslation();
   const { showToast } = useToastWithIcon();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -690,12 +692,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
-              Protocolli Attivi
+              {t('aiTraining.stats.activeProtocols')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{stats.activeProtocols}</div>
-            <p className="text-xs text-muted-foreground">in corso</p>
+            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.activeDescription')}</p>
           </CardContent>
         </Card>
 
@@ -703,12 +705,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Award className="h-4 w-4 text-green-500" />
-              Completati
+              {t('aiTraining.stats.completed')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">{stats.completedProtocols}</div>
-            <p className="text-xs text-muted-foreground">con successo</p>
+            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.completedDescription')}</p>
           </CardContent>
         </Card>
 
@@ -716,12 +718,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-blue-500" />
-              Tasso di Successo
+              {t('aiTraining.stats.successRate')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">{stats.avgSuccessRate}%</div>
-            <p className="text-xs text-muted-foreground">media personale</p>
+            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.successRateDescription')}</p>
           </CardContent>
         </Card>
 
@@ -729,12 +731,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
-              Community
+              {t('aiTraining.stats.community')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-500">{stats.communityProtocols}</div>
-            <p className="text-xs text-muted-foreground">protocolli condivisi</p>
+            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.communityDescription')}</p>
           </CardContent>
         </Card>
       </div>
@@ -742,11 +744,11 @@ export const AITrainingHub: React.FC = () => {
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="protocols">Protocolli</TabsTrigger>
-          <TabsTrigger value="active">Attivi</TabsTrigger>
-          <TabsTrigger value="completed">Completati</TabsTrigger>
-          <TabsTrigger value="suggestions">Suggerimenti AI</TabsTrigger>
-          <TabsTrigger value="community">Community</TabsTrigger>
+          <TabsTrigger value="protocols">{t('aiTraining.tabs.protocols')}</TabsTrigger>
+          <TabsTrigger value="active">{t('aiTraining.tabs.active')}</TabsTrigger>
+          <TabsTrigger value="completed">{t('aiTraining.tabs.completed')}</TabsTrigger>
+          <TabsTrigger value="suggestions">{t('aiTraining.tabs.suggestions')}</TabsTrigger>
+          <TabsTrigger value="community">{t('aiTraining.tabs.community')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="protocols" className="space-y-4">
