@@ -36,6 +36,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     return EVENT_CATEGORIES[category as keyof typeof EVENT_CATEGORIES] || EVENT_CATEGORIES.other;
   };
 
+  const getCategoryColor = (category: string) => {
+    const categoryInfo = getCategoryInfo(category);
+    // Extract background color for dots
+    if (categoryInfo.color.includes('bg-red-500')) return 'bg-red-500';
+    if (categoryInfo.color.includes('bg-blue-500')) return 'bg-blue-500';
+    if (categoryInfo.color.includes('bg-green-500')) return 'bg-green-500';
+    if (categoryInfo.color.includes('bg-yellow-500')) return 'bg-yellow-500';
+    if (categoryInfo.color.includes('bg-purple-500')) return 'bg-purple-500';
+    if (categoryInfo.color.includes('bg-orange-500')) return 'bg-orange-500';
+    if (categoryInfo.color.includes('bg-indigo-500')) return 'bg-indigo-500';
+    return 'bg-gray-500';
+  };
+
   return (
     <Card className="shadow-elegant">
       <CardContent className="p-6">
@@ -90,39 +103,31 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               >
                 <div className="text-sm font-medium mb-1">{format(day, 'd')}</div>
                 
-                <div className="space-y-1">
-                  {dayEvents.slice(0, 2).map((event) => {
-                    const categoryInfo = getCategoryInfo(event.category);
-                    return (
-                      <div
-                        key={event.id}
-                        className={`text-xs p-1 rounded cursor-pointer transition-all hover:scale-105 ${categoryInfo.color}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEventClick(event);
-                        }}
-                        title={event.title}
-                      >
-                        <div className="flex items-center gap-1">
-                          <span>{categoryInfo.icon}</span>
-                          <span className="truncate flex-1">{event.title}</span>
+                {(() => {
+                  if (dayEvents.length === 0) return null;
+                  
+                  return (
+                    <div className="absolute inset-2 flex flex-col justify-center">
+                      {dayEvents.length > 1 && (
+                        <div className="text-xs text-center mb-1 bg-primary text-primary-foreground rounded px-1">
+                          {dayEvents.length}
                         </div>
-                        {!event.is_all_day && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <Clock className="h-2 w-2" />
-                            <span>{format(parseISO(event.start_time), 'HH:mm')}</span>
-                          </div>
+                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {dayEvents.slice(0, 4).map((event, index) => (
+                          <div
+                            key={event.id}
+                            className={`w-2 h-2 rounded-full ${getCategoryColor(event.category)}`}
+                            title={`${getCategoryInfo(event.category).icon} ${event.title}`}
+                          />
+                        ))}
+                        {dayEvents.length > 4 && (
+                          <div className="text-xs">+{dayEvents.length - 4}</div>
                         )}
                       </div>
-                    );
-                  })}
-                  
-                  {dayEvents.length > 2 && (
-                    <div className="text-xs text-muted-foreground text-center py-1">
-                      +{dayEvents.length - 2} altri
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
               </div>
             );
           })}
