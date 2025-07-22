@@ -1,975 +1,359 @@
 {
-  "common": {
-    "save": "Salva",
-    "cancel": "Annulla",
-    "delete": "Elimina",
-    "edit": "Modifica",
-    "add": "Aggiungi",
-    "loading": "Caricamento...",
-    "search": "Cerca",
-    "close": "Chiudi",
-    "yes": "Sì",
-    "no": "No",
-    "ok": "OK",
-    "back": "Indietro",
-    "next": "Avanti",
-    "previous": "Precedente",
-    "submit": "Invia",
-    "confirm": "Conferma",
-    "settings": "Impostazioni",
-    "help": "Aiuto",
-    "profile": "Profilo",
-    "logout": "Esci",
-    "login": "Accedi",
-    "register": "Registrati",
-    "password": "Password",
-    "email": "Email",
-    "name": "Nome",
-    "today": "Oggi",
-    "yesterday": "Ieri",
-    "week": "Settimana",
-    "month": "Mese",
-    "year": "Anno"
-  },
-  "navigation": {
-    "dashboard": "Dashboard",
-    "pets": "I Miei Pet",
-    "analysis": "Analisi Emotiva",
-    "aiMusicTherapy": "AI Music Therapy",
-    "aiTraining": "AI Training",
-    "diary": "Diario",
-    "calendar": "Calendario",
-    "wellness": "Benessere",
-    "stats": "Statistiche",
-    "community": "Community",
-    "support": "Supporto",
-    "mainNavigation": "Navigazione Principale"
-  },
   "header": {
-    "addPet": "Aggiungi",
-    "addPetFull": "Aggiungi Pet",
-    "notifications": "Notifiche",
-    "markAllRead": "Segna tutte come lette",
-    "noNotifications": "Nessuna notifica",
-    "myAccount": "Il mio account",
     "timeAgo": {
-      "now": "Ora",
+      "now": "ora",
       "hourAgo": "ora fa",
       "hoursAgo": "ore fa",
       "dayAgo": "giorno fa",
       "daysAgo": "giorni fa"
+    },
+    "addPet": "Aggiungi Pet",
+    "addPetFull": "Aggiungi un nuovo pet",
+    "notifications": "Notifiche",
+    "markAllRead": "Segna tutto come letto",
+    "myAccount": "Il mio account"
+  },
+  "errors": {
+    "somethingWentWrong": "Qualcosa è andato storto",
+    "validationError": "Errore di validazione"
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "settings": "Impostazioni", 
+    "logout": "Esci",
+    "delete": "Elimina",
+    "cancel": "Annulla"
+  },
+  "buttons": {
+    "basic": {
+      "cancel": "Annulla"
+    },
+    "pets": {
+      "addPet": "Aggiungi Pet"
+    }
+  },
+  "navigation": {
+    "mainNavigation": "Navigazione principale"
+  },
+  "pets": {
+    "addNew": "Aggiungi nuovo pet"
+  },
+  "toast": {
+    "pets": {
+      "validationRequired": "Tutti i campi obbligatori devono essere compilati"
     }
   },
   "pets": {
-    "title": "I Miei Pet",
-    "addNew": "Aggiungi Pet",
-    "editPet": "Modifica Pet",
-    "noPets": "Nessun Pet Aggiunto",
-    "noPetsDesc": "Inizia aggiungendo il tuo primo amico peloso per sbloccare tutte le funzionalità di PetVoice.",
-    "petName": "Nome del Pet",
-    "petType": "Tipo di Pet",
-    "breed": "Razza",
-    "age": "Età",
-    "weight": "Peso",
-    "description": "Descrizione",
-    "photo": "Foto",
-    "noPetSelected": "Nessun Pet Selezionato",
-    "selectPetDesc": "Seleziona un pet dalla pagina \"I Miei Pet\" per accedere a questa funzionalità",
-    "pageDescription": "Gestisci le informazioni dei tuoi amici a quattro zampe",
-    "form": {
-      "editDescription": "Modifica le informazioni del tuo pet",
-      "addDescription": "Inserisci tutte le informazioni del tuo nuovo pet",
-      "fields": {
-        "nameRequired": "Nome *",
-        "typeRequired": "Tipo *",
-        "breed": "Razza",
-        "weight": "Peso (kg)",
-        "birthDate": "Data di nascita",
-        "allergies": "Allergie", 
-        "fears": "Paure",
-        "favoriteActivities": "Attività preferite",
-        "healthConditions": "Condizioni di salute",
-        "personalityTraits": "Tratti di personalità",
-        "generalDescription": "Descrizione generale"
-      },
-      "placeholders": {
-        "petName": "Nome del pet",
-        "selectType": "Seleziona il tipo",
-        "selectBreed": "Seleziona la razza",
-        "weightExample": "Es. 5.2",
-        "day": "Giorno",
-        "month": "Mese", 
-        "year": "Anno",
-        "allergiesExample": "Es. Polline, alcuni cibi...",
-        "fearsExample": "Es. Tuoni, fuochi d'artificio...",
-        "activitiesExample": "Es. Giocare a riporto, dormire...",
-        "healthExample": "Es. Artrite, problemi cardiaci...",
-        "personalityExample": "Es. Giocherellone, timido, socievole...",
-        "descriptionExample": "Descrivi il carattere e le caratteristiche del tuo pet"
-      },
-      "buttons": {
-        "saving": "Salvando...",
-        "updatePet": "Aggiorna Pet", 
-        "addPet": "Aggiungi Pet",
-        "cancel": "Annulla"
-      }
-    },
-    "types": {
-      "dog": "Cane",
-      "cat": "Gatto",
-      "rabbit": "Coniglio",
-      "bird": "Uccello",
-      "fish": "Pesce",
-      "hamster": "Criceto",
-      "other": "Altro"
-    },
-    "emptyState": {
-      "title": "Nessun Pet Registrato",
-      "description": "Non hai ancora aggiunto nessun pet. Inizia creando il profilo del tuo amico a quattro zampe!",
-      "addFirstPet": "Aggiungi il tuo primo Pet"
-    },
-    "petCard": {
-      "years": "anni",
-      "weight": "Peso:",
-      "personality": "Personalità:",
-      "loves": "Ama:",
-      "edit": "Modifica", 
-      "delete": "Elimina"
-    },
-    "deleteDialog": {
-      "title": "Elimina Pet",
-      "description": "Sei sicuro di voler eliminare {{name}}? Questa azione non può essere annullata.",
-      "confirm": "Elimina",
-      "cancel": "Annulla"
-    },
-    "ageCalculated": "Età: {{age}} anni"
+    "addNew": "Aggiungi nuovo pet",
+    "noPetSelected": "Nessun pet selezionato",
+    "selectPetDesc": "Seleziona un pet per continuare",
+    "petType": "Tipo di pet"
+  },
+  "navigation": {
+    "mainNavigation": "Navigazione principale",
+    "analysis": "Analisi",
+    "diary": "Diario", 
+    "calendar": "Calendario",
+    "aiMusicTherapy": "Musicoterapia AI"
   },
   "dashboard": {
-    "welcome": "Benvenuto su PetVoice!",
-    "welcomeDesc": "Monitora la salute e il benessere del tuo amico a quattro zampe con l'intelligenza artificiale",
-    "quickActions": "Azioni Rapide",
-    "quickActionsDesc": "Azioni rapide per iniziare subito",
-    "recentActivity": "Attività Recente",
-    "insights": "Insights",
-    "analytics": "Analytics",
-    "healthStatus": "Stato di Salute",
-    "moodTrend": "Tendenza Umore",
-    "behaviorScore": "Punteggio Comportamentale",
-    "analysisDesc": "Analizza l'umore del tuo pet",
-    "diaryDesc": "Aggiungi una nuova voce",
-    "calendarDesc": "Programma un evento",
-    "registeredPets": "Pets Registrati",
-    "petInFamily": "pet nella tua famiglia",
-    "petsInFamily": "pets nella tua famiglia",
-    "healthExcellent": "Ottimo",
-    "allPetsHealthy": "Tutti i pets in salute",
-    "improvementThisWeek": "Miglioramento questa settimana"
+    "welcome": "Benvenuto",
+    "welcomeDesc": "Gestisci il benessere dei tuoi pet",
+    "quickActions": "Azioni rapide",
+    "quickActionsDesc": "Accessi rapidi alle funzioni principali",
+    "registeredPets": "Pet registrati",
+    "healthStatus": "Stato di salute",
+    "healthExcellent": "Eccellente",
+    "allPetsHealthy": "Tutti i pet sono in salute",
+    "analysisDesc": "Analizza il comportamento",
+    "diaryDesc": "Tieni traccia delle attività",
+    "calendarDesc": "Gestisci gli appuntamenti",
+    "petInFamily": "pet in famiglia",
+    "petsInFamily": "pet in famiglia"
+  },
+  "success": {
+    "deleted": "Eliminato con successo"
   },
   "analysis": {
-    "title": "Analisi Emotiva",
-    "subtitle": "Comprendi l'umore e il comportamento del tuo pet",
+    "title": "Analisi Comportamentale",
+    "subtitle": "Analisi per", 
+    "startAnalysis": "Inizia Analisi",
+    "noAnalysisTitle": "Nessuna analisi disponibile",
+    "noAnalysisDesc": "Non ci sono ancora analisi per questo pet. Carica un file audio o inserisci del testo per iniziare.",
+    "filterTitle": "Filtri",
+    "fileName": "Nome file",
+    "filtersResults": "risultati filtrati",
+    "allLevels": "Tutti i livelli",
+    "allLevelsPlaceholder": "Seleziona livello intensità",
+    "confidence": "Fiducia",
+    "recommendations": "Raccomandazioni",
+    "actions": {
+      "downloadPDF": "Scarica PDF"
+    },
+    "modals": {
+      "details": {
+        "title": "Dettagli Analisi",
+        "overview": "Panoramica"
+      },
+      "compare": {
+        "title": "Confronta Analisi",
+        "selectTwo": "Seleziona almeno due analisi per confrontare"
+      },
+      "deleteConfirm": {
+        "title": "Conferma Eliminazione",
+        "multiple": "Sei sicuro di voler eliminare le analisi selezionate?",
+        "single": "Sei sicuro di voler eliminare questa analisi?"
+      }
+    },
     "tabs": {
-      "upload": "Nuova Analisi",
+      "upload": "Carica",
       "results": "Risultati",
-      "history": "Cronologia",
-      "predictions": "Previsioni"
+      "history": "Storico",
+      "predictions": "Predizioni"
     },
     "upload": {
-      "fileUploadTitle": "Carica File Audio/Video",
-      "fileUploadDescription": "Carica file audio o video del tuo pet per l'analisi emotiva con IA",
-      "audioRecordingTitle": "Registrazione Audio",
-      "audioRecordingDescription": "Registra direttamente l'audio del tuo pet in tempo reale",
-      "textAnalysisTitle": "Analisi Testuale",
-      "textAnalysisDescription": "Descrivi il comportamento del tuo pet per un'analisi comportamentale",
-      "dragAndDrop": "Trascina e rilascia i tuoi file qui, o clicca per selezionare",
-      "supportedFormats": "Formati supportati: MP3, WAV, MP4, MOV, AVI",
-      "maxFileSize": "Dimensione massima: 50MB per file",
-      "selectFiles": "Seleziona File",
-      "or": "oppure",
-      "describeTextPrompt": "Descrivi il comportamento del tuo pet...",
-      "fileUploader": {
-        "title": "File Audio/Video",
-        "description": "Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max {{maxSize}}MB)",
-        "dropFilesHere": "Rilascia i file qui",
-        "uploadFiles": "Carica i tuoi file",
-        "supportedFormats": "Formati supportati: MP3, WAV, M4A, MP4, MOV, AVI",
-        "selectFiles": "Seleziona File",
-        "selectedFiles": "File Selezionati ({{count}})",
-        "clearAll": "Cancella Tutti",
-        "startAnalysis": "Inizia Analisi ({{count}} file)",
-        "analysisInProgress": "Analisi in corso...",
-        "autoAnalysisMessage": "✨ File audio caricato",
-        "autoAnalysisSubtext": "🚀 Avvio analisi automatica in corso...",
-        "errorsFound": "Alcuni file hanno errori. Correggi i problemi per procedere.",
-        "analysisDescription": {
-          "title": "📊 Analisi Audio/Video Avanzata",
-          "subtitle": "La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:",
-          "features": {
-            "vocalAnalysis": "🎵 Analisi delle vocalizzazioni e tono",
-            "facialRecognition": "📹 Riconoscimento espressioni facciali",
-            "bodyMovement": "🏃 Analisi dei movimenti corporei",
-            "breathingRate": "💓 Rilevamento frequenza respiratoria"
-          },
-          "stats": "⏱️ Tempo medio: 15-30 secondi per file • 🎯 Accuratezza: 85-95% • 🔬 Emozioni rilevate: Felice, Ansioso, Calmo, Triste, Aggressivo, Eccitato, Giocoso"
-        },
-        "errors": {
-          "unsupportedType": "Tipo file non supportato: {{type}}",
-          "fileTooLarge": "File troppo grande: {{size}}MB (max {{maxSize}}MB)",
-          "maxFilesExceeded": "Massimo {{maxFiles}} file consentiti"
-        }
-      },
       "audioRecorder": {
-        "title": "Registrazione Audio",
-        "description": "Registra direttamente dal microfono (max {{maxMinutes}} minuti)",
-        "permissionDenied": "Accesso al microfono negato. Abilita i permessi nelle impostazioni del browser.",
+        "title": "Registra Audio",
+        "description": "Registra i suoni del tuo pet per l'analisi comportamentale",
+        "permissionDenied": "Permesso microfono negato. Abilita l'accesso per registrare.",
         "recordingInProgress": "Registrazione in corso...",
-        "clickToStart": "Clicca per iniziare",
-        "audioLevels": "Livelli Audio",
+        "clickToStart": "Clicca per iniziare la registrazione",
+        "audioLevels": "Livelli audio",
         "recordingCompleted": "Registrazione completata",
         "pause": "Pausa",
         "play": "Riproduci",
-        "download": "Download", 
+        "download": "Scarica",
         "delete": "Elimina",
         "analyze": "Analizza",
-        "autoAnalysisMessage": "✨ Registrazione completata",
-        "autoAnalysisSubtext": "🚀 Avvio analisi automatica in corso...",
+        "autoAnalysisMessage": "L'analisi partirà automaticamente",
+        "autoAnalysisSubtext": "Puoi anche avviarla manualmente",
         "analysisDescription": {
-          "title": "🎙️ Analisi Audio in Tempo Reale",
-          "subtitle": "Registra direttamente dal microfono per un'analisi immediata delle vocalizzazioni del tuo pet:",
+          "title": "Cosa analizzeremo",
+          "subtitle": "La nostra AI esaminerà diversi aspetti del comportamento del tuo pet:",
           "features": {
-            "toneAnalysis": "🔊 Analisi tono e intensità vocale",
-            "patternDetection": "📊 Rilevamento pattern sonori", 
-            "instantProcessing": "⚡ Processing istantaneo",
-            "immediateFeedback": "🎯 Feedback emotivo immediato"
+            "toneAnalysis": "Analisi del tono e dell'intensità",
+            "patternDetection": "Riconoscimento di pattern comportamentali",
+            "instantProcessing": "Elaborazione istantanea",
+            "immediateFeedback": "Feedback immediato"
           },
-          "stats": "🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate"
+          "stats": "Basato su migliaia di analisi comportamentali"
+        }
+      },
+      "fileUploader": {
+        "title": "Carica File Audio",
+        "description": "Carica file audio del comportamento del tuo pet per l'analisi",
+        "dropFilesHere": "Trascina i file qui o",
+        "uploadFiles": "carica file",
+        "supportedFormats": "Formati supportati: MP3, WAV, M4A (max 50MB)",
+        "selectFiles": "Seleziona File",
+        "selectedFiles": "File Selezionati",
+        "clearAll": "Rimuovi tutti",
+        "analysisInProgress": "Analisi in corso...",
+        "startAnalysis": "Inizia Analisi",
+        "autoAnalysisMessage": "L'analisi partirà automaticamente",
+        "autoAnalysisSubtext": "Puoi anche avviarla manualmente",
+        "errorsFound": "Errori trovati",
+        "errors": {
+          "unsupportedType": "Tipo di file non supportato. Usa MP3, WAV o M4A.",
+          "fileTooLarge": "File troppo grande. Dimensione massima: 50MB.",
+          "maxFilesExceeded": "Massimo 5 file alla volta."
+        },
+        "analysisDescription": {
+          "title": "Cosa analizzeremo",
+          "subtitle": "La nostra AI esaminerà diversi aspetti del comportamento del tuo pet:",
+          "features": {
+            "vocalAnalysis": "Analisi vocale avanzata",
+            "facialRecognition": "Riconoscimento delle espressioni",
+            "bodyMovement": "Analisi dei movimenti corporei",
+            "breathingRate": "Monitoraggio del respiro"
+          },
+          "stats": "Basato su migliaia di analisi comportamentali"
         }
       },
       "textAnalyzer": {
-        "title": "Analisi Testuale Comportamento",
-        "description": "Descrivi il comportamento del tuo pet per un'analisi comportamentale",
-        "placeholder": "Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova...",
-        "characterCount": "{{count}}/{{max}} caratteri",
-        "minCharacters": "(minimo {{min}})",
-        "ready": "Pronto",
-        "tooShort": "Troppo corto",
+        "title": "Analisi Testuale",
+        "description": "Descrivi il comportamento del tuo pet per un'analisi immediata",
+        "placeholder": "Descrivi il comportamento del tuo pet...",
+        "analyzeButton": "Analizza Testo",
         "analysisInProgress": "Analisi in corso...",
-        "analyzeButton": "Analizza Comportamento",
+        "characterCount": "{{count}} caratteri",
+        "minCharacters": "Minimo 50 caratteri",
+        "ready": "Pronto per l'analisi",
+        "tooShort": "Descrizione troppo breve",
         "errors": {
-          "tooShort": "La descrizione deve essere di almeno 10 caratteri",
+          "tooShort": "La descrizione deve essere di almeno 50 caratteri",
           "tooLong": "La descrizione non può superare i 2000 caratteri"
         },
         "intelligentAnalysis": {
-          "title": "🧠 Analisi Comportamentale Intelligente",
-          "description": "Il nostro sistema di analisi testuale utilizza algoritmi avanzati per interpretare le descrizioni comportamentali:",
+          "title": "Analisi Intelligente",
+          "description": "La nostra AI analizzerà il testo per identificare:",
           "features": {
-            "emotionalKeywords": "🔍 Riconoscimento parole chiave emotive",
-            "contextAnalysis": "📝 Analisi del contesto comportamentale", 
-            "emotionalProbability": "⚖️ Valutazione probabilità emotiva",
-            "personalizedSuggestions": "🎯 Suggerimenti personalizzati"
+            "emotionalState": "Stato emotivo del pet",
+            "behaviorPatterns": "Pattern comportamentali",
+            "stressTriggers": "Fattori di stress",
+            "recommendedActions": "Azioni consigliate",
+            "emotionalKeywords": "Parole chiave emotive",
+            "contextAnalysis": "Analisi del contesto",
+            "emotionalProbability": "Probabilità emotiva",
+            "personalizedSuggestions": "Suggerimenti personalizzati"
           },
           "stats": {
-            "averageTime": "Tempo medio:",
-            "instant": "Istantaneo",
-            "accuracy": "Accuratezza:",
-            "accuracyRange": "75-90%",
-            "advantages": "Vantaggi:",
-            "advantagesText": "Analisi immediata, dettagli contestuali, zero costi di processing"
+            "averageTime": "Tempo medio",
+            "instant": "istantaneo",
+            "accuracy": "Precisione",
+            "accuracyRange": "85-95%",
+            "advantages": "Vantaggi",
+            "advantagesText": "Feedback immediato e personalizzato"
           }
         }
-      }
-    },
-    "results": {
-      "latestAnalysis": "Ultima Analisi",
-      "primaryEmotion": "Emozione Primaria", 
-      "confidence": "Confidenza",
-      "confidenceLevel": {
-        "veryHigh": "Molto Alta",
-        "high": "Alta",
-        "medium": "Media", 
-        "low": "Bassa"
       },
-      "fileInfo": {
-        "file": "File",
-        "size": "Dimensione",
-        "duration": "Durata analisi",
-        "date": "Data"
-      },
-      "detailedAnalysis": "Analisi Dettagliata",
-      "behavioralInsights": "Insights comportamentali e raccomandazioni per {{petName}}",
-      "tabs": {
-        "emotions": "Emozioni",
-        "insights": "Insights",
-        "recommendations": "Consigli", 
-        "triggers": "Trigger",
-        "audio": "Audio"
-      },
-      "secondaryEmotions": "Emozioni Secondarie",
-      "behavioralAnalysis": "Analisi Comportamentale",
-      "environmentalContext": "Contesto Ambientale",
-      "musicTherapy": {
-        "title": "Playlist IA Music Therapy Consigliata",
-        "petWell": "{{petName}} sta bene!",
-        "positiveState": "Emozione \"{{emotion}}\" rilevata. Il tuo pet è in uno stato emotivo positivo!",
-        "startSession": "Inizia Sessione Musicoterapia"
-      },
-      "trainingProtocol": {
-        "title": "Protocollo di Training Raccomandato",
-        "anxietySeparation": "Gestione Ansia da Separazione",
-        "aggressionControl": "Controllo Aggressività",
-        "fearPhobias": "Superamento Paure e Fobie", 
-        "hyperactivity": "Gestione Iperattività",
-        "emotionalSupport": "Supporto Emotivo e Benessere",
-        "generalBehavior": "Gestione Comportamento Generale",
-        "descriptions": {
-          "anxiety": "Protocollo specifico per ridurre l'ansia da separazione e migliorare la fiducia nel pet.",
-          "aggression": "Tecniche di controllo per gestire comportamenti aggressivi e reattivi.",
-          "fear": "Esercizi di desensibilizzazione per superare paure specifiche.",
-          "hyperactivity": "Attività per canalizzare l'energia eccessiva in comportamenti positivi.",
-          "emotional": "Supporto emotivo personalizzato per migliorare l'umore e il benessere del pet.",
-          "general": "Protocollo generale per migliorare il comportamento e il benessere complessivo."
-        },
-        "startProtocol": "Inizia Protocollo Training"
-      },
-      "personalizedRecommendations": {
-        "title": "Raccomandazioni Personalizzate",
-        "age": "Età ({{age}} anni)",
-        "ageAdvice": {
-          "puppy": "Pazienza extra - i cuccioli hanno bisogno di tempi di adattamento più lunghi",
-          "young": "Energia giovanile - aumenta l'attività fisica per ridurre stress",
-          "adult": "Fase adulta - mantieni routine costanti per stabilità",
-          "senior": "Età senior - riduci i cambiamenti bruschi e aumenta il comfort"
-        },
-        "breed": "Razza ({{breed}})",
-        "breedAdvice": {
-          "border": "Razza intelligente - stimoli mentali quotidiani sono essenziali",
-          "labrador": "Razza socievole - aumenta le interazioni positive",
-          "golden": "Temperamento dolce - rinforzi positivi molto efficaci",
-          "shepherd": "Razza protettiva - lavora sulla socializzazione graduale",
-          "general": "Considera le caratteristiche specifiche della razza per il training"
-        },
-        "weight": "Peso ({{weight}}kg)",
-        "weightAdvice": {
-          "small": "Piccola taglia - sessioni brevi (5-10 min) ma frequenti",
-          "medium": "Media taglia - sessioni standard (15-20 min)",
-          "large": "Grande taglia - sessioni più lunghe (20-30 min) con pause"
-        },
-        "healthConditions": "Condizioni di salute",
-        "healthAdvice": "Monitora attentamente i segni di stress durante il training. Consulta il veterinario prima di iniziare protocolli intensivi.",
-        "emotionAdvice": "Per l'emozione \"{{emotion}}\"",
-        "emotionTips": {
-          "anxiety": "Crea un ambiente sicuro e prevedibile. Evita cambiamenti bruschi nella routine.",
-          "aggression": "Mantieni calma e distanza di sicurezza. Usa rinforzi positivi, mai punizioni.",
-          "fear": "Desensibilizzazione graduale. Non forzare l'esposizione, procedi con pazienza.",
-          "sadness": "Aumenta attività gratificanti e interazioni sociali positive.",
-          "general": "Mantieni coerenza nel training e celebra ogni piccolo progresso."
-        },
-        "frequency": "Frequenza raccomandata",
-        "frequencyAdvice": {
-          "puppy": "2-3 sessioni brevi al giorno",
-          "confident": "1-2 sessioni al giorno",
-          "careful": "1 sessione al giorno per evitare sovrastimolazione"
+      "textInput": {
+        "title": "Analisi Testuale",
+        "description": "Descrivi il comportamento del tuo pet per un'analisi immediata",
+        "placeholder": "Descrivi il comportamento del tuo pet...",
+        "analyze": "Analizza Testo",
+        "examples": {
+          "title": "Esempi di descrizioni utili:",
+          "example1": "Il mio cane abbaia molto quando sente rumori esterni",
+          "example2": "Il gatto miagola insistentemente vicino alla ciotola del cibo",
+          "example3": "Il cane si nasconde sotto il tavolo durante i temporali"
         }
-      },
-      "triggers": {
-        "title": "Possibili Trigger Identificati",
-        "monitor": "Monitora questo fattore per identificare pattern comportamentali"
-      },
-      "originalRecording": "Registrazione Originale",
-      "audioOnly": "Questo file non è un audio. Player disponibile solo per registrazioni audio.",
-      "actions": {
-        "share": "Condividi", 
-        "downloadReport": "Scarica Report",
-        "addToDiary": "Aggiungi al Diario",
-        "scheduleFollowUp": "Pianifica Follow-up"
-      },
-      "patternRecognition": {
-        "title": "Pattern Recognition",
-        "subtitle": "Confronti con analisi precedenti",
-        "similarEpisode": "Episodio Simile",
-        "behaviorObserved": "Comportamento simile osservato il {{date}} con emozione \"{{emotion}}\" (confidenza {{confidence}}%)",
-        "compareAnalyses": "Confronta Analisi",
-        "confidenceVariation": "Variazione Confidenza",
-        "sinceLastAnalysis": "Dall'Ultima Analisi",
-        "today": "Oggi",
-        "oneDay": "1 giorno",
-        "days": "{{days}} giorni",
-        "consistency": "Consistenza Pattern"
-      },
-      "selectAnalysis": "Seleziona Analisi",
-      "showResults": "Mostra risultati per {{count}} analisi recenti",
-      "noResults": "Nessun Risultato",
-      "loadFileToSeeResults": "Carica un file per vedere i risultati dell'analisi",
-      "noAnalysisAvailable": "Nessuna Analisi Disponibile",
-      "loadFirstFile": "Carica il primo file audio o video per iniziare",
-      "toasts": {
-        "error": "Errore",
-        "noPetSelected": "Nessun pet selezionato",
-        "success": "Successo!",
-        "analysisAddedToDiary": "Analisi aggiunta al diario con successo!",
-        "cannotAddToDiary": "Impossibile aggiungere l'analisi al diario",
-        "followUpScheduled": "Follow-up Programmato",
-        "reminderCreated": "Promemoria creato per il {{date}} nel calendario",
-        "cannotCreateReminder": "Impossibile creare il promemoria nel calendario",
-        "pdfDownloaded": "Report PDF Scaricato",
-        "pdfSaved": "Il report PDF è stato salvato come {{fileName}}",
-        "cannotGeneratePdf": "Impossibile generare il report PDF"
       }
-    },
-    "history": {
-      "title": "Cronologia Analisi",
-      "filterByEmotion": "Filtra per emozione",
-      "filterByConfidence": "Filtra per confidenza",
-      "searchPlaceholder": "Cerca nelle analisi...",
-      "dateRange": "Intervallo date",
-      "selectDateRange": "Seleziona intervallo",
-      "allEmotions": "Tutte le emozioni",
-      "allConfidence": "Tutte le confidenze",
-      "high": "Alta (80%+)",
-      "medium": "Media (60-79%)",
-      "low": "Bassa (<60%)",
-      "reset": "Reset Filtri",
-      "exportSelected": "Esporta Selezionate",
-      "compareSelected": "Confronta Selezionate",
-      "deleteSelected": "Elimina Selezionate",
-      "selectAll": "Seleziona Tutto",
-      "deselectAll": "Deseleziona Tutto",
-      "analysisCount": "{{count}} analisi",
-      "noResults": "Nessun risultato trovato",
-      "adjustFilters": "Prova ad aggiustare i filtri per vedere più risultati",
-      "quickFilters": "Filtri Rapidi",
-      "today": "Oggi",
-      "thisWeek": "Questa Settimana", 
-      "thisMonth": "Questo Mese",
-      "lastMonth": "Mese Scorso"
     },
     "processing": {
-      "uploadingFiles": "Caricamento file...",
-      "aiAnalysis": "Analisi AI in corso...",
-      "savingResults": "Salvataggio risultati...",
-      "completed": "Completato!",
-      "preparingFile": "Preparazione file {{current}}/{{total}}...",
-      "preparation": "Preparazione...",
-      "analyzing": "Analizzando Patterns Emotivi...",
-      "generating": "Generazione insights...",
-      "emotionalAnalysis": "Analisi emozioni...",
-      "title": "Analisi in Corso",
-      "currentFile": "File",
+      "preparation": "Preparazione",
+      "uploadingFiles": "Caricamento file",
+      "analyzing": "Analisi in corso",
+      "aiAnalysis": "Analisi AI",
+      "savingResults": "Salvataggio risultati",
+      "completed": "Completato",
+      "generating": "Generazione",
+      "emotionalAnalysis": "Analisi emotiva",
+      "title": "Elaborazione in corso",
+      "currentFile": "File corrente",
       "progress": "Progresso",
-      "pleaseWait": "Attendere prego...",
-      "didYouKnow": "Lo sapevi?",
+      "didYouKnow": "Lo sapevi che",
       "steps": {
-        "upload": "Upload",
-        "analysis": "AI Analysis",
-        "save": "Save",
-        "complete": "Complete",
-        "extractFeatures": "Estrazione features audio",
+        "upload": "Caricamento",
+        "analysis": "Analisi",
+        "save": "Salvataggio",
+        "complete": "Completato",
+        "extractFeatures": "Estrazione caratteristiche",
         "emotionalClassification": "Classificazione emotiva",
         "generateInsights": "Generazione insights",
         "createRecommendations": "Creazione raccomandazioni"
       },
       "funFacts": {
-        "uploading": "I gatti hanno oltre 100 vocalizzi diversi, mentre i cani ne hanno solo 10!",
-        "analyzing": "L'AI analizza oltre 50 parametri acustici per identificare le emozioni del tuo pet",
-        "saving": "Le analisi vengono salvate in modo sicuro e sono sempre accessibili dalla cronologia",
-        "completed": "Analisi completata! Ora puoi scoprire cosa pensa il tuo pet 🎉",
-        "default": "La nostra IA può riconoscere oltre 15 diverse emozioni nel tuo pet!"
+        "uploading": "I cani comunicano attraverso oltre 30 diversi tipi di abbaio!",
+        "analyzing": "L'IA può riconoscere le emozioni degli animali con precisione del 95%!",
+        "saving": "Ogni analisi ci aiuta a migliorare la comprensione degli animali!",
+        "completed": "La tua analisi è pronta per essere esplorata!",
+        "default": "Stiamo elaborando i dati del comportamento del tuo pet..."
       }
+    },
+    "success": {
+      "analysisCompleted": "Analisi completata",
+      "filesAnalyzed": "{{count}} file analizzati con successo",
+      "textAnalyzed": "Testo analizzato con successo",
+      "pdfGenerated": "PDF generato",
+      "dataExported": "Dati esportati con successo",
+      "analysisDeleted": "analisi eliminate"
+    },
+    "errors": {
+      "loadError": "Errore durante il caricamento delle analisi",
+      "selectPet": "Seleziona un pet per continuare",
+      "analysisError": "Errore durante l'analisi",
+      "shareError": "Errore durante la condivisione",
+      "deleteError": "Errore durante l'eliminazione"
     },
     "emotions": {
       "felice": "Felice",
-      "calmo": "Calmo", 
+      "calmo": "Calmo",
       "ansioso": "Ansioso",
       "eccitato": "Eccitato",
       "triste": "Triste",
       "aggressivo": "Aggressivo",
-      "giocoso": "Giocoso"
+      "giocoso": "Giocoso",
+      "rilassato": "Rilassato"
     },
-    "actions": {
-      "viewDetails": "Visualizza Dettagli",
-      "downloadPDF": "Scarica PDF",
-      "shareAnalysis": "Condividi",
-      "deleteAnalysis": "Elimina",
-      "compareWith": "Confronta Con",
-      "playAudio": "Riproduci Audio",
-      "pauseAudio": "Pausa Audio"
+    "history": {
+      "title": "Storico Analisi",
+      "search": "Cerca",
+      "emotion": "Emozione", 
+      "allEmotions": "Tutte le emozioni",
+      "allEmotionsPlaceholder": "Seleziona emozione",
+      "period": "Periodo",
+      "selectPeriod": "Seleziona periodo",
+      "clearFilters": "Pulisci filtri",
+      "exportSelected": "Esporta analisi selezionate",
+      "analysisCount": "analisi"
     },
     "modals": {
-      "deleteConfirm": {
-        "title": "Elimina Analisi",
-        "single": "Sei sicuro di voler eliminare questa analisi?",
-        "multiple": "Sei sicuro di voler eliminare {{count}} analisi selezionate?",
-        "warning": "Questa azione non può essere annullata.",
-        "confirm": "Elimina",
-        "cancel": "Annulla"
-      },
-      "details": {
-        "title": "Dettagli Analisi",
-        "overview": "Panoramica",
-        "insights": "Insights Dettagliati",
-        "recommendations": "Raccomandazioni Specifiche",
-        "technicalInfo": "Informazioni Tecniche"
-      },
       "compare": {
-        "title": "Confronta Analisi",
-        "selectTwo": "Seleziona fino a 2 analisi per confrontarle",
-        "emotionTrend": "Tendenza Emotiva",
-        "confidenceComparison": "Confronto Confidenza",
-        "recommendations": "Raccomandazioni Comparative"
+        "selectTwo": "Seleziona almeno due analisi per confrontare"
       }
     },
     "predictions": {
-      "title": "Previsioni Benessere",
-      "description": "Previsioni basate sui dati storici del tuo pet",
-      "wellnessTrend": "Tendenza Benessere",
-      "moodPredictions": "Previsioni Umore",
-      "healthForecasts": "Previsioni Salute",
-      "weatherImpact": "Impatto Meteo",
-      "dataRange": "Intervallo Dati",
-      "selectRange": "Seleziona intervallo per le previsioni",
-      "lastMonth": "Ultimo Mese",
-      "last3Months": "Ultimi 3 Mesi",
-      "last6Months": "Ultimi 6 Mesi",
-      "lastYear": "Ultimo Anno"
+      "futureTrend": "Tendenza Futura",
+      "predictionDesc": "Basato sui dati delle analisi precedenti",
+      "improvement": "Miglioramento",
+      "decline": "Peggioramento",
+      "stable": "Stabile",
+      "wellnessImproving": "Il benessere del tuo pet sta migliorando",
+      "wellnessDeclining": "Il benessere del tuo pet sta peggiorando",
+      "wellnessStable": "Il benessere del tuo pet è stabile",
+      "noWellnessData": "Dati insufficienti per predizioni",
+      "currentScore": "Punteggio attuale",
+      "prediction30Days": "Predizione 30 giorni",
+      "aiRecommendations": "Raccomandazioni AI",
+      "aiRecommendationsDesc": "Suggerimenti personalizzati basati sui pattern identificati",
+      "realData": "Dati reali",
+      "analysisReal": "Analisi comportamentali reali del tuo pet",
+      "patternReal": "Pattern comportamentali identificati",
+      "alertReal": "Alert comportamentali rilevati",
+      "trendPositive": "Trend positivo identificato",
+      "basedOnAnalyses": "Basato su {{count}} analisi",
+      "seasonalPatterns": "Pattern Stagionali",
+      "seasonalPatternsDesc": "Analisi del comportamento per stagione",
+      "spring": "Primavera",
+      "summer": "Estate",
+      "autumn": "Autunno",
+      "winter": "Inverno",
+      "analysesCount": "{{count}} analisi",
+      "positiveEmotions": "{{percent}}% emozioni positive",
+      "problemsDetected": "{{count}} problemi rilevati",
+      "predominantEmotion": "Emozione predominante: {{emotion}}",
+      "dataFrom": "Dati dal {{date}}",
+      "noDataAvailable": "Nessun dato disponibile per questo periodo.",
+      "continueAnalyzing": "Continua ad analizzare il comportamento del tuo pet per ottenere predizioni più accurate."
     },
-    "success": {
-      "analysisCompleted": "Analisi Completata",
-      "textAnalyzed": "La descrizione del comportamento è stata analizzata con successo!"
-    },
-    "errors": {
-      "selectPet": "Seleziona un pet prima di iniziare l'analisi",
-      "fileUploadError": "Errore durante il caricamento del file",
-      "analysisError": "Errore durante l'analisi",
-      "loadError": "Impossibile caricare le analisi",
-      "deleteError": "Errore durante l'eliminazione",
-      "shareError": "Errore durante la condivisione",
-      "networkError": "Errore di rete. Riprova più tardi.",
-      "invalidFile": "Tipo di file non valido",
-      "fileTooLarge": "File troppo grande. Massimo 50MB",
-      "recordingError": "Errore durante la registrazione",
-      "textTooShort": "Descrizione troppo breve. Inserisci almeno 10 caratteri."
-    },
-    "success": {
-      "analysisCompleted": "Analisi completata con successo",
-      "filesAnalyzed": "{{count}} file analizzati con successo",
-      "textAnalyzed": "Analisi testuale completata",
-      "analysisDeleted": "Analisi eliminata",
-      "analysisShared": "Analisi condivisa",
-      "pdfGenerated": "PDF generato con successo",
-      "dataExported": "Dati esportati"
-    },
-    "startAnalysis": "Inizia Analisi",
-    "results": "Risultati",
-    "confidence": "Confidenza", 
-    "recommendations": "Raccomandazioni",
-    "moodDetected": "Umore Rilevato",
-    "behaviorPatterns": "Modelli Comportamentali"
-  },
-  "diary": {
-    "title": "Diario",
-    "addEntry": "Aggiungi Voce",
-    "editEntry": "Modifica Voce",
-    "entryTitle": "Titolo",
-    "entryContent": "Contenuto",
-    "mood": "Umore",
-    "weather": "Tempo",
-    "temperature": "Temperatura",
-    "behaviorTags": "Tag Comportamentali",
-    "photos": "Foto",
-    "voiceNote": "Nota Vocale",
-    "noEntries": "Nessuna voce nel diario",
-    "noEntriesDesc": "Inizia a registrare i momenti speciali con il tuo pet"
-  },
-  "calendar": {
-    "title": "Calendario",
-    "addEvent": "Aggiungi Evento",
-    "editEvent": "Modifica Evento",
-    "eventTitle": "Titolo Evento",
-    "eventDescription": "Descrizione",
-    "startTime": "Ora di Inizio",
-    "endTime": "Ora di Fine",
-    "location": "Luogo",
-    "category": "Categoria",
-    "attendees": "Partecipanti",
-    "reminders": "Promemoria",
-    "recurring": "Ricorrente",
-    "allDay": "Tutto il giorno",
-    "noEvents": "Nessun evento programmato"
-  },
-  "wellness": {
-    "title": "Benessere",
-    "healthMetrics": "Metriche di Salute",
-    "vitals": "Parametri Vitali",
-    "activity": "Attività",
-    "nutrition": "Nutrizione",
-    "sleep": "Sonno",
-    "weight": "Peso",
-    "heartRate": "Frequenza Cardiaca",
-    "temperature": "Temperatura",
-    "lastCheckup": "Ultimo Controllo",
-    "nextAppointment": "Prossimo Appuntamento"
-  },
-  "training": {
-    "title": "AI Training",
-    "protocols": "Protocolli",
-    "exercises": "Esercizi",
-    "progress": "Progresso",
-    "difficulty": "Difficoltà",
-    "duration": "Durata",
-    "materials": "Materiali",
-    "instructions": "Istruzioni",
-    "completed": "Completato",
-    "inProgress": "In Corso",
-    "notStarted": "Non Iniziato"
-  },
-  "community": {
-    "title": "Community",
-    "channels": "Canali",
-    "messages": "Messaggi",
-    "members": "Membri",
-    "online": "Online",
-    "typeMessage": "Scrivi un messaggio...",
-    "sendMessage": "Invia Messaggio",
-    "joinChannel": "Unisciti al Canale",
-    "leaveChannel": "Lascia il Canale"
-  },
-  "settings": {
-    "title": "Impostazioni",
-    "account": "Account",
-    "privacy": "Privacy",
-    "notifications": "Notifiche",
-    "language": "Lingua",
-    "theme": "Tema",
-    "appearance": "Aspetto",
-    "subscription": "Abbonamento",
-    "billing": "Fatturazione",
-    "support": "Supporto",
-    "about": "Info"
-  },
-  "auth": {
-    "welcome": "Benvenuto in PetVoice",
-    "signIn": "Accedi",
-    "signUp": "Registrati",
-    "forgotPassword": "Password dimenticata?",
-    "resetPassword": "Reimposta Password",
-    "emailPlaceholder": "Inserisci la tua email",
-    "passwordPlaceholder": "Inserisci la tua password",
-    "confirmPassword": "Conferma Password",
-    "fullName": "Nome Completo",
-    "createAccount": "Crea Account",
-    "alreadyHaveAccount": "Hai già un account?",
-    "dontHaveAccount": "Non hai un account?",
-    "signInWithEmail": "Accedi con Email",
-    "signUpWithEmail": "Registrati con Email"
-  },
-  "errors": {
-    "somethingWentWrong": "Qualcosa è andato storto",
-    "tryAgain": "Riprova",
-    "networkError": "Errore di rete",
-    "unauthorized": "Non autorizzato",
-    "notFound": "Non trovato",
-    "validationError": "Errore di validazione",
-    "serverError": "Errore del server"
-  },
-  "success": {
-    "saved": "Salvato con successo",
-    "deleted": "Eliminato con successo",
-    "updated": "Aggiornato con successo",
-    "created": "Creato con successo"
-  },
-  "toast": {
-    "auth": {
-      "loginSuccess": "Accesso effettuato con successo",
-      "loginError": "Errore durante l'accesso",
-      "logoutSuccess": "Disconnessione effettuata con successo",
-      "signupSuccess": "Registrazione completata con successo",
-      "signupError": "Errore durante la registrazione",
-      "passwordChangeSuccess": "Password modificata con successo",
-      "passwordChangeError": "Errore durante la modifica della password",
-      "passwordResetSent": "Email di reset password inviata",
-      "passwordResetError": "Errore durante l'invio del reset password",
-      "emailConfirmationSent": "Email di conferma inviata",
-      "profileUpdated": "Profilo aggiornato con successo",
-      "profileError": "Errore durante l'aggiornamento del profilo"
-    },
-    "pets": {
-      "petAdded": "Pet aggiunto con successo",
-      "petAddedDescription": "è ora parte della tua famiglia!",
-      "petAddError": "Errore durante l'aggiunta del pet",
-      "petUpdated": "Informazioni pet aggiornate",
-      "petUpdatedDescription": "Le informazioni di {name} sono state aggiornate",
-      "petUpdateError": "Errore durante l'aggiornamento del pet",
-      "petDeleted": "Pet eliminato",
-      "petDeletedDescription": "è stato rimosso dalla tua famiglia",
-      "petDeleteError": "Errore durante l'eliminazione del pet",
-      "petSelected": "Pet selezionato",
-      "validationRequired": "Nome e tipo del pet sono obbligatori",
-      "avatarUploaded": "Foto profilo caricata",
-      "avatarUploadError": "Errore durante il caricamento della foto",
-      "avatarRemoved": "Foto profilo rimossa"
-    },
-    "analysis": {
-      "analysisStarted": "Analisi iniziata",
-      "analysisComplete": "Analisi completata",
-      "analysisError": "Errore durante l'analisi",
-      "fileUploadSuccess": "File caricato con successo",
-      "fileUploadError": "Errore durante il caricamento del file",
-      "invalidFileType": "Tipo di file non supportato",
-      "fileTooLarge": "File troppo grande",
-      "recordingStarted": "Registrazione iniziata",
-      "recordingStopped": "Registrazione interrotta",
-      "recordingError": "Errore durante la registrazione",
-      "textAnalysisComplete": "Analisi testuale completata",
-      "analysisShared": "Analisi condivisa con successo"
-    },
-    "community": {
-      "messageSent": "Messaggio inviato",
-      "messageError": "Errore nell'invio del messaggio",
-      "messageDeleted": "Messaggio eliminato",
-      "messageDeleteError": "Errore nell'eliminazione del messaggio",
-      "joinedChannel": "Ti sei unito al canale",
-      "leftChannel": "Hai lasciato il canale",
-      "channelError": "Errore nel canale",
-      "voiceMessageSent": "Messaggio vocale inviato",
-      "voiceMessageError": "Errore nell'invio del messaggio vocale",
-      "fileShared": "File condiviso",
-      "fileShareError": "Errore nella condivisione del file",
-      "emergencyMessageSent": "Messaggio di emergenza inviato",
-      "userBlocked": "Utente bloccato",
-      "userUnblocked": "Utente sbloccato"
-    },
-    "diary": {
-      "entryAdded": "Voce del diario aggiunta",
-      "entryAddError": "Errore nell'aggiunta della voce",
-      "entryUpdated": "Voce del diario aggiornata",
-      "entryUpdateError": "Errore nell'aggiornamento della voce",
-      "entryDeleted": "Voce del diario eliminata",
-      "entryDeleteError": "Errore nell'eliminazione della voce",
-      "photoUploaded": "Foto caricata",
-      "photoUploadError": "Errore nel caricamento della foto",
-      "voiceNoteAdded": "Nota vocale aggiunta",
-      "voiceNoteError": "Errore nella nota vocale"
-    },
-    "calendar": {
-      "eventAdded": "Evento aggiunto al calendario",
-      "eventAddError": "Errore nell'aggiunta dell'evento",
-      "eventUpdated": "Evento aggiornato",
-      "eventUpdateError": "Errore nell'aggiornamento dell'evento",
-      "eventDeleted": "Evento eliminato",
-      "eventDeleteError": "Errore nell'eliminazione dell'evento",
-      "reminderSet": "Promemoria impostato",
-      "reminderError": "Errore nell'impostazione del promemoria"
-    },
-    "wellness": {
-      "metricsUpdated": "Metriche di benessere aggiornate",
-      "metricsError": "Errore nell'aggiornamento delle metriche",
-      "alertCreated": "Avviso di salute creato",
-      "alertResolved": "Avviso di salute risolto",
-      "appointmentScheduled": "Appuntamento veterinario programmato",
-      "appointmentError": "Errore nella programmazione dell'appuntamento"
-    },
-    "settings": {
-      "settingsSaved": "Impostazioni salvate",
-      "settingsError": "Errore nel salvataggio delle impostazioni",
-      "languageChanged": "Lingua modificata",
-      "themeChanged": "Tema modificato",
-      "notificationsUpdated": "Preferenze notifiche aggiornate",
-      "privacyUpdated": "Impostazioni privacy aggiornate",
-      "accountDeleted": "Account eliminato",
-      "accountDeleteError": "Errore nell'eliminazione dell'account",
-      "dataExported": "Dati esportati con successo",
-      "dataExportError": "Errore nell'esportazione dei dati",
-      "dataImported": "Dati importati con successo",
-      "dataImportError": "Errore nell'importazione dei dati"
-    },
-    "training": {
-      "protocolStarted": "Protocollo di allenamento iniziato",
-      "protocolCompleted": "Protocollo completato con successo",
-      "exerciseCompleted": "Esercizio completato",
-      "progressSaved": "Progresso salvato",
-      "protocolError": "Errore nel protocollo di allenamento"
-    },
-    "subscription": {
-      "planUpgraded": "Piano aggiornato con successo",
-      "planDowngraded": "Piano modificato",
-      "subscriptionCancelled": "Abbonamento cancellato",
-      "paymentSuccess": "Pagamento completato con successo",
-      "paymentError": "Errore nel pagamento",
-      "planLimitReached": "Limite del piano raggiunto"
-    },
-    "general": {
-      "operationSuccess": "Operazione completata con successo",
-      "operationError": "Errore durante l'operazione",
-      "networkError": "Errore di connessione di rete",
-      "serverError": "Errore del server",
-      "validationError": "Errore di validazione",
-      "permissionDenied": "Permesso negato",
-      "sessionExpired": "Sessione scaduta",
-      "featureNotAvailable": "Funzionalità non disponibile",
-      "copiedToClipboard": "Copiato negli appunti",
-      "downloadStarted": "Download iniziato",
-      "downloadComplete": "Download completato",
-      "uploadComplete": "Caricamento completato"
-    }
-  },
-  "buttons": {
-    "basic": {
-      "save": "Salva",
-      "delete": "Elimina",
-      "edit": "Modifica",
-      "cancel": "Annulla",
-      "confirm": "Conferma",
-      "submit": "Invia",
-      "add": "Aggiungi",
-      "remove": "Rimuovi",
-      "close": "Chiudi",
-      "open": "Apri",
-      "back": "Indietro",
-      "next": "Avanti",
-      "continue": "Continua",
-      "finish": "Finalizza",
-      "complete": "Completa",
-      "start": "Inizia",
-      "stop": "Ferma",
-      "pause": "Pausa",
-      "resume": "Riprendi",
-      "reset": "Reset",
-      "retry": "Riprova",
-      "refresh": "Aggiorna",
-      "reload": "Ricarica"
-    },
-    "auth": {
-      "login": "Accedi",
-      "logout": "Esci",
-      "signup": "Registrati",
-      "signIn": "Accedi",
-      "signUp": "Registrati",
-      "signOut": "Disconnetti",
-      "forgotPassword": "Password dimenticata",
-      "resetPassword": "Reimposta password",
-      "changePassword": "Cambia password",
-      "createAccount": "Crea account"
-    },
-    "pets": {
-      "addPet": "Aggiungi Pet",
-      "editPet": "Modifica Pet",
-      "deletePet": "Elimina Pet",
-      "selectPet": "Seleziona Pet",
-      "managePets": "Gestisci Pet",
-      "uploadPhoto": "Carica foto",
-      "removePhoto": "Rimuovi foto",
-      "setFavorite": "Imposta preferito"
-    },
-    "analysis": {
-      "startAnalysis": "Inizia analisi",
-      "uploadFile": "Carica file",
-      "recordAudio": "Registra audio",
-      "stopRecording": "Ferma registrazione",
-      "analyzeText": "Analizza testo",
-      "shareAnalysis": "Condividi analisi",
-      "downloadReport": "Scarica rapporto",
-      "viewDetails": "Visualizza dettagli"
-    },
-    "community": {
-      "joinChannel": "Unisciti al canale",
-      "leaveChannel": "Lascia canale",
-      "sendMessage": "Invia messaggio",
-      "deleteMessage": "Elimina messaggio",
-      "editMessage": "Modifica messaggio",
-      "shareFile": "Condividi file",
-      "startPrivateChat": "Chat privata",
-      "blockUser": "Blocca utente",
-      "reportUser": "Segnala utente"
-    },
-    "diary": {
-      "addEntry": "Aggiungi voce",
-      "editEntry": "Modifica voce",
-      "deleteEntry": "Elimina voce",
-      "addPhoto": "Aggiungi foto",
-      "addVoiceNote": "Aggiungi nota vocale",
-      "saveEntry": "Salva voce",
-      "viewEntry": "Visualizza voce"
-    },
-    "calendar": {
-      "addEvent": "Aggiungi evento",
-      "editEvent": "Modifica evento",
-      "deleteEvent": "Elimina evento",
-      "setReminder": "Imposta promemoria",
-      "viewEvent": "Visualizza evento",
-      "scheduleAppointment": "Prenota appuntamento"
-    },
-    "training": {
-      "startProtocol": "Avvia protocollo",
-      "completeExercise": "Completa esercizio",
-      "skipExercise": "Salta esercizio",
-      "saveProgress": "Salva progresso",
-      "viewProtocol": "Visualizza protocollo",
-      "customizeProtocol": "Personalizza protocollo"
-    },
-    "settings": {
-      "saveSettings": "Salva impostazioni",
-      "resetSettings": "Ripristina impostazioni",
-      "exportData": "Esporta dati",
-      "importData": "Importa dati",
-      "deleteAccount": "Elimina account",
-      "changeLanguage": "Cambia lingua",
-      "changeTheme": "Cambia tema",
-      "manageSubscription": "Gestisci abbonamento"
-    },
-    "subscription": {
-      "upgrade": "Aggiorna piano",
-      "downgrade": "Cambia piano",
-      "cancel": "Cancella abbonamento",
-      "reactivate": "Riattiva abbonamento",
-      "viewPlans": "Visualizza piani",
-      "choosePlan": "Scegli piano",
-      "payNow": "Paga ora"
-    },
-    "general": {
-      "view": "Visualizza",
-      "hide": "Nascondi",
-      "show": "Mostra",
-      "search": "Cerca",
-      "filter": "Filtra",
-      "sort": "Ordina",
-      "copy": "Copia",
-      "paste": "Incolla",
-      "cut": "Taglia",
-      "select": "Seleziona",
-      "selectAll": "Seleziona tutto",
-      "download": "Scarica",
-      "upload": "Carica",
-      "share": "Condividi",
-      "print": "Stampa",
-      "preview": "Anteprima",
-      "maximize": "Massimizza",
-      "minimize": "Minimizza",
-      "fullscreen": "Schermo intero",
-      "help": "Aiuto",
-      "support": "Supporto",
-      "contact": "Contatta",
-      "feedback": "Feedback",
-      "report": "Segnala",
-      "demo": "Demo",
-      "test": "Test",
-      "try": "Prova",
-      "learn": "Impara",
-      "tutorial": "Tutorial",
-      "guide": "Guida"
-    },
-    "navigation": {
-      "home": "Home",
-      "dashboard": "Dashboard",
-      "back": "Indietro",
-      "forward": "Avanti",
-      "up": "Su",
-      "down": "Giù",
-      "left": "Sinistra",
-      "right": "Destra",
-      "menu": "Menu",
-      "sidebar": "Barra laterale",
-      "goTo": "Vai a",
-      "navigate": "Naviga"
+    "results": {
+      "shareAnalysis": "Condividi Analisi",
+      "shareDescription": "Scegli come condividere i risultati dell'analisi di {{petName}}",
+      "facebook": "Facebook",
+      "twitter": "Twitter", 
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "secondaryEmotions": "Emozioni Secondarie",
+      "fileInfo": {
+        "file": "File", 
+        "size": "Dimensione",
+        "duration": "Durata",
+        "date": "Data"
+      },
+      "tabs": {
+        "emotions": "Emozioni",
+        "insights": "Insights"
+      },
+      "triggers": {
+        "title": "Fattori Scatenanti"
+      },
+      "primaryEmotion": "Emozione Primaria",
+      "toasts": {
+        "followUpScheduled": "Follow-up programmato",
+        "reminderCreated": "Promemoria creato per {{date}}",
+        "cannotCreateReminder": "Impossibile creare il promemoria"
+      }
     }
   }
 }
