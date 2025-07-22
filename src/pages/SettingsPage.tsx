@@ -72,6 +72,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
+import { useSubscription } from '@/hooks/useSubscription';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -155,11 +156,15 @@ const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const { appearance, updateAppearance } = useAppearance();
+  const { subscription, loading: subscriptionLoading } = useSubscription();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [newEmail, setNewEmail] = useState('');
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [channelUserCounts, setChannelUserCounts] = useState<Record<string, number>>({});
+  const [channels, setChannels] = useState<any[]>([]);
   
   // Security State
   const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
@@ -240,6 +245,7 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     loadUserProfile();
     loadSecurityData();
+    loadCommunityStats();
   }, []);
 
   const loadUserProfile = async () => {
@@ -355,6 +361,54 @@ const SettingsPage: React.FC = () => {
     }
 
     return history;
+  };
+
+  const loadCommunityStats = async () => {
+    try {
+      // Carica numero totale utenti
+      const { count: usersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      setTotalUsers(usersCount || 0);
+      
+      // Carica canali community
+      const { data: channelsData } = await supabase
+        .from('community_channels')
+        .select('*')
+        .eq('is_active', true);
+      
+      setChannels(channelsData || []);
+      
+      // Carica conteggi utenti per canale
+      if (channelsData) {
+        const counts: Record<string, number> = {};
+        
+        for (const channel of channelsData) {
+          const { count } = await supabase
+            .from('user_channel_subscriptions')
+            .select('*', { count: 'exact', head: true })
+            .eq('channel_id', channel.id);
+          
+          counts[channel.id] = count || 0;
+        }
+        
+        setChannelUserCounts(counts);
+      }
+    } catch (error) {
+      console.error('Error loading community stats:', error);
+    }
+  };
+
+  const calculateDaysToRenewal = () => {
+    if (!subscription.subscription_end) return null;
+    
+    const endDate = new Date(subscription.subscription_end);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays > 0 ? diffDays : 0;
   };
 
   const handleAvatarChange = (url: string) => {
@@ -1159,7 +1213,7 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-12">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
@@ -1179,6 +1233,14 @@ Continuare?
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
             Aspetto
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Abbonamenti
+          </TabsTrigger>
+          <TabsTrigger value="community" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Community
           </TabsTrigger>
           <TabsTrigger value="accessibility" className="flex items-center gap-2">
             <Accessibility className="h-4 w-4" />
@@ -1897,6 +1959,176 @@ Continuare?
                       <SelectItem value="CHF">Franco Svizzero (CHF)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Subscription Tab */}
+        <TabsContent value="subscription" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Stato Abbonamento
+              </CardTitle>
+              <CardDescription>
+                Visualizza informazioni sul tuo abbonamento Premium
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {subscription.subscribed ? (
+                  <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-3">
+                      <Crown className="h-6 w-6 text-green-600" />
+                      <div>
+                        <h3 className="font-semibold text-green-800 dark:text-green-200">Abbonamento Premium Attivo</h3>
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          {subscription.subscription_end && (
+                            <>
+                              {subscription.is_cancelled
+                                ? `Attivo fino al ${new Date(subscription.subscription_end).toLocaleDateString()}`
+                                : `Prossimo rinnovo: ${new Date(subscription.subscription_end).toLocaleDateString()}`
+                              }
+                              {(() => {
+                                const daysToRenewal = calculateDaysToRenewal();
+                                return daysToRenewal !== null ? ` (${daysToRenewal} giorni)` : '';
+                              })()}
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                      Premium
+                    </Badge>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                      <div>
+                        <h3 className="font-semibold text-yellow-800 dark:text-yellow-200">Abbonamento Non Attivo</h3>
+                        <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                          Attiva Premium per accedere a tutte le funzionalità
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="border-yellow-500 text-yellow-700">
+                      Gratuito
+                    </Badge>
+                  </div>
+                )}
+
+                {subscription.is_cancelled && (
+                  <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950">
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                    <AlertDescription className="text-orange-800 dark:text-orange-200">
+                      Il tuo abbonamento è programmato per la cancellazione il{' '}
+                      {subscription.cancellation_effective_date &&
+                        new Date(subscription.cancellation_effective_date).toLocaleDateString()}.
+                      {subscription.cancellation_type === 'immediate' ? ' Accesso già limitato.' : ' Accesso completo fino alla data.'}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Community Tab */}
+        <TabsContent value="community" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Community Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Statistiche Community
+                </CardTitle>
+                <CardDescription>
+                  Panoramica generale della community PetVoice
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <UserCheck className="h-6 w-6 text-primary" />
+                      <div>
+                        <h3 className="font-semibold">Utenti Totali</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Membri registrati sulla piattaforma
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-lg px-3 py-1">
+                      {totalUsers.toLocaleString()}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-accent/5 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Heart className="h-6 w-6 text-accent" />
+                      <div>
+                        <h3 className="font-semibold">Canali Attivi</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Gruppi di discussione disponibili
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-lg px-3 py-1">
+                      {channels.length}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Community Channels */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="h-5 w-5" />
+                  Canali Community
+                </CardTitle>
+                <CardDescription>
+                  Lista dei gruppi di discussione con numero di membri
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {channels.map((channel) => (
+                    <div
+                      key={channel.id}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-lg">{channel.emoji || '🐾'}</div>
+                        <div>
+                          <h4 className="font-medium">{channel.name}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {channel.channel_type === 'general' && 'Discussioni generali'}
+                            {channel.channel_type === 'breed' && `Razza: ${channel.breed}`}
+                            {channel.channel_type === 'location' && `Zona: ${channel.country_code}`}
+                            {channel.channel_type === 'health' && 'Salute e benessere'}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {channelUserCounts[channel.id] || 0}
+                      </Badge>
+                    </div>
+                  ))}
+                  {channels.length === 0 && (
+                    <div className="text-center text-muted-foreground py-8">
+                      <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>Nessun canale community disponibile</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
