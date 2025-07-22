@@ -120,6 +120,17 @@ SUPPORTO E ASSISTENZA:
 - Video call su appuntamento
 - Community forum attivo
 - Documentazione completa online
+
+ASSISTENTE AI LIVE CHAT:
+- Disponibile 24/7 tramite pulsante in basso a destra
+- Conosce ogni aspetto della piattaforma
+- Fornisce supporto tecnico immediato
+- Risolve dubbi su tutte le funzionalità
+- Guida nell'uso ottimale delle features
+- Interpreta risultati e analisi
+- Suggerisce best practices personalizzate
+- Aiuta nella risoluzione di problemi
+- Fornisce consigli per il benessere del pet
 `;
 
 serve(async (req) => {
@@ -133,6 +144,8 @@ serve(async (req) => {
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
     }
+
+    console.log('AI Assistance request:', message);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -156,6 +169,7 @@ ISTRUZIONI:
 - Usa emoji appropriate per rendere le risposte più accattivanti
 - Se l'utente chiede informazioni tecniche, fornisci dettagli accurati
 - Incoraggia l'uso delle funzionalità avanzate della piattaforma
+- Sii proattivo nel suggerire soluzioni
 
 CONOSCENZA DELLA PIATTAFORMA:
 ${PETVOICE_KNOWLEDGE}
@@ -173,7 +187,14 @@ Fornisci sempre risposte utili, complete e orientate all'azione per aiutare l'ut
     });
 
     const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('OpenAI API error:', data);
+      throw new Error(data.error?.message || 'OpenAI API error');
+    }
+
     const aiResponse = data.choices[0].message.content;
+    console.log('AI response generated successfully');
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
