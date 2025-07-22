@@ -1005,6 +1005,59 @@
     "lastCheckup": "Último Chequeo",
     "nextAppointment": "Próxima Cita"
   },
+  "aiTraining": {
+    "title": "Protocolos de Entrenamiento IA",
+    "subtitle": "Protocolos de entrenamiento personalizados con inteligencia artificial",
+    "tabs": {
+      "protocols": "Protocolos Activos",
+      "sessions": "Sesiones",
+      "analytics": "Análisis"
+    },
+    "protocol": {
+      "day": "Día",
+      "success": "éxito",
+      "progress": "Progreso",
+      "difficulty": {
+        "facile": "Fácil",
+        "medio": "Medio", 
+        "difficile": "Difícil"
+      },
+      "status": {
+        "active": "Activo",
+        "completed": "Completado",
+        "paused": "Pausado",
+        "available": "Disponible"
+      }
+    },
+    "sessions": {
+      "title": "Sesión",
+      "exercises": "Ejercicios",
+      "notes": "Notas",
+      "videoAnalysis": "Análisis de Video IA",
+      "videoButton": "Análisis de Video",
+      "posture": "Postura",
+      "engagement": "Compromiso",
+      "stress": "Estrés",
+      "recommendations": "Recomendaciones IA"
+    },
+    "analytics": {
+      "title": "Análisis de Rendimiento",
+      "protocolsCompleted": "Protocolos Completados",
+      "avgSuccessRate": "Tasa de Éxito Promedio",
+      "totalSessions": "Sesiones Totales",
+      "improvementRate": "Tasa de Mejora"
+    },
+    "messages": {
+      "loading": "Cargando protocolos...",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar este protocolo?",
+      "editClick": "¡EDITAR PRESIONADO!",
+      "deleteClick": "¡ELIMINAR PRESIONADO!"
+    },
+    "buttons": {
+      "edit": "EDITAR",
+      "delete": "ELIMINAR"
+    }
+  },
   "training": {
     "title": "Entrenamiento IA",
     "protocols": "Protocolos",

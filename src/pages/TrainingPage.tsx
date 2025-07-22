@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AITrainingHub } from '@/components/training/AITrainingHub';
 import { useTrainingProtocols, useActiveProtocols, useCompletedProtocols } from '@/hooks/useTrainingProtocols';
 import { Brain, Target, TrendingUp, Clock, Award, Users } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const TrainingPage: React.FC = () => {
+  const { t } = useTranslation();
   const { data: protocols, isLoading: protocolsLoading } = useTrainingProtocols(); // Pubblici
   const { data: activeProtocols, isLoading: activeLoading } = useActiveProtocols(); // Attivi dell'utente
   const { data: completedProtocols, isLoading: completedLoading } = useCompletedProtocols(); // Completati dell'utente
@@ -24,10 +26,10 @@ const TrainingPage: React.FC = () => {
         <Brain className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            AI Training Protocols
+            {t('aiTraining.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Protocolli di addestramento personalizzati con intelligenza artificiale
+            {t('aiTraining.subtitle')}
           </p>
         </div>
       </div>

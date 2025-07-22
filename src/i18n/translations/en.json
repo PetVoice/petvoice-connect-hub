@@ -1005,6 +1005,59 @@
     "lastCheckup": "Last Checkup",
     "nextAppointment": "Next Appointment"
   },
+  "aiTraining": {
+    "title": "AI Training Protocols",
+    "subtitle": "Personalized training protocols with artificial intelligence",
+    "tabs": {
+      "protocols": "Active Protocols",
+      "sessions": "Sessions",
+      "analytics": "Analytics"
+    },
+    "protocol": {
+      "day": "Day",
+      "success": "success",
+      "progress": "Progress",
+      "difficulty": {
+        "facile": "Easy",
+        "medio": "Medium", 
+        "difficile": "Hard"
+      },
+      "status": {
+        "active": "Active",
+        "completed": "Completed",
+        "paused": "Paused",
+        "available": "Available"
+      }
+    },
+    "sessions": {
+      "title": "Session",
+      "exercises": "Exercises",
+      "notes": "Notes",
+      "videoAnalysis": "AI Video Analysis",
+      "videoButton": "Video Analysis",
+      "posture": "Posture",
+      "engagement": "Engagement",
+      "stress": "Stress",
+      "recommendations": "AI Recommendations"
+    },
+    "analytics": {
+      "title": "Performance Analytics",
+      "protocolsCompleted": "Protocols Completed",
+      "avgSuccessRate": "Average Success Rate",
+      "totalSessions": "Total Sessions",
+      "improvementRate": "Improvement Rate"
+    },
+    "messages": {
+      "loading": "Loading protocols...",
+      "deleteConfirm": "Are you sure you want to delete this protocol?",
+      "editClick": "EDIT CLICKED!",
+      "deleteClick": "DELETE CLICKED!"
+    },
+    "buttons": {
+      "edit": "EDIT",
+      "delete": "DELETE"
+    }
+  },
   "training": {
     "title": "AI Training",
     "protocols": "Protocols",

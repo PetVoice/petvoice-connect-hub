@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface TrainingProtocol {
   id: string;
@@ -108,6 +109,7 @@ const mockSessions: TrainingSession[] = [
 ];
 
 export const AITrainingProtocols: React.FC = () => {
+  const { t } = useTranslation();
   const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('protocols');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -151,7 +153,7 @@ export const AITrainingProtocols: React.FC = () => {
   };
 
   const handleDeleteProtocol = async (protocolId: string) => {
-    if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
+    if (window.confirm(t('aiTraining.messages.deleteConfirm'))) {
       await deleteProtocol.mutateAsync(protocolId);
     }
   };
@@ -201,7 +203,7 @@ export const AITrainingProtocols: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Caricamento protocolli...</div>;
+    return <div className="flex justify-center p-8">{t('aiTraining.messages.loading')}</div>;
   }
 
   return (
@@ -210,18 +212,18 @@ export const AITrainingProtocols: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Training Protocols
+            {t('aiTraining.title')}
           </CardTitle>
           <CardDescription>
-            Programmi di modificazione comportamentale personalizzati con AI
+            {t('aiTraining.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="protocols">Protocolli Attivi</TabsTrigger>
-              <TabsTrigger value="sessions">Sessioni</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="protocols">{t('aiTraining.tabs.protocols')}</TabsTrigger>
+              <TabsTrigger value="sessions">{t('aiTraining.tabs.sessions')}</TabsTrigger>
+              <TabsTrigger value="analytics">{t('aiTraining.tabs.analytics')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="protocols" className="mt-4">
@@ -265,19 +267,19 @@ export const AITrainingProtocols: React.FC = () => {
                               {protocol.description}
                             </p>
                             <div className="flex items-center gap-4 text-sm">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                Giorno {protocol.current_day}/{protocol.duration_days}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <TrendingUp className="h-4 w-4" />
-                                {Math.round(protocol.success_rate)}% successo
-                              </span>
+                               <span className="flex items-center gap-1">
+                                 <Calendar className="h-4 w-4" />
+                                 {t('aiTraining.protocol.day')} {protocol.current_day}/{protocol.duration_days}
+                               </span>
+                               <span className="flex items-center gap-1">
+                                 <TrendingUp className="h-4 w-4" />
+                                 {Math.round(protocol.success_rate)}% {t('aiTraining.protocol.success')}
+                               </span>
                             </div>
                             <div className="mt-3">
-                              <div className="flex items-center justify-between text-sm mb-1">
-                                <span>Progresso</span>
-                                <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
+                               <div className="flex items-center justify-between text-sm mb-1">
+                                 <span>{t('aiTraining.protocol.progress')}</span>
+                                 <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
                               </div>
                               <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
                             </div>
@@ -300,43 +302,43 @@ export const AITrainingProtocols: React.FC = () => {
                             <Button 
                               size="lg" 
                               variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                alert('MODIFICA CLICCATO!');
-                                handleEditProtocol(protocol);
-                              }}
-                              style={{ 
-                                backgroundColor: 'blue', 
-                                color: 'white', 
-                                fontSize: '16px',
-                                padding: '15px',
-                                border: '3px solid black'
-                              }}
-                            >
-                              <Edit className="h-4 w-4 mr-1" />
-                              MODIFICA 🔧
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 alert(t('aiTraining.messages.editClick'));
+                                 handleEditProtocol(protocol);
+                               }}
+                               style={{ 
+                                 backgroundColor: 'blue', 
+                                 color: 'white', 
+                                 fontSize: '16px',
+                                 padding: '15px',
+                                 border: '3px solid black'
+                               }}
+                             >
+                               <Edit className="h-4 w-4 mr-1" />
+                               {t('aiTraining.buttons.edit')} 🔧
                             </Button>
                             <Button 
                               size="lg" 
                               variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                alert('ELIMINA CLICCATO!');
-                                if (window.confirm('Sei sicuro di voler eliminare questo protocollo?')) {
-                                  handleDeleteProtocol(protocol.id);
-                                }
-                              }}
-                              style={{ 
-                                backgroundColor: 'red', 
-                                color: 'white', 
-                                fontSize: '16px',
-                                padding: '15px',
-                                border: '3px solid black'
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              ELIMINA 🗑️
-                            </Button>
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 alert(t('aiTraining.messages.deleteClick'));
+                                 if (window.confirm(t('aiTraining.messages.deleteConfirm'))) {
+                                   handleDeleteProtocol(protocol.id);
+                                 }
+                               }}
+                               style={{ 
+                                 backgroundColor: 'red', 
+                                 color: 'white', 
+                                 fontSize: '16px',
+                                 padding: '15px',
+                                 border: '3px solid black'
+                               }}
+                             >
+                               <Trash2 className="h-4 w-4 mr-1" />
+                               {t('aiTraining.buttons.delete')} 🗑️
+                             </Button>
                           </div>
                         </div>
                       </CardContent>
