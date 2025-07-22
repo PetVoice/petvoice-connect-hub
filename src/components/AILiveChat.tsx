@@ -504,6 +504,20 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setMessages(prev => [...prev, resetMessage]);
   };
 
+  // Initialize chat on open
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      setCurrentFlow(mainFlow);
+      const welcomeMessage: ChatMessage = {
+        id: Date.now().toString(),
+        text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse oppure scrivimi direttamente la tua domanda:",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [isOpen, messages.length, mainFlow]);
+
   if (!isOpen) return null;
 
   return (
