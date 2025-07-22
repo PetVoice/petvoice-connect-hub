@@ -425,13 +425,17 @@
         "exploratoryBehaviorCuriosity": "Comportamento esplorativo con curiosità verso nuovi oggetti e spazi"
       }
     },
+    "results": {
+      "emotion": "Emozione",
+      "behavioralInsights": "Insights Comportamentali"
+    },
     "pdf": {
       "multipleAnalysisTitle": "REPORT ANALISI MULTIPLE - PET VOICE",
       "pet": "Pet",
       "analysisCount": "Numero analisi",
       "date": "Data"
-    },
-      "title": "Cronologia Analisi",
+     },
+    "history": {
       "filterByEmotion": "Filtra per emozione",
       "filterByConfidence": "Filtra per confidenza",
       "searchPlaceholder": "Cerca nelle analisi...",
@@ -832,9 +836,8 @@
         }
       }
     }
-    },
-    "history": {
-    "title": "Diario",
+  },
+  "diary": {
     "addEntry": "Aggiungi Voce",
     "editEntry": "Modifica Voce",
     "entryTitle": "Titolo",

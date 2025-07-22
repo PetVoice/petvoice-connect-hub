@@ -1071,15 +1071,18 @@ const AnalysisPage: React.FC = () => {
         
         pdf.setFontSize(16);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(t('analysis.pdf.multipleAnalysisTitle', 'MULTIPLE ANALYSIS REPORT - PET VOICE'), 20, yPosition);
+        const title = t('analysis.pdf.multipleAnalysisTitle', 'MULTIPLE ANALYSIS REPORT - PET VOICE');
+        pdf.text(title, 20, yPosition);
         yPosition += 15;
         
         pdf.setFontSize(14);
-        pdf.text(`${t('analysis.pdf.pet', 'Pet')}: ${selectedPet?.name || 'N/A'}`, 20, yPosition);
+        const petText = `${t('analysis.pdf.pet', 'Pet')}: ${selectedPet?.name || 'N/A'}`;
+        pdf.text(petText, 20, yPosition);
         yPosition += 10;
         
         pdf.setFontSize(12);
-        pdf.text(`${t('analysis.pdf.analysisCount', 'Analysis count')}: ${selectedAnalysesData.length}`, 20, yPosition);
+        const countText = `${t('analysis.pdf.analysisCount', 'Analysis count')}: ${selectedAnalysesData.length}`;
+        pdf.text(countText, 20, yPosition);
         yPosition += 10;
         
         selectedAnalysesData.forEach((analysis, index) => {
@@ -1092,22 +1095,25 @@ const AnalysisPage: React.FC = () => {
           pdf.text(`${index + 1}. ${getReadableAnalysisName(analysis, language)}`, 20, yPosition);
           yPosition += lineHeight;
           
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(`${t('analysis.pdf.date', 'Date')}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`, 25, yPosition);
+           pdf.setFont('helvetica', 'normal');
+           const dateText = `${t('analysis.pdf.date', 'Date')}: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm')}`;
+           pdf.text(dateText, 25, yPosition);
+           yPosition += lineHeight;
+           
+           // Translate emotion to the current language
+           const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, language);
+           const emotionText = `${t('analysis.results.emotion', 'Emotion')}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`;
+           pdf.text(emotionText, 25, yPosition);
           yPosition += lineHeight;
           
-          // Translate emotion to the current language
-          const translatedEmotion = getEmotionTranslation(analysis.primary_emotion, language);
-          pdf.text(`${t('analysis.results.emotion', 'Emotion')}: ${translatedEmotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 25, yPosition);
-          yPosition += lineHeight;
-          
-          if (analysis.behavioral_insights) {
-            // Translate insights using current language
-            const translatedInsight = translateInsight(analysis.behavioral_insights);
-            const insight = translatedInsight.length > 100 
-              ? translatedInsight.substring(0, 100) + '...'
-              : translatedInsight;
-            pdf.text(`${t('analysis.results.behavioralInsights', 'Behavioral Insights')}: ${insight}`, 25, yPosition);
+           if (analysis.behavioral_insights) {
+             // Translate insights using current language
+             const translatedInsight = translateInsight(analysis.behavioral_insights);
+             const insight = translatedInsight.length > 100 
+               ? translatedInsight.substring(0, 100) + '...'
+               : translatedInsight;
+             const insightText = `${t('analysis.results.behavioralInsights', 'Behavioral Insights')}: ${insight}`;
+             pdf.text(insightText, 25, yPosition);
             yPosition += lineHeight;
           }
           yPosition += 5;

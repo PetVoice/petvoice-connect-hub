@@ -425,6 +425,10 @@
         "exploratoryBehaviorCuriosity": "Exploratory behavior with curiosity towards new objects and spaces"
       }
     },
+    "results": {
+      "emotion": "Emotion",
+      "behavioralInsights": "Behavioral Insights"
+    },
     "pdf": {
       "multipleAnalysisTitle": "MULTIPLE ANALYSIS REPORT - PET VOICE",
       "pet": "Pet",
