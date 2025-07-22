@@ -30,21 +30,21 @@ const DashboardPage: React.FC = () => {
       description: "Analizza l'umore del tuo pet",
       icon: Microscope,
       onClick: () => navigate('/analysis'),
-      color: 'from-azure to-azure-dark'
+      color: 'from-primary to-primary/80'
     },
     {
       title: t('navigation.diary'),
       description: "Aggiungi una nuova voce",
       icon: PawPrint,
       onClick: () => navigate('/diary'),
-      color: 'from-coral to-coral-dark'
+      color: 'from-orange-500 to-orange-600'
     },
     {
       title: t('navigation.calendar'),
       description: "Programma un evento",
       icon: Calendar,
       onClick: () => navigate('/calendar'),
-      color: 'from-sage to-sage-dark'
+      color: 'from-green-500 to-green-600'
     }
   ];
 
@@ -52,7 +52,7 @@ const DashboardPage: React.FC = () => {
     <div className="container mx-auto py-6 space-y-6">
       {/* Welcome Section */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-azure to-coral bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
           {t('dashboard.welcome')}
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -65,7 +65,7 @@ const DashboardPage: React.FC = () => {
         <Card className="bg-gradient-subtle border-0 shadow-elegant">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-azure to-coral flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-orange-500 flex items-center justify-center">
                 <span className="text-2xl">
                   {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
                    selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
@@ -84,7 +84,7 @@ const DashboardPage: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
+            <Activity className="h-5 w-5 text-foreground" />
             {t('dashboard.quickActions')}
           </CardTitle>
           <CardDescription>
@@ -117,8 +117,8 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pets Registrati</CardTitle>
-            <PawPrint className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-foreground">Pets Registrati</CardTitle>
+            <PawPrint className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pets.length}</div>
@@ -130,8 +130,8 @@ const DashboardPage: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.healthStatus')}</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-foreground">{t('dashboard.healthStatus')}</CardTitle>
+            <Heart className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">Ottimo</div>
@@ -143,11 +143,11 @@ const DashboardPage: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.moodTrend')}</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-foreground">{t('dashboard.moodTrend')}</CardTitle>
+            <TrendingUp className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-azure">+15%</div>
+            <div className="text-2xl font-bold text-primary">+15%</div>
             <p className="text-xs text-muted-foreground">
               Miglioramento questa settimana
             </p>
@@ -160,7 +160,7 @@ const DashboardPage: React.FC = () => {
         <Card className="border-dashed border-2">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-              <PawPrint className="h-6 w-6 text-muted-foreground" />
+              <PawPrint className="h-6 w-6 text-foreground" />
             </div>
             <CardTitle>{t('pets.noPets')}</CardTitle>
             <CardDescription>

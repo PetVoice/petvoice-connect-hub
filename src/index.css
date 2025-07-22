@@ -29,7 +29,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 5.3% 26.1%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 206 100% 62%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 240 4.8% 95.9%;
@@ -52,21 +52,21 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 206 100% 62%;
 
     /* Gradients - Light Theme */
-    --gradient-azure: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(0 0% 100%));
-    --gradient-azure-white: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(0 0% 100%));
-    --gradient-hero: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 75%), hsl(0 0% 100%));
+    --gradient-azure: linear-gradient(135deg, hsl(206 100% 62%), hsl(0 0% 100%));
+    --gradient-azure-white: linear-gradient(135deg, hsl(206 100% 62%), hsl(0 0% 100%));
+    --gradient-hero: linear-gradient(135deg, hsl(206 100% 62%), hsl(206 100% 75%), hsl(0 0% 100%));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(240 4.8% 98%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4.8% 98%));
 
     /* Shadows */
-    --shadow-soft: 0 4px 6px -1px hsl(217.2 91.2% 59.8% / 0.1), 0 2px 4px -1px hsl(217.2 91.2% 59.8% / 0.05);
-    --shadow-medium: 0 10px 15px -3px hsl(217.2 91.2% 59.8% / 0.15), 0 4px 6px -4px hsl(217.2 91.2% 59.8% / 0.1);
-    --shadow-glow: 0 0 0 1px hsl(217.2 91.2% 59.8% / 0.2), 0 0 30px hsl(217.2 91.2% 75% / 0.4);
-    --shadow-popup: 0 0 60px hsl(217.2 91.2% 75% / 0.3);
-    --shadow-dialog: 0 0 100px hsl(217.2 91.2% 59.8% / 0.4);
+    --shadow-soft: 0 4px 6px -1px hsl(206 100% 62% / 0.1), 0 2px 4px -1px hsl(206 100% 62% / 0.05);
+    --shadow-medium: 0 10px 15px -3px hsl(206 100% 62% / 0.15), 0 4px 6px -4px hsl(206 100% 62% / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(206 100% 62% / 0.2), 0 0 30px hsl(206 100% 75% / 0.4);
+    --shadow-popup: 0 0 60px hsl(206 100% 75% / 0.3);
+    --shadow-dialog: 0 0 100px hsl(206 100% 62% / 0.4);
 
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -79,7 +79,7 @@
 
     --sidebar-foreground: 240 5.3% 26.1%;
 
-    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary: 206 100% 62%;
 
     --sidebar-primary-foreground: 0 0% 98%;
 
@@ -89,7 +89,7 @@
 
     --sidebar-border: 220 13% 91%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 206 100% 62%;
   }
 
 /* ================================================================
@@ -348,7 +348,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 206 100% 62%;
     --primary-foreground: 222.2 84% 4.9%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -371,23 +371,23 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 206 100% 62%;
 
     /* Gradients - Dark Theme */
-    --gradient-azure: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(222.2 84% 4.9%));
-    --gradient-azure-white: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(222.2 84% 4.9%));
-    --gradient-hero: linear-gradient(135deg, hsl(217.2 91.2% 59.8%), hsl(217.2 91.2% 45%), hsl(222.2 84% 4.9%));
+    --gradient-azure: linear-gradient(135deg, hsl(206 100% 62%), hsl(222.2 84% 4.9%));
+    --gradient-azure-white: linear-gradient(135deg, hsl(206 100% 62%), hsl(222.2 84% 4.9%));
+    --gradient-hero: linear-gradient(135deg, hsl(206 100% 62%), hsl(206 100% 45%), hsl(222.2 84% 4.9%));
     --gradient-subtle: linear-gradient(180deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 17.5%));
     --gradient-card: linear-gradient(135deg, hsl(217.2 32.6% 17.5%), hsl(222.2 84% 4.9%));
 
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary: 206 100% 62%;
     --sidebar-primary-foreground: 222.2 84% 4.9%;
     --sidebar-accent: 217.2 32.6% 17.5%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 206 100% 62%;
   }
 }
 
