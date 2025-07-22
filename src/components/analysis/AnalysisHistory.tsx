@@ -466,7 +466,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                             <h3 className="font-semibold text-lg flex items-center gap-2">
                               {title.main}
                               <Badge variant="secondary" className="text-xs font-medium">
-                                {title.confidence}%
+                                {title.confidence < 1 ? (title.confidence * 100).toFixed(1) : title.confidence.toFixed(1)}%
                               </Badge>
                             </h3>
                             <p className="text-sm text-muted-foreground">
@@ -503,9 +503,9 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                     </Badge>
                     
                     <div className="flex items-center gap-2">
-                      <Progress value={analysis.primary_confidence} className="w-20 h-2" />
-                      <span className={cn("text-sm font-medium", getConfidenceColor(analysis.primary_confidence))}>
-                        {analysis.primary_confidence}%
+                      <Progress value={analysis.primary_confidence < 1 ? analysis.primary_confidence * 100 : analysis.primary_confidence} className="w-20 h-2" />
+                      <span className={cn("text-sm font-medium", getConfidenceColor(analysis.primary_confidence < 1 ? analysis.primary_confidence * 100 : analysis.primary_confidence))}>
+                        {analysis.primary_confidence < 1 ? (analysis.primary_confidence * 100).toFixed(1) : analysis.primary_confidence.toFixed(1)}%
                       </span>
                     </div>
                   </div>
@@ -531,7 +531,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => (
                               <Badge key={emotion} variant="outline" className="text-xs">
-                                {EMOTION_ICONS[emotion]} {getEmotionTranslation(emotion, language)} ({confidence}%)
+                                {EMOTION_ICONS[emotion]} {getEmotionTranslation(emotion, language)} ({typeof confidence === 'number' && confidence < 1 ? (confidence * 100).toFixed(1) : confidence}%)
                               </Badge>
                             ))}
                           </div>
