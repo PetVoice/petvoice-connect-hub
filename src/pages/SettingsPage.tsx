@@ -1267,23 +1267,8 @@ Continuare?
             </CardContent>
           </Card>
 
-          {/* Account Deletion */}
-          <Card className="border-orange-200 dark:border-orange-800 bg-background">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-foreground">
-                <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                Gestione Account
-              </CardTitle>
-              <CardDescription>
-                Opzioni avanzate per la gestione del tuo account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {user && <DeleteAccountSection user={user} />}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Elimina Account - Direttamente sotto EmailManagement */}
+          {user && <DeleteAccountSection user={user} />}
         </TabsContent>
 
         {/* Subscription Tab */}
