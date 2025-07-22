@@ -50,30 +50,69 @@ interface TherapySession {
   icon: React.ComponentType<any>;
   color: string;
   benefits: string[];
+  emotions?: string[];
 }
 
 const THERAPY_CATEGORIES: TherapySession[] = [
   {
-    id: 'sleep',
-    category: 'Sleep Induction',
-    title: 'Delta Wave Sleep - 0.5-4Hz',
-    duration: 45,
-    description: 'Onde Delta binaurali per indurre sonno profondo e riparatore. Frequenza scientificamente provata per il riposo',
-    frequency: '80Hz + 2Hz',
-    icon: Moon,
-    color: 'bg-azure-500',
-    benefits: ['Induce sonno profondo', 'Rigenerazione cellulare', 'Riduce cortisolo notturno', 'Migliora memoria consolidation']
-  },
-  {
     id: 'anxiety',
-    category: 'Anxiety Relief',
+    category: 'Anxiety Relief', 
     title: 'Alpha Calm - 8-12Hz',
     duration: 30,
     description: 'Onde Alpha per promuovere rilassamento cosciente e ridurre ansia. Utilizzate in studi veterinari',
     frequency: '100Hz + 10Hz',
     icon: Heart,
     color: 'bg-azure-600',
-    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
+    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico'],
+    emotions: ['ansioso', 'stressato', 'nervoso', 'agitato'] // Emozioni collegate
+  },
+  {
+    id: 'calm',
+    category: 'Calming Therapy',
+    title: 'Theta Relaxation - 4-8Hz',
+    duration: 35,
+    description: 'Onde Theta per promuovere rilassamento profondo e calma interiore',
+    frequency: '136Hz + 6Hz',
+    icon: Moon,
+    color: 'bg-azure-500',
+    benefits: ['Induce calma profonda', 'Rilassamento muscolare', 'Riduce agitazione', 'Stabilizza l\'umore'],
+    emotions: ['calmo', 'rilassato', 'tranquillo', 'felice'] // Emozioni collegate
+  },
+  {
+    id: 'sadness',
+    category: 'Mood Support',
+    title: 'Uplift Frequencies - 741Hz',
+    duration: 25,
+    description: 'Frequenze specifiche per alleviare tristezza e sostenere l\'umore positivo',
+    frequency: '741Hz',
+    icon: Heart,
+    color: 'bg-azure-400',
+    benefits: ['Allevia tristezza', 'Migliora umore', 'Stimola serotonina', 'Supporto emotivo'],
+    emotions: ['triste', 'depresso', 'malinconico'] // Emozioni collegate
+  },
+  {
+    id: 'aggression',
+    category: 'Behavioral Balance',
+    title: 'Peace Harmony - 432Hz',
+    duration: 40,
+    description: 'Frequenza armonica naturale per ridurre aggressività e promuovere pace interiore',
+    frequency: '432Hz',
+    icon: Shield,
+    color: 'bg-azure-700',
+    benefits: ['Riduce aggressività', 'Promuove equilibrio', 'Calma istinti', 'Armonizza comportamento'],
+    emotions: ['aggressivo', 'irritato', 'ostile'] // Emozioni collegate
+  },
+  {
+    id: 'fear',
+    category: 'Courage Building',
+    title: 'Confidence Boost - 285Hz',
+    duration: 30,
+    description: 'Frequenze riparatrici per trasformare paura in fiducia e coraggio',
+    frequency: '285Hz',
+    icon: ShieldCheck,
+    color: 'bg-azure-800',
+    benefits: ['Riduce paura', 'Aumenta fiducia', 'Stabilizza sistema nervoso', 'Promuove coraggio'],
+    emotions: ['pauroso', 'spaventato', 'timido'] // Emozioni collegate
   },
   {
     id: 'energy',
@@ -83,41 +122,9 @@ const THERAPY_CATEGORIES: TherapySession[] = [
     description: 'Onde Beta per stimolare vigilanza e attivazione. Frequenze energizzanti per animali letargici',
     frequency: '200Hz + 20Hz',
     icon: Zap,
-    color: 'bg-azure-700',
-    benefits: ['Aumenta vigilanza', 'Stimola attività motoria', 'Migliora appetito', 'Promuove socializzazione']
-  },
-  {
-    id: 'focus',
-    category: 'Focus Enhancement',
-    title: 'Gamma Focus - 30-100Hz',
-    duration: 25,
-    description: 'Onde Gamma per migliorare concentrazione e apprendimento. Ideali per training e riabilitazione',
-    frequency: '40Hz',
-    icon: Focus,
-    color: 'bg-azure-800',
-    benefits: ['Migliora concentrazione', 'Facilita apprendimento', 'Riduce iperattività', 'Sincronizzazione neurale']
-  },
-  {
-    id: 'pain',
-    category: 'Pain Management',
-    title: 'Sollievo Dal Dolore - 10Hz',
-    duration: 35,
-    description: 'Frequenze specifiche per la gestione del dolore cronico negli animali domestici',
-    frequency: '111Hz + 10Hz',
-    icon: Shield,
     color: 'bg-azure-900',
-    benefits: ['Riduce percezione dolore', 'Rilascia endorfine', 'Migliora mobilità', 'Supporto post-operatorio']
-  },
-  {
-    id: 'immune',
-    category: 'Immune Support',
-    title: 'Sistema Immunitario - 528Hz',
-    duration: 40,
-    description: 'Frequenza di riparazione DNA per supportare il sistema immunitario e la guarigione',
-    frequency: '528Hz',
-    icon: ShieldCheck,
-    color: 'bg-azure-600',
-    benefits: ['Supporta sistema immunitario', 'Accelera guarigione', 'Riparazione cellulare', 'Anti-infiammatorio naturale']
+    benefits: ['Aumenta vigilanza', 'Stimola attività motoria', 'Migliora appetito', 'Promuove socializzazione'],
+    emotions: ['energico', 'giocoso', 'vivace', 'eccitato', 'attivo'] // Emozioni collegate
   }
 ];
 
@@ -160,34 +167,32 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         
         console.log('🎵 Playlist data:', playlistData);
         
-        // Verifica se l'emozione è negativa (solo per emozioni negative mostriamo playlist)
-        const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso', 'nervoso', 'irritato'];
+        // Trova la sessione terapeutica appropriata basata sull'emozione rilevata
         const currentEmotion = playlistData.emotion?.toLowerCase() || '';
-        const isNegativeEmotion = negativeEmotions.includes(currentEmotion);
+        console.log(`🎵 Emozione rilevata: "${currentEmotion}"`);
         
-        console.log(`🎵 Emozione rilevata: "${currentEmotion}", È negativa: ${isNegativeEmotion}`);
+        // Cerca la sessione corrispondente all'emozione
+        const matchingSession = THERAPY_CATEGORIES.find(session => 
+          session.emotions?.includes(currentEmotion)
+        );
         
-        if (!isNegativeEmotion) {
-          console.log('🎵 Emozione positiva rilevata, nessuna playlist necessaria');
+        if (!matchingSession) {
+          console.log('🎵 Nessuna sessione corrispondente trovata per l\'emozione:', currentEmotion);
           toast({
-            title: "✨ Stato Emotivo Positivo",
-            description: `${selectedPet.name} sta bene! Nessuna musicoterapia necessaria.`,
+            title: "✨ Emozione Non Gestita",
+            description: `Non è disponibile una playlist specifica per l'emozione rilevata: ${currentEmotion}`,
           });
           setShowCategories(true);
           return;
         }
         
-        // Crea una sessione temporanea dalla playlist raccomandata
+        // Usa la sessione trovata con i dati dell'analisi
         const recommendedSession: TherapySession = {
+          ...matchingSession,
           id: 'analysis-recommendation',
-          title: playlistData.name || 'Playlist dall\'Analisi',
-          description: playlistData.description || 'Playlist personalizzata basata sull\'analisi emotiva',
-          category: 'Raccomandazione AI',
-          frequency: playlistData.frequency || '528Hz + 10Hz',
-          duration: playlistData.duration || 15,
-          icon: Sparkles,
-          color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          benefits: ['Raccomandazione personalizzata', 'Basata su analisi', 'Ottimizzata per il tuo pet']
+          title: `${matchingSession.title} - Raccomandato per ${selectedPet.name}`,
+          description: `Raccomandato dall'analisi emotiva - ${matchingSession.description}`,
+          benefits: [...matchingSession.benefits, 'Raccomandazione personalizzata', 'Basata su analisi AI']
         };
         
         console.log('🎵 Setting session and hiding categories...');
@@ -326,7 +331,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       const personalizedSession = {
         ...categorySession,
         title: `${categorySession.title} per ${selectedPet.name}`,
-        description: `Personalizzato per ${selectedPet.type.toLowerCase()} - Adattato al DNA emotivo (Calma: ${emotionalDNA.calma}%, Energia: ${emotionalDNA.energia}%, Focus: ${emotionalDNA.focus}%) - ${categorySession.description}`,
+        description: `Personalizzato per ${selectedPet.type.toLowerCase()} - ${categorySession.description}`,
         // Modifica durata basata sul livello di energia del pet
         duration: categorySession.duration + Math.round((emotionalDNA.energia - 50) / 10) // ±5 min basato su energia
       };
@@ -335,7 +340,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       
       toast({
         title: "Playlist AI Generata!",
-        description: `Sessione "${categorySession.title}" personalizzata per ${selectedPet.name} basata sul suo DNA emotivo`,
+        description: `Sessione "${categorySession.title}" personalizzata per ${selectedPet.name}`,
       });
     }
     
@@ -588,7 +593,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     
     toast({
       title: "Adattamento AI real-time",
-      description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
+      description: "Frequenze audio adattate in base al comportamento del pet",
     });
   };
 
@@ -639,7 +644,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             AI Music Therapy per {selectedPet.name}
           </CardTitle>
           <CardDescription>
-            Musicoterapia personalizzata basata sull'analisi emotiva e DNA comportamentale del tuo {selectedPet.type.toLowerCase()}
+            Musicoterapia personalizzata basata sull'analisi emotiva del tuo {selectedPet.type.toLowerCase()}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -758,10 +763,12 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte le categorie</SelectItem>
-                <SelectItem value="sleep">Sleep Induction</SelectItem>
                 <SelectItem value="anxiety">Anxiety Relief</SelectItem>
+                <SelectItem value="calm">Calming Therapy</SelectItem>
+                <SelectItem value="sadness">Mood Support</SelectItem>
+                <SelectItem value="aggression">Behavioral Balance</SelectItem>
+                <SelectItem value="fear">Courage Building</SelectItem>
                 <SelectItem value="energy">Energy Boost</SelectItem>
-                <SelectItem value="focus">Focus Enhancement</SelectItem>
               </SelectContent>
             </Select>
             {moodAdaptation && (
