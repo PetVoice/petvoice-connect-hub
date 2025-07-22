@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
+import { useTranslation } from './useTranslation';
 
 export function useCommunityNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -31,8 +33,8 @@ export function useCommunityNotifications() {
           if (subscriptions && subscriptions.length > 0 && payload.new.user_id !== user.id) {
             // L'utente è iscritto al canale e il messaggio non è suo
             addNotification({
-              title: 'Nuovo messaggio community',
-              message: `Nuovo messaggio nel gruppo ${payload.new.channel_name}`,
+              title: t('notifications.newCommunityMessage.title'),
+              message: t('notifications.newCommunityMessage.message', '', { channelName: payload.new.channel_name }),
               type: 'info',
               read: false,
               action_url: '/community'
@@ -45,5 +47,5 @@ export function useCommunityNotifications() {
     return () => {
       supabase.removeChannel(messagesSubscription);
     };
-  }, [user, addNotification]);
+  }, [user, addNotification, t]);
 }

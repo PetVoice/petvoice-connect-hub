@@ -818,6 +818,52 @@
     "joinChannel": "Unirse al Canal",
     "leaveChannel": "Salir del Canal"
   },
+  "notifications": {
+    "newPet": {
+      "title": "¡Nueva mascota añadida!",
+      "message": "{petName} ha sido añadida a tu familia. ¡Comienza con un análisis emocional!"
+    },
+    "analysisCompleted": {
+      "title": "¡Análisis completado!",
+      "message": "El análisis emocional de {petName} está listo. ¡Mira los resultados!"
+    },
+    "diaryUpdated": {
+      "title": "Diario actualizado",
+      "message": "Nueva entrada añadida al diario de {petName}"
+    },
+    "wellnessReminder": {
+      "title": "Verificar bienestar",
+      "message": "Es hora de verificar la puntuación de bienestar de {petName}"
+    },
+    "appointmentReminder": {
+      "title": "Recordatorio de cita",
+      "message": "Cita {appointmentType} para {petName} mañana a las 10:00"
+    },
+    "diaryReminder": {
+      "title": "Recordatorio de diario",
+      "message": "No olvides actualizar el diario de {petName} hoy"
+    },
+    "newCommunityMessage": {
+      "title": "Nuevo mensaje de la comunidad",
+      "message": "Nuevo mensaje en el grupo {channelName}"
+    },
+    "newPrivateMessage": {
+      "title": "Nuevo mensaje privado",
+      "message": "{senderName}: {messagePreview}"
+    },
+    "medicationExpiring": {
+      "title": "Medicamento por vencer",
+      "message": "El medicamento \"{medicationName}\" vence en pocos días"
+    },
+    "eventReminder": {
+      "title": "Recordatorio de evento",
+      "message": "\"{eventTitle}\" está programado para mañana a las {eventTime}"
+    },
+    "eventImminent": {
+      "title": "Evento próximo",
+      "message": "\"{eventTitle}\" comienza en {hoursUntil} horas"
+    }
+  },
   "settings": {
     "title": "Configuración",
     "account": "Cuenta",

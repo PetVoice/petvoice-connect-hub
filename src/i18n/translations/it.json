@@ -818,6 +818,52 @@
     "joinChannel": "Unisciti al Canale",
     "leaveChannel": "Lascia il Canale"
   },
+  "notifications": {
+    "newPet": {
+      "title": "Nuovo pet aggiunto!",
+      "message": "{petName} è stato aggiunto alla tua famiglia. Inizia subito con un'analisi emotiva!"
+    },
+    "analysisCompleted": {
+      "title": "Analisi completata!",
+      "message": "L'analisi emotiva di {petName} è pronta. Guarda i risultati!"
+    },
+    "diaryUpdated": {
+      "title": "Diario aggiornato",
+      "message": "Nuova voce aggiunta al diario di {petName}"
+    },
+    "wellnessReminder": {
+      "title": "Controlla il benessere",
+      "message": "È ora di verificare il punteggio di benessere di {petName}"
+    },
+    "appointmentReminder": {
+      "title": "Promemoria appuntamento",
+      "message": "Appuntamento {appointmentType} per {petName} domani alle 10:00"
+    },
+    "diaryReminder": {
+      "title": "Promemoria diario",
+      "message": "Non dimenticare di aggiornare il diario di {petName} oggi"
+    },
+    "newCommunityMessage": {
+      "title": "Nuovo messaggio community",
+      "message": "Nuovo messaggio nel gruppo {channelName}"
+    },
+    "newPrivateMessage": {
+      "title": "Nuovo messaggio privato",
+      "message": "{senderName}: {messagePreview}"
+    },
+    "medicationExpiring": {
+      "title": "Farmaco in scadenza",
+      "message": "Il farmaco \"{medicationName}\" scade tra pochi giorni"
+    },
+    "eventReminder": {
+      "title": "Promemoria evento",
+      "message": "\"{eventTitle}\" è programmato per domani alle {eventTime}"
+    },
+    "eventImminent": {
+      "title": "Evento imminente",
+      "message": "\"{eventTitle}\" inizia tra {hoursUntil} ore"
+    }
+  },
   "settings": {
     "title": "Impostazioni",
     "account": "Account",

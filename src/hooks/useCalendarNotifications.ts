@@ -2,11 +2,13 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
+import { useTranslation } from './useTranslation';
 import { format, parseISO, isAfter, isBefore, addHours } from 'date-fns';
 
 export function useCalendarNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -32,8 +34,11 @@ export function useCalendarNotifications() {
             // Notifica 24 ore prima
             if (hoursUntil <= 24 && hoursUntil > 23) {
               addNotification({
-                title: 'Promemoria evento',
-                message: `"${event.title}" è programmato per domani alle ${format(eventStart, 'HH:mm')}`,
+                title: t('notifications.eventReminder.title'),
+                message: t('notifications.eventReminder.message', '', { 
+                  eventTitle: event.title,
+                  eventTime: format(eventStart, 'HH:mm')
+                }),
                 type: 'warning',
                 read: false,
                 action_url: '/calendar'
@@ -43,8 +48,11 @@ export function useCalendarNotifications() {
             // Notifica 2 ore prima
             if (hoursUntil <= 2 && hoursUntil > 1) {
               addNotification({
-                title: 'Evento imminente',
-                message: `"${event.title}" inizia tra ${hoursUntil} ore`,
+                title: t('notifications.eventImminent.title'),
+                message: t('notifications.eventImminent.message', '', { 
+                  eventTitle: event.title,
+                  hoursUntil: hoursUntil.toString()
+                }),
                 type: 'warning',
                 read: false,
                 action_url: '/calendar'
@@ -64,5 +72,5 @@ export function useCalendarNotifications() {
     checkUpcomingEvents();
 
     return () => clearInterval(interval);
-  }, [user, addNotification]);
+  }, [user, addNotification, t]);
 }

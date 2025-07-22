@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
+import { useTranslation } from './useTranslation';
 
 export function usePrivateMessageNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -31,10 +33,15 @@ export function usePrivateMessageNotifications() {
               .maybeSingle();
 
             const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente sconosciuto';
+            const messagePreview = payload.new.content?.substring(0, 50) || 'Messaggio multimediale';
+            const finalPreview = payload.new.content?.length > 50 ? `${messagePreview}...` : messagePreview;
             
             addNotification({
-              title: 'Nuovo messaggio privato',
-              message: `${senderName}: ${payload.new.content?.substring(0, 50) || 'Messaggio multimediale'}${payload.new.content?.length > 50 ? '...' : ''}`,
+              title: t('notifications.newPrivateMessage.title'),
+              message: t('notifications.newPrivateMessage.message', '', { 
+                senderName, 
+                messagePreview: finalPreview 
+              }),
               type: 'info',
               read: false,
               action_url: '/community' // Porta alla tab chat private
@@ -47,5 +54,5 @@ export function usePrivateMessageNotifications() {
     return () => {
       supabase.removeChannel(privateMessagesSubscription);
     };
-  }, [user, addNotification]);
+  }, [user, addNotification, t]);
 }

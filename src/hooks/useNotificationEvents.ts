@@ -2,11 +2,13 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNotifications } from './useNotifications';
+import { useTranslation } from './useTranslation';
 
 export function useNotificationEvents() {
   const { user } = useAuth();
   const { pets } = usePets();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
   const previousPetsCount = useRef(pets.length);
 
   // Notifica quando viene aggiunto un nuovo pet
@@ -14,15 +16,15 @@ export function useNotificationEvents() {
     if (pets.length > previousPetsCount.current && previousPetsCount.current > 0) {
       const newPet = pets[pets.length - 1];
       addNotification({
-        title: 'Nuovo pet aggiunto!',
-        message: `${newPet.name} è stato aggiunto alla tua famiglia. Inizia subito con un'analisi emotiva!`,
+        title: t('notifications.newPet.title'),
+        message: t('notifications.newPet.message', '', { petName: newPet.name }),
         type: 'success',
         read: false,
         action_url: '/analysis'
       });
     }
     previousPetsCount.current = pets.length;
-  }, [pets.length, addNotification]);
+  }, [pets.length, addNotification, t]);
 
   // Genera notifiche promemoria periodiche (solo una volta al giorno)
   useEffect(() => {
@@ -46,8 +48,8 @@ export function useNotificationEvents() {
       const lastDiaryCheck = localStorage.getItem(`last-diary-${user.id}`);
       if (!lastDiaryCheck || (now.getTime() - new Date(lastDiaryCheck).getTime()) > (24 * 60 * 60 * 1000)) {
         addNotification({
-          title: 'Promemoria diario',
-          message: `Non dimenticare di aggiornare il diario di ${pets[0].name} oggi`,
+          title: t('notifications.diaryReminder.title'),
+          message: t('notifications.diaryReminder.message', '', { petName: pets[0].name }),
           type: 'warning',
           read: false,
           action_url: '/diary'
@@ -60,13 +62,13 @@ export function useNotificationEvents() {
     // Controlla ogni 5 secondi per notifiche più reattive
     const interval = setInterval(generateDailyReminders, 5000);
     return () => clearInterval(interval);
-  }, [user, pets, addNotification]);
+  }, [user, pets, addNotification, t]);
 
   // Simula notifiche per eventi dell'app
   const triggerAnalysisCompleted = (petName: string) => {
     addNotification({
-      title: 'Analisi completata!',
-      message: `L'analisi emotiva di ${petName} è pronta. Guarda i risultati!`,
+      title: t('notifications.analysisCompleted.title'),
+      message: t('notifications.analysisCompleted.message', '', { petName }),
       type: 'success',
       read: false,
       action_url: '/analysis'
@@ -75,8 +77,8 @@ export function useNotificationEvents() {
 
   const triggerDiaryAdded = (petName: string) => {
     addNotification({
-      title: 'Diario aggiornato',
-      message: `Nuova voce aggiunta al diario di ${petName}`,
+      title: t('notifications.diaryUpdated.title'),
+      message: t('notifications.diaryUpdated.message', '', { petName }),
       type: 'info',
       read: false,
       action_url: '/diary'
@@ -85,8 +87,8 @@ export function useNotificationEvents() {
 
   const triggerWellnessReminder = (petName: string) => {
     addNotification({
-      title: 'Controlla il benessere',
-      message: `È ora di verificare il punteggio di benessere di ${petName}`,
+      title: t('notifications.wellnessReminder.title'),
+      message: t('notifications.wellnessReminder.message', '', { petName }),
       type: 'warning',
       read: false,
       action_url: '/wellness'
@@ -95,8 +97,8 @@ export function useNotificationEvents() {
 
   const triggerAppointmentReminder = (petName: string, appointmentType: string) => {
     addNotification({
-      title: 'Promemoria appuntamento',
-      message: `Appuntamento ${appointmentType} per ${petName} domani alle 10:00`,
+      title: t('notifications.appointmentReminder.title'),
+      message: t('notifications.appointmentReminder.message', '', { petName, appointmentType }),
       type: 'warning',
       read: false,
       action_url: '/calendar'

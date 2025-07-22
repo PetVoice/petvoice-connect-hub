@@ -818,6 +818,52 @@
     "joinChannel": "Join Channel",
     "leaveChannel": "Leave Channel"
   },
+  "notifications": {
+    "newPet": {
+      "title": "New pet added!",
+      "message": "{petName} has been added to your family. Start with an emotional analysis!"
+    },
+    "analysisCompleted": {
+      "title": "Analysis completed!",
+      "message": "{petName}'s emotional analysis is ready. Check the results!"
+    },
+    "diaryUpdated": {
+      "title": "Diary updated",
+      "message": "New entry added to {petName}'s diary"
+    },
+    "wellnessReminder": {
+      "title": "Check wellness",
+      "message": "It's time to check {petName}'s wellness score"
+    },
+    "appointmentReminder": {
+      "title": "Appointment reminder",
+      "message": "{appointmentType} appointment for {petName} tomorrow at 10:00 AM"
+    },
+    "diaryReminder": {
+      "title": "Diary reminder",
+      "message": "Don't forget to update {petName}'s diary today"
+    },
+    "newCommunityMessage": {
+      "title": "New community message",
+      "message": "New message in {channelName} group"
+    },
+    "newPrivateMessage": {
+      "title": "New private message",
+      "message": "{senderName}: {messagePreview}"
+    },
+    "medicationExpiring": {
+      "title": "Medication expiring",
+      "message": "Medication \"{medicationName}\" expires in a few days"
+    },
+    "eventReminder": {
+      "title": "Event reminder",
+      "message": "\"{eventTitle}\" is scheduled for tomorrow at {eventTime}"
+    },
+    "eventImminent": {
+      "title": "Upcoming event",
+      "message": "\"{eventTitle}\" starts in {hoursUntil} hours"
+    }
+  },
   "settings": {
     "title": "Settings",
     "account": "Account",

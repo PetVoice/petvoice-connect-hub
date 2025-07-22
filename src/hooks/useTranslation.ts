@@ -29,9 +29,18 @@ export const useTranslation = () => {
   const { language } = useLanguage();
 
   const t = useMemo(() => {
-    return (key: TranslationKey, fallback?: string): string => {
+    return (key: TranslationKey, fallback?: string, variables?: Record<string, string>): string => {
       const translation = getNestedValue(translations[language], key);
-      return translation || fallback || key;
+      const text = translation || fallback || key;
+      
+      // Handle string interpolation for variables like {petName}, {channelName}, etc.
+      if (variables) {
+        return Object.entries(variables).reduce((str, [key, value]) => {
+          return str.replace(new RegExp(`{${key}}`, 'g'), value);
+        }, text);
+      }
+      
+      return text;
     };
   }, [language]);
 

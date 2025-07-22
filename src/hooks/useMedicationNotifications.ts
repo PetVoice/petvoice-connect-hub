@@ -2,11 +2,13 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
+import { useTranslation } from './useTranslation';
 import { addDays, parseISO, isBefore } from 'date-fns';
 
 export function useMedicationNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) return;
@@ -34,8 +36,8 @@ export function useMedicationNotifications() {
 
                 if (!lastReminder || (now.getTime() - parseInt(lastReminder)) > (24 * 60 * 60 * 1000)) {
                   addNotification({
-                    title: 'Farmaco in scadenza',
-                    message: `Il farmaco "${medication.name}" scade tra pochi giorni`,
+                    title: t('notifications.medicationExpiring.title'),
+                    message: t('notifications.medicationExpiring.message', '', { medicationName: medication.name }),
                     type: 'warning',
                     read: false,
                     action_url: '/wellness'
@@ -58,5 +60,5 @@ export function useMedicationNotifications() {
     checkMedicationReminders();
 
     return () => clearInterval(interval);
-  }, [user, addNotification]);
+  }, [user, addNotification, t]);
 }
