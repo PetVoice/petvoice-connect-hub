@@ -411,6 +411,10 @@
       "last6Months": "Últimos 6 Meses",
       "lastYear": "Último Año"
     },
+    "success": {
+      "analysisCompleted": "Análisis Completado",
+      "textAnalyzed": "¡La descripción del comportamiento ha sido analizada exitosamente!"
+    },
     "errors": {
       "selectPet": "Selecciona una mascota antes de iniciar el análisis",
       "fileUploadError": "Error al subir archivo",
