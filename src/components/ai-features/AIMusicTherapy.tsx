@@ -800,13 +800,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Seleziona categoria" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tutte le categorie</SelectItem>
-                <SelectItem value="sleep">Sleep Induction</SelectItem>
-                <SelectItem value="anxiety">Anxiety Relief</SelectItem>
-                <SelectItem value="energy">Energy Boost</SelectItem>
-                <SelectItem value="focus">Focus Enhancement</SelectItem>
-              </SelectContent>
+               <SelectContent>
+                 <SelectItem value="all">Tutte le categorie</SelectItem>
+                 <SelectItem value="ansioso">Ansia e Stress</SelectItem>
+                 <SelectItem value="agitato">Iperattivazione</SelectItem>
+                 <SelectItem value="triste">Umore Basso</SelectItem>
+                 <SelectItem value="aggressivo">Controllo Comportamentale</SelectItem>
+                 <SelectItem value="stressato">Stress Acuto</SelectItem>
+                 <SelectItem value="pauroso">Supporto Emotivo</SelectItem>
+               </SelectContent>
             </Select>
             {moodAdaptation && (
               <Badge variant="outline" className="flex items-center gap-1">
@@ -824,7 +826,10 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   currentSession?.id === session.id ? 'ring-2 ring-primary' : ''
                 }`}
-                onClick={() => generatePersonalizedPlaylist(session.id)}
+                 onClick={() => {
+                   console.log(`🎵 CLICK su categoria: ${session.id} - ${session.category}`);
+                   generatePersonalizedPlaylist(session.id);
+                 }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
