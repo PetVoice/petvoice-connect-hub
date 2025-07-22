@@ -204,9 +204,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return (
       <Card className="text-center p-8">
         <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">{t('analysis.results.noResults', 'Nessun Risultato')}</h3>
+        <h3 className="text-lg font-semibold mb-2">Nessun Risultato</h3>
         <p className="text-muted-foreground">
-          {t('analysis.results.loadFileToSeeResults', 'Carica un file per vedere i risultati dell\'analisi')}
+          Carica un file per vedere i risultati dell'analisi
         </p>
       </Card>
     );
@@ -228,10 +228,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 90) return t('analysis.results.confidenceLevel.veryHigh', 'Molto Alta');
-    if (confidence >= 75) return t('analysis.results.confidenceLevel.high', 'Alta');
-    if (confidence >= 60) return t('analysis.results.confidenceLevel.medium', 'Media');
-    return t('analysis.results.confidenceLevel.low', 'Bassa');
+    if (confidence >= 90) return 'Molto Alta';
+    if (confidence >= 75) return 'Alta';
+    if (confidence >= 60) return 'Media';
+    return 'Bassa';
   };
 
   const addToDiary = async (analysis: AnalysisData) => {
