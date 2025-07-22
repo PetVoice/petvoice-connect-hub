@@ -465,9 +465,6 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                           <div className="space-y-1">
                             <h3 className="font-semibold text-lg flex items-center gap-2">
                               {title.main}
-                              <Badge variant="secondary" className="text-xs font-medium">
-                                {title.confidence < 1 ? (title.confidence * 100).toFixed(1) : title.confidence.toFixed(1)}%
-                              </Badge>
                             </h3>
                             <p className="text-sm text-muted-foreground">
                               {title.subtitle}
