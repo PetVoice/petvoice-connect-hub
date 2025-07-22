@@ -29,7 +29,6 @@ import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
 import TrainingDashboard from "@/pages/TrainingDashboard";
-import FirstStepsPage from "@/pages/FirstStepsPage";
 
 
 import SettingsPage from './pages/SettingsPage';
@@ -147,11 +146,6 @@ function AppContent() {
         <Route path="/support" element={
           <ProtectedRoute>
             <SupportPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/first-steps" element={
-          <ProtectedRoute>
-            <FirstStepsPage />
           </ProtectedRoute>
         } />
         <Route path="/settings" element={
