@@ -1478,17 +1478,6 @@ const SupportPage: React.FC = () => {
                   
                   <Separator />
                   
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Supporto di Emergenza</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Per questioni critiche relative alla salute degli animali, 
-                      il supporto di emergenza è disponibile 24/7.
-                    </p>
-                    <Button variant="destructive" size="sm" className="w-full">
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Emergenza 24/7
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </div>
