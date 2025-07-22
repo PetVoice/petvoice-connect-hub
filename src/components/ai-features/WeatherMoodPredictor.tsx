@@ -91,6 +91,19 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
     getUserLocation();
   }, [user]);
 
+  // Auto-refresh ogni 10 minuti
+  useEffect(() => {
+    if (!hasLocation) return;
+
+    const interval = setInterval(() => {
+      if (hasLocation) {
+        getUserLocation();
+      }
+    }, 10 * 60 * 1000); // 10 minuti
+
+    return () => clearInterval(interval);
+  }, [hasLocation]);
+
   const getUserLocation = async () => {
     if (!user) return;
     
@@ -169,7 +182,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       // Notifica il parent component con i dati meteo
       onWeatherUpdate?.(weatherData);
       
-      toast.success('Previsione meteo-comportamentale aggiornata!');
+      toast.success('Dati meteo aggiornati automaticamente!');
       
     } catch (error) {
       console.error('Error fetching weather:', error);
@@ -344,9 +357,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               size="sm" 
               onClick={getUserLocation}
               className="mt-2"
+              disabled={isLoading}
             >
               <MapPin className="h-4 w-4 mr-2" />
-              Riprova
+              {isLoading ? 'Caricamento...' : 'Attiva Geolocalizzazione'}
             </Button>
           </div>
         </CardContent>
@@ -440,16 +454,15 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               </div>
             </div>
             
-            <div className="flex justify-center">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={getUserLocation}
-                disabled={isLoading}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Aggiorna
-              </Button>
+            <div className="flex justify-center items-center">
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground">
+                  Aggiornamento automatico ogni 10 min
+                </div>
+                <div className="text-xs text-green-600 font-medium mt-1">
+                  ● Dati in tempo reale
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
