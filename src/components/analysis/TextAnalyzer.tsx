@@ -141,23 +141,6 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           )}
         </Button>
 
-        {/* Example Texts */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">Esempi di descrizioni:</p>
-          <div className="space-y-1">
-            {exampleTexts.map((example, index) => (
-              <button
-                key={index}
-                onClick={() => !isProcessing && handleTextChange(example)}
-                disabled={isProcessing}
-                className="text-left text-xs text-muted-foreground hover:text-foreground p-2 rounded border border-dashed border-muted-foreground/30 hover:border-coral/50 w-full transition-colors"
-              >
-                "{example}"
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Info */}
         <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-lg">
           <p className="font-medium">💡 Consigli per una migliore analisi:</p>
