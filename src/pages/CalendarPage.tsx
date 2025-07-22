@@ -150,7 +150,8 @@ const CalendarPage: React.FC = () => {
           addNotification({
             title: `Nuovo evento: ${newEvent.title}`,
             message: `Evento programmato per ${format(parseISO(newEvent.start_time), 'dd/MM/yyyy HH:mm')}`,
-            type: 'info'
+            type: 'info',
+            read: false
           });
         }
         
