@@ -1408,11 +1408,23 @@
       "dataImportError": "Errore nell'importazione dei dati"
     },
     "training": {
-      "protocolStarted": "Protocollo di allenamento iniziato",
+      "protocolCreated": "Protocollo creato",
+      "protocolCreatedDescription": "Il protocollo di training è stato creato con successo",
+      "protocolStarted": "Protocollo avviato",
+      "protocolStartedDescription": "Il protocollo \"{title}\" è stato avviato con successo",
+      "protocolStopped": "Protocollo interrotto", 
+      "protocolStoppedDescription": "Il protocollo \"{title}\" è stato interrotto con successo",
+      "protocolDeleted": "Protocollo eliminato",
+      "protocolDeletedDescription": "Il protocollo è stato eliminato con successo",
       "protocolCompleted": "Protocollo completato con successo",
       "exerciseCompleted": "Esercizio completato",
       "progressSaved": "Progresso salvato",
-      "protocolError": "Errore nel protocollo di allenamento"
+      "errorCreating": "Errore nella creazione",
+      "errorCreatingDescription": "Non è stato possibile creare il protocollo",
+      "errorUpdating": "Errore nell'aggiornamento",
+      "errorUpdatingDescription": "Non è stato possibile aggiornare il protocollo",
+      "errorDeleting": "Errore nell'eliminazione", 
+      "errorDeletingDescription": "Non è stato possibile eliminare il protocollo"
     },
     "subscription": {
       "planUpgraded": "Piano aggiornato con successo",
