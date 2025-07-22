@@ -61,6 +61,37 @@
       "daysAgo": "days ago"
     }
   },
+  "aiChat": {
+    "welcomeMessage": "Hello! I'm PetVoice's AI assistant 🐾\n\nI'm here to help you with any questions about your pets. Choose an area of interest below or write your question directly:",
+    "placeholder": "Or write your question...",
+    "typing": "Typing...",
+    "backButton": "← Back",
+    "menuButton": "Menu",
+    "resetMessage": "Let's go back to the main menu. Choose an area of interest:",
+    "navigationMessage": "You selected: {section}\n\nChoose a specific option:",
+    "menu": {
+      "pets": {
+        "title": "🐾 Pet Management",
+        "description": "Everything about your animals"
+      },
+      "analysis": {
+        "title": "🧠 AI Analysis", 
+        "description": "Understand behavior"
+      },
+      "diary": {
+        "title": "📔 Behavioral Diary",
+        "description": "Track daily mood"
+      },
+      "training": {
+        "title": "🎓 Training Protocols",
+        "description": "Personalized training"
+      },
+      "support": {
+        "title": "🛠️ Technical Support",
+        "description": "Problems and assistance"
+      }
+    }
+  },
   "pets": {
     "title": "My Pets",
     "addNew": "Add Pet",

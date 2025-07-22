@@ -68,8 +68,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const mainFlow: FlowOption[] = [
     {
       id: 'pets',
-      title: '🐾 Gestione Pet',
-      description: 'Tutto sui tuoi animali',
+      title: t('aiChat.menu.pets.title'),
+      description: t('aiChat.menu.pets.description'),
       children: [
         {
           id: 'add-pet',
@@ -100,8 +100,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'analysis',
-      title: '🧠 Analisi AI',
-      description: 'Comprendi il comportamento',
+      title: t('aiChat.menu.analysis.title'),
+      description: t('aiChat.menu.analysis.description'),
       children: [
         {
           id: 'how-analysis-works',
@@ -132,8 +132,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'diary',
-      title: '📔 Diario Comportamentale',
-      description: 'Traccia l\'umore quotidiano',
+      title: t('aiChat.menu.diary.title'),
+      description: t('aiChat.menu.diary.description'),
       children: [
         {
           id: 'using-diary',
@@ -164,8 +164,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'training',
-      title: '🎓 Protocolli Training',
-      description: 'Addestramento personalizzato',
+      title: t('aiChat.menu.training.title'),
+      description: t('aiChat.menu.training.description'),
       children: [
         {
           id: 'how-protocols-work',
@@ -196,8 +196,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'support',
-      title: '🛠️ Supporto Tecnico',
-      description: 'Problemi e assistenza',
+      title: t('aiChat.menu.support.title'),
+      description: t('aiChat.menu.support.description'),
       children: [
         {
           id: 'contact-support',
@@ -239,7 +239,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       if (messages.length === 0) {
         const welcomeMessage: ChatMessage = {
           id: '1',
-          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda. Scegli un'area di interesse qui sotto per iniziare, oppure scrivi direttamente la tua domanda!",
+          text: t('aiChat.welcomeMessage'),
           sender: 'ai',
           timestamp: new Date()
         };
@@ -448,7 +448,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       // Add navigation message
       const navMessage: ChatMessage = {
         id: Date.now().toString(),
-        text: `Hai selezionato: ${option.title}\n\nScegli un'opzione specifica:`,
+        text: t('aiChat.navigationMessage', '', { section: option.title }),
         sender: 'ai',
         timestamp: new Date()
       };
@@ -499,7 +499,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setFlowPath([]);
     const resetMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: "Torniamo al menu principale. Scegli un'area di interesse:",
+      text: t('aiChat.resetMessage'),
       sender: 'ai',
       timestamp: new Date()
     };
@@ -517,7 +517,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       if (messages.length === 0) {
         const welcomeMessage: ChatMessage = {
           id: Date.now().toString(),
-          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse qui sotto oppure scrivimi direttamente la tua domanda:",
+          text: t('aiChat.welcomeMessage'),
           sender: 'ai',
           timestamp: new Date()
         };
@@ -589,7 +589,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
                               <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                               <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                             </div>
-                            <span className="text-sm text-muted-foreground ml-2">Sto scrivendo...</span>
+                            <span className="text-sm text-muted-foreground ml-2">{t('aiChat.typing')}</span>
                           </div>
                         ) : (
                           <p className="text-sm whitespace-pre-wrap">{message.text}</p>
@@ -617,12 +617,12 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
               {/* Breadcrumb */}
               {flowPath.length > 0 && (
                 <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
-                  <Button variant="ghost" size="sm" onClick={resetToMain} className="h-6 px-2">Menu</Button>
+                  <Button variant="ghost" size="sm" onClick={resetToMain} className="h-6 px-2">{t('aiChat.menuButton')}</Button>
                   {flowPath.map((path, index) => (
                     <span key={index}>/ {path}</span>
                   ))}
                   {flowPath.length > 0 && (
-                    <Button variant="ghost" size="sm" onClick={goBack} className="h-6 px-2 ml-2">← Indietro</Button>
+                    <Button variant="ghost" size="sm" onClick={goBack} className="h-6 px-2 ml-2">{t('aiChat.backButton')}</Button>
                   )}
                 </div>
               )}
@@ -652,7 +652,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Oppure scrivi la tua domanda..."
+                  placeholder={t('aiChat.placeholder')}
                   disabled={isLoading}
                   className="flex-1"
                 />

@@ -61,6 +61,37 @@
       "daysAgo": "giorni fa"
     }
   },
+  "aiChat": {
+    "welcomeMessage": "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse qui sotto oppure scrivimi direttamente la tua domanda:",
+    "placeholder": "Oppure scrivi la tua domanda...",
+    "typing": "Sto scrivendo...",
+    "backButton": "← Indietro",
+    "menuButton": "Menu",
+    "resetMessage": "Torniamo al menu principale. Scegli un'area di interesse:",
+    "navigationMessage": "Hai selezionato: {section}\n\nScegli un'opzione specifica:",
+    "menu": {
+      "pets": {
+        "title": "🐾 Gestione Pet",
+        "description": "Tutto sui tuoi animali"
+      },
+      "analysis": {
+        "title": "🧠 Analisi AI", 
+        "description": "Comprendi il comportamento"
+      },
+      "diary": {
+        "title": "📔 Diario Comportamentale",
+        "description": "Traccia l'umore quotidiano"
+      },
+      "training": {
+        "title": "🎓 Protocolli Training",
+        "description": "Addestramento personalizzato"
+      },
+      "support": {
+        "title": "🛠️ Supporto Tecnico",
+        "description": "Problemi e assistenza"
+      }
+    }
+  },
   "pets": {
     "title": "I Miei Pet",
     "addNew": "Aggiungi Pet",
