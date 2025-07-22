@@ -22,6 +22,7 @@ import {
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AnalysisData {
   id: string;
@@ -76,6 +77,63 @@ const EMOTION_ICONS: Record<string, string> = {
   giocoso: '😄'
 };
 
+// Helper function to generate readable analysis names
+const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it') => {
+  const date = new Date(analysis.created_at);
+  
+  // Format date parts
+  const day = format(date, 'dd', { locale: it });
+  const month = format(date, 'MMMM', { locale: it });
+  const time = format(date, 'HH:mm', { locale: it });
+  
+  // Get emotion translation
+  const getEmotionTranslation = (emotion: string) => {
+    const emotions: Record<string, Record<string, string>> = {
+      it: {
+        felice: 'Felice',
+        calmo: 'Calmo',
+        ansioso: 'Ansioso',
+        eccitato: 'Eccitato',
+        triste: 'Triste',
+        aggressivo: 'Aggressivo',
+        giocoso: 'Giocoso',
+        rilassato: 'Rilassato'
+      },
+      en: {
+        felice: 'Happy',
+        calmo: 'Calm',
+        ansioso: 'Anxious',
+        eccitato: 'Excited',
+        triste: 'Sad',
+        aggressivo: 'Aggressive',
+        giocoso: 'Playful',
+        rilassato: 'Relaxed'
+      },
+      es: {
+        felice: 'Alegre',
+        calmo: 'Tranquilo',
+        ansioso: 'Ansioso',
+        eccitato: 'Emocionado',
+        triste: 'Triste',
+        aggressivo: 'Agresivo',
+        giocoso: 'Juguetón',
+        rilassato: 'Relajado'
+      }
+    };
+    
+    return emotions[language]?.[emotion.toLowerCase()] || emotion;
+  };
+  
+  const emotionName = getEmotionTranslation(analysis.primary_emotion);
+  
+  // Generate readable name based on file type
+  if (analysis.file_type === 'text') {
+    return `Analisi ${emotionName} - ${day} ${month}`;
+  } else {
+    return `Registrazione ${emotionName} - ${day} ${month} ${time}`;
+  }
+};
+
 const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   analyses,
   loading,
@@ -90,6 +148,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   onAnalysisDelete,
   petName
 }) => {
+  const { t, language } = useTranslation();
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [sortBy, setSortBy] = useState<'date' | 'emotion' | 'confidence'>('date');
@@ -136,15 +195,14 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   };
 
   const generateAnalysisTitle = (analysis: AnalysisData) => {
-    const emotion = analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1);
+    const readableName = getReadableAnalysisName(analysis, language);
     const date = format(new Date(analysis.created_at), 'dd/MM', { locale: it });
     const time = format(new Date(analysis.created_at), 'HH:mm', { locale: it });
-    const fileType = analysis.file_type.startsWith('audio/') ? 'Audio' : 'Video';
     const emotionIcon = EMOTION_ICONS[analysis.primary_emotion];
     
     return {
-      main: `${emotionIcon} ${emotion} • ${petName}`,
-      subtitle: `${fileType} del ${date} alle ${time}`,
+      main: `${emotionIcon} ${readableName}`,
+      subtitle: `${date} alle ${time}`,
       confidence: analysis.primary_confidence
     };
   };
