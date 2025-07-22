@@ -746,6 +746,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 className="h-12 w-12"
                 onClick={handlePlayPause}
                 disabled={isGenerating}
+                data-tutorial="play-button"
               >
                 {isGenerating ? (
                   <Sparkles className="h-6 w-6 animate-spin" />
@@ -819,7 +820,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
+           <div className="grid md:grid-cols-2 gap-4" data-tutorial="therapy-categories">
             {filteredSessions.map((session) => (
               <Card 
                 key={session.id} 
