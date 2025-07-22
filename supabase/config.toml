@@ -45,3 +45,6 @@ verify_jwt = false
 
 [functions.get-weather]
 verify_jwt = false
+
+[functions.analyze-pet-behavior]
+verify_jwt = true
