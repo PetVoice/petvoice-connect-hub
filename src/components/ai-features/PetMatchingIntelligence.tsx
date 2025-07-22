@@ -760,9 +760,11 @@ export const PetMatchingIntelligence: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-12 w-12 border-2 border-primary/30">
-                          <AvatarImage src={twin.avatar} alt={twin.name} />
-                          <AvatarFallback className="bg-primary/20 text-primary">
-                            {twin.name.substring(0, 2)}
+                          {twin.avatar && twin.avatar.startsWith('http') ? (
+                            <AvatarImage src={twin.avatar} alt={twin.name} />
+                          ) : null}
+                          <AvatarFallback className="bg-primary/20 text-primary text-2xl">
+                            {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -867,8 +869,12 @@ export const PetMatchingIntelligence: React.FC = () => {
                             <DialogHeader>
                               <DialogTitle className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10">
-                                  <AvatarImage src={twin.avatar} alt={twin.name} />
-                                  <AvatarFallback>{twin.name.substring(0, 2)}</AvatarFallback>
+                                  {twin.avatar && twin.avatar.startsWith('http') ? (
+                                    <AvatarImage src={twin.avatar} alt={twin.name} />
+                                  ) : null}
+                                  <AvatarFallback className="text-xl">
+                                    {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
+                                  </AvatarFallback>
                                 </Avatar>
                                 <div>
                                   <h2 className="text-xl font-bold">{twin.name}</h2>
