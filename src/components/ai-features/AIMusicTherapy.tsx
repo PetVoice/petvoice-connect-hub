@@ -23,7 +23,9 @@ import {
   Waves,
   Headphones,
   Settings,
-  Sparkles
+  Sparkles,
+  Shield,
+  ShieldCheck
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -54,46 +56,68 @@ const THERAPY_CATEGORIES: TherapySession[] = [
   {
     id: 'sleep',
     category: 'Sleep Induction',
-    title: 'Sonno Profondo',
-    duration: 30,
-    description: 'Frequenze calmanti per favorire il riposo notturno',
-    frequency: '528Hz + 8Hz',
+    title: 'Delta Wave Sleep - 0.5-4Hz',
+    duration: 45,
+    description: 'Onde Delta binaurali per indurre sonno profondo e riparatore. Frequenza scientificamente provata per il riposo',
+    frequency: '80Hz + 2Hz',
     icon: Moon,
-    color: 'bg-blue-500',
-    benefits: ['Riduce ansia', 'Migliora sonno', 'Rilassamento muscolare']
+    color: 'bg-azure-500',
+    benefits: ['Induce sonno profondo', 'Rigenerazione cellulare', 'Riduce cortisolo notturno', 'Migliora memoria consolidation']
   },
   {
     id: 'anxiety',
     category: 'Anxiety Relief',
-    title: 'Calma Interiore',
-    duration: 20,
-    description: 'Binaural beats per ridurre stress e ansia',
-    frequency: '10-13Hz',
+    title: 'Alpha Calm - 8-12Hz',
+    duration: 30,
+    description: 'Onde Alpha per promuovere rilassamento cosciente e ridurre ansia. Utilizzate in studi veterinari',
+    frequency: '100Hz + 10Hz',
     icon: Heart,
-    color: 'bg-green-500',
-    benefits: ['Riduce cortisolo', 'Calma nervosismo', 'Equilibrio emotivo']
+    color: 'bg-azure-600',
+    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
   },
   {
     id: 'energy',
     category: 'Energy Boost',
-    title: 'Energia Vitale',
-    duration: 15,
-    description: 'Frequenze energizzanti per stimolare vitalità',
-    frequency: '40Hz',
+    title: 'Beta Activation - 13-30Hz',
+    duration: 20,
+    description: 'Onde Beta per stimolare vigilanza e attivazione. Frequenze energizzanti per animali letargici',
+    frequency: '200Hz + 20Hz',
     icon: Zap,
-    color: 'bg-orange-500',
-    benefits: ['Aumenta energia', 'Migliora umore', 'Stimola attività']
+    color: 'bg-azure-700',
+    benefits: ['Aumenta vigilanza', 'Stimola attività motoria', 'Migliora appetito', 'Promuove socializzazione']
   },
   {
     id: 'focus',
     category: 'Focus Enhancement',
-    title: 'Concentrazione',
+    title: 'Gamma Focus - 30-100Hz',
     duration: 25,
-    description: 'Onde cerebrali per migliorare attenzione e focus',
-    frequency: '12-15Hz',
+    description: 'Onde Gamma per migliorare concentrazione e apprendimento. Ideali per training e riabilitazione',
+    frequency: '40Hz',
     icon: Focus,
-    color: 'bg-purple-500',
-    benefits: ['Migliora focus', 'Riduce distrazioni', 'Chiarezza mentale']
+    color: 'bg-azure-800',
+    benefits: ['Migliora concentrazione', 'Facilita apprendimento', 'Riduce iperattività', 'Sincronizzazione neurale']
+  },
+  {
+    id: 'pain',
+    category: 'Pain Management',
+    title: 'Sollievo Dal Dolore - 10Hz',
+    duration: 35,
+    description: 'Frequenze specifiche per la gestione del dolore cronico negli animali domestici',
+    frequency: '111Hz + 10Hz',
+    icon: Shield,
+    color: 'bg-azure-900',
+    benefits: ['Riduce percezione dolore', 'Rilascia endorfine', 'Migliora mobilità', 'Supporto post-operatorio']
+  },
+  {
+    id: 'immune',
+    category: 'Immune Support',
+    title: 'Sistema Immunitario - 528Hz',
+    duration: 40,
+    description: 'Frequenza di riparazione DNA per supportare il sistema immunitario e la guarigione',
+    frequency: '528Hz',
+    icon: ShieldCheck,
+    color: 'bg-azure-600',
+    benefits: ['Supporta sistema immunitario', 'Accelera guarigione', 'Riparazione cellulare', 'Anti-infiammatorio naturale']
   }
 ];
 
