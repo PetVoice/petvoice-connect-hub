@@ -1267,28 +1267,19 @@ Continuare?
             </CardContent>
           </Card>
 
-          {/* Danger Zone */}
-          <Card className="border-destructive/50 bg-destructive/5">
+          {/* Account Deletion */}
+          <Card className="border-orange-200 dark:border-orange-800 bg-background">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-destructive">
-                <AlertTriangle className="h-5 w-5" />
-                Zona Pericolosa
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                Gestione Account
               </CardTitle>
               <CardDescription>
-                Azioni irreversibili che potrebbero causare la perdita permanente dei dati
+                Opzioni avanzate per la gestione del tuo account
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-background border border-destructive/20 rounded-lg p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <Trash2 className="h-5 w-5 text-destructive" />
-                  <div>
-                    <h4 className="font-medium text-destructive">Eliminazione Account</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Elimina permanentemente il tuo account e tutti i dati associati
-                    </p>
-                  </div>
-                </div>
+              <div className="space-y-4">
                 {user && <DeleteAccountSection user={user} />}
               </div>
             </CardContent>
