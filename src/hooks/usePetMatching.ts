@@ -143,6 +143,7 @@ export const usePetTwins = () => {
         .from('pets')
         .select('*')
         .neq('user_id', user.id) // Exclude current user's pets
+        .eq('is_active', true) // Only show active pets
         .order('created_at', { ascending: false });
 
       console.log('🐕 Found pets:', pets?.length, 'Error:', error);
