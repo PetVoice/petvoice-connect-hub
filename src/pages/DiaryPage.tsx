@@ -1418,8 +1418,8 @@ const DiaryPage: React.FC = () => {
                     size="sm"
                     variant="default"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       resetForm(true);
+                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       setDayEntriesModal({ ...dayEntriesModal, open: false });
                       setIsDialogOpen(true);
                     }}
@@ -1529,8 +1529,8 @@ const DiaryPage: React.FC = () => {
                   <Button
                     variant="default"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       resetForm(true);
+                      setFormData(prev => ({ ...prev, entry_date: format(dayEntriesModal.date, 'yyyy-MM-dd') }));
                       setDayEntriesModal({ ...dayEntriesModal, open: false });
                       setIsDialogOpen(true);
                     }}
