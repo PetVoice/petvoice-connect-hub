@@ -151,18 +151,115 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   };
 
   const quickQuestions = [
+    // Gestione Pet
     "Come aggiungo un nuovo pet?",
-    "Come funziona l'analisi AI?", 
+    "Come modifico i dati del mio pet?",
+    "Posso aggiungere più pet?",
+    "Come carico la foto del mio pet?",
+    "Come eliminare un pet dal profilo?",
+    
+    // Analisi AI
+    "Come funziona l'analisi AI?",
+    "Che tipi di file posso caricare per l'analisi?",
+    "Quanto tempo richiede un'analisi?",
+    "Come interpreto i risultati dell'analisi?",
+    "Posso analizzare video, audio e foto?",
+    "L'analisi è precisa?",
+    
+    // Diario Comportamentale
     "Come uso il diario comportamentale?",
+    "Cosa devo scrivere nel diario?",
+    "Come registro l'umore del mio pet?",
+    "Posso aggiungere foto al diario?",
+    "Come funzionano i tag comportamentali?",
+    "Quanto spesso devo aggiornare il diario?",
+    
+    // Wellness e Salute
     "Cos'è il wellness score?",
+    "Come viene calcolato il punteggio di benessere?",
+    "Come registro i parametri vitali?",
+    "Cosa significano le metriche di salute?",
+    "Come funzionano gli alert di salute?",
+    "Come interpreto i grafici del wellness?",
+    
+    // Training AI
     "Come funzionano i protocolli di training?",
+    "Come creo un protocollo personalizzato?",
+    "Quanto durano i protocolli di training?",
+    "Posso modificare un protocollo durante l'uso?",
+    "Come valuto l'efficacia del training?",
+    "Ci sono protocolli per comportamenti specifici?",
+    
+    // Calendario e Appuntamenti
     "Come programmo un appuntamento veterinario?",
+    "Come imposto i promemoria?",
+    "Posso sincronizzare con altri calendari?",
+    "Come gestisco eventi ricorrenti?",
+    "Come modifico o cancello un appuntamento?",
+    
+    // Statistiche e Analytics
     "Come interpreto le statistiche?",
-    "Come funziona la musico-terapia AI?"
+    "Cosa mostrano i grafici comportamentali?",
+    "Come funzionano i trend di salute?",
+    "Posso esportare i dati?",
+    "Come confronto periodi diversi?",
+    "Cosa significano le anomalie rilevate?",
+    
+    // Musico-terapia AI
+    "Come funziona la musico-terapia AI?",
+    "Che tipo di musica genera?",
+    "Come scelgo il genere musicale?",
+    "Posso salvare le composizioni?",
+    "La musica è personalizzata per il mio pet?",
+    
+    // Community
+    "Come funziona la community?",
+    "Come posso chattare con altri proprietari?",
+    "Posso condividere esperienze?",
+    "Come funzionano i canali tematici?",
+    "Posso eliminare i miei messaggi?",
+    
+    // Account e Abbonamenti
+    "Come funzionano gli abbonamenti?",
+    "Cosa include il piano premium?",
+    "Come cancello l'abbonamento?",
+    "Posso cambiare piano?",
+    "Come aggiorno i dati di pagamento?",
+    "Ci sono sconti disponibili?",
+    
+    // Supporto Tecnico
+    "Come contatto il supporto?",
+    "Cosa faccio se l'app non funziona?",
+    "Come segnalo un bug?",
+    "Come richiedo nuove funzionalità?",
+    "Come recupero la password?",
+    "L'app funziona offline?",
+    
+    // Privacy e Sicurezza
+    "I miei dati sono sicuri?",
+    "Come funziona la privacy?",
+    "Posso eliminare il mio account?",
+    "Chi può vedere i miei dati?",
+    "Come funziona la crittografia?",
+    
+    // Funzionalità Avanzate
+    "Come funzionano le notifiche intelligenti?",
+    "Cosa sono i pattern comportamentali?",
+    "Come funziona il riconoscimento anomalie?",
+    "Posso integrare dispositivi wearable?",
+    "Come funziona la sincronizzazione cloud?",
+    
+    // Primo Utilizzo
+    "Come iniziare con PetVoice?",
+    "Cosa fare dopo la registrazione?",
+    "Che informazioni servono per il setup?",
+    "Come ottimizzare l'uso dell'app?",
+    "Ci sono tutorial disponibili?"
   ];
 
   const handleQuickQuestion = (question: string) => {
     setInputText(question);
+    handleSendMessage();
   };
 
   if (!isOpen) return null;
@@ -253,20 +350,21 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
 
             {/* Quick Questions */}
             {messages.length <= 1 && (
-              <div className="p-4 border-t border-border">
-                <h4 className="text-sm font-medium mb-2 flex items-center">
+              <div className="p-4 border-t border-border max-h-48 overflow-y-auto">
+                <h4 className="text-sm font-medium mb-3 flex items-center sticky top-0 bg-background pb-2">
                   <HelpCircle className="h-4 w-4 mr-2" />
-                  Domande frequenti:
+                  Domande frequenti - Clicca per inviare:
                 </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {quickQuestions.slice(0, 4).map((question, index) => (
+                <div className="grid grid-cols-1 gap-1.5">
+                  {quickQuestions.map((question, index) => (
                     <Button
                       key={index}
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => handleQuickQuestion(question)}
-                      className="text-left justify-start h-auto p-2 text-xs"
+                      className="text-left justify-start h-auto p-2 text-xs hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-200"
                     >
+                      <span className="text-primary mr-2">•</span>
                       {question}
                     </Button>
                   ))}

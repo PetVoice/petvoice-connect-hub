@@ -98,12 +98,12 @@ const AppSidebar: React.FC = () => {
         </div>
 
         {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
+        <SidebarGroup className="py-4">
+          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
             Navigazione Principale
           </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -122,12 +122,9 @@ const AppSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Community & Business */}
-        <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
-            
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+        <SidebarGroup className="py-4">
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
               {communityItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
@@ -146,12 +143,9 @@ const AppSidebar: React.FC = () => {
         </SidebarGroup>
 
         {/* Support */}
-        <SidebarGroup>
-          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
-            
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
+        <SidebarGroup className="py-4">
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
               {supportItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
