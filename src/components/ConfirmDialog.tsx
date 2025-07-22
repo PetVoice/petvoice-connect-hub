@@ -37,7 +37,7 @@ const LeaveGroupModal: React.FC<{
         <p className="text-muted-foreground mb-2">
           Sei sicuro di voler uscire dal gruppo <strong>{groupName}</strong>?
         </p>
-        <p className="text-sm text-yellow-600 mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
           Non riceverai più messaggi da questo gruppo.
         </p>
         <div className="flex gap-3 justify-end">

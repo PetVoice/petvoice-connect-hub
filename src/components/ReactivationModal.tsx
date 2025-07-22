@@ -34,7 +34,7 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <CheckCircle className="w-6 h-6 text-green-500" />
+            <CheckCircle className="w-6 h-6 text-primary" />
             <DialogTitle className="text-lg">✅ RIATTIVAZIONE ABBONAMENTO</DialogTitle>
           </div>
           <DialogDescription className="text-left">
@@ -65,7 +65,7 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isLoading ? 'Elaborazione...' : 'RIATTIVA'}
           </Button>

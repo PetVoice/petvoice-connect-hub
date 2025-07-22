@@ -279,7 +279,7 @@ const Header: React.FC = () => {
                 {t('common.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={signOut} className="text-red-600">
+              <DropdownMenuItem onClick={signOut} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 {t('common.logout')}
               </DropdownMenuItem>

@@ -37,14 +37,14 @@ const DashboardPage: React.FC = () => {
       description: "Aggiungi una nuova voce",
       icon: PawPrint,
       onClick: () => navigate('/diary'),
-      color: 'from-orange-500 to-orange-600'
+      color: 'from-primary/80 to-primary/60'
     },
     {
       title: t('navigation.calendar'),
       description: "Programma un evento",
       icon: Calendar,
       onClick: () => navigate('/calendar'),
-      color: 'from-green-500 to-green-600'
+      color: 'from-primary/60 to-primary/40'
     }
   ];
 
@@ -52,7 +52,7 @@ const DashboardPage: React.FC = () => {
     <div className="container mx-auto py-6 space-y-6">
       {/* Welcome Section */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
           {t('dashboard.welcome')}
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -65,7 +65,7 @@ const DashboardPage: React.FC = () => {
         <Card className="bg-gradient-subtle border-0 shadow-elegant">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-orange-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-primary/70 flex items-center justify-center">
                 <span className="text-2xl">
                   {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
                    selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
@@ -134,7 +134,7 @@ const DashboardPage: React.FC = () => {
             <Heart className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">Ottimo</div>
+            <div className="text-2xl font-bold text-primary">Ottimo</div>
             <p className="text-xs text-muted-foreground">
               Tutti i pets in salute
             </p>
