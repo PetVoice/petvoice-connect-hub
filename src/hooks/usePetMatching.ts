@@ -121,7 +121,7 @@ export const usePetMatching = () => {
 
 export const usePetTwins = () => {
   return useQuery({
-    queryKey: ['pet-twins', Date.now()], // Force refresh with timestamp
+    queryKey: ['pet-twins'],
     queryFn: async () => {
       console.log('🔍 Starting pet twins query...');
       
