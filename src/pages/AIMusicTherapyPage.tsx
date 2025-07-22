@@ -30,11 +30,11 @@ const AIMusicTherapyPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg gradient-azure flex items-center justify-center shadow-glow">
-          <span className="text-white font-bold text-lg">🎵</span>
+        <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+          <span className="text-primary-foreground font-bold text-lg">🎵</span>
         </div>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-foreground">
             {t('navigation.aiMusicTherapy')}
           </h1>
           <p className="text-muted-foreground">

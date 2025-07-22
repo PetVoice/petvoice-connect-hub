@@ -675,18 +675,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Music className="h-5 w-5" />
-            AI Music Therapy per {selectedPet.name}
-          </CardTitle>
-          <CardDescription>
-            Musicoterapia personalizzata basata sull'analisi emotiva e DNA comportamentale del tuo {selectedPet.type.toLowerCase()}
-          </CardDescription>
-        </CardHeader>
-      </Card>
 
       {/* Current Session Player */}
       {currentSession && (
