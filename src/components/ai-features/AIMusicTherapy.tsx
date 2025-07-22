@@ -321,6 +321,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     const categorySession = THERAPY_CATEGORIES.find(c => c.id === category);
+    console.log(`🎵 GENERAZIONE PLAYLIST per categoria: "${category}"`);
+    console.log(`🎵 Sessione trovata:`, categorySession);
+    
     if (categorySession) {
       // Personalizza la sessione basandosi sul DNA emotivo
       const personalizedSession = {
@@ -331,12 +334,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         duration: categorySession.duration + Math.round((emotionalDNA.energia - 50) / 10) // ±5 min basato su energia
       };
       
+      console.log(`🎵 Sessione personalizzata creata:`, personalizedSession);
       setCurrentSession(personalizedSession);
       
       toast({
         title: "Playlist AI Generata!",
         description: `Sessione "${categorySession.title}" personalizzata per ${selectedPet.name} basata sul suo DNA emotivo`,
       });
+    } else {
+      console.log(`🎵 ERRORE: Categoria "${category}" non trovata!`);
     }
     
     setIsGenerating(false);
@@ -406,6 +412,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       });
       return;
     }
+
+    console.log(`🎵 PLAY/PAUSE per sessione: "${currentSession.title}" (ID: ${currentSession.id})`);
 
     if (isPlaying) {
       // Pausa - ferma audio e timer
