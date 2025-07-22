@@ -916,7 +916,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       yPosition += 10;
 
       // Behavioral insights
-      addText('ANALISI COMPORTAMENTALE', 14, true);
+      addText(getText('behavioralAnalysis').toUpperCase(), 14, true);
       addText(analysis.behavioral_insights, 10);
       yPosition += 10;
 
@@ -929,7 +929,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
       // Triggers
       if (analysis.triggers && analysis.triggers.length > 0) {
-        addText('TRIGGER IDENTIFICATI', 14, true);
+        addText(getText('identifiedTriggers').toUpperCase(), 14, true);
         analysis.triggers.forEach((trigger, index) => {
           addText(`• ${trigger}`, 10);
         });
