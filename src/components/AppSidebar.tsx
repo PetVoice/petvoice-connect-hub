@@ -103,7 +103,7 @@ const AppSidebar: React.FC = () => {
         </div>
 
         {/* Main Navigation */}
-        <SidebarGroup className="py-2">
+        <SidebarGroup className="py-2" data-guide="main-navigation">
           <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
             {t('navigation.mainNavigation')}
           </SidebarGroupLabel>

@@ -23,8 +23,8 @@ interface InteractiveGuideProps {
 const guideSteps: GuideStep[] = [
   {
     id: 'welcome',
-    title: '🎉 Benvenuto in PetVibe!',
-    description: 'Ti guiderò attraverso i primi passi per utilizzare la piattaforma e prenderti cura del tuo pet.',
+    title: '🎉 Benvenuto in PetVoice!',
+    description: 'Ti guiderò attraverso i primi passi per iniziare ad utilizzare la piattaforma. Iniziamo!',
     targetSelector: '[data-guide="sidebar"]',
     position: 'right',
     arrow: 'right'
@@ -32,96 +32,56 @@ const guideSteps: GuideStep[] = [
   {
     id: 'add-pet',
     title: '🐾 Aggiungi il tuo Pet',
-    description: 'Il primo passo è aggiungere il tuo animale domestico. Clicca su "Pets" per iniziare.',
-    targetSelector: '[data-guide="pets-menu"]',
-    position: 'right',
-    arrow: 'right'
-  },
-  {
-    id: 'pet-profile',
-    title: '📝 Profilo del Pet',
-    description: 'Inserisci le informazioni del tuo pet: nome, tipo, età, razza e carica una foto.',
-    targetSelector: '[data-guide="add-pet-button"]',
+    description: 'Prima di tutto, aggiungi il tuo animale domestico cliccando qui. È il primo passo fondamentale!',
+    targetSelector: '[data-guide="pet-selector"]',
     position: 'bottom',
     arrow: 'up'
   },
   {
-    id: 'ai-analysis',
-    title: '🔬 Analisi Emotiva AI',
-    description: 'Analizza le emozioni del tuo pet caricando foto, video o registrazioni audio.',
+    id: 'navigation',
+    title: '🧭 Navigazione Principale',
+    description: 'Usa questa barra laterale per navigare tra le diverse sezioni dell\'app.',
+    targetSelector: '[data-guide="main-navigation"]',
+    position: 'right',
+    arrow: 'right'
+  },
+  {
+    id: 'analysis',
+    title: '🔬 Analisi Comportamentale',
+    description: 'Clicca qui per analizzare il comportamento del tuo pet e scoprire il suo stato emotivo.',
     targetSelector: '[data-guide="ai-analysis-menu"]',
     position: 'right',
     arrow: 'right'
   },
   {
-    id: 'upload-analysis',
-    title: '📤 Carica per Analizzare',
-    description: 'Carica un file multimediale del tuo pet per scoprire il suo stato emotivo.',
-    targetSelector: '[data-guide="upload-button"]',
-    position: 'top',
-    arrow: 'down'
-  },
-  {
-    id: 'analysis-results',
-    title: '📊 Risultati Analisi',
-    description: 'Visualizza le emozioni rilevate e ricevi consigli personalizzati per il benessere del tuo pet.',
-    targetSelector: '[data-guide="results-section"]',
-    position: 'top',
-    arrow: 'down'
-  },
-  {
     id: 'music-therapy',
     title: '🎵 Musicoterapia AI',
-    description: 'Basandoti sui risultati dell\'analisi, accedi alla musicoterapia personalizzata per calmare il tuo pet.',
+    description: 'Accedi alla musicoterapia personalizzata per migliorare il benessere del tuo pet.',
     targetSelector: '[data-guide="music-therapy-menu"]',
     position: 'right',
     arrow: 'right'
   },
   {
-    id: 'therapy-categories',
-    title: '🎶 Categorie Terapeutiche',
-    description: 'Scegli la categoria di musicoterapia adatta alle emozioni rilevate (ansioso, stressato, agitato, etc.).',
-    targetSelector: '[data-guide="therapy-categories"]',
-    position: 'top',
-    arrow: 'down'
-  },
-  {
-    id: 'play-therapy',
-    title: '▶️ Avvia Terapia',
-    description: 'Riproduci le frequenze specifiche per migliorare lo stato emotivo del tuo pet.',
-    targetSelector: '[data-guide="play-button"]',
-    position: 'bottom',
-    arrow: 'up'
-  },
-  {
-    id: 'training-protocols',
-    title: '🧠 Protocolli di Training',
-    description: 'Accedi ai protocolli di addestramento AI personalizzati per problemi comportamentali.',
+    id: 'training',
+    title: '🧠 Training AI',
+    description: 'Utilizza il training assistito da AI per addestrare il tuo pet con metodi scientifici.',
     targetSelector: '[data-guide="training-menu"]',
     position: 'right',
     arrow: 'right'
   },
   {
-    id: 'diary-tracking',
-    title: '📔 Diario del Pet',
-    description: 'Tieni traccia quotidiana dell\'umore, comportamenti e progressi del tuo pet.',
-    targetSelector: '[data-guide="diary-menu"]',
+    id: 'wellness',
+    title: '❤️ Benessere',
+    description: 'Monitora la salute e il benessere generale del tuo pet con protocolli personalizzati.',
+    targetSelector: '[href="/wellness"]',
     position: 'right',
     arrow: 'right'
   },
   {
-    id: 'dashboard-overview',
-    title: '🏠 Dashboard Generale',
-    description: 'Monitora la salute, benessere e progressi del tuo pet con grafici e statistiche.',
-    targetSelector: '[data-guide="dashboard-menu"]',
-    position: 'right',
-    arrow: 'right'
-  },
-  {
-    id: 'complete',
-    title: '🎊 Complimenti!',
-    description: 'Ora conosci tutte le funzionalità principali di PetVibe. Inizia a prenderti cura del tuo pet!',
-    targetSelector: '[data-guide="sidebar"]',
+    id: 'stats',
+    title: '📊 Statistiche',
+    description: 'Visualizza i progressi e le statistiche dettagliate del tuo pet nel tempo.',
+    targetSelector: '[href="/stats"]',
     position: 'right',
     arrow: 'right'
   }
