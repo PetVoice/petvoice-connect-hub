@@ -504,20 +504,25 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setMessages(prev => [...prev, resetMessage]);
   };
 
-  // Initialize chat on open - fixed dependency issue
+  // Initialize chat on open - fixed
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      console.log('Initializing chat with welcome message');
-      setCurrentFlow(mainFlow);
-      const welcomeMessage: ChatMessage = {
-        id: Date.now().toString(),
-        text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse oppure scrivimi direttamente la tua domanda:",
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
+    if (isOpen) {
+      console.log('Chat opened, current flow length:', currentFlow.length);
+      if (currentFlow.length === 0) {
+        console.log('Setting main flow and welcome message');
+        setCurrentFlow(mainFlow);
+      }
+      if (messages.length === 0) {
+        const welcomeMessage: ChatMessage = {
+          id: Date.now().toString(),
+          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda sui tuoi pet. Scegli un'area di interesse oppure scrivimi direttamente la tua domanda:",
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
+      }
     }
-  }, [isOpen]); // Remove messages.length and mainFlow from dependencies to avoid infinite loop
+  }, [isOpen, currentFlow.length, messages.length]);
 
   if (!isOpen) return null;
 
