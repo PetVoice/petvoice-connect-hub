@@ -1958,13 +1958,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       <Dialog open={showComparisonModal} onOpenChange={setShowComparisonModal}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              {getText('emotionalAnalysisComparison')}
-            </DialogTitle>
-            <DialogDescription>
-              {getText('comparativeAnalysisOf')} {comparedAnalyses.length} {getText('results')}
-            </DialogDescription>
+              <DialogTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                {language === 'it' ? 'Confronta Analisi' : language === 'es' ? 'Comparar Análisis' : 'Compare Analyses'}
+              </DialogTitle>
+              <DialogDescription>
+                {language === 'it' ? 'Confronto di' : language === 'es' ? 'Comparación de' : 'Comparison of'} {comparedAnalyses.length} {language === 'it' ? 'risultati selezionati' : language === 'es' ? 'resultados seleccionados' : 'selected results'}
+              </DialogDescription>
           </DialogHeader>
           
           {comparedAnalyses.length > 0 && (
@@ -1974,7 +1974,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">{comparedAnalyses.length}</div>
-                    <p className="text-xs text-muted-foreground">{getText('comparedAnalyses')}</p>
+                    <p className="text-xs text-muted-foreground">{language === 'it' ? 'Confronta Analisi' : language === 'es' ? 'Comparar Análisis' : 'Compare Analyses'}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1982,15 +1982,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     <div className="text-2xl font-bold">
                       {format(new Date(Math.min(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
                     </div>
-                    <p className="text-xs text-muted-foreground">{getText('analyzedPeriod')}</p>
+                    <p className="text-xs text-muted-foreground">{language === 'it' ? 'Periodo' : language === 'es' ? 'Período' : 'Period'}</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">
-                      {Math.round((comparedAnalyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / comparedAnalyses.length))}%
-                    </div>
-                    <p className="text-xs text-muted-foreground">Confidenza Media</p>
+                     <div className="text-2xl font-bold">
+                       {(comparedAnalyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / comparedAnalyses.length).toFixed(1)}%
+                     </div>
+                     <p className="text-xs text-muted-foreground">{language === 'it' ? 'Confidenza' : language === 'es' ? 'Confianza' : 'Confidence'}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -2006,7 +2006,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         ) : (
                           <FileVideo className="h-5 w-5" />
                         )}
-                        Analisi {index + 1}
+                        {language === 'it' ? 'Analisi' : language === 'es' ? 'Análisis' : 'Analysis'} {index + 1}
                       </CardTitle>
                       <CardDescription>
                         {format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}
@@ -2018,13 +2018,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           {EMOTION_ICONS[analysis.primary_emotion] || '🤔'}
                         </div>
                         <Badge className={cn("mb-2", EMOTION_COLORS[analysis.primary_emotion])}>
-                          {analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1)}
+                          {getEmotionTranslation(analysis.primary_emotion, language)}
                         </Badge>
-                        <div className="text-lg font-bold">{Math.round(analysis.primary_confidence * 100)}%</div>
+                        <div className="text-lg font-bold">{(analysis.primary_confidence * 100).toFixed(0)}%</div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <h4 className="font-medium text-sm">Emozioni Secondarie</h4>
+                       <div className="space-y-2">
+                         <h4 className="font-medium text-sm">{language === 'it' ? 'Emozioni Secondarie' : language === 'es' ? 'Emociones Secundarias' : 'Secondary Emotions'}</h4>
                         {Object.entries(analysis.secondary_emotions).slice(0, 3).map(([emotion, confidence]) => (
                           <div key={emotion} className="flex justify-between text-sm">
                             <span>{emotion}</span>
@@ -2034,7 +2034,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       </div>
                       
                       <div>
-                        <h4 className="font-medium text-sm mb-1">Insights</h4>
+                        <h4 className="font-medium text-sm mb-1">{language === 'it' ? 'Insights' : language === 'es' ? 'Insights' : 'Insights'}</h4>
                         <p className="text-sm text-muted-foreground line-clamp-3">
                           {analysis.behavioral_insights}
                         </p>
