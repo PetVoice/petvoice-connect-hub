@@ -411,7 +411,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline" onClick={onBatchExport}>
                   <Download className="h-4 w-4 mr-2" />
-                  {getText('export')} ({selectedAnalyses.length})
+                  {getText('export')}
                 </Button>
                 <Button size="sm" variant="outline" onClick={onBatchCompare}>
                   <TrendingUp className="h-4 w-4 mr-2" />

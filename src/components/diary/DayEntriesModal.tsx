@@ -103,12 +103,12 @@ export const DayEntriesModal: React.FC<DayEntriesModalProps> = ({
                       className="data-[state=checked]:bg-primary"
                       {...(isSomeSelected && { 'data-indeterminate': true })}
                     />
-                    <span className="text-sm text-muted-foreground">
-                      {selectedEntries.length > 0 
-                        ? `${selectedEntries.length} selezionat${selectedEntries.length === 1 ? 'a' : 'e'}`
-                        : 'Seleziona tutti'
-                      }
-                    </span>
+                     <span className="text-sm text-muted-foreground">
+                       {selectedEntries.length > 0 
+                         ? `${selectedEntries.length} selezionat${selectedEntries.length === 1 ? 'a' : 'e'}`
+                         : `Seleziona tutti (${selectedEntries.length}/${entries.length})`
+                       }
+                     </span>
                   </div>
                 )}
               </div>
