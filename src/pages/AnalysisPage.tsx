@@ -51,6 +51,7 @@ import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -91,6 +92,7 @@ interface ProcessingState {
 
 const AnalysisPage: React.FC = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { toast } = useToast();
@@ -108,7 +110,7 @@ const AnalysisPage: React.FC = () => {
   const [processing, setProcessing] = useState<ProcessingState>({
     isProcessing: false,
     progress: 0,
-    stage: 'Preparazione...'
+    stage: t('analysis.processing.preparation')
   });
 
   // Filters
@@ -272,8 +274,8 @@ const AnalysisPage: React.FC = () => {
       return newAnalyses;
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: "Impossibile caricare le analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.loadError'),
         variant: "destructive"
       });
       return [];
@@ -323,8 +325,8 @@ const AnalysisPage: React.FC = () => {
   const handleFileUpload = async (files: FileList) => {
     if (!selectedPet) {
       toast({
-        title: "Errore",
-        description: "Seleziona un pet prima di iniziare l'analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.selectPet'),
         variant: "destructive"
       });
       return;
@@ -335,7 +337,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing({
       isProcessing: true,
       progress: 0,
-      stage: 'Caricamento file...'
+      stage: t('analysis.processing.uploadingFiles')
     });
 
     try {
@@ -361,20 +363,20 @@ const AnalysisPage: React.FC = () => {
       }, 100);
       
       toast({
-        title: "Successo!",
-        description: `${files.length} file analizzati con successo`,
+        title: t('analysis.success.analysisCompleted'),
+        description: `${files.length} ${t('analysis.success.filesAnalyzed')}`,
       });
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: error.message || "Errore durante l'analisi",
+        title: t('errors.somethingWentWrong'),
+        description: error.message || t('analysis.errors.analysisError'),
         variant: "destructive"
       });
     } finally {
       setProcessing({
         isProcessing: false,
         progress: 0,
-        stage: 'Completato'
+        stage: t('analysis.processing.completed')
       });
     }
   };
@@ -386,7 +388,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 10,
-      stage: `Caricamento file ${current}/${total}...`,
+      stage: `${t('analysis.processing.uploadingFiles')} ${current}/${total}...`,
       currentFile: file.name
     }));
 
@@ -402,7 +404,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 30,
-      stage: `Analisi AI in corso...`
+      stage: t('analysis.processing.aiAnalysis')
     }));
 
     // Mock analysis - in real app this would call an edge function
@@ -413,7 +415,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 60,
-      stage: `Salvataggio risultati...`
+      stage: t('analysis.processing.savingResults')
     }));
 
     // Save to database
@@ -437,7 +439,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 100 / total,
-      stage: current === total ? 'Completato!' : `Preparazione file ${current + 1}...`
+      stage: current === total ? t('analysis.processing.completed') : `${t('analysis.processing.preparation')} ${current + 1}...`
     }));
   };
 
@@ -703,8 +705,8 @@ const AnalysisPage: React.FC = () => {
   const handleTextAnalysis = async (description: string) => {
     if (!selectedPet) {
       toast({
-        title: "Errore",
-        description: "Seleziona un pet prima di iniziare l'analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.selectPet'),
         variant: "destructive"
       });
       return;
@@ -713,14 +715,14 @@ const AnalysisPage: React.FC = () => {
     setProcessing({
       isProcessing: true,
       progress: 0,
-      stage: 'Elaborazione descrizione...'
+      stage: t('analysis.processing.analyzing')
     });
 
     try {
       setProcessing(prev => ({
         ...prev,
         progress: 30,
-        stage: 'Analisi comportamentale con IA...'
+        stage: t('analysis.processing.aiAnalysis')
       }));
 
       // Call the edge function for real AI analysis
@@ -794,14 +796,14 @@ const AnalysisPage: React.FC = () => {
         setProcessing(prev => ({
           ...prev,
           progress: 100,
-          stage: 'Completato!'
+          stage: t('analysis.processing.completed')
         }));
         
         await loadAnalyses();
         
         toast({
-          title: "Analisi completata",
-          description: "Analisi testuale completata con successo (modalità fallback)",
+          title: t('analysis.success.analysisCompleted'),
+          description: t('analysis.success.textAnalyzed'),
         });
         
         return;
@@ -814,7 +816,7 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 70,
-        stage: 'Generazione insights...'
+        stage: t('analysis.processing.generating')
       }));
 
       // Create analysis data with real AI results
@@ -868,15 +870,15 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 100,
-        stage: 'Completato!'
+        stage: t('analysis.processing.completed')
       }));
 
       // Refresh analyses
       await loadAnalyses();
 
       toast({
-        title: "Analisi completata!",
-        description: "L'analisi del comportamento descritto è stata elaborata con successo.",
+        title: t('analysis.success.analysisCompleted'),
+        description: t('analysis.success.textAnalyzed'),
       });
 
       // Switch to results tab
@@ -890,15 +892,15 @@ const AnalysisPage: React.FC = () => {
     } catch (error: any) {
       console.error('Text analysis error:', error);
       toast({
-        title: "Errore",
-        description: "Impossibile completare l'analisi del testo",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.analysisError'),
         variant: "destructive"
       });
     } finally {
       setProcessing({
         isProcessing: false,
         progress: 0,
-        stage: 'Preparazione...'
+        stage: t('analysis.processing.preparation')
       });
     }
   };
@@ -906,8 +908,8 @@ const AnalysisPage: React.FC = () => {
   const handleStartRecording = () => {
     if (!selectedPet) {
       toast({
-        title: "Errore",
-        description: "Seleziona un pet prima di iniziare l'analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.selectPet'),
         variant: "destructive"
       });
       return false;
@@ -1213,16 +1215,16 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       toast({
-        title: "Successo",
-        description: `${selectedAnalyses.length} analisi eliminate`,
+        title: t('success.deleted'),
+        description: `${selectedAnalyses.length} ${t('analysis.success.analysisDeleted')}`,
       });
 
       setSelectedAnalyses([]);
       loadAnalyses();
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: "Impossibile eliminare le analisi",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.deleteError'),
         variant: "destructive"
       });
     }
@@ -1239,13 +1241,13 @@ const AnalysisPage: React.FC = () => {
       pdf.save(fileName);
 
       toast({
-        title: "Download completato",
-        description: `Report PDF scaricato: ${fileName}`,
+        title: t('analysis.success.pdfGenerated'),
+        description: `${t('common.loading')} ${fileName}`,
       });
     } catch (error: any) {
       toast({
-        title: "Errore",
-        description: "Impossibile generare il report PDF",
+        title: t('errors.somethingWentWrong'),
+        description: t('analysis.errors.shareError'),
         variant: "destructive"
       });
     }
@@ -1322,9 +1324,9 @@ const AnalysisPage: React.FC = () => {
       <div className="container mx-auto p-6 max-w-4xl">
         <Card className="text-center p-8">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Nessun Pet Selezionato</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('pets.noPetSelected')}</h2>
           <p className="text-muted-foreground">
-            Seleziona un pet dal menu in alto per iniziare le analisi emotive
+            {t('pets.selectPetDesc')}
           </p>
         </Card>
       </div>
@@ -1338,10 +1340,10 @@ const AnalysisPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Brain className="h-8 w-8 text-primary" />
-            Analisi Emotiva
+            {t('analysis.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Analizza le emozioni di {selectedPet.name} con l'intelligenza artificiale
+            {t('analysis.subtitle')} {selectedPet.name}
           </p>
         </div>
         <div className="flex gap-2">
@@ -1361,19 +1363,19 @@ const AnalysisPage: React.FC = () => {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            Nuova Analisi
+            {t('analysis.tabs.upload')}
           </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
-            Risultati
+            {t('analysis.tabs.results')}
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Cronologia
+            {t('analysis.tabs.history')}
           </TabsTrigger>
           <TabsTrigger value="predictions" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            Previsioni
+            {t('analysis.tabs.predictions')}
           </TabsTrigger>
         </TabsList>
 
@@ -1410,9 +1412,9 @@ const AnalysisPage: React.FC = () => {
               <p className="text-muted-foreground mb-4">
                 Carica il primo file audio o video per iniziare
               </p>
-              <Button onClick={() => setActiveTab('upload')} className="gradient-coral text-white">
+              <Button onClick={() => setActiveTab('upload')} className="bg-primary text-primary-foreground">
                 <Upload className="h-4 w-4 mr-2" />
-                Inizia Prima Analisi
+                {t('analysis.startAnalysis')}
               </Button>
             </Card>
           )}
