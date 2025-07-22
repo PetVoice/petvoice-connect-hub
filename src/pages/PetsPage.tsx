@@ -46,35 +46,95 @@ interface Pet {
   created_at: string;
 }
 
-const dogBreeds = [
-  'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
-  'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
-  'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
-  'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
-  'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
-  'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
-  'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman',
-  'English Setter', 'English Springer Spaniel', 'Fox Terrier', 'French Bulldog',
-  'German Shepherd', 'German Shorthaired Pointer', 'Golden Retriever', 'Great Dane',
-  'Greyhound', 'Havanese', 'Irish Setter', 'Irish Wolfhound', 'Jack Russell Terrier',
-  'Japanese Spitz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltese', 'Mastiff',
-  'Newfoundland', 'Pastore Tedesco', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
-  'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
-  'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
-  'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
-];
+const dogBreeds = {
+  it: [
+    'Affenpinscher', 'Levriero Afgano', 'Airedale Terrier', 'Alaskan Malamute', 'Bulldog Americano',
+    'Cocker Spaniel Americano', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+    'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bovaro del Bernese',
+    'Bichon Frise', 'Segugio', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+    'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francese', 'Bull Terrier', 'Cairn Terrier',
+    'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Cane Nudo Cinese',
+    'Chow Chow', 'Cocker Spaniel', 'Collie', 'Bassotto', 'Dalmata', 'Dobermann',
+    'Setter Inglese', 'Springer Spaniel Inglese', 'Fox Terrier', 'Bulldog Francese',
+    'Pastore Tedesco', 'Pointer Tedesco', 'Golden Retriever', 'Alano',
+    'Levriero', 'Havanese', 'Setter Irlandese', 'Levriero Irlandese', 'Jack Russell Terrier',
+    'Spitz Giapponese', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltese', 'Mastiff',
+    'Terranova', 'Pastore Tedesco', 'Volpino di Pomerania', 'Barboncino', 'Carlino', 'Rottweiler',
+    'San Bernardo', 'Samoiedo', 'Schnauzer', 'Terrier Scozzese', 'Shar Pei',
+    'Shih Tzu', 'Husky Siberiano', 'Staffordshire Bull Terrier', 'Weimaraner',
+    'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+  ],
+  en: [
+    'Affenpinscher', 'Afghan Hound', 'Airedale Terrier', 'Alaskan Malamute', 'American Bulldog',
+    'American Cocker Spaniel', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+    'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Bernese Mountain Dog',
+    'Bichon Frise', 'Bloodhound', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+    'Boxer', 'Brittany', 'Bulldog', 'French Bulldog', 'Bull Terrier', 'Cairn Terrier',
+    'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Chinese Crested',
+    'Chow Chow', 'Cocker Spaniel', 'Collie', 'Dachshund', 'Dalmatian', 'Doberman',
+    'English Setter', 'English Springer Spaniel', 'Fox Terrier', 'French Bulldog',
+    'German Shepherd', 'German Shorthaired Pointer', 'Golden Retriever', 'Great Dane',
+    'Greyhound', 'Havanese', 'Irish Setter', 'Irish Wolfhound', 'Jack Russell Terrier',
+    'Japanese Spitz', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltese', 'Mastiff',
+    'Newfoundland', 'German Shepherd', 'Pomeranian', 'Poodle', 'Pug', 'Rottweiler',
+    'Saint Bernard', 'Samoyed', 'Schnauzer', 'Scottish Terrier', 'Shar Pei',
+    'Shih Tzu', 'Siberian Husky', 'Staffordshire Bull Terrier', 'Weimaraner',
+    'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+  ],
+  es: [
+    'Affenpinscher', 'Galgo Afgano', 'Airedale Terrier', 'Malamute de Alaska', 'Bulldog Americano',
+    'Cocker Spaniel Americano', 'American Pit Bull Terrier', 'American Staffordshire Terrier',
+    'Basenji', 'Basset Hound', 'Beagle', 'Bearded Collie', 'Boyero de Berna',
+    'Bichón Frisé', 'Sabueso', 'Border Collie', 'Border Terrier', 'Boston Terrier',
+    'Boxer', 'Brittany', 'Bulldog', 'Bulldog Francés', 'Bull Terrier', 'Cairn Terrier',
+    'Cane Corso', 'Cavalier King Charles Spaniel', 'Chihuahua', 'Perro Crestado Chino',
+    'Chow Chow', 'Cocker Spaniel', 'Collie', 'Teckel', 'Dálmata', 'Dobermann',
+    'Setter Inglés', 'Springer Spaniel Inglés', 'Fox Terrier', 'Bulldog Francés',
+    'Pastor Alemán', 'Pointer Alemán', 'Golden Retriever', 'Gran Danés',
+    'Galgo', 'Habanero', 'Setter Irlandés', 'Lebrel Irlandés', 'Jack Russell Terrier',
+    'Spitz Japonés', 'Labrador Retriever', 'Lagotto Romagnolo', 'Maltés', 'Mastín',
+    'Terranova', 'Pastor Alemán', 'Pomerania', 'Caniche', 'Pug', 'Rottweiler',
+    'San Bernardo', 'Samoyedo', 'Schnauzer', 'Terrier Escocés', 'Shar Pei',
+    'Shih Tzu', 'Husky Siberiano', 'Staffordshire Bull Terrier', 'Weimaraner',
+    'West Highland White Terrier', 'Whippet', 'Yorkshire Terrier'
+  ]
+};
 
-const catBreeds = [
-  'Abissino', 'American Curl', 'American Shorthair', 'Angora Turco', 'Balinese',
-  'Bengala', 'Birmano', 'Bombay', 'British Longhair', 'British Shorthair',
-  'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
-  'Egyptian Mau', 'Europeo', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
-  'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
-  'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persiano', 'Peterbald',
-  'Pixie-bob', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
-  'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura', 'Somali', 'Sphynx',
-  'Tonkinese', 'Turkish Van'
-];
+const catBreeds = {
+  it: [
+    'Abissino', 'American Curl', 'Pelo Corto Americano', 'Angora Turco', 'Balinese',
+    'Bengala', 'Birmano', 'Bombay', 'Pelo Lungo Britannico', 'Pelo Corto Britannico',
+    'Burmese', 'California Spangled', 'Certosino', 'Cornish Rex', 'Devon Rex',
+    'Mau Egiziano', 'Europeo', 'Esotico Pelo Corto', 'Himalayano', 'Bobtail Giapponese',
+    'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+    'Gatto delle Foreste Norvegesi', 'Ocicat', 'Orientale', 'Persiano', 'Peterbald',
+    'Pixie-bob', 'Ragdoll', 'Blu di Russia', 'Savannah', 'Scottish Fold',
+    'Selkirk Rex', 'Siamese', 'Siberiano', 'Singapura', 'Somalo', 'Sphynx',
+    'Tonkinese', 'Van Turco'
+  ],
+  en: [
+    'Abyssinian', 'American Curl', 'American Shorthair', 'Turkish Angora', 'Balinese',
+    'Bengal', 'Birman', 'Bombay', 'British Longhair', 'British Shorthair',
+    'Burmese', 'California Spangled', 'Chartreux', 'Cornish Rex', 'Devon Rex',
+    'Egyptian Mau', 'European', 'Exotic Shorthair', 'Himalayan', 'Japanese Bobtail',
+    'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+    'Norwegian Forest Cat', 'Ocicat', 'Oriental', 'Persian', 'Peterbald',
+    'Pixie-bob', 'Ragdoll', 'Russian Blue', 'Savannah', 'Scottish Fold',
+    'Selkirk Rex', 'Siamese', 'Siberian', 'Singapura', 'Somali', 'Sphynx',
+    'Tonkinese', 'Turkish Van'
+  ],
+  es: [
+    'Abisinio', 'American Curl', 'Pelo Corto Americano', 'Angora Turco', 'Balinés',
+    'Bengalí', 'Birmano', 'Bombay', 'Pelo Largo Británico', 'Pelo Corto Británico',
+    'Burmés', 'California Spangled', 'Cartujo', 'Cornish Rex', 'Devon Rex',
+    'Mau Egipcio', 'Europeo', 'Exótico Pelo Corto', 'Himalayo', 'Bobtail Japonés',
+    'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung',
+    'Gato del Bosque de Noruega', 'Ocicat', 'Oriental', 'Persa', 'Peterbald',
+    'Pixie-bob', 'Ragdoll', 'Azul Ruso', 'Savannah', 'Scottish Fold',
+    'Selkirk Rex', 'Siamés', 'Siberiano', 'Singapura', 'Somalí', 'Sphynx',
+    'Tonkinés', 'Van Turco'
+  ]
+};
 
 // Funzione per ottenere l'emoji del tipo di pet
 const getPetEmoji = (type: string) => {
@@ -292,7 +352,13 @@ const PetsPage: React.FC = () => {
   };
 
   const getAvailableBreeds = () => {
-    return formData.type === 'Cane' ? dogBreeds : catBreeds;
+    const petType = formData.type.toLowerCase();
+    if (petType === 'cane' || petType === 'dog' || petType === 'perro') {
+      return dogBreeds[language] || dogBreeds.it;
+    } else if (petType === 'gatto' || petType === 'cat' || petType === 'gato') {
+      return catBreeds[language] || catBreeds.it;
+    }
+    return [];
   };
 
 
