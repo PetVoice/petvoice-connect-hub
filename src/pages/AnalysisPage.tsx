@@ -55,6 +55,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
 import AudioRecorder from '@/components/analysis/AudioRecorder';
+import TextAnalyzer from '@/components/analysis/TextAnalyzer';
 import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
 import ProcessingAnimation from '@/components/analysis/ProcessingAnimation';
@@ -64,10 +65,11 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 interface AnalysisData {
   id: string;
   pet_id: string;
+  user_id?: string;
   file_name: string;
   file_type: string;
   file_size: number;
-  storage_path: string;
+  storage_path: string | null;
   primary_emotion: string;
   primary_confidence: number;
   secondary_emotions: any;
@@ -77,6 +79,7 @@ interface AnalysisData {
   analysis_duration: unknown;
   created_at: string;
   updated_at: string;
+  user_description?: string;
 }
 
 interface ProcessingState {
@@ -604,11 +607,184 @@ const AnalysisPage: React.FC = () => {
     };
   };
 
+  const generateTextAnalysis = (description: string) => {
+    // Analisi più intelligente basata su parole chiave nella descrizione
+    const anxiousKeywords = ['agitato', 'nervoso', 'trema', 'nasconde', 'abbaia', 'ansioso', 'paura', 'scappa'];
+    const happyKeywords = ['felice', 'gioca', 'scodinzola', 'corre', 'salta', 'allegro', 'gioioso'];
+    const sadKeywords = ['triste', 'apatia', 'solo', 'non mangia', 'depresso', 'isolato', 'silenzioso'];
+    const aggressiveKeywords = ['aggressivo', 'ringhia', 'attacca', 'morde', 'territoriale', 'minaccia'];
+    const calmKeywords = ['calmo', 'rilassato', 'tranquillo', 'pacifico', 'sereno', 'riposato'];
+    const excitedKeywords = ['eccitato', 'energico', 'iperattivo', 'entusiasta', 'vivace'];
+    const playfulKeywords = ['giocoso', 'gioca', 'scherzoso', 'divertente', 'ludico'];
+
+    const lowerDescription = description.toLowerCase();
+    
+    let emotionScores: Record<string, number> = {
+      ansioso: 0,
+      felice: 0,
+      triste: 0,
+      aggressivo: 0,
+      calmo: 0,
+      eccitato: 0,
+      giocoso: 0
+    };
+
+    // Conta le parole chiave per ogni emozione
+    anxiousKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.ansioso += 1;
+    });
+    happyKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.felice += 1;
+    });
+    sadKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.triste += 1;
+    });
+    aggressiveKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.aggressivo += 1;
+    });
+    calmKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.calmo += 1;
+    });
+    excitedKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.eccitato += 1;
+    });
+    playfulKeywords.forEach(keyword => {
+      if (lowerDescription.includes(keyword)) emotionScores.giocoso += 1;
+    });
+
+    // Trova l'emozione primaria
+    const primaryEmotion = Object.keys(emotionScores).reduce((a, b) => 
+      emotionScores[a] > emotionScores[b] ? a : b
+    );
+
+    // Se nessuna parola chiave trovata, usa analisi casuale ma pesata verso "calmo"
+    if (emotionScores[primaryEmotion] === 0) {
+      const defaultEmotions = ['calmo', 'calmo', 'felice', 'ansioso']; // peso maggiore per calmo
+      const randomEmotion = defaultEmotions[Math.floor(Math.random() * defaultEmotions.length)];
+      const analysis = generateMockAnalysis(new File([], 'text'), '');
+      analysis.primary_emotion = randomEmotion;
+      return analysis;
+    }
+
+    // Calcola confidenza basata su quante parole chiave abbiamo trovato
+    const totalKeywords = Object.values(emotionScores).reduce((sum, score) => sum + score, 0);
+    const confidence = Math.min(0.95, 0.65 + (emotionScores[primaryEmotion] / totalKeywords) * 0.3);
+
+    // Crea emozioni secondarie
+    const secondaryEmotions: Record<string, number> = {};
+    Object.entries(emotionScores)
+      .filter(([emotion, score]) => emotion !== primaryEmotion && score > 0)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 2)
+      .forEach(([emotion, score]) => {
+        secondaryEmotions[emotion] = Math.floor((score / totalKeywords) * 100);
+      });
+
+    const analysis = generateMockAnalysis(new File([], 'text'), '');
+    analysis.primary_emotion = primaryEmotion;
+    analysis.primary_confidence = confidence;
+    analysis.secondary_emotions = secondaryEmotions;
+    
+    return analysis;
+  };
+
   const handleRecordingComplete = async (audioBlob: Blob) => {
     const file = new File([audioBlob], `recording_${Date.now()}.wav`, { type: 'audio/wav' });
     const fileList = new DataTransfer();
     fileList.items.add(file);
     await handleFileUpload(fileList.files);
+  };
+
+  const handleTextAnalysis = async (description: string) => {
+    if (!selectedPet) {
+      toast({
+        title: "Errore",
+        description: "Seleziona un pet prima di iniziare l'analisi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setProcessing({
+      isProcessing: true,
+      progress: 0,
+      stage: 'Elaborazione descrizione...'
+    });
+
+    try {
+      // Create a mock analysis for text input
+      const analysisData: AnalysisData = {
+        id: crypto.randomUUID(),
+        pet_id: selectedPet.id,
+        user_id: selectedPet.user_id,
+        file_name: `Descrizione_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}`,
+        file_type: 'text',
+        file_size: description.length,
+        storage_path: null, // No storage path for text
+        ...generateTextAnalysis(description),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_description: description // Store the original description
+      };
+
+      setProcessing(prev => ({
+        ...prev,
+        progress: 50,
+        stage: 'Analisi emozioni...'
+      }));
+
+      // Save to database
+      const { error } = await supabase
+        .from('pet_analyses')
+        .insert({
+          pet_id: analysisData.pet_id,
+          user_id: analysisData.user_id,
+          file_name: analysisData.file_name,
+          file_type: analysisData.file_type,
+          file_size: analysisData.file_size,
+          storage_path: null, // Null for text analysis
+          primary_emotion: analysisData.primary_emotion,
+          primary_confidence: analysisData.primary_confidence,
+          secondary_emotions: analysisData.secondary_emotions,
+          behavioral_insights: `Basato sulla descrizione: "${description}". ${analysisData.behavioral_insights}`,
+          recommendations: analysisData.recommendations,
+          triggers: analysisData.triggers,
+          analysis_duration: analysisData.analysis_duration
+        });
+
+      if (error) throw error;
+
+      setProcessing(prev => ({
+        ...prev,
+        progress: 100,
+        stage: 'Completato!'
+      }));
+
+      // Refresh analyses
+      await loadAnalyses();
+
+      toast({
+        title: "Analisi completata!",
+        description: "L'analisi del comportamento descritto è stata elaborata con successo.",
+      });
+
+      // Switch to results tab
+      setActiveTab('results');
+      
+    } catch (error: any) {
+      console.error('Text analysis error:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile completare l'analisi del testo",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing({
+        isProcessing: false,
+        progress: 0,
+        stage: 'Preparazione...'
+      });
+    }
   };
 
   const handleStartRecording = () => {
@@ -1095,6 +1271,12 @@ const AnalysisPage: React.FC = () => {
               onRecordingComplete={handleRecordingComplete} 
               onStartRecording={handleStartRecording}
               autoAnalyze={true}
+            />
+          </div>
+          <div className="w-full">
+            <TextAnalyzer 
+              onTextSubmitted={handleTextAnalysis}
+              isProcessing={processing.isProcessing}
             />
           </div>
         </TabsContent>
