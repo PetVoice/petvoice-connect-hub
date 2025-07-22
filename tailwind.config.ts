@@ -133,7 +133,13 @@ export default {
 				},
 				'float': {
 					'0%, 100%': { transform: 'translateY(0px)' },
-					'50%': { transform: 'translateY(-10px)' }
+					'50%': { transform: 'translateY(-6px)' }
+				},
+				'gentle-float': {
+					'0%, 100%': { transform: 'translateY(0px) scale(1)' },
+					'25%': { transform: 'translateY(-3px) scale(1.02)' },
+					'50%': { transform: 'translateY(-6px) scale(1.05)' },
+					'75%': { transform: 'translateY(-3px) scale(1.02)' }
 				},
 				'shimmer': {
 					'0%': { transform: 'translateX(-100%)' },
@@ -155,6 +161,7 @@ export default {
 				'scale-in': 'scale-in 0.3s ease-out',
 				'glow': 'glow 2s ease-in-out infinite',
 				'float': 'float 3s ease-in-out infinite',
+				'gentle-float': 'gentle-float 4s ease-in-out infinite',
 				'shimmer': 'shimmer 2s infinite',
 				'ripple': 'ripple 0.6s linear'
 			}
