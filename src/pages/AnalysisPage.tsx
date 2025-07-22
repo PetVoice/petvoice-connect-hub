@@ -712,7 +712,37 @@ const AnalysisPage: React.FC = () => {
     });
 
     try {
-      // Create a mock analysis for text input
+      setProcessing(prev => ({
+        ...prev,
+        progress: 30,
+        stage: 'Analisi comportamentale con IA...'
+      }));
+
+      // Call the edge function for real AI analysis
+      const { data, error } = await supabase.functions.invoke('analyze-pet-behavior', {
+        body: {
+          description,
+          petType: selectedPet.type,
+          petName: selectedPet.name
+        }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error('Errore durante l\'analisi del comportamento');
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Analisi non riuscita');
+      }
+
+      setProcessing(prev => ({
+        ...prev,
+        progress: 70,
+        stage: 'Generazione insights...'
+      }));
+
+      // Create analysis data with real AI results
       const analysisData: AnalysisData = {
         id: crypto.randomUUID(),
         pet_id: selectedPet.id,
@@ -721,7 +751,13 @@ const AnalysisPage: React.FC = () => {
         file_type: 'text',
         file_size: description.length,
         storage_path: null, // No storage path for text
-        ...generateTextAnalysis(description),
+        primary_emotion: data.analysis.primary_emotion,
+        primary_confidence: Math.round(data.analysis.primary_confidence * 100),
+        secondary_emotions: data.analysis.secondary_emotions,
+        behavioral_insights: data.analysis.behavioral_insights,
+        recommendations: data.analysis.recommendations,
+        triggers: data.analysis.triggers,
+        analysis_duration: data.analysis.analysis_duration,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         user_description: description // Store the original description
@@ -734,7 +770,7 @@ const AnalysisPage: React.FC = () => {
       }));
 
       // Save to database
-      const { error } = await supabase
+      const { error: dbError } = await supabase
         .from('pet_analyses')
         .insert({
           pet_id: analysisData.pet_id,
@@ -746,13 +782,13 @@ const AnalysisPage: React.FC = () => {
           primary_emotion: analysisData.primary_emotion,
           primary_confidence: analysisData.primary_confidence,
           secondary_emotions: analysisData.secondary_emotions,
-          behavioral_insights: `Basato sulla descrizione: "${description}". ${analysisData.behavioral_insights}`,
+          behavioral_insights: analysisData.behavioral_insights,
           recommendations: analysisData.recommendations,
           triggers: analysisData.triggers,
           analysis_duration: analysisData.analysis_duration
         });
 
-      if (error) throw error;
+      if (dbError) throw dbError;
 
       setProcessing(prev => ({
         ...prev,
