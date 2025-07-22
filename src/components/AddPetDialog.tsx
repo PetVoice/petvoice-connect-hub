@@ -9,6 +9,7 @@ import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { toast } from '@/hooks/use-toast';
 
 interface AddPetDialogProps {
@@ -49,6 +50,7 @@ const catBreeds = [
 export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }) => {
   const { user } = useAuth();
   const { addPet } = usePets();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -117,8 +119,8 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
 
     if (!formData.name || !formData.type) {
       toast({
-        title: "Errore",
-        description: "Nome e tipo sono obbligatori",
+        title: t('errors.validationError'),
+        description: t('toast.pets.validationRequired'),
         variant: "destructive",
       });
       return;
@@ -166,7 +168,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
       <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
         <div className="max-h-[80vh] overflow-y-auto px-1">
           <DialogHeader>
-            <DialogTitle>Aggiungi Nuovo Pet</DialogTitle>
+            <DialogTitle>{t('pets.addNew')}</DialogTitle>
             <DialogDescription>
               Inserisci tutte le informazioni del tuo nuovo pet
             </DialogDescription>
@@ -339,7 +341,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Annulla
+                {t('buttons.basic.cancel')}
               </Button>
               <Button 
                 type="submit" 
@@ -357,7 +359,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 ) : (
                   <Plus className="h-4 w-4 mr-2" />
                 )}
-                Aggiungi Pet
+                {loading ? t('common.loading') : t('buttons.pets.addPet')}
               </Button>
             </div>
           </form>
