@@ -507,28 +507,6 @@ const Dashboard: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Weather AI Prediction */}
-      {activePet && (
-        <Card className="petvoice-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Cloud className="h-5 w-5" />
-              Previsione Meteo-Comportamentale AI
-            </CardTitle>
-            <CardDescription>
-              Analisi predittiva basata su condizioni meteo e comportamento di {activePet.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <WeatherMoodPredictor 
-              user={user} 
-              onWeatherUpdate={(data) => {
-                setWeatherData(data);
-              }}
-            />
-          </CardContent>
-        </Card>
-      )}
 
 
       {/* Recent Activities */}

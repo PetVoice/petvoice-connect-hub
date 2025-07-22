@@ -289,11 +289,11 @@ const AnalysisPage: React.FC = () => {
       }
       
       setActiveTab('results');
-      await loadAnalyses();
+      const newAnalyses = await loadAnalyses();
       
       // Seleziona automaticamente l'analisi più recente (appena completata)
-      if (analyses.length > 0) {
-        setSelectedAnalysis(analyses[0]);
+      if (newAnalyses && newAnalyses.length > 0) {
+        setSelectedAnalysis(newAnalyses[0]);
       }
       
       toast({

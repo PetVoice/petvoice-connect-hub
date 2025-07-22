@@ -34,6 +34,7 @@ import { usePets } from '@/contexts/PetContext';
 import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
 import jsPDF from 'jspdf';
 import AudioPlayer from './AudioPlayer';
+import WeatherContextInfo from './WeatherContextInfo';
 
 interface SharingTemplate {
   id: string;
@@ -245,7 +246,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       // Create diary entry with analysis data
       const diaryData = {
         title: `Analisi emotiva - ${analysis.primary_emotion}`,
-        content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
+        content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
         mood_score: analysis.primary_emotion === 'felice' ? 8 : 
                    analysis.primary_emotion === 'calmo' ? 7 : 
                    analysis.primary_emotion === 'triste' ? 3 : 
@@ -294,7 +295,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       // Create calendar event for follow-up
       const eventData = {
         title: `Follow-up analisi emotiva - ${petName}`,
-        description: `Controllo comportamentale programmato dopo l'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}.\n\nEmozione rilevata: ${analysis.primary_emotion} (${analysis.primary_confidence}% confidenza)\n\nNote: Verificare il comportamento e l'umore del pet, confrontare con i risultati precedenti.`,
+        description: `Controllo comportamentale programmato dopo l'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}.\n\nEmozione rilevata: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}% confidenza)\n\nNote: Verificare il comportamento e l'umore del pet, confrontare con i risultati precedenti.`,
         start_time: followUpDate.toISOString(),
         end_time: new Date(followUpDate.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
         category: 'behavioral_check',
@@ -419,7 +420,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       // Primary results
       addText('RISULTATI PRIMARI', 14, true);
       addText(`Emozione Principale: ${analysis.primary_emotion.toUpperCase()}`, 12);
-      addText(`Livello di Confidenza: ${analysis.primary_confidence}% (${getConfidenceLabel(analysis.primary_confidence)})`, 12);
+      addText(`Livello di Confidenza: ${Math.round(analysis.primary_confidence * 100)}% (${getConfidenceLabel(Math.round(analysis.primary_confidence * 100))})`, 12);
       yPosition += 10;
 
       // Secondary emotions
@@ -541,13 +542,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Confidenza</span>
-                  <span className={getConfidenceColor(selectedAnalysis.primary_confidence)}>
-                    {getConfidenceLabel(selectedAnalysis.primary_confidence)}
+                  <span className={getConfidenceColor(Math.round(selectedAnalysis.primary_confidence * 100))}>
+                    {getConfidenceLabel(Math.round(selectedAnalysis.primary_confidence * 100))}
                   </span>
                 </div>
-                <Progress value={selectedAnalysis.primary_confidence} className="h-3" />
+                <Progress value={Math.round(selectedAnalysis.primary_confidence * 100)} className="h-3" />
                 <p className="text-2xl font-bold">
-                  {selectedAnalysis.primary_confidence}%
+                  {Math.round(selectedAnalysis.primary_confidence * 100)}%
                 </p>
               </div>
             </div>
@@ -635,10 +636,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     <Zap className="h-4 w-4" />
                     Contesto Ambientale
                   </h4>
-                  <p className="text-green-800 dark:text-green-200 text-sm">
-                    Analisi registrata durante orario diurno. Livelli di rumore ambientale: moderati. 
-                    Temperatura stimata: 22°C. Presenza umana rilevata nelle vicinanze.
-                  </p>
+                  <WeatherContextInfo analysisDate={selectedAnalysis.created_at} />
                 </div>
               </TabsContent>
 
@@ -688,7 +686,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
                               <span>🎵 {playlist.frequency}</span>
                               <span>⏱️ {playlist.duration} min</span>
-                              <span>🎯 Confidenza: {selectedAnalysis.primary_confidence}%</span>
+                              <span>🎯 Confidenza: {Math.round(selectedAnalysis.primary_confidence * 100)}%</span>
                             </div>
                             <Button 
                               size="sm" 
@@ -697,7 +695,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 const playlistData = encodeURIComponent(JSON.stringify({
                                   ...playlist,
                                   emotion: selectedAnalysis.primary_emotion,
-                                  confidence: selectedAnalysis.primary_confidence,
+                                  confidence: Math.round(selectedAnalysis.primary_confidence * 100),
                                   autoStart: true
                                 }));
                                 const url = `/ai-music-therapy?petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
@@ -1241,7 +1239,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <span className="font-medium">Episodio Simile</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} con emozione "{mostRecentOther.primary_emotion}" (confidenza {mostRecentOther.primary_confidence}%)
+                      Comportamento simile osservato il {format(new Date(mostRecentOther.created_at), 'dd MMMM', { locale: it })} con emozione "{mostRecentOther.primary_emotion}" (confidenza {Math.round(mostRecentOther.primary_confidence * 100)}%)
                     </p>
                     <Button 
                       size="sm" 
@@ -1360,7 +1358,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <Card>
                   <CardContent className="pt-6">
                     <div className="text-2xl font-bold">
-                      {(comparedAnalyses.reduce((sum, a) => sum + a.primary_confidence, 0) / comparedAnalyses.length).toFixed(1)}%
+                      {Math.round((comparedAnalyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / comparedAnalyses.length))}%
                     </div>
                     <p className="text-xs text-muted-foreground">Confidenza Media</p>
                   </CardContent>
@@ -1392,7 +1390,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         <Badge className={cn("mb-2", EMOTION_COLORS[analysis.primary_emotion])}>
                           {analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1)}
                         </Badge>
-                        <div className="text-lg font-bold">{analysis.primary_confidence}%</div>
+                        <div className="text-lg font-bold">{Math.round(analysis.primary_confidence * 100)}%</div>
                       </div>
                       
                       <div className="space-y-2">
@@ -1443,7 +1441,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         pdf.setFont('helvetica', 'normal');
                         pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 20, yPosition);
                         yPosition += 7;
-                        pdf.text(`Emozione: ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 20, yPosition);
+                        pdf.text(`Emozione: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}%)`, 20, yPosition);
                         yPosition += 7;
                         pdf.text(`File: ${analysis.file_name}`, 20, yPosition);
                         yPosition += 15;
