@@ -13,7 +13,7 @@ interface CalendarFiltersProps {
   onCategoryToggle: (category: string) => void;
   viewMode: 'month' | 'week' | 'day';
   onViewModeChange: (mode: 'month' | 'week' | 'day') => void;
-  onExport: () => void;
+  onExport: () => Promise<void>;
 }
 
 export const CalendarFilters: React.FC<CalendarFiltersProps> = ({

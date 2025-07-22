@@ -182,9 +182,101 @@ const DiaryPage: React.FC = () => {
     );
   };
 
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    toast({ title: "Funzionalità in arrivo", description: "Export PDF in sviluppo" });
+  const handleExport = async () => {
+    if (!selectedPet) return;
+
+    try {
+      const jsPDF = (await import('jspdf')).default;
+      const doc = new jsPDF();
+
+      // Title
+      doc.setFontSize(20);
+      doc.text(`Diario di ${selectedPet.name}`, 20, 20);
+      
+      // Date range
+      doc.setFontSize(12);
+      doc.text(`Esportato il: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 20, 35);
+      doc.text(`Totale voci: ${filteredEntries.length}`, 20, 45);
+
+      let yPosition = 60;
+      const pageHeight = doc.internal.pageSize.height;
+
+      // Entries
+      filteredEntries
+        .sort((a, b) => new Date(b.entry_date).getTime() - new Date(a.entry_date).getTime())
+        .forEach((entry) => {
+          // Check if we need a new page
+          if (yPosition > pageHeight - 40) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          // Entry date
+          doc.setFontSize(14);
+          doc.setFont(undefined, 'bold');
+          doc.text(`${format(parseISO(entry.entry_date), 'dd/MM/yyyy')}`, 20, yPosition);
+          yPosition += 10;
+
+          // Entry title
+          if (entry.title) {
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(entry.title, 20, yPosition);
+            yPosition += 8;
+          }
+
+          // Mood score
+          if (entry.mood_score) {
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Umore: ${entry.mood_score}/10`, 20, yPosition);
+            yPosition += 6;
+          }
+
+          // Content
+          if (entry.content) {
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const lines = doc.splitTextToSize(entry.content, 170);
+            doc.text(lines, 20, yPosition);
+            yPosition += lines.length * 5;
+          }
+
+          // Tags
+          if (entry.behavioral_tags && entry.behavioral_tags.length > 0) {
+            doc.setFontSize(9);
+            doc.text(`Tag: ${entry.behavioral_tags.join(', ')}`, 20, yPosition);
+            yPosition += 6;
+          }
+
+          // Weather
+          if (entry.weather_condition || entry.temperature) {
+            const weatherInfo = [];
+            if (entry.weather_condition) weatherInfo.push(`Meteo: ${entry.weather_condition}`);
+            if (entry.temperature) weatherInfo.push(`Temp: ${entry.temperature}°C`);
+            doc.setFontSize(9);
+            doc.text(weatherInfo.join(' - '), 20, yPosition);
+            yPosition += 6;
+          }
+
+          yPosition += 10; // Space between entries
+        });
+
+      // Save PDF
+      doc.save(`diario-${selectedPet.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      
+      toast({
+        title: "PDF Esportato!",
+        description: `Diario di ${selectedPet.name} scaricato con successo`
+      });
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile esportare il PDF",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeleteAllDayEntries = async (date: Date) => {

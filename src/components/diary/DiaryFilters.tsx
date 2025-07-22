@@ -15,7 +15,7 @@ interface DiaryFiltersProps {
   onFilterCategoryChange: (category: string) => void;
   viewMode: 'month' | 'week' | 'day';
   onViewModeChange: (mode: 'month' | 'week' | 'day') => void;
-  onExport: () => void;
+  onExport: () => Promise<void>;
 }
 
 export const DiaryFilters: React.FC<DiaryFiltersProps> = ({
