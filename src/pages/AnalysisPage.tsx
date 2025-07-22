@@ -169,6 +169,23 @@ interface ProcessingState {
 }
 
 const AnalysisPage: React.FC = () => {
+  // Helper functions for emotion mapping (available throughout the component)
+  const isAnxiousEmotion = (emotion: string) => ['ansioso', 'anxious', 'ansioso'].includes(emotion.toLowerCase());
+  const isSadEmotion = (emotion: string) => ['triste', 'sad', 'triste'].includes(emotion.toLowerCase());
+  const isAggressiveEmotion = (emotion: string) => ['aggressivo', 'aggressive', 'agresivo'].includes(emotion.toLowerCase());
+  const isHappyEmotion = (emotion: string) => ['felice', 'giocoso', 'calmo', 'happy', 'playful', 'calm', 'feliz', 'juguetón', 'tranquilo'].includes(emotion.toLowerCase());
+  
+  // Function to translate emotions from database
+  const getEmotionTranslation = (emotion: string, language: string): string => {
+    const emotionMappings = {
+      it: { felice: 'Felice', calmo: 'Calmo', ansioso: 'Ansioso', eccitato: 'Eccitato', triste: 'Triste', aggressivo: 'Aggressivo', giocoso: 'Giocoso', rilassato: 'Rilassato' },
+      en: { felice: 'Happy', calmo: 'Calm', ansioso: 'Anxious', eccitato: 'Excited', triste: 'Sad', aggressivo: 'Aggressive', giocoso: 'Playful', rilassato: 'Relaxed' },
+      es: { felice: 'Feliz', calmo: 'Tranquilo', ansioso: 'Ansioso', eccitato: 'Emocionado', triste: 'Triste', aggressivo: 'Agresivo', giocoso: 'Juguetón', rilassato: 'Relajado' }
+    };
+    
+    return emotionMappings[language]?.[emotion.toLowerCase()] || emotion;
+  };
+
   const { user } = useAuth();
   const { t, language } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -1797,9 +1814,9 @@ const AnalysisPage: React.FC = () => {
                   seasonalData[season].total++;
                   seasonalData[season].analyses.push(analysis);
                   
-                  if (['felice', 'calmo', 'giocoso'].includes(analysis.primary_emotion)) {
+                  if (isHappyEmotion(analysis.primary_emotion)) {
                     seasonalData[season].positive++;
-                  } else if (['ansioso', 'triste', 'aggressivo'].includes(analysis.primary_emotion)) {
+                  } else if (isAnxiousEmotion(analysis.primary_emotion) || isSadEmotion(analysis.primary_emotion) || isAggressiveEmotion(analysis.primary_emotion)) {
                     seasonalData[season].negative++;
                   }
                 });
@@ -1839,7 +1856,7 @@ const AnalysisPage: React.FC = () => {
                               </div>
                               <div className="flex justify-between">
                                 <span>{t('analysis.predictions.predominantEmotion')}</span>
-                                <span className="font-medium capitalize">{topEmotion[0]}</span>
+                                <span className="font-medium capitalize">{getEmotionTranslation(topEmotion[0] as string, language)}</span>
                               </div>
                               <div className="pt-2 border-t">
                                 <span className="text-xs text-muted-foreground">
