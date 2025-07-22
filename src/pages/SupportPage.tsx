@@ -1225,46 +1225,45 @@ const SupportPage: React.FC = () => {
 
           {/* Contact Tab */}
           <TabsContent value="contact" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex justify-center">
               {/* Contact Methods */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+              <Card className="w-full max-w-2xl">
+                <CardHeader className="text-center">
+                  <CardTitle className="flex items-center justify-center space-x-2">
                     <Headphones className="h-5 w-5" />
                     <span>Contatti Diretti</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-                    <MessageCircle className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">Chat Live</p>
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center space-y-4 p-6 bg-muted/50 rounded-lg">
+                    <MessageCircle className="h-8 w-8 text-primary" />
+                    <div className="text-center">
+                      <p className="font-medium text-lg">Chat Live</p>
                       <p className="text-sm text-muted-foreground">
                         Disponibile 24/7 per assistenza immediata
                       </p>
                     </div>
-                    <Button size="sm" onClick={() => setShowChatbot(true)}>
+                    <Button size="lg" onClick={() => setShowChatbot(true)}>
                       Avvia Chat
                     </Button>
                   </div>
                   
-                  <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-                    <Mail className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">Email</p>
+                  <div className="flex flex-col items-center space-y-4 p-6 bg-muted/50 rounded-lg">
+                    <Mail className="h-8 w-8 text-primary" />
+                    <div className="text-center">
+                      <p className="font-medium text-lg">Email</p>
                       <p className="text-sm text-muted-foreground">
                         support@petvoice.com
                       </p>
                     </div>
-                    <Button size="sm" variant="outline">
-                      <ExternalLink className="h-3 w-3 mr-1" />
+                    <Button size="lg" variant="outline">
+                      <ExternalLink className="h-4 w-4 mr-2" />
                       Invia Email
                     </Button>
                   </div>
                   
                 </CardContent>
               </Card>
-
             </div>
           </TabsContent>
 
