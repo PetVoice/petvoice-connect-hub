@@ -376,7 +376,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         averageConfidence: 'Confidenza Media',
         secondaryEmotionsShort: 'Emozioni Secondarie',
         insightsShort: 'Insights',
-        analysis: 'Analisi'
+        analysis: 'Analisi',
+        shareAnalysisTitle: 'Condividi Analisi',
+        shareAnalysisDescription: 'Scegli come condividere i risultati dell\'analisi di'
       },
       en: {
         // Existing translations
@@ -514,7 +516,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         averageConfidence: 'Average Confidence',
         secondaryEmotionsShort: 'Secondary Emotions',
         insightsShort: 'Insights',
-        analysis: 'Analysis'
+        analysis: 'Analysis',
+        shareAnalysisTitle: 'Share Analysis',
+        shareAnalysisDescription: 'Choose how to share the analysis results of'
       },
       es: {
         // Existing translations
@@ -652,7 +656,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         averageConfidence: 'Confianza Promedio',
         secondaryEmotionsShort: 'Emociones Secundarias',
         insightsShort: 'Información',
-        analysis: 'Análisis'
+        analysis: 'Análisis',
+        shareAnalysisTitle: 'Compartir Análisis',
+        shareAnalysisDescription: 'Elige cómo compartir los resultados del análisis de'
       }
     };
     return texts[language]?.[key] || texts.it[key] || key;
@@ -1961,9 +1967,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Condividi Analisi</DialogTitle>
+            <DialogTitle>{getText('shareAnalysisTitle')}</DialogTitle>
             <DialogDescription>
-              Scegli come condividere i risultati dell'analisi di {petName}
+              {getText('shareAnalysisDescription')} {petName}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4">
