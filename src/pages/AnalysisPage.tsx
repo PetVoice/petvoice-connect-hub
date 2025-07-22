@@ -645,7 +645,7 @@ const AnalysisPage: React.FC = () => {
   };
 
   const handleRecordingComplete = async (audioBlob: Blob) => {
-    const file = new File([audioBlob], `recording_${Date.now()}.wav`, { type: 'audio/wav' });
+    const file = new File([audioBlob], `Registrazione_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.wav`, { type: 'audio/wav' });
     const fileList = new DataTransfer();
     fileList.items.add(file);
     await handleFileUpload(fileList.files);

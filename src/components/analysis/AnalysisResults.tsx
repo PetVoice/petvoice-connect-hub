@@ -224,6 +224,63 @@ const getRecommendedPlaylist = (emotion: string, confidence: number) => {
   }
 };
 
+// Helper function to generate readable analysis names
+const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it') => {
+  const date = new Date(analysis.created_at);
+  
+  // Format date parts
+  const day = format(date, 'dd', { locale: it });
+  const month = format(date, 'MMMM', { locale: it });
+  const time = format(date, 'HH:mm', { locale: it });
+  
+  // Get emotion translation
+  const getEmotionTranslation = (emotion: string) => {
+    const emotions: Record<string, Record<string, string>> = {
+      it: {
+        felice: 'Felice',
+        calmo: 'Calmo',
+        ansioso: 'Ansioso',
+        eccitato: 'Eccitato',
+        triste: 'Triste',
+        aggressivo: 'Aggressivo',
+        giocoso: 'Giocoso',
+        rilassato: 'Rilassato'
+      },
+      en: {
+        felice: 'Happy',
+        calmo: 'Calm',
+        ansioso: 'Anxious',
+        eccitato: 'Excited',
+        triste: 'Sad',
+        aggressivo: 'Aggressive',
+        giocoso: 'Playful',
+        rilassato: 'Relaxed'
+      },
+      es: {
+        felice: 'Alegre',
+        calmo: 'Tranquilo',
+        ansioso: 'Ansioso',
+        eccitato: 'Emocionado',
+        triste: 'Triste',
+        aggressivo: 'Agresivo',
+        giocoso: 'Juguetón',
+        rilassato: 'Relajado'
+      }
+    };
+    
+    return emotions[language]?.[emotion.toLowerCase()] || emotion;
+  };
+  
+  const emotionName = getEmotionTranslation(analysis.primary_emotion);
+  
+  // Generate readable name based on file type
+  if (analysis.file_type === 'text') {
+    return `Analisi ${emotionName} - ${day} ${month}`;
+  } else {
+    return `Registrazione ${emotionName} - ${day} ${month} ${time}`;
+  }
+};
+
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const { t, language } = useTranslation();
   const { toast } = useToast();
@@ -965,7 +1022,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       
       // Header info
       addText(`Data Analisi: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 10);
-      addText(`File Analizzato: ${analysis.file_name}`, 10);
+      addText(`File Analizzato: ${getReadableAnalysisName(analysis, language)}`, 10);
       addText(`Dimensione File: ${formatFileSize(analysis.file_size)}`, 10);
       addText(`Durata Analisi: ${String(analysis.analysis_duration)}`, 10);
       yPosition += 10;
@@ -1055,7 +1112,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <FileVideo className="h-5 w-5" />
                     )}
                     <div className="text-left">
-                      <p className="font-medium truncate max-w-32">{analysis.file_name}</p>
+                      <p className="font-medium truncate max-w-32">{getReadableAnalysisName(analysis, language)}</p>
                       <p className="text-xs text-muted-foreground">
                         {format(new Date(analysis.created_at), 'dd/MM HH:mm', { locale: it })}
                       </p>
@@ -1111,8 +1168,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{getText('fileLabel')}</span>
-                <span className="font-medium truncate max-w-32" title={selectedAnalysis.file_name}>
-                  {selectedAnalysis.file_name}
+                <span className="font-medium truncate max-w-32" title={getReadableAnalysisName(selectedAnalysis, language)}>
+                  {getReadableAnalysisName(selectedAnalysis, language)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -1725,7 +1782,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   {selectedAnalysis.file_type.startsWith('audio/') ? (
                     <AudioPlayer 
                       storagePath={selectedAnalysis.storage_path}
-                      fileName={selectedAnalysis.file_name}
+                      fileName={getReadableAnalysisName(selectedAnalysis, language)}
                     />
                   ) : (
                     <div className="p-4 bg-muted/50 border rounded-lg text-center">
@@ -1996,7 +2053,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         yPosition += 7;
                         pdf.text(`Emozione: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}%)`, 20, yPosition);
                         yPosition += 7;
-                        pdf.text(`File: ${analysis.file_name}`, 20, yPosition);
+                        pdf.text(`File: ${getReadableAnalysisName(analysis, language)}`, 20, yPosition);
                         yPosition += 15;
                       });
                       
