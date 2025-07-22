@@ -94,7 +94,7 @@ const PetsPage: React.FC = () => {
   const navigate = useNavigate();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -423,13 +423,21 @@ const PetsPage: React.FC = () => {
                       <SelectTrigger>
                         <SelectValue placeholder={t('pets.form.placeholders.month')} />
                       </SelectTrigger>
-                       <SelectContent>
-                         {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
-                           <SelectItem key={month} value={month.toString()}>
-                             {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
-                           </SelectItem>
-                         ))}
-                       </SelectContent>
+                         <SelectContent>
+                           {Array.from({length: 12}, (_, i) => i + 1).map((month) => {
+                             const monthNames = {
+                               it: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
+                               en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                               es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                             };
+                             const currentMonthNames = monthNames[language] || monthNames.it;
+                             return (
+                               <SelectItem key={month} value={month.toString()}>
+                                 {currentMonthNames[month - 1]}
+                               </SelectItem>
+                             );
+                           })}
+                         </SelectContent>
                     </Select>
 
                     <Select value={birthDate.year} onValueChange={(value) => setBirthDate({...birthDate, year: value})}>
@@ -565,7 +573,7 @@ const PetsPage: React.FC = () => {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{pet.name}</CardTitle>
                     <CardDescription>
-                      {pet.type} {pet.breed && `• ${pet.breed}`}
+                      {pet.type === 'Cane' ? t('pets.types.dog') : pet.type === 'Gatto' ? t('pets.types.cat') : pet.type} {pet.breed && `• ${pet.breed}`}
                     </CardDescription>
                     {pet.age && (
                       <Badge variant="secondary" className="mt-1">
