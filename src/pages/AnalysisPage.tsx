@@ -2211,7 +2211,7 @@ const AnalysisPage: React.FC = () => {
               {/* Emotion Distribution */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{t('analysis.results.tabs.emotions')}</CardTitle>
+                   <CardTitle className="text-lg">{language === 'it' ? 'Emozioni' : language === 'es' ? 'Emociones' : 'Emotions'}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -2237,7 +2237,7 @@ const AnalysisPage: React.FC = () => {
                                   {emotion === 'aggressivo' && '😠'}
                                   {emotion === 'giocoso' && '😄'}
                                 </span>
-                                <span className="font-medium capitalize">{emotion}</span>
+                                <span className="font-medium capitalize">{getEmotionTranslation(emotion, language)}</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Progress value={parseFloat(percentage)} className="w-24 h-2" />
@@ -2254,7 +2254,7 @@ const AnalysisPage: React.FC = () => {
               {/* Timeline */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{t('analysis.history.title')}</CardTitle>
+                  <CardTitle className="text-lg">{language === 'it' ? 'Cronologia' : language === 'es' ? 'Cronología' : 'History'}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -2268,8 +2268,8 @@ const AnalysisPage: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-2 text-sm">
                             <span>{format(new Date(analysis.created_at), 'dd/MM HH:mm')}</span>
-                            <Badge variant="outline">{analysis.primary_emotion}</Badge>
-                            <span className="font-medium">{analysis.primary_confidence}%</span>
+                            <Badge variant="outline">{getEmotionTranslation(analysis.primary_emotion, language)}</Badge>
+                            <span className="font-medium">{(analysis.primary_confidence * 100).toFixed(0)}%</span>
                           </div>
                         </div>
                       ))}
