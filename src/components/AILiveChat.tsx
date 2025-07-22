@@ -168,12 +168,12 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
         {
           id: 'how-protocols-work',
           title: 'Come funzionano i protocolli',
-          response: 'I protocolli di training AI:\n\n🤖 **Personalizzazione AI:**\n• Analisi del comportamento del pet\n• Protocolli adattati alle esigenze\n• Progressione graduale e sicura\n\n📋 **Struttura:**\n• Esercizi giornalieri programmati\n• Durata: 7-30 giorni\n• Difficoltà progressive\n• Materiali necessari specificati\n\n📊 **Monitoraggio:**\n• Progresso tracciato automaticamente\n• Valutazioni di efficacia\n• Aggiustamenti in tempo reale'
+          response: 'I protocolli di training AI sono generati automaticamente:\n\n🤖 **Generazione AI:**\n• Analisi del comportamento del pet\n• Protocolli personalizzati e adattivi\n• Progressione graduale e sicura\n• Aggiornamenti automatici basati sui risultati\n\n📋 **Struttura:**\n• Esercizi giornalieri programmati\n• Durata: 7-30 giorni\n• Difficoltà progressive\n• Materiali necessari specificati\n\n📊 **Monitoraggio:**\n• Progresso tracciato automaticamente\n• Valutazioni di efficacia\n• Aggiustamenti in tempo reale'
         },
         {
           id: 'create-custom',
-          title: 'Creare protocolli personalizzati',
-          response: 'Crea il tuo protocollo personalizzato:\n\n🎯 **Processo di creazione:**\n1. Vai su "AI Training"\n2. Clicca "Nuovo Protocollo"\n3. Seleziona obiettivo comportamentale\n4. Rispondi al questionario AI\n5. Ricevi protocollo personalizzato\n\n🔧 **Personalizzazioni:**\n• Durata del protocollo\n• Intensità degli esercizi\n• Orari preferiti\n• Materiali disponibili\n\n✨ **Magia dell\'AI:** Il sistema impara dalle tue sessioni e ottimizza il protocollo!'
+          title: 'Come vengono generati i protocolli',
+          response: 'I protocolli vengono generati automaticamente dall\'AI:\n\n🎯 **Processo automatico:**\n1. L\'AI analizza i dati comportamentali del pet\n2. Identifica aree di miglioramento\n3. Genera protocollo personalizzato\n4. Ricevi il protocollo ottimizzato\n5. L\'AI monitora e ottimizza i risultati\n\n🔧 **Personalizzazioni possibili:**\n• Durata del protocollo\n• Intensità degli esercizi\n• Orari preferiti\n• Note personali\n\n✨ **Intelligenza dell\'AI:** Il sistema impara dalle tue sessioni e ottimizza automaticamente il protocollo!'
         },
         {
           id: 'protocol-duration',

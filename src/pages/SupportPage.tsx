@@ -1466,37 +1466,43 @@ const SupportPage: React.FC = () => {
                   <div className="flex items-center space-x-3 p-2 bg-green-50 rounded-lg">
                     <Camera className="h-4 w-4 text-green-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Analisi AI:</span> Carica file per analisi comportamentali
+                      <span className="font-medium">Analisi AI:</span> Carica file per analisi comportamentali avanzate
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-blue-50 rounded-lg">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Calendario:</span> Programma visite e attività
+                      <span className="font-medium">Calendario Intelligente:</span> Programma automaticamente visite e attività
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-purple-50 rounded-lg">
                     <FileText className="h-4 w-4 text-purple-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Diario:</span> Traccia giornalmente comportamenti e umore
+                      <span className="font-medium">Diario Avanzato:</span> Traccia comportamenti con insights AI
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-orange-50 rounded-lg">
                     <BarChart3 className="h-4 w-4 text-orange-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Wellness:</span> Monitora salute con parametri vitali
+                      <span className="font-medium">Analytics Predittivi:</span> Monitora salute con previsioni AI
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-red-50 rounded-lg">
                     <Heart className="h-4 w-4 text-red-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Primo Soccorso:</span> Guida di emergenza veterinaria
+                      <span className="font-medium">Primo Soccorso:</span> Guida di emergenza veterinaria completa
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-teal-50 rounded-lg">
                     <Users className="h-4 w-4 text-teal-600" />
                     <div className="text-sm">
-                      <span className="font-medium">Community:</span> Chat con altri proprietari di pet
+                      <span className="font-medium">Community:</span> Chat con altri proprietari e esperti
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-2 bg-indigo-50 rounded-lg">
+                    <Music className="h-4 w-4 text-indigo-600" />
+                    <div className="text-sm">
+                      <span className="font-medium">Musicoterapia AI:</span> Brani personalizzati per il benessere
                     </div>
                   </div>
                 </CardContent>
