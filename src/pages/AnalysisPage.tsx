@@ -307,7 +307,7 @@ const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   const generateMockAnalysis = (file: File, storagePath: string) => {
     const emotions = ['felice', 'calmo', 'ansioso', 'eccitato', 'triste', 'aggressivo', 'giocoso'];
     const primaryEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-    const confidence = Math.floor(Math.random() * 30) + 70; // 70-100%
+    const confidence = (Math.floor(Math.random() * 30) + 70) / 100; // 0.70-1.00
     
     const secondaryEmotions: Record<string, number> = {};
     emotions.filter(e => e !== primaryEmotion).slice(0, 2).forEach(emotion => {
