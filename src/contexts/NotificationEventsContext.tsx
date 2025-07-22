@@ -23,11 +23,28 @@ interface NotificationEventsProviderProps {
 }
 
 export const NotificationEventsProvider: React.FC<NotificationEventsProviderProps> = ({ children }) => {
-  const eventHandlers = useNotificationEvents();
+  try {
+    const eventHandlers = useNotificationEvents();
 
-  return (
-    <NotificationEventsContext.Provider value={eventHandlers}>
-      {children}
-    </NotificationEventsContext.Provider>
-  );
+    return (
+      <NotificationEventsContext.Provider value={eventHandlers}>
+        {children}
+      </NotificationEventsContext.Provider>
+    );
+  } catch (error) {
+    console.error('Error in NotificationEventsProvider:', error);
+    // Provide fallback functions to prevent the app from crashing
+    const fallbackHandlers: NotificationEventsContextType = {
+      triggerAnalysisCompleted: () => console.warn('NotificationEvents not available'),
+      triggerDiaryAdded: () => console.warn('NotificationEvents not available'),
+      triggerWellnessReminder: () => console.warn('NotificationEvents not available'),
+      triggerAppointmentReminder: () => console.warn('NotificationEvents not available'),
+    };
+    
+    return (
+      <NotificationEventsContext.Provider value={fallbackHandlers}>
+        {children}
+      </NotificationEventsContext.Provider>
+    );
+  }
 };
