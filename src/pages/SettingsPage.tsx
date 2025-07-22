@@ -66,7 +66,8 @@ import {
   ArrowLeft,
   Cookie,
   Scale,
-  UserCheck
+  UserCheck,
+  BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -1161,10 +1162,14 @@ Continuare?
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="account" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Account
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Abbonamenti
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -1284,6 +1289,171 @@ Continuare?
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Subscription Tab */}
+        <TabsContent value="subscription" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Current Plan */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  Piano Attuale
+                </CardTitle>
+                <CardDescription>
+                  Gestisci il tuo abbonamento e le funzionalità
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!subscriptionLoading && subscription ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Crown className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg capitalize">{subscription.subscribed ? 'Premium' : 'Gratuito'}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {subscription.subscribed && !subscription.is_cancelled ? 'Attivo' : 
+                             subscription.is_cancelled ? 'Cancellato' : 'Piano gratuito'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge className={
+                          subscription.subscribed && !subscription.is_cancelled ? 'bg-green-600 hover:bg-green-700' :
+                          subscription.is_cancelled ? 'bg-red-600 hover:bg-red-700' :
+                          'bg-gray-600 hover:bg-gray-700'
+                        }>
+                          {subscription.subscribed && !subscription.is_cancelled ? 'Attivo' : 
+                           subscription.is_cancelled ? 'Cancellato' : 'Gratuito'}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {subscription.subscribed && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <DollarSign className="h-5 w-5 mx-auto mb-2 text-primary" />
+                          <p className="text-sm font-medium">Piano Premium</p>
+                          <p className="text-xs text-muted-foreground">Accesso completo</p>
+                        </div>
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <Users className="h-5 w-5 mx-auto mb-2 text-primary" />
+                          <p className="text-sm font-medium">Pet illimitati</p>
+                          <p className="text-xs text-muted-foreground">Nessun limite</p>
+                        </div>
+                        <div className="text-center p-3 bg-muted/50 rounded-lg">
+                          <Zap className="h-5 w-5 mx-auto mb-2 text-primary" />
+                          <p className="text-sm font-medium">Analisi AI avanzate</p>
+                          <p className="text-xs text-muted-foreground">Illimitate</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {subscription.is_cancelled && subscription.cancellation_date && (
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          Il tuo abbonamento è stato cancellato{subscription.subscription_end ? ` e scadrà il ${new Date(subscription.subscription_end).toLocaleDateString('it-IT')}` : ''}.
+                          Puoi riattivarlo in qualsiasi momento.
+                          Puoi riattivarlo in qualsiasi momento.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Caricamento informazioni abbonamento...</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Plan Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Funzionalità Incluse
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Gestione pet illimitata</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Analisi comportamentali AI</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Diario comportamentale</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Calendario appuntamenti</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Musico-terapia AI</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Protocolli training avanzati</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Statistiche dettagliate</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm">Supporto prioritario</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Usage Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Utilizzo
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Pet registrati</span>
+                      <span>Illimitati</span>
+                    </div>
+                    <Progress value={20} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Analisi questo mese</span>
+                      <span>Illimitate</span>
+                    </div>
+                    <Progress value={45} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Storage utilizzato</span>
+                      <span>2.1 GB / 10 GB</span>
+                    </div>
+                    <Progress value={21} className="h-2" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         {/* Security Tab */}

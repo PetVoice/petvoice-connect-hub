@@ -43,7 +43,6 @@ const navigationItems = [
 
 const communityItems = [
   { title: 'Community', url: '/community', icon: Users },
-  { title: 'Abbonamenti', url: '/subscription', icon: CreditCard },
 ];
 
 const supportItems = [

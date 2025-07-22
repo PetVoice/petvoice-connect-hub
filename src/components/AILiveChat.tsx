@@ -31,6 +31,15 @@ interface ChatMessage {
   isTyping?: boolean;
 }
 
+interface FlowOption {
+  id: string;
+  title: string;
+  description?: string;
+  icon?: string;
+  children?: FlowOption[];
+  response?: string;
+}
+
 interface AILiveChatProps {
   isOpen: boolean;
   onClose: () => void;
@@ -48,26 +57,194 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<FlowOption[]>([]);
+  const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Flusso conversazionale gerarchico
+  const mainFlow: FlowOption[] = [
+    {
+      id: 'pets',
+      title: '🐾 Gestione Pet',
+      description: 'Tutto sui tuoi animali',
+      children: [
+        {
+          id: 'add-pet',
+          title: 'Aggiungere un nuovo pet',
+          response: 'Per aggiungere un nuovo pet:\n\n1. Vai su "I Miei Pet" nel menu\n2. Clicca su "Aggiungi Pet"\n3. Inserisci nome, tipo, razza e data di nascita\n4. Carica una foto (opzionale)\n5. Salva le informazioni\n\nIl tuo pet sarà subito disponibile per analisi e diario!'
+        },
+        {
+          id: 'edit-pet',
+          title: 'Modificare dati del pet',
+          response: 'Per modificare i dati del tuo pet:\n\n1. Vai su "I Miei Pet"\n2. Clicca sulla card del pet da modificare\n3. Clicca su "Modifica" \n4. Aggiorna le informazioni necessarie\n5. Salva le modifiche\n\nPuoi modificare nome, peso, condizioni di salute e molto altro!'
+        },
+        {
+          id: 'multiple-pets',
+          title: 'Gestire più pet',
+          response: 'Con PetVoice puoi gestire tutti i tuoi pet:\n\n• Aggiungi pet illimitati (piano premium)\n• Passa facilmente tra i pet dal menu\n• Ogni pet ha il suo diario e analisi separate\n• Visualizza statistiche comparative\n• Gestisci calendari separati per ogni pet'
+        },
+        {
+          id: 'pet-photo',
+          title: 'Caricare foto del pet',
+          response: 'Per caricare o cambiare la foto del pet:\n\n1. Vai su "I Miei Pet"\n2. Clicca sul pet\n3. Clicca sull\'icona della fotocamera\n4. Seleziona una foto dalla galleria\n5. Ritaglia se necessario\n6. Salva\n\nFormati supportati: JPG, PNG, HEIC (max 10MB)'
+        },
+        {
+          id: 'delete-pet',
+          title: 'Eliminare un pet',
+          response: 'Per eliminare un pet dal profilo:\n\n⚠️ ATTENZIONE: Questa azione eliminerà TUTTI i dati associati (diario, analisi, calendario)\n\n1. Vai su "I Miei Pet"\n2. Clicca sul pet da eliminare\n3. Clicca su "Impostazioni avanzate"\n4. Clicca su "Elimina pet"\n5. Conferma l\'eliminazione\n\nConsiglio: Esporta i dati prima di eliminare!'
+        }
+      ]
+    },
+    {
+      id: 'analysis',
+      title: '🧠 Analisi AI',
+      description: 'Comprendi il comportamento',
+      children: [
+        {
+          id: 'how-analysis-works',
+          title: 'Come funziona l\'analisi AI',
+          response: 'L\'analisi AI di PetVoice:\n\n🎯 **Cosa fa:**\n• Analizza video, audio e foto del tuo pet\n• Rileva emozioni e comportamenti\n• Fornisce insights personalizzati\n\n🔬 **Tecnologia:**\n• Machine Learning avanzato\n• Riconoscimento visivo e audio\n• Database di comportamenti animali\n\n📊 **Risultati:**\n• Punteggio di fiducia\n• Raccomandazioni specifiche\n• Trend comportamentali'
+        },
+        {
+          id: 'file-types',
+          title: 'Tipi di file supportati',
+          response: 'Formati supportati per l\'analisi:\n\n🎥 **Video:**\n• MP4, MOV, AVI\n• Max 100MB\n• Durata: 10sec - 5min\n\n🎵 **Audio:**\n• MP3, WAV, M4A\n• Max 50MB\n• Durata: 3sec - 10min\n\n📸 **Immagini:**\n• JPG, PNG, HEIC\n• Max 10MB\n• Min 800x600px\n\nPer risultati migliori, usa file chiari e ben illuminati!'
+        },
+        {
+          id: 'analysis-time',
+          title: 'Tempo di elaborazione',
+          response: 'Tempi di analisi tipici:\n\n⚡ **Immagini:** 10-30 secondi\n🎵 **Audio:** 30-60 secondi\n🎥 **Video:** 1-3 minuti\n\n⏱️ **Fattori che influenzano i tempi:**\n• Dimensione del file\n• Qualità del contenuto\n• Carico del server\n• Complessità dell\'analisi\n\n💡 **Suggerimento:** Riceverai una notifica quando l\'analisi è pronta!'
+        },
+        {
+          id: 'interpret-results',
+          title: 'Interpretare i risultati',
+          response: 'Come leggere i risultati dell\'analisi:\n\n📊 **Punteggio di Fiducia:**\n• 90-100%: Molto affidabile\n• 70-89%: Buona affidabilità\n• 50-69%: Media affidabilità\n• <50%: Bassa affidabilità\n\n🎯 **Emozioni Rilevate:**\n• Felice, Triste, Ansioso, Calmo\n• Aggressivo, Giocoso, Spaventato\n\n💡 **Raccomandazioni:**\n• Azioni consigliate\n• Protocolli di training\n• Consultazioni veterinarie'
+        },
+        {
+          id: 'multiple-files',
+          title: 'Analizzare più file',
+          response: 'Analisi di file multipli:\n\n✅ **Puoi caricare:**\n• Più file contemporaneamente\n• Diversi tipi di media\n• File dello stesso evento\n\n📈 **Vantaggi:**\n• Analisi più completa\n• Correlazioni tra diversi media\n• Maggiore precisione\n\n🔄 **Processo:**\n1. Seleziona tutti i file\n2. Aggiungi descrizione dell\'evento\n3. Avvia analisi combinata\n4. Ricevi risultato unificato'
+        }
+      ]
+    },
+    {
+      id: 'diary',
+      title: '📔 Diario Comportamentale',
+      description: 'Traccia l\'umore quotidiano',
+      children: [
+        {
+          id: 'using-diary',
+          title: 'Come usare il diario',
+          response: 'Il diario comportamentale è essenziale:\n\n📝 **Cosa registrare:**\n• Umore del pet (1-10)\n• Comportamenti osservati\n• Attività della giornata\n• Note particolari\n\n⏰ **Quando registrare:**\n• Ogni giorno alla stessa ora\n• Dopo eventi significativi\n• Prima e dopo le visite veterinarie\n\n📊 **Benefici:**\n• Trend comportamentali\n• Correlazioni con salute\n• Supporto per diagnosi veterinarie'
+        },
+        {
+          id: 'mood-score',
+          title: 'Registrare l\'umore',
+          response: 'Come valutare l\'umore del pet:\n\n😢 **1-3: Triste/Depresso**\n• Letargico, non reattivo\n• Poco appetito\n• Isolamento sociale\n\n😐 **4-6: Neutrale/Normale**\n• Comportamento standard\n• Attività regolari\n• Appetito normale\n\n😊 **7-10: Felice/Energico**\n• Molto attivo e giocoso\n• Affettuoso e socievole\n• Ottimo appetito\n\n💡 **Suggerimento:** Sii consistente nelle valutazioni!'
+        },
+        {
+          id: 'add-photos',
+          title: 'Aggiungere foto al diario',
+          response: 'Foto nel diario comportamentale:\n\n📸 **Come aggiungere:**\n1. Apri il diario del giorno\n2. Clicca su "Aggiungi foto"\n3. Scatta o seleziona dalla galleria\n4. Aggiungi una descrizione\n5. Salva la voce\n\n🎯 **Foto utili:**\n• Espressioni facciali\n• Posture corporee\n• Interazioni sociali\n• Luoghi preferiti\n\n💾 **Storage:** Foto salvate nel cloud, accessibili sempre!'
+        },
+        {
+          id: 'behavioral-tags',
+          title: 'Usare i tag comportamentali',
+          response: 'I tag comportamentali ti aiutano a categorizzare:\n\n🏷️ **Tag Positivi:**\n• Giocoso, Affettuoso, Calmo\n• Energico, Socievole, Curioso\n\n⚠️ **Tag di Attenzione:**\n• Ansioso, Aggressivo, Letargico\n• Spaventato, Agitato, Depresso\n\n📊 **Come usarli:**\n1. Seleziona tutti i tag appropriati\n2. Combina più tag se necessario\n3. I tag alimentano le statistiche\n4. Aiutano a identificare pattern\n\n💡 **Tip:** Sii specifico e consistente!'
+        },
+        {
+          id: 'diary-frequency',
+          title: 'Frequenza di aggiornamento',
+          response: 'Frequenza ideale per il diario:\n\n🗓️ **Quotidiana (Consigliata):**\n• Migliori trend e statistiche\n• Rilevamento precoce problemi\n• Dati completi per veterinario\n\n📅 **Alternativa minima:**\n• Almeno 3 volte a settimana\n• Dopo eventi significativi\n• Durante cambiamenti comportamentali\n\n⏰ **Orario fisso:**\n• Stessa ora ogni giorno\n• Preferibilmente sera\n• 5-10 minuti sufficienti\n\n🎯 **Obiettivo:** Creare una routine per te e il pet!'
+        }
+      ]
+    },
+    {
+      id: 'training',
+      title: '🎓 Protocolli Training',
+      description: 'Addestramento personalizzato',
+      children: [
+        {
+          id: 'how-protocols-work',
+          title: 'Come funzionano i protocolli',
+          response: 'I protocolli di training AI:\n\n🤖 **Personalizzazione AI:**\n• Analisi del comportamento del pet\n• Protocolli adattati alle esigenze\n• Progressione graduale e sicura\n\n📋 **Struttura:**\n• Esercizi giornalieri programmati\n• Durata: 7-30 giorni\n• Difficoltà progressive\n• Materiali necessari specificati\n\n📊 **Monitoraggio:**\n• Progresso tracciato automaticamente\n• Valutazioni di efficacia\n• Aggiustamenti in tempo reale'
+        },
+        {
+          id: 'create-custom',
+          title: 'Creare protocolli personalizzati',
+          response: 'Crea il tuo protocollo personalizzato:\n\n🎯 **Processo di creazione:**\n1. Vai su "AI Training"\n2. Clicca "Nuovo Protocollo"\n3. Seleziona obiettivo comportamentale\n4. Rispondi al questionario AI\n5. Ricevi protocollo personalizzato\n\n🔧 **Personalizzazioni:**\n• Durata del protocollo\n• Intensità degli esercizi\n• Orari preferiti\n• Materiali disponibili\n\n✨ **Magia dell\'AI:** Il sistema impara dalle tue sessioni e ottimizza il protocollo!'
+        },
+        {
+          id: 'protocol-duration',
+          title: 'Durata dei protocolli',
+          response: 'Durata tipica dei protocolli:\n\n⚡ **Protocolli Base (7-14 giorni):**\n• Comandi di base\n• Controllo impulsi semplici\n• Abitudini igieniche\n\n🎯 **Protocolli Intermedi (14-21 giorni):**\n• Comportamenti complessi\n• Socializzazione avanzata\n• Gestione ansia lieve\n\n🏆 **Protocolli Avanzati (21-30 giorni):**\n• Problemi comportamentali severi\n• Training specializzato\n• Riabilitazione post-trauma\n\n💡 **Flessibilità:** Puoi sempre estendere o abbreviare secondo necessità!'
+        },
+        {
+          id: 'modify-protocol',
+          title: 'Modificare protocolli attivi',
+          response: 'Modifiche durante il training:\n\n✏️ **Cosa puoi modificare:**\n• Orari delle sessioni\n• Intensità degli esercizi\n• Durata delle attività\n• Note personali\n\n🔄 **Come modificare:**\n1. Apri il protocollo attivo\n2. Clicca su "Personalizza"\n3. Modifica i parametri\n4. Salva le modifiche\n5. L\'AI si adatta automaticamente\n\n⚠️ **Limiti:**\n• Non puoi cambiare l\'obiettivo principale\n• Alcune modifiche potrebbero richiedere riavvio\n• L\'AI potrebbe suggerire alternative'
+        },
+        {
+          id: 'evaluate-effectiveness',
+          title: 'Valutare l\'efficacia',
+          response: 'Come valutare il successo del training:\n\n📊 **Metriche automatiche:**\n• Progresso giornaliero (0-100%)\n• Consistenza nell\'esecuzione\n• Tempo di risposta del pet\n• Difficoltà degli esercizi superati\n\n✅ **Valutazioni manuali:**\n• Rating efficacia (1-5 stelle)\n• Note sui comportamenti osservati\n• Foto/video dei progressi\n• Feedback sui materiali usati\n\n🎯 **Risultati finali:**\n• Report completo di fine protocollo\n• Raccomandazioni per il futuro\n• Protocolli di mantenimento suggeriti'
+        }
+      ]
+    },
+    {
+      id: 'support',
+      title: '🛠️ Supporto Tecnico',
+      description: 'Problemi e assistenza',
+      children: [
+        {
+          id: 'contact-support',
+          title: 'Contattare il supporto',
+          response: 'Come ottenere assistenza:\n\n💬 **Chat Live (24/7):**\n• Risposta immediata\n• Assistenza in tempo reale\n• Disponibile sempre\n\n📧 **Email:**\n• support@petvoice.com\n• Risposta entro 24h\n• Per problemi complessi\n\n📱 **In-app:**\n• Supporto > Contatti Diretti\n• Screenshot automatici\n• Log errori inclusi\n\n🎫 **Sistema Ticket:** Per problemi che richiedono follow-up'
+        },
+        {
+          id: 'app-not-working',
+          title: 'L\'app non funziona',
+          response: 'Risoluzione problemi comuni:\n\n🔄 **Prima prova:**\n1. Chiudi e riapri l\'app\n2. Verifica connessione internet\n3. Riavvia il dispositivo\n4. Aggiorna l\'app se disponibile\n\n📱 **Problemi specifici:**\n• **Crash frequenti:** Libera memoria\n• **Lenta:** Chiudi altre app\n• **Sync non funziona:** Verifica login\n• **Upload fallisce:** Controlla spazio cloud\n\n🆘 **Se persiste:**\n• Contatta supporto con dettagli\n• Includi modello dispositivo\n• Descrivi quando si verifica'
+        },
+        {
+          id: 'report-bug',
+          title: 'Segnalare un bug',
+          response: 'Come segnalare bug efficacemente:\n\n🐛 **Informazioni necessarie:**\n• Modello dispositivo e OS\n• Versione dell\'app\n• Passaggi per riprodurre\n• Screenshot/video dell\'errore\n\n📝 **Dove segnalare:**\n1. Supporto > Contatti\n2. Includi subject: "BUG REPORT"\n3. Descrizione dettagliata\n4. Allega screenshot\n\n⚡ **Risposta rapida:**\n• Bug critici: entro 2 ore\n• Bug minori: entro 24 ore\n• Fix programmati: notifica automatica\n\n🎁 **Reward:** I migliori bug report ricevono crediti gratuiti!'
+        },
+        {
+          id: 'feature-request',
+          title: 'Richiedere nuove funzionalità',
+          response: 'Suggerisci nuove funzionalità:\n\n💡 **Come richiedere:**\n1. Vai su Supporto > FAQ\n2. Tab "Richieste di Funzionalità"\n3. Clicca "Nuova funzionalità"\n4. Descrivi la tua idea\n5. Vota funzionalità esistenti\n\n🗳️ **Sistema di voto:**\n• Le funzionalità più votate hanno priorità\n• Community decide lo sviluppo\n• Trasparenza completa sui progressi\n\n🚀 **Roadmap pubblica:**\n• Funzionalità in sviluppo\n• Timeline di rilascio\n• Beta testing per utenti premium'
+        },
+        {
+          id: 'recover-password',
+          title: 'Recuperare la password',
+          response: 'Reset password sicuro:\n\n🔐 **Processo di reset:**\n1. Clicca "Password dimenticata?" al login\n2. Inserisci la tua email\n3. Controlla la casella email (anche spam)\n4. Clicca il link di reset\n5. Crea nuova password sicura\n\n✅ **Requisiti password:**\n• Minimo 8 caratteri\n• Almeno 1 maiuscola\n• Almeno 1 numero\n• Almeno 1 carattere speciale\n\n🛡️ **Sicurezza:** Per protezione, tutte le altre sessioni verranno disconnesse'
+        }
+      ]
+    }
+  ];
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Initialize chat with welcome message
+  // Initialize chat with welcome message and main flow
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: ChatMessage = {
         id: '1',
-        text: "Ciao! Sono l'assistente AI di PetVoice 🐾. Posso aiutarti con qualsiasi domanda sulla piattaforma: dalla gestione dei tuoi pet, alle analisi comportamentali, al diario, ai protocolli di training e molto altro. Come posso assisterti oggi?",
+        text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda. Scegli un'area di interesse qui sotto per iniziare, oppure scrivi direttamente la tua domanda!",
         sender: 'ai',
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
+      setCurrentFlow(mainFlow);
+      setFlowPath([]);
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen]);
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
@@ -257,9 +434,71 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     "Ci sono tutorial disponibili?"
   ];
 
-  const handleQuickQuestion = (question: string) => {
-    setInputText(question);
-    handleSendMessage();
+  const handleFlowOption = (option: FlowOption) => {
+    if (option.children && option.children.length > 0) {
+      // Navigate to sub-level
+      setCurrentFlow(option.children);
+      setFlowPath([...flowPath, option.title]);
+      
+      // Add navigation message
+      const navMessage: ChatMessage = {
+        id: Date.now().toString(),
+        text: `Hai selezionato: ${option.title}\n\nScegli un'opzione specifica:`,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, navMessage]);
+    } else if (option.response) {
+      // Show final response
+      const responseMessage: ChatMessage = {
+        id: Date.now().toString(),
+        text: option.response,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, responseMessage]);
+      
+      // Reset to main flow after response
+      setTimeout(() => {
+        setCurrentFlow(mainFlow);
+        setFlowPath([]);
+      }, 500);
+    }
+  };
+
+  const goBack = () => {
+    if (flowPath.length > 0) {
+      const newPath = [...flowPath];
+      newPath.pop();
+      setFlowPath(newPath);
+      
+      // Navigate back in the flow structure
+      if (newPath.length === 0) {
+        setCurrentFlow(mainFlow);
+      } else {
+        // Find the parent flow level
+        let currentLevel = mainFlow;
+        for (const pathItem of newPath) {
+          const found = currentLevel.find(item => item.title === pathItem);
+          if (found && found.children) {
+            currentLevel = found.children;
+          }
+        }
+        setCurrentFlow(currentLevel);
+      }
+    }
+  };
+
+  const resetToMain = () => {
+    setCurrentFlow(mainFlow);
+    setFlowPath([]);
+    const resetMessage: ChatMessage = {
+      id: Date.now().toString(),
+      text: "Torniamo al menu principale. Scegli un'area di interesse:",
+      sender: 'ai',
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, resetMessage]);
   };
 
   if (!isOpen) return null;
@@ -348,38 +587,47 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
               </div>
             </ScrollArea>
 
-            {/* Quick Questions */}
-            {messages.length <= 1 && (
-              <div className="p-4 border-t border-border max-h-48 overflow-y-auto">
-                <h4 className="text-sm font-medium mb-3 flex items-center sticky top-0 bg-background pb-2">
-                  <HelpCircle className="h-4 w-4 mr-2" />
-                  Domande frequenti - Clicca per inviare:
-                </h4>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {quickQuestions.map((question, index) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleQuickQuestion(question)}
-                      className="text-left justify-start h-auto p-2 text-xs hover:bg-primary/5 border border-transparent hover:border-primary/20 transition-all duration-200"
-                    >
-                      <span className="text-primary mr-2">•</span>
-                      {question}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Input Area */}
+            {/* Flow Navigation */}
             <div className="p-4 border-t border-border">
+              {/* Breadcrumb */}
+              {flowPath.length > 0 && (
+                <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+                  <Button variant="ghost" size="sm" onClick={resetToMain} className="h-6 px-2">Menu</Button>
+                  {flowPath.map((path, index) => (
+                    <span key={index}>/ {path}</span>
+                  ))}
+                  {flowPath.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={goBack} className="h-6 px-2 ml-2">← Indietro</Button>
+                  )}
+                </div>
+              )}
+
+              {/* Flow Options */}
+              <div className="grid grid-cols-1 gap-2 mb-4 max-h-48 overflow-y-auto">
+                {currentFlow.map((option) => (
+                  <Button
+                    key={option.id}
+                    variant="outline"
+                    onClick={() => handleFlowOption(option)}
+                    className="text-left justify-start h-auto p-3 hover:bg-primary/5"
+                  >
+                    <div>
+                      <div className="font-medium text-sm">{option.title}</div>
+                      {option.description && (
+                        <div className="text-xs text-muted-foreground">{option.description}</div>
+                      )}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+              
+              {/* Input Area */}
               <div className="flex space-x-2">
                 <Input
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Scrivi la tua domanda..."
+                  placeholder="Oppure scrivi la tua domanda..."
                   disabled={isLoading}
                   className="flex-1"
                 />
@@ -391,15 +639,6 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
                 >
                   <Send className="h-4 w-4" />
                 </Button>
-              </div>
-              <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                <span>Premi Enter per inviare</span>
-                {isTyping && (
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse mr-2"></div>
-                    <span>AI sta scrivendo...</span>
-                  </div>
-                )}
               </div>
             </div>
           </CardContent>
