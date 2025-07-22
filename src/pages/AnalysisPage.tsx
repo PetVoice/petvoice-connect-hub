@@ -364,7 +364,7 @@ const AnalysisPage: React.FC = () => {
       
       toast({
         title: t('analysis.success.analysisCompleted'),
-        description: `${files.length} ${t('analysis.success.filesAnalyzed')}`,
+        description: t('analysis.success.filesAnalyzed').replace('{{count}}', files.length.toString()),
       });
     } catch (error: any) {
       toast({
