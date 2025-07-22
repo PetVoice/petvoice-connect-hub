@@ -248,6 +248,13 @@ const SettingsPage: React.FC = () => {
     loadCommunityStats();
   }, []);
 
+  // Ricarica dati community quando la scheda community diventa attiva
+  useEffect(() => {
+    if (activeTab === 'community') {
+      loadCommunityStats();
+    }
+  }, [activeTab]);
+
   const loadUserProfile = async () => {
     try {
       if (user) {
@@ -410,6 +417,28 @@ const SettingsPage: React.FC = () => {
     
     return diffDays > 0 ? diffDays : 0;
   };
+
+  // Debug subscription data
+  React.useEffect(() => {
+    if (subscription) {
+      console.log('🔍 SUBSCRIPTION DEBUG:', {
+        subscribed: subscription.subscribed,
+        subscription_end: subscription.subscription_end,
+        is_cancelled: subscription.is_cancelled,
+        daysToRenewal: calculateDaysToRenewal()
+      });
+    }
+  }, [subscription]);
+
+  // Debug community data
+  React.useEffect(() => {
+    console.log('🏘️ COMMUNITY DEBUG:', {
+      totalUsers,
+      channelsCount: channels.length,
+      channelUserCounts,
+      channels: channels.map(c => ({ id: c.id, name: c.name }))
+    });
+  }, [totalUsers, channels, channelUserCounts]);
 
   const handleAvatarChange = (url: string) => {
     loadUserProfile(); // Refresh user data
