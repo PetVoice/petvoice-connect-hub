@@ -217,5 +217,137 @@
     "deleted": "Eliminato con successo",
     "updated": "Aggiornato con successo",
     "created": "Creato con successo"
+  },
+  "toast": {
+    "auth": {
+      "loginSuccess": "Accesso effettuato con successo",
+      "loginError": "Errore durante l'accesso",
+      "logoutSuccess": "Disconnessione effettuata con successo",
+      "signupSuccess": "Registrazione completata con successo",
+      "signupError": "Errore durante la registrazione",
+      "passwordChangeSuccess": "Password modificata con successo",
+      "passwordChangeError": "Errore durante la modifica della password",
+      "passwordResetSent": "Email di reset password inviata",
+      "passwordResetError": "Errore durante l'invio del reset password",
+      "emailConfirmationSent": "Email di conferma inviata",
+      "profileUpdated": "Profilo aggiornato con successo",
+      "profileError": "Errore durante l'aggiornamento del profilo"
+    },
+    "pets": {
+      "petAdded": "Pet aggiunto con successo",
+      "petAddError": "Errore durante l'aggiunta del pet",
+      "petUpdated": "Informazioni pet aggiornate",
+      "petUpdateError": "Errore durante l'aggiornamento del pet",
+      "petDeleted": "Pet eliminato",
+      "petDeleteError": "Errore durante l'eliminazione del pet",
+      "petSelected": "Pet selezionato",
+      "validationRequired": "Nome e tipo del pet sono obbligatori",
+      "avatarUploaded": "Foto profilo caricata",
+      "avatarUploadError": "Errore durante il caricamento della foto",
+      "avatarRemoved": "Foto profilo rimossa"
+    },
+    "analysis": {
+      "analysisStarted": "Analisi iniziata",
+      "analysisComplete": "Analisi completata",
+      "analysisError": "Errore durante l'analisi",
+      "fileUploadSuccess": "File caricato con successo",
+      "fileUploadError": "Errore durante il caricamento del file",
+      "invalidFileType": "Tipo di file non supportato",
+      "fileTooLarge": "File troppo grande",
+      "recordingStarted": "Registrazione iniziata",
+      "recordingStopped": "Registrazione interrotta",
+      "recordingError": "Errore durante la registrazione",
+      "textAnalysisComplete": "Analisi testuale completata",
+      "analysisShared": "Analisi condivisa con successo"
+    },
+    "community": {
+      "messageSent": "Messaggio inviato",
+      "messageError": "Errore nell'invio del messaggio",
+      "messageDeleted": "Messaggio eliminato",
+      "messageDeleteError": "Errore nell'eliminazione del messaggio",
+      "joinedChannel": "Ti sei unito al canale",
+      "leftChannel": "Hai lasciato il canale",
+      "channelError": "Errore nel canale",
+      "voiceMessageSent": "Messaggio vocale inviato",
+      "voiceMessageError": "Errore nell'invio del messaggio vocale",
+      "fileShared": "File condiviso",
+      "fileShareError": "Errore nella condivisione del file",
+      "emergencyMessageSent": "Messaggio di emergenza inviato",
+      "userBlocked": "Utente bloccato",
+      "userUnblocked": "Utente sbloccato"
+    },
+    "diary": {
+      "entryAdded": "Voce del diario aggiunta",
+      "entryAddError": "Errore nell'aggiunta della voce",
+      "entryUpdated": "Voce del diario aggiornata",
+      "entryUpdateError": "Errore nell'aggiornamento della voce",
+      "entryDeleted": "Voce del diario eliminata",
+      "entryDeleteError": "Errore nell'eliminazione della voce",
+      "photoUploaded": "Foto caricata",
+      "photoUploadError": "Errore nel caricamento della foto",
+      "voiceNoteAdded": "Nota vocale aggiunta",
+      "voiceNoteError": "Errore nella nota vocale"
+    },
+    "calendar": {
+      "eventAdded": "Evento aggiunto al calendario",
+      "eventAddError": "Errore nell'aggiunta dell'evento",
+      "eventUpdated": "Evento aggiornato",
+      "eventUpdateError": "Errore nell'aggiornamento dell'evento",
+      "eventDeleted": "Evento eliminato",
+      "eventDeleteError": "Errore nell'eliminazione dell'evento",
+      "reminderSet": "Promemoria impostato",
+      "reminderError": "Errore nell'impostazione del promemoria"
+    },
+    "wellness": {
+      "metricsUpdated": "Metriche di benessere aggiornate",
+      "metricsError": "Errore nell'aggiornamento delle metriche",
+      "alertCreated": "Avviso di salute creato",
+      "alertResolved": "Avviso di salute risolto",
+      "appointmentScheduled": "Appuntamento veterinario programmato",
+      "appointmentError": "Errore nella programmazione dell'appuntamento"
+    },
+    "settings": {
+      "settingsSaved": "Impostazioni salvate",
+      "settingsError": "Errore nel salvataggio delle impostazioni",
+      "languageChanged": "Lingua modificata",
+      "themeChanged": "Tema modificato",
+      "notificationsUpdated": "Preferenze notifiche aggiornate",
+      "privacyUpdated": "Impostazioni privacy aggiornate",
+      "accountDeleted": "Account eliminato",
+      "accountDeleteError": "Errore nell'eliminazione dell'account",
+      "dataExported": "Dati esportati con successo",
+      "dataExportError": "Errore nell'esportazione dei dati",
+      "dataImported": "Dati importati con successo",
+      "dataImportError": "Errore nell'importazione dei dati"
+    },
+    "training": {
+      "protocolStarted": "Protocollo di allenamento iniziato",
+      "protocolCompleted": "Protocollo completato con successo",
+      "exerciseCompleted": "Esercizio completato",
+      "progressSaved": "Progresso salvato",
+      "protocolError": "Errore nel protocollo di allenamento"
+    },
+    "subscription": {
+      "planUpgraded": "Piano aggiornato con successo",
+      "planDowngraded": "Piano modificato",
+      "subscriptionCancelled": "Abbonamento cancellato",
+      "paymentSuccess": "Pagamento completato con successo",
+      "paymentError": "Errore nel pagamento",
+      "planLimitReached": "Limite del piano raggiunto"
+    },
+    "general": {
+      "operationSuccess": "Operazione completata con successo",
+      "operationError": "Errore durante l'operazione",
+      "networkError": "Errore di connessione di rete",
+      "serverError": "Errore del server",
+      "validationError": "Errore di validazione",
+      "permissionDenied": "Permesso negato",
+      "sessionExpired": "Sessione scaduta",
+      "featureNotAvailable": "Funzionalità non disponibile",
+      "copiedToClipboard": "Copiato negli appunti",
+      "downloadStarted": "Download iniziato",
+      "downloadComplete": "Download completato",
+      "uploadComplete": "Caricamento completato"
+    }
   }
 }

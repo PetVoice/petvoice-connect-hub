@@ -149,7 +149,7 @@ const PetsPage: React.FC = () => {
     if (!formData.name || !formData.type) {
       toast({
         title: t('errors.validationError'),
-        description: t('pets.petName') + " e " + t('pets.petType') + " sono obbligatori",
+        description: t('toast.pets.validationRequired'),
         variant: "destructive",
       });
       return;
@@ -178,6 +178,12 @@ const PetsPage: React.FC = () => {
 
       if (editingPet) {
         await updatePet(editingPet.id, petData);
+        // Toast per modifica pet
+        toast({
+          title: t('toast.pets.petUpdated'),
+          description: `${formData.name} - ${t('toast.pets.petUpdated')}`,
+        });
+        
         // Notifica per modifica pet
         addNotification({
           title: t('success.updated'),
@@ -189,7 +195,12 @@ const PetsPage: React.FC = () => {
       } else {
         // Aggiunta nuovo pet tramite context - il context gestisce automaticamente la selezione
         await addPet(petData);
-        // La notifica per nuovo pet è già gestita nel hook useNotificationEvents
+        
+        // Toast per nuovo pet
+        toast({
+          title: t('toast.pets.petAdded'),
+          description: `${formData.name} è ora parte della tua famiglia!`,
+        });
       }
       
       resetForm();
@@ -234,8 +245,15 @@ const PetsPage: React.FC = () => {
       const petToDelete = pets.find(p => p.id === petId);
       await deletePet(petId);
       
-      // Notifica per eliminazione pet
+      // Toast per eliminazione pet
       if (petToDelete) {
+        toast({
+          title: t('toast.pets.petDeleted'),
+          description: `${petToDelete.name} è stato rimosso dalla tua famiglia`,
+          variant: "destructive",
+        });
+        
+        // Notifica per eliminazione pet
         addNotification({
           title: t('success.deleted'),
           message: `${petToDelete.name} è stato rimosso dalla tua famiglia`,

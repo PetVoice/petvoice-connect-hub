@@ -217,5 +217,137 @@
     "deleted": "Eliminado exitosamente",
     "updated": "Actualizado exitosamente",
     "created": "Creado exitosamente"
+  },
+  "toast": {
+    "auth": {
+      "loginSuccess": "Inicio de sesión exitoso",
+      "loginError": "Error en el inicio de sesión",
+      "logoutSuccess": "Cierre de sesión exitoso",
+      "signupSuccess": "Registro completado exitosamente",
+      "signupError": "Error en el registro",
+      "passwordChangeSuccess": "Contraseña cambiada exitosamente",
+      "passwordChangeError": "Error al cambiar la contraseña",
+      "passwordResetSent": "Email de restablecimiento de contraseña enviado",
+      "passwordResetError": "Error al enviar restablecimiento de contraseña",
+      "emailConfirmationSent": "Email de confirmación enviado",
+      "profileUpdated": "Perfil actualizado exitosamente",
+      "profileError": "Error al actualizar perfil"
+    },
+    "pets": {
+      "petAdded": "Mascota añadida exitosamente",
+      "petAddError": "Error al añadir mascota",
+      "petUpdated": "Información de mascota actualizada",
+      "petUpdateError": "Error al actualizar mascota",
+      "petDeleted": "Mascota eliminada",
+      "petDeleteError": "Error al eliminar mascota",
+      "petSelected": "Mascota seleccionada",
+      "validationRequired": "El nombre y tipo de mascota son obligatorios",
+      "avatarUploaded": "Foto de perfil cargada",
+      "avatarUploadError": "Error al cargar foto",
+      "avatarRemoved": "Foto de perfil eliminada"
+    },
+    "analysis": {
+      "analysisStarted": "Análisis iniciado",
+      "analysisComplete": "Análisis completado",
+      "analysisError": "Error en el análisis",
+      "fileUploadSuccess": "Archivo cargado exitosamente",
+      "fileUploadError": "Error al cargar archivo",
+      "invalidFileType": "Tipo de archivo no soportado",
+      "fileTooLarge": "Archivo demasiado grande",
+      "recordingStarted": "Grabación iniciada",
+      "recordingStopped": "Grabación detenida",
+      "recordingError": "Error en la grabación",
+      "textAnalysisComplete": "Análisis de texto completado",
+      "analysisShared": "Análisis compartido exitosamente"
+    },
+    "community": {
+      "messageSent": "Mensaje enviado",
+      "messageError": "Error al enviar mensaje",
+      "messageDeleted": "Mensaje eliminado",
+      "messageDeleteError": "Error al eliminar mensaje",
+      "joinedChannel": "Te uniste al canal",
+      "leftChannel": "Saliste del canal",
+      "channelError": "Error en el canal",
+      "voiceMessageSent": "Mensaje de voz enviado",
+      "voiceMessageError": "Error al enviar mensaje de voz",
+      "fileShared": "Archivo compartido",
+      "fileShareError": "Error al compartir archivo",
+      "emergencyMessageSent": "Mensaje de emergencia enviado",
+      "userBlocked": "Usuario bloqueado",
+      "userUnblocked": "Usuario desbloqueado"
+    },
+    "diary": {
+      "entryAdded": "Entrada del diario añadida",
+      "entryAddError": "Error al añadir entrada",
+      "entryUpdated": "Entrada del diario actualizada",
+      "entryUpdateError": "Error al actualizar entrada",
+      "entryDeleted": "Entrada del diario eliminada",
+      "entryDeleteError": "Error al eliminar entrada",
+      "photoUploaded": "Foto cargada",
+      "photoUploadError": "Error al cargar foto",
+      "voiceNoteAdded": "Nota de voz añadida",
+      "voiceNoteError": "Error en la nota de voz"
+    },
+    "calendar": {
+      "eventAdded": "Evento añadido al calendario",
+      "eventAddError": "Error al añadir evento",
+      "eventUpdated": "Evento actualizado",
+      "eventUpdateError": "Error al actualizar evento",
+      "eventDeleted": "Evento eliminado",
+      "eventDeleteError": "Error al eliminar evento",
+      "reminderSet": "Recordatorio establecido",
+      "reminderError": "Error al establecer recordatorio"
+    },
+    "wellness": {
+      "metricsUpdated": "Métricas de bienestar actualizadas",
+      "metricsError": "Error al actualizar métricas",
+      "alertCreated": "Alerta de salud creada",
+      "alertResolved": "Alerta de salud resuelta",
+      "appointmentScheduled": "Cita veterinaria programada",
+      "appointmentError": "Error al programar cita"
+    },
+    "settings": {
+      "settingsSaved": "Configuración guardada",
+      "settingsError": "Error al guardar configuración",
+      "languageChanged": "Idioma cambiado",
+      "themeChanged": "Tema cambiado",
+      "notificationsUpdated": "Preferencias de notificaciones actualizadas",
+      "privacyUpdated": "Configuración de privacidad actualizada",
+      "accountDeleted": "Cuenta eliminada",
+      "accountDeleteError": "Error al eliminar cuenta",
+      "dataExported": "Datos exportados exitosamente",
+      "dataExportError": "Error al exportar datos",
+      "dataImported": "Datos importados exitosamente",
+      "dataImportError": "Error al importar datos"
+    },
+    "training": {
+      "protocolStarted": "Protocolo de entrenamiento iniciado",
+      "protocolCompleted": "Protocolo completado exitosamente",
+      "exerciseCompleted": "Ejercicio completado",
+      "progressSaved": "Progreso guardado",
+      "protocolError": "Error en protocolo de entrenamiento"
+    },
+    "subscription": {
+      "planUpgraded": "Plan actualizado exitosamente",
+      "planDowngraded": "Plan cambiado",
+      "subscriptionCancelled": "Suscripción cancelada",
+      "paymentSuccess": "Pago completado exitosamente",
+      "paymentError": "Error en el pago",
+      "planLimitReached": "Límite del plan alcanzado"
+    },
+    "general": {
+      "operationSuccess": "Operación completada exitosamente",
+      "operationError": "Error en la operación",
+      "networkError": "Error de conexión de red",
+      "serverError": "Error del servidor",
+      "validationError": "Error de validación",
+      "permissionDenied": "Permiso denegado",
+      "sessionExpired": "Sesión expirada",
+      "featureNotAvailable": "Función no disponible",
+      "copiedToClipboard": "Copiado al portapapeles",
+      "downloadStarted": "Descarga iniciada",
+      "downloadComplete": "Descarga completada",
+      "uploadComplete": "Carga completada"
+    }
   }
 }

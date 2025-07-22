@@ -217,5 +217,137 @@
     "deleted": "Successfully deleted",
     "updated": "Successfully updated",
     "created": "Successfully created"
+  },
+  "toast": {
+    "auth": {
+      "loginSuccess": "Successfully logged in",
+      "loginError": "Login error",
+      "logoutSuccess": "Successfully logged out",
+      "signupSuccess": "Registration completed successfully",
+      "signupError": "Registration error",
+      "passwordChangeSuccess": "Password changed successfully",
+      "passwordChangeError": "Error changing password",
+      "passwordResetSent": "Password reset email sent",
+      "passwordResetError": "Error sending password reset",
+      "emailConfirmationSent": "Confirmation email sent",
+      "profileUpdated": "Profile updated successfully",
+      "profileError": "Error updating profile"
+    },
+    "pets": {
+      "petAdded": "Pet added successfully",
+      "petAddError": "Error adding pet",
+      "petUpdated": "Pet information updated",
+      "petUpdateError": "Error updating pet",
+      "petDeleted": "Pet deleted",
+      "petDeleteError": "Error deleting pet",
+      "petSelected": "Pet selected",
+      "validationRequired": "Pet name and type are required",
+      "avatarUploaded": "Profile photo uploaded",
+      "avatarUploadError": "Error uploading photo",
+      "avatarRemoved": "Profile photo removed"
+    },
+    "analysis": {
+      "analysisStarted": "Analysis started",
+      "analysisComplete": "Analysis completed",
+      "analysisError": "Analysis error",
+      "fileUploadSuccess": "File uploaded successfully",
+      "fileUploadError": "File upload error",
+      "invalidFileType": "Unsupported file type",
+      "fileTooLarge": "File too large",
+      "recordingStarted": "Recording started",
+      "recordingStopped": "Recording stopped",
+      "recordingError": "Recording error",
+      "textAnalysisComplete": "Text analysis completed",
+      "analysisShared": "Analysis shared successfully"
+    },
+    "community": {
+      "messageSent": "Message sent",
+      "messageError": "Error sending message",
+      "messageDeleted": "Message deleted",
+      "messageDeleteError": "Error deleting message",
+      "joinedChannel": "Joined channel",
+      "leftChannel": "Left channel",
+      "channelError": "Channel error",
+      "voiceMessageSent": "Voice message sent",
+      "voiceMessageError": "Error sending voice message",
+      "fileShared": "File shared",
+      "fileShareError": "Error sharing file",
+      "emergencyMessageSent": "Emergency message sent",
+      "userBlocked": "User blocked",
+      "userUnblocked": "User unblocked"
+    },
+    "diary": {
+      "entryAdded": "Diary entry added",
+      "entryAddError": "Error adding entry",
+      "entryUpdated": "Diary entry updated",
+      "entryUpdateError": "Error updating entry",
+      "entryDeleted": "Diary entry deleted",
+      "entryDeleteError": "Error deleting entry",
+      "photoUploaded": "Photo uploaded",
+      "photoUploadError": "Photo upload error",
+      "voiceNoteAdded": "Voice note added",
+      "voiceNoteError": "Voice note error"
+    },
+    "calendar": {
+      "eventAdded": "Event added to calendar",
+      "eventAddError": "Error adding event",
+      "eventUpdated": "Event updated",
+      "eventUpdateError": "Error updating event",
+      "eventDeleted": "Event deleted",
+      "eventDeleteError": "Error deleting event",
+      "reminderSet": "Reminder set",
+      "reminderError": "Error setting reminder"
+    },
+    "wellness": {
+      "metricsUpdated": "Wellness metrics updated",
+      "metricsError": "Error updating metrics",
+      "alertCreated": "Health alert created",
+      "alertResolved": "Health alert resolved",
+      "appointmentScheduled": "Veterinary appointment scheduled",
+      "appointmentError": "Error scheduling appointment"
+    },
+    "settings": {
+      "settingsSaved": "Settings saved",
+      "settingsError": "Error saving settings",
+      "languageChanged": "Language changed",
+      "themeChanged": "Theme changed",
+      "notificationsUpdated": "Notification preferences updated",
+      "privacyUpdated": "Privacy settings updated",
+      "accountDeleted": "Account deleted",
+      "accountDeleteError": "Error deleting account",
+      "dataExported": "Data exported successfully",
+      "dataExportError": "Error exporting data",
+      "dataImported": "Data imported successfully",
+      "dataImportError": "Error importing data"
+    },
+    "training": {
+      "protocolStarted": "Training protocol started",
+      "protocolCompleted": "Protocol completed successfully",
+      "exerciseCompleted": "Exercise completed",
+      "progressSaved": "Progress saved",
+      "protocolError": "Training protocol error"
+    },
+    "subscription": {
+      "planUpgraded": "Plan upgraded successfully",
+      "planDowngraded": "Plan changed",
+      "subscriptionCancelled": "Subscription cancelled",
+      "paymentSuccess": "Payment completed successfully",
+      "paymentError": "Payment error",
+      "planLimitReached": "Plan limit reached"
+    },
+    "general": {
+      "operationSuccess": "Operation completed successfully",
+      "operationError": "Operation error",
+      "networkError": "Network connection error",
+      "serverError": "Server error",
+      "validationError": "Validation error",
+      "permissionDenied": "Permission denied",
+      "sessionExpired": "Session expired",
+      "featureNotAvailable": "Feature not available",
+      "copiedToClipboard": "Copied to clipboard",
+      "downloadStarted": "Download started",
+      "downloadComplete": "Download completed",
+      "uploadComplete": "Upload completed"
+    }
   }
 }
