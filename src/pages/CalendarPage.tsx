@@ -13,9 +13,10 @@ import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { CalendarFilters } from '@/components/calendar/CalendarFilters';
 import { CalendarView } from '@/components/calendar/CalendarView';
 import { EventForm } from '@/components/calendar/EventForm';
+import { DayEventsModal } from '@/components/calendar/DayEventsModal';
 
 // Types
-import { CalendarEvent } from '@/types/calendar';
+import { CalendarEvent, DayEventsModalState } from '@/types/calendar';
 
 const CalendarPage: React.FC = () => {
   const { user } = useAuth();
@@ -40,6 +41,11 @@ const CalendarPage: React.FC = () => {
   
   // UI state
   const [showTemplates, setShowTemplates] = useState(false);
+  const [dayEventsModal, setDayEventsModal] = useState<DayEventsModalState>({
+    open: false,
+    date: new Date(),
+    events: []
+  });
 
   // Get active pet
   const activePet = selectedPet || pets[0];
@@ -178,10 +184,71 @@ const CalendarPage: React.FC = () => {
       isSameDay(parseISO(event.start_time), day)
     );
     
-    if (dayEvents.length === 0) {
-      handleNewEvent(day);
+    setDayEventsModal({
+      open: true,
+      date: day,
+      events: dayEvents
+    });
+  };
+
+  const handleCloseModal = () => {
+    setDayEventsModal(prev => ({ ...prev, open: false }));
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .eq('id', eventId);
+
+      if (error) throw error;
+      
+      toast({ title: "Evento eliminato con successo!" });
+      loadEvents();
+      
+      // Update modal state
+      setDayEventsModal(prev => ({
+        ...prev,
+        events: prev.events.filter(event => event.id !== eventId)
+      }));
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare l'evento",
+        variant: "destructive"
+      });
     }
-    // If there are events, the calendar will show them and user can click on specific events
+  };
+
+  const handleDeleteMultipleEvents = async (eventIds: string[]) => {
+    try {
+      const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .in('id', eventIds);
+
+      if (error) throw error;
+      
+      toast({ 
+        title: `${eventIds.length} ${eventIds.length === 1 ? 'evento eliminato' : 'eventi eliminati'} con successo!` 
+      });
+      loadEvents();
+      
+      // Update modal state
+      setDayEventsModal(prev => ({
+        ...prev,
+        events: prev.events.filter(event => !eventIds.includes(event.id))
+      }));
+    } catch (error) {
+      console.error('Error deleting events:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare gli eventi",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -376,6 +443,16 @@ const CalendarPage: React.FC = () => {
         petId={activePet.id}
         userId={user?.id || ''}
         initialDate={format(selectedDate, 'yyyy-MM-dd')}
+      />
+
+      {/* Day Events Modal */}
+      <DayEventsModal
+        modalState={dayEventsModal}
+        onClose={handleCloseModal}
+        onNewEvent={handleNewEvent}
+        onEditEvent={handleEditEvent}
+        onDeleteEvent={handleDeleteEvent}
+        onDeleteMultiple={handleDeleteMultipleEvents}
       />
     </div>
   );

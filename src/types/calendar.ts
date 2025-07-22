@@ -34,6 +34,13 @@ export interface EventTemplate {
   updated_at: string;
 }
 
+// Modal state for day events
+export interface DayEventsModalState {
+  open: boolean;
+  date: Date;
+  events: CalendarEvent[];
+}
+
 // Event Categories
 export const EVENT_CATEGORIES = {
   medical: {
