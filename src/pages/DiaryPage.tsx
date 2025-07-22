@@ -117,6 +117,7 @@ const DiaryPage: React.FC = () => {
 
   // Handlers
   const handleNewEntry = (date?: Date) => {
+    if (date) setSelectedDate(date);
     setEditingEntry(null);
     setIsFormOpen(true);
   };

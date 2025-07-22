@@ -101,7 +101,7 @@ export const DayEntriesModal: React.FC<DayEntriesModalProps> = ({
                     <span className="text-sm text-muted-foreground">
                       {selectedEntries.length > 0 
                         ? `${selectedEntries.length} selezionat${selectedEntries.length === 1 ? 'a' : 'e'}`
-                        : `${entries.length} ${entries.length === 1 ? 'voce trovata' : 'voci trovate'}`
+                        : 'Seleziona tutti'
                       }
                     </span>
                   </div>

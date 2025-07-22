@@ -97,7 +97,7 @@ export const DayEventsModal: React.FC<DayEventsModalProps> = ({
                     <span className="text-sm text-muted-foreground">
                       {selectedEvents.length > 0 
                         ? `${selectedEvents.length} selezionat${selectedEvents.length === 1 ? 'o' : 'i'}`
-                        : `${events.length} ${events.length === 1 ? 'evento trovato' : 'eventi trovati'}`
+                        : 'Seleziona tutti'
                       }
                     </span>
                   </div>
