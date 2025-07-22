@@ -80,8 +80,8 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
       
       <Button
         onClick={() => setShowConfirm(true)}
-        variant="outline"
-        className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/20"
+        variant="destructive"
+        className="w-full"
       >
         <Trash2 className="w-4 h-4 mr-2" />
         Elimina Account Permanentemente
