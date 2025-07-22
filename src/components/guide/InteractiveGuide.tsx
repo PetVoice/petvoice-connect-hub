@@ -125,7 +125,33 @@ const InteractiveGuide: React.FC<InteractiveGuideProps> = ({ isOpen, onClose, on
     };
 
     // Delay to ensure DOM is ready
-    const timer = setTimeout(findAndHighlightElement, 100);
+    const timer = setTimeout(findAndHighlightElement, 500); // Aumento il delay
+    
+    // Fallback: se l'elemento non viene trovato, prova altri selettori
+    const fallbackTimer = setTimeout(() => {
+      if (!targetElement) {
+        console.log('❌ InteractiveGuide: Element still not found, trying fallback selectors...');
+        
+        // Prova selettori alternativi
+        const fallbackSelectors = [
+          'aside', // Sidebar generica
+          '[role="complementary"]', // Sidebar semantica
+          '.sidebar', // Classe CSS
+          'nav', // Navigation principale
+          'body' // Ultimo fallback
+        ];
+        
+        for (const selector of fallbackSelectors) {
+          const fallbackElement = document.querySelector(selector) as HTMLElement;
+          if (fallbackElement) {
+            console.log('✅ InteractiveGuide: Found fallback element with selector:', selector);
+            setTargetElement(fallbackElement);
+            setTargetRect(fallbackElement.getBoundingClientRect());
+            break;
+          }
+        }
+      }
+    }, 1000);
     
     // Update on window resize
     const handleResize = () => {
@@ -138,6 +164,7 @@ const InteractiveGuide: React.FC<InteractiveGuideProps> = ({ isOpen, onClose, on
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(fallbackTimer);
       window.removeEventListener('resize', handleResize);
     };
   }, [currentStep, isOpen, currentStepData]);
