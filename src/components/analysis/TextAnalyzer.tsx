@@ -141,17 +141,9 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           )}
         </Button>
 
-        {/* Info */}
-        <div className="text-xs text-muted-foreground space-y-1 bg-muted/30 p-3 rounded-lg">
-          <p className="font-medium">💡 Consigli per una migliore analisi:</p>
-          <p>• Descrivi comportamenti specifici e osservabili</p>
-          <p>• Includi contesto (es. situazione, orario, ambiente)</p>
-          <p>• Menziona suoni, movimenti e posture del corpo</p>
-          <p>• Evita interpretazioni, concentrati sui fatti</p>
-        </div>
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-purple/5 to-blue/5 p-4 rounded-lg border border-purple/20">
+        <div className="bg-gradient-to-r from-purple/5 to-purple/10 p-4 rounded-lg border border-purple/20">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-purple/10 rounded-lg">
               <MessageSquare className="h-5 w-5 text-purple-600" />
@@ -167,7 +159,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                   <span>🔍 Riconoscimento parole chiave emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>📝 Analisi del contesto comportamentale</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -175,7 +167,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                   <span>⚖️ Valutazione probabilità emotiva</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>🎯 Suggerimenti personalizzati</span>
                 </div>
               </div>

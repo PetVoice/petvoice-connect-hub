@@ -351,15 +351,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         )}
 
-        {/* File Limits Info */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p>• Massimo {maxFiles} file per sessione</p>
-          <p>• Dimensione massima per file: {maxSizePerFile}MB</p>
-          <p>• Durata consigliata: 10 secondi - 5 minuti</p>
-        </div>
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-coral/5 to-teal/5 p-4 rounded-lg border border-coral/20">
+        <div className="bg-gradient-to-r from-coral/5 to-coral/10 p-4 rounded-lg border border-coral/20">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-coral/10 rounded-lg">
               <FileAudio className="h-5 w-5 text-coral" />
@@ -375,7 +369,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   <span>🎵 Analisi delle vocalizzazioni e tono</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
+                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>📹 Riconoscimento espressioni facciali</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -383,7 +377,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                   <span>🏃 Analisi dei movimenti corporei</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
+                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>💓 Rilevamento frequenza respiratoria</span>
                 </div>
               </div>

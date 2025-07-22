@@ -504,20 +504,12 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </div>
         )}
 
-        {/* Tips */}
-        <div className="text-xs text-muted-foreground space-y-1">
-          <p>💡 <strong>Suggerimenti per registrazioni migliori:</strong></p>
-          <p>• Registra in un ambiente silenzioso</p>
-          <p>• Tieni il microfono vicino al pet</p>
-          <p>• Durata ottimale: 30 secondi - 2 minuti</p>
-          <p>• Cattura vocalizzi naturali (non forzati)</p>
-        </div>
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-green/5 to-emerald/5 p-4 rounded-lg border border-green/20">
+        <div className="bg-gradient-to-r from-teal/5 to-teal/10 p-4 rounded-lg border border-teal/20">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-green/10 rounded-lg">
-              <Mic className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-teal/10 rounded-lg">
+              <Mic className="h-5 w-5 text-teal" />
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-foreground mb-2">🎙️ Analisi Audio in Tempo Reale</h4>
@@ -526,19 +518,19 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-teal rounded-full"></div>
                   <span>🔊 Analisi tono e intensità vocale</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-teal rounded-full"></div>
                   <span>📊 Rilevamento pattern sonori</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-teal rounded-full"></div>
                   <span>⚡ Processing istantaneo</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-teal rounded-full"></div>
                   <span>🎯 Feedback emotivo immediato</span>
                 </div>
               </div>
