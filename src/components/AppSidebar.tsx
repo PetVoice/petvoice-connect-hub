@@ -124,7 +124,7 @@ const AppSidebar: React.FC = () => {
         {/* Community & Business */}
         <SidebarGroup>
           <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
-            Community & Business
+            
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -148,7 +148,7 @@ const AppSidebar: React.FC = () => {
         {/* Support */}
         <SidebarGroup>
           <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block"}>
-            Supporto
+            
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

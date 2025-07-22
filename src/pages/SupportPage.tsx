@@ -1265,34 +1265,6 @@ const SupportPage: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {/* Support Hours */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5" />
-                    <span>Orari di Supporto</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Lunedì - Venerdì</span>
-                      <span className="text-muted-foreground">9:00 - 18:00</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Sabato</span>
-                      <span className="text-muted-foreground">10:00 - 16:00</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Domenica</span>
-                      <span className="text-muted-foreground">Chiuso</span>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
