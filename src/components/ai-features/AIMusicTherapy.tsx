@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,77 +53,83 @@ interface TherapySession {
   benefits: string[];
 }
 
-const THERAPY_CATEGORIES: TherapySession[] = [
+// Create therapy categories dynamically using translations
+const createTherapyCategories = (t: (key: string) => string): TherapySession[] => [
   {
     id: 'ansioso',
-    category: 'Ansia e Stress',
-    title: 'Calma Profonda - 528Hz',
+    category: t('aiMusicTherapy.categories.ansioso'),
+    title: t('aiMusicTherapy.sessions.ansia.title'),
     duration: 25,
-    description: 'Frequenze specifiche per ridurre ansia e stress. Terapia per animali ansiosi',
+    description: t('aiMusicTherapy.sessions.ansia.description'),
     frequency: '528Hz + 8Hz',
     icon: Heart,
     color: 'bg-azure-500',
-    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
+    benefits: t('aiMusicTherapy.sessions.ansia.benefits').split(',')
   },
   {
     id: 'agitato',
-    category: 'Iperattivazione',
-    title: 'Relax Guidato - 10-13Hz',
+    category: t('aiMusicTherapy.categories.agitato'),
+    title: t('aiMusicTherapy.sessions.iperattivazione.title'),
     duration: 20,
-    description: 'Sequenze per calmare iperattivazione e agitazione negli animali',
+    description: t('aiMusicTherapy.sessions.iperattivazione.description'),
     frequency: '10-13Hz',
     icon: Waves,
     color: 'bg-azure-600',
-    benefits: ['Calma iperattivazione', 'Riduce agitazione', 'Rilassamento graduale', 'Controllo impulsi']
+    benefits: t('aiMusicTherapy.sessions.iperattivazione.benefits').split(',')
   },
   {
     id: 'triste',
-    category: 'Umore Basso',
-    title: 'Energia Positiva - 40Hz',
+    category: t('aiMusicTherapy.categories.triste'),
+    title: t('aiMusicTherapy.sessions.umoreBasso.title'),
     duration: 15,
-    description: 'Stimolazione dolce per migliorare umore depresso e letargia',
+    description: t('aiMusicTherapy.sessions.umoreBasso.description'),
     frequency: '40Hz + 10Hz',
     icon: Zap,
     color: 'bg-azure-700',
-    benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
+    benefits: t('aiMusicTherapy.sessions.umoreBasso.benefits').split(',')
   },
   {
     id: 'aggressivo',
-    category: 'Controllo Comportamentale',
-    title: 'Calma e Controllo - 432Hz',
+    category: t('aiMusicTherapy.categories.aggressivo'),
+    title: t('aiMusicTherapy.sessions.controlloComportamentale.title'),
     duration: 20,
-    description: 'Frequenze per ridurre aggressività e comportamenti reattivi',
+    description: t('aiMusicTherapy.sessions.controlloComportamentale.description'),
     frequency: '432Hz + 8Hz',
     icon: Shield,
     color: 'bg-azure-800',
-    benefits: ['Riduce aggressività', 'Controllo emotivo', 'Calma reattività', 'Gestione impulsi']
+    benefits: t('aiMusicTherapy.sessions.controlloComportamentale.benefits').split(',')
   },
   {
     id: 'stressato',
-    category: 'Stress Acuto',
-    title: 'Anti-Stress - 528Hz',
+    category: t('aiMusicTherapy.categories.stressato'),
+    title: t('aiMusicTherapy.sessions.stressAcuto.title'),
     duration: 30,
-    description: 'Terapia per stress cronico e tensione accumulata',
+    description: t('aiMusicTherapy.sessions.stressAcuto.description'),
     frequency: '528Hz + 6Hz',
     icon: ShieldCheck,
     color: 'bg-azure-900',
-    benefits: ['Riduce cortisolo', 'Rilascia tensioni', 'Equilibra sistema nervoso', 'Recupero post-stress']
+    benefits: t('aiMusicTherapy.sessions.stressAcuto.benefits').split(',')
   },
   {
     id: 'pauroso',
-    category: 'Supporto Emotivo',
-    title: 'Sicurezza Interiore - 111Hz',
+    category: t('aiMusicTherapy.categories.pauroso'),
+    title: t('aiMusicTherapy.sessions.supportoEmotivo.title'),
     duration: 25,
-    description: 'Frequenze protettive per animali paurosi e insicuri',
+    description: t('aiMusicTherapy.sessions.supportoEmotivo.description'),
     frequency: '111Hz + 8Hz',
     icon: Moon,
     color: 'bg-azure-600',
-    benefits: ['Aumenta sicurezza', 'Riduce paure', 'Stabilizza emozioni', 'Supporto psicologico']
+    benefits: t('aiMusicTherapy.sessions.supportoEmotivo.benefits').split(',')
   }
 ];
 
 export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) => {
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
+  
+  // Create therapy categories with current language
+  const THERAPY_CATEGORIES = createTherapyCategories(t);
+  
   const [currentSession, setCurrentSession] = useState<TherapySession | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -170,8 +177,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         if (!isNegativeEmotion) {
           console.log('🎵 Emozione positiva rilevata, nessuna playlist necessaria');
           toast({
-            title: "✨ Stato Emotivo Positivo",
-            description: `${selectedPet.name} sta bene! Nessuna musicoterapia necessaria.`,
+            title: t('aiMusicTherapy.messages.positiveEmotion'),
+            description: t('aiMusicTherapy.messages.positiveEmotionDescription').replace('{petName}', selectedPet.name),
           });
           setShowCategories(true);
           return;
@@ -180,14 +187,14 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         // Crea una sessione temporanea dalla playlist raccomandata
         const recommendedSession: TherapySession = {
           id: 'analysis-recommendation',
-          title: playlistData.name || 'Playlist dall\'Analisi',
-          description: playlistData.description || 'Playlist personalizzata basata sull\'analisi emotiva',
+          title: playlistData.name || t('aiMusicTherapy.messages.playlistFromAnalysis').replace('🎵 ', ''),
+          description: playlistData.description || t('aiMusicTherapy.sessions.ansia.description'),
           category: 'Raccomandazione AI',
           frequency: playlistData.frequency || '528Hz + 10Hz',
           duration: playlistData.duration || 15,
           icon: Sparkles,
           color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          benefits: ['Raccomandazione personalizzata', 'Basata su analisi', 'Ottimizzata per il tuo pet']
+          benefits: t('aiMusicTherapy.sessions.ansia.benefits').split(',')
         };
         
         console.log('🎵 Setting session and hiding categories...');
@@ -195,15 +202,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         setShowCategories(false);
         
         toast({
-          title: "🎵 Playlist dall'Analisi Caricata",
-          description: `"${recommendedSession.title}" pronta per ${selectedPet.name}`,
+          title: t('aiMusicTherapy.messages.playlistFromAnalysis'),
+          description: t('aiMusicTherapy.messages.playlistFromAnalysisDescription').replace('{title}', recommendedSession.title).replace('{petName}', selectedPet.name),
         });
         
       } catch (error) {
         console.error('❌ Error parsing playlist data:', error);
         toast({
-          title: "Errore",
-          description: "Impossibile caricare la playlist dall'analisi",
+          title: t('aiMusicTherapy.messages.errorLoadingPlaylist'),
+          description: t('aiMusicTherapy.messages.errorLoadingPlaylistDescription'),
           variant: "destructive"
         });
         setShowCategories(true);
@@ -328,8 +335,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       // Personalizza la sessione basandosi sul DNA emotivo
       const personalizedSession = {
         ...categorySession,
-        title: `${categorySession.title} per ${selectedPet.name}`,
-        description: `Personalizzato per ${selectedPet.type.toLowerCase()} - Adattato al DNA emotivo (Calma: ${emotionalDNA.calma}%, Energia: ${emotionalDNA.energia}%, Focus: ${emotionalDNA.focus}%) - ${categorySession.description}`,
+        title: `${categorySession.title} ${t('aiMusicTherapy.player.personalizedFor').replace('{petName}', selectedPet.name)}`,
+        description: `${categorySession.description}`,
         // Modifica durata basata sul livello di energia del pet
         duration: categorySession.duration + Math.round((emotionalDNA.energia - 50) / 10) // ±5 min basato su energia
       };
@@ -338,8 +345,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       setCurrentSession(personalizedSession);
       
       toast({
-        title: "Playlist AI Generata!",
-        description: `Sessione "${categorySession.title}" personalizzata per ${selectedPet.name} basata sul suo DNA emotivo`,
+        title: t('aiMusicTherapy.messages.playlistGenerated'),
+        description: t('aiMusicTherapy.messages.playlistGeneratedDescription').replace('{title}', categorySession.title).replace('{petName}', selectedPet.name),
       });
     } else {
       console.log(`🎵 ERRORE: Categoria "${category}" non trovata!`);
@@ -380,8 +387,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setSessionProgress(0);
     
     toast({
-      title: "Riproduzione fermata",
-      description: "Sessione interrotta e portata a 0:00",
+      title: t('aiMusicTherapy.messages.stopped'),
+      description: t('aiMusicTherapy.messages.stoppedDescription'),
     });
   };
 
@@ -398,16 +405,16 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setSessionProgress(percentage * 100);
     
     toast({
-      title: "Posizione aggiornata",
-      description: `Spostato a ${formatTime(newTime)}`,
+      title: t('aiMusicTherapy.messages.positionUpdated'),
+      description: t('aiMusicTherapy.messages.movedTo').replace('{time}', formatTime(newTime)),
     });
   };
 
   const handlePlayPause = () => {
     if (!currentSession) {
       toast({
-        title: "Nessuna sessione selezionata",
-        description: "Seleziona prima una categoria di terapia musicale",
+        title: t('aiMusicTherapy.messages.noSessionSelected'),
+        description: t('aiMusicTherapy.messages.selectCategoryFirst'),
         variant: "destructive"
       });
       return;
@@ -424,8 +431,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       }
       setIsPlaying(false);
       toast({
-        title: "Pausa",
-        description: "Sessione di musicoterapia in pausa",
+        title: t('aiMusicTherapy.messages.paused'),
+        description: t('aiMusicTherapy.messages.pausedDescription'),
       });
     } else {
       // Play - avvia audio IMMEDIATAMENTE con user gesture
@@ -541,7 +548,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         setIsPlaying(true);
         
         toast({
-          title: "🎵 Riproduzione avviata",
+          title: t('aiMusicTherapy.messages.playStarted'),
           description: `"${currentSession.title}" - ${mainFreq}Hz + ${beatFreq}Hz`,
         });
         
@@ -563,8 +570,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               setCurrentTime(0);
               setSessionProgress(0);
               toast({
-                title: "Sessione completata",
-                description: "La sessione di musicoterapia è terminata",
+                title: t('aiMusicTherapy.messages.sessionCompleted'),
+                description: t('aiMusicTherapy.messages.sessionCompletedDescription'),
               });
               return 0;
             }
@@ -576,8 +583,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         console.error('Errore durante avvio audio:', error);
         setIsPlaying(false);
         toast({
-          title: "Errore audio",
-          description: "Impossibile avviare la riproduzione",
+          title: t('aiMusicTherapy.messages.audioError'),
+          description: t('aiMusicTherapy.messages.audioErrorDescription'),
           variant: "destructive"
         });
       }
@@ -631,8 +638,8 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
     
     toast({
-      title: "Adattamento AI real-time",
-      description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
+      title: t('aiMusicTherapy.messages.realTimeAdaptation'),
+      description: t('aiMusicTherapy.messages.realTimeAdaptationDescription').replace('{calm}', emotionalDNA.calma.toString()).replace('{energy}', emotionalDNA.energia.toString()).replace('{focus}', emotionalDNA.focus.toString()),
     });
   };
 
@@ -714,7 +721,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               </div>
               {isPlaying && (
                 <div className="text-center text-xs text-primary animate-pulse">
-                  🎵 Riproduzione in corso...
+                  {t('aiMusicTherapy.player.playingNow')}
                 </div>
               )}
             </div>
@@ -766,11 +773,11 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
 
             {/* Benefits */}
             <div className="pt-2">
-              <p className="text-sm font-medium mb-2">Benefici di questa sessione:</p>
+              <p className="text-sm font-medium mb-2">{t('aiMusicTherapy.player.sessionBenefits')}</p>
               <div className="flex flex-wrap gap-2">
                 {currentSession.benefits.map((benefit, index) => (
                   <Badge key={index} variant="secondary" className="text-xs">
-                    {benefit}
+                    {benefit.trim()}
                   </Badge>
                 ))}
               </div>
@@ -783,26 +790,26 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       {showCategories && (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Categorie Terapeutiche</CardTitle>
+          <CardTitle className="text-lg">{t('aiMusicTherapy.categories.title')}</CardTitle>
           <div className="flex items-center gap-4">
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Seleziona categoria" />
+                <SelectValue placeholder={t('aiMusicTherapy.categories.selectCategory')} />
               </SelectTrigger>
                <SelectContent>
-                 <SelectItem value="all">Tutte le categorie</SelectItem>
-                 <SelectItem value="ansioso">Ansia e Stress</SelectItem>
-                 <SelectItem value="agitato">Iperattivazione</SelectItem>
-                 <SelectItem value="triste">Umore Basso</SelectItem>
-                 <SelectItem value="aggressivo">Controllo Comportamentale</SelectItem>
-                 <SelectItem value="stressato">Stress Acuto</SelectItem>
-                 <SelectItem value="pauroso">Supporto Emotivo</SelectItem>
+                 <SelectItem value="all">{t('aiMusicTherapy.categories.allCategories')}</SelectItem>
+                 <SelectItem value="ansioso">{t('aiMusicTherapy.categories.ansioso')}</SelectItem>
+                 <SelectItem value="agitato">{t('aiMusicTherapy.categories.agitato')}</SelectItem>
+                 <SelectItem value="triste">{t('aiMusicTherapy.categories.triste')}</SelectItem>
+                 <SelectItem value="aggressivo">{t('aiMusicTherapy.categories.aggressivo')}</SelectItem>
+                 <SelectItem value="stressato">{t('aiMusicTherapy.categories.stressato')}</SelectItem>
+                 <SelectItem value="pauroso">{t('aiMusicTherapy.categories.pauroso')}</SelectItem>
                </SelectContent>
             </Select>
             {moodAdaptation && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Brain className="h-3 w-3" />
-                Adattamento Real-time
+                {t('aiMusicTherapy.advancedSettings.realTimeAdaptation')}
               </Badge>
             )}
           </div>
@@ -842,7 +849,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                       {isGenerating && currentSession?.id === session.id && (
                         <div className="mt-2 flex items-center gap-2 text-xs text-primary">
                           <Sparkles className="h-3 w-3 animate-spin" />
-                          Generando playlist personalizzata...
+                          {t('aiMusicTherapy.player.generatingPlaylist')}
                         </div>
                       )}
                     </div>
@@ -861,27 +868,27 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Brain className="h-5 w-5" />
-              DNA Emotivo
+              {t('aiMusicTherapy.emotionalDNA.title')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm">Calma</span>
+                <span className="text-sm">{t('aiMusicTherapy.emotionalDNA.calm')}</span>
                 <div className="flex items-center gap-2">
                   <Progress value={emotionalDNA.calma} className="w-20 h-2" />
                   <span className="text-xs text-muted-foreground">{emotionalDNA.calma}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Energia</span>
+                <span className="text-sm">{t('aiMusicTherapy.emotionalDNA.energy')}</span>
                 <div className="flex items-center gap-2">
                   <Progress value={emotionalDNA.energia} className="w-20 h-2" />
                   <span className="text-xs text-muted-foreground">{emotionalDNA.energia}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Focus</span>
+                <span className="text-sm">{t('aiMusicTherapy.emotionalDNA.focus')}</span>
                 <div className="flex items-center gap-2">
                   <Progress value={emotionalDNA.focus} className="w-20 h-2" />
                   <span className="text-xs text-muted-foreground">{emotionalDNA.focus}%</span>
@@ -889,7 +896,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               </div>
               {moodAdaptation && isPlaying && (
                 <div className="pt-2 text-xs text-primary text-center animate-pulse">
-                  🧠 Adattamento real-time attivo
+                  {t('aiMusicTherapy.emotionalDNA.realTimeActive')}
                 </div>
               )}
             </div>
@@ -900,15 +907,15 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Impostazioni Avanzate
+              {t('aiMusicTherapy.advancedSettings.title')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-sm font-medium">Adattamento Real-time</span>
+                <span className="text-sm font-medium">{t('aiMusicTherapy.advancedSettings.realTimeAdaptation')}</span>
                 <p className="text-xs text-muted-foreground">
-                  Analizza e adatta la musica ogni 30 secondi
+                  {t('aiMusicTherapy.advancedSettings.realTimeDescription')}
                 </p>
               </div>
               <Switch

@@ -36,7 +36,7 @@ const AIMusicTherapyPage: React.FC = () => {
             {t('navigation.aiMusicTherapy')}
           </h1>
           <p className="text-muted-foreground">
-            Musicoterapia personalizzata per {selectedPet.name}
+            {t('aiMusicTherapy.subtitle').replace('{petName}', selectedPet.name)}
           </p>
         </div>
       </div>

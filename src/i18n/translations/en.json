@@ -92,6 +92,98 @@
       }
     }
   },
+  "aiMusicTherapy": {
+    "title": "AI Music Therapy",
+    "subtitle": "Personalized music therapy for {petName}",
+    "categories": {
+      "title": "Therapeutic Categories",
+      "selectCategory": "Select category",
+      "allCategories": "All categories",
+      "ansioso": "Anxiety and Stress",
+      "agitato": "Hyperactivation",
+      "triste": "Low Mood", 
+      "aggressivo": "Behavioral Control",
+      "stressato": "Acute Stress",
+      "pauroso": "Emotional Support"
+    },
+    "sessions": {
+      "ansia": {
+        "title": "Deep Calm - 528Hz",
+        "description": "Specific frequencies to reduce anxiety and stress. Therapy for anxious animals",
+        "benefits": ["Reduces anxiety and stress", "Lowers heart rate", "Muscle relaxation", "Neurochemical balance"]
+      },
+      "iperattivazione": {
+        "title": "Guided Relaxation - 10-13Hz",
+        "description": "Sequences to calm hyperactivation and agitation in animals",
+        "benefits": ["Calms hyperactivation", "Reduces agitation", "Gradual relaxation", "Impulse control"]
+      },
+      "umoreBasso": {
+        "title": "Positive Energy - 40Hz",
+        "description": "Gentle stimulation to improve depressed mood and lethargy",
+        "benefits": ["Improves mood", "Increases energy", "Stimulates activity", "Counters depression"]
+      },
+      "controlloComportamentale": {
+        "title": "Calm and Control - 432Hz",
+        "description": "Frequencies to reduce aggression and reactive behaviors",
+        "benefits": ["Reduces aggression", "Emotional control", "Calms reactivity", "Impulse management"]
+      },
+      "stressAcuto": {
+        "title": "Anti-Stress - 528Hz",
+        "description": "Therapy for chronic stress and accumulated tension",
+        "benefits": ["Reduces cortisol", "Releases tension", "Balances nervous system", "Post-stress recovery"]
+      },
+      "supportoEmotivo": {
+        "title": "Inner Security - 111Hz",
+        "description": "Protective frequencies for fearful and insecure animals",
+        "benefits": ["Increases security", "Reduces fears", "Stabilizes emotions", "Psychological support"]
+      }
+    },
+    "player": {
+      "sessionBenefits": "Benefits of this session:",
+      "playingNow": "🎵 Playing now...",
+      "generatingPlaylist": "Generating personalized playlist...",
+      "personalizedFor": "for {petName}"
+    },
+    "emotionalDNA": {
+      "title": "Emotional DNA",
+      "calm": "Calm",
+      "energy": "Energy",
+      "focus": "Focus", 
+      "realTimeActive": "🧠 Real-time adaptation active"
+    },
+    "advancedSettings": {
+      "title": "Advanced Settings",
+      "realTimeAdaptation": "Real-time Adaptation",
+      "realTimeDescription": "Analyzes and adapts music every 30 seconds",
+      "volume": "Volume",
+      "adaptNow": "Adapt Now"
+    },
+    "messages": {
+      "noSessionSelected": "No session selected",
+      "selectCategoryFirst": "Select a music therapy category first",
+      "paused": "Paused",
+      "pausedDescription": "Music therapy session paused",
+      "playStarted": "🎵 Playback started", 
+      "sessionCompleted": "Session completed",
+      "sessionCompletedDescription": "The music therapy session has ended",
+      "stopped": "Playback stopped",
+      "stoppedDescription": "Session stopped and returned to 0:00",
+      "positionUpdated": "Position updated",
+      "movedTo": "Moved to {time}",
+      "playlistGenerated": "AI Playlist Generated!",
+      "playlistGeneratedDescription": "Session \"{title}\" personalized for {petName} based on their emotional DNA",
+      "realTimeAdaptation": "AI real-time adaptation",
+      "realTimeAdaptationDescription": "Frequencies adapted: Calm {calm}%, Energy {energy}%, Focus {focus}%",
+      "audioError": "Audio error",
+      "audioErrorDescription": "Unable to start playback",
+      "playlistFromAnalysis": "🎵 Playlist from Analysis Loaded",
+      "playlistFromAnalysisDescription": "\"{title}\" ready for {petName}",
+      "positiveEmotion": "✨ Positive Emotional State",
+      "positiveEmotionDescription": "{petName} is doing well! No music therapy needed.",
+      "errorLoadingPlaylist": "Error",
+      "errorLoadingPlaylistDescription": "Unable to load playlist from analysis"
+    }
+  },
   "pets": {
     "title": "My Pets",
     "addNew": "Add Pet",
