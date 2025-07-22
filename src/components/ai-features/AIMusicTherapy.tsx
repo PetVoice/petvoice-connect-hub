@@ -441,31 +441,38 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         
         // Estrai frequenza dalla sessione con parsing migliorato
         const frequency = currentSession.frequency;
-        let mainFreq = 440; // Frequenza di base
+        let mainFreq = 220; // Frequenza carrier di base
         let beatFreq = 10;  // Frequenza binaural di default
+        
+        console.log(`🎵 Parsing frequenza: "${frequency}"`);
         
         if (frequency.includes('+')) {
           // Formato: "528Hz + 8Hz"
-          mainFreq = parseFloat(frequency.split('Hz')[0]);
-          beatFreq = parseFloat(frequency.split('+')[1].replace('Hz', '').trim());
+          const parts = frequency.split('+');
+          mainFreq = parseFloat(parts[0].replace('Hz', '').trim());
+          beatFreq = parseFloat(parts[1].replace('Hz', '').trim());
+          console.log(`🎵 Formato +: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
         } else if (frequency.includes('-')) {
-          // Formato: "10-13Hz" - usa la frequenza media
+          // Formato: "10-13Hz" - usa la frequenza media come beat
           const range = frequency.replace('Hz', '').split('-');
-          const min = parseFloat(range[0]);
-          const max = parseFloat(range[1]);
-          mainFreq = 220; // Frequenza carrier per range bassi
+          const min = parseFloat(range[0].trim());
+          const max = parseFloat(range[1].trim());
+          mainFreq = 220; // Frequenza carrier fissa per range bassi
           beatFreq = (min + max) / 2;
+          console.log(`🎵 Formato range: carrier=${mainFreq}Hz, beat=${beatFreq}Hz (media di ${min}-${max})`);
         } else {
-          // Formato: "40Hz" - frequenza singola
-          const singleFreq = parseFloat(frequency.replace('Hz', ''));
+          // Formato: "40Hz" o "528Hz" - frequenza singola
+          const singleFreq = parseFloat(frequency.replace('Hz', '').trim());
           if (singleFreq < 100) {
             // Frequenza bassa - usa come binaural beat
             mainFreq = 220;
             beatFreq = singleFreq;
+            console.log(`🎵 Formato singolo basso: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
           } else {
             // Frequenza alta - usa come carrier
             mainFreq = singleFreq;
-            beatFreq = 10;
+            beatFreq = 8; // Beat di default
+            console.log(`🎵 Formato singolo alto: carrier=${mainFreq}Hz, beat=${beatFreq}Hz`);
           }
         }
         
