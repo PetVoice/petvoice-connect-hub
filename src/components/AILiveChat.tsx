@@ -233,18 +233,21 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
 
   // Initialize chat with welcome message and main flow
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      const welcomeMessage: ChatMessage = {
-        id: '1',
-        text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda. Scegli un'area di interesse qui sotto per iniziare, oppure scrivi direttamente la tua domanda!",
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
+    if (isOpen) {
+      if (messages.length === 0) {
+        const welcomeMessage: ChatMessage = {
+          id: '1',
+          text: "Ciao! Sono l'assistente AI di PetVoice 🐾\n\nSono qui per aiutarti con qualsiasi domanda. Scegli un'area di interesse qui sotto per iniziare, oppure scrivi direttamente la tua domanda!",
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages([welcomeMessage]);
+      }
+      // Always show main flow when chat opens
       setCurrentFlow(mainFlow);
       setFlowPath([]);
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen]);
 
   const getAIResponse = async (userMessage: string): Promise<string> => {
     try {
