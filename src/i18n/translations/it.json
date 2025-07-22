@@ -414,6 +414,13 @@
         "pdfDownloaded": "Report PDF Scaricato",
         "pdfSaved": "Il report PDF è stato salvato come {{fileName}}",
         "cannotGeneratePdf": "Impossibile generare il report PDF"
+      },
+      "insights": {
+        "challengingBehaviorStaringRigid": "Comportamento problematico con sguardo fisso prolungato e movimenti rigidi",
+        "relaxedPostureTailEars": "Postura corporea rilassata con coda alzata e orecchie erette", 
+        "behavioralActivationPlay": "Attivazione comportamentale orientata al gioco con sequenze ripetitive",
+        "deepRelaxationBreathing": "Stato di rilassamento profondo con respirazione regolare e lenta",
+        "aggressiveVocalizationsGrowling": "Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso"
       }
     },
     "history": {

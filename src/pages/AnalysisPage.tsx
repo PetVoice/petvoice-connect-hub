@@ -189,15 +189,16 @@ const AnalysisPage: React.FC = () => {
 
   // Helper function to translate insights to Italian
   const translateInsightToItalian = (insight: string) => {
-    const translations: Record<string, string> = {
-      'Challenging behavior with prolonged staring and rigid movement': 'Comportamento problematico con sguardo fisso prolungato e movimenti rigidi',
-      'Postura corporea rilassata con coda alzata e orecchie erette': 'Postura corporea rilassata con coda alzata e orecchie erette',
-      'Behavioral activation aimed at play with repetitive sequences': 'Attivazione comportamentale orientata al gioco con sequenze ripetitive',
-      'Stato di rilassamento profondo con respirazione regolare e lenta': 'Stato di rilassamento profondo con respirazione regolare e lenta',
-      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso'
+    const keyMappings: Record<string, string> = {
+      'Challenging behavior with prolonged staring and rigid movement': 'analysis.insights.challengingBehaviorStaringRigid',
+      'Postura corporea rilassata con coda alzata e orecchie erette': 'analysis.insights.relaxedPostureTailEars',
+      'Behavioral activation aimed at play with repetitive sequences': 'analysis.insights.behavioralActivationPlay',
+      'Stato di rilassamento profondo con respirazione regolare e lenta': 'analysis.insights.deepRelaxationBreathing',
+      'Vocalizzazioni aggressive accompagnate da ringhio e abbaiare intenso': 'analysis.insights.aggressiveVocalizationsGrowling'
     };
     
-    return translations[insight] || insight;
+    const translationKey = keyMappings[insight];
+    return translationKey ? t(translationKey, insight) : insight;
   };
 
   const { user } = useAuth();
