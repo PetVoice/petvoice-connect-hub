@@ -258,6 +258,24 @@
         "errors": {
           "tooShort": "Description must be at least 10 characters",
           "tooLong": "Description cannot exceed 2000 characters"
+        },
+        "intelligentAnalysis": {
+          "title": "🧠 Intelligent Behavioral Analysis",
+          "description": "Our text analysis system uses advanced algorithms to interpret behavioral descriptions:",
+          "features": {
+            "emotionalKeywords": "🔍 Emotional keyword recognition",
+            "contextAnalysis": "📝 Behavioral context analysis", 
+            "emotionalProbability": "⚖️ Emotional probability assessment",
+            "personalizedSuggestions": "🎯 Personalized suggestions"
+          },
+          "stats": {
+            "averageTime": "Average time:",
+            "instant": "Instant",
+            "accuracy": "Accuracy:",
+            "accuracyRange": "75-90%",
+            "advantages": "Advantages:",
+            "advantagesText": "Immediate analysis, contextual details, zero processing costs"
+          }
         }
       }
     },

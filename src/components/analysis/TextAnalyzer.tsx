@@ -149,32 +149,32 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
         <div className="bg-gradient-to-r from-purple/5 to-purple/10 p-4 rounded-lg border border-purple/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">🧠 Analisi Comportamentale Intelligente</h4>
+              <h4 className="font-semibold text-foreground mb-2">{t('analysis.upload.textAnalyzer.intelligentAnalysis.title')}</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Il nostro sistema di analisi testuale utilizza algoritmi avanzati per interpretare le descrizioni comportamentali:
+                {t('analysis.upload.textAnalyzer.intelligentAnalysis.description')}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>🔍 Riconoscimento parole chiave emotive</span>
+                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.emotionalKeywords')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>📝 Analisi del contesto comportamentale</span>
+                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.contextAnalysis')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>⚖️ Valutazione probabilità emotiva</span>
+                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.emotionalProbability')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>🎯 Suggerimenti personalizzati</span>
+                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.personalizedSuggestions')}</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                ⚡ <strong>Tempo medio:</strong> Istantaneo • 
-                🎯 <strong>Accuratezza:</strong> 75-90% • 
-                📋 <strong>Vantaggi:</strong> Analisi immediata, dettagli contestuali, zero costi di processing
+                ⚡ <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.averageTime')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.instant')} • 
+                🎯 <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.accuracy')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.accuracyRange')} • 
+                📋 <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.advantages')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.advantagesText')}
               </div>
             </div>
           </div>

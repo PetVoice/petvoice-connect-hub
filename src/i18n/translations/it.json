@@ -258,6 +258,24 @@
         "errors": {
           "tooShort": "La descrizione deve essere di almeno 10 caratteri",
           "tooLong": "La descrizione non può superare i 2000 caratteri"
+        },
+        "intelligentAnalysis": {
+          "title": "🧠 Analisi Comportamentale Intelligente",
+          "description": "Il nostro sistema di analisi testuale utilizza algoritmi avanzati per interpretare le descrizioni comportamentali:",
+          "features": {
+            "emotionalKeywords": "🔍 Riconoscimento parole chiave emotive",
+            "contextAnalysis": "📝 Analisi del contesto comportamentale", 
+            "emotionalProbability": "⚖️ Valutazione probabilità emotiva",
+            "personalizedSuggestions": "🎯 Suggerimenti personalizzati"
+          },
+          "stats": {
+            "averageTime": "Tempo medio:",
+            "instant": "Istantaneo",
+            "accuracy": "Accuratezza:",
+            "accuracyRange": "75-90%",
+            "advantages": "Vantaggi:",
+            "advantagesText": "Analisi immediata, dettagli contestuali, zero costi di processing"
+          }
         }
       }
     },
