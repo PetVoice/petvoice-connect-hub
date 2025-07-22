@@ -116,77 +116,93 @@ const SubscriptionTab = () => {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/80 mb-4">
-          <Crown className="w-10 h-10 text-white" />
+    <div className="space-y-8 max-w-5xl mx-auto px-4">
+      {/* Header Section */}
+      <div className="text-center space-y-6 py-8">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/20 rounded-full blur-3xl"></div>
+          <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/70 shadow-2xl">
+            <Crown className="w-12 h-12 text-white drop-shadow-lg" />
+          </div>
         </div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-          PetVoice Premium
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Il piano completo per prenderti cura al meglio del tuo amico a quattro zampe
-        </p>
+        <div className="space-y-3">
+          <h1 className="text-5xl font-black bg-gradient-to-r from-primary via-primary/90 to-primary/70 bg-clip-text text-transparent">
+            PetVoice Premium
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Il piano completo per prenderti cura al meglio del tuo amico a quattro zampe
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-8">
-        {subscription.subscribed ? (
-          // Active subscription card
-          <Card className="petvoice-card border-2 border-success">
-            <CardHeader className="text-center pb-4">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 rounded-full gradient-coral flex items-center justify-center">
-                  <Crown className="w-8 h-8 text-white" />
-                </div>
+      {/* Main Content */}
+      {subscription.subscribed ? (
+        // Active Subscription Layout
+        <div className="space-y-8">
+          {/* Status Card */}
+          <Card className="relative overflow-hidden border-2 border-emerald-200 bg-gradient-to-br from-emerald-50/50 to-green-50/30 dark:from-emerald-950/20 dark:to-green-950/10 dark:border-emerald-700">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-green-500/10 rounded-full translate-y-12 -translate-x-12"></div>
+            
+            <CardHeader className="text-center pb-6 relative z-10">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500 mb-4 shadow-lg">
+                <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <CardTitle className="text-3xl font-bold text-success mb-2">
-                ✅ ABBONAMENTO PREMIUM ATTIVO
+              <CardTitle className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+                Abbonamento Attivo
               </CardTitle>
-              <CardDescription className="text-lg">
-                Hai accesso completo a tutte le funzionalità
+              <CardDescription className="text-lg text-emerald-600 dark:text-emerald-300">
+                Stai sfruttando tutte le funzionalità premium
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="space-y-8">
-              <div className="text-center space-y-4">
-                <Card className="petvoice-card">
-                  <CardContent className="p-6">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">Piano Attivo</div>
-                    <div className="text-2xl font-bold">Premium €0,97/mese</div>
-                    {subscription.subscription_end && (
-                      <div className="text-sm mt-2 space-y-1">
-                        <div className="text-muted-foreground">
-                          Prossimo rinnovo: {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
-                        </div>
-                        {daysToRenewal !== null && (
-                          <div className="font-medium text-primary">
-                            ⏱️ {daysToRenewal} giorni al rinnovo
-                          </div>
-                        )}
-                      </div>
-                    )}
+            <CardContent className="space-y-6 relative z-10">
+              {/* Subscription Details */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="border-emerald-200 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+                  <CardContent className="p-6 text-center">
+                    <div className="text-sm font-medium text-muted-foreground mb-2">Piano Attuale</div>
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Premium</div>
+                    <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">€0,97/mese</div>
                   </CardContent>
                 </Card>
+                
+                {subscription.subscription_end && (
+                  <Card className="border-emerald-200 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-sm font-medium text-muted-foreground mb-2">Prossimo Rinnovo</div>
+                      <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                        {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                      </div>
+                      {daysToRenewal !== null && (
+                        <div className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                          {daysToRenewal} giorni rimanenti
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
+              {/* Warning for Cancelled Subscription */}
               {isEndOfPeriodCancellation && (
-                <Card className="petvoice-card border-warning">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-warning">
+                <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-700">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-3 text-amber-700 dark:text-amber-400">
                       <AlertTriangle className="w-5 h-5" />
-                      ⚠️ ABBONAMENTO IN CANCELLAZIONE
+                      Abbonamento in Cancellazione
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <p className="text-sm text-muted-foreground">
-                      Il tuo abbonamento Premium è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
+                  <CardContent>
+                    <p className="text-amber-600 dark:text-amber-300">
+                      Il tuo abbonamento è stato cancellato ma rimane attivo fino al {cancellationEffectiveDate}
                     </p>
                   </CardContent>
                 </Card>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {/* STATO ACTIVE: Entrambi i pulsanti di cancellazione */}
+              {/* Action Buttons */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
                 {!isCancelled && (
                   <>
                     <Button
@@ -194,10 +210,10 @@ const SubscriptionTab = () => {
                       variant="destructive"
                       size="lg"
                       disabled={cancelLoading}
-                      className="flex-1 sm:flex-none"
+                      className="w-full"
                     >
-                      <Trash2 className="w-5 h-5 mr-2" />
-                      🗑️ Cancella Immediatamente
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Cancella Subito
                     </Button>
                     
                     <Button
@@ -205,121 +221,133 @@ const SubscriptionTab = () => {
                       variant="outline"
                       size="lg"
                       disabled={cancelLoading}
-                      className="flex-1 sm:flex-none"
+                      className="w-full border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
                     >
-                      <Calendar className="w-5 h-5 mr-2" />
-                      📅 Cancella a Fine Periodo
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Cancella a Fine Periodo
                     </Button>
                   </>
                 )}
 
-                {/* STATO CANCEL_AT_PERIOD_END: Solo pulsante "Riattiva" */}
-                {isEndOfPeriodCancellation && (
-                  <>
-                    {canReactivate && (
-                      <Button 
-                        onClick={() => setShowReactivationModal(true)}
-                        size="lg"
-                        disabled={cancelLoading}
-                        className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <Shield className="w-5 h-5 mr-2" />
-                        🔄 Riattiva Abbonamento
-                      </Button>
-                    )}
-                  </>
+                {isEndOfPeriodCancellation && canReactivate && (
+                  <Button 
+                    onClick={() => setShowReactivationModal(true)}
+                    size="lg"
+                    disabled={cancelLoading}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg"
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Riattiva Abbonamento
+                  </Button>
                 )}
                 
                 <Button
                   onClick={handleOpenCustomerPortal}
                   size="lg"
                   disabled={portalLoading}
-                  className="flex-1 sm:flex-none petvoice-button"
+                  className="w-full bg-primary hover:bg-primary/90 shadow-lg"
                 >
-                  <Settings className="w-5 h-5 mr-2" />
-                  ⚙️ Gestisci Pagamenti
+                  <Settings className="w-4 h-4 mr-2" />
+                  Gestisci Pagamenti
                 </Button>
               </div>
             </CardContent>
           </Card>
-        ) : (
-          // Subscribe card
-          <Card className="petvoice-card border-2 border-primary relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary/5" />
-            
-            <CardHeader className="text-center pb-6 relative z-10">
-              <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 rounded-full gradient-coral flex items-center justify-center shadow-glow">
-                  <Crown className="w-10 h-10 text-white" />
-                </div>
+        </div>
+      ) : (
+        // Subscription Upgrade Layout
+        <Card className="relative overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5">
+          {/* Background Elements */}
+          <div className="absolute inset-0">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full -translate-y-32 translate-x-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary/10 rounded-full translate-y-24 -translate-x-24"></div>
+          </div>
+          
+          <CardHeader className="text-center pb-8 relative z-10">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl"></div>
+              <div className="relative inline-flex items-center justify-center w-28 h-28 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/80 shadow-2xl">
+                <Crown className="w-14 h-14 text-white drop-shadow-lg" />
               </div>
-              <CardTitle className="text-4xl font-bold text-primary mb-3">
-                💎 PETVOICE PREMIUM
+            </div>
+            
+            <div className="space-y-4">
+              <CardTitle className="text-5xl font-black bg-gradient-to-r from-primary via-primary/90 to-primary/70 bg-clip-text text-transparent">
+                PETVOICE PREMIUM
               </CardTitle>
               <div className="space-y-2">
-                <div className="text-5xl font-bold text-primary">€0,97</div>
-                <div className="text-xl text-muted-foreground">/mese</div>
+                <div className="text-6xl font-black text-primary drop-shadow-sm">€0,97</div>
+                <div className="text-2xl text-muted-foreground font-medium">/mese</div>
               </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-8 relative z-10">
-              <div className="space-y-2 mb-6">
-                <p className="text-center font-medium text-muted-foreground">
-                  Tutto quello che serve per il benessere del tuo pet:
-                </p>
-              </div>
-              
-              <div className="grid gap-3">
-                {[
-                  { icon: "🐕", text: "Gestisci tutti i tuoi animali" },
-                  { icon: "🧠", text: "Analisi emotive avanzate con AI" },
-                  { icon: "📊", text: "Monitoraggio salute completo" },
-                  { icon: "🎵", text: "Musicoterapia personalizzata" },
-                  { icon: "📅", text: "Calendario veterinario integrato" },
-                  { icon: "📝", text: "Diario comportamentale dettagliato" },
-                  { icon: "💊", text: "Gestione farmaci e vaccinazioni" },
-                  { icon: "📈", text: "Statistiche e trend analitici" },
-                  { icon: "📱", text: "Sincronizzazione multi-dispositivo" },
-                  { icon: "🆘", text: "Supporto dedicato 24/7" }
-                ].map((feature, index) => (
-                  <Card key={index} className="petvoice-card p-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg flex-shrink-0">{feature.icon}</span>
-                      <span className="font-medium text-sm">{feature.text}</span>
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                Sblocca tutte le funzionalità avanzate per il benessere del tuo pet
+              </p>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="space-y-8 relative z-10">
+            {/* Features Grid */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                { icon: "🐕", title: "Gestione Multi-Pet", desc: "Tutti i tuoi animali in un unico posto" },
+                { icon: "🧠", title: "AI Avanzata", desc: "Analisi emotive e comportamentali" },
+                { icon: "📊", title: "Monitoraggio Salute", desc: "Tracking completo del benessere" },
+                { icon: "🎵", title: "Musicoterapia", desc: "Playlist personalizzate per il relax" },
+                { icon: "📅", title: "Calendario Vet", desc: "Promemoria e appuntamenti" },
+                { icon: "📝", title: "Diario Comportamentale", desc: "Registra e analizza i progressi" },
+                { icon: "💊", title: "Gestione Farmaci", desc: "Non dimenticare mai una dose" },
+                { icon: "📈", title: "Analytics Premium", desc: "Statistiche dettagliate e trend" },
+                { icon: "📱", title: "Sync Multi-Device", desc: "Accesso da tutti i tuoi dispositivi" },
+                { icon: "🆘", title: "Supporto Prioritario", desc: "Assistenza dedicata 24/7" }
+              ].map((feature, index) => (
+                <Card key={index} className="group p-4 border-primary/20 bg-white/50 dark:bg-black/20 backdrop-blur-sm hover:bg-primary/5 hover:border-primary/40 transition-all duration-300 hover:shadow-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
                     </div>
-                  </Card>
-                ))}
-              </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-foreground">{feature.title}</div>
+                      <div className="text-sm text-muted-foreground">{feature.desc}</div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
 
+            {/* CTA Button */}
+            <div className="space-y-6">
               <Button
                 onClick={handleSubscribe}
                 size="lg"
                 disabled={subscribeLoading}
-                className="w-full petvoice-button py-6 text-xl shadow-glow transform hover:scale-105 transition-all duration-200"
+                className="w-full py-8 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-2xl transform hover:scale-105 transition-all duration-300"
               >
                 {subscribeLoading ? (
-                  <>
+                  <div className="flex items-center">
                     <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                    Elaborazione...
-                  </>
+                    Elaborazione in corso...
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center">
                     <Crown className="w-6 h-6 mr-3" />
-                    ATTIVA PREMIUM
-                  </>
+                    ATTIVA PREMIUM ORA
+                  </div>
                 )}
               </Button>
 
-              <Card className="petvoice-card p-3">
-                <p className="text-center text-sm text-muted-foreground">
-                  💳 Pagamento sicuro con Stripe • Cancellabile in qualsiasi momento
-                </p>
+              {/* Security Badge */}
+              <Card className="p-4 bg-muted/30 border-muted">
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pagamento sicuro con Stripe • Cancellabile in qualsiasi momento</span>
+                </div>
               </Card>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
+      {/* Modals */}
       <CancellationModal
         isOpen={showCancellationModal}
         onClose={() => setShowCancellationModal(false)}
