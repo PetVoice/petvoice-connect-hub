@@ -18,6 +18,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Allow manual activation via URL parameter for testing
   const forceGuide = searchParams.get('guide') === 'true';
   const shouldShowGuide = !loading && (isFirstTime || forceGuide);
+  
+  console.log('🎯 Layout: Guide status -', {
+    loading, 
+    isFirstTime, 
+    forceGuide, 
+    shouldShowGuide
+  });
 
   return (
     <SidebarProvider>
