@@ -1470,7 +1470,7 @@ const AnalysisPage: React.FC = () => {
                       <SelectValue placeholder={t('analysis.allLevelsPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t('analysis.allLevels')}</SelectItem>
+                      <SelectItem value="all">{t('analysis.history.allLevels')}</SelectItem>
                       <SelectItem value="90">≥ 90%</SelectItem>
                       <SelectItem value="80">≥ 80%</SelectItem>
                       <SelectItem value="70">≥ 70%</SelectItem>
