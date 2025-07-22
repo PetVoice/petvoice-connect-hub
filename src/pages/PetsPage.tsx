@@ -181,13 +181,13 @@ const PetsPage: React.FC = () => {
         // Toast per modifica pet
         toast({
           title: t('toast.pets.petUpdated'),
-          description: `${formData.name} - ${t('toast.pets.petUpdated')}`,
+          description: t('toast.pets.petUpdatedDescription').replace('{name}', formData.name),
         });
         
         // Notifica per modifica pet
         addNotification({
           title: t('success.updated'),
-          message: `Le informazioni di ${formData.name} sono state aggiornate`,
+          message: t('toast.pets.petUpdatedDescription').replace('{name}', formData.name),
           type: 'success',
           read: false,
           action_url: '/pets'
@@ -199,7 +199,7 @@ const PetsPage: React.FC = () => {
         // Toast per nuovo pet
         toast({
           title: t('toast.pets.petAdded'),
-          description: `${formData.name} è ora parte della tua famiglia!`,
+          description: `${formData.name} ${t('toast.pets.petAddedDescription')}`,
         });
       }
       
@@ -249,14 +249,14 @@ const PetsPage: React.FC = () => {
       if (petToDelete) {
         toast({
           title: t('toast.pets.petDeleted'),
-          description: `${petToDelete.name} è stato rimosso dalla tua famiglia`,
+          description: `${petToDelete.name} ${t('toast.pets.petDeletedDescription')}`,
           variant: "destructive",
         });
         
         // Notifica per eliminazione pet
         addNotification({
           title: t('success.deleted'),
-          message: `${petToDelete.name} è stato rimosso dalla tua famiglia`,
+          message: `${petToDelete.name} ${t('toast.pets.petDeletedDescription')}`,
           type: 'info',
           read: false,
           action_url: '/pets'

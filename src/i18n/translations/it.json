@@ -455,10 +455,13 @@
     },
     "pets": {
       "petAdded": "Pet aggiunto con successo",
+      "petAddedDescription": "è ora parte della tua famiglia!",
       "petAddError": "Errore durante l'aggiunta del pet",
       "petUpdated": "Informazioni pet aggiornate",
+      "petUpdatedDescription": "Le informazioni di {name} sono state aggiornate",
       "petUpdateError": "Errore durante l'aggiornamento del pet",
       "petDeleted": "Pet eliminato",
+      "petDeletedDescription": "è stato rimosso dalla tua famiglia",
       "petDeleteError": "Errore durante l'eliminazione del pet",
       "petSelected": "Pet selezionato",
       "validationRequired": "Nome e tipo del pet sono obbligatori",

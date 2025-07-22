@@ -455,10 +455,13 @@
     },
     "pets": {
       "petAdded": "Pet added successfully",
+      "petAddedDescription": "is now part of your family!",
       "petAddError": "Error adding pet",
       "petUpdated": "Pet information updated",
+      "petUpdatedDescription": "{name}'s information has been updated",
       "petUpdateError": "Error updating pet",
       "petDeleted": "Pet deleted",
+      "petDeletedDescription": "has been removed from your family",
       "petDeleteError": "Error deleting pet",
       "petSelected": "Pet selected",
       "validationRequired": "Pet name and type are required",
