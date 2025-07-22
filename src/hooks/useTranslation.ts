@@ -13,7 +13,7 @@ type NestedKeyOf<ObjectType extends object> = {
     : `${Key}`;
 }[keyof ObjectType & (string | number)];
 
-type TranslationKey = NestedKeyOf<TranslationObject>;
+type TranslationKey = NestedKeyOf<TranslationObject> | string;
 
 const translations = {
   it,
