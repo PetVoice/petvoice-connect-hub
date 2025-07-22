@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,19 +30,37 @@ export const EventForm: React.FC<EventFormProps> = ({
   initialDate
 }) => {
   const [formData, setFormData] = useState({
-    title: event?.title || '',
-    description: event?.description || '',
-    location: event?.location || '',
-    category: event?.category || 'other',
-    start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : format(new Date(), 'yyyy-MM-dd\'T\'HH:mm')),
-    end_time: event?.end_time || '',
-    is_all_day: event?.is_all_day || false,
-    recurring_pattern: event?.recurring_pattern || 'none',
-    attendees: event?.attendees || [],
-    cost: event?.cost || null,
-    status: event?.status || 'scheduled',
-    notes: event?.notes || ''
+    title: '',
+    description: '',
+    location: '',
+    category: 'other',
+    start_time: '',
+    end_time: '',
+    is_all_day: false,
+    recurring_pattern: 'none',
+    attendees: [],
+    cost: null,
+    status: 'scheduled',
+    notes: ''
   });
+
+  // Reset form data when event or initialDate changes
+  useEffect(() => {
+    setFormData({
+      title: event?.title || '',
+      description: event?.description || '',
+      location: event?.location || '',
+      category: event?.category || 'other',
+      start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : format(new Date(), 'yyyy-MM-dd\'T\'HH:mm')),
+      end_time: event?.end_time || '',
+      is_all_day: event?.is_all_day || false,
+      recurring_pattern: event?.recurring_pattern || 'none',
+      attendees: event?.attendees || [],
+      cost: event?.cost || null,
+      status: event?.status || 'scheduled',
+      notes: event?.notes || ''
+    });
+  }, [event, initialDate]);
 
   const handleSave = () => {
     const data = {
