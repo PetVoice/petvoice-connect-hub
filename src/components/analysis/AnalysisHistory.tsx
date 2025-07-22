@@ -77,6 +77,44 @@ const EMOTION_ICONS: Record<string, string> = {
   giocoso: '😄'
 };
 
+// Helper function to translate emotions
+const getEmotionTranslation = (emotion: string, language: string = 'it') => {
+  const emotions: Record<string, Record<string, string>> = {
+    it: {
+      felice: 'Felice',
+      calmo: 'Calmo', 
+      ansioso: 'Ansioso',
+      eccitato: 'Eccitato',
+      triste: 'Triste',
+      aggressivo: 'Aggressivo',
+      giocoso: 'Giocoso',
+      rilassato: 'Rilassato'
+    },
+    en: {
+      felice: 'Happy',
+      calmo: 'Calm',
+      ansioso: 'Anxious', 
+      eccitato: 'Excited',
+      triste: 'Sad',
+      aggressivo: 'Aggressive',
+      giocoso: 'Playful',
+      rilassato: 'Relaxed'
+    },
+    es: {
+      felice: 'Alegre',
+      calmo: 'Tranquilo',
+      ansioso: 'Ansioso',
+      eccitato: 'Emocionado', 
+      triste: 'Triste',
+      aggressivo: 'Agresivo',
+      giocoso: 'Juguetón',
+      rilassato: 'Relajado'
+    }
+  };
+  
+  return emotions[language]?.[emotion.toLowerCase()] || emotion;
+};
+
 // Helper function to generate readable analysis names
 const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it') => {
   const date = new Date(analysis.created_at);
@@ -86,43 +124,7 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
   const month = format(date, 'MMMM', { locale: it });
   const time = format(date, 'HH:mm', { locale: it });
   
-  // Get emotion translation
-  const getEmotionTranslation = (emotion: string) => {
-    const emotions: Record<string, Record<string, string>> = {
-      it: {
-        felice: 'Felice',
-        calmo: 'Calmo',
-        ansioso: 'Ansioso',
-        eccitato: 'Eccitato',
-        triste: 'Triste',
-        aggressivo: 'Aggressivo',
-        giocoso: 'Giocoso',
-        rilassato: 'Rilassato'
-      },
-      en: {
-        felice: 'Happy',
-        calmo: 'Calm',
-        ansioso: 'Anxious',
-        eccitato: 'Excited',
-        triste: 'Sad',
-        aggressivo: 'Aggressive',
-        giocoso: 'Playful',
-        rilassato: 'Relaxed'
-      },
-      es: {
-        felice: 'Alegre',
-        calmo: 'Tranquilo',
-        ansioso: 'Ansioso',
-        eccitato: 'Emocionado',
-        triste: 'Triste',
-        aggressivo: 'Agresivo',
-        giocoso: 'Juguetón',
-        rilassato: 'Relajado'
-      }
-    };
-    
-    return emotions[language]?.[emotion.toLowerCase()] || emotion;
-  };
+  // Use the existing getEmotionTranslation function
 
   // Get type translation
   const getTypeTranslation = (type: string) => {
@@ -144,7 +146,7 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
     return types[language]?.[type] || type;
   };
   
-  const emotionName = getEmotionTranslation(analysis.primary_emotion);
+  const emotionName = getEmotionTranslation(analysis.primary_emotion, language);
   
   // Generate readable name based on file type
   if (analysis.file_type === 'text') {
@@ -497,7 +499,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                   <div className="flex items-center gap-4 mt-3">
                     <Badge className={cn("flex items-center gap-1", EMOTION_COLORS[analysis.primary_emotion])}>
                       <span>{EMOTION_ICONS[analysis.primary_emotion]}</span>
-                      {analysis.primary_emotion.charAt(0).toUpperCase() + analysis.primary_emotion.slice(1)}
+                      {getEmotionTranslation(analysis.primary_emotion, language)}
                     </Badge>
                     
                     <div className="flex items-center gap-2">
@@ -529,7 +531,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => (
                               <Badge key={emotion} variant="outline" className="text-xs">
-                                {EMOTION_ICONS[emotion]} {emotion} ({confidence}%)
+                                {EMOTION_ICONS[emotion]} {getEmotionTranslation(emotion, language)} ({confidence}%)
                               </Badge>
                             ))}
                           </div>
