@@ -24,8 +24,8 @@ import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
-
 import { useNotifications } from '@/hooks/useNotifications';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface Pet {
   id: string;
@@ -94,6 +94,7 @@ const PetsPage: React.FC = () => {
   const navigate = useNavigate();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -147,8 +148,8 @@ const PetsPage: React.FC = () => {
 
     if (!formData.name || !formData.type) {
       toast({
-        title: "Errore",
-        description: "Nome e tipo sono obbligatori",
+        title: t('errors.validationError'),
+        description: t('pets.petName') + " e " + t('pets.petType') + " sono obbligatori",
         variant: "destructive",
       });
       return;
@@ -179,7 +180,7 @@ const PetsPage: React.FC = () => {
         await updatePet(editingPet.id, petData);
         // Notifica per modifica pet
         addNotification({
-          title: 'Pet aggiornato',
+          title: t('success.updated'),
           message: `Le informazioni di ${formData.name} sono state aggiornate`,
           type: 'success',
           read: false,
@@ -236,7 +237,7 @@ const PetsPage: React.FC = () => {
       // Notifica per eliminazione pet
       if (petToDelete) {
         addNotification({
-          title: 'Pet eliminato',
+          title: t('success.deleted'),
           message: `${petToDelete.name} è stato rimosso dalla tua famiglia`,
           type: 'info',
           read: false,
@@ -282,7 +283,7 @@ const PetsPage: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coral mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Caricamento...</p>
+          <p className="mt-4 text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -294,7 +295,7 @@ const PetsPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary" />
-            I Miei Pet
+            {t('navigation.pets')}
           </h1>
           <p className="text-muted-foreground">
             Gestisci le informazioni dei tuoi amici a quattro zampe
@@ -307,14 +308,14 @@ const PetsPage: React.FC = () => {
               onClick={() => setShowForm(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Aggiungi Pet
+              {t('pets.addNew')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
             <div className="max-h-[80vh] overflow-y-auto px-1">
               <DialogHeader>
                 <DialogTitle>
-                  {editingPet ? 'Modifica Pet' : 'Aggiungi Nuovo Pet'}
+                  {editingPet ? t('pets.editPet') : t('pets.addNew')}
                 </DialogTitle>
                 <DialogDescription>
                   {editingPet 

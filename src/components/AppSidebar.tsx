@@ -27,34 +27,40 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Navigation items
-const navigationItems = [
-  { title: 'Dashboard', url: '/', icon: Home },
-  { title: 'I Miei Pet', url: '/pets', icon: PawPrint },
-  { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
-  { title: 'AI Music Therapy', url: '/ai-music-therapy', icon: Music },
-  { title: 'AI Training', url: '/training', icon: Brain },
-  { title: 'Diario', url: '/diary', icon: BookOpen },
-  { title: 'Calendario', url: '/calendar', icon: Calendar },
-  { title: 'Benessere', url: '/wellness', icon: Heart },
-  { title: 'Statistiche', url: '/stats', icon: BarChart3 },
+const getNavigationItems = (t: any) => [
+  { title: t('navigation.dashboard'), url: '/', icon: Home },
+  { title: t('navigation.pets'), url: '/pets', icon: PawPrint },
+  { title: t('navigation.analysis'), url: '/analysis', icon: Microscope },
+  { title: t('navigation.aiMusicTherapy'), url: '/ai-music-therapy', icon: Music },
+  { title: t('navigation.aiTraining'), url: '/training', icon: Brain },
+  { title: t('navigation.diary'), url: '/diary', icon: BookOpen },
+  { title: t('navigation.calendar'), url: '/calendar', icon: Calendar },
+  { title: t('navigation.wellness'), url: '/wellness', icon: Heart },
+  { title: t('navigation.stats'), url: '/stats', icon: BarChart3 },
 ];
 
-const communityItems = [
-  { title: 'Community', url: '/community', icon: Users },
+const getCommunityItems = (t: any) => [
+  { title: t('navigation.community'), url: '/community', icon: Users },
 ];
 
-const supportItems = [
-  { title: 'Supporto', url: '/support', icon: HeadphonesIcon },
-  { title: 'Impostazioni', url: '/settings', icon: Settings },
+const getSupportItems = (t: any) => [
+  { title: t('navigation.support'), url: '/support', icon: HeadphonesIcon },
+  { title: t('common.settings'), url: '/settings', icon: Settings },
 ];
 
 const AppSidebar: React.FC = () => {
   const { state, open, setOpen, openMobile, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
+  const { t } = useTranslation();
   
   const isCollapsed = state === 'collapsed';
+  
+  const navigationItems = getNavigationItems(t);
+  const communityItems = getCommunityItems(t);
+  const supportItems = getSupportItems(t);
 
   // Auto-hide sidebar on navigation for mobile
   React.useEffect(() => {
@@ -99,7 +105,7 @@ const AppSidebar: React.FC = () => {
         {/* Main Navigation */}
         <SidebarGroup className="py-2">
           <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
-            Navigazione Principale
+            {t('navigation.mainNavigation')}
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
             <SidebarMenu className="space-y-1">

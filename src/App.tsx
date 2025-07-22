@@ -10,7 +10,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Layout from "@/components/Layout";
-import Dashboard from "@/pages/Dashboard";
+import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
@@ -48,7 +48,7 @@ function AppContent() {
         <Route path="/" element={
           <ProtectedRoute>
             <Layout>
-              <Dashboard />
+              <DashboardPage />
             </Layout>
           </ProtectedRoute>
         } />

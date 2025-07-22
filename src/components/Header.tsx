@@ -29,6 +29,7 @@ import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useTranslation, useTimeTranslation } from '@/hooks/useTranslation';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -44,6 +45,8 @@ const Header: React.FC = () => {
     markAllAsRead,
     clearAllNotifications 
   } = useNotifications();
+  const { t } = useTranslation();
+  const { formatTimeAgo } = useTimeTranslation();
 
   const currentPet = pets.find(pet => pet.id === selectedPetId);
 
@@ -64,21 +67,6 @@ const Header: React.FC = () => {
     }
   };
 
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const notificationTime = new Date(timestamp);
-    const diffMs = now.getTime() - notificationTime.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 0) {
-      return `${diffDays} giorno${diffDays > 1 ? 'i' : ''} fa`;
-    } else if (diffHours > 0) {
-      return `${diffHours} ${diffHours > 1 ? 'ore' : 'ora'} fa`;
-    } else {
-      return 'Ora';
-    }
-  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -129,7 +117,7 @@ const Header: React.FC = () => {
                 ) : (
                   <>
                     <Plus className="h-4 w-4 text-coral" />
-                    <span className="text-sm font-medium text-coral">Aggiungi</span>
+                    <span className="text-sm font-medium text-coral">{t('header.addPet')}</span>
                   </>
                 )}
               </div>
@@ -150,7 +138,7 @@ const Header: React.FC = () => {
               <SelectItem value="add-pet">
                 <div className="flex items-center gap-2 text-coral">
                   <Plus className="h-4 w-4" />
-                  <span className="text-sm font-medium">Aggiungi Pet</span>
+                  <span className="text-sm font-medium">{t('header.addPetFull')}</span>
                 </div>
               </SelectItem>
             </SelectContent>
@@ -205,7 +193,7 @@ const Header: React.FC = () => {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0 shadow-elegant" align="end">
               <div className="p-4 border-b flex items-center justify-between">
-                <h4 className="font-semibold">Notifiche</h4>
+                <h4 className="font-semibold">{t('header.notifications')}</h4>
                 <div className="flex items-center gap-2">
                   {unreadCount > 0 && (
                     <Button
@@ -214,7 +202,7 @@ const Header: React.FC = () => {
                       onClick={markAllAsRead}
                       className="text-xs h-6 px-2"
                     >
-                      Segna tutte come lette
+                      {t('header.markAllRead')}
                     </Button>
                   )}
                 </div>
@@ -279,7 +267,7 @@ const Header: React.FC = () => {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">Il mio account</p>
+                  <p className="text-sm font-medium">{t('header.myAccount')}</p>
                   <p className="text-xs text-muted-foreground truncate">
                     {user?.email}
                   </p>
@@ -288,12 +276,12 @@ const Header: React.FC = () => {
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                Impostazioni
+                {t('common.settings')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                Esci
+                {t('common.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

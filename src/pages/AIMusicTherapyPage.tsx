@@ -3,9 +3,11 @@ import { AIMusicTherapy } from '@/components/ai-features/AIMusicTherapy';
 import { usePets } from '@/contexts/PetContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const AIMusicTherapyPage: React.FC = () => {
   const { selectedPet } = usePets();
+  const { t } = useTranslation();
 
   if (!selectedPet) {
     return (
@@ -15,9 +17,9 @@ const AIMusicTherapyPage: React.FC = () => {
             <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <PawPrint className="h-6 w-6 text-muted-foreground" />
             </div>
-            <CardTitle>Nessun Pet Selezionato</CardTitle>
+            <CardTitle>{t('pets.noPetSelected')}</CardTitle>
             <CardDescription>
-              Seleziona un pet dalla pagina "I Miei Pet" per accedere alla musicoterapia AI
+              {t('pets.selectPetDesc')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -33,7 +35,7 @@ const AIMusicTherapyPage: React.FC = () => {
         </div>
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
-            AI Music Therapy
+            {t('navigation.aiMusicTherapy')}
           </h1>
           <p className="text-muted-foreground">
             Musicoterapia personalizzata per {selectedPet.name}
