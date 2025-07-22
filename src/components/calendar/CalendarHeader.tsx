@@ -1,19 +1,19 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Plus, Eye } from 'lucide-react';
+import { Calendar, Plus, BookOpen } from 'lucide-react';
 
 interface CalendarHeaderProps {
   petName: string;
   onNewEvent: () => void;
-  onToggleTemplates: () => void;
-  showTemplates: boolean;
+  onToggleLegend: () => void;
+  showLegend: boolean;
 }
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   petName,
   onNewEvent,
-  onToggleTemplates,
-  showTemplates
+  onToggleLegend,
+  showLegend
 }) => {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -31,10 +31,10 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={onToggleTemplates}
+          onClick={onToggleLegend}
         >
-          <Eye className="h-4 w-4 mr-2" />
-          Template
+          <BookOpen className="h-4 w-4 mr-2" />
+          Legenda
         </Button>
         
         <Button onClick={onNewEvent} variant="default">

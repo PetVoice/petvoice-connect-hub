@@ -12,6 +12,7 @@ import { it } from 'date-fns/locale';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { CalendarFilters } from '@/components/calendar/CalendarFilters';
 import { CalendarView } from '@/components/calendar/CalendarView';
+import { CalendarLegend } from '@/components/calendar/CalendarLegend';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DayEventsModal } from '@/components/calendar/DayEventsModal';
 
@@ -37,10 +38,11 @@ const CalendarPage: React.FC = () => {
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
   
   // UI state
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const [dayEventsModal, setDayEventsModal] = useState<DayEventsModalState>({
     open: false,
     date: new Date(),
@@ -89,11 +91,14 @@ const CalendarPage: React.FC = () => {
       );
     }
 
-    // Categories filter
+    // Category filter from dropdown
+    if (filterCategory !== 'all') {
+      filtered = filtered.filter(event => event.category === filterCategory);
+    }
+
+    // Category badges filter
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(event =>
-        selectedCategories.includes(event.category)
-      );
+      filtered = filtered.filter(event => selectedCategories.includes(event.category));
     }
 
     // Date range filter based on view mode
@@ -112,7 +117,7 @@ const CalendarPage: React.FC = () => {
     }
 
     setFilteredEvents(filtered);
-  }, [events, searchTerm, selectedCategories, viewMode, currentDate]);
+  }, [events, searchTerm, filterCategory, selectedCategories, viewMode, currentDate]);
 
   // Load events on mount
   useEffect(() => {
@@ -407,8 +412,8 @@ const CalendarPage: React.FC = () => {
       <CalendarHeader
         petName={activePet.name}
         onNewEvent={() => handleNewEvent()}
-        onToggleTemplates={() => setShowTemplates(!showTemplates)}
-        showTemplates={showTemplates}
+        onToggleLegend={() => setShowLegend(!showLegend)}
+        showLegend={showLegend}
       />
 
       {/* Filters */}
@@ -417,10 +422,15 @@ const CalendarPage: React.FC = () => {
         onSearchChange={setSearchTerm}
         selectedCategories={selectedCategories}
         onCategoryToggle={handleCategoryToggle}
+        filterCategory={filterCategory}
+        onFilterCategoryChange={setFilterCategory}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onExport={handleExport}
       />
+
+      {/* Legend */}
+      <CalendarLegend show={showLegend} />
 
       {/* Calendar View */}
       <CalendarView

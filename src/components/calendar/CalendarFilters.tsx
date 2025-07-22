@@ -11,6 +11,8 @@ interface CalendarFiltersProps {
   onSearchChange: (term: string) => void;
   selectedCategories: string[];
   onCategoryToggle: (category: string) => void;
+  filterCategory: string;
+  onFilterCategoryChange: (category: string) => void;
   viewMode: 'month' | 'week' | 'day';
   onViewModeChange: (mode: 'month' | 'week' | 'day') => void;
   onExport: () => Promise<void>;
@@ -21,6 +23,8 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
   onSearchChange,
   selectedCategories,
   onCategoryToggle,
+  filterCategory,
+  onFilterCategoryChange,
   viewMode,
   onViewModeChange,
   onExport
@@ -40,6 +44,24 @@ export const CalendarFilters: React.FC<CalendarFiltersProps> = ({
         </div>
         
         <div className="flex gap-2">
+          <Select value={filterCategory} onValueChange={onFilterCategoryChange}>
+            <SelectTrigger className="w-[140px]">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutti</SelectItem>
+              <SelectItem value="medical">Medici</SelectItem>
+              <SelectItem value="grooming">Toelettatura</SelectItem>
+              <SelectItem value="training">Addestramento</SelectItem>
+              <SelectItem value="social">Socializzazione</SelectItem>
+              <SelectItem value="exercise">Esercizio</SelectItem>
+              <SelectItem value="feeding">Alimentazione</SelectItem>
+              <SelectItem value="travel">Viaggi</SelectItem>
+              <SelectItem value="other">Altri</SelectItem>
+            </SelectContent>
+          </Select>
+          
           <div className="flex border rounded-lg">
             <Button
               variant={viewMode === 'month' ? 'default' : 'ghost'}
