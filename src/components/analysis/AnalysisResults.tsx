@@ -30,6 +30,41 @@ import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+
+// Funzione per tradurre le emozioni
+const getEmotionTranslation = (emotion: string, language: string = 'it') => {
+  const emotions: Record<string, Record<string, string>> = {
+    it: {
+      felice: 'Felice',
+      calmo: 'Calmo',
+      ansioso: 'Ansioso',
+      eccitato: 'Eccitato',
+      triste: 'Triste',
+      aggressivo: 'Aggressivo',
+      giocoso: 'Giocoso'
+    },
+    en: {
+      felice: 'Happy',
+      calmo: 'Calm',
+      ansioso: 'Anxious',
+      eccitato: 'Excited',
+      triste: 'Sad',
+      aggressivo: 'Aggressive',
+      giocoso: 'Playful'
+    },
+    es: {
+      felice: 'Alegre',
+      calmo: 'Tranquilo',
+      ansioso: 'Ansioso',
+      eccitato: 'Emocionado',
+      triste: 'Triste',
+      aggressivo: 'Agresivo',
+      giocoso: 'Juguetón'
+    }
+  };
+  
+  return emotions[language]?.[emotion.toLowerCase()] || emotion;
+};
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
@@ -71,22 +106,48 @@ interface AnalysisResultsProps {
 
 const EMOTION_COLORS: Record<string, string> = {
   felice: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+  happy: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+  alegre: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
   calmo: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+  calm: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+  tranquilo: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
   ansioso: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+  anxious: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+  ansioso_es: 'text-orange-500 bg-orange-500/10 border-orange-500/20',
   eccitato: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+  excited: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+  emocionado: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
   triste: 'text-gray-500 bg-gray-500/10 border-gray-500/20',
+  sad: 'text-gray-500 bg-gray-500/10 border-gray-500/20',
   aggressivo: 'text-red-500 bg-red-500/10 border-red-500/20',
-  giocoso: 'text-green-500 bg-green-500/10 border-green-500/20'
+  aggressive: 'text-red-500 bg-red-500/10 border-red-500/20',
+  agresivo: 'text-red-500 bg-red-500/10 border-red-500/20',
+  giocoso: 'text-green-500 bg-green-500/10 border-green-500/20',
+  playful: 'text-green-500 bg-green-500/10 border-green-500/20',
+  jugueton: 'text-green-500 bg-green-500/10 border-green-500/20'
 };
 
 const EMOTION_ICONS: Record<string, React.ReactNode> = {
   felice: '😊',
+  happy: '😊',
+  alegre: '😊',
   calmo: '😌',
+  calm: '😌',
+  tranquilo: '😌',
   ansioso: '😰',
+  anxious: '😰',
+  ansioso_es: '😰',
   eccitato: '🤩',
+  excited: '🤩',
+  emocionado: '🤩',
   triste: '😢',
+  sad: '😢',
   aggressivo: '😠',
-  giocoso: '😄'
+  aggressive: '😠',
+  agresivo: '😠',
+  giocoso: '😄',
+  playful: '😄',
+  jugueton: '😄'
 };
 
 // Genera playlist solo per emozioni negative che richiedono intervento
@@ -164,7 +225,7 @@ const getRecommendedPlaylist = (emotion: string, confidence: number) => {
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { toast } = useToast();
   const { selectedPet } = usePets();
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
@@ -175,6 +236,73 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
+  // Traduzioni dirette per il componente
+  const getText = (key: string) => {
+    const texts: Record<string, Record<string, string>> = {
+      it: {
+        noResults: 'Nessun Risultato',
+        loadFile: 'Carica un file per vedere i risultati dell\'analisi',
+        veryHigh: 'Molto Alta',
+        high: 'Alta',
+        medium: 'Media',
+        low: 'Bassa',
+        emotionalAnalysis: 'Analisi emotiva',
+        analysisOf: 'Analisi del',
+        primaryEmotion: 'Emozione primaria',
+        confidence: 'confidenza',
+        insights: 'Insights',
+        recommendations: 'Raccomandazioni',
+        identifiedTriggers: 'Trigger identificati',
+        success: 'Successo!',
+        addedSuccessfully: 'Analisi aggiunta al diario con successo!',
+        cannotAdd: 'Impossibile aggiungere l\'analisi al diario',
+        error: 'Errore',
+        selectPet: 'Nessun pet selezionato'
+      },
+      en: {
+        noResults: 'No Results',
+        loadFile: 'Load a file to see analysis results',
+        veryHigh: 'Very High',
+        high: 'High',
+        medium: 'Medium',
+        low: 'Low',
+        emotionalAnalysis: 'Emotional Analysis',
+        analysisOf: 'Analysis of',
+        primaryEmotion: 'Primary emotion',
+        confidence: 'confidence',
+        insights: 'Insights',
+        recommendations: 'Recommendations',
+        identifiedTriggers: 'Identified triggers',
+        success: 'Success!',
+        addedSuccessfully: 'Analysis added to diary successfully!',
+        cannotAdd: 'Unable to add analysis to diary',
+        error: 'Error',
+        selectPet: 'No pet selected'
+      },
+      es: {
+        noResults: 'Sin Resultados',
+        loadFile: 'Carga un archivo para ver los resultados del análisis',
+        veryHigh: 'Muy Alta',
+        high: 'Alta',
+        medium: 'Media',
+        low: 'Baja',
+        emotionalAnalysis: 'Análisis Emocional',
+        analysisOf: 'Análisis del',
+        primaryEmotion: 'Emoción primaria',
+        confidence: 'confianza',
+        insights: 'Información',
+        recommendations: 'Recomendaciones',
+        identifiedTriggers: 'Desencadenantes identificados',
+        success: '¡Éxito!',
+        addedSuccessfully: '¡Análisis agregado al diario exitosamente!',
+        cannotAdd: 'No se puede agregar el análisis al diario',
+        error: 'Error',
+        selectPet: 'Ninguna mascota seleccionada'
+      }
+    };
+    return texts[language]?.[key] || texts.it[key] || key;
+  };
 
   // Seleziona la prima analisi solo se non c'è nessuna selezione
   useEffect(() => {
@@ -204,9 +332,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return (
       <Card className="text-center p-8">
         <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">{t('analysis.history.noResults')}</h3>
+        <h3 className="text-lg font-semibold mb-2">{getText('noResults')}</h3>
         <p className="text-muted-foreground">
-          Carica un file per vedere i risultati dell'analisi
+          {getText('loadFile')}
         </p>
       </Card>
     );
@@ -228,17 +356,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 90) return 'Molto Alta';
-    if (confidence >= 75) return 'Alta'; 
-    if (confidence >= 60) return 'Media';
-    return 'Bassa';
+    if (confidence >= 90) return getText('veryHigh');
+    if (confidence >= 75) return getText('high'); 
+    if (confidence >= 60) return getText('medium');
+    return getText('low');
   };
 
   const addToDiary = async (analysis: AnalysisData) => {
     if (!selectedPet) {
       toast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.selectPet'),
+        title: getText('error'),
+        description: getText('selectPet'),
         variant: "destructive"
       });
       return;
@@ -246,9 +374,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
     try {
       // Create diary entry with analysis data
+      const emotionTranslation = getEmotionTranslation(analysis.primary_emotion, language);
       const diaryData = {
-        title: `Analisi emotiva - ${analysis.primary_emotion}`,
-        content: `Analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\nEmozione primaria: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}% confidenza)\n\nInsights: ${analysis.behavioral_insights}\n\nRaccomandazioni:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\nTrigger identificati: ${analysis.triggers.join(', ')}`,
+        title: `${getText('emotionalAnalysis')} - ${emotionTranslation}`,
+        content: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\n${getText('primaryEmotion')}: ${emotionTranslation} (${Math.round(analysis.primary_confidence * 100)}% ${getText('confidence')})\n\n${getText('insights')}: ${analysis.behavioral_insights}\n\n${getText('recommendations')}:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\n${getText('identifiedTriggers')}: ${analysis.triggers.join(', ')}`,
         mood_score: analysis.primary_emotion === 'felice' ? 8 : 
                    analysis.primary_emotion === 'calmo' ? 7 : 
                    analysis.primary_emotion === 'triste' ? 3 : 
@@ -266,14 +395,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       if (error) throw error;
       
       toast({
-        title: "Successo!",
-        description: "Analisi aggiunta al diario con successo!",
+        title: getText('success'),
+        description: getText('addedSuccessfully'),
       });
     } catch (error) {
       console.error('Error adding to diary:', error);
       toast({
-        title: t('errors.somethingWentWrong'),
-        description: "Impossibile aggiungere l'analisi al diario",
+        title: getText('error'),
+        description: getText('cannotAdd'),
         variant: "destructive"
       });
     }
