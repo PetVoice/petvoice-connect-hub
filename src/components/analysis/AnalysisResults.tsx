@@ -241,6 +241,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const getText = (key: string) => {
     const texts: Record<string, Record<string, string>> = {
       it: {
+        // Existing translations
         noResults: 'Nessun Risultato',
         loadFile: 'Carica un file per vedere i risultati dell\'analisi',
         veryHigh: 'Molto Alta',
@@ -258,9 +259,55 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         addedSuccessfully: 'Analisi aggiunta al diario con successo!',
         cannotAdd: 'Impossibile aggiungere l\'analisi al diario',
         error: 'Errore',
-        selectPet: 'Nessun pet selezionato'
+        selectPet: 'Nessun pet selezionato',
+        // New translations
+        selectAnalysis: 'Seleziona Analisi',
+        showResults: 'Mostra risultati per',
+        recentAnalyses: 'analisi recenti',
+        primaryEmotionCard: 'Emozione Primaria',
+        confidenceLabel: 'Confidenza',
+        fileLabel: 'File:',
+        sizeLabel: 'Dimensione:',
+        durationLabel: 'Durata analisi:',
+        dateLabel: 'Data:',
+        detailedAnalysis: 'Analisi Dettagliata',
+        behavioralInsights: 'Insights comportamentali e raccomandazioni per',
+        emotionsTab: 'Emozioni',
+        insightsTab: 'Insights',
+        adviceTab: 'Consigli',
+        triggersTab: 'Trigger',
+        audioTab: 'Audio',
+        secondaryEmotions: 'Emozioni Secondarie',
+        behavioralAnalysis: 'Analisi Comportamentale',
+        environmentalContext: 'Contesto Ambientale',
+        aiMusicTherapy: 'Playlist IA Music Therapy Consigliata',
+        trainingProtocol: 'Protocollo di Training Raccomandato',
+        personalizedRecommendations: 'Raccomandazioni Personalizzate',
+        startMusicTherapy: 'Inizia Sessione Musicoterapia',
+        startTrainingProtocol: 'Inizia Protocollo Training',
+        share: 'Condividi',
+        downloadReport: 'Scarica Report',
+        addToDiary: 'Aggiungi al Diario',
+        scheduleFollowUp: 'Pianifica Follow-up',
+        compareAnalyses: 'Confronta Analisi',
+        patternRecognition: 'Pattern Recognition',
+        previousComparisons: 'Confronti con analisi precedenti',
+        similarEpisode: 'Episodio Simile',
+        confidenceVariation: 'Variazione Confidenza',
+        lastAnalysis: 'Dall\'Ultima Analisi',
+        emotionalConsistency: 'Consistenza Emotiva',
+        petIsWell: 'sta bene!',
+        positiveEmotionalState: 'Il tuo pet è in uno stato emotivo positivo!',
+        emotionDetected: 'Emozione',
+        detected: 'rilevata.',
+        similarBehavior: 'Comportamento simile osservato il',
+        withEmotion: 'con emozione',
+        confidenceLevel: 'confidenza',
+        daysSince: 'giorni',
+        day: 'giorno'
       },
       en: {
+        // Existing translations
         noResults: 'No Results',
         loadFile: 'Load a file to see analysis results',
         veryHigh: 'Very High',
@@ -278,9 +325,55 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         addedSuccessfully: 'Analysis added to diary successfully!',
         cannotAdd: 'Unable to add analysis to diary',
         error: 'Error',
-        selectPet: 'No pet selected'
+        selectPet: 'No pet selected',
+        // New translations
+        selectAnalysis: 'Select Analysis',
+        showResults: 'Show results for',
+        recentAnalyses: 'recent analyses',
+        primaryEmotionCard: 'Primary Emotion',
+        confidenceLabel: 'Confidence',
+        fileLabel: 'File:',
+        sizeLabel: 'Size:',
+        durationLabel: 'Analysis duration:',
+        dateLabel: 'Date:',
+        detailedAnalysis: 'Detailed Analysis',
+        behavioralInsights: 'Behavioral insights and recommendations for',
+        emotionsTab: 'Emotions',
+        insightsTab: 'Insights',
+        adviceTab: 'Advice',
+        triggersTab: 'Triggers',
+        audioTab: 'Audio',
+        secondaryEmotions: 'Secondary Emotions',
+        behavioralAnalysis: 'Behavioral Analysis',
+        environmentalContext: 'Environmental Context',
+        aiMusicTherapy: 'AI Music Therapy Playlist Recommended',
+        trainingProtocol: 'Recommended Training Protocol',
+        personalizedRecommendations: 'Personalized Recommendations',
+        startMusicTherapy: 'Start Music Therapy Session',
+        startTrainingProtocol: 'Start Training Protocol',
+        share: 'Share',
+        downloadReport: 'Download Report',
+        addToDiary: 'Add to Diary',
+        scheduleFollowUp: 'Schedule Follow-up',
+        compareAnalyses: 'Compare Analyses',
+        patternRecognition: 'Pattern Recognition',
+        previousComparisons: 'Comparisons with previous analyses',
+        similarEpisode: 'Similar Episode',
+        confidenceVariation: 'Confidence Variation',
+        lastAnalysis: 'From Last Analysis',
+        emotionalConsistency: 'Emotional Consistency',
+        petIsWell: 'is well!',
+        positiveEmotionalState: 'Your pet is in a positive emotional state!',
+        emotionDetected: 'Emotion',
+        detected: 'detected.',
+        similarBehavior: 'Similar behavior observed on',
+        withEmotion: 'with emotion',
+        confidenceLevel: 'confidence',
+        daysSince: 'days',
+        day: 'day'
       },
       es: {
+        // Existing translations
         noResults: 'Sin Resultados',
         loadFile: 'Carga un archivo para ver los resultados del análisis',
         veryHigh: 'Muy Alta',
@@ -298,7 +391,52 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         addedSuccessfully: '¡Análisis agregado al diario exitosamente!',
         cannotAdd: 'No se puede agregar el análisis al diario',
         error: 'Error',
-        selectPet: 'Ninguna mascota seleccionada'
+        selectPet: 'Ninguna mascota seleccionada',
+        // New translations
+        selectAnalysis: 'Seleccionar Análisis',
+        showResults: 'Mostrar resultados para',
+        recentAnalyses: 'análisis recientes',
+        primaryEmotionCard: 'Emoción Primaria',
+        confidenceLabel: 'Confianza',
+        fileLabel: 'Archivo:',
+        sizeLabel: 'Tamaño:',
+        durationLabel: 'Duración del análisis:',
+        dateLabel: 'Fecha:',
+        detailedAnalysis: 'Análisis Detallado',
+        behavioralInsights: 'Información del comportamiento y recomendaciones para',
+        emotionsTab: 'Emociones',
+        insightsTab: 'Información',
+        adviceTab: 'Consejos',
+        triggersTab: 'Desencadenantes',
+        audioTab: 'Audio',
+        secondaryEmotions: 'Emociones Secundarias',
+        behavioralAnalysis: 'Análisis del Comportamiento',
+        environmentalContext: 'Contexto Ambiental',
+        aiMusicTherapy: 'Playlist de Musicoterapia IA Recomendada',
+        trainingProtocol: 'Protocolo de Entrenamiento Recomendado',
+        personalizedRecommendations: 'Recomendaciones Personalizadas',
+        startMusicTherapy: 'Iniciar Sesión de Musicoterapia',
+        startTrainingProtocol: 'Iniciar Protocolo de Entrenamiento',
+        share: 'Compartir',
+        downloadReport: 'Descargar Reporte',
+        addToDiary: 'Agregar al Diario',
+        scheduleFollowUp: 'Programar Seguimiento',
+        compareAnalyses: 'Comparar Análisis',
+        patternRecognition: 'Reconocimiento de Patrones',
+        previousComparisons: 'Comparaciones con análisis anteriores',
+        similarEpisode: 'Episodio Similar',
+        confidenceVariation: 'Variación de Confianza',
+        lastAnalysis: 'Desde el Último Análisis',
+        emotionalConsistency: 'Consistencia Emocional',
+        petIsWell: '¡está bien!',
+        positiveEmotionalState: '¡Tu mascota está en un estado emocional positivo!',
+        emotionDetected: 'Emoción',
+        detected: 'detectada.',
+        similarBehavior: 'Comportamiento similar observado el',
+        withEmotion: 'con emoción',
+        confidenceLevel: 'confianza',
+        daysSince: 'días',
+        day: 'día'
       }
     };
     return texts[language]?.[key] || texts.it[key] || key;
@@ -612,9 +750,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       {analyses.length > 1 && (
         <Card>
           <CardHeader>
-            <CardTitle>Seleziona Analisi</CardTitle>
+            <CardTitle>{getText('selectAnalysis')}</CardTitle>
             <CardDescription>
-              Mostra risultati per {analyses.length} analisi recenti
+              {getText('showResults')} {analyses.length} {getText('recentAnalyses')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -653,7 +791,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5" />
-              Emozione Primaria
+              {getText('primaryEmotionCard')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -672,7 +810,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Confidenza</span>
+                  <span>{getText('confidenceLabel')}</span>
                   <span className={getConfidenceColor(Math.round(selectedAnalysis.primary_confidence * 100))}>
                     {getConfidenceLabel(Math.round(selectedAnalysis.primary_confidence * 100))}
                   </span>
@@ -688,21 +826,21 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
             <Separator />
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">File:</span>
+                <span className="text-muted-foreground">{getText('fileLabel')}</span>
                 <span className="font-medium truncate max-w-32" title={selectedAnalysis.file_name}>
                   {selectedAnalysis.file_name}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Dimensione:</span>
+                <span className="text-muted-foreground">{getText('sizeLabel')}</span>
                 <span>{formatFileSize(selectedAnalysis.file_size)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Durata analisi:</span>
+                <span className="text-muted-foreground">{getText('durationLabel')}</span>
                 <span>{String(selectedAnalysis.analysis_duration)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Data:</span>
+                <span className="text-muted-foreground">{getText('dateLabel')}</span>
                 <span>{format(new Date(selectedAnalysis.created_at), 'dd/MM/yy HH:mm', { locale: it })}</span>
               </div>
             </div>
@@ -712,26 +850,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         {/* Detailed Analysis */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Analisi Dettagliata</CardTitle>
+            <CardTitle>{getText('detailedAnalysis')}</CardTitle>
             <CardDescription>
-              Insights comportamentali e raccomandazioni per {petName}
+              {getText('behavioralInsights')} {petName}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="emotions" className="space-y-4">
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="emotions">Emozioni</TabsTrigger>
-                <TabsTrigger value="insights">Insights</TabsTrigger>
-                <TabsTrigger value="recommendations">Consigli</TabsTrigger>
-                <TabsTrigger value="triggers">Trigger</TabsTrigger>
-                <TabsTrigger value="audio">Audio</TabsTrigger>
+                <TabsTrigger value="emotions">{getText('emotionsTab')}</TabsTrigger>
+                <TabsTrigger value="insights">{getText('insightsTab')}</TabsTrigger>
+                <TabsTrigger value="recommendations">{getText('adviceTab')}</TabsTrigger>
+                <TabsTrigger value="triggers">{getText('triggersTab')}</TabsTrigger>
+                <TabsTrigger value="audio">{getText('audioTab')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="emotions" className="space-y-4">
                 <div>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
                     <Activity className="h-4 w-4" />
-                    Emozioni Secondarie
+                    {getText('secondaryEmotions')}
                   </h4>
                   <div className="space-y-3">
                     {Object.entries(selectedAnalysis.secondary_emotions).map(([emotion, confidence]) => (
@@ -754,7 +892,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
                   <h4 className="font-medium mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-300">
                     <Brain className="h-4 w-4" />
-                    Analisi Comportamentale
+                    {getText('behavioralAnalysis')}
                   </h4>
                   <p className="text-blue-800 dark:text-blue-200">
                     {selectedAnalysis.behavioral_insights}
@@ -765,7 +903,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
                   <h4 className="font-medium mb-2 flex items-center gap-2 text-green-700 dark:text-green-300">
                     <Zap className="h-4 w-4" />
-                    Contesto Ambientale
+                    {getText('environmentalContext')}
                   </h4>
                   <WeatherContextInfo analysisDate={selectedAnalysis.created_at} />
                 </div>
@@ -785,10 +923,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           </div>
                           <div>
                             <h5 className="font-medium text-green-800 dark:text-green-200 mb-1">
-                              ✨ {petName} sta bene!
+                              ✨ {petName} {getText('petIsWell')}
                             </h5>
                             <p className="text-sm text-green-700 dark:text-green-300">
-                              Emozione "{selectedAnalysis.primary_emotion}" rilevata. Il tuo pet è in uno stato emotivo positivo!
+                              {getText('emotionDetected')} "{getEmotionTranslation(selectedAnalysis.primary_emotion, language)}" {getText('detected')} {getText('positiveEmotionalState')}
                             </p>
                           </div>
                         </div>
