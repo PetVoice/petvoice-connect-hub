@@ -37,7 +37,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     behavioral_tags: entry?.behavioral_tags || [],
     photo_urls: entry?.photo_urls || [],
     voice_note_url: entry?.voice_note_url || null,
-    weather_condition: entry?.weather_condition || '',
+    weather_condition: entry?.weather_condition && entry.weather_condition !== '' ? entry.weather_condition : 'nessuna',
     temperature: entry?.temperature || null,
     entry_date: entry?.entry_date || initialDate || format(new Date(), 'yyyy-MM-dd')
   });
@@ -50,7 +50,9 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     const data = {
       ...formData,
       pet_id: petId,
-      user_id: userId
+      user_id: userId,
+      // Convert 'nessuna' back to empty string for database
+      weather_condition: formData.weather_condition === 'nessuna' ? '' : formData.weather_condition
     };
     onSave(data);
   };
@@ -221,7 +223,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
                     <SelectValue placeholder="Seleziona condizioni meteo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nessuna</SelectItem>
+                    <SelectItem value="nessuna">Nessuna</SelectItem>
                     <SelectItem value="soleggiato">☀️ Soleggiato</SelectItem>
                     <SelectItem value="nuvoloso">☁️ Nuvoloso</SelectItem>
                     <SelectItem value="piovoso">🌧️ Piovoso</SelectItem>
