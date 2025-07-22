@@ -53,6 +53,16 @@ interface TherapySession {
   benefits: string[];
 }
 
+// Helper function to get benefits array from translations
+const getBenefitsArray = (t: any, key: string): string[] => {
+  try {
+    const result = t(key);
+    return Array.isArray(result) ? result : [result];
+  } catch {
+    return ['Benefit 1', 'Benefit 2', 'Benefit 3'];
+  }
+};
+
 // Create therapy categories dynamically using translations
 const createTherapyCategories = (t: (key: string) => string): TherapySession[] => [
   {
@@ -64,7 +74,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '528Hz + 8Hz',
     icon: Heart,
     color: 'bg-azure-500',
-    benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.ansia.benefits')
   },
   {
     id: 'agitato',
@@ -75,7 +85,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '10-13Hz',
     icon: Waves,
     color: 'bg-azure-600',
-    benefits: ['Calma iperattivazione', 'Riduce agitazione', 'Rilassamento graduale', 'Controllo impulsi']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.iperattivazione.benefits')
   },
   {
     id: 'triste',
@@ -86,7 +96,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '40Hz + 10Hz',
     icon: Zap,
     color: 'bg-azure-700',
-    benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.umoreBasso.benefits')
   },
   {
     id: 'aggressivo',
@@ -97,7 +107,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '432Hz + 8Hz',
     icon: Shield,
     color: 'bg-azure-800',
-    benefits: ['Riduce aggressività', 'Controllo emotivo', 'Calma reattività', 'Gestione impulsi']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.controlloComportamentale.benefits')
   },
   {
     id: 'stressato',
@@ -108,7 +118,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '528Hz + 6Hz',
     icon: ShieldCheck,
     color: 'bg-azure-900',
-    benefits: ['Riduce cortisolo', 'Rilascia tensioni', 'Equilibra sistema nervoso', 'Recupero post-stress']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.stressAcuto.benefits')
   },
   {
     id: 'pauroso',
@@ -119,7 +129,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
     frequency: '111Hz + 8Hz',
     icon: Moon,
     color: 'bg-azure-600',
-    benefits: ['Aumenta sicurezza', 'Riduce paure', 'Stabilizza emozioni', 'Supporto psicologico']
+    benefits: getBenefitsArray(t, 'aiMusicTherapy.sessions.supportoEmotivo.benefits')
   }
 ];
 
