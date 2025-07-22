@@ -54,70 +54,70 @@ interface TherapySession {
 
 const THERAPY_CATEGORIES: TherapySession[] = [
   {
-    id: 'sleep',
-    category: 'Sleep Induction',
-    title: 'Delta Wave Sleep - 0.5-4Hz',
-    duration: 45,
-    description: 'Onde Delta binaurali per indurre sonno profondo e riparatore. Frequenza scientificamente provata per il riposo',
-    frequency: '80Hz + 2Hz',
-    icon: Moon,
-    color: 'bg-azure-500',
-    benefits: ['Induce sonno profondo', 'Rigenerazione cellulare', 'Riduce cortisolo notturno', 'Migliora memoria consolidation']
-  },
-  {
-    id: 'anxiety',
-    category: 'Anxiety Relief',
-    title: 'Alpha Calm - 8-12Hz',
-    duration: 30,
-    description: 'Onde Alpha per promuovere rilassamento cosciente e ridurre ansia. Utilizzate in studi veterinari',
-    frequency: '100Hz + 10Hz',
+    id: 'ansioso',
+    category: 'Ansia e Stress',
+    title: 'Calma Profonda - 528Hz',
+    duration: 25,
+    description: 'Frequenze specifiche per ridurre ansia e stress. Terapia per animali ansiosi',
+    frequency: '528Hz + 8Hz',
     icon: Heart,
-    color: 'bg-azure-600',
+    color: 'bg-azure-500',
     benefits: ['Riduce ansia e stress', 'Abbassa frequenza cardiaca', 'Rilassamento muscolare', 'Equilibrio neurochimico']
   },
   {
-    id: 'energy',
-    category: 'Energy Boost',
-    title: 'Beta Activation - 13-30Hz',
+    id: 'agitato',
+    category: 'Iperattivazione',
+    title: 'Relax Guidato - 10-13Hz',
     duration: 20,
-    description: 'Onde Beta per stimolare vigilanza e attivazione. Frequenze energizzanti per animali letargici',
-    frequency: '200Hz + 20Hz',
+    description: 'Sequenze per calmare iperattivazione e agitazione negli animali',
+    frequency: '10-13Hz',
+    icon: Waves,
+    color: 'bg-azure-600',
+    benefits: ['Calma iperattivazione', 'Riduce agitazione', 'Rilassamento graduale', 'Controllo impulsi']
+  },
+  {
+    id: 'triste',
+    category: 'Umore Basso',
+    title: 'Energia Positiva - 40Hz',
+    duration: 15,
+    description: 'Stimolazione dolce per migliorare umore depresso e letargia',
+    frequency: '40Hz + 10Hz',
     icon: Zap,
     color: 'bg-azure-700',
-    benefits: ['Aumenta vigilanza', 'Stimola attività motoria', 'Migliora appetito', 'Promuove socializzazione']
+    benefits: ['Migliora umore', 'Aumenta energia', 'Stimola attività', 'Contrasta depressione']
   },
   {
-    id: 'focus',
-    category: 'Focus Enhancement',
-    title: 'Gamma Focus - 30-100Hz',
-    duration: 25,
-    description: 'Onde Gamma per migliorare concentrazione e apprendimento. Ideali per training e riabilitazione',
-    frequency: '40Hz',
-    icon: Focus,
-    color: 'bg-azure-800',
-    benefits: ['Migliora concentrazione', 'Facilita apprendimento', 'Riduce iperattività', 'Sincronizzazione neurale']
-  },
-  {
-    id: 'pain',
-    category: 'Pain Management',
-    title: 'Sollievo Dal Dolore - 10Hz',
-    duration: 35,
-    description: 'Frequenze specifiche per la gestione del dolore cronico negli animali domestici',
-    frequency: '111Hz + 10Hz',
+    id: 'aggressivo',
+    category: 'Controllo Comportamentale',
+    title: 'Calma e Controllo - 432Hz',
+    duration: 20,
+    description: 'Frequenze per ridurre aggressività e comportamenti reattivi',
+    frequency: '432Hz + 8Hz',
     icon: Shield,
-    color: 'bg-azure-900',
-    benefits: ['Riduce percezione dolore', 'Rilascia endorfine', 'Migliora mobilità', 'Supporto post-operatorio']
+    color: 'bg-azure-800',
+    benefits: ['Riduce aggressività', 'Controllo emotivo', 'Calma reattività', 'Gestione impulsi']
   },
   {
-    id: 'immune',
-    category: 'Immune Support',
-    title: 'Sistema Immunitario - 528Hz',
-    duration: 40,
-    description: 'Frequenza di riparazione DNA per supportare il sistema immunitario e la guarigione',
-    frequency: '528Hz',
+    id: 'stressato',
+    category: 'Stress Acuto',
+    title: 'Anti-Stress - 528Hz',
+    duration: 30,
+    description: 'Terapia per stress cronico e tensione accumulata',
+    frequency: '528Hz + 6Hz',
     icon: ShieldCheck,
+    color: 'bg-azure-900',
+    benefits: ['Riduce cortisolo', 'Rilascia tensioni', 'Equilibra sistema nervoso', 'Recupero post-stress']
+  },
+  {
+    id: 'pauroso',
+    category: 'Supporto Emotivo',
+    title: 'Sicurezza Interiore - 111Hz',
+    duration: 25,
+    description: 'Frequenze protettive per animali paurosi e insicuri',
+    frequency: '111Hz + 8Hz',
+    icon: Moon,
     color: 'bg-azure-600',
-    benefits: ['Supporta sistema immunitario', 'Accelera guarigione', 'Riparazione cellulare', 'Anti-infiammatorio naturale']
+    benefits: ['Aumenta sicurezza', 'Riduce paure', 'Stabilizza emozioni', 'Supporto psicologico']
   }
 ];
 
@@ -161,7 +161,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         console.log('🎵 Playlist data:', playlistData);
         
         // Verifica se l'emozione è negativa (solo per emozioni negative mostriamo playlist)
-        const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso', 'nervoso', 'irritato'];
+        const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'stressato', 'pauroso', 'depresso', 'nervoso', 'irritato', 'agitato'];
         const currentEmotion = playlistData.emotion?.toLowerCase() || '';
         const isNegativeEmotion = negativeEmotions.includes(currentEmotion);
         
@@ -423,13 +423,20 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       // Play - avvia audio IMMEDIATAMENTE con user gesture
       const startAudio = async () => {
         try {
-          console.log('Avvio riproduzione immediato...');
+          console.log('🎵 Avvio riproduzione audio...');
           
           // Ferma audio precedente se presente
           stopAudio();
           
-          // Crea AudioContext immediatamente
+          // Crea AudioContext immediatamente - CRUCIALE per funzionamento
           const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          
+          // Resume context se sospeso (richiesto dai browser)
+          if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+            console.log('🎵 AudioContext resumed');
+          }
+          
           audioContextRef.current = audioContext;
         
         // Estrai frequenza dalla sessione con parsing migliorato
