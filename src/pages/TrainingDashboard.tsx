@@ -359,6 +359,15 @@ const TrainingDashboard: React.FC = () => {
       });
 
       // SE È L'ULTIMO ESERCIZIO DEL GIORNO (esercizio 3), PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
+      console.log('🚨 CONTROLLO CAMBIO GIORNO:', {
+        completedCount,
+        exercisesPerDay,
+        isLastExercise: completedCount === exercisesPerDay,
+        currentDay,
+        protocolCurrentDay: protocol.current_day,
+        isLastDay: protocol.current_day >= protocol.duration_days
+      });
+      
       if (completedCount === exercisesPerDay) {
         const isLastDay = protocol.current_day >= protocol.duration_days;
         
