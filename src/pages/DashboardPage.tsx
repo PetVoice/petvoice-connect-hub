@@ -26,22 +26,22 @@ const DashboardPage: React.FC = () => {
 
   const quickActions = [
     {
-      title: t('navigation.analysis'),
-      description: t('dashboard.analysisDesc'),
+      title: 'Analisi',
+      description: 'Analizza il comportamento del tuo pet',
       icon: Microscope,
       onClick: () => navigate('/analysis'),
       color: 'from-primary to-primary/80'
     },
     {
-      title: t('navigation.diary'),
-      description: t('dashboard.diaryDesc'),
+      title: 'Diario',
+      description: 'Monitora la salute quotidiana',
       icon: PawPrint,
       onClick: () => navigate('/diary'),
       color: 'from-primary/80 to-primary/60'
     },
     {
-      title: t('navigation.calendar'),
-      description: t('dashboard.calendarDesc'),
+      title: 'Calendario',
+      description: 'Gestisci appuntamenti ed eventi',
       icon: Calendar,
       onClick: () => navigate('/calendar'),
       color: 'from-primary/60 to-primary/40'
@@ -53,10 +53,10 @@ const DashboardPage: React.FC = () => {
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          {t('dashboard.welcome')}
+          Benvenuto su PetCare AI
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          {t('dashboard.welcomeDesc')}
+          Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
         </p>
       </div>
 
@@ -85,10 +85,10 @@ const DashboardPage: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-foreground" />
-            {t('dashboard.quickActions')}
+            Azioni Rapide
           </CardTitle>
           <CardDescription>
-            {t('dashboard.quickActionsDesc')}
+            Accedi rapidamente alle funzionalità principali
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -117,41 +117,41 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">{t('dashboard.registeredPets')}</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Pet Registrati</CardTitle>
             <PawPrint className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pets.length}</div>
             <p className="text-xs text-muted-foreground">
               {pets.length === 1 ? 
-                `1 ${t('dashboard.petInFamily')}` : 
-                `${pets.length} ${t('dashboard.petsInFamily')}`}
+                '1 pet nella famiglia' : 
+                `${pets.length} pet nella famiglia`}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">{t('dashboard.healthStatus')}</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Stato Salute</CardTitle>
             <Heart className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{t('dashboard.healthExcellent')}</div>
+            <div className="text-2xl font-bold text-primary">Eccellente</div>
             <p className="text-xs text-muted-foreground">
-              {t('dashboard.allPetsHealthy')}
+              Tutti i pet sono in salute
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">{t('dashboard.moodTrend')}</CardTitle>
+            <CardTitle className="text-sm font-medium text-foreground">Trend Umore</CardTitle>
             <TrendingUp className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">+15%</div>
             <p className="text-xs text-muted-foreground">
-              {t('dashboard.improvementThisWeek')}
+              Miglioramento questa settimana
             </p>
           </CardContent>
         </Card>
@@ -164,9 +164,9 @@ const DashboardPage: React.FC = () => {
             <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <PawPrint className="h-6 w-6 text-foreground" />
             </div>
-            <CardTitle>{t('pets.noPets')}</CardTitle>
+            <CardTitle>Nessun pet aggiunto</CardTitle>
             <CardDescription>
-              {t('pets.noPetsDesc')}
+              Aggiungi il tuo primo pet per iniziare
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
@@ -178,7 +178,7 @@ const DashboardPage: React.FC = () => {
               data-guide="pet-selector"
             >
               <Plus className="h-4 w-4 mr-2" />
-              {t('pets.addNew')}
+              Aggiungi Pet
             </Button>
           </CardContent>
         </Card>

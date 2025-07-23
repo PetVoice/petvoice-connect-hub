@@ -567,7 +567,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 10,
-      stage: `${t('analysis.processing.uploadingFiles')} ${current}/${total}...`,
+      stage: `Caricamento file ${current}/${total}...`,
       currentFile: file.name
     }));
 
@@ -634,29 +634,32 @@ const AnalysisPage: React.FC = () => {
 
     // Use translated insights based on emotion
     const getRandomInsight = (emotion: string) => {
-      const insights = [
-        t(`analysis.mockData.insights.${emotion}.1`),
-        t(`analysis.mockData.insights.${emotion}.2`),
-        t(`analysis.mockData.insights.${emotion}.3`),
-        t(`analysis.mockData.insights.${emotion}.4`)
-      ].filter(insight => insight !== `analysis.mockData.insights.${emotion}.1` && 
-                         insight !== `analysis.mockData.insights.${emotion}.2` &&
-                         insight !== `analysis.mockData.insights.${emotion}.3` &&
-                         insight !== `analysis.mockData.insights.${emotion}.4`);
+      const insightsByEmotion: Record<string, string[]> = {
+        felice: ['Comportamento gioioso con buona socializzazione', 'Stato emotivo positivo e rilassato', 'Energia equilibrata e benessere generale'],
+        calmo: ['Postura rilassata e respirazione regolare', 'Stato di tranquillità e comfort', 'Equilibrio emotivo ottimale'],
+        ansioso: ['Segnali di stress e tensione emotiva', 'Comportamento ansioso con possibili trigger', 'Necessità di rassicurazione e comfort'],
+        eccitato: ['Energia elevata e stimolazione positiva', 'Comportamento vivace e reattivo', 'Buona motivazione e coinvolgimento'],
+        triste: ['Stato emotivo depresso con energia ridotta', 'Possibili segnali di malinconia', 'Necessità di supporto emotivo'],
+        aggressivo: ['Comportamento difensivo o territoriale', 'Segnali di irritabilità e tensione', 'Necessità di gestione comportamentale'],
+        giocoso: ['Energia positiva orientata al gioco', 'Comportamento sociale e interattivo', 'Stato emotivo sano e dinamico']
+      };
       
-      return insights.length > 0 ? insights[Math.floor(Math.random() * insights.length)] : 
-             t('analysis.mockData.insights.default');
+      const insights = insightsByEmotion[emotion] || ['Comportamento da monitorare attentamente'];
+      return insights[Math.floor(Math.random() * insights.length)];
     };
 
     const getRandomRecommendations = (emotion: string) => {
-      const recommendations = [
-        t(`analysis.mockData.recommendations.${emotion}.1`),
-        t(`analysis.mockData.recommendations.${emotion}.2`),
-        t(`analysis.mockData.recommendations.${emotion}.3`),
-        t(`analysis.mockData.recommendations.${emotion}.4`),
-        t(`analysis.mockData.recommendations.${emotion}.5`)
-      ].filter(rec => !rec.startsWith('analysis.mockData.recommendations.'));
+      const recommendationsByEmotion: Record<string, string[]> = {
+        felice: ['Continua con le attività che promuovono questo stato positivo', 'Mantieni la routine attuale', 'Rinforza i comportamenti positivi con premi'],
+        calmo: ['Preserva l\'ambiente tranquillo', 'Mantieni orari regolari per i pasti e il riposo', 'Continua con le attività rilassanti'],
+        ansioso: ['Crea un ambiente sicuro e prevedibile', 'Utilizza tecniche di rilassamento', 'Consulta un veterinario comportamentale', 'Riduci i fattori di stress ambientali'],
+        eccitato: ['Incanalare l\'energia con attività strutturate', 'Fornire stimolazione mentale adeguata', 'Mantenere routine di esercizio regolare'],
+        triste: ['Aumenta le interazioni positive', 'Consulta un veterinario per escludere problemi fisici', 'Incrementa attività stimolanti ma dolci'],
+        aggressivo: ['Consulta immediatamente un esperto comportamentale', 'Evita situazioni scatenanti', 'Implementa protocolli di sicurezza'],
+        giocoso: ['Fornire giocattoli appropriati', 'Organizzare sessioni di gioco regolari', 'Socializzazione controllata con altri animali']
+      };
       
+      const recommendations = recommendationsByEmotion[emotion] || ['Monitora attentamente il comportamento'];
       const count = Math.floor(Math.random() * 3) + 2;
       return recommendations.slice(0, count);
     };
@@ -775,8 +778,8 @@ const AnalysisPage: React.FC = () => {
   const handleTextAnalysis = async (description: string) => {
     if (!selectedPet) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.selectPet'),
+        title: 'Qualcosa è andato storto',
+        description: 'Seleziona un pet per continuare',
         variant: "destructive"
       });
       return;
@@ -785,7 +788,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing({
       isProcessing: true,
       progress: 0,
-      stage: t('analysis.processing.analyzing')
+      stage: 'Analisi in corso'
     });
 
     try {
@@ -866,14 +869,14 @@ const AnalysisPage: React.FC = () => {
         setProcessing(prev => ({
           ...prev,
           progress: 100,
-          stage: t('analysis.processing.completed')
+          stage: 'Completato'
         }));
         
         await loadAnalyses();
         
         showToast({
-          title: t('analysis.success.analysisCompleted'),
-          description: t('analysis.success.textAnalyzed'),
+          title: 'Analisi completata',
+          description: 'Analisi del testo completata con successo',
         });
         
         return;
