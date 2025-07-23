@@ -69,11 +69,18 @@ const AppSidebar: React.FC = () => {
               <SidebarMenuButton asChild isActive={isActive(item.url)}>
                 <NavLink 
                   to={item.url} 
-                  className={`flex items-center px-3 py-2 rounded-lg group ${
+                  className={`flex items-center px-3 py-2 rounded-lg group relative ${
                     isActive(item.url)
-                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02]'
-                      : 'text-muted-foreground transition-smooth hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] hover:transform'
+                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] transition-all duration-200'
                   }`}
+                  style={isActive(item.url) ? {
+                    backgroundColor: 'hsl(var(--primary) / 0.1)',
+                    color: 'hsl(var(--primary))',
+                    boxShadow: 'var(--shadow-glow)',
+                    transform: 'scale(1.02)',
+                    borderLeft: '2px solid hsl(var(--primary))'
+                  } : {}}
                 >
                   <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
                   {(!isCollapsed || isMobile) && (
