@@ -1557,7 +1557,21 @@
       "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali",
       "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.": "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.",
       "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.": "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale."
+  },
+  "protocols": {
+    "titles": {
+      "Rieducazione Alimentare Comportamentale": "Rieducazione Alimentare Comportamentale",
+      "Ottimizzazione Ciclo Sonno-Veglia": "Ottimizzazione Ciclo Sonno-Veglia",
+      "Superare Fobie e Paure Specifiche": "Superare Fobie e Paure Specifiche",
+      "Stop Comportamenti Distruttivi": "Stop Comportamenti Distruttivi",
+      "Riattivazione Energia e Motivazione": "Riattivazione Energia e Motivazione",
+      "Socializzazione Progressiva": "Socializzazione Progressiva",
+      "Controllo Aggressività Reattiva": "Controllo Aggressività Reattiva",
+      "Gestione Ansia da Separazione": "Gestione Ansia da Separazione",
+      "Gestione Gelosia e Possessività": "Gestione Gelosia e Possessività",
+      "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione"
     }
+  }
   },
   "buttons": {
     "basic": {
