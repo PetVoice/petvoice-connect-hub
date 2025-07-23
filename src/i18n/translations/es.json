@@ -1730,11 +1730,21 @@
     },
     "exercises": {
       "titles": {
+        "Identificazione Threshold Sicurezza": "Identificación Threshold Seguridad",
+        "Controllo Impulsi Base": "Control de Impulsos Básico",
+        "Desensibilizzazione Trigger": "Desensibilización de Desencadenantes",
+        "Gestione Situazioni Critiche": "Gestión de Situaciones Críticas",
+        "Rinforzo Autocontrollo": "Refuerzo del Autocontrol",
         "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
         "Confidence Building con Handler": "Construcción de Confianza con Cuidador",
         "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
       },
       "descriptions": {
+        "Determinare la distanza minima sicura dai trigger prima che inizi arousal. FONDAMENTALE per tutti gli esercizi successivi.": "Determinar la distancia mínima segura de los desencadenantes antes de que comience la excitación. FUNDAMENTAL para todos los ejercicios posteriores.",
+        "Stabilire controllo base degli impulsi attraverso esercizi di attesa e rilascio controllato": "Establecer control básico de impulsos a través de ejercicios de espera y liberación controlada",
+        "Ridurre gradualmente la reattività dell'animale ai trigger specifici identificati": "Reducir gradualmente la reactividad del animal a los desencadenantes específicos identificados",
+        "Preparare strategie di gestione per situazioni ad alto rischio di escalation": "Preparar estrategias de manejo para situaciones de alto riesgo de escalada",
+        "Consolidare l'autocontrollo attraverso rinforzi progressivi in contesti sempre più sfidanti": "Consolidar el autocontrol a través de refuerzos progresivos en contextos cada vez más desafiantes",
         "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales.",
         "Valutazione completa della casa per identificare e rimuovere oggetti pericolosi che potrebbero scatenare comportamenti distruttivi.": "Evaluación completa de la casa para identificar y eliminar objetos peligrosos que podrían desencadenar comportamientos destructivos.",
         "Modificazione dell'ambiente domestico per prevenire comportamenti distruttivi attraverso barriere fisiche e riorganizzazione degli spazi.": "Modificación del ambiente doméstico para prevenir comportamientos destructivos a través de barreras físicas y reorganización de espacios.",
@@ -1750,6 +1760,24 @@
         "Creazione di uno spazio dedicato alla masticazione con oggetti appropriati per canalizzare istinti naturali.": "Creación de un espacio dedicado a la masticación con objetos apropiados para canalizar instintos naturales."
       },
       "instructions": {
+        "Osserva l'animale e identifica la distanza minima da cui inizia a mostrare segnali di arousal": "Observa al animal e identifica la distancia mínima desde la cual comienza a mostrar señales de excitación",
+        "Segna questa distanza come 'threshold di sicurezza' - lavorerai sempre oltre questa soglia": "Marca esta distancia como 'threshold de seguridad' - siempre trabajarás más allá de este umbral",
+        "Testa diversi trigger (rumori, altri animali, persone) per mappare tutti i threshold": "Prueba diferentes desencadenantes (ruidos, otros animales, personas) para mapear todos los thresholds",
+        "Documenta tutto per creare un piano di desensibilizzazione personalizzato": "Documenta todo para crear un plan de desensibilización personalizado",
+        "FONDAMENTALE: Non avvicinarsi mai sotto il threshold - causerebbe regressione": "FUNDAMENTAL: Nunca acercarse por debajo del threshold - causaría regresión",
+        "Inizia con l'animale calmo e rilassato": "Comienza con el animal tranquilo y relajado",
+        "Usa comandi di base come SEDUTO, RESTA per stabilire controllo": "Usa comandos básicos como SENTADO, QUIETO para establecer control",
+        "Aumenta gradualmente la difficoltà degli esercizi di controllo": "Aumenta gradualmente la dificultad de los ejercicios de control",
+        "Premia immediatamente ogni successo per rinforzare l'autocontrollo": "Premia inmediatamente cada éxito para reforzar el autocontrol",
+        "Interrompi se vedi segnali di stress o eccitazione eccessiva": "Interrumpe si ves señales de estrés o excitación excesiva",
+        "Presenta trigger a intensità molto bassa, ben oltre la distanza threshold": "Presenta desencadenantes a intensidad muy baja, bien más allá de la distancia threshold",
+        "Associa la presenza del trigger con premi e esperienze positive": "Asocia la presencia del desencadenante con premios y experiencias positivas",
+        "Riduci gradualmente distanza/intensità solo se l'animale rimane calmo": "Reduce gradualmente distancia/intensidad solo si el animal permanece tranquilo",
+        "Se mostra reattività, torna immediatamente al livello precedente": "Si muestra reactividad, regresa inmediatamente al nivel anterior",
+        "Pianifica strategie specifiche per situazioni ad alto rischio": "Planifica estrategias específicas para situaciones de alto riesgo",
+        "Prepara piani di emergenza e vie di fuga": "Prepara planes de emergencia y vías de escape",
+        "Addestra segnali di redirezione per interrompere escalation": "Entrena señales de redirección para interrumpir escaladas",
+        "Pratica gestione in ambienti controllati prima di situazioni reali": "Practica manejo en ambientes controlados antes de situaciones reales",
         "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
         "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
         "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
@@ -1818,6 +1846,11 @@
       }
     },
     "materials": {
+      "metro per misurazioni": "metro para mediciones",
+      "blocco note osservazioni": "bloc de notas para observaciones",
+      "timer cronometro": "timer cronómetro",
+      "marcatori colorati": "marcadores de colores",
+      "mappa delle distanze": "mapa de distancias",
       "snack premio altissimo valore": "premios de muy alto valor",
       "giocattoli sociali": "juguetes sociales",
       "guinzaglio lungo": "correa larga",
