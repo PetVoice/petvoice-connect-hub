@@ -533,7 +533,7 @@ export const AITrainingHub: React.FC = () => {
         // Reindirizza immediatamente alla dashboard del protocollo resettato
         setTimeout(() => {
           navigate(`/training/dashboard/${protocol.id}`);
-        }, 500);
+        }, 100);
       } else {
         // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
