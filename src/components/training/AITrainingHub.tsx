@@ -506,6 +506,7 @@ export const AITrainingHub: React.FC = () => {
           navigate(`/training/dashboard/${createdProtocol.id}`);
         }, 500);
       } else if (protocol.status === 'completed') {
+        console.log('🔄 RIFAI - Resetting completed protocol:', protocol.id, protocol.title);
         // Se è un protocollo completato, resettalo completamente
         await updateProtocol.mutateAsync({
           id: protocol.id,
@@ -533,9 +534,9 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Cambia immediatamente alla vista attivi e poi naviga alla dashboard
-        setCurrentView('active');
-        navigate(`/training/dashboard/${protocol.id}`);
+        // Naviga direttamente senza cambiare lo state locale (replace evita conflitti URL)
+        console.log('🚀 RIFAI - Navigating to dashboard:', `/training/dashboard/${protocol.id}`);
+        navigate(`/training/dashboard/${protocol.id}`, { replace: true });
       } else {
         // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
