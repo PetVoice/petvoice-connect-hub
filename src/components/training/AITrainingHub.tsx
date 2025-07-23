@@ -99,7 +99,10 @@ export const AITrainingHub: React.FC = () => {
 
   // Force refresh on mount to ensure data is loaded
   React.useEffect(() => {
-    console.log('Protocols loaded:', protocols.length);
+    console.log('🎯 AITrainingHub mounted!');
+    console.log('📋 Protocols loaded:', protocols.length);
+    console.log('⏳ Protocols loading:', protocolsLoading);
+    console.log('📊 Sample protocol data:', protocols.slice(0, 1));
     if (protocols.length === 0 && !protocolsLoading) {
       console.log('Forcing protocol refetch...');
       refetchProtocols();
