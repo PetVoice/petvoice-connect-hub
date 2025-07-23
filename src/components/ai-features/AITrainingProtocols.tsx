@@ -105,8 +105,22 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
         progress_percentage: typeof protocol.progress_percentage === 'string' 
           ? parseInt(protocol.progress_percentage) || 0 
           : protocol.progress_percentage || 0,
-        triggers: Array.isArray(protocol.triggers) ? protocol.triggers : [],
-        required_materials: Array.isArray(protocol.required_materials) ? protocol.required_materials : []
+        triggers: Array.isArray(protocol.triggers) ? protocol.triggers.map(t => String(t)) : [],
+        required_materials: Array.isArray(protocol.required_materials) ? protocol.required_materials.map(m => String(m)) : [],
+        category: protocol.category || 'comportamento',
+        description: protocol.description || '',
+        title: protocol.title || '',
+        difficulty: protocol.difficulty || 'medio', 
+        target_behavior: protocol.target_behavior || '',
+        community_usage: typeof protocol.community_usage === 'string' 
+          ? parseInt(protocol.community_usage) || 0 
+          : protocol.community_usage || 0,
+        success_rate: protocol.success_rate || 0,
+        community_rating: protocol.community_rating || 0,
+        ai_generated: protocol.ai_generated || false,
+        is_public: protocol.is_public || false,
+        veterinary_approved: protocol.veterinary_approved || false,
+        mentor_recommended: protocol.mentor_recommended || false
       })));
     } catch (error) {
       console.error('Errore nel caricamento protocolli:', error);

@@ -13,7 +13,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -37,7 +37,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   onStartRecording,
   autoAnalyze = false // Default false per retrocompatibilità
 }) => {
-  const { t } = useTranslation();
+  
   const [recordingState, setRecordingState] = useState<RecordingState>({
     isRecording: false,
     isPaused: false,

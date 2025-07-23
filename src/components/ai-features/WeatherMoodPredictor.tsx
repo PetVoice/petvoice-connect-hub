@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface WeatherData {
   condition: string;
@@ -54,7 +54,7 @@ interface WeatherMoodPredictorProps {
 }
 
 export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredictorProps) => {
-  const { t } = useTranslation();
+  
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [predictions, setPredictions] = useState<BehaviorPrediction[]>([]);
   const [playlist, setPlaylist] = useState<MoodPlaylist | null>(null);

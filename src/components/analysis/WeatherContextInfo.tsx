@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Cloud, Thermometer, Droplets, Wind, Volume2, VolumeX, Car, Users } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface WeatherContextInfoProps {
   analysisDate: string;
@@ -27,7 +27,7 @@ interface EnvironmentalData {
 }
 
 const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate }) => {
-  const { language } = useTranslation();
+  const language = 'it';
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
   const [loading, setLoading] = useState(true);

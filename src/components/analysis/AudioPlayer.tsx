@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square, Volume2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface AudioPlayerProps {
   storagePath: string;
@@ -13,7 +13,7 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, className }) => {
-  const { language } = useTranslation();
+  const language = 'it';
   
   // Simple translation function just for this component
   const getRecordingLabel = () => {

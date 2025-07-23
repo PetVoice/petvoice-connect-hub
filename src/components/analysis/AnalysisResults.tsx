@@ -29,7 +29,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 // Funzione per tradurre le emozioni
 const getEmotionTranslation = (emotion: string, language: string = 'it') => {
@@ -302,7 +302,7 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
-  const { t, language } = useTranslation();
+  const language = 'it';
   const { showToast } = useTranslatedToast();
   const { selectedPet } = usePets();
 

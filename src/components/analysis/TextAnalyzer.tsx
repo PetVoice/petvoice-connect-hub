@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface TextAnalyzerProps {
   onTextSubmitted: (description: string) => void;
@@ -23,7 +23,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
   onTextSubmitted,
   isProcessing = false
 }) => {
-  const { t } = useTranslation();
+  
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
 

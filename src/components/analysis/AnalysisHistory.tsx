@@ -22,7 +22,7 @@ import {
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface AnalysisData {
   id: string;
@@ -170,7 +170,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   onAnalysisDelete,
   petName
 }) => {
-  const { t, language } = useTranslation();
+  const language = 'it';
 
   // Helper function for component translations
   const getText = (key: string) => {

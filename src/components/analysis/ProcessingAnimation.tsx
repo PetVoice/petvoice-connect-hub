@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Brain, Upload, Zap, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface ProcessingAnimationProps {
   progress: number;
@@ -16,7 +16,7 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
   stage,
   currentFile
 }) => {
-  const { t } = useTranslation();
+  
 
   const getStageIcon = () => {
     if (stage.includes('Caricamento') || stage.includes('Uploading') || stage.includes('Subiendo')) {

@@ -13,7 +13,7 @@ import {
   File
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useTranslation';
+
 
 interface FileUploaderProps {
   onFilesSelected: (files: FileList) => void;
@@ -47,7 +47,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   acceptedTypes = DEFAULT_ACCEPTED_TYPES,
   autoAnalyzeAudio = false // Default false per retrocompatibilità
 }) => {
-  const { t } = useTranslation();
+  
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
