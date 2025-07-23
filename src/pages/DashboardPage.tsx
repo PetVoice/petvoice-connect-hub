@@ -75,7 +75,6 @@ const DashboardPage: React.FC = () => {
                 <h2 className="text-2xl">{selectedPet.name}</h2>
                 <p className="text-muted-foreground">
                   {(() => {
-                    console.log('selectedPet.type:', selectedPet.type); // Debug
                     const typeMap: { [key: string]: string } = {
                       'Cane': 'dog',
                       'Gatto': 'cat',
@@ -85,8 +84,7 @@ const DashboardPage: React.FC = () => {
                       'Coniglio': 'rabbit',
                       'Altro': 'other'
                     };
-                    const translationKey = typeMap[selectedPet.type] || 'dog'; // fallback to dog
-                    console.log('translationKey:', translationKey); // Debug
+                    const translationKey = typeMap[selectedPet.type] || 'dog';
                     return t(`pets.types.${translationKey}`, selectedPet.type);
                   })()}
                   {selectedPet.breed && ` - ${selectedPet.breed}`}
