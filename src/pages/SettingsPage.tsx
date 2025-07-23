@@ -391,14 +391,14 @@ const SettingsPage: React.FC = () => {
 
         if (error) throw error;
         
-        toast({
+        showToast({
           title: "Profilo aggiornato",
           description: "Le modifiche sono state salvate con successo."
         });
         setIsEditing(false);
       }
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile salvare le modifiche. Riprova.",
         variant: "destructive"
@@ -449,12 +449,12 @@ const SettingsPage: React.FC = () => {
       if (error) throw error;
       
       setEmailVerificationSent(true);
-      toast({
+      showToast({
         title: "Email di verifica inviata",
         description: "Controlla la tua nuova email per confermare il cambio."
       });
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile cambiare email. Riprova.",
         variant: "destructive"
@@ -470,12 +470,12 @@ const SettingsPage: React.FC = () => {
       // Invalidate all sessions except current
       await supabase.auth.signOut({ scope: 'others' });
       
-      toast({
+      showToast({
         title: "Password aggiornata",
         description: "Tutte le altre sessioni sono state disconnesse per sicurezza."
       });
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile cambiare password. Riprova.",
         variant: "destructive"
@@ -492,12 +492,12 @@ const SettingsPage: React.FC = () => {
         sessions: prev.sessions.filter(s => s.id !== sessionId)
       }));
       
-      toast({
+      showToast({
         title: "Sessione disconnessa",
         description: "La sessione è stata terminata con successo."
       });
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile disconnettere la sessione.",
         variant: "destructive"
@@ -514,12 +514,12 @@ const SettingsPage: React.FC = () => {
         sessions: prev.sessions.filter(s => s.isCurrent)
       }));
       
-      toast({
+      showToast({
         title: "Sessioni disconnesse",
         description: "Tutte le altre sessioni sono state terminate."
       });
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile disconnettere le sessioni.",
         variant: "destructive"
@@ -529,7 +529,7 @@ const SettingsPage: React.FC = () => {
 
   const handleSetup2FA = async () => {
     try {
-      toast({
+      showToast({
         title: "2FA in configurazione",
         description: "Avvio della configurazione dell'autenticazione a due fattori..."
       });
@@ -541,13 +541,13 @@ const SettingsPage: React.FC = () => {
           twoFactorEnabled: true
         }));
         
-        toast({
+        showToast({
           title: "2FA attivato",
           description: "L'autenticazione a due fattori è stata configurata con successo."
         });
       }, 2000);
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile configurare 2FA.",
         variant: "destructive"
@@ -557,7 +557,7 @@ const SettingsPage: React.FC = () => {
 
   const handleDataExport = async (format: 'json' | 'pdf' | 'csv') => {
     try {
-      toast({
+      showToast({
         title: "Esportazione avviata",
         description: `Raccolta di tutti i tuoi dati in corso...`
       });
@@ -737,14 +737,14 @@ Per il backup completo utilizzare il formato JSON.
           return total;
         }, 0) - 1; // -1 per escludere export_info
         
-        toast({
+        showToast({
           title: "Esportazione completata",
           description: `${totalRecords} record esportati con successo. File salvato: ${fileName}`
         });
       }
     } catch (error) {
       console.error('Errore durante l\'esportazione:', error);
-      toast({
+        showToast({
         title: "Errore",
         description: "Impossibile esportare i dati. Controlla la console per dettagli.",
         variant: "destructive"
@@ -774,7 +774,7 @@ Per il backup completo utilizzare il formato JSON.
 
           if (error) throw error;
 
-          toast({
+          showToast({
             title: "Preferenza aggiornata",
             description: "Le tue preferenze privacy sono state salvate."
           });
@@ -785,7 +785,7 @@ Per il backup completo utilizzare il formato JSON.
       }
     } catch (error) {
       console.error('Error updating privacy setting:', error);
-      toast({
+        showToast({
         title: "Errore",
         description: "Impossibile salvare la preferenza. Riprova.",
         variant: "destructive"
@@ -796,7 +796,7 @@ Per il backup completo utilizzare il formato JSON.
   const handleDataImport = async (format: 'json' | 'pdf' | 'csv') => {
     try {
       if (format !== 'json') {
-        toast({
+        showToast({
           title: "Formato non supportato",
           description: "L'importazione è supportata solo per file JSON creati dall'export di PetVet.",
           variant: "destructive"
@@ -814,7 +814,7 @@ Per il backup completo utilizzare il formato JSON.
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
-              toast({
+              showToast({
                 title: "Importazione avviata",
                 description: "Analisi del file di backup in corso..."
               });
@@ -844,14 +844,14 @@ Continuare?
               `);
               
               if (!confirmed) {
-                toast({
+                showToast({
                   title: "Importazione annullata",
                   description: "Nessun dato è stato modificato."
                 });
                 return;
               }
               
-              toast({
+              showToast({
                 title: "Importazione in corso",
                 description: "Ripristino dei dati in corso... NON chiudere la pagina."
               });
@@ -1036,13 +1036,13 @@ Continuare?
               // (pet_analyses, pet_insurance, etc.)
               
               if (errors > 0) {
-                toast({
+                showToast({
                   title: "Importazione completata con errori",
                   description: `${importedTables} tabelle importate, ${errors} errori. Controlla la console per dettagli.`,
                   variant: "destructive"
                 });
               } else {
-                toast({
+                showToast({
                   title: "Importazione completata",
                   description: `Tutti i dati sono stati ripristinati con successo. ${importedTables} tabelle importate.`
                 });
@@ -1055,7 +1055,7 @@ Continuare?
               
             } catch (error) {
               console.error('Errore durante l\'importazione:', error);
-              toast({
+              showToast({
                 title: "Errore",
                 description: `Impossibile importare i dati: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`,
                 variant: "destructive"
@@ -1068,7 +1068,7 @@ Continuare?
       
       input.click();
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile avviare l'importazione.",
         variant: "destructive"
@@ -1114,14 +1114,14 @@ Continuare?
       
       if (confirmed) {
         // In a real implementation, this would call an edge function to delete all user data
-        toast({
+        showToast({
           title: "Account eliminato",
           description: "Il tuo account è stato eliminato con successo.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile eliminare l'account.",
         variant: "destructive"

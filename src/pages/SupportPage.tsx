@@ -264,7 +264,7 @@ const SupportPage: React.FC = () => {
 
   const createTicket = async () => {
     if (!newTicket.subject || !newTicket.description || !newTicket.category) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
@@ -276,7 +276,7 @@ const SupportPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
+        showToast({
           title: "Errore",
           description: "Devi essere autenticato per creare un ticket",
           variant: "destructive"
@@ -298,7 +298,7 @@ const SupportPage: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: "Ticket creato",
         description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
       });
@@ -326,7 +326,7 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error creating ticket:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile creare il ticket. Riprova più tardi.",
         variant: "destructive"
@@ -338,7 +338,7 @@ const SupportPage: React.FC = () => {
 
   const createFeatureRequest = async () => {
     if (!newFeatureRequest.title || !newFeatureRequest.description) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
@@ -350,7 +350,7 @@ const SupportPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
+        showToast({
           title: "Errore",
           description: "Devi essere autenticato per creare una richiesta",
           variant: "destructive"
@@ -369,7 +369,7 @@ const SupportPage: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: "Richiesta inviata",
         description: "La tua richiesta di funzionalità è stata inviata con successo."
       });
@@ -388,7 +388,7 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error creating feature request:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile inviare la richiesta. Riprova più tardi.",
         variant: "destructive"
@@ -427,7 +427,7 @@ const SupportPage: React.FC = () => {
           : f
       ));
 
-      toast({
+      showToast({
         title: isHelpful ? "Grazie per il feedback!" : "Grazie per il feedback",
         description: "Il tuo feedback ci aiuta a migliorare il supporto."
       });
@@ -440,7 +440,7 @@ const SupportPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
+        showToast({
           title: "Errore",
           description: "Devi essere autenticato per votare",
           variant: "destructive"
@@ -450,7 +450,7 @@ const SupportPage: React.FC = () => {
 
       // Verifica se l'utente ha già votato
       if (userVotes.includes(requestId)) {
-        toast({
+        showToast({
           title: "Già votato",
           description: "Hai già votato questa richiesta"
         });
@@ -486,13 +486,13 @@ const SupportPage: React.FC = () => {
       ));
       setUserVotes([...userVotes, requestId]);
 
-      toast({
+      showToast({
         title: "Voto aggiunto",
         description: "Grazie per aver votato questa richiesta di funzionalità!"
       });
     } catch (error) {
       console.error('Error voting feature request:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile aggiungere il voto",
         variant: "destructive"
@@ -562,7 +562,7 @@ const SupportPage: React.FC = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast({
+        showToast({
           title: "Errore",
           description: "Devi essere autenticato per commentare",
           variant: "destructive"
@@ -583,13 +583,13 @@ const SupportPage: React.FC = () => {
       setNewComment('');
       loadFeatureComments(selectedFeatureForComments);
       
-      toast({
+      showToast({
         title: "Commento aggiunto",
         description: "Il tuo commento è stato pubblicato!"
       });
     } catch (error) {
       console.error('Error adding comment:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile aggiungere il commento",
         variant: "destructive"

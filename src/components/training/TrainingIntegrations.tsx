@@ -74,7 +74,7 @@ export const TrainingIntegrations: React.FC = () => {
   };
 
   const handleAcceptSuggestion = (suggestion: IntegrationSuggestion) => {
-    toast({
+    showToast({
       title: "Protocollo Integrato Creato!",
       description: `"${suggestion.title}" è stato aggiunto ai tuoi protocolli attivi con dati da ${getSourceLabel(suggestion.source)}.`,
     });
@@ -83,7 +83,7 @@ export const TrainingIntegrations: React.FC = () => {
   };
 
   const handleViewIntegrationData = (source: string) => {
-    toast({
+    showToast({
       title: "Dati di Integrazione",
       description: `Visualizzazione dettagliata dei dati da ${getSourceLabel(source)}.`,
     });

@@ -455,7 +455,7 @@ const AnalysisPage: React.FC = () => {
       
       return newAnalyses;
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.loadError'),
         variant: "destructive"
@@ -506,7 +506,7 @@ const AnalysisPage: React.FC = () => {
 
   const handleFileUpload = async (files: FileList) => {
     if (!selectedPet) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.selectPet'),
         variant: "destructive"
@@ -544,12 +544,12 @@ const AnalysisPage: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }, 100);
       
-      toast({
+      showToast({
         title: t('analysis.success.analysisCompleted'),
         description: t('analysis.success.filesAnalyzed').replace('{{count}}', files.length.toString()),
       });
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: error.message || t('analysis.errors.analysisError'),
         variant: "destructive"
@@ -777,7 +777,7 @@ const AnalysisPage: React.FC = () => {
 
   const handleTextAnalysis = async (description: string) => {
     if (!selectedPet) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.selectPet'),
         variant: "destructive"
@@ -874,7 +874,7 @@ const AnalysisPage: React.FC = () => {
         
         await loadAnalyses();
         
-        toast({
+        showToast({
           title: t('analysis.success.analysisCompleted'),
           description: t('analysis.success.textAnalyzed'),
         });
@@ -949,7 +949,7 @@ const AnalysisPage: React.FC = () => {
       // Refresh analyses
       await loadAnalyses();
 
-      toast({
+      showToast({
         title: t('analysis.success.analysisCompleted'),
         description: t('analysis.success.textAnalyzed'),
       });
@@ -964,7 +964,7 @@ const AnalysisPage: React.FC = () => {
       
     } catch (error: any) {
       console.error('Text analysis error:', error);
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.analysisError'),
         variant: "destructive"
@@ -980,7 +980,7 @@ const AnalysisPage: React.FC = () => {
 
   const handleStartRecording = () => {
     if (!selectedPet) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.selectPet'),
         variant: "destructive"
@@ -1096,7 +1096,7 @@ const AnalysisPage: React.FC = () => {
 
   const handleBatchExport = async () => {
     if (selectedAnalyses.length === 0) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.history.exportSelected'),
         variant: "destructive"
@@ -1105,7 +1105,7 @@ const AnalysisPage: React.FC = () => {
     }
 
     try {
-      toast({
+      showToast({
         title: t('analysis.processing.generating'),
         description: `${t('analysis.processing.generating')} PDF per ${selectedAnalyses.length} ${t('analysis.history.analysisCount').replace('{{count}}', '')}`,
       });
@@ -1189,12 +1189,12 @@ const AnalysisPage: React.FC = () => {
         pdf.save(fileName);
       }
 
-      toast({
+      showToast({
         title: t('analysis.success.pdfGenerated'),
         description: t('analysis.success.dataExported'),
       });
     } catch (error) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.shareError'),
         variant: "destructive"
@@ -1204,7 +1204,7 @@ const AnalysisPage: React.FC = () => {
 
   const handleBatchCompare = async () => {
     if (selectedAnalyses.length < 2) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.modals.compare.selectTwo'),
         variant: "destructive"
@@ -1309,7 +1309,7 @@ const AnalysisPage: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: t('success.deleted'),
         description: `${selectedAnalyses.length} ${t('analysis.success.analysisDeleted')}`,
       });
@@ -1317,7 +1317,7 @@ const AnalysisPage: React.FC = () => {
       setSelectedAnalyses([]);
       loadAnalyses();
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.deleteError'),
         variant: "destructive"
@@ -1335,12 +1335,12 @@ const AnalysisPage: React.FC = () => {
       const fileName = `analisi-emotiva-${selectedPet?.name}-${format(new Date(analysis.created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
       pdf.save(fileName);
 
-      toast({
+      showToast({
         title: t('analysis.success.pdfGenerated'),
         description: `${t('common.loading')} ${fileName}`,
       });
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.shareError'),
         variant: "destructive"
@@ -1366,12 +1366,12 @@ const AnalysisPage: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: t('analysis.results.toasts.followUpScheduled'),
         description: `${t('analysis.results.toasts.reminderCreated').replace('{{date}}', format(followUpDate, 'dd/MM/yyyy'))}`,
       });
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.results.toasts.cannotCreateReminder'),
         variant: "destructive"
@@ -1398,7 +1398,7 @@ const AnalysisPage: React.FC = () => {
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: t('success.deleted'),
         description: t('analysis.success.analysisDeleted'),
       });
@@ -1406,7 +1406,7 @@ const AnalysisPage: React.FC = () => {
       setSelectedAnalyses(prev => prev.filter(id => id !== deleteConfirm.analysisId));
       loadAnalyses();
     } catch (error: any) {
-      toast({
+      showToast({
         title: t('errors.somethingWentWrong'),
         description: t('analysis.errors.deleteError'),
         variant: "destructive"
@@ -2294,12 +2294,12 @@ const AnalysisPage: React.FC = () => {
                                        `analysis-comparison-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
                       pdf.save(fileName);
                       
-                      toast({
+                      showToast({
                         title: t('analysis.success.pdfGenerated'),
                         description: `${t('analysis.success.dataExported')}: ${fileName}`,
                       });
                     } catch (error) {
-                      toast({
+                      showToast({
                         title: t('errors.somethingWentWrong'),
                         description: t('analysis.errors.shareError'),
                         variant: "destructive"

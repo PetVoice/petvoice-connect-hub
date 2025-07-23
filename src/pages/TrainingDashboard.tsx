@@ -115,7 +115,7 @@ const TrainingDashboard: React.FC = () => {
     };
     
     fetchProtocol();
-  }, [protocolId, navigate, toast]);
+  }, [protocolId, navigate, showTranslatedToast]);
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {

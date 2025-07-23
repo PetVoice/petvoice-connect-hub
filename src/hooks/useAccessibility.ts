@@ -135,17 +135,17 @@ export function useAccessibility() {
 
     // Mostra notifica per alcune impostazioni
     if (key === 'screenReader' && value) {
-      toast({
+      showToast({
         title: "Screen Reader Abilitato",
         description: "Il supporto per screen reader è ora attivo"
       });
     } else if (key === 'highContrast') {
-      toast({
+      showToast({
         title: value ? "Alto Contrasto Attivato" : "Alto Contrasto Disattivato",
         description: value ? "I colori sono ora ad alto contrasto" : "I colori sono tornati normali"
       });
     }
-  }, [toast]);
+  }, [showToast]);
 
   // Reset di tutte le impostazioni
   const resetSettings = useCallback(() => {
@@ -154,11 +154,11 @@ export function useAccessibility() {
       highContrast: false
     });
     
-    toast({
+    showToast({
       title: "Impostazioni Ripristinate",
       description: "Tutte le impostazioni di accessibilità sono state ripristinate"
     });
-  }, [toast]);
+  }, [showToast]);
 
   return {
     accessibility,
