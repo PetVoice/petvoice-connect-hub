@@ -73,6 +73,7 @@ import {
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { convertFromStandardProtocol, SupportedLanguage } from '@/utils/protocolLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -416,7 +417,16 @@ export const AITrainingHub: React.FC = () => {
           return;
         }
 
-        const newProtocol = {
+        // Ottieni la lingua dell'utente corrente
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('language')
+          .eq('user_id', user.id)
+          .single();
+        
+        const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+
+        const standardProtocol = {
           title: protocol.title,
           description: protocol.description,
           category: protocol.category,
@@ -444,9 +454,15 @@ export const AITrainingHub: React.FC = () => {
           share_code: null,
         };
 
+        // Converte nel formato multilingua
+        const newProtocol = convertFromStandardProtocol(standardProtocol, userLanguage);
+
         const { data: createdProtocol, error } = await supabase
           .from('ai_training_protocols')
-          .insert(newProtocol)
+          .insert({
+            ...newProtocol,
+            user_id: user.id,
+          })
           .select()
           .single();
 

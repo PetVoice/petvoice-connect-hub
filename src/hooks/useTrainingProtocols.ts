@@ -3,6 +3,12 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { 
+  MultiLanguageTrainingProtocol, 
+  convertToStandardProtocol, 
+  convertFromStandardProtocol,
+  SupportedLanguage 
+} from '@/utils/protocolLanguage';
 
 export interface TrainingProtocol {
   id: string;
@@ -137,23 +143,31 @@ export const useCompletedProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+      const statusColumn = `status_${userLanguage}`;
+
       // Query per ottenere protocolli completati unici (uno per titolo)
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'completed')
+        .eq(statusColumn, userLanguage === 'it' ? 'completato' : userLanguage === 'en' ? 'completed' : 'completado')
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
       // Filtra per mantenere solo un protocollo per titolo (il più recente)
-      const uniqueProtocols = data?.reduce((acc: any[], protocol: any) => {
+      const uniqueProtocols = data?.reduce((acc: any[], rawProtocol: any) => {
+        const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
         if (!acc.some(p => p.title === protocol.title)) {
-          acc.push({
-            ...protocol,
-            difficulty: protocol.difficulty as 'facile' | 'medio' | 'difficile'
-          });
+          acc.push(protocol);
         }
         return acc;
       }, []) || [];
@@ -200,6 +214,16 @@ export const useActiveProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+      const statusColumn = `status_${userLanguage}`;
+
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select(`
@@ -209,17 +233,20 @@ export const useActiveProtocols = () => {
           schedule:ai_training_schedules(*)
         `)
         .eq('user_id', user.id)
-        .in('status', ['active'])  // Solo protocolli attivi
+        .eq(statusColumn, userLanguage === 'it' ? 'attivo' : userLanguage === 'en' ? 'active' : 'activo')
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
-      return data?.filter(protocol => protocol && protocol.title && protocol.id).map(protocol => ({
-        ...protocol,
-        exercises: protocol.exercises || [],
-        metrics: protocol.metrics?.[0] || null,
-        schedule: protocol.schedule?.[0] || null,
-      })) as TrainingProtocol[];
+      return data?.filter(rawProtocol => rawProtocol && rawProtocol.id).map(rawProtocol => {
+        const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
+        return {
+          ...protocol,
+          exercises: rawProtocol.exercises || [],
+          metrics: rawProtocol.metrics?.[0] || null,
+          schedule: rawProtocol.schedule?.[0] || null,
+        };
+      }) as TrainingProtocol[];
     },
     refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
@@ -247,17 +274,29 @@ export const useTrainingProtocols = () => {
           schedule:ai_training_schedules(*)
         `)
         .eq('is_public', true)
-        .eq('status', 'available')  // Solo protocolli disponibili
+        .eq('status_it', 'disponibile')  // Usa la colonna italiana
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return data?.map(protocol => ({
-        ...protocol,
-        exercises: protocol.exercises || [],
-        metrics: protocol.metrics?.[0] || null,
-        schedule: protocol.schedule?.[0] || null,
-      })) as TrainingProtocol[];
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+
+      return data?.map(rawProtocol => {
+        const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
+        return {
+          ...protocol,
+          exercises: rawProtocol.exercises || [],
+          metrics: rawProtocol.metrics?.[0] || null,
+          schedule: rawProtocol.schedule?.[0] || null,
+        };
+      }) as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
@@ -319,17 +358,29 @@ export const useCreateProtocol = () => {
         throw new Error('User not authenticated');
       }
 
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+
+      // Converte il protocollo nel formato multilingua
+      const multiLangProtocol = convertFromStandardProtocol(protocol, userLanguage);
+
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .insert({
-          ...protocol,
+          ...multiLangProtocol,
           user_id: user.id,
         })
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+      return convertToStandardProtocol(data as MultiLanguageTrainingProtocol, userLanguage);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
@@ -357,19 +408,35 @@ export const useUpdateProtocol = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<TrainingProtocol> }) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+
+      // Converte gli aggiornamenti nel formato multilingua
+      const multiLangUpdates = convertFromStandardProtocol(updates, userLanguage);
+
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .update(updates)
+        .update(multiLangUpdates)
         .eq('id', id)
         .select()
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data ? convertToStandardProtocol(data as MultiLanguageTrainingProtocol, userLanguage) : null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
       queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
     },
     onError: (error) => {
       toast({
