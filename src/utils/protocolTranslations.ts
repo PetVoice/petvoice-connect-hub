@@ -8,7 +8,8 @@ export const useProtocolTranslations = () => {
   };
 
   const translateProtocolDescription = (description: string): string => {
-    return t(`protocols.descriptions.${description}`, description);
+    const translated = t(`protocols.descriptions.${description}`, '');
+    return translated || description;
   };
 
   return {
