@@ -239,15 +239,7 @@ export type Database = {
           video_url?: string | null
           voice_notes?: string[] | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ai_training_exercises_protocol_id_fkey"
-            columns: ["protocol_id"]
-            isOneToOne: false
-            referencedRelation: "ai_training_protocols"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_training_metrics: {
         Row: {
@@ -289,28 +281,20 @@ export type Database = {
           stress_reduction?: number | null
           time_efficiency?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ai_training_metrics_protocol_id_fkey"
-            columns: ["protocol_id"]
-            isOneToOne: false
-            referencedRelation: "ai_training_protocols"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_training_protocols: {
         Row: {
           ai_generated: boolean | null
-          category: string
+          category: string | null
           community_rating: number | null
-          community_usage: number | null
+          community_usage: string | null
           created_at: string | null
           current_day: number | null
           description: string | null
-          difficulty: string
-          duration_days: number
-          estimated_cost: number | null
+          difficulty: string | null
+          duration_days: number | null
+          estimated_cost: string | null
           id: string
           integration_source: string | null
           is_public: boolean | null
@@ -318,59 +302,59 @@ export type Database = {
           mentor_recommended: boolean | null
           notifications_enabled: boolean | null
           pet_id: string | null
-          progress_percentage: number | null
-          required_materials: string[] | null
+          progress_percentage: string | null
+          required_materials: Json | null
           share_code: string | null
-          status: string
+          status: string | null
           success_rate: number | null
           target_behavior: string | null
-          title: string
-          triggers: string[] | null
+          title: string | null
+          triggers: Json | null
           updated_at: string | null
           user_id: string | null
           veterinary_approved: boolean | null
         }
         Insert: {
           ai_generated?: boolean | null
-          category?: string
+          category?: string | null
           community_rating?: number | null
-          community_usage?: number | null
+          community_usage?: string | null
           created_at?: string | null
           current_day?: number | null
           description?: string | null
-          difficulty?: string
-          duration_days?: number
-          estimated_cost?: number | null
-          id?: string
+          difficulty?: string | null
+          duration_days?: number | null
+          estimated_cost?: string | null
+          id: string
           integration_source?: string | null
           is_public?: boolean | null
           last_activity_at?: string | null
           mentor_recommended?: boolean | null
           notifications_enabled?: boolean | null
           pet_id?: string | null
-          progress_percentage?: number | null
-          required_materials?: string[] | null
+          progress_percentage?: string | null
+          required_materials?: Json | null
           share_code?: string | null
-          status?: string
+          status?: string | null
           success_rate?: number | null
           target_behavior?: string | null
-          title: string
-          triggers?: string[] | null
+          title?: string | null
+          triggers?: Json | null
           updated_at?: string | null
           user_id?: string | null
           veterinary_approved?: boolean | null
         }
         Update: {
           ai_generated?: boolean | null
-          category?: string
+          category?: string | null
           community_rating?: number | null
-          community_usage?: number | null
+          community_usage?: string | null
           created_at?: string | null
           current_day?: number | null
           description?: string | null
-          difficulty?: string
-          duration_days?: number
-          estimated_cost?: number | null
+          difficulty?: string | null
+          duration_days?: number | null
+          estimated_cost?: string | null
           id?: string
           integration_source?: string | null
           is_public?: boolean | null
@@ -378,27 +362,19 @@ export type Database = {
           mentor_recommended?: boolean | null
           notifications_enabled?: boolean | null
           pet_id?: string | null
-          progress_percentage?: number | null
-          required_materials?: string[] | null
+          progress_percentage?: string | null
+          required_materials?: Json | null
           share_code?: string | null
-          status?: string
+          status?: string | null
           success_rate?: number | null
           target_behavior?: string | null
-          title?: string
-          triggers?: string[] | null
+          title?: string | null
+          triggers?: Json | null
           updated_at?: string | null
           user_id?: string | null
           veterinary_approved?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ai_training_protocols_pet_id_fkey"
-            columns: ["pet_id"]
-            isOneToOne: false
-            referencedRelation: "pets"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_training_schedules: {
         Row: {
@@ -437,15 +413,7 @@ export type Database = {
           updated_at?: string | null
           weekdays?: number[] | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ai_training_schedules_protocol_id_fkey"
-            columns: ["protocol_id"]
-            isOneToOne: false
-            referencedRelation: "ai_training_protocols"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_training_templates: {
         Row: {
@@ -2318,7 +2286,6 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          language: string | null
           location: string | null
           marketing_communications: boolean | null
           notifications_enabled: boolean | null
@@ -2340,7 +2307,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          language?: string | null
           location?: string | null
           marketing_communications?: boolean | null
           notifications_enabled?: boolean | null
@@ -2362,7 +2328,6 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
-          language?: string | null
           location?: string | null
           marketing_communications?: boolean | null
           notifications_enabled?: boolean | null
@@ -3457,6 +3422,17 @@ export type Database = {
       reset_affiliation_system: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      upsert_protocol_rating: {
+        Args: {
+          p_protocol_id: string
+          p_user_id: string
+          p_effectiveness_rating: number
+          p_ease_rating: number
+          p_improvement_rating: number
+          p_overall_satisfaction: number
+        }
+        Returns: undefined
       }
     }
     Enums: {
