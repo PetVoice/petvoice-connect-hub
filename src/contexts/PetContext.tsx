@@ -216,6 +216,10 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
 
   const deletePet = async (petId: string) => {
     try {
+      // Salva il nome del pet prima di eliminarlo
+      const petToDelete = pets.find(pet => pet.id === petId);
+      const petName = petToDelete?.name || 'Pet';
+      
       const { error } = await supabase
         .from('pets')
         .update({ is_active: false })
@@ -239,7 +243,8 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
       showToast({
         title: 'pets.petDeleted.title',
         description: 'pets.petDeleted.description',
-        variant: 'success'
+        variant: 'success',
+        variables: { petName }
       });
     } catch (error) {
       console.error('Error deleting pet:', error);
