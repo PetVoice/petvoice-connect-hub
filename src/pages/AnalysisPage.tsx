@@ -453,8 +453,8 @@ const AnalysisPage: React.FC = () => {
       return newAnalyses;
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.loadError'),
+        title: 'Qualcosa è andato storto',
+        description: 'Errore nel caricamento delle analisi',
         variant: "destructive"
       });
       return [];
@@ -504,8 +504,8 @@ const AnalysisPage: React.FC = () => {
   const handleFileUpload = async (files: FileList) => {
     if (!selectedPet) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.selectPet'),
+        title: 'Qualcosa è andato storto',
+        description: 'Seleziona un pet per continuare',
         variant: "destructive"
       });
       return;
@@ -516,7 +516,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing({
       isProcessing: true,
       progress: 0,
-      stage: t('analysis.processing.uploadingFiles')
+      stage: 'Caricamento file'
     });
 
     try {
@@ -542,20 +542,20 @@ const AnalysisPage: React.FC = () => {
       }, 100);
       
       showToast({
-        title: t('analysis.success.analysisCompleted'),
-        description: t('analysis.success.filesAnalyzed').replace('{{count}}', files.length.toString()),
+        title: 'Analisi completata',
+        description: `${files.length} file analizzato${files.length > 1 ? 'i' : ''} con successo`,
       });
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: error.message || t('analysis.errors.analysisError'),
+        title: 'Qualcosa è andato storto',
+        description: error.message || 'Errore durante l\'analisi',
         variant: "destructive"
       });
     } finally {
       setProcessing({
         isProcessing: false,
         progress: 0,
-        stage: t('analysis.processing.completed')
+        stage: 'Completato'
       });
     }
   };
@@ -583,7 +583,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 30,
-      stage: t('analysis.processing.aiAnalysis')
+      stage: 'Analisi AI'
     }));
 
     // Mock analysis - in real app this would call an edge function
@@ -594,7 +594,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 60,
-      stage: t('analysis.processing.savingResults')
+      stage: 'Salvataggio risultati'
     }));
 
     // Save to database
@@ -618,7 +618,7 @@ const AnalysisPage: React.FC = () => {
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 100 / total,
-      stage: current === total ? t('analysis.processing.completed') : `${t('analysis.processing.preparation')} ${current + 1}...`
+      stage: current === total ? 'Completato' : `Preparazione ${current + 1}...`
     }));
   };
 

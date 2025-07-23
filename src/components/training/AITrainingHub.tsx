@@ -622,8 +622,8 @@ export const AITrainingHub: React.FC = () => {
       setEditDescription('');
       
       showToast({
-        title: t('training.progressSaved'),
-        description: t('training.protocolCreatedDescription'),
+        title: 'Progresso salvato',
+        description: 'Il protocollo di allenamento è stato creato con successo',
         type: 'success'
       });
     } catch (error) {
@@ -642,8 +642,8 @@ export const AITrainingHub: React.FC = () => {
       await deleteProtocol.mutateAsync(protocolId);
       
       showToast({
-        title: t('training.protocolDeleted'),
-        description: t('training.protocolDeletedDescription'),
+        title: 'Protocollo eliminato',
+        description: 'Il protocollo di allenamento è stato eliminato con successo',
         type: 'delete'
       });
     } catch (error) {
@@ -688,8 +688,8 @@ export const AITrainingHub: React.FC = () => {
     } catch (error) {
       console.error('Error updating protocol status:', error);
       showToast({
-        title: t('training.errorUpdating'),
-        description: t('training.errorUpdatingDescription'),
+        title: 'Errore nell\'aggiornamento',
+        description: 'Si è verificato un errore durante l\'aggiornamento del protocollo',
         type: 'error'
       });
     }
@@ -726,12 +726,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
-              {t('aiTraining.stats.activeProtocols')}
+              Protocolli Attivi
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{stats.activeProtocols}</div>
-            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.activeDescription')}</p>
+            <p className="text-xs text-muted-foreground">Protocolli attualmente in corso</p>
           </CardContent>
         </Card>
 
@@ -739,12 +739,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Award className="h-4 w-4 text-green-500" />
-              {t('aiTraining.stats.completed')}
+              Completati
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">{stats.completedProtocols}</div>
-            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.completedDescription')}</p>
+            <p className="text-xs text-muted-foreground">Protocolli completati con successo</p>
           </CardContent>
         </Card>
 
@@ -752,12 +752,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-blue-500" />
-              {t('aiTraining.stats.successRate')}
+              Tasso di Successo
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">{stats.avgSuccessRate}%</div>
-            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.successRateDescription')}</p>
+            <p className="text-xs text-muted-foreground">Media dei successi raggiunti</p>
           </CardContent>
         </Card>
 
@@ -765,12 +765,12 @@ export const AITrainingHub: React.FC = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
-              {t('aiTraining.stats.community')}
+              Community
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-500">{stats.communityProtocols}</div>
-            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.communityDescription')}</p>
+            <p className="text-xs text-muted-foreground">Protocolli condivisi dalla community</p>
           </CardContent>
         </Card>
       </div>
@@ -778,11 +778,11 @@ export const AITrainingHub: React.FC = () => {
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="protocols">{t('aiTraining.tabs.protocols')}</TabsTrigger>
-          <TabsTrigger value="active">{t('aiTraining.tabs.active')}</TabsTrigger>
-          <TabsTrigger value="completed">{t('aiTraining.tabs.completed')}</TabsTrigger>
-          <TabsTrigger value="suggestions">{t('aiTraining.tabs.suggestions')}</TabsTrigger>
-          <TabsTrigger value="community">{t('aiTraining.tabs.community')}</TabsTrigger>
+          <TabsTrigger value="protocols">Protocolli</TabsTrigger>
+          <TabsTrigger value="active">Attivi</TabsTrigger>
+          <TabsTrigger value="completed">Completati</TabsTrigger>
+          <TabsTrigger value="suggestions">Suggerimenti</TabsTrigger>
+          <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
         <TabsContent value="protocols" className="space-y-4">
@@ -791,7 +791,7 @@ export const AITrainingHub: React.FC = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={t('training.search.placeholder')}
+                placeholder="Cerca protocolli..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -802,7 +802,7 @@ export const AITrainingHub: React.FC = () => {
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t('training.search.allCategories')}</SelectItem>
+                <SelectItem value="all">Tutte le categorie</SelectItem>
                 <SelectItem value="comportamento">Comportamento</SelectItem>
                 <SelectItem value="educazione">Educazione</SelectItem>
                 <SelectItem value="sociale">Sociale</SelectItem>
@@ -846,7 +846,10 @@ export const AITrainingHub: React.FC = () => {
                              {getDifficultyText(protocol.difficulty)}
                            </Badge>
                            <Badge variant={protocol.status === 'available' ? 'available' : 'default'} className={protocol.status === 'available' ? '' : getStatusColor(protocol.status)}>
-                             {t(`training.status.${protocol.status}`, protocol.status)}
+                              {protocol.status === 'available' ? 'Disponibile' : 
+                               protocol.status === 'active' ? 'Attivo' : 
+                               protocol.status === 'completed' ? 'Completato' : 
+                               protocol.status === 'paused' ? 'In pausa' : protocol.status}
                            </Badge>
                         </div>
                         <p className="text-muted-foreground mb-4">{translateProtocolDescription(protocol.description)}</p>
@@ -854,7 +857,7 @@ export const AITrainingHub: React.FC = () => {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                             <span>{protocol.duration_days} {t('training.labels.days')}</span>
+                             <span>{protocol.duration_days} giorni</span>
                           </div>
                           {protocol.status === 'active' && (
                             <div className="flex items-center gap-1">
@@ -882,7 +885,7 @@ export const AITrainingHub: React.FC = () => {
                               onClick={() => setSelectedProtocol(protocol)}
                             >
                             <Eye className="h-4 w-4 mr-2" />
-                              {t('training.buttons.details')}
+                               Dettagli
                             </Button>
                              <Button
                                size="sm"
@@ -890,7 +893,7 @@ export const AITrainingHub: React.FC = () => {
                                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                              >
                                 <Play className="h-4 w-4 mr-2" />
-                                {protocol.user_id ? (protocol.status === 'active' ? t('training.buttons.continue') : t('training.buttons.startProtocol')) : t('training.buttons.startProtocol')}
+                                {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Inizia Protocollo') : 'Inizia Protocollo'}
                              </Button>
                              {protocol.user_id && protocol.status === 'active' && (
                                <AlertDialog>
@@ -1363,15 +1366,15 @@ export const AITrainingHub: React.FC = () => {
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Tag className="h-5 w-5 text-primary" />
-                      {t('training.buttons.details')}
+                      Dettagli
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{t('training.createProtocol.form.category')}:</span>
+                        <span className="text-muted-foreground">Categoria:</span>
                         <Badge variant="secondary">{selectedProtocol.category}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">{t('training.labels.difficulty')}:</span>
+                        <span className="text-muted-foreground">Difficoltà:</span>
                         <Badge variant={
                           selectedProtocol.difficulty === 'facile' ? 'default' :
                           selectedProtocol.difficulty === 'medio' ? 'secondary' : 'destructive'
@@ -1381,7 +1384,7 @@ export const AITrainingHub: React.FC = () => {
                       </div>
                       {selectedProtocol.target_behavior && (
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">{t('training.createProtocol.form.targetBehavior')}:</span>
+                          <span className="text-muted-foreground">Comportamento Target:</span>
                           <span className="font-medium">{selectedProtocol.target_behavior}</span>
                         </div>
                       )}
@@ -1475,7 +1478,7 @@ export const AITrainingHub: React.FC = () => {
                   className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 min-w-32"
                 >
                   <Play className="h-4 w-4 mr-2" />
-                  {selectedProtocol.status === 'active' ? t('training.buttons.alreadyActive') : t('training.buttons.startProtocol')}
+                  {selectedProtocol.status === 'active' ? 'Già Attivo' : 'Inizia Protocollo'}
                 </Button>
               </div>
             </div>
@@ -1535,9 +1538,9 @@ export const AITrainingHub: React.FC = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="facile">{t('training.difficulty.facile')}</SelectItem>
-                    <SelectItem value="medio">{t('training.difficulty.medio')}</SelectItem>
-                    <SelectItem value="difficile">{t('training.difficulty.difficile')}</SelectItem>
+                    <SelectItem value="facile">Facile</SelectItem>
+                    <SelectItem value="medio">Medio</SelectItem>
+                    <SelectItem value="difficile">Difficile</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
