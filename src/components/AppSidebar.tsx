@@ -71,7 +71,7 @@ const AppSidebar: React.FC = () => {
                   to={item.url} 
                   className={`flex items-center px-3 py-2 rounded-lg transition-smooth group ${
                     isActive(item.url)
-                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow'
+                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow scale-[1.02]'
                       : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02]'
                   }`}
                 >
