@@ -3458,6 +3458,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      translate_italian_to_english: {
+        Args: { italian_text: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
