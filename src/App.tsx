@@ -164,9 +164,9 @@ function AppContent() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <PetProvider>
-        <ThemeProvider>
-          <LanguageProvider>
+      <LanguageProvider>
+        <PetProvider>
+          <ThemeProvider>
             <AppearanceProvider>
               <NotificationEventsProvider>
                 <TooltipProvider>
@@ -177,9 +177,9 @@ const App = () => (
                 </TooltipProvider>
               </NotificationEventsProvider>
             </AppearanceProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-      </PetProvider>
+          </ThemeProvider>
+        </PetProvider>
+      </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
