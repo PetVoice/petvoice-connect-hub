@@ -300,7 +300,7 @@ const TrainingDashboard: React.FC = () => {
           showToast({
             title: `Esercizio ${currentExercise + 1} completato!`,
             description: `Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
-            type: 'complete'
+            type: 'exercise'
           });
           
           // 2. Aggiorna il database: current_day + 1
