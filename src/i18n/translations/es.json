@@ -1284,7 +1284,22 @@
         "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
         "Confidence Building con Handler": "Construcción de Confianza con el Cuidador", 
         "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
+      },
+      "instructions": {
+        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
+        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de comodidad en una esquina segura",
+        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
+        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
+        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento calmado y relajado",
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar"
       }
+    },
+    "materials": {
+      "tappetino comfort": "alfombrilla de comodidad",
+      "snack premio": "premios/snacks",
+      "spazio tranquillo": "espacio tranquilo"
     }
   },
   "community": {

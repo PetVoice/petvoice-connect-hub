@@ -1364,7 +1364,22 @@
         "Creazione Safe Space Personale": "Creazione Safe Space Personale",
         "Confidence Building con Handler": "Confidence Building con Handler", 
         "Osservazione Passiva Ambiente": "Osservazione Passiva Ambiente"
+      },
+      "instructions": {
+        "Scegli uno spazio tranquillo e familiare per l'animale": "Scegli uno spazio tranquillo e familiare per l'animale",
+        "Posiziona il tappetino comfort in un angolo sicuro": "Posiziona il tappetino comfort in un angolo sicuro",
+        "Offri snack premio quando l'animale si avvicina spontaneamente": "Offri snack premio quando l'animale si avvicina spontaneamente",
+        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantieni distanza e lascia che l'animale esplori liberamente",
+        "Rinforza positivamente ogni comportamento calmo e rilassato": "Rinforza positivamente ogni comportamento calmo e rilassato",
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "BODY LANGUAGE: Evita segnali stress come ansimare o tremare"
       }
+    },
+    "materials": {
+      "tappetino comfort": "tappetino comfort",
+      "snack premio": "snack premio",
+      "spazio tranquillo": "spazio tranquillo"
     }
   },
   "community": {
