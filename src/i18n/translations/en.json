@@ -1854,12 +1854,21 @@
       },
       "descriptions": {
         "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establish a safe and comfortable environment where the animal can relax and build confidence. This exercise creates the foundation for all other social training.",
+        "Rafforzare il legame con il proprietario attraverso attività positive che aumentano la fiducia. Base essenziale per estendere la socializzazione ad altri.": "Strengthen the bond with the owner through positive activities that increase confidence. Essential foundation for extending socialization to others.",
         "Lavora per identificare il limite di sicurezza dell'animale rispetto ai trigger di aggressività, stabilendo le distanze minime per un lavoro sicuro": "Work to identify the animal's safety threshold regarding aggression triggers, establishing minimum distances for safe work"
       },
       "instructions": {
         "Scegli uno spazio tranquillo e familiare per l'animale": "Choose a quiet and familiar space for the animal",
         "Posiziona il tappetino comfort in un angolo sicuro": "Place the comfort mat in a safe corner",
         "Offri snack premio quando l'animale si avvicina spontaneamente": "Offer treats when the animal approaches spontaneously",
+        "Inizia con semplici comandi che l'animale conosce bene": "Start with simple commands that the animal knows well",
+        "Ricompensa immediatamente ogni successo con snack e lodi": "Immediately reward every success with treats and praise",
+        "Gradualmente introduci piccole novità positive (nuovo giocattolo)": "Gradually introduce small positive novelties (new toy)",
+        "Mantieni sempre un tono di voce calmo e incoraggiante": "Always maintain a calm and encouraging tone of voice",
+        "Termina sempre con un successo e rinforzo positivo": "Always end with a success and positive reinforcement",
+        "BODY LANGUAGE: Cerca eye contact volontario e avvicinamento spontaneo": "BODY LANGUAGE: Look for voluntary eye contact and spontaneous approach",
+        "BODY LANGUAGE: Osserva coda che scodinzola in modo rilassato": "BODY LANGUAGE: Observe tail wagging in a relaxed manner",
+        "BODY LANGUAGE: Nota postura aperta e disponibile all'interazione": "BODY LANGUAGE: Notice open posture and willingness to interact",
         "Mantieni distanza e lascia che l'animale esplori liberamente": "Keep your distance and let the animal explore freely",
         "Rinforza positivamente ogni comportamento calmo e rilassato": "Positively reinforce every calm and relaxed behavior",
         "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "BODY LANGUAGE: Observe relaxed posture, tail in neutral position",
@@ -1878,7 +1887,10 @@
       "barriere visive mobili": "mobile visual barriers",
       "spazi neutri sicuri": "safe neutral spaces",
       "snack premio": "treats",
-      "spazio tranquillo": "quiet space"
+      "spazio tranquillo": "quiet space",
+      "reward treats": "reward treats",
+      "giocattolo nuovo": "new toy",
+      "voce calma": "calm voice"
     }
   }
   }
