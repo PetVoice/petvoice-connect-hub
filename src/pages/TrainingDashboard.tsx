@@ -33,13 +33,16 @@ import {
   ChevronRight,
   BarChart3
 } from 'lucide-react';
-import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
+import { useTrainingProtocols, useUpdateProtocol } from '@/hooks/useTrainingProtocols';
+import { TrainingProtocol } from '@/types/trainingProtocol';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+import { convertToStandardProtocol, SupportedLanguage } from '@/utils/protocolLanguage';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Exercise {
   id: string;
@@ -81,6 +84,7 @@ const TrainingDashboard: React.FC = () => {
   const [protocolNotes, setProtocolNotes] = useState('');
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const userLanguage = (language as SupportedLanguage) || 'it';
   const [protocol, setProtocol] = useState<TrainingProtocol | null>(null);
   
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
@@ -113,20 +117,25 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      setProtocol({
-        ...data,
-        difficulty: data.difficulty as 'facile' | 'medio' | 'difficile',
-        exercises: (data.exercises || []).map((ex: any) => ({
-          ...ex,
-          exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
-        })),
-        metrics: data.metrics?.[0] || null,
-        schedule: data.schedule?.[0] || null,
-      } as TrainingProtocol);
+      if (data) {
+        // Convert multi-language protocol to standard format
+        const convertedProtocol = convertToStandardProtocol(data as any, userLanguage);
+        
+        setProtocol({
+          ...convertedProtocol,
+          integration_source: convertedProtocol.integration_source as any || 'manual',
+          exercises: Array.isArray(data.exercises) ? data.exercises.map((ex: any) => ({
+            ...ex,
+            exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
+          })) : [],
+          metrics: Array.isArray(data.metrics) && data.metrics.length > 0 ? data.metrics[0] : null,
+          schedule: Array.isArray(data.schedule) && data.schedule.length > 0 ? data.schedule[0] : null,
+        });
+      }
     };
     
     fetchProtocol();
-  }, [protocolId, navigate, showTranslatedToast]);
+  }, [protocolId, navigate, showToast, userLanguage]);
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {

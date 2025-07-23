@@ -55,21 +55,23 @@ import {
 } from 'lucide-react';
 
 // Import hooks for real data
-import { 
-  useTrainingProtocols, 
-  useActiveProtocols,
-  useSuggestedProtocols, 
+import {
+  useTrainingProtocols,
+  useActiveProtocols, 
+  useSuggestedProtocols,
   useTrainingTemplates, 
-  useCreateProtocol, 
-  useUpdateProtocol, 
+  useCreateProtocol,
+  useUpdateProtocol,
   useAcceptSuggestion, 
   useDismissSuggestion,
   useDeleteProtocol,
-  useCompletedProtocols,
-  TrainingProtocol,
-  SuggestedProtocol,
-  TrainingTemplate
+  useCompletedProtocols
 } from '@/hooks/useTrainingProtocols';
+import {
+  TrainingProtocol,
+  SuggestedProtocol, 
+  TrainingTemplate
+} from '@/types/trainingProtocol';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';

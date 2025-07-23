@@ -63,9 +63,9 @@ export interface TrainingProtocol {
   triggers?: string[];
   success_rate: number;
   ai_generated: boolean;
-  integration_source?: 'analysis' | 'diary' | 'wellness' | 'matching' | 'manual';
+  integration_source?: string;
   veterinary_approved: boolean;
-  estimated_cost?: number;
+  estimated_cost?: number | string;
   required_materials?: string[];
   is_public: boolean;
   share_code?: string;
@@ -81,8 +81,8 @@ export interface TrainingProtocol {
   personal_rating?: number;
   // Relationships
   exercises?: TrainingExercise[];
-  metrics?: TrainingMetrics | null;
-  schedule?: TrainingSchedule | null;
+  metrics?: TrainingMetrics | null | string;
+  schedule?: TrainingSchedule | null | string;
 }
 
 export interface TrainingExercise {

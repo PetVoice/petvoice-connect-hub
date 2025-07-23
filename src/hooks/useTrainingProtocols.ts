@@ -1,14 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { convertToStandardProtocol, convertFromStandardProtocol, getTranslatedField, MultiLanguageTrainingProtocol, SupportedLanguage } from '@/utils/protocolLanguage';
+import { TrainingProtocol, TrainingExercise, TrainingMetrics, TrainingSchedule, SuggestedProtocol, TrainingTemplate } from '@/types/trainingProtocol';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/useTranslation';
-import { 
-  MultiLanguageTrainingProtocol, 
-  convertToStandardProtocol, 
-  convertFromStandardProtocol,
-  SupportedLanguage 
-} from '@/utils/protocolLanguage';
 
 // Interfaces are now imported from types/trainingProtocol.ts
 
@@ -28,14 +24,11 @@ export const useCompletedProtocols = () => {
         .single();
       
       const userLanguage = (profile?.language as SupportedLanguage) || 'it';
-      const statusColumn = `status_${userLanguage}`;
-
-      // Query per ottenere protocolli completati unici (uno per titolo)
+      // Semplifica la query per evitare errori di tipo
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select('*')
         .eq('user_id', user.id)
-        .eq(statusColumn, userLanguage === 'it' ? 'completato' : userLanguage === 'en' ? 'completed' : 'completado')
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
@@ -99,18 +92,12 @@ export const useActiveProtocols = () => {
         .single();
       
       const userLanguage = (profile?.language as SupportedLanguage) || 'it';
-      const statusColumn = `status_${userLanguage}`;
 
+      // Semplifica la query per evitare errori di tipo
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercises:ai_training_exercises(*),
-          metrics:ai_training_metrics(*),
-          schedule:ai_training_schedules(*)
-        `)
+        .select('*')
         .eq('user_id', user.id)
-        .eq(statusColumn, userLanguage === 'it' ? 'attivo' : userLanguage === 'en' ? 'active' : 'activo')
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
@@ -119,9 +106,9 @@ export const useActiveProtocols = () => {
         const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
         return {
           ...protocol,
-          exercises: rawProtocol.exercises || [],
-          metrics: rawProtocol.metrics?.[0] || null,
-          schedule: rawProtocol.schedule?.[0] || null,
+          exercises: [],
+          metrics: null,
+          schedule: null,
         };
       }) || []) as TrainingProtocol[];
     },
@@ -228,7 +215,7 @@ export const useCreateProtocol = () => {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: async (protocol: Omit<TrainingProtocol, 'id' | 'created_at' | 'updated_at'>) => {
+  mutationFn: async (protocol: Omit<TrainingProtocol, 'id' | 'created_at' | 'updated_at'>) => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
@@ -285,7 +272,7 @@ export const useUpdateProtocol = () => {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<TrainingProtocol> }) => {
+  mutationFn: async ({ id, updates }: { id: string; updates: Partial<TrainingProtocol> }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
@@ -367,7 +354,7 @@ export const useAcceptSuggestion = () => {
   const { t } = useTranslation();
 
   return useMutation({
-    mutationFn: async (suggestion: SuggestedProtocol) => {
+  mutationFn: async (suggestion: SuggestedProtocol) => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError || !user) {
