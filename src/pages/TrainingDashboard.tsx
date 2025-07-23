@@ -131,31 +131,42 @@ const TrainingDashboard: React.FC = () => {
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {
-    if (protocol && protocol.progress_percentage !== undefined && !hasInitialized) {
+    if (protocol && !hasInitialized) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
+      
+      // Se il protocollo è appena iniziato (progress_percentage è null o 0)
+      if (!protocol.progress_percentage || protocol.progress_percentage === '0') {
+        console.log('🔄 PROTOCOLLO NUOVO - Inizializzazione da zero');
+        setCurrentExercise(0);
+        setDailyCompletedExercises(0);
+        setHasInitialized(true);
+        return;
+      }
+      
+      // Per protocolli già in corso
       const totalExercises = protocol.duration_days * exercisesPerDay;
       const totalCompletedExercises = Math.floor((parseInt(protocol.progress_percentage || '0') / 100) * totalExercises);
+      const currentDay = protocol.current_day || 1;
       
       // Calcola quanti esercizi sono stati completati nei giorni precedenti
-      const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
+      const exercisesCompletedInPreviousDays = Math.max(0, (currentDay - 1) * exercisesPerDay);
       
       // Calcola gli esercizi completati oggi
-      const exercisesCompletedToday = Math.max(0, totalCompletedExercises - exercisesCompletedInPreviousDays);
+      const exercisesCompletedToday = Math.max(0, Math.min(exercisesPerDay, totalCompletedExercises - exercisesCompletedInPreviousDays));
       
       // L'esercizio corrente è il primo non completato oggi
       const calculatedCurrentExercise = Math.min(exercisesCompletedToday, exercisesPerDay - 1);
       
-      console.log('🔄 INIZIALIZZAZIONE PROGRESSO (SOLO UNA VOLTA):', {
+      console.log('🔄 INIZIALIZZAZIONE PROGRESSO ESISTENTE:', {
         protocol_id: protocol.id,
         progress_percentage: protocol.progress_percentage,
         duration_days: protocol.duration_days,
-        current_day: protocol.current_day,
+        current_day: currentDay,
         totalExercises,
         totalCompletedExercises,
         exercisesCompletedInPreviousDays,
         exercisesCompletedToday,
         calculatedCurrentExercise,
-        hasInitialized
       });
       
       setCurrentExercise(calculatedCurrentExercise);
@@ -199,10 +210,15 @@ const TrainingDashboard: React.FC = () => {
     setIsTimerRunning(false);
   }, [currentExercise]);
 
+  // Se non c'è protocollo dopo il caricamento, redirect in useEffect
+  useEffect(() => {
+    if (!protocolId) {
+      navigate('/training?tab=completed');
+    }
+  }, [protocolId, navigate]);
+
   if (!protocol) {
-    // Redirect automaticamente ai protocolli completati invece di mostrare errore
-    navigate('/training?tab=completed');
-    return null;
+    return <div>Caricamento...</div>;
   }
 
   const formatTime = (seconds: number) => {
