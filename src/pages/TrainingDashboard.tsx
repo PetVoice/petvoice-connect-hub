@@ -76,6 +76,7 @@ const TrainingDashboard: React.FC = () => {
   
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
   const [dailyCompletedExercises, setDailyCompletedExercises] = useState(0);
+  const [currentDay, setCurrentDay] = useState(1); // Stato locale per il giorno corrente
 
   // Recupera il protocollo specifico dal database
   useEffect(() => {
@@ -140,6 +141,10 @@ const TrainingDashboard: React.FC = () => {
   useEffect(() => {
     if (protocol && !hasInitialized) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
+      const protocolCurrentDay = protocol.current_day || 1;
+      
+      // INIZIALIZZA LO STATO LOCALE currentDay
+      setCurrentDay(protocolCurrentDay);
       
       // Se il protocollo è appena iniziato (progress_percentage è null o 0)
       if (!protocol.progress_percentage || protocol.progress_percentage === '0') {
@@ -153,10 +158,9 @@ const TrainingDashboard: React.FC = () => {
       // Per protocolli già in corso
       const totalExercises = protocol.duration_days * exercisesPerDay;
       const totalCompletedExercises = Math.floor((parseInt(protocol.progress_percentage || '0') / 100) * totalExercises);
-      const currentDay = protocol.current_day || 1;
       
       // Calcola quanti esercizi sono stati completati nei giorni precedenti
-      const exercisesCompletedInPreviousDays = Math.max(0, (currentDay - 1) * exercisesPerDay);
+      const exercisesCompletedInPreviousDays = Math.max(0, (protocolCurrentDay - 1) * exercisesPerDay);
       
       // Calcola gli esercizi completati oggi
       const exercisesCompletedToday = Math.max(0, Math.min(exercisesPerDay, totalCompletedExercises - exercisesCompletedInPreviousDays));
@@ -168,7 +172,7 @@ const TrainingDashboard: React.FC = () => {
         protocol_id: protocol.id,
         progress_percentage: protocol.progress_percentage,
         duration_days: protocol.duration_days,
-        current_day: currentDay,
+        protocolCurrentDay,
         totalExercises,
         totalCompletedExercises,
         exercisesCompletedInPreviousDays,
@@ -185,7 +189,6 @@ const TrainingDashboard: React.FC = () => {
   }, [protocol?.id, hasInitialized]); // RIMOSSO protocol?.progress_percentage dalle dipendenze!
 
   // Ottieni SOLO gli esercizi del giorno corrente (3 al giorno)
-  const currentDay = protocol?.current_day || 1; // Default al giorno 1 se null
   
   console.log('🎯 FILTRO ESERCIZI:', {
     protocolId: protocol?.id,
@@ -351,7 +354,7 @@ const TrainingDashboard: React.FC = () => {
           // 1. Toast per esercizio completato
           showToast({
             title: `Esercizio ${currentExercise + 1} completato!`,
-            description: `Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
+            description: `Giorno ${currentDay} completato! Passaggio automatico al giorno ${currentDay + 1}...`,
             type: 'complete'
           });
           
@@ -383,12 +386,15 @@ const TrainingDashboard: React.FC = () => {
               }
             });
             
-            // 3. AGGIORNA LO STATO LOCALE DEL PROTOCOLLO
+            // 3. AGGIORNA LO STATO LOCALE DEL PROTOCOLLO E currentDay
             setProtocol(prev => prev ? {
               ...prev,
               current_day: newCurrentDay,
               progress_percentage: Math.min(newProgressPercentage, 100).toString()
             } : null);
+            
+            // AGGIORNA ANCHE LO STATO LOCALE currentDay PER L'UI
+            setCurrentDay(newCurrentDay);
             
             // 4. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
             queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
