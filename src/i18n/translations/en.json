@@ -1706,16 +1706,16 @@
   },
   "protocols": {
     "titles": {
-      "rieducazioneAlimentare": "Behavioral Food Re-education",
-      "ottimizzazioneSonno": "Sleep-Wake Cycle Optimization",
-      "superareFobie": "Overcoming Phobias and Specific Fears",
-      "stopComportamentiDistruttivi": "Stop Destructive Behaviors",
-      "riattivazioneEnergia": "Energy and Motivation Reactivation",
-      "socializzazioneProgressiva": "Progressive Socialization",
-      "controlloAggressivitaReattiva": "Reactive Aggression Control",
-      "gestioneAnsiaSeperazione": "Separation Anxiety Management",
-      "gestioneGelosia": "Jealousy and Possessiveness Management",
-      "gestioneIperattivita": "Hyperactivity and Attention Deficit Management"
+      "Rieducazione Alimentare Comportamentale": "Behavioral Food Re-education",
+      "Ottimizzazione Ciclo Sonno-Veglia": "Sleep-Wake Cycle Optimization",
+      "Superare Fobie e Paure Specifiche": "Overcoming Phobias and Specific Fears",
+      "Stop Comportamenti Distruttivi": "Stop Destructive Behaviors",
+      "Riattivazione Energia e Motivazione": "Energy and Motivation Reactivation",
+      "Socializzazione Progressiva": "Progressive Socialization",
+      "Controllo Aggressività Reattiva": "Reactive Aggression Control",
+      "Gestione Ansia da Separazione": "Separation Anxiety Management",
+      "Gestione Gelosia e Possessività": "Jealousy and Possessiveness Management",
+      "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management"
     }
   }
   }
