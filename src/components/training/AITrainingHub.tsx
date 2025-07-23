@@ -928,7 +928,7 @@ export const AITrainingHub: React.FC = () => {
                                  <span>Progresso</span>
                                   <span>{parseInt(protocol.progress_percentage || '0')}%</span>
                                </div>
-                               <Progress value={protocol.progress_percentage} className="h-2" />
+                               <Progress value={parseInt(protocol.progress_percentage || '0')} className="h-2" />
                              </div>
                            )}
                        </div>

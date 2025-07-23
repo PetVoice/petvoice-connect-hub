@@ -1762,30 +1762,7 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* Language */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Languages className="h-5 w-5" />
-                  Lingua
-                </CardTitle>
-                <CardDescription>
-                  Seleziona la lingua dell'interfaccia
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Select value={language} onValueChange={(value) => setLanguage(value as 'it' | 'en' | 'es')}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="it">Italiano</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
+            {/* Sezione lingua rimossa - solo italiano supportato */}
 
             {/* Regional Settings */}
             <Card>
