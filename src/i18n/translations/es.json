@@ -1264,7 +1264,17 @@
       "exercisesToday": "Ejercicios de hoy",
       "todaysProgress": "Progreso de Hoy",
       "exercisesCompleted": "Ejercicios completados",
-      "of": "de"
+      "of": "de",
+      "todaysExercises": "Ejercicios de Hoy",
+      "details": "Detalles:",
+      "description": "Descripción:",
+      "stepByStepInstructions": "Instrucciones paso a paso:",
+      "requiredMaterials": "Materiales necesarios:",
+      "duration": "Duración:",
+      "level": "Nivel:",
+      "tip": "Consejo:",
+      "beginner": "Principiante",
+      "exerciseCompleted": "Ejercicio {{number}} Completado"
     }
   },
   "community": {
