@@ -63,25 +63,120 @@ const TrainingDashboard: React.FC = () => {
   const { t, language } = useTranslation();
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
 
-  // Translation helper functions for exercise content - Now using database content directly
+  // Translation helper functions for exercise content
   const translateExerciseTitle = (title: string) => {
-    // Return database content directly - translations are already handled in the database
-    return title;
+    // If language is English, translate Italian titles to English
+    if (language === 'en') {
+      const titleTranslations: Record<string, string> = {
+        'Creazione Safe Space Personale': 'Personal Safe Space Creation',
+        'Controllo Eccitazione Sociale': 'Social Excitement Control',
+        'Anticipazione Positiva': 'Positive Anticipation',
+        'Incontro Controllato': 'Controlled Meet-and-Greet',
+        'Rilassamento Profondo Guidato': 'Guided Deep Relaxation',
+        'Rinforzo Intermittente Strategico': 'Strategic Intermittent Reinforcement',
+        'Scala Intensità Audio Graduale': 'Gradual Audio Intensity Scale',
+        'Introduzione Presenza Umana a Distanza': 'Human Presence Introduction at Distance',
+        'Routine Positiva Mattutina': 'Morning Positive Routine',
+        'Attività di Gruppo Supervisionata': 'Supervised Group Activity',
+        'Training Resistenza alla Tentazione': 'Temptation Resistance Training',
+        'Puzzle Alimentare Complesso': 'Complex Food Puzzle',
+        'Tecnica Armonia Respiratoria': 'Breathing Harmony Technique',
+        'Rilassamento Post-Esercizio': 'Post-Exercise Relaxation',
+        'Protocollo Sicurezza Emergenza': 'Emergency Safety Protocol',
+        'Osservazione Passiva Ambiente': 'Passive Environment Observation'
+      };
+      return titleTranslations[title] || title;
+    }
+    return title; // Return Italian for 'it' or other languages
   };
 
   const translateExerciseDescription = (description: string) => {
-    // Return database content directly - translations are already handled in the database
-    return description;
+    // If language is English, translate Italian descriptions to English
+    if (language === 'en') {
+      const descriptionTranslations: Record<string, string> = {
+        'Gestione iperattività in presenza di nuove persone': 'Managing hyperactivity in presence of new people',
+        'Sviluppo di eccitazione positiva alla presentazione del trigger invece che paura': 'Development of positive excitement at trigger presentation instead of fear',
+        'Primo incontro diretto con persona sconosciuta seguendo protocolli precisi per garantire esperienza positiva e costruire fiducia sociale.': 'First direct encounter with unknown person following precise protocols to ensure positive experience and build social confidence.',
+        'Sessione di rilassamento profondo con massaggio terapeutico e controllo respiratorio': 'Deep relaxation session with therapeutic massage and breathing control',
+        'Rinforzo strategico non costante per consolidare comportamenti appresi': 'Strategic non-constant reinforcement to consolidate learned behaviors',
+        'Esposizione graduale a stimoli sonori con aumento controllato dell\'intensità': 'Gradual exposure to sound stimuli with controlled intensity increase'
+      };
+      return descriptionTranslations[description] || description;
+    }
+    return description; // Return Italian for 'it' or other languages
   };
 
   const translateExerciseInstruction = (instruction: string) => {
-    // Return database content directly - translations are already handled in the database
-    return instruction;
+    // If language is English, translate Italian instructions to English
+    if (language === 'en') {
+      // Basic translation mappings for common instruction patterns
+      let translated = instruction
+        .replace(/^Scegli /, 'Choose ')
+        .replace(/^Posiziona /, 'Position ')
+        .replace(/^Mantieni /, 'Maintain ')
+        .replace(/^Inizia /, 'Start ')
+        .replace(/^Organizza /, 'Organize ')
+        .replace(/^Chiedi /, 'Ask ')
+        .replace(/^Offri /, 'Offer ')
+        .replace(/^Osserva /, 'Observe ')
+        .replace(/^Controlla /, 'Check ')
+        .replace(/^Verifica /, 'Verify ')
+        .replace(/^Usa /, 'Use ')
+        .replace(/^Assicurati /, 'Make sure ')
+        .replace(/^Evita /, 'Avoid ')
+        .replace(/^Ricompensa /, 'Reward ')
+        .replace(/^Premia /, 'Reward ')
+        .replace(/^Documenta /, 'Document ')
+        .replace(/^Aumenta /, 'Increase ')
+        .replace(/^Riduci /, 'Reduce ')
+        .replace(/^Monitora /, 'Monitor ')
+        .replace(/^Ripeti /, 'Repeat ')
+        .replace(/^Crea /, 'Create ')
+        .replace(/^Stabilisci /, 'Establish ')
+        .replace(/^Permetti /, 'Allow ')
+        .replace(/^Ignora /, 'Ignore ')
+        .replace(/BODY LANGUAGE: Osserva /, 'BODY LANGUAGE: Observe ')
+        .replace(/BODY LANGUAGE: Cerca /, 'BODY LANGUAGE: Look for ')
+        .replace(/BODY LANGUAGE: Valuta /, 'BODY LANGUAGE: Assess ')
+        .replace(/animale/g, 'animal')
+        .replace(/ambiente/g, 'environment')
+        .replace(/comportamento/g, 'behavior')
+        .replace(/allenamento/g, 'training')
+        .replace(/sessione/g, 'session')
+        .replace(/minuti/g, 'minutes')
+        .replace(/secondi/g, 'seconds')
+        .replace(/distanza/g, 'distance')
+        .replace(/calma/g, 'calm')
+        .replace(/premio/g, 'reward')
+        .replace(/snack/g, 'treat')
+        .replace(/gioco/g, 'game')
+        .replace(/rilassato/g, 'relaxed')
+        .replace(/tranquillo/g, 'quiet')
+        .replace(/sicuro/g, 'safe')
+        .replace(/gradualmente/g, 'gradually')
+        .replace(/immediatamente/g, 'immediately')
+        .replace(/costantemente/g, 'constantly')
+        .replace(/completamente/g, 'completely');
+      
+      return translated;
+    }
+    return instruction; // Return Italian for 'it' or other languages
   };
 
   const translateMaterial = (material: string) => {
-    // Return database content directly - translations are already handled in the database
-    return material;
+    // If language is English, translate Italian materials to English
+    if (language === 'en') {
+      const materialTranslations: Record<string, string> = {
+        'Tappetino comfort': 'Comfort mat',
+        'Snack premio': 'Reward treats',
+        'Guinzaglio': 'Leash',
+        'Ciotola': 'Bowl',
+        'Giocattolo': 'Toy',
+        'Coperta': 'Blanket'
+      };
+      return materialTranslations[material] || material;
+    }
+    return material; // Return Italian for 'it' or other languages
   };
   
   const queryClient = useQueryClient();

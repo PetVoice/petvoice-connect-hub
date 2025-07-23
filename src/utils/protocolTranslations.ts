@@ -90,13 +90,23 @@ export const useProtocolTranslations = () => {
   const { language } = useTranslation();
 
   const translateProtocolTitle = (title: string): string => {
-    // Return database content directly - translations are already handled in the database
-    return title;
+    // If language is English, translate Italian titles to English
+    if (language === 'en') {
+      const lang = language as 'it' | 'en' | 'es';
+      const translation = titleTranslations[lang]?.[title] || title;
+      return translation;
+    }
+    return title; // Return Italian for 'it' or other languages
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {
-    // Return database content directly - translations are already handled in the database
-    return description;
+    // If language is English, translate Italian descriptions to English
+    if (language === 'en') {
+      const lang = language as 'it' | 'en' | 'es';
+      const translation = descriptionTranslations[lang]?.[description] || description;
+      return translation;
+    }
+    return description; // Return Italian for 'it' or other languages
   };
 
   return {
