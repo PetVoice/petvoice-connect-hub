@@ -94,6 +94,7 @@ export const useActiveProtocols = () => {
       const userLanguage = (profile?.language as SupportedLanguage) || 'it';
 
       // Semplifica la query per evitare errori di tipo
+      // Query per protocolli attivi dell'utente
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select('*')
@@ -124,41 +125,44 @@ export const useTrainingProtocols = () => {
 
   return useQuery({
     queryKey: ['training-protocols'],
-    queryFn: async () => {
+    queryFn: async (): Promise<TrainingProtocol[]> => {
+      // Per i protocolli pubblici non serve autenticazione
+      console.log('Fetching public training protocols...');
+      
+      // Ottieni la lingua dell'utente (o default)
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      let userLanguage: SupportedLanguage = 'it';
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('language')
+          .eq('user_id', user.id)
+          .single();
+        userLanguage = (profile?.language as SupportedLanguage) || 'it';
+      }
 
-      // Per la lista principale, mostra solo protocolli pubblici (template disponibili)
+      // Query semplificata per protocolli pubblici/template
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercises:ai_training_exercises(*),
-          metrics:ai_training_metrics(*),
-          schedule:ai_training_schedules(*)
-        `)
+        .select('*')
         .eq('is_public', true)
-        .eq('status_it', 'disponibile')  // Usa la colonna italiana
-        .order('created_at', { ascending: false });
+        .order('community_rating', { ascending: false });
 
-      if (error) throw error;
+      console.log('Public protocols query result:', { data, error });
 
-      // Ottieni la lingua corrente dell'utente
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('language')
-        .eq('user_id', user.id)
-        .single();
-      
-      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+      if (error) {
+        console.error('Error fetching public protocols:', error);
+        throw error;
+      }
 
       return (data?.map(rawProtocol => {
         const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
         return {
           ...protocol,
-          exercises: rawProtocol.exercises || [],
-          metrics: rawProtocol.metrics?.[0] || null,
-          schedule: rawProtocol.schedule?.[0] || null,
+          exercises: [],
+          metrics: null,
+          schedule: null,
         };
       }) || []) as TrainingProtocol[];
     },
