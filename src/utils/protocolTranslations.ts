@@ -92,12 +92,14 @@ export const useProtocolTranslations = () => {
   console.log('🔄 useProtocolTranslations initialized with language:', language);
 
   const translateProtocolTitle = (title: string): string => {
-    console.log('🔤 translateProtocolTitle called:', { title, language });
+    console.log('🔤 translateProtocolTitle called:', { title, language, titleLength: title.length });
+    console.log('🔤 Title characters:', title.split('').map((c, i) => `${i}: '${c}' (${c.charCodeAt(0)})`));
     
     const lang = language as 'it' | 'en' | 'es';
     const translation = titleTranslations[lang]?.[title] || title;
     
-    console.log('✅ Title translation result:', { title, language: lang, translation });
+    console.log('✅ Title translation result:', { title, language: lang, translation, foundMatch: title !== translation });
+    console.log('🗂️ Available keys for', lang, ':', Object.keys(titleTranslations[lang] || {}));
     return translation;
   };
 
