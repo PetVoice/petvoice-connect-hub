@@ -665,15 +665,19 @@ const AnalysisPage: React.FC = () => {
     };
 
     const getRandomTriggers = (emotion: string) => {
-      const triggers = [
-        t(`analysis.mockData.triggers.${emotion}.1`),
-        t(`analysis.mockData.triggers.${emotion}.2`),
-        t(`analysis.mockData.triggers.${emotion}.3`),
-        t(`analysis.mockData.triggers.${emotion}.4`)
-      ].filter(trigger => !trigger.startsWith('analysis.mockData.triggers.'));
+      const triggersByEmotion: Record<string, string[]> = {
+        ansioso: ['Rumori forti', 'Estranei', 'Cambiamenti routine', 'Separazione'],
+        felice: ['Giochi', 'Cibo preferito', 'Coccole', 'Uscite'],
+        triste: ['Solitudine', 'Mancanza attenzioni', 'Cambiamenti casa', 'Malattia'],
+        aggressivo: ['Territorio minacciato', 'Protezione risorse', 'Paura', 'Dominanza'],
+        calmo: ['Ambiente tranquillo', 'Routine stabile', 'Presenza proprietario', 'Comfort'],
+        eccitato: ['Nuove esperienze', 'Altri animali', 'Attività fisica', 'Stimoli'],
+        giocoso: ['Giocattoli', 'Interazione sociale', 'Spazio aperto', 'Energia alta']
+      };
       
-      const count = Math.floor(Math.random() * 3) + 1;
-      return triggers.slice(0, count);
+      const triggers = triggersByEmotion[emotion] || ['Da determinare'];
+      const triggerCount = Math.floor(Math.random() * 3) + 1;
+      return triggers.slice(0, triggerCount);
     };
 
     return {
@@ -795,7 +799,7 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 30,
-        stage: t('analysis.processing.aiAnalysis')
+        stage: 'Analisi AI in corso'
       }));
 
       // Call the edge function for real AI analysis
@@ -889,7 +893,7 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 70,
-        stage: t('analysis.processing.generating')
+        stage: 'Generazione report'
       }));
 
       // Create analysis data with real AI results
@@ -916,7 +920,7 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 50,
-        stage: t('analysis.processing.emotionalAnalysis')
+        stage: 'Analisi emotiva'
       }));
 
       // Save to database
@@ -943,15 +947,15 @@ const AnalysisPage: React.FC = () => {
       setProcessing(prev => ({
         ...prev,
         progress: 100,
-        stage: t('analysis.processing.completed')
+        stage: 'Completato'
       }));
 
       // Refresh analyses
       await loadAnalyses();
 
       showToast({
-        title: t('analysis.success.analysisCompleted'),
-        description: t('analysis.success.textAnalyzed'),
+        title: 'Analisi completata',
+        description: 'Analisi del testo completata con successo',
       });
 
       // Switch to results tab
@@ -965,15 +969,15 @@ const AnalysisPage: React.FC = () => {
     } catch (error: any) {
       console.error('Text analysis error:', error);
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.analysisError'),
+        title: 'Errore',
+        description: 'Si è verificato un errore durante l\'analisi',
         variant: "destructive"
       });
     } finally {
       setProcessing({
         isProcessing: false,
         progress: 0,
-        stage: t('analysis.processing.preparation')
+        stage: 'Preparazione'
       });
     }
   };
@@ -981,8 +985,8 @@ const AnalysisPage: React.FC = () => {
   const handleStartRecording = () => {
     if (!selectedPet) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.selectPet'),
+        title: 'Errore',
+        description: 'Seleziona un pet per continuare',
         variant: "destructive"
       });
       return false;
@@ -1097,8 +1101,8 @@ const AnalysisPage: React.FC = () => {
   const handleBatchExport = async () => {
     if (selectedAnalyses.length === 0) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.history.exportSelected'),
+        title: 'Errore',
+        description: 'Seleziona almeno un\'analisi da esportare',
         variant: "destructive"
       });
       return;
@@ -1106,8 +1110,8 @@ const AnalysisPage: React.FC = () => {
 
     try {
       showToast({
-        title: t('analysis.processing.generating'),
-        description: `${t('analysis.processing.generating')} PDF per ${selectedAnalyses.length} ${t('analysis.history.analysisCount').replace('{{count}}', '')}`,
+        title: 'Generazione in corso',
+        description: `Generazione PDF per ${selectedAnalyses.length} analisi`,
       });
 
       // Get selected analyses data
@@ -1190,13 +1194,13 @@ const AnalysisPage: React.FC = () => {
       }
 
       showToast({
-        title: t('analysis.success.pdfGenerated'),
-        description: t('analysis.success.dataExported'),
+        title: 'PDF generato',
+        description: 'Dati esportati con successo',
       });
     } catch (error) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.shareError'),
+        title: 'Errore',
+        description: 'Errore durante la generazione del PDF',
         variant: "destructive"
       });
     }
@@ -1205,8 +1209,8 @@ const AnalysisPage: React.FC = () => {
   const handleBatchCompare = async () => {
     if (selectedAnalyses.length < 2) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.modals.compare.selectTwo'),
+        title: 'Errore',
+        description: 'Seleziona almeno due analisi per confrontarle',
         variant: "destructive"
       });
       return;
@@ -1310,16 +1314,16 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: t('success.deleted'),
-        description: `${selectedAnalyses.length} ${t('analysis.success.analysisDeleted')}`,
+        title: 'Eliminato',
+        description: `${selectedAnalyses.length} analisi eliminate`,
       });
 
       setSelectedAnalyses([]);
       loadAnalyses();
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.deleteError'),
+        title: 'Errore',
+        description: 'Errore durante l\'eliminazione',
         variant: "destructive"
       });
     }
@@ -1336,13 +1340,13 @@ const AnalysisPage: React.FC = () => {
       pdf.save(fileName);
 
       showToast({
-        title: t('analysis.success.pdfGenerated'),
-        description: `${t('common.loading')} ${fileName}`,
+        title: 'PDF generato',
+        description: `File salvato: ${fileName}`,
       });
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.shareError'),
+        title: 'Errore',
+        description: 'Errore durante la generazione del PDF',
         variant: "destructive"
       });
     }
@@ -1367,13 +1371,13 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: t('analysis.results.toasts.followUpScheduled'),
-        description: `${t('analysis.results.toasts.reminderCreated').replace('{{date}}', format(followUpDate, 'dd/MM/yyyy'))}`,
+        title: 'Promemoria programmato',
+        description: `Promemoria creato per il ${format(followUpDate, 'dd/MM/yyyy')}`,
       });
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.results.toasts.cannotCreateReminder'),
+        title: 'Errore',
+        description: 'Impossibile creare il promemoria',
         variant: "destructive"
       });
     }
@@ -1399,16 +1403,16 @@ const AnalysisPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: t('success.deleted'),
-        description: t('analysis.success.analysisDeleted'),
+        title: 'Eliminato',
+        description: 'Analisi eliminata con successo',
       });
 
       setSelectedAnalyses(prev => prev.filter(id => id !== deleteConfirm.analysisId));
       loadAnalyses();
     } catch (error: any) {
       showToast({
-        title: t('errors.somethingWentWrong'),
-        description: t('analysis.errors.deleteError'),
+        title: 'Errore',
+        description: 'Errore durante l\'eliminazione',
         variant: "destructive"
       });
     }
