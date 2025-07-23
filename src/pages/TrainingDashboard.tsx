@@ -328,8 +328,13 @@ const TrainingDashboard: React.FC = () => {
         completedCount
       });
       setDailyCompletedExercises(newDailyCompleted);
-
-      // Aggiorna il progresso del protocollo nel database
+      setTotalProgressPercentage(Math.min(newProgressPercentage, 100)); // AGGIORNA SUBITO IL PROGRESSO
+      
+      console.log('🔥 AGGIORNAMENTO STATI LOCALI:', {
+        newDailyCompleted,
+        newProgressPercentage: Math.min(newProgressPercentage, 100),
+        currentDay
+      });
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
