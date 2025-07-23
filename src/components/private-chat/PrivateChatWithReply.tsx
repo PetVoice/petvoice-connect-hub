@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MessageCircle, User, Clock, ArrowLeft, Send, X, Reply, CheckSquare, Square, Trash2, MoreVertical } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -43,7 +43,8 @@ interface PrivateChat {
 export const PrivateChatWithReply: React.FC = () => {
   console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useTranslatedToast();
+  const { showToast: showIconToast } = useToastWithIcon();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
@@ -377,7 +378,7 @@ export const PrivateChatWithReply: React.FC = () => {
         showToast({
           title: "Errore",
           description: "Impossibile caricare le chat",
-          type: 'error'
+          variant: 'destructive'
         });
     } finally {
       setLoading(false);
@@ -476,14 +477,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Chat eliminata",
         description: "La chat è stata eliminata solo per te",
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting chat for me:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare la chat",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -511,14 +512,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Chat eliminata",
         description: "La chat è stata eliminata per entrambi",
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting chat for both:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare la chat",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -554,7 +555,7 @@ export const PrivateChatWithReply: React.FC = () => {
         showToast({
           title: "Errore",
           description: "Impossibile inviare il messaggio",
-          type: 'error'
+          variant: 'destructive'
         });
         return;
       }
@@ -594,7 +595,7 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
-        type: 'error'
+        variant: 'destructive'
       });
     } finally {
       setSendingMessage(false);
@@ -645,14 +646,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Messaggio eliminato",
         description: "Il messaggio è stato eliminato solo per te",
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting message:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -680,14 +681,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Messaggio eliminato",
         description: "Il messaggio è stato eliminato per entrambi",
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting single message for both:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare il messaggio",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -718,14 +719,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Messaggio modificato",
         description: "Il messaggio è stato modificato con successo",
-        type: 'success'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error editing message:', error);
       showToast({
         title: "Errore",
         description: "Impossibile modificare il messaggio",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -796,14 +797,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Messaggi eliminati",
         description: `${selectedMessages.length} messaggi eliminati solo per te`,
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting messages:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };
@@ -864,14 +865,14 @@ export const PrivateChatWithReply: React.FC = () => {
       showToast({
         title: "Messaggi eliminati",
         description: description,
-        type: 'delete'
+        variant: 'default'
       });
     } catch (error) {
       console.error('Error deleting messages for both:', error);
       showToast({
         title: "Errore",
         description: "Impossibile eliminare i messaggi selezionati",
-        type: 'error'
+        variant: 'destructive'
       });
     }
   };

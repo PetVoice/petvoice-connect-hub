@@ -34,7 +34,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +56,7 @@ interface Exercise {
 const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { showToast: showTranslatedToast } = useTranslatedToast();
   const { showToast } = useToastWithIcon();
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();

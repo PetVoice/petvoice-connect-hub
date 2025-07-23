@@ -19,7 +19,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -61,7 +61,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [currentFlow, setCurrentFlow] = useState<FlowOption[]>([]); // Initialize empty, will be set by useEffect
   const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   const { t } = useTranslation();
 
   // Flusso conversazionale gerarchico

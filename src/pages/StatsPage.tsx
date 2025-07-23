@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { 
   ChartContainer,
   ChartTooltip,
@@ -343,7 +343,7 @@ export default function StatsPage() {
   console.log('StatsPage component loading...');
   const { user } = useAuth();
   const { selectedPet: activePet, pets } = usePets();
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   // State management
   const [loading, setLoading] = useState(true);

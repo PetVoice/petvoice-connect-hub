@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Image, Mic, MicOff, Camera, Smile, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Message } from './Chat';
 
@@ -31,6 +31,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTime = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { showToast } = useTranslatedToast();
 
   // Focus automatico quando replyToMessage cambia
   React.useEffect(() => {
@@ -79,7 +80,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       return publicUrl;
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile caricare il file",
         variant: "destructive"
@@ -96,7 +97,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Seleziona un'immagine valida",
         variant: "destructive"
@@ -106,7 +107,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast({
+      showToast({
         title: "Errore",
         description: "L'immagine deve essere più piccola di 5MB",
         variant: "destructive"
@@ -166,13 +167,13 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       mediaRecorderRef.current.start();
       setIsRecording(true);
 
-      toast({
+      showToast({
         title: "Registrazione iniziata",
         description: "Premi nuovamente per fermare la registrazione"
       });
     } catch (error) {
       console.error('Error starting recording:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile accedere al microfono",
         variant: "destructive"

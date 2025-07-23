@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 
 export interface AccessibilitySettings {
   screenReader: boolean;
@@ -7,7 +7,7 @@ export interface AccessibilitySettings {
 }
 
 export function useAccessibility() {
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
     // Carica le impostazioni dal localStorage al primo render

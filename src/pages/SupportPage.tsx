@@ -77,7 +77,7 @@ import {
 } from 'lucide-react';
 import { AILiveChatButton } from '@/components/AILiveChat';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -182,7 +182,7 @@ const SupportPage: React.FC = () => {
     category: 'feature',
     tags: []
   });
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
 
   // Carica i dati iniziali

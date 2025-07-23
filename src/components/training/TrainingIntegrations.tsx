@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useToast } from "@/hooks/use-toast";
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useAITrainingSuggestions } from '@/hooks/useAITrainingSuggestions';
 import { 
   Microscope, 
@@ -40,7 +40,7 @@ interface IntegrationData {
 
 
 export const TrainingIntegrations: React.FC = () => {
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   const { suggestions, integrationData, isLoading, refreshSuggestions } = useAITrainingSuggestions();
 
   const getSourceIcon = (source: string) => {

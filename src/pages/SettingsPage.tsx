@@ -69,7 +69,7 @@ import {
   UserCheck,
   BarChart3
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
@@ -156,7 +156,7 @@ interface NotificationSettings {
 }
 
 const SettingsPage: React.FC = () => {
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
