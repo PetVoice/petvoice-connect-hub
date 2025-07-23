@@ -41,7 +41,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { useTranslatedToast } from "@/hooks/use-translated-toast";
 import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 import { supabase } from "@/integrations/supabase/client";
@@ -311,7 +311,7 @@ const mockSuccessPatterns: SuccessPattern[] = [
 ];
 
 export const PetMatchingIntelligence: React.FC = () => {
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   // Real data hooks with proper loading states
   const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
@@ -510,17 +510,17 @@ export const PetMatchingIntelligence: React.FC = () => {
           }
         });
 
-      toast({
+      showToast({
         title: "Chat avviata!",
-        description: `Hai avviato una chat privata. Vai alla sezione "Chat Private" per continuare la conversazione.`,
+        description: "Hai avviato una chat privata. Vai alla sezione \"Chat Private\" per continuare la conversazione."
       });
       
     } catch (error) {
       console.error('Connection error:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Non è stato possibile avviare la chat privata. Riprova.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -532,9 +532,10 @@ export const PetMatchingIntelligence: React.FC = () => {
     setTimeout(() => {
       setIsLoading(false);
       const mentor = mockMentors.find(m => m.id === mentorId);
-      toast({
+      showToast({
         title: "Messaggio inviato!",
-        description: `Il mentore risponderà entro ${mentor?.responseTime || "alcune ore"}.`,
+        description: "Il mentore risponderà entro {responseTime}.",
+        variables: { responseTime: mentor?.responseTime || "alcune ore" }
       });
     }, 1000);
   };
@@ -583,16 +584,17 @@ export const PetMatchingIntelligence: React.FC = () => {
         p.id === patternId ? { ...p, isStarted: true } : p
       ));
 
-      toast({
+      showToast({
         title: "Protocollo creato!",
-        description: `"${pattern.patternName}" è stato creato e avviato. Lo trovi nella sezione Training.`,
+        description: "\"{patternName}\" è stato creato e avviato. Lo trovi nella sezione Training.",
+        variables: { patternName: pattern.patternName }
       });
     } catch (error) {
       console.error('Error creating protocol:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Non è stato possibile creare il protocollo. Riprova.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);

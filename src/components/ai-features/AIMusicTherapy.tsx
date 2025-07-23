@@ -29,7 +29,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 
 interface Pet {
   id: string;
@@ -136,6 +136,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
 export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) => {
   const [searchParams] = useSearchParams();
   const { t } = useTranslation();
+  const { showToast } = useTranslatedToast();
   
   // Create therapy categories with current language
   const THERAPY_CATEGORIES = createTherapyCategories(t);
@@ -186,7 +187,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         
         if (!isNegativeEmotion) {
           console.log('🎵 Emozione positiva rilevata, nessuna playlist necessaria');
-          toast({
+          showToast({
             title: t('aiMusicTherapy.messages.positiveEmotion'),
             description: t('aiMusicTherapy.messages.positiveEmotionDescription').replace('{petName}', selectedPet.name),
           });
@@ -211,14 +212,14 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         setCurrentSession(recommendedSession);
         setShowCategories(false);
         
-        toast({
+        showToast({
           title: t('aiMusicTherapy.messages.playlistFromAnalysis'),
           description: t('aiMusicTherapy.messages.playlistFromAnalysisDescription').replace('{title}', recommendedSession.title).replace('{petName}', selectedPet.name),
         });
         
       } catch (error) {
         console.error('❌ Error parsing playlist data:', error);
-        toast({
+        showToast({
           title: t('aiMusicTherapy.messages.errorLoadingPlaylist'),
           description: t('aiMusicTherapy.messages.errorLoadingPlaylistDescription'),
           variant: "destructive"
@@ -354,7 +355,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       console.log(`🎵 Sessione personalizzata creata:`, personalizedSession);
       setCurrentSession(personalizedSession);
       
-      toast({
+      showToast({
         title: t('aiMusicTherapy.messages.playlistGenerated'),
         description: t('aiMusicTherapy.messages.playlistGeneratedDescription').replace('{title}', categorySession.title).replace('{petName}', selectedPet.name),
       });
@@ -396,7 +397,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setCurrentTime(0);
     setSessionProgress(0);
     
-    toast({
+    showToast({
       title: t('aiMusicTherapy.messages.stopped'),
       description: t('aiMusicTherapy.messages.stoppedDescription'),
     });
@@ -414,7 +415,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setCurrentTime(newTime);
     setSessionProgress(percentage * 100);
     
-    toast({
+    showToast({
       title: t('aiMusicTherapy.messages.positionUpdated'),
       description: t('aiMusicTherapy.messages.movedTo').replace('{time}', formatTime(newTime)),
     });
@@ -422,7 +423,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
 
   const handlePlayPause = () => {
     if (!currentSession) {
-      toast({
+      showToast({
         title: t('aiMusicTherapy.messages.noSessionSelected'),
         description: t('aiMusicTherapy.messages.selectCategoryFirst'),
         variant: "destructive"
@@ -440,7 +441,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         intervalRef.current = null;
       }
       setIsPlaying(false);
-      toast({
+      showToast({
         title: t('aiMusicTherapy.messages.paused'),
         description: t('aiMusicTherapy.messages.pausedDescription'),
       });
@@ -557,7 +558,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         // Imposta stato immediatamente per feedback visivo
         setIsPlaying(true);
         
-        toast({
+        showToast({
           title: t('aiMusicTherapy.messages.playStarted'),
           description: `"${currentSession.title}" - ${mainFreq}Hz + ${beatFreq}Hz`,
         });
@@ -579,7 +580,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
               setIsPlaying(false);
               setCurrentTime(0);
               setSessionProgress(0);
-              toast({
+              showToast({
                 title: t('aiMusicTherapy.messages.sessionCompleted'),
                 description: t('aiMusicTherapy.messages.sessionCompletedDescription'),
               });
@@ -592,7 +593,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       } catch (error) {
         console.error('Errore durante avvio audio:', error);
         setIsPlaying(false);
-        toast({
+        showToast({
           title: t('aiMusicTherapy.messages.audioError'),
           description: t('aiMusicTherapy.messages.audioErrorDescription'),
           variant: "destructive"
@@ -647,7 +648,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       oscillatorsRef.current = [oscillator1, oscillator2];
     }
     
-    toast({
+    showToast({
       title: t('aiMusicTherapy.messages.realTimeAdaptation'),
       description: t('aiMusicTherapy.messages.realTimeAdaptationDescription').replace('{calm}', emotionalDNA.calma.toString()).replace('{energy}', emotionalDNA.energia.toString()).replace('{focus}', emotionalDNA.focus.toString()),
     });

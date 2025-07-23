@@ -28,7 +28,7 @@ import {
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 
 // Funzione per tradurre le emozioni
@@ -303,7 +303,7 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const { t, language } = useTranslation();
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   const { selectedPet } = usePets();
 
   // Helper function to translate hardcoded analysis data
@@ -863,7 +863,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
   const addToDiary = async (analysis: AnalysisData) => {
     if (!selectedPet) {
-      toast({
+      showToast({
         title: getText('error'),
         description: getText('selectPet'),
         variant: "destructive"
@@ -893,13 +893,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
       if (error) throw error;
       
-      toast({
+      showToast({
         title: getText('success'),
         description: getText('addedSuccessfully'),
       });
     } catch (error) {
       console.error('Error adding to diary:', error);
-      toast({
+      showToast({
         title: getText('error'),
         description: getText('cannotAdd'),
         variant: "destructive"
@@ -909,7 +909,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
   const scheduleFollowUp = async (analysis: AnalysisData) => {
       if (!selectedPet) {
-        toast({
+        showToast({
           title: getText('error'),
           description: getText('selectPet'),
           variant: "destructive"
@@ -940,13 +940,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: getText('followUpScheduled'),
         description: `${getText('reminderCreated')} ${format(followUpDate, 'dd/MM/yyyy HH:mm', { locale: it })} ${getText('inCalendar')}`,
       });
     } catch (error) {
       console.error('Error creating follow-up event:', error);
-      toast({
+      showToast({
         title: getText('error'),
         description: getText('cannotCreateReminder'),
         variant: "destructive"
@@ -1089,13 +1089,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       const fileName = `analisi-emotiva-${petName}-${format(new Date(analysis.created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
       pdf.save(fileName);
       
-      toast({
+      showToast({
         title: getText('reportGenerated'),
         description: `${getText('reportSaved')} ${fileName}`,
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast({
+      showToast({
         title: getText('error'),
         description: getText('cannotGenerateReport'),
         variant: "destructive"
@@ -2080,12 +2080,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       const fileName = `confronto-analisi-${petName}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
                       pdf.save(fileName);
                       
-                      toast({
+                      showToast({
                         title: "Download completato",
-                        description: `Report di confronto scaricato: ${fileName}`,
+                        description: "Report di confronto scaricato: {fileName}",
+                        variables: { fileName }
                       });
                     } catch (error) {
-                      toast({
+                      showToast({
                         title: "Errore",
                         description: "Impossibile generare il report PDF",
                         variant: "destructive"
