@@ -76,7 +76,16 @@ const toastTranslations = {
     "Impossibile caricare le chat": "Impossibile caricare le chat",
     "Tutti i dati sono coerenti e aggiornati": "Tutti i dati sono coerenti e aggiornati",
     "Problemi di integrità rilevati: {count}": "Problemi di integrità rilevati: {count}",
-    "Impossibile generare il report di integrità": "Impossibile generare il report di integrità"
+    "Impossibile generare il report di integrità": "Impossibile generare il report di integrità",
+    
+    // Protocol-specific messages
+    'protocol.started.title': 'Protocollo avviato',
+    'protocol.started.description': 'Il protocollo "{protocolName}" è stato avviato con successo',
+    'protocol.restarted.title': 'Protocollo riavviato', 
+    'protocol.restarted.description': 'Il protocollo "{protocolName}" è stato riavviato da capo',
+    'protocol.stopped.title': 'Protocollo interrotto',
+    'protocol.stopped.description': 'Il protocollo "{protocolName}" è stato interrotto con successo',
+    'protocol.error.cannotStart': 'Impossibile avviare il protocollo'
   },
   en: {
     // Generic messages
@@ -152,7 +161,16 @@ const toastTranslations = {
     "Unable to load chats": "Unable to load chats",
     "All data is consistent and up to date": "All data is consistent and up to date",
     "Integrity issues detected: {count}": "Integrity issues detected: {count}",
-    "Unable to generate integrity report": "Unable to generate integrity report"
+    "Unable to generate integrity report": "Unable to generate integrity report",
+    
+    // Protocol-specific messages
+    'protocol.started.title': 'Protocol started',
+    'protocol.started.description': 'Protocol "{protocolName}" has been successfully started',
+    'protocol.restarted.title': 'Protocol restarted',
+    'protocol.restarted.description': 'Protocol "{protocolName}" has been restarted from the beginning', 
+    'protocol.stopped.title': 'Protocol stopped',
+    'protocol.stopped.description': 'Protocol "{protocolName}" has been successfully stopped',
+    'protocol.error.cannotStart': 'Unable to start the protocol'
   },
   es: {
     // Generic messages
@@ -219,7 +237,16 @@ const toastTranslations = {
     "Impossibile eliminare": "No se puede eliminar",
     "Copiato negli appunti": "Copiado al portapapeles",
     "Impossibile copiare": "No se puede copiar",
-    'Digita "ELIMINA" per confermare': 'Escribe "ELIMINAR" para confirmar'
+    'Digita "ELIMINA" per confermare': 'Escribe "ELIMINAR" para confirmar',
+    
+    // Protocol-specific messages
+    'protocol.started.title': 'Protocolo iniciado',
+    'protocol.started.description': 'El protocolo "{protocolName}" ha sido iniciado exitosamente',
+    'protocol.restarted.title': 'Protocolo reiniciado',
+    'protocol.restarted.description': 'El protocolo "{protocolName}" ha sido reiniciado desde el principio',
+    'protocol.stopped.title': 'Protocolo detenido', 
+    'protocol.stopped.description': 'El protocolo "{protocolName}" ha sido detenido exitosamente',
+    'protocol.error.cannotStart': 'No se puede iniciar el protocolo'
   }
 };
 

@@ -71,6 +71,7 @@ import {
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
@@ -81,6 +82,7 @@ export const AITrainingHub: React.FC = () => {
   const { t } = useTranslation();
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
   const { showToast } = useToastWithIcon();
+  const { showToast: showTranslatedToast } = useTranslatedToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -472,10 +474,11 @@ export const AITrainingHub: React.FC = () => {
           }
         }
 
-        showToast({
-          title: 'Protocollo avviato',
-          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato avviato con successo`,
-          type: 'complete'
+        showTranslatedToast({
+          title: 'protocol.started.title',
+          description: 'protocol.started.description',
+          variant: 'default',
+          variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
         // Reindirizza alla dashboard del nuovo protocollo
@@ -503,10 +506,11 @@ export const AITrainingHub: React.FC = () => {
         await queryClient.refetchQueries({ queryKey: ['completed-protocols'] });
         await queryClient.refetchQueries({ queryKey: ['training-protocols'] });
         
-        showToast({
-          title: 'Protocollo riavviato',
-          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato riavviato da capo`,
-          type: 'complete'
+        showTranslatedToast({
+          title: 'protocol.restarted.title',
+          description: 'protocol.restarted.description',
+          variant: 'default',
+          variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
         // Reindirizza alla dashboard del protocollo resettato
@@ -523,10 +527,11 @@ export const AITrainingHub: React.FC = () => {
           }
         });
         
-        showToast({
-          title: 'Protocollo avviato',
-          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato avviato con successo`,
-          type: 'complete'
+        showTranslatedToast({
+          title: 'protocol.started.title',
+          description: 'protocol.started.description',
+          variant: 'default',
+          variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
         // Reindirizza alla dashboard del protocollo
@@ -536,10 +541,10 @@ export const AITrainingHub: React.FC = () => {
       }
     } catch (error) {
       console.error('Error starting protocol:', error);
-      showToast({
-        title: 'Errore',
-        description: 'Impossibile avviare il protocollo',
-        type: 'error'
+      showTranslatedToast({
+        title: 'error.title',
+        description: 'protocol.error.cannotStart',
+        variant: 'destructive'
       });
     }
   };
@@ -645,10 +650,11 @@ export const AITrainingHub: React.FC = () => {
       });
       
       if (newStatus === 'paused') {
-        showToast({
-          title: 'Protocollo interrotto',
-          description: `Il protocollo "${protocol?.title || 'Sconosciuto'}" è stato interrotto con successo`,
-          type: 'success'
+        showTranslatedToast({
+          title: 'protocol.stopped.title',
+          description: 'protocol.stopped.description',
+          variant: 'default',
+          variables: { protocolName: protocol?.title || 'Sconosciuto' }
         });
       } else {
         showToast({
