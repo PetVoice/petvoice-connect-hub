@@ -173,7 +173,7 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
       showToast({
         title: 'pets.petAdded.title',
         description: 'pets.petAdded.description',
-        variant: 'success',
+        variant: 'default',
         variables: { petName: petData.name || 'Pet' }
       });
 
