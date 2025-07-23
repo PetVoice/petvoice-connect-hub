@@ -3458,6 +3458,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      translate_english_to_italian: {
+        Args: { english_text: string }
+        Returns: string
+      }
       translate_italian_to_english: {
         Args: { italian_text: string }
         Returns: string
