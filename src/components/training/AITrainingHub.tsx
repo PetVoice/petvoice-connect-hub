@@ -388,8 +388,8 @@ export const AITrainingHub: React.FC = () => {
     }
 
     try {
-      // Se è un protocollo pubblico (senza user_id), crea una copia per l'utente usando la funzione database
-      if (!protocol.user_id) {
+      // Se è un protocollo pubblico (is_public = true), crea una copia per l'utente usando la funzione database
+      if (protocol.is_public) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           showToast({
