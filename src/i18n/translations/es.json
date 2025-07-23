@@ -1277,7 +1277,11 @@
       "exerciseCompleted": "Ejercicio {{number}} Completado",
       "minutes": "minutos",
       "tipText": "La paciencia es clave. Permite que tu mascota explore a su propio ritmo.",
-      "interrupt": "Interrumpir Entrenamiento"
+      "interrupt": "Interrumpir Entrenamiento",
+      "confirmInterruption": "Confirmar Interrupción",
+      "interruptProtocolDescription": "¿Estás seguro de que quieres interrumpir este protocolo de entrenamiento? El progreso se guardará pero tendrás que empezar desde el principio.",
+      "yesInterrupt": "Sí, Interrumpir",
+      "cancel": "Cancelar"
     },
     "exercises": {
       "titles": {

@@ -1248,6 +1248,10 @@
       "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni": "Improve social skills, reduce shyness, increase confidence in interactions"
     },
     "dashboard": {
+      "confirmInterruption": "Confirm Interruption",
+      "interruptProtocolDescription": "Are you sure you want to interrupt this training protocol? Progress will be saved but you'll need to start over from the beginning.",
+      "yesInterrupt": "Yes, Interrupt",
+      "cancel": "Cancel",
       "dayOf": "Day {{current}} of {{total}}",
       "currentDay": "Current day",
       "totalProgress": "Total progress",
