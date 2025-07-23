@@ -33,6 +33,9 @@ export interface TrainingProtocol {
   created_at: string;
   updated_at: string;
   last_activity_at: string;
+  // Personal rating fields (only for completed protocols)
+  personal_success_rate?: number;
+  personal_rating?: number;
   // Relationships
   exercises?: TrainingExercise[];
   metrics?: TrainingMetrics | null;
@@ -155,7 +158,34 @@ export const useCompletedProtocols = () => {
         return acc;
       }, []) || [];
 
-      return uniqueProtocols as TrainingProtocol[];
+      // Per ogni protocollo completato, recupera il rating personale dell'utente
+      const protocolsWithPersonalRating = await Promise.all(
+        uniqueProtocols.map(async (protocol: any) => {
+          const { data: ratingData, error: ratingError } = await supabase
+            .from('protocol_ratings')
+            .select('rating')
+            .eq('user_id', user.id)
+            .eq('protocol_id', protocol.id)
+            .maybeSingle();
+
+          if (ratingError) {
+            console.error('Error fetching rating:', ratingError);
+          }
+
+          // Calcola il tasso di successo personale basato sul rating (1-10 -> 0-100%)
+          const personalSuccessRate = ratingData?.rating 
+            ? Math.round(((ratingData.rating - 1) / 9.0) * 100)
+            : 0;
+
+          return {
+            ...protocol,
+            personal_success_rate: personalSuccessRate,
+            personal_rating: ratingData?.rating || 0
+          };
+        })
+      );
+
+      return protocolsWithPersonalRating as TrainingProtocol[];
     },
   });
 };

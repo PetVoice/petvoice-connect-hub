@@ -228,10 +228,10 @@ export const AITrainingHub: React.FC = () => {
     const completedProtocolsCount = completedProtocols.length; // Usa completedProtocols dal hook dedicato
     const totalProtocols = protocols.length + activeCount + completedProtocolsCount;
     
-    // Calculate success rate based on completed protocols only
-    const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
+    // Calculate success rate based on completed protocols only (using personal ratings)
+    const completedWithData = completedProtocols.filter(p => p.personal_success_rate && p.personal_success_rate > 0);
     const avgSuccessRate = completedWithData.length > 0 
-      ? Math.round(completedWithData.reduce((sum, p) => sum + p.success_rate, 0) / completedWithData.length)
+      ? Math.round(completedWithData.reduce((sum, p) => sum + (p.personal_success_rate || 0), 0) / completedWithData.length)
       : 0;
     
     return {
@@ -752,7 +752,7 @@ export const AITrainingHub: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">{stats.avgSuccessRate}%</div>
-            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.successRateDescription')}</p>
+            <p className="text-xs text-muted-foreground">media personale</p>
           </CardContent>
         </Card>
 
@@ -1141,7 +1141,10 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
+                            <span>{protocol.personal_success_rate ? Math.round(protocol.personal_success_rate) : 0}% successo</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            media personale
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
