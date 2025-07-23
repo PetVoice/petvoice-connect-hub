@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Trash2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileAvatarProps {
@@ -11,7 +11,7 @@ interface ProfileAvatarProps {
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChange }) => {
   const [uploading, setUploading] = useState(false);
   const [showRemoveOption, setShowRemoveOption] = useState(false);
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   // Genera avatar casuale basato su user ID
   const getRandomAvatar = (userId: string) => {
@@ -56,18 +56,18 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
     
     // Validazione
     if (file.size > 5 * 1024 * 1024) {
-      toast({
+      showToast({
         title: "Errore",
-        description: "File troppo grande. Massimo 5MB.",
+        description: "File troppo grande",
         variant: "destructive"
       });
       return;
     }
     
     if (!file.type.startsWith('image/')) {
-      toast({
+      showToast({
         title: "Errore",
-        description: "Seleziona un'immagine valida.",
+        description: "Seleziona un'immagine valida",
         variant: "destructive"
       });
       return;
@@ -107,16 +107,16 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
         });
       
       onAvatarChange(publicUrl);
-      toast({
+      showToast({
         title: "Successo",
-        description: "Avatar aggiornato!"
+        description: "Avatar aggiornato"
       });
       
     } catch (error: any) {
       console.error('Errore upload avatar:', error);
-      toast({
+      showToast({
         title: "Errore",
-        description: "Errore aggiornamento avatar",
+        description: "Impossibile aggiornare l'avatar",
         variant: "destructive"
       });
     } finally {
@@ -145,16 +145,16 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChan
       
       onAvatarChange(null);
       setShowRemoveOption(false);
-      toast({
+      showToast({
         title: "Successo",
-        description: "Avatar rimosso!"
+        description: "Avatar aggiornato"
       });
       
     } catch (error: any) {
       console.error('Errore rimozione avatar:', error);
-      toast({
+      showToast({
         title: "Errore",
-        description: "Errore rimozione avatar",
+        description: "Impossibile aggiornare l'avatar",
         variant: "destructive"
       });
     } finally {

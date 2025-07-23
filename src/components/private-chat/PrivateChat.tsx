@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { MessageCircle, Send, ArrowLeft, User, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -52,6 +52,7 @@ interface PrivateMessage {
 export const PrivateChat: React.FC = () => {
   console.log('🏗️ PrivateChat component loading...');
   const { user } = useAuth();
+  const { showToast } = useTranslatedToast();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
@@ -147,7 +148,7 @@ export const PrivateChat: React.FC = () => {
       setChats(chatsWithDetails);
     } catch (error) {
       console.error('Error loading chats:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile caricare le chat",
         variant: "destructive"
@@ -229,7 +230,7 @@ export const PrivateChat: React.FC = () => {
 
       if (error) {
         console.error('Error sending message:', error);
-        toast({
+        showToast({
           title: "Errore",
           description: "Impossibile inviare il messaggio",
           variant: "destructive"
@@ -243,7 +244,7 @@ export const PrivateChat: React.FC = () => {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile inviare il messaggio",
         variant: "destructive"

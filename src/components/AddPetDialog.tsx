@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 
 interface AddPetDialogProps {
   open: boolean;
@@ -51,6 +51,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
   const { user } = useAuth();
   const { addPet } = usePets();
   const { t } = useTranslation();
+  const { showToast } = useTranslatedToast();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -118,10 +119,10 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     if (loading) return;
 
     if (!formData.name || !formData.type) {
-      toast({
-        title: t('errors.validationError'),
-        description: t('toast.pets.validationRequired'),
-        variant: "destructive",
+      showToast({
+        title: "Errore",
+        description: "Nome e tipo sono obbligatori",
+        variant: "destructive"
       });
       return;
     }

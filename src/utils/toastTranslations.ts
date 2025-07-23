@@ -67,7 +67,16 @@ const toastTranslations = {
     "Impossibile eliminare": "Impossibile eliminare",
     "Copiato negli appunti": "Copiato negli appunti",
     "Impossibile copiare": "Impossibile copiare",
-    'Digita "ELIMINA" per confermare': 'Digita "ELIMINA" per confermare'
+    'Digita "ELIMINA" per confermare': 'Digita "ELIMINA" per confermare',
+    "Il nostro team ti contatterà entro 24 ore": "Il nostro team ti contatterà entro 24 ore",
+    "Feedback inviato": "Feedback inviato",
+    "Grazie per il tuo contributo! Ci aiuterà a migliorare l'accessibilità.": "Grazie per il tuo contributo! Ci aiuterà a migliorare l'accessibilità.",
+    "Nome e tipo sono obbligatori": "Nome e tipo sono obbligatori",
+    "Seleziona un'immagine valida": "Seleziona un'immagine valida",
+    "Impossibile caricare le chat": "Impossibile caricare le chat",
+    "Tutti i dati sono coerenti e aggiornati": "Tutti i dati sono coerenti e aggiornati",
+    "Problemi di integrità rilevati: {count}": "Problemi di integrità rilevati: {count}",
+    "Impossibile generare il report di integrità": "Impossibile generare il report di integrità"
   },
   en: {
     // Generic messages
@@ -132,9 +141,18 @@ const toastTranslations = {
     "Impossibile salvare": "Unable to save",
     "Eliminato": "Deleted",
     "Impossibile eliminare": "Unable to delete",
-    "Copiato negli appunti": "Copied to clipboard",
-    "Impossibile copiare": "Unable to copy",
-    'Digita "ELIMINA" per confermare': 'Type "DELETE" to confirm'
+    "Copied to clipboard": "Copied to clipboard",
+    "Unable to copy": "Unable to copy",
+    'Type "DELETE" to confirm': 'Type "DELETE" to confirm',
+    "Our team will contact you within 24 hours": "Our team will contact you within 24 hours",
+    "Feedback sent": "Feedback sent",
+    "Thank you for your contribution! It will help us improve accessibility.": "Thank you for your contribution! It will help us improve accessibility.",
+    "Name and type are required": "Name and type are required",
+    "Select a valid image": "Select a valid image",
+    "Unable to load chats": "Unable to load chats",
+    "All data is consistent and up to date": "All data is consistent and up to date",
+    "Integrity issues detected: {count}": "Integrity issues detected: {count}",
+    "Unable to generate integrity report": "Unable to generate integrity report"
   },
   es: {
     // Generic messages

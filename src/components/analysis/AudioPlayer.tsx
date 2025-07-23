@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square, Volume2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 
 interface AudioPlayerProps {
   storagePath: string;
@@ -20,7 +20,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
   const [error, setError] = useState<string | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
 
   // Load audio URL when component mounts
   useEffect(() => {
@@ -53,7 +53,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
     } catch (err: any) {
       console.error('Error loading audio:', err);
       setError(err.message || 'Errore nel caricamento audio');
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile caricare il file audio",
         variant: "destructive"
