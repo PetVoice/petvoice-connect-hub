@@ -85,7 +85,7 @@ const DashboardPage: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-foreground" />
-            {t('dashboard.quickActions.title')}
+            {t('dashboard.quickActions')}
           </CardTitle>
           <CardDescription>
             {t('dashboard.quickActionsDesc')}
