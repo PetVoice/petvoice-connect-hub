@@ -1013,38 +1013,6 @@
       "sessions": "Sessions",
       "analytics": "Analytics"
     },
-    "protocols": {
-      "socializzazioneProgressiva": {
-        "description": "5-day protocol to improve the animal's social skills with other animals and people. Gradual and positive approach for shy or under-socialized animals, with focus on confidence building and controlled interactions."
-      },
-      "controlloAggressivitaReattiva": {
-        "description": "Advanced protocol for safe management of reactive aggression. Absolute priority on safety, impulse control and developing alternative behaviors. Requires professional supervision."
-      },
-      "gestioneAnsiaSeperazione": {
-        "description": "Scientific protocol to reduce separation anxiety through gradual desensitization. Develops independence and tranquility during owner absence with ultra-gradual approach."
-      },
-      "rieducazioneAlimentare": {
-        "description": "Intermediate protocol to resolve food-related behavioral disorders. Addresses compulsive eating, food refusal, food guarding and food anxiety through a gradual and non-punitive approach."
-      },
-      "ottimizzazioneSonno": {
-        "description": "Specialized protocol to establish healthy sleep patterns, reduce insomnia and nighttime awakenings. Through pre-sleep routines, environmental optimization and circadian regulation, helps animals develop natural and restorative rest habits."
-      },
-      "superareFobie": {
-        "description": "Advanced systematic desensitization program to overcome intense phobias of noises, objects and specific situations through gradual scientific techniques."
-      },
-      "stopComportamentiDistruttivi": {
-        "description": "Intensive protocol to eliminate destructive chewing, excessive digging and destruction of household objects."
-      },
-      "gestioneGelosia": {
-        "description": "Specialized protocol to reduce possessive behaviors and jealousy in pets. Includes advanced desensitization techniques, sharing training and resource management."
-      },
-      "riattivazioneEnergia": {
-        "description": "Gradual protocol to combat depression, apathy and loss of interest in animals. Gentle and progressive approach to awaken motivation through sensory stimuli, physical activation and restoration of social interest."
-      },
-      "gestioneIperattivita": {
-        "description": "Complete protocol to reduce hyperactivity and improve concentration through a progressive approach: from constructive energy discharge to impulse control, to relaxation and self-control."
-      }
-    },
     "protocol": {
       "day": "Day",
       "success": "success",

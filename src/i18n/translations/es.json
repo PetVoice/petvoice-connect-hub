@@ -1013,38 +1013,6 @@
       "sessions": "Sesiones",
       "analytics": "Análisis"
     },
-    "protocols": {
-      "socializzazioneProgressiva": {
-        "description": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en la construcción de confianza e interacciones controladas."
-      },
-      "controlloAggressivitaReattiva": {
-        "description": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en la seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional."
-      },
-      "gestioneAnsiaSeperazione": {
-        "description": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante la ausencia del propietario con enfoque ultra-gradual."
-      },
-      "rieducazioneAlimentare": {
-        "description": "Protocolo intermedio para resolver trastornos de comportamiento relacionados con la alimentación. Aborda la alimentación compulsiva, el rechazo de alimentos, la protección de alimentos y la ansiedad alimentaria a través de un enfoque gradual y no punitivo."
-      },
-      "ottimizzazioneSonno": {
-        "description": "Protocolo especializado para establecer patrones de sueño saludables, reducir el insomnio y los despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores."
-      },
-      "superareFobie": {
-        "description": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales."
-      },
-      "stopComportamentiDistruttivi": {
-        "description": "Protocolo intensivo para eliminar la masticación destructiva, excavación excesiva y destrucción de objetos domésticos."
-      },
-      "gestioneGelosia": {
-        "description": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y manejo de recursos."
-      },
-      "riattivazioneEnergia": {
-        "description": "Protocolo gradual para combatir la depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social."
-      },
-      "gestioneIperattivita": {
-        "description": "Protocolo completo para reducir la hiperactividad y mejorar la concentración a través de un enfoque progresivo: desde la descarga de energía constructiva hasta el control de impulsos, hasta la relajación y el autocontrol."
-      }
-    },
     "protocol": {
       "day": "Día",
       "success": "éxito",
