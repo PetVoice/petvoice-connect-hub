@@ -818,31 +818,21 @@ const TrainingDashboard: React.FC = () => {
 
 
               
-              {/* Pulsanti Azione - VERSIONE SEMPLIFICATA */}
+              {/* Completion Button */}
+              <Separator />
+              
+              {/* Pulsanti Azione */}
               <div className="flex gap-3 w-full">
-                <button
+                <Button
                   onClick={() => {
-                    console.log('🔥🔥🔥 PULSANTE CLICCATO! DATI ATTUALI:', {
-                      currentExercise,
-                      dailyCompletedExercises,
-                      currentDay,
-                      todayExercisesLength: todayExercises.length
-                    });
+                    console.log('🔥 CLICK PULSANTE COMPLETA!');
                     handleCompleteExercise();
                   }}
-                  style={{
-                    background: '#3b82f6',
-                    color: 'white',
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold'
-                  }}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6"
                 >
-                  🔥 COMPLETA ESERCIZIO {currentExercise + 1} 🔥
-                </button>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Completa Esercizio {currentExercise + 1}
+                </Button>
 
                 {/* Pulsante Interrompi Protocollo */}
                 <AlertDialog>
