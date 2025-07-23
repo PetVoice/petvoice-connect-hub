@@ -1,503 +1,725 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { 
   Brain, 
+  Play, 
+  Pause, 
+  SkipForward, 
+  Square, 
+  Clock, 
   Target, 
-  TrendingUp, 
-  Calendar, 
-  PlayCircle, 
-  PauseCircle, 
-  RotateCcw,
+  TrendingUp,
+  Sparkles,
   CheckCircle,
+  XCircle,
   AlertCircle,
-  Video,
   Star,
-  Clock,
-  Trash2,
-  MoreHorizontal,
-  Edit
+  Calendar,
+  Filter,
+  Search,
+  BarChart3,
+  Heart,
+  Shield,
+  Zap,
+  Moon
 } from 'lucide-react';
-import { useTrainingProtocols, useDeleteProtocol, useUpdateProtocol } from '@/hooks/useTrainingProtocols';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-interface TrainingProtocol {
+interface Protocol {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  duration: number; // days
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  targetBehaviors: string[];
-  currentDay: number;
-  successRate: number;
-  status: 'active' | 'completed' | 'paused';
-  phases: TrainingPhase[];
+  category: string;
+  difficulty: string;
+  duration_days: number;
+  current_day: number;
+  progress_percentage: number;
+  status: string;
+  target_behavior: string;
+  triggers: string[];
+  required_materials: string[];
+  success_rate: number;
+  ai_generated: boolean;
+  is_public: boolean;
+  veterinary_approved: boolean;
+  community_rating: number;
+  community_usage: number;
+  mentor_recommended: boolean;
+  created_at: string;
+  updated_at: string;
+  user_id?: string;
 }
 
-interface TrainingPhase {
+interface Pet {
   id: string;
   name: string;
-  dayRange: [number, number];
-  objectives: string[];
-  techniques: string[];
-  successCriteria: string[];
-  isCompleted: boolean;
+  type: string;
 }
 
-interface TrainingSession {
-  id: string;
-  date: string;
-  duration: number;
-  exercises: string[];
-  successRate: number;
-  notes: string;
-  videoAnalysis?: {
-    posture: number;
-    engagement: number;
-    stress: number;
-    recommendations: string[];
-  };
+interface AITrainingProtocolsProps {
+  selectedPet: Pet;
 }
 
-const mockSessions: TrainingSession[] = [
-  {
-    id: '1',
-    date: '2024-01-15',
-    duration: 25,
-    exercises: ['Breathing exercises', 'Trigger desensitization', 'Relaxation commands'],
-    successRate: 85,
-    notes: 'Excellent progress on breathing exercises. Still working on trigger response.',
-    videoAnalysis: {
-      posture: 82,
-      engagement: 78,
-      stress: 35,
-      recommendations: [
-        'Increase session frequency for trigger work',
-        'Add more positive reinforcement',
-        'Consider shorter sessions to maintain focus'
-      ]
-    }
-  },
-  {
-    id: '2',
-    date: '2024-01-14',
-    duration: 30,
-    exercises: ['Basic commands', 'Calm positioning', 'Stress indicators recognition'],
-    successRate: 72,
-    notes: 'Good response to basic commands. Need to work more on stress recognition.',
-    videoAnalysis: {
-      posture: 75,
-      engagement: 80,
-      stress: 45,
-      recommendations: [
-        'Focus on stress indicator training',
-        'Shorter training intervals',
-        'Increase reward frequency'
-      ]
-    }
-  }
-];
+export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ selectedPet }) => {
+  const { toast } = useToast();
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
+  const [filteredProtocols, setFilteredProtocols] = useState<Protocol[]>([]);
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('available');
 
-export const AITrainingProtocols: React.FC = () => {
-  const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState('protocols');
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [editingProtocol, setEditingProtocol] = useState<any>(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
-  const { data: protocols = [], isLoading } = useTrainingProtocols();
-  const deleteProtocol = useDeleteProtocol();
-  const updateProtocol = useUpdateProtocol();
+  // Carica protocolli dal database
+  const fetchProtocols = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('ai_training_protocols')
+        .select('*');
 
-  // Get current user ID
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      console.log('Getting current user...');
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user from auth:', user?.id);
-      setCurrentUserId(user?.id || null);
-    };
-    getCurrentUser();
-  }, []);
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'facile': return 'bg-green-100 text-green-800';
-      case 'medio': return 'bg-yellow-100 text-yellow-800';
-      case 'difficile': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'paused': return 'bg-gray-100 text-gray-800';
-      case 'available': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const handleDeleteProtocol = async (protocolId: string) => {
-    if (window.confirm(t('aiTraining.messages.deleteConfirm'))) {
-      await deleteProtocol.mutateAsync(protocolId);
-    }
-  };
-
-  const handleStatusChange = async (protocolId: string, newStatus: string) => {
-    await updateProtocol.mutateAsync({
-      id: protocolId,
-      updates: { status: newStatus as any }
-    });
-  };
-
-  const isUserCreated = (protocol: any) => {
-    const isUserProtocol = protocol.user_id === currentUserId && protocol.ai_generated !== true;
-    console.log('Protocol check for:', protocol.title, {
-      protocolUserId: protocol.user_id,
-      currentUserId,
-      aiGenerated: protocol.ai_generated,
-      isUserProtocol,
-      userIdMatch: protocol.user_id === currentUserId,
-      notAiGenerated: protocol.ai_generated !== true
-    });
-    return isUserProtocol;
-  };
-
-  const handleEditProtocol = (protocol: any) => {
-    setEditingProtocol(protocol);
-    setEditTitle(protocol.title);
-    setEditDescription(protocol.description || '');
-    setIsEditDialogOpen(true);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingProtocol) return;
-
-    await updateProtocol.mutateAsync({
-      id: editingProtocol.id,
-      updates: {
-        title: editTitle,
-        description: editDescription,
+      if (activeTab === 'available') {
+        query = query.or('is_public.eq.true,user_id.is.null');
+      } else if (activeTab === 'active') {
+        query = query.eq('status', 'active');
+      } else if (activeTab === 'completed') {
+        query = query.eq('status', 'completed');
       }
-    });
 
-    setIsEditDialogOpen(false);
-    setEditingProtocol(null);
-    setEditTitle('');
-    setEditDescription('');
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProtocols((data || []).map(protocol => ({
+        ...protocol,
+        progress_percentage: typeof protocol.progress_percentage === 'string' 
+          ? parseInt(protocol.progress_percentage) || 0 
+          : protocol.progress_percentage || 0,
+        triggers: Array.isArray(protocol.triggers) ? protocol.triggers : [],
+        required_materials: Array.isArray(protocol.required_materials) ? protocol.required_materials : []
+      })));
+    } catch (error) {
+      console.error('Errore nel caricamento protocolli:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i protocolli",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (isLoading) {
-    return <div className="flex justify-center p-8">{t('aiTraining.messages.loading')}</div>;
-  }
+  // Filtra protocolli in base ai criteri
+  useEffect(() => {
+    let filtered = protocols;
+
+    // Filtro di ricerca
+    if (searchQuery) {
+      filtered = filtered.filter(protocol => 
+        protocol.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        protocol.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        protocol.target_behavior.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filtri per status, difficulty, category
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(protocol => protocol.status === statusFilter);
+    }
+    if (difficultyFilter !== 'all') {
+      filtered = filtered.filter(protocol => protocol.difficulty === difficultyFilter);
+    }
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(protocol => protocol.category === categoryFilter);
+    }
+
+    setFilteredProtocols(filtered);
+  }, [protocols, searchQuery, statusFilter, difficultyFilter, categoryFilter]);
+
+  // Carica protocolli all'avvio e quando cambia tab
+  useEffect(() => {
+    fetchProtocols();
+  }, [activeTab]);
+
+  // Avvia un protocollo
+  const startProtocol = async (protocolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_training_protocols')
+        .update({ 
+          status: 'active',
+          current_day: 1,
+          progress_percentage: '0',
+          last_activity_at: new Date().toISOString()
+        })
+        .eq('id', protocolId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Protocollo avviato",
+        description: "Il protocollo è stato avviato con successo",
+      });
+
+      fetchProtocols();
+    } catch (error) {
+      console.error('Errore nell\'avvio del protocollo:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile avviare il protocollo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Ferma un protocollo
+  const stopProtocol = async (protocolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_training_protocols')
+        .update({ 
+          status: 'stopped',
+          last_activity_at: new Date().toISOString()
+        })
+        .eq('id', protocolId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Protocollo fermato",
+        description: "Il protocollo è stato interrotto",
+      });
+
+      fetchProtocols();
+    } catch (error) {
+      console.error('Errore nel fermare il protocollo:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile fermare il protocollo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Riavvia un protocollo
+  const restartProtocol = async (protocolId: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_training_protocols')
+        .update({ 
+          status: 'active',
+          current_day: 1,
+          progress_percentage: '0',
+          last_activity_at: new Date().toISOString()
+        })
+        .eq('id', protocolId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Protocollo riavviato",
+        description: "Il protocollo è stato riavviato da capo",
+      });
+
+      fetchProtocols();
+    } catch (error) {
+      console.error('Errore nel riavviare il protocollo:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile riavviare il protocollo",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Ottieni icona per categoria
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'comportamento':
+        return Brain;
+      case 'socializzazione':
+        return Heart;
+      case 'ansia':
+        return Shield;
+      case 'energia':
+        return Zap;
+      case 'rilassamento':
+        return Moon;
+      default:
+        return Target;
+    }
+  };
+
+  // Ottieni colore per difficoltà
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'facile':
+        return 'bg-green-500';
+      case 'medio':
+        return 'bg-yellow-500';
+      case 'difficile':
+        return 'bg-orange-500';
+      case 'esperto':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  // Ottieni colore per status
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'text-green-600';
+      case 'completed':
+        return 'text-blue-600';
+      case 'stopped':
+        return 'text-red-600';
+      case 'available':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  // Formatta status per display
+  const getStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'Attivo';
+      case 'completed':
+        return 'Completato';
+      case 'stopped':
+        return 'Interrotto';
+      case 'available':
+        return 'Disponibile';
+      default:
+        return status;
+    }
+  };
+
+  // Formatta difficoltà per display
+  const getDifficultyText = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'facile':
+        return 'Facile';
+      case 'medio':
+        return 'Medio';
+      case 'difficile':
+        return 'Difficile';
+      case 'esperto':
+        return 'Esperto';
+      default:
+        return difficulty;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            {t('aiTraining.title')}
-          </CardTitle>
-          <CardDescription>
-            {t('aiTraining.subtitle')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="protocols">{t('aiTraining.tabs.protocols')}</TabsTrigger>
-              <TabsTrigger value="sessions">{t('aiTraining.tabs.sessions')}</TabsTrigger>
-              <TabsTrigger value="analytics">{t('aiTraining.tabs.analytics')}</TabsTrigger>
-            </TabsList>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Protocolli di Training AI</h2>
+          <p className="text-muted-foreground">Programmi personalizzati per {selectedPet.name}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Sparkles className="h-3 w-3" />
+            AI-Generated
+          </Badge>
+        </div>
+      </div>
 
-            <TabsContent value="protocols" className="mt-4">
-              <div className="grid gap-4">
-                {protocols.map((protocol) => {
-                  console.log('Rendering protocol:', protocol.title, {
-                    protocolUserId: protocol.user_id,
-                    currentUserId,
-                    shouldShowButtons: currentUserId && protocol.user_id === currentUserId
-                  });
-                  return (
-                    <Card
-                      key={protocol.id} 
-                      className="cursor-pointer hover:bg-accent/50 focus-within:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2" 
-                      onClick={() => setSelectedProtocol(protocol)}
-                      tabIndex={0}
-                      role="button"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedProtocol(protocol);
-                        }
-                      }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="available">Disponibili</TabsTrigger>
+          <TabsTrigger value="active">Attivi</TabsTrigger>
+          <TabsTrigger value="completed">Completati</TabsTrigger>
+        </TabsList>
+
+        {/* Filtri */}
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cerca protocolli..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutti</SelectItem>
+              <SelectItem value="available">Disponibili</SelectItem>
+              <SelectItem value="active">Attivi</SelectItem>
+              <SelectItem value="completed">Completati</SelectItem>
+              <SelectItem value="stopped">Interrotti</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Difficoltà" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutte</SelectItem>
+              <SelectItem value="facile">Facile</SelectItem>
+              <SelectItem value="medio">Medio</SelectItem>
+              <SelectItem value="difficile">Difficile</SelectItem>
+              <SelectItem value="esperto">Esperto</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutte</SelectItem>
+              <SelectItem value="comportamento">Comportamento</SelectItem>
+              <SelectItem value="socializzazione">Socializzazione</SelectItem>
+              <SelectItem value="ansia">Ansia</SelectItem>
+              <SelectItem value="energia">Energia</SelectItem>
+              <SelectItem value="rilassamento">Rilassamento</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Content per ogni tab */}
+        <TabsContent value="available" className="space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredProtocols.map((protocol) => {
+                const CategoryIcon = getCategoryIcon(protocol.category);
+                return (
+                  <Card key={protocol.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className={`p-3 rounded-full ${getDifficultyColor(protocol.difficulty)} text-white`}>
+                            <CategoryIcon className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{translateProtocolTitle(protocol.title)}</h3>
-                              <Badge className={getDifficultyColor(protocol.difficulty)}>
-                                {t(`aiTraining.protocol.difficulty.${protocol.difficulty}`, protocol.difficulty)}
-                              </Badge>
-                              <Badge className={getStatusColor(protocol.status)}>
-                                {t(`aiTraining.protocol.status.${protocol.status}`, protocol.status)}
+                              <h3 className="text-lg font-semibold">{protocol.title}</h3>
+                              <Badge variant="outline" className={getStatusColor(protocol.status)}>
+                                {getStatusText(protocol.status)}
                               </Badge>
                               {protocol.ai_generated && (
-                                <Badge variant="outline">AI</Badge>
+                                <Badge variant="secondary">AI</Badge>
+                              )}
+                              {protocol.veterinary_approved && (
+                                <Badge variant="outline" className="text-green-600">Vet Approved</Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {translateProtocolDescription(protocol.description || '')}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm">
-                               <span className="flex items-center gap-1">
-                                 <Calendar className="h-4 w-4" />
-                                 {t('aiTraining.protocol.day')} {protocol.current_day}/{protocol.duration_days}
-                               </span>
-                               <span className="flex items-center gap-1">
-                                 <TrendingUp className="h-4 w-4" />
-                                 {Math.round(protocol.success_rate)}% {t('aiTraining.protocol.success')}
-                               </span>
-                            </div>
-                            <div className="mt-3">
-                               <div className="flex items-center justify-between text-sm mb-1">
-                                 <span>{t('aiTraining.protocol.progress')}</span>
-                                 <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
+                            <p className="text-muted-foreground mb-3">{protocol.description}</p>
+                            <div className="flex items-center gap-4 mb-3">
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{protocol.duration_days} giorni</span>
                               </div>
-                              <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
-                            </div>
-                          </div>
-                          
-                          {/* PULSANTI SUPER VISIBILI! */}
-                          <div style={{ 
-                            backgroundColor: 'red', 
-                            padding: '20px', 
-                            margin: '10px',
-                            border: '5px solid purple',
-                            minWidth: '200px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '10px'
-                          }}>
-                            <div style={{ backgroundColor: 'yellow', padding: '10px', fontSize: '20px', fontWeight: 'bold' }}>
-                              PULSANTI QUI!!! 🔥🔥🔥
-                            </div>
-                            <Button 
-                              size="lg" 
-                              variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 alert(t('aiTraining.messages.editClick'));
-                                 handleEditProtocol(protocol);
-                               }}
-                               style={{ 
-                                 backgroundColor: 'blue', 
-                                 color: 'white', 
-                                 fontSize: '16px',
-                                 padding: '15px',
-                                 border: '3px solid black'
-                               }}
-                             >
-                               <Edit className="h-4 w-4 mr-1" />
-                               {t('aiTraining.buttons.edit')} 🔧
-                            </Button>
-                            <Button 
-                              size="lg" 
-                              variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 alert(t('aiTraining.messages.deleteClick'));
-                                 if (window.confirm(t('aiTraining.messages.deleteConfirm'))) {
-                                   handleDeleteProtocol(protocol.id);
-                                 }
-                               }}
-                               style={{ 
-                                 backgroundColor: 'red', 
-                                 color: 'white', 
-                                 fontSize: '16px',
-                                 padding: '15px',
-                                 border: '3px solid black'
-                               }}
-                             >
-                               <Trash2 className="h-4 w-4 mr-1" />
-                               {t('aiTraining.buttons.delete')} 🗑️
-                             </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="sessions" className="mt-4">
-              <div className="space-y-4">
-                {mockSessions.map((session) => (
-                  <Card key={session.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold">{t('aiTraining.sessions.title')} {session.date}</h3>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {session.duration} min
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Star className="h-4 w-4" />
-                              {session.successRate}% {t('aiTraining.protocol.success')}
-                            </span>
-                          </div>
-                        </div>
-                        <Button size="sm" variant="outline">
-                          <Video className="h-4 w-4 mr-2" />
-                          {t('aiTraining.sessions.videoButton')}
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.exercises')}</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {session.exercises.map((exercise, index) => (
-                              <Badge key={index} variant="secondary">{exercise}</Badge>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.notes')}</h4>
-                          <p className="text-sm text-muted-foreground">{session.notes}</p>
-                        </div>
-                        
-                        {session.videoAnalysis && (
-                          <div>
-                            <h4 className="text-sm font-medium mb-2">{t('aiTraining.sessions.videoAnalysis')}</h4>
-                            <div className="grid grid-cols-3 gap-4 mb-3">
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-600">{session.videoAnalysis.posture}%</div>
-                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.posture')}</div>
+                              <div className="flex items-center gap-1">
+                                <Target className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{protocol.target_behavior}</span>
                               </div>
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-green-600">{session.videoAnalysis.engagement}%</div>
-                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.engagement')}</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-2xl font-bold text-red-600">{session.videoAnalysis.stress}%</div>
-                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.stress')}</div>
+                              <div className="flex items-center gap-1">
+                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{protocol.success_rate}% successo</span>
                               </div>
                             </div>
-                            <div>
-                              <h5 className="text-sm font-medium mb-1">{t('aiTraining.sessions.recommendations')}</h5>
-                              <ul className="text-sm text-muted-foreground space-y-1">
-                                {session.videoAnalysis.recommendations.map((rec, index) => (
-                                  <li key={index} className="flex items-center gap-2">
-                                    <AlertCircle className="h-3 w-3" />
-                                    {rec}
-                                  </li>
-                                ))}
-                              </ul>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary">{getDifficultyText(protocol.difficulty)}</Badge>
+                              <Badge variant="outline">{protocol.category}</Badge>
+                              {protocol.community_rating > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                                  <span className="text-xs">{protocol.community_rating.toFixed(1)}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            size="sm"
+                            onClick={() => setSelectedProtocol(protocol)}
+                            variant="outline"
+                          >
+                            Dettagli
+                          </Button>
+                          <Button 
+                            size="sm"
+                            onClick={() => startProtocol(protocol.id)}
+                            disabled={loading}
+                          >
+                            <Play className="h-4 w-4 mr-1" />
+                            Avvia
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="analytics" className="mt-4">
-              <div className="grid gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t('aiTraining.analytics.title')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-blue-600">3</div>
-                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.activeProtocols')}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-green-600">85%</div>
-                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.avgSuccess')}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-purple-600">24h</div>
-                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.totalTime')}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-orange-600">12</div>
-                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.completedSessions')}</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>{t('aiTraining.analytics.aiInsight')}:</strong> {t('aiTraining.analytics.insightMessage')}
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      {/* Edit Protocol Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('aiTraining.dialog.editTitle')}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-title">{t('aiTraining.dialog.titleLabel')}</Label>
-              <Input
-                id="edit-title"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-              />
+                );
+              })}
+              {filteredProtocols.length === 0 && !loading && (
+                <div className="text-center py-8">
+                  <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Nessun protocollo trovato</h3>
+                  <p className="text-muted-foreground">Prova a modificare i filtri di ricerca</p>
+                </div>
+              )}
             </div>
-            <div>
-              <Label htmlFor="edit-description">{t('aiTraining.dialog.descriptionLabel')}</Label>
-              <Textarea
-                id="edit-description"
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                rows={3}
-              />
+          )}
+        </TabsContent>
+
+        <TabsContent value="active" className="space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                {t('aiTraining.dialog.cancel')}
+          ) : (
+            <div className="grid gap-4">
+              {filteredProtocols.filter(p => p.status === 'active').map((protocol) => {
+                const CategoryIcon = getCategoryIcon(protocol.category);
+                return (
+                  <Card key={protocol.id} className="border-green-200 bg-green-50/30">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="p-3 rounded-full bg-green-500 text-white">
+                            <CategoryIcon className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold mb-2">{protocol.title}</h3>
+                            <p className="text-muted-foreground mb-3">{protocol.description}</p>
+                          </div>
+                        </div>
+                        <Badge className="bg-green-100 text-green-800">Attivo</Badge>
+                      </div>
+                      
+                      {/* Progress */}
+                      <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium">Progresso</span>
+                          <span className="text-sm text-muted-foreground">
+                            Giorno {protocol.current_day} di {protocol.duration_days}
+                          </span>
+                        </div>
+                        <Progress value={protocol.progress_percentage} className="h-2" />
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {protocol.progress_percentage}% completato
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          Programma
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <BarChart3 className="h-4 w-4 mr-1" />
+                          Analytics
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => restartProtocol(protocol.id)}
+                        >
+                          Riavvia
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => stopProtocol(protocol.id)}
+                        >
+                          <Square className="h-4 w-4 mr-1" />
+                          Ferma
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {filteredProtocols.filter(p => p.status === 'active').length === 0 && !loading && (
+                <div className="text-center py-8">
+                  <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Nessun protocollo attivo</h3>
+                  <p className="text-muted-foreground">Avvia un protocollo dalla sezione "Disponibili"</p>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="completed" className="space-y-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredProtocols.filter(p => p.status === 'completed').map((protocol) => {
+                const CategoryIcon = getCategoryIcon(protocol.category);
+                return (
+                  <Card key={protocol.id} className="border-blue-200 bg-blue-50/30">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-4 flex-1">
+                          <div className="p-3 rounded-full bg-blue-500 text-white">
+                            <CheckCircle className="h-6 w-6" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="text-lg font-semibold">{protocol.title}</h3>
+                              <Badge className="bg-blue-100 text-blue-800">Completato</Badge>
+                            </div>
+                            <p className="text-muted-foreground mb-3">{protocol.description}</p>
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-1">
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                <span className="text-sm">100% completato</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm">{protocol.success_rate}% efficacia</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant="outline">
+                            <BarChart3 className="h-4 w-4 mr-1" />
+                            Report
+                          </Button>
+                          <Button 
+                            size="sm"
+                            onClick={() => restartProtocol(protocol.id)}
+                          >
+                            Ripeti
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {filteredProtocols.filter(p => p.status === 'completed').length === 0 && !loading && (
+                <div className="text-center py-8">
+                  <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Nessun protocollo completato</h3>
+                  <p className="text-muted-foreground">I protocolli completati appariranno qui</p>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Dettagli Protocollo Modal/Sidebar */}
+      {selectedProtocol && (
+        <Card className="border-2 border-primary">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                {React.createElement(getCategoryIcon(selectedProtocol.category), { className: "h-5 w-5" })}
+                {selectedProtocol.title}
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedProtocol(null)}>
+                <XCircle className="h-4 w-4" />
               </Button>
-              <Button onClick={handleSaveEdit}>
-                {t('aiTraining.dialog.save')}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">{selectedProtocol.description}</p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-sm font-medium">Durata:</span>
+                <p className="text-sm text-muted-foreground">{selectedProtocol.duration_days} giorni</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium">Difficoltà:</span>
+                <p className="text-sm text-muted-foreground">{getDifficultyText(selectedProtocol.difficulty)}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium">Categoria:</span>
+                <p className="text-sm text-muted-foreground">{selectedProtocol.category}</p>
+              </div>
+              <div>
+                <span className="text-sm font-medium">Tasso di successo:</span>
+                <p className="text-sm text-muted-foreground">{selectedProtocol.success_rate}%</p>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-sm font-medium">Comportamento obiettivo:</span>
+              <p className="text-sm text-muted-foreground">{selectedProtocol.target_behavior}</p>
+            </div>
+
+            {selectedProtocol.triggers && selectedProtocol.triggers.length > 0 && (
+              <div>
+                <span className="text-sm font-medium">Triggers:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {selectedProtocol.triggers.map((trigger, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {trigger}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedProtocol.required_materials && selectedProtocol.required_materials.length > 0 && (
+              <div>
+                <span className="text-sm font-medium">Materiali necessari:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {selectedProtocol.required_materials.map((material, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {material}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 pt-4">
+              <Button 
+                onClick={() => startProtocol(selectedProtocol.id)}
+                disabled={loading}
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Avvia Protocollo  
+              </Button>
+              <Button variant="outline" onClick={() => setSelectedProtocol(null)}>
+                Chiudi
               </Button>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
