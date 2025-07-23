@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,7 +29,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface Pet {
   id: string;
@@ -135,8 +135,7 @@ const createTherapyCategories = (t: (key: string) => string): TherapySession[] =
 
 export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) => {
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation();
-  const { showToast } = useTranslatedToast();
+  const { toast } = useToast();
   
   // Create therapy categories with current language
   const THERAPY_CATEGORIES = createTherapyCategories(t);

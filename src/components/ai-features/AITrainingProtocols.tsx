@@ -29,8 +29,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 interface TrainingProtocol {
   id: string;
@@ -110,8 +108,6 @@ const mockSessions: TrainingSession[] = [
 ];
 
 export const AITrainingProtocols: React.FC = () => {
-  const { t } = useTranslation();
-  const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
   const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('protocols');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);

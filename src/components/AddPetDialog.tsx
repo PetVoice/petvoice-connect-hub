@@ -9,8 +9,7 @@ import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddPetDialogProps {
   open: boolean;
@@ -50,8 +49,7 @@ const catBreeds = [
 export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }) => {
   const { user } = useAuth();
   const { addPet } = usePets();
-  const { t } = useTranslation();
-  const { showToast } = useTranslatedToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -119,9 +117,9 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     if (loading) return;
 
     if (!formData.name || !formData.type) {
-      showToast({
-        title: 'error.title',
-        description: 'pets.error.validationRequired',
+      toast({
+        title: 'Errore',
+        description: 'Nome e tipo sono obbligatori',
         variant: 'destructive'
       });
       return;
@@ -169,7 +167,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
       <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
         <div className="max-h-[80vh] overflow-y-auto px-1">
           <DialogHeader>
-            <DialogTitle>{t('pets.addNew')}</DialogTitle>
+            <DialogTitle>Aggiungi animale</DialogTitle>
             <DialogDescription>
               Inserisci tutte le informazioni del tuo nuovo pet
             </DialogDescription>
@@ -342,7 +340,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                {t('buttons.basic.cancel')}
+                Annulla
               </Button>
               <Button 
                 type="submit" 
@@ -360,7 +358,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 ) : (
                   <Plus className="h-4 w-4 mr-2" />
                 )}
-                {loading ? t('common.loading') : t('buttons.pets.addPet')}
+                {loading ? 'Caricamento...' : 'Aggiungi animale'}
               </Button>
             </div>
           </form>

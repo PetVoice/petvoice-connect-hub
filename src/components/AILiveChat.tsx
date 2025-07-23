@@ -19,8 +19,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -61,15 +60,14 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [currentFlow, setCurrentFlow] = useState<FlowOption[]>([]); // Initialize empty, will be set by useEffect
   const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { showToast } = useTranslatedToast();
-  const { t } = useTranslation();
+  const { toast } = useToast();
 
   // Flusso conversazionale gerarchico
   const mainFlow: FlowOption[] = [
     {
       id: 'pets',
-      title: t('aiChat.menu.pets.title'),
-      description: t('aiChat.menu.pets.description'),
+      title: 'Gestione Pet',
+      description: 'Tutto sui tuoi animali domestici',
       children: [
         {
           id: 'add-pet',
@@ -100,8 +98,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'analysis',
-      title: t('aiChat.menu.analysis.title'),
-      description: t('aiChat.menu.analysis.description'),
+      title: 'Analisi AI',
+      description: 'Analisi comportamentale avanzata',
       children: [
         {
           id: 'how-analysis-works',
@@ -132,8 +130,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'diary',
-      title: t('aiChat.menu.diary.title'),
-      description: t('aiChat.menu.diary.description'),
+      title: 'Diario Comportamentale',
+      description: 'Registra e monitora i comportamenti',
       children: [
         {
           id: 'using-diary',
@@ -164,8 +162,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'training',
-      title: t('aiChat.menu.training.title'),
-      description: t('aiChat.menu.training.description'),
+      title: 'Protocolli di Training',
+      description: 'Training personalizzato con AI',
       children: [
         {
           id: 'how-protocols-work',
@@ -196,8 +194,8 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     },
     {
       id: 'support',
-      title: t('aiChat.menu.support.title'),
-      description: t('aiChat.menu.support.description'),
+      title: 'Supporto Tecnico',
+      description: 'Assistenza e risoluzione problemi',
       children: [
         {
           id: 'contact-support',
@@ -239,7 +237,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       if (messages.length === 0) {
         const welcomeMessage: ChatMessage = {
           id: '1',
-          text: t('aiChat.welcomeMessage'),
+          text: '👋 Ciao! Sono l\'assistente AI di PetVoice. Come posso aiutarti oggi?',
           sender: 'ai',
           timestamp: new Date()
         };
@@ -448,7 +446,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       // Add navigation message
       const navMessage: ChatMessage = {
         id: Date.now().toString(),
-        text: t('aiChat.navigationMessage', '', { section: option.title }),
+        text: `Ecco le opzioni per ${option.title}:`,
         sender: 'ai',
         timestamp: new Date()
       };
@@ -499,7 +497,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
     setFlowPath([]);
     const resetMessage: ChatMessage = {
       id: Date.now().toString(),
-      text: t('aiChat.resetMessage'),
+      text: 'Siamo tornati al menu principale. Come posso aiutarti?',
       sender: 'ai',
       timestamp: new Date()
     };
@@ -517,7 +515,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
       if (messages.length === 0) {
         const welcomeMessage: ChatMessage = {
           id: Date.now().toString(),
-          text: t('aiChat.welcomeMessage'),
+          text: '👋 Ciao! Sono l\'assistente AI di PetVoice. Come posso aiutarti oggi?',
           sender: 'ai',
           timestamp: new Date()
         };
@@ -535,7 +533,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2 text-lg">
               <Bot className="h-5 w-5" />
-              <span>{t('header.aiAssistant')}</span>
+              <span>Assistente AI</span>
               <Badge variant="secondary" className="text-xs bg-white/20 text-white">
                 <Sparkles className="h-3 w-3 mr-1" />
                 Live
@@ -589,7 +587,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
                               <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                               <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                             </div>
-                            <span className="text-sm text-muted-foreground ml-2">{t('aiChat.typing')}</span>
+                            <span className="text-sm text-muted-foreground ml-2">Sto scrivendo...</span>
                           </div>
                         ) : (
                           <p className="text-sm whitespace-pre-wrap">{message.text}</p>
@@ -617,12 +615,12 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
               {/* Breadcrumb */}
               {flowPath.length > 0 && (
                 <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
-                  <Button variant="ghost" size="sm" onClick={resetToMain} className="h-6 px-2">{t('aiChat.menuButton')}</Button>
+                  <Button variant="ghost" size="sm" onClick={resetToMain} className="h-6 px-2">Menu</Button>
                   {flowPath.map((path, index) => (
                     <span key={index}>/ {path}</span>
                   ))}
                   {flowPath.length > 0 && (
-                    <Button variant="ghost" size="sm" onClick={goBack} className="h-6 px-2 ml-2">{t('aiChat.backButton')}</Button>
+                    <Button variant="ghost" size="sm" onClick={goBack} className="h-6 px-2 ml-2">Indietro</Button>
                   )}
                 </div>
               )}
@@ -652,7 +650,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={t('aiChat.placeholder')}
+                  placeholder="Scrivi un messaggio..."
                   disabled={isLoading}
                   className="flex-1"
                 />

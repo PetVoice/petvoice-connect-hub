@@ -29,7 +29,8 @@ import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useTranslation, useTimeTranslation } from '@/hooks/useTranslation';
+import { formatDistanceToNow } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -46,7 +47,9 @@ const Header: React.FC = () => {
     clearAllNotifications 
   } = useNotifications();
   
-  const { formatTimeAgo } = useTimeTranslation();
+  const formatTimeAgo = (timestamp: string) => {
+    return formatDistanceToNow(new Date(timestamp), { addSuffix: true, locale: it });
+  };
 
   const currentPet = pets.find(pet => pet.id === selectedPetId);
 
