@@ -1057,6 +1057,21 @@
       "edit": "EDITAR",
       "delete": "ELIMINAR"
     },
+    "dialog": {
+      "editTitle": "Editar Protocolo",
+      "titleLabel": "Título",
+      "descriptionLabel": "Descripción",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "analytics": {
+      "activeProtocols": "Protocolos Activos",
+      "avgSuccess": "Éxito Promedio",
+      "totalTime": "Tiempo Total",
+      "completedSessions": "Sesiones Completadas",
+      "aiInsight": "Insight IA",
+      "insightMessage": "El protocolo \"Anxiety Relief\" está mostrando un progreso excelente. Considera aumentar la frecuencia de las sesiones para optimizar los resultados."
+    },
     "stats": {
       "activeProtocols": "Protocolos Activos",
       "activeDescription": "en progreso",

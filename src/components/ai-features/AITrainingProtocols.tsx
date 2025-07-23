@@ -256,10 +256,10 @@ export const AITrainingProtocols: React.FC = () => {
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold">{translateProtocolTitle(protocol.title)}</h3>
                               <Badge className={getDifficultyColor(protocol.difficulty)}>
-                                {protocol.difficulty}
+                                {t(`aiTraining.protocol.difficulty.${protocol.difficulty}`, protocol.difficulty)}
                               </Badge>
                               <Badge className={getStatusColor(protocol.status)}>
-                                {protocol.status}
+                                {t(`aiTraining.protocol.status.${protocol.status}`, protocol.status)}
                               </Badge>
                               {protocol.ai_generated && (
                                 <Badge variant="outline">AI</Badge>
@@ -357,7 +357,7 @@ export const AITrainingProtocols: React.FC = () => {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-semibold">Sessione {session.date}</h3>
+                          <h3 className="font-semibold">{t('aiTraining.sessions.title')} {session.date}</h3>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
@@ -365,19 +365,19 @@ export const AITrainingProtocols: React.FC = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <Star className="h-4 w-4" />
-                              {session.successRate}% successo
+                              {session.successRate}% {t('aiTraining.protocol.success')}
                             </span>
                           </div>
                         </div>
                         <Button size="sm" variant="outline">
                           <Video className="h-4 w-4 mr-2" />
-                          Analisi Video
+                          {t('aiTraining.sessions.videoButton')}
                         </Button>
                       </div>
                       
                       <div className="space-y-3">
                         <div>
-                          <h4 className="text-sm font-medium mb-1">Esercizi</h4>
+                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.exercises')}</h4>
                           <div className="flex flex-wrap gap-2">
                             {session.exercises.map((exercise, index) => (
                               <Badge key={index} variant="secondary">{exercise}</Badge>
@@ -386,29 +386,29 @@ export const AITrainingProtocols: React.FC = () => {
                         </div>
                         
                         <div>
-                          <h4 className="text-sm font-medium mb-1">Note</h4>
+                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.notes')}</h4>
                           <p className="text-sm text-muted-foreground">{session.notes}</p>
                         </div>
                         
                         {session.videoAnalysis && (
                           <div>
-                            <h4 className="text-sm font-medium mb-2">Analisi Video AI</h4>
+                            <h4 className="text-sm font-medium mb-2">{t('aiTraining.sessions.videoAnalysis')}</h4>
                             <div className="grid grid-cols-3 gap-4 mb-3">
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-blue-600">{session.videoAnalysis.posture}%</div>
-                                <div className="text-xs text-muted-foreground">Postura</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.posture')}</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-green-600">{session.videoAnalysis.engagement}%</div>
-                                <div className="text-xs text-muted-foreground">Engagement</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.engagement')}</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-red-600">{session.videoAnalysis.stress}%</div>
-                                <div className="text-xs text-muted-foreground">Stress</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.stress')}</div>
                               </div>
                             </div>
                             <div>
-                              <h5 className="text-sm font-medium mb-1">Raccomandazioni AI</h5>
+                              <h5 className="text-sm font-medium mb-1">{t('aiTraining.sessions.recommendations')}</h5>
                               <ul className="text-sm text-muted-foreground space-y-1">
                                 {session.videoAnalysis.recommendations.map((rec, index) => (
                                   <li key={index} className="flex items-center gap-2">
@@ -431,25 +431,25 @@ export const AITrainingProtocols: React.FC = () => {
               <div className="grid gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Performance Analytics</CardTitle>
+                    <CardTitle>{t('aiTraining.analytics.title')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
                         <div className="text-3xl font-bold text-blue-600">3</div>
-                        <div className="text-sm text-muted-foreground">Protocolli Attivi</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.activeProtocols')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-green-600">85%</div>
-                        <div className="text-sm text-muted-foreground">Successo Medio</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.avgSuccess')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-purple-600">24h</div>
-                        <div className="text-sm text-muted-foreground">Tempo Totale</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.totalTime')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-orange-600">12</div>
-                        <div className="text-sm text-muted-foreground">Sessioni Completate</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.completedSessions')}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -458,8 +458,7 @@ export const AITrainingProtocols: React.FC = () => {
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>AI Insight:</strong> Il protocollo "Anxiety Relief" sta mostrando progressi eccellenti. 
-                    Considera di aumentare la frequenza delle sessioni per ottimizzare i risultati.
+                    <strong>{t('aiTraining.analytics.aiInsight')}:</strong> {t('aiTraining.analytics.insightMessage')}
                   </AlertDescription>
                 </Alert>
               </div>
@@ -472,11 +471,11 @@ export const AITrainingProtocols: React.FC = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifica Protocollo</DialogTitle>
+            <DialogTitle>{t('aiTraining.dialog.editTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-title">Titolo</Label>
+              <Label htmlFor="edit-title">{t('aiTraining.dialog.titleLabel')}</Label>
               <Input
                 id="edit-title"
                 value={editTitle}
@@ -484,7 +483,7 @@ export const AITrainingProtocols: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="edit-description">Descrizione</Label>
+              <Label htmlFor="edit-description">{t('aiTraining.dialog.descriptionLabel')}</Label>
               <Textarea
                 id="edit-description"
                 value={editDescription}
@@ -494,10 +493,10 @@ export const AITrainingProtocols: React.FC = () => {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Annulla
+                {t('aiTraining.dialog.cancel')}
               </Button>
               <Button onClick={handleSaveEdit}>
-                Salva
+                {t('aiTraining.dialog.save')}
               </Button>
             </div>
           </div>
