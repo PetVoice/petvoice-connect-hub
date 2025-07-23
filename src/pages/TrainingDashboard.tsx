@@ -582,7 +582,7 @@ const TrainingDashboard: React.FC = () => {
             <h1 className="text-2xl font-bold">{protocol.title}</h1>
             <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
               <Calendar className="h-3 w-3 mr-1" />
-              Giorno {protocol.current_day} di {protocol.duration_days}
+              Giorno {currentDay} di {protocol.duration_days}
             </Badge>
           </div>
           <p className="text-muted-foreground">{protocol.description}</p>
@@ -596,7 +596,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-yellow-500" />
               <div>
-                <div className="text-lg font-bold">{protocol.current_day}</div>
+                <div className="text-lg font-bold">{currentDay}</div>
                 <p className="text-xs text-muted-foreground">Giorno corrente</p>
               </div>
             </div>
