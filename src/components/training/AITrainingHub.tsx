@@ -842,11 +842,11 @@ export const AITrainingHub: React.FC = () => {
                           )}
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('aiTraining.labels.success')}</span>
+                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
-                            <span>{protocol.community_usage || 0} {t('aiTraining.labels.uses')}</span>
+                            <span>{protocol.community_usage || 0} {t('training.labels.uses')}</span>
                           </div>
                         </div>
                       </div>
@@ -994,7 +994,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('aiTraining.labels.success')}</span>
+                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1124,7 +1124,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('aiTraining.labels.success')}</span>
+                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1264,7 +1264,7 @@ export const AITrainingHub: React.FC = () => {
                         </Badge>
                         <div className="text-right">
                           <div className="text-sm font-medium">{Math.round(template.success_rate)}%</div>
-                          <div className="text-xs text-muted-foreground">{t('aiTraining.labels.success')}</div>
+                          <div className="text-xs text-muted-foreground">{t('training.labels.success')}</div>
                         </div>
                       </div>
                     </div>
@@ -1319,7 +1319,7 @@ export const AITrainingHub: React.FC = () => {
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate)}%</div>
-                    <div className="text-sm text-muted-foreground">{t('aiTraining.labels.success')}</div>
+                    <div className="text-sm text-muted-foreground">{t('training.labels.success')}</div>
                   </div>
                 </Card>
               </div>
