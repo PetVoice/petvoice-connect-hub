@@ -62,6 +62,23 @@ const TrainingDashboard: React.FC = () => {
   const { showToast } = useToastWithIcon();
   const { t } = useTranslation();
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
+
+  // Translation helper functions for exercise content
+  const translateExerciseTitle = (title: string) => {
+    return t(`training.exercises.titles.${title}`, title);
+  };
+
+  const translateExerciseDescription = (description: string) => {
+    return t(`training.exercises.descriptions.${description}`, description);
+  };
+
+  const translateExerciseInstruction = (instruction: string) => {
+    return t(`training.exercises.instructions.${instruction}`, instruction);
+  };
+
+  const translateMaterial = (material: string) => {
+    return t(`training.materials.${material}`, material);
+  };
   
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
@@ -610,7 +627,7 @@ const TrainingDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Book className="h-5 w-5" />
-                  {currentEx.title}
+                  {translateExerciseTitle(currentEx.title)}
                 </CardTitle>
                 <Badge variant="outline">
                   {currentExercise + 1} {t('training.dashboard.of')} {totalExercisesToday}
@@ -628,7 +645,7 @@ const TrainingDashboard: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-muted-foreground">{currentEx.description}</p>
+              <p className="text-muted-foreground">{translateExerciseDescription(currentEx.description)}</p>
 
               {/* Esercizi di Oggi */}
               <div>
@@ -656,7 +673,7 @@ const TrainingDashboard: React.FC = () => {
                             <Clock className="h-5 w-5 text-muted-foreground" />
                           )}
                           <div>
-                            <div className="font-medium text-sm">{exercise.title}</div>
+                            <div className="font-medium text-sm">{translateExerciseTitle(exercise.title)}</div>
                             <div className="text-xs text-muted-foreground">
                               {exercise.duration} min
                             </div>
@@ -674,14 +691,14 @@ const TrainingDashboard: React.FC = () => {
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                   <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                     <Book className="h-4 w-4" />
-                    {t('training.dashboard.details')} {currentEx.title}
+                    {t('training.dashboard.details')} {translateExerciseTitle(currentEx.title)}
                   </h4>
                   
                   <div className="space-y-4 text-sm">
                     {/* Descrizione */}
                     <div>
                       <h5 className="font-medium text-blue-800 mb-1">📝 {t('training.dashboard.description')}</h5>
-                      <p className="text-blue-700 leading-relaxed">{currentEx.description}</p>
+                      <p className="text-blue-700 leading-relaxed">{translateExerciseDescription(currentEx.description)}</p>
                     </div>
                     
                     {/* Istruzioni Step-by-Step */}
@@ -689,7 +706,7 @@ const TrainingDashboard: React.FC = () => {
                       <h5 className="font-medium text-blue-800 mb-2">🎯 {t('training.dashboard.stepByStepInstructions')}</h5>
                       <ol className="list-decimal list-inside space-y-1 text-blue-700">
                         {currentEx.instructions.map((instruction, index) => (
-                          <li key={index} className="leading-relaxed">{instruction}</li>
+                          <li key={index} className="leading-relaxed">{translateExerciseInstruction(instruction)}</li>
                         ))}
                       </ol>
                     </div>
@@ -701,7 +718,7 @@ const TrainingDashboard: React.FC = () => {
                         {currentEx.materials.map((material, index) => (
                           <div key={index} className="flex items-center gap-2 text-blue-700">
                             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                            {material}
+                            {translateMaterial(material)}
                           </div>
                         ))}
                       </div>

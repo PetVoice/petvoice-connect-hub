@@ -1213,6 +1213,31 @@
       "situazioni di gruppo": "situazioni di gruppo",
       "spazi pubblici": "spazi pubblici"
     },
+    "exercises": {
+      "titles": {
+        "Creazione Safe Space Personale": "Creazione Safe Space Personale",
+        "Confidence Building con Handler": "Confidence Building con Handler",
+        "Osservazione Passiva Ambiente": "Osservazione Passiva Ambiente",
+        "Approccio Controllato Estranei": "Approccio Controllato Estranei",
+        "Socializzazione Graduale": "Socializzazione Graduale",
+        "Consolidamento Fiducia": "Consolidamento Fiducia"
+      },
+      "descriptions": {
+        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.",
+        "Costruire fiducia tra animale e handler attraverso interazioni positive e rinforzo costante.": "Costruire fiducia tra animale e handler attraverso interazioni positive e rinforzo costante.",
+        "Permettere all'animale di osservare l'ambiente circostante senza pressioni dirette di interazione.": "Permettere all'animale di osservare l'ambiente circostante senza pressioni dirette di interazione."
+      },
+      "instructions": {
+        "Scegli uno spazio tranquillo e familiare per l'animale": "Scegli uno spazio tranquillo e familiare per l'animale",
+        "Posiziona il tappetino comfort in un angolo sicuro": "Posiziona il tappetino comfort in un angolo sicuro",
+        "Offri snack premio quando l'animale si avvicina spontaneamente": "Offri snack premio quando l'animale si avvicina spontaneamente",
+        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantieni distanza e lascia che l'animale esplori liberamente",
+        "Rinforza positivamente ogni comportamento calmo e rilassato": "Rinforza positivamente ogni comportamento calmo e rilassato",
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "BODY LANGUAGE: Evita segnali stress come ansimare o tremare"
+      }
+    },
     "targetBehaviors": {
       "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni": "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni"
     },
