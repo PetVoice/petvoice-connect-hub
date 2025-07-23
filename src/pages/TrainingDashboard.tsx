@@ -36,10 +36,10 @@ import {
 import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProtocolTranslations } from '@/utils/protocolTranslations';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 interface Exercise {
   id: string;
@@ -61,7 +61,8 @@ const TrainingDashboard: React.FC = () => {
   const { showToast: showTranslatedToast } = useTranslatedToast();
   const { showToast } = useToastWithIcon();
   const { t } = useTranslation();
-  const { translateProtocolTitle } = useProtocolTranslations();
+  const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
+  
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
   const updateProtocol = useUpdateProtocol();
@@ -520,13 +521,13 @@ const TrainingDashboard: React.FC = () => {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">{protocol.title}</h1>
+            <h1 className="text-2xl font-bold">{translateProtocolTitle(protocol.title)}</h1>
             <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
               <Calendar className="h-3 w-3 mr-1" />
               {t('training.dashboard.dayOf').replace('{{current}}', protocol.current_day.toString()).replace('{{total}}', protocol.duration_days.toString())}
             </Badge>
           </div>
-          <p className="text-muted-foreground">{protocol.description}</p>
+          <p className="text-muted-foreground">{translateProtocolDescription(protocol.description)}</p>
         </div>
       </div>
 
@@ -797,11 +798,10 @@ const TrainingDashboard: React.FC = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              🏆 Protocollo Completato!
+              {t('training.dashboard.ratingDialogTitle')}
             </DialogTitle>
             <DialogDescription>
-              Complimenti! Hai completato tutto il protocollo "{protocol.title}". 
-              La tua valutazione ci aiuterà a migliorare i nostri protocolli.
+              {t('training.dashboard.ratingDialogDescription').replace('{{protocolTitle}}', translateProtocolTitle(protocol.title))}
             </DialogDescription>
           </DialogHeader>
           
@@ -809,7 +809,7 @@ const TrainingDashboard: React.FC = () => {
             {/* Sistema di valutazione con stelle */}
             <div>
               <label className="text-sm font-medium mb-3 block">
-                Quanto è stato efficace questo protocollo? (1-10)
+                {t('training.dashboard.howEffective')}
               </label>
               <div className="flex items-center justify-center gap-2 mb-2">
                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => {
@@ -864,11 +864,11 @@ const TrainingDashboard: React.FC = () => {
                    protocolRating <= 9 ? 'text-blue-500' :
                    'text-green-500'
                  }`}>
-                   {protocolRating <= 3 && "Non ha funzionato"}
-                   {protocolRating > 3 && protocolRating <= 5 && "Parzialmente efficace"}
-                   {protocolRating > 5 && protocolRating <= 7 && "Abbastanza efficace"}
-                   {protocolRating > 7 && protocolRating <= 9 && "Molto efficace"}
-                   {protocolRating === 10 && "Perfettamente efficace!"}
+                    {protocolRating <= 3 && t('training.dashboard.ratingLabels.1')}
+                    {protocolRating > 3 && protocolRating <= 5 && t('training.dashboard.ratingLabels.4')}
+                    {protocolRating > 5 && protocolRating <= 7 && t('training.dashboard.ratingLabels.6')}
+                    {protocolRating > 7 && protocolRating <= 9 && t('training.dashboard.ratingLabels.8')}
+                    {protocolRating === 10 && t('training.dashboard.ratingLabels.10')}
                  </p>
                </div>
             </div>
@@ -876,10 +876,10 @@ const TrainingDashboard: React.FC = () => {
             {/* Campo per commenti opzionali */}
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Commenti aggiuntivi (opzionale)
+                {t('training.dashboard.additionalComments')}
               </label>
               <Textarea
-                placeholder="Racconta la tua esperienza: cosa ha funzionato meglio? Cosa potresti migliorare?"
+                placeholder={t('training.dashboard.commentsPlaceholder')}
                 value={protocolNotes}
                 onChange={(e) => setProtocolNotes(e.target.value)}
                 className="min-h-[80px]"
@@ -896,12 +896,12 @@ const TrainingDashboard: React.FC = () => {
               {isSubmittingRating ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Invio...
+                  {t('training.dashboard.sending')}
                 </>
               ) : (
                 <>
                   <Star className="h-4 w-4 mr-2" />
-                  Invia valutazione
+                  {t('training.dashboard.submitRating')}
                 </>
               )}
             </Button>
