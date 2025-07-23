@@ -1235,12 +1235,9 @@
         "Offri snack premio quando l'animale si avvicina spontaneamente": "Offri snack premio quando l'animale si avvicina spontaneamente",
         "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantieni distanza e lascia che l'animale esplori liberamente",
         "Rinforza positivamente ogni comportamento calmo e rilassato": "Rinforza positivamente ogni comportamento calmo e rilassato",
-        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LINGUAGGIO DEL CORPO: Osserva postura rilassata, coda in posizione neutrale",
-        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LINGUAGGIO DEL CORPO: Cerca respiro regolare e orecchie rilassate",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LINGUAGGIO DEL CORPO: Evita segnali stress come ansimare o tremare",
-        "Osserva postura rilassata, coda in posizione neutrale": "Osserva postura rilassata, coda in posizione neutrale",
-        "Cerca respiro regolare e orecchie rilassate": "Cerca respiro regolare e orecchie rilassate",
-        "Evita segnali stress come ansimare o tremare": "Evita segnali stress come ansimare o tremare"
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "BODY LANGUAGE: Evita segnali stress come ansimare o tremare"
       }
     },
     "targetBehaviors": {
