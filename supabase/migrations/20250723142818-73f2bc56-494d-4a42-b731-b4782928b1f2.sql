@@ -1,0 +1,62 @@
+-- MEGA TRADUZIONE PARTE 4: ULTIMI TITOLI DI TRAINING
+-- Completa tutti i titoli di training rimanenti
+
+UPDATE ai_training_exercises SET title = 'Positive Add Training' WHERE title = 'Training "Aggiungi" Positivo';
+UPDATE ai_training_exercises SET title = 'Leave Training with Food' WHERE title = 'Training "Lascia" con Cibo';
+UPDATE ai_training_exercises SET title = 'Leave It Training with Distractions' WHERE title = 'Training "Leave It" con Distrazioni';
+UPDATE ai_training_exercises SET title = 'Look At Me Training Under Threshold' WHERE title = 'Training "Look At Me" Sotto Soglia';
+UPDATE ai_training_exercises SET title = 'Sit-Wait Pre-Meal Training' WHERE title = 'Training "Seduto-Aspetta" Pre-Pasto';
+UPDATE ai_training_exercises SET title = 'Emergency Stop Training' WHERE title = 'Training "Stop" di Emergenza';
+UPDATE ai_training_exercises SET title = 'Positive Anticipation Training' WHERE title = 'Training Anticipazione Positiva';
+UPDATE ai_training_exercises SET title = 'Self-Regulation Training' WHERE title = 'Training Autoregolazione';
+UPDATE ai_training_exercises SET title = 'TAKE THIS Command Training' WHERE title = 'Training Comando "PRENDI QUESTO"';
+UPDATE ai_training_exercises SET title = 'Substitute Behavior Training' WHERE title = 'Training Comportamento Sostitutivo';
+UPDATE ai_training_exercises SET title = 'Puzzle Toy Training' WHERE title = 'Training con Puzzle Toy';
+UPDATE ai_training_exercises SET title = 'Space Sharing Training' WHERE title = 'Training Condivisione Spazio';
+UPDATE ai_training_exercises SET title = 'Impulse Control Training' WHERE title = 'Training Controllo Impulsi';
+UPDATE ai_training_exercises SET title = 'Home Independence Training' WHERE title = 'Training Indipendenza in Casa';
+UPDATE ai_training_exercises SET title = 'Simultaneous Multi-Resource Training' WHERE title = 'Training Multi-Risorsa Simultanea';
+UPDATE ai_training_exercises SET title = 'Controlled Portions Training' WHERE title = 'Training Porzioni Controllate';
+UPDATE ai_training_exercises SET title = 'Temptation Resistance Training' WHERE title = 'Training Resistenza alla Tentazione';
+UPDATE ai_training_exercises SET title = 'Conscious Satiety Training' WHERE title = 'Training Sazietà Consapevole';
+UPDATE ai_training_exercises SET title = 'Trigger as Positivity Predictor' WHERE title = 'Trigger Come Predittore di Positività';
+UPDATE ai_training_exercises SET title = 'Initial Progress Evaluation' WHERE title = 'Valutazione Progressi Iniziali';
+UPDATE ai_training_exercises SET title = 'Weekly Progress Evaluation' WHERE title = 'Valutazione Progressi Settimanali';
+UPDATE ai_training_exercises SET title = 'Realistic Trigger Variations' WHERE title = 'Variazioni Trigger Realistiche';
+
+-- Alcuni titoli già in inglese che potrebbero aver bisogno di correzioni:
+UPDATE ai_training_exercises SET title = 'Aromatherapy Evening Calm' WHERE title = 'Aromatherapy Evening Calm';
+UPDATE ai_training_exercises SET title = 'Breathing Harmony Technique' WHERE title = 'Breathing Harmony Technique';
+UPDATE ai_training_exercises SET title = 'Choice-Based Exposure' WHERE title = 'Choice-Based Exposure';
+UPDATE ai_training_exercises SET title = 'Circadian Light Therapy' WHERE title = 'Circadian Light Therapy';
+UPDATE ai_training_exercises SET title = 'Cognitive Load Training' WHERE title = 'Cognitive Load Training';
+UPDATE ai_training_exercises SET title = 'Comfort Zone Optimization' WHERE title = 'Comfort Zone Optimization';
+UPDATE ai_training_exercises SET title = 'Deep Sleep Induction' WHERE title = 'Deep Sleep Induction';
+UPDATE ai_training_exercises SET title = 'Distance Management Training' WHERE title = 'Distance Management Training';
+UPDATE ai_training_exercises SET title = 'Emergency Redirect Training' WHERE title = 'Emergency Redirect Training';
+UPDATE ai_training_exercises SET title = 'Energy Balance Training' WHERE title = 'Energy Balance Training';
+UPDATE ai_training_exercises SET title = 'Free Choice Social Interaction' WHERE title = 'Free Choice Social Interaction';
+UPDATE ai_training_exercises SET title = 'Independent Sleep Mastery' WHERE title = 'Independent Sleep Mastery';
+UPDATE ai_training_exercises SET title = 'Long-term Sleep Success Plan' WHERE title = 'Long-term Sleep Success Plan';
+UPDATE ai_training_exercises SET title = 'Maintenance Protocol Setup' WHERE title = 'Maintenance Protocol Setup';
+UPDATE ai_training_exercises SET title = 'Master Sleep Routine Integration' WHERE title = 'Master Sleep Routine Integration';
+UPDATE ai_training_exercises SET title = 'Mastery Demonstration' WHERE title = 'Mastery Demonstration';
+UPDATE ai_training_exercises SET title = 'Meditation Walking' WHERE title = 'Meditation Walking';
+UPDATE ai_training_exercises SET title = 'Multi-Bowl Challenge' WHERE title = 'Multi-Bowl Challenge';
+UPDATE ai_training_exercises SET title = 'Natural Rhythm Reinforcement' WHERE title = 'Natural Rhythm Reinforcement';
+UPDATE ai_training_exercises SET title = 'Night Distraction Management' WHERE title = 'Night Distraction Management';
+UPDATE ai_training_exercises SET title = 'Night Security Routine' WHERE title = 'Night Security Routine';
+UPDATE ai_training_exercises SET title = 'Perfect Sleep Environment' WHERE title = 'Perfect Sleep Environment';
+UPDATE ai_training_exercises SET title = 'Progressive Muscle Relaxation' WHERE title = 'Progressive Muscle Relaxation';
+UPDATE ai_training_exercises SET title = 'Reading Social Cues Training' WHERE title = 'Reading Social Cues Training';
+UPDATE ai_training_exercises SET title = 'Real-World Simulation' WHERE title = 'Real-World Simulation';
+UPDATE ai_training_exercises SET title = 'Real-World Social Application' WHERE title = 'Real-World Social Application';
+UPDATE ai_training_exercises SET title = 'Relaxing Sunset Ritual' WHERE title = 'Ritual del Tramonto Rilassante';
+UPDATE ai_training_exercises SET title = 'Sanctuary Setup Ritual' WHERE title = 'Sanctuary Setup Rituale';
+UPDATE ai_training_exercises SET title = 'Self-Regulation Skills' WHERE title = 'Self-Regulation Skills';
+UPDATE ai_training_exercises SET title = 'Sleep Command Training' WHERE title = 'Sleep Command Training';
+UPDATE ai_training_exercises SET title = 'Sleep Quality Assessment' WHERE title = 'Sleep Quality Assessment';
+UPDATE ai_training_exercises SET title = 'Slow Motion Feeding' WHERE title = 'Slow Motion Feeding';
+UPDATE ai_training_exercises SET title = 'Sound Sleep Therapy' WHERE title = 'Sound Sleep Therapy';
+UPDATE ai_training_exercises SET title = 'Stress Recovery Training' WHERE title = 'Stress Recovery Training';
+UPDATE ai_training_exercises SET title = 'Supervised Social Play' WHERE title = 'Supervised Social Play';
