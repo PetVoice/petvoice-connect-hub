@@ -1238,7 +1238,10 @@
         "Rinforza positivamente ogni comportamento calmo e rilassato": "Positively reinforce every calm and relaxed behavior",
         "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "BODY LANGUAGE: Observe relaxed posture, tail in neutral position",
         "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "BODY LANGUAGE: Look for regular breathing and relaxed ears",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "BODY LANGUAGE: Avoid stress signals like panting or trembling"
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "BODY LANGUAGE: Avoid stress signals like panting or trembling",
+        "Osserva postura rilassata, coda in posizione neutrale": "Observe relaxed posture, tail in neutral position",
+        "Cerca respiro regolare e orecchie rilassate": "Look for regular breathing and relaxed ears",
+        "Evita segnali stress come ansimare o tremare": "Avoid stress signals like panting or trembling"
       }
     },
     "targetBehaviors": {
