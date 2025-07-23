@@ -75,9 +75,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 export const AITrainingHub: React.FC = () => {
   const { t } = useTranslation();
+  const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
   const { showToast } = useToastWithIcon();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -370,7 +372,7 @@ export const AITrainingHub: React.FC = () => {
     if (existingActiveProtocol) {
       showToast({
         title: 'Protocollo già attivo',
-        description: `Il protocollo "${protocol.title}" è già attivo. Ti porto alla scheda Attivi.`,
+        description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è già attivo. Ti porto alla scheda Attivi.`,
         type: 'warning'
       });
       // Reindirizza alla scheda "Attivi" invece che alla dashboard
@@ -472,7 +474,7 @@ export const AITrainingHub: React.FC = () => {
 
         showToast({
           title: 'Protocollo avviato',
-          description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato avviato con successo`,
           type: 'complete'
         });
         
@@ -503,7 +505,7 @@ export const AITrainingHub: React.FC = () => {
         
         showToast({
           title: 'Protocollo riavviato',
-          description: `Il protocollo "${protocol.title}" è stato riavviato da capo`,
+          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato riavviato da capo`,
           type: 'complete'
         });
         
@@ -523,7 +525,7 @@ export const AITrainingHub: React.FC = () => {
         
         showToast({
           title: 'Protocollo avviato',
-          description: `Il protocollo "${protocol.title}" è stato avviato con successo`,
+          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato avviato con successo`,
           type: 'complete'
         });
         
@@ -805,7 +807,7 @@ export const AITrainingHub: React.FC = () => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{protocol.title}</h3>
+                          <h3 className="font-semibold text-lg">{translateProtocolTitle(protocol.title)}</h3>
                           {protocol.ai_generated && (
                              <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
                               <Sparkles className="h-3 w-3 mr-1" />
@@ -819,7 +821,7 @@ export const AITrainingHub: React.FC = () => {
                              {t(`training.status.${protocol.status}`, protocol.status)}
                            </Badge>
                         </div>
-                        <p className="text-muted-foreground mb-4">{protocol.description}</p>
+                        <p className="text-muted-foreground mb-4">{translateProtocolDescription(protocol.description)}</p>
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
@@ -878,7 +880,7 @@ export const AITrainingHub: React.FC = () => {
                                    <AlertDialogHeader>
                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                         Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
                                       </AlertDialogDescription>
                                    </AlertDialogHeader>
                                    <AlertDialogFooter>
@@ -953,8 +955,8 @@ export const AITrainingHub: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{protocol.title}</h3>
-                            <p className="text-sm text-muted-foreground">{protocol.description}</p>
+                            <h3 className="font-semibold text-lg">{translateProtocolTitle(protocol.title)}</h3>
+                            <p className="text-sm text-muted-foreground">{translateProtocolDescription(protocol.description)}</p>
                           </div>
                         </div>
                         
@@ -1028,7 +1030,7 @@ export const AITrainingHub: React.FC = () => {
                                <AlertDialogHeader>
                                       <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere definitivamente il protocollo "{protocol.title}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                        Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
                                       </AlertDialogDescription>
                                </AlertDialogHeader>
                                <AlertDialogFooter>
@@ -1093,8 +1095,8 @@ export const AITrainingHub: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex-1">
-                            <h3 className="font-semibold text-lg">{protocol.title}</h3>
-                            <p className="text-sm text-muted-foreground">{protocol.description}</p>
+                            <h3 className="font-semibold text-lg">{translateProtocolTitle(protocol.title)}</h3>
+                            <p className="text-sm text-muted-foreground">{translateProtocolDescription(protocol.description)}</p>
                           </div>
                         </div>
                         
@@ -1282,7 +1284,7 @@ export const AITrainingHub: React.FC = () => {
                 {selectedProtocol?.difficulty === 'facile' ? '🟢' :
                  selectedProtocol?.difficulty === 'medio' ? '🟡' : '🔴'}
               </div>
-              {selectedProtocol?.title}
+              {selectedProtocol ? translateProtocolTitle(selectedProtocol.title) : ''}
             </DialogTitle>
           </DialogHeader>
           
@@ -1326,7 +1328,7 @@ export const AITrainingHub: React.FC = () => {
                       <FileText className="h-5 w-5 text-primary" />
                       Descrizione
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed">{selectedProtocol.description}</p>
+                    <p className="text-muted-foreground leading-relaxed">{translateProtocolDescription(selectedProtocol.description)}</p>
                   </Card>
 
                   {/* Category & Difficulty */}

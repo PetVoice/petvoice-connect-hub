@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 interface TrainingProtocol {
   id: string;
@@ -110,6 +111,7 @@ const mockSessions: TrainingSession[] = [
 
 export const AITrainingProtocols: React.FC = () => {
   const { t } = useTranslation();
+  const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
   const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('protocols');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -252,7 +254,7 @@ export const AITrainingProtocols: React.FC = () => {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{protocol.title}</h3>
+                              <h3 className="font-semibold">{translateProtocolTitle(protocol.title)}</h3>
                               <Badge className={getDifficultyColor(protocol.difficulty)}>
                                 {protocol.difficulty}
                               </Badge>
@@ -264,7 +266,7 @@ export const AITrainingProtocols: React.FC = () => {
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
-                              {protocol.description}
+                              {translateProtocolDescription(protocol.description)}
                             </p>
                             <div className="flex items-center gap-4 text-sm">
                                <span className="flex items-center gap-1">

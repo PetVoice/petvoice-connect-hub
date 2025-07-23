@@ -1449,6 +1449,25 @@
       "uploadComplete": "Caricamento completato"
     }
   },
+  "protocols": {
+    "titles": {
+      "Gestione Gelosia e Possessività": "Gestione Gelosia e Possessività",
+      "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione", 
+      "Socializzazione Progressiva": "Socializzazione Progressiva",
+      "Controllo Aggressività Reattiva": "Controllo Aggressività Reattiva",
+      "Gestione Ansia da Separazione": "Gestione Ansia da Separazione",
+      "Training Richiamo e Libertà": "Training Richiamo e Libertà",
+      "Gestione Paure e Fobie": "Gestione Paure e Fobie",
+      "Controllo Impulsi e Calma": "Controllo Impulsi e Calma",
+      "Obbedienza Base": "Obbedienza Base",
+      "Gestione Comportamenti Distruttivi": "Gestione Comportamenti Distruttivi"
+    },
+    "descriptions": {
+      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.",
+      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.",
+      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate."
+    }
+  },
   "buttons": {
     "basic": {
       "save": "Salva",

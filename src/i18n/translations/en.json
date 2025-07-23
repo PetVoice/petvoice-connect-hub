@@ -1438,6 +1438,25 @@
       "uploadComplete": "Upload completed"
     }
   },
+  "protocols": {
+    "titles": {
+      "Gestione Gelosia e Possessività": "Jealousy and Possessiveness Management",
+      "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management", 
+      "Socializzazione Progressiva": "Progressive Socialization",
+      "Controllo Aggressività Reattiva": "Reactive Aggression Control",
+      "Gestione Ansia da Separazione": "Separation Anxiety Management",
+      "Training Richiamo e Libertà": "Recall and Freedom Training",
+      "Gestione Paure e Fobie": "Fear and Phobia Management",
+      "Controllo Impulsi e Calma": "Impulse Control and Calm",
+      "Obbedienza Base": "Basic Obedience",
+      "Gestione Comportamenti Distruttivi": "Destructive Behavior Management"
+    },
+    "descriptions": {
+      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Specialized protocol to reduce possessive behaviors and jealousy in pets. Includes advanced desensitization techniques, sharing training and resource management.",
+      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Complete protocol to reduce hyperactivity and improve concentration through a progressive approach: from constructive energy release to impulse control, up to relaxation and self-control.",
+      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "5-day protocol to improve the animal's social skills with other animals and people. Gradual and positive approach for shy or poorly socialized animals, with focus on confidence building and controlled interactions."
+    }
+  },
   "buttons": {
     "basic": {
       "save": "Save",
