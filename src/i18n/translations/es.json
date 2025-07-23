@@ -184,6 +184,56 @@
       "errorLoadingPlaylistDescription": "No se pudo cargar la lista del análisis"
     }
   },
+  "training": {
+    "dashboard": {
+      "currentDay": "Día Actual",
+      "totalProgress": "Progreso Total",
+      "successRate": "Tasa de Éxito",
+      "exercisesToday": "Ejercicios de Hoy",
+      "todaysProgress": "Progreso de Hoy",
+      "exercisesCompleted": "Ejercicios Completados",
+      "of": "de",
+      "todaysExercises": "Ejercicios de Hoy",
+      "details": "Detalles",
+      "description": "Descripción",
+      "stepByStepInstructions": "Instrucciones Paso a Paso",
+      "requiredMaterials": "Materiales Necesarios",
+      "duration": "Duración",
+      "minutes": "minutos",
+      "level": "Nivel",
+      "beginner": "Principiante",
+      "tip": "Consejo",
+      "tipText": "Mantén un ambiente tranquilo y ten paciencia. Cada animal aprende a su ritmo.",
+      "exerciseCompleted": "Ejercicio Completado",
+      "interrupt": "Interrumpir Protocolo",
+      "bodyLanguage": "LENGUAJE CORPORAL"
+    },
+    "exercises": {
+      "titles": {
+        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
+        "Confidence Building con Handler": "Desarrollo de Confianza con Cuidador",
+        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
+      },
+      "descriptions": {
+        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales."
+      },
+      "instructions": {
+        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
+        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
+        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerca espontáneamente",
+        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
+        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento calmado y relajado",
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar"
+      }
+    },
+    "materials": {
+      "tappetino comfort": "alfombrilla de confort",
+      "snack premio": "premios",
+      "spazio tranquillo": "espacio tranquilo"
+    }
+  },
   "pets": {
     "title": "Mis Mascotas",
     "addNew": "Añadir Mascota",

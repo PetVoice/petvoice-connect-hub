@@ -74,7 +74,9 @@ const TrainingDashboard: React.FC = () => {
     // Mapping diretto per descrizioni lunghe
     const directMappings: Record<string, string> = {
       "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": 
-        language === 'en' ? "Establish a safe and comfortable environment where the animal can relax and build confidence. This exercise creates the foundation for all other social training." : description
+        language === 'en' ? "Establish a safe and comfortable environment where the animal can relax and build confidence. This exercise creates the foundation for all other social training." 
+        : language === 'es' ? "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales."
+        : description
     };
     
     if (directMappings[description]) {
