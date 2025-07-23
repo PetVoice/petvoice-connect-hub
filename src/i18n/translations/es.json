@@ -61,54 +61,127 @@
       "daysAgo": "hace días"
     }
   },
-  "training": {
-    "dashboard": {
-      "currentDay": "Día Actual",
-      "totalProgress": "Progreso Total",
-      "successRate": "Tasa de Éxito",
-      "exercisesToday": "Ejercicios de Hoy",
-      "todaysProgress": "Progreso de Hoy",
-      "exercisesCompleted": "Ejercicios Completados",
-      "of": "de",
-      "todaysExercises": "Ejercicios de Hoy",
-      "details": "Detalles",
-      "description": "Descripción",
-      "stepByStepInstructions": "Instrucciones Paso a Paso",
-      "requiredMaterials": "Materiales Necesarios",
-      "duration": "Duración",
-      "minutes": "minutos",
-      "level": "Nivel",
-      "beginner": "Principiante",
-      "tip": "Consejo",
-      "tipText": "Mantén un ambiente tranquilo y ten paciencia. Cada animal aprende a su ritmo.",
-      "exerciseCompleted": "Ejercicio Completado",
-      "interrupt": "Interrumpir Protocolo",
-      "bodyLanguage": "LENGUAJE CORPORAL"
+  "aiChat": {
+    "welcomeMessage": "¡Hola! Soy el asistente IA de PetVoice 🐾\n\nEstoy aquí para ayudarte con cualquier pregunta sobre tus mascotas. Elige un área de interés a continuación o escríbeme directamente tu pregunta:",
+    "placeholder": "O escribe tu pregunta...",
+    "typing": "Escribiendo...",
+    "backButton": "← Atrás",
+    "menuButton": "Menú",
+    "resetMessage": "Volvamos al menú principal. Elige un área de interés:",
+    "navigationMessage": "Seleccionaste: {section}\n\nElige una opción específica:",
+    "menu": {
+      "pets": {
+        "title": "🐾 Gestión de Mascotas",
+        "description": "Todo sobre tus animales"
+      },
+      "analysis": {
+        "title": "🧠 Análisis IA", 
+        "description": "Comprende el comportamiento"
+      },
+      "diary": {
+        "title": "📔 Diario Comportamental",
+        "description": "Rastrea el humor diario"
+      },
+      "training": {
+        "title": "🎓 Protocolos de Entrenamiento",
+        "description": "Entrenamiento personalizado"
+      },
+      "support": {
+        "title": "🛠️ Soporte Técnico",
+        "description": "Problemas y asistencia"
+      }
+    }
+  },
+  "aiMusicTherapy": {
+    "title": "Musicoterapia IA",
+    "subtitle": "Musicoterapia personalizada para {petName}",
+    "categories": {
+      "title": "Categorías Terapéuticas",
+      "selectCategory": "Seleccionar categoría",
+      "allCategories": "Todas las categorías",
+      "ansioso": "Ansiedad y Estrés",
+      "agitato": "Hiperactivación",
+      "triste": "Estado de Ánimo Bajo",
+      "aggressivo": "Control Conductual",
+      "stressato": "Estrés Agudo",
+      "pauroso": "Apoyo Emocional"
     },
-    "exercises": {
-      "titles": {
-        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
-        "Confidence Building con Handler": "Desarrollo de Confianza con Cuidador",
-        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
+    "sessions": {
+      "ansia": {
+        "title": "Calma Profunda - 528Hz",
+        "description": "Frecuencias específicas para reducir ansiedad y estrés. Terapia para animales ansiosos",
+        "benefits": ["Reduce ansiedad y estrés", "Disminuye frecuencia cardíaca", "Relajación muscular", "Equilibrio neuroquímico"]
       },
-      "descriptions": {
-        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales."
+      "iperattivazione": {
+        "title": "Relajación Guiada - 10-13Hz",
+        "description": "Secuencias para calmar hiperactivación y agitación en animales",
+        "benefits": ["Calma hiperactivación", "Reduce agitación", "Relajación gradual", "Control de impulsos"]
       },
-      "instructions": {
-        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
-        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
-        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerca espontáneamente",
-        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
-        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento calmado y relajado",
-        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
-        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar"
+      "umoreBasso": {
+        "title": "Energía Positiva - 40Hz",
+        "description": "Estimulación suave para mejorar el ánimo deprimido y letargo",
+        "benefits": ["Mejora el estado de ánimo", "Aumenta energía", "Estimula actividad", "Contrarresta depresión"]
+      },
+      "controlloComportamentale": {
+        "title": "Calma y Control - 432Hz",
+        "description": "Frecuencias para reducir agresividad y comportamientos reactivos",
+        "benefits": ["Reduce agresividad", "Control emocional", "Calma reactividad", "Gestión de impulsos"]
+      },
+      "stressAcuto": {
+        "title": "Anti-Estrés - 528Hz",
+        "description": "Terapia para estrés crónico y tensión acumulada",
+        "benefits": ["Reduce cortisol", "Libera tensiones", "Equilibra sistema nervioso", "Recuperación post-estrés"]
+      },
+      "supportoEmotivo": {
+        "title": "Seguridad Interior - 111Hz",
+        "description": "Frecuencias protectoras para animales temerosos e inseguros",
+        "benefits": ["Aumenta seguridad", "Reduce miedos", "Estabiliza emociones", "Apoyo psicológico"]
       }
     },
-    "materials": {
-      "tappetino comfort": "alfombrilla de confort",
-      "snack premio": "premios",
-      "spazio tranquillo": "espacio tranquilo"
+    "player": {
+      "sessionBenefits": "Beneficios de esta sesión:",
+      "playingNow": "🎵 Reproduciendo ahora...",
+      "generatingPlaylist": "Generando lista personalizada...",
+      "personalizedFor": "para {petName}"
+    },
+    "emotionalDNA": {
+      "title": "ADN Emocional",
+      "calm": "Calma",
+      "energy": "Energía",
+      "focus": "Enfoque",
+      "realTimeActive": "🧠 Adaptación en tiempo real activa"
+    },
+    "advancedSettings": {
+      "title": "Configuración Avanzada",
+      "realTimeAdaptation": "Adaptación en Tiempo Real",
+      "realTimeDescription": "Analiza y adapta la música cada 30 segundos",
+      "volume": "Volumen",
+      "adaptNow": "Adaptar Ahora"
+    },
+    "messages": {
+      "noSessionSelected": "Ninguna sesión seleccionada",
+      "selectCategoryFirst": "Selecciona primero una categoría de musicoterapia",
+      "paused": "Pausado",
+      "pausedDescription": "Sesión de musicoterapia pausada",
+      "playStarted": "🎵 Reproducción iniciada",
+      "sessionCompleted": "Sesión completada",
+      "sessionCompletedDescription": "La sesión de musicoterapia ha terminado",
+      "stopped": "Reproducción detenida",
+      "stoppedDescription": "Sesión detenida y vuelta a 0:00",
+      "positionUpdated": "Posición actualizada",
+      "movedTo": "Movido a {time}",
+      "playlistGenerated": "¡Lista IA Generada!",
+      "playlistGeneratedDescription": "Sesión \"{title}\" personalizada para {petName} basada en su ADN emocional",
+      "realTimeAdaptation": "Adaptación IA en tiempo real",
+      "realTimeAdaptationDescription": "Frecuencias adaptadas: Calma {calm}%, Energía {energy}%, Enfoque {focus}%",
+      "audioError": "Error de audio",
+      "audioErrorDescription": "No se pudo iniciar la reproducción",
+      "playlistFromAnalysis": "🎵 Lista del Análisis Cargada",
+      "playlistFromAnalysisDescription": "\"{title}\" lista para {petName}",
+      "positiveEmotion": "✨ Estado Emocional Positivo",
+      "positiveEmotionDescription": "¡{petName} está bien! No se necesita musicoterapia.",
+      "errorLoadingPlaylist": "Error",
+      "errorLoadingPlaylistDescription": "No se pudo cargar la lista del análisis"
     }
   },
   "pets": {
@@ -126,6 +199,1524 @@
     "photo": "Foto",
     "noPetSelected": "No hay Mascota Seleccionada",
     "selectPetDesc": "Selecciona una mascota desde la página \"Mis Mascotas\" para acceder a esta función",
-    "pageDescription": "Gestiona la información de tus amigos peludos"
+    "pageDescription": "Gestiona la información de tus amigos peludos",
+    "form": {
+      "editDescription": "Edita la información de tu mascota",
+      "addDescription": "Introduce toda la información de tu nueva mascota",
+      "fields": {
+        "nameRequired": "Nombre *",
+        "typeRequired": "Tipo *",
+        "breed": "Raza",
+        "weight": "Peso (kg)",
+        "birthDate": "Fecha de Nacimiento", 
+        "allergies": "Alergias",
+        "fears": "Miedos",
+        "favoriteActivities": "Actividades Favoritas",
+        "healthConditions": "Condiciones de Salud",
+        "personalityTraits": "Rasgos de Personalidad",
+        "generalDescription": "Descripción General"
+      },
+      "placeholders": {
+        "petName": "Nombre de la mascota",
+        "selectType": "Selecciona el tipo",
+        "selectBreed": "Selecciona la raza",
+        "weightExample": "Ej. 5.2",
+        "day": "Día",
+        "month": "Mes",
+        "year": "Año", 
+        "allergiesExample": "Ej. Polen, algunos alimentos...",
+        "fearsExample": "Ej. Truenos, fuegos artificiales...",
+        "activitiesExample": "Ej. Jugar a buscar, dormir...",
+        "healthExample": "Ej. Artritis, problemas cardíacos...",
+        "personalityExample": "Ej. Juguetón, tímido, sociable...",
+        "descriptionExample": "Describe el carácter y características de tu mascota"
+      },
+      "buttons": {
+        "saving": "Guardando...",
+        "updatePet": "Actualizar Mascota",
+        "addPet": "Añadir Mascota",
+        "cancel": "Cancelar"
+      }
+    },
+    "types": {
+      "dog": "Perro",
+      "cat": "Gato",
+      "rabbit": "Conejo",
+      "bird": "Pájaro",
+      "fish": "Pez",
+      "hamster": "Hámster",
+      "other": "Otro"
+    },
+    "emptyState": {
+      "title": "Ninguna Mascota Registrada",
+      "description": "Aún no has añadido ninguna mascota. ¡Empieza creando el perfil de tu amigo peludo!",
+      "addFirstPet": "Añade Tu Primera Mascota"
+    },
+    "petCard": {
+      "years": "años",
+      "weight": "Peso:",
+      "personality": "Personalidad:",
+      "loves": "Le encanta:",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "deleteDialog": {
+      "title": "Eliminar Mascota",
+      "description": "¿Estás seguro de que quieres eliminar a {{name}}? Esta acción no se puede deshacer.",
+      "confirm": "Eliminar", 
+      "cancel": "Cancelar"
+    },
+    "ageCalculated": "Edad: {{age}} años"
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido a PetVoice!",
+    "welcomeDesc": "Monitorea la salud y el bienestar de tu amigo de cuatro patas con inteligencia artificial",
+    "quickActions": "Acciones Rápidas",
+    "quickActionsDesc": "Acciones rápidas para comenzar de inmediato",
+    "recentActivity": "Actividad Reciente",
+    "insights": "Insights",
+    "analytics": "Análisis",
+    "healthStatus": "Estado de Salud",
+    "moodTrend": "Tendencia del Humor",
+    "behaviorScore": "Puntuación de Comportamiento",
+    "analysisDesc": "Analiza el estado de ánimo de tu mascota",
+    "diaryDesc": "Añadir una nueva entrada",
+    "calendarDesc": "Programar un evento",
+    "registeredPets": "Mascotas Registradas",
+    "petInFamily": "mascota en tu familia",
+    "petsInFamily": "mascotas en tu familia",
+    "healthExcellent": "Excelente",
+    "allPetsHealthy": "Todas las mascotas están sanas",
+    "improvementThisWeek": "Mejora esta semana"
+  },
+  "analysis": {
+    "title": "Análisis Emocional",
+    "subtitle": "Comprende el estado de ánimo y comportamiento de tu mascota",
+    "tabs": {
+      "upload": "Nuevo Análisis",
+      "results": "Resultados",
+      "history": "Historial",
+      "predictions": "Predicciones"
+    },
+    "upload": {
+      "fileUploadTitle": "Subir Archivos Audio/Video",
+      "fileUploadDescription": "Sube archivos de audio o video de tu mascota para análisis emocional con IA",
+      "audioRecordingTitle": "Grabación de Audio",
+      "audioRecordingDescription": "Graba el audio de tu mascota directamente en tiempo real",
+      "textAnalysisTitle": "Análisis de Texto",
+      "textAnalysisDescription": "Describe el comportamiento de tu mascota para análisis conductual",
+      "dragAndDrop": "Arrastra y suelta tus archivos aquí, o haz clic para seleccionar",
+      "supportedFormats": "Formatos soportados: MP3, WAV, MP4, MOV, AVI",
+      "maxFileSize": "Tamaño máximo: 50MB por archivo",
+      "selectFiles": "Seleccionar Archivos",
+      "or": "o",
+      "describeTextPrompt": "Describe el comportamiento de tu mascota...",
+      "fileUploader": {
+        "title": "Archivos Audio/Video",
+        "description": "Arrastra archivos aquí o haz clic para seleccionar. Soportados: MP3, WAV, MP4, MOV (máx {{maxSize}}MB)",
+        "dropFilesHere": "Suelta los archivos aquí",
+        "uploadFiles": "Sube tus archivos",
+        "supportedFormats": "Formatos soportados: MP3, WAV, M4A, MP4, MOV, AVI",
+        "selectFiles": "Seleccionar Archivos",
+        "selectedFiles": "Archivos Seleccionados ({{count}})",
+        "clearAll": "Limpiar Todo",
+        "startAnalysis": "Iniciar Análisis ({{count}} archivos)",
+        "analysisInProgress": "Análisis en progreso...",
+        "autoAnalysisMessage": "✨ Archivo de audio subido",
+        "autoAnalysisSubtext": "🚀 Iniciando análisis automático...",
+        "errorsFound": "Algunos archivos tienen errores. Corrige los problemas para continuar.",
+        "analysisDescription": {
+          "title": "📊 Análisis Audio/Video Avanzado",
+          "subtitle": "Nuestra IA analiza archivos multimedia en profundidad para detectar el estado emocional de tu mascota a través de:",
+          "features": {
+            "vocalAnalysis": "🎵 Análisis vocal y de tono",
+            "facialRecognition": "📹 Reconocimiento de expresiones faciales",
+            "bodyMovement": "🏃 Análisis de movimientos corporales",
+            "breathingRate": "💓 Detección de frecuencia respiratoria"
+          },
+          "stats": "⏱️ Tiempo promedio: 15-30 segundos por archivo • 🎯 Precisión: 85-95% • 🔬 Emociones detectadas: Feliz, Ansioso, Tranquilo, Triste, Agresivo, Emocionado, Juguetón"
+        },
+        "errors": {
+          "unsupportedType": "Tipo de archivo no soportado: {{type}}",
+          "fileTooLarge": "Archivo demasiado grande: {{size}}MB (máx {{maxSize}}MB)",
+          "maxFilesExceeded": "Máximo {{maxFiles}} archivos permitidos"
+        }
+      },
+      "audioRecorder": {
+        "title": "Grabación de Audio",
+        "description": "Graba directamente desde el micrófono (máx {{maxMinutes}} minutos)",
+        "permissionDenied": "Acceso al micrófono denegado. Habilita los permisos en la configuración del navegador.",
+        "recordingInProgress": "Grabación en progreso...",
+        "clickToStart": "Haz clic para comenzar",
+        "audioLevels": "Niveles de Audio",
+        "recordingCompleted": "Grabación completada",
+        "pause": "Pausa",
+        "play": "Reproducir",
+        "download": "Descargar",
+        "delete": "Eliminar",
+        "analyze": "Analizar",
+        "autoAnalysisMessage": "✨ Grabación completada",
+        "autoAnalysisSubtext": "🚀 Iniciando análisis automático...",
+        "analysisDescription": {
+          "title": "🎙️ Análisis de Audio en Tiempo Real",
+          "subtitle": "Graba directamente desde el micrófono para análisis inmediato de las vocalizaciones de tu mascota:",
+          "features": {
+            "toneAnalysis": "🔊 Análisis de tono e intensidad vocal",
+            "patternDetection": "📊 Detección de patrones sonoros",
+            "instantProcessing": "⚡ Procesamiento instantáneo",
+            "immediateFeedback": "🎯 Feedback emocional inmediato"
+          },
+          "stats": "🚀 Tiempo promedio: 10-15 segundos • 🎯 Precisión: 80-92% • ⏺️ Ideal para: Vocalizaciones frescas, comportamientos en curso, análisis inmediatos"
+        }
+      },
+      "textAnalyzer": {
+        "title": "Análisis de Texto Conductual",
+        "description": "Describe el comportamiento de tu mascota para análisis conductual",
+        "placeholder": "Describe detalladamente el comportamiento de tu mascota: cómo se está comportando, qué sonidos hace, cómo se mueve, dónde está...",
+        "characterCount": "{{count}}/{{max}} caracteres",
+        "minCharacters": "(mínimo {{min}})",
+        "ready": "Listo",
+        "tooShort": "Muy corto",
+        "analysisInProgress": "Análisis en progreso...",
+        "analyzeButton": "Analizar Comportamiento",
+        "errors": {
+          "tooShort": "La descripción debe tener al menos 10 caracteres",
+          "tooLong": "La descripción no puede exceder los 2000 caracteres"
+        },
+        "intelligentAnalysis": {
+          "title": "🧠 Análisis Comportamental Inteligente",
+          "description": "Nuestro sistema de análisis textual utiliza algoritmos avanzados para interpretar descripciones comportamentales:",
+          "features": {
+            "emotionalKeywords": "🔍 Reconocimiento de palabras clave emocionales",
+            "contextAnalysis": "📝 Análisis del contexto comportamental", 
+            "emotionalProbability": "⚖️ Evaluación de probabilidad emocional",
+            "personalizedSuggestions": "🎯 Sugerencias personalizadas"
+          },
+          "stats": {
+            "averageTime": "Tiempo promedio:",
+            "instant": "Instantáneo",
+            "accuracy": "Precisión:",
+            "accuracyRange": "75-90%",
+            "advantages": "Ventajas:",
+            "advantagesText": "Análisis inmediato, detalles contextuales, cero costos de procesamiento"
+          }
+        }
+      }
+    },
+    "results": {
+      "latestAnalysis": "Último Análisis",
+      "primaryEmotion": "Emoción Primaria",
+      "confidence": "Confianza",
+      "confidenceLevel": {
+        "veryHigh": "Muy Alta",
+        "high": "Alta",
+        "medium": "Media",
+        "low": "Baja"
+      },
+      "fileInfo": {
+        "file": "Archivo",
+        "size": "Tamaño",
+        "duration": "Duración del análisis",
+        "date": "Fecha",
+        "recording": "Grabación"
+      },
+      "recording": "Grabación",
+      "detailedAnalysis": "Análisis Detallado",
+      "behavioralInsights": "Insights comportamentales y recomendaciones para {{petName}}",
+      "tabs": {
+        "emotions": "Emociones",
+        "insights": "Insights",
+        "recommendations": "Consejos",
+        "triggers": "Triggers",
+        "audio": "Audio"
+      },
+      "secondaryEmotions": "Emociones Secundarias",
+      "behavioralAnalysis": "Análisis Comportamental",
+      "environmentalContext": "Contexto Ambiental",
+      "musicTherapy": {
+        "title": "Lista de Reproducción de Musicoterapia IA Recomendada",
+        "petWell": "¡{{petName}} está bien!",
+        "positiveState": "Emoción \"{{emotion}}\" detectada. ¡Tu mascota está en un estado emocional positivo!",
+        "startSession": "Iniciar Sesión de Musicoterapia"
+      },
+      "trainingProtocol": {
+        "title": "Protocolo de Entrenamiento Recomendado",
+        "anxietySeparation": "Manejo de Ansiedad por Separación",
+        "aggressionControl": "Control de Agresividad",
+        "fearPhobias": "Superación de Miedos y Fobias",
+        "hyperactivity": "Manejo de Hiperactividad",
+        "emotionalSupport": "Apoyo Emocional y Bienestar",
+        "generalBehavior": "Manejo de Comportamiento General",
+        "descriptions": {
+          "anxiety": "Protocolo específico para reducir la ansiedad por separación y mejorar la confianza de la mascota.",
+          "aggression": "Técnicas de control para manejar comportamientos agresivos y reactivos.",
+          "fear": "Ejercicios de desensibilización para superar miedos específicos.",
+          "hyperactivity": "Actividades para canalizar la energía excesiva en comportamientos positivos.",
+          "emotional": "Apoyo emocional personalizado para mejorar el ánimo y bienestar de la mascota.",
+          "general": "Protocolo general para mejorar el comportamiento y bienestar general."
+        },
+        "startProtocol": "Iniciar Protocolo de Entrenamiento"
+      },
+      "personalizedRecommendations": {
+        "title": "Recomendaciones Personalizadas",
+        "age": "Edad ({{age}} años)",
+        "ageAdvice": {
+          "puppy": "Paciencia extra - los cachorros necesitan tiempos de adaptación más largos",
+          "young": "Energía juvenil - aumenta la actividad física para reducir el estrés",
+          "adult": "Fase adulta - mantén rutinas consistentes para estabilidad",
+          "senior": "Edad senior - reduce cambios bruscos y aumenta la comodidad"
+        },
+        "breed": "Raza ({{breed}})",
+        "breedAdvice": {
+          "border": "Raza inteligente - estímulos mentales diarios son esenciales",
+          "labrador": "Raza sociable - aumenta las interacciones positivas",
+          "golden": "Temperamento dulce - refuerzos positivos muy efectivos",
+          "shepherd": "Raza protectora - trabaja en socialización gradual",
+          "general": "Considera las características específicas de la raza para el entrenamiento"
+        },
+        "weight": "Peso ({{weight}}kg)",
+        "weightAdvice": {
+          "small": "Tamaño pequeño - sesiones cortas (5-10 min) pero frecuentes",
+          "medium": "Tamaño mediano - sesiones estándar (15-20 min)",
+          "large": "Tamaño grande - sesiones más largas (20-30 min) con descansos"
+        },
+        "healthConditions": "Condiciones de salud",
+        "healthAdvice": "Monitorea cuidadosamente las señales de estrés durante el entrenamiento. Consulta al veterinario antes de iniciar protocolos intensivos.",
+        "emotionAdvice": "Para la emoción \"{{emotion}}\"",
+        "emotionTips": {
+          "anxiety": "Crea un ambiente seguro y predecible. Evita cambios bruscos en la rutina.",
+          "aggression": "Mantén la calma y distancia de seguridad. Usa refuerzos positivos, nunca castigos.",
+          "fear": "Desensibilización gradual. No fuerces la exposición, procede con paciencia.",
+          "sadness": "Aumenta actividades gratificantes e interacciones sociales positivas.",
+          "general": "Mantén consistencia en el entrenamiento y celebra cada pequeño progreso."
+        },
+        "frequency": "Frecuencia recomendada",
+        "frequencyAdvice": {
+          "puppy": "2-3 sesiones cortas por día",
+          "confident": "1-2 sesiones por día",
+          "careful": "1 sesión por día para evitar sobreestimulación"
+        }
+      },
+      "triggers": {
+        "title": "Posibles Triggers Identificados",
+        "monitor": "Monitorea este factor para identificar patrones comportamentales"
+      },
+      "originalRecording": "Grabación Original",
+      "audioOnly": "Este archivo no es audio. Reproductor disponible solo para grabaciones de audio.",
+      "actions": {
+        "share": "Compartir",
+        "downloadReport": "Descargar Reporte",
+        "addToDiary": "Añadir al Diario",
+        "scheduleFollowUp": "Programar Seguimiento"
+      },
+      "patternRecognition": {
+        "title": "Reconocimiento de Patrones",
+        "subtitle": "Comparaciones con análisis anteriores",
+        "similarEpisode": "Episodio Similar",
+        "behaviorObserved": "Comportamiento similar observado el {{date}} con emoción \"{{emotion}}\" (confianza {{confidence}}%)",
+        "compareAnalyses": "Comparar Análisis",
+        "confidenceVariation": "Variación de Confianza",
+        "sinceLastAnalysis": "Desde el Último Análisis",
+        "today": "Hoy",
+        "oneDay": "1 día",
+        "days": "{{days}} días",
+        "consistency": "Consistencia del Patrón"
+      },
+      "selectAnalysis": "Seleccionar Análisis",
+      "showResults": "Mostrar resultados para {{count}} análisis recientes",
+      "noResults": "Sin Resultados",
+      "loadFileToSeeResults": "Carga un archivo para ver los resultados del análisis",
+      "noAnalysisAvailable": "No hay Análisis Disponible",
+      "loadFirstFile": "Carga el primer archivo de audio o video para comenzar",
+      "toasts": {
+        "error": "Error",
+        "noPetSelected": "No hay mascota seleccionada",
+        "success": "¡Éxito!",
+        "analysisAddedToDiary": "¡Análisis añadido al diario exitosamente!",
+        "cannotAddToDiary": "No se puede añadir el análisis al diario",
+        "followUpScheduled": "Seguimiento Programado",
+        "reminderCreated": "Recordatorio creado para {{date}} en el calendario",
+        "cannotCreateReminder": "No se puede crear recordatorio en el calendario",
+        "pdfDownloaded": "Reporte PDF Descargado",
+        "pdfSaved": "El reporte PDF ha sido guardado como {{fileName}}",
+        "cannotGeneratePdf": "No se puede generar el reporte PDF"
+      },
+      "insights": {
+        "challengingBehaviorStaringRigid": "Comportamiento desafiante con mirada fija prolongada y movimiento rígido",
+        "relaxedPostureTailEars": "Postura corporal relajada con cola levantada y orejas erguidas", 
+        "behavioralActivationPlay": "Activación conductual orientada al juego con secuencias repetitivas",
+        "deepRelaxationBreathing": "Estado de relajación profunda con respiración regular y lenta",
+        "aggressiveVocalizationsGrowling": "Vocalizaciones agresivas acompañadas de gruñidos y ladridos intensos",
+        "difficultyImpulseControl": "Dificultad en el control de impulsos con comportamientos repetitivos",
+        "exploratoryBehaviorCuriosity": "Comportamiento exploratorio con curiosidad hacia nuevos objetos y espacios"
+      }
+    },
+    "pdf": {
+      "multipleAnalysisTitle": "INFORME DE ANÁLISIS MÚLTIPLES - PET VOICE",
+      "pet": "Mascota",
+      "analysisCount": "Número de análisis",
+      "date": "Fecha"
+    },
+    "history": {
+      "filterByEmotion": "Filtrar por emoción",
+      "filterByConfidence": "Filtrar por confianza",
+      "searchPlaceholder": "Buscar análisis...",
+      "dateRange": "Rango de fechas",
+      "selectDateRange": "Seleccionar rango",
+      "allEmotions": "Todas las emociones",
+      "allConfidence": "Toda la confianza",
+      "high": "Alta (80%+)",
+      "medium": "Media (60-79%)",
+      "low": "Baja (<60%)",
+      "reset": "Restablecer Filtros",
+      "exportSelected": "Exportar Seleccionados",
+      "compareSelected": "Comparar Seleccionados",
+      "deleteSelected": "Eliminar Seleccionados",
+      "selectAll": "Seleccionar Todo",
+      "deselectAll": "Deseleccionar Todo",
+      "analysisCount": "{{count}} análisis",
+      "noResults": "No se encontraron resultados",
+      "adjustFilters": "Intenta ajustar los filtros para ver más resultados",
+      "quickFilters": "Filtros Rápidos",
+      "today": "Hoy",
+      "thisWeek": "Esta Semana",
+      "thisMonth": "Este Mes",
+      "lastMonth": "Mes Pasado",
+      "advancedFilters": "Filtros Avanzados",
+      "search": "Buscar",
+      "emotion": "Emoción",
+      "period": "Período",
+      "selectPeriod": "Seleccionar período",
+      "allEmotionsPlaceholder": "Todas las emociones",
+      "allLevels": "Todos los niveles",
+      "clearFilters": "Limpiar filtros",
+      "resultsOf": "{{filtered}} de {{total}} análisis"
+    },
+    "processing": {
+      "uploadingFiles": "Subiendo archivos...",
+      "aiAnalysis": "Análisis de IA en progreso...",
+      "savingResults": "Guardando resultados...",
+      "completed": "¡Completado!",
+      "preparingFile": "Preparando archivo {{current}}/{{total}}...",
+      "preparation": "Preparando...",
+      "analyzing": "Analizando Patrones Emocionales...",
+      "generating": "Generando insights...",
+      "emotionalAnalysis": "Analizando emociones...",
+      "title": "Análisis en Progreso",
+      "currentFile": "Archivo",
+      "progress": "Progreso",
+      "pleaseWait": "Por favor espere...",
+      "didYouKnow": "¿Sabías que?",
+      "steps": {
+        "upload": "Subir",
+        "analysis": "Análisis IA",
+        "save": "Guardar",
+        "complete": "Completar",
+        "extractFeatures": "Extracción de características de audio",
+        "emotionalClassification": "Clasificación emocional",
+        "generateInsights": "Generando insights",
+        "createRecommendations": "Creando recomendaciones"
+      },
+      "funFacts": {
+        "uploading": "¡Los gatos tienen más de 100 vocalizaciones diferentes, mientras que los perros solo tienen 10!",
+        "analyzing": "La IA analiza más de 50 parámetros acústicos para identificar las emociones de tu mascota",
+        "saving": "Los análisis se guardan de forma segura y siempre son accesibles desde el historial",
+        "completed": "¡Análisis completado! Ahora puedes descubrir qué está pensando tu mascota 🎉",
+        "default": "¡Nuestra IA puede reconocer más de 15 emociones diferentes en tu mascota!"
+      }
+    },
+    "emotions": {
+      "felice": "Feliz",
+      "calmo": "Calmado",
+      "ansioso": "Ansioso",
+      "eccitato": "Emocionado",
+      "triste": "Triste",
+      "aggressivo": "Agresivo",
+      "giocoso": "Juguetón"
+    },
+    "actions": {
+      "viewDetails": "Ver Detalles",
+      "downloadPDF": "Descargar PDF",
+      "shareAnalysis": "Compartir",
+      "deleteAnalysis": "Eliminar",
+      "compareWith": "Comparar Con",
+      "playAudio": "Reproducir Audio",
+      "pauseAudio": "Pausar Audio"
+    },
+    "modals": {
+      "deleteConfirm": {
+        "title": "Eliminar Análisis",
+        "single": "¿Estás seguro de que quieres eliminar este análisis?",
+        "multiple": "¿Estás seguro de que quieres eliminar {{count}} análisis seleccionados?",
+        "warning": "Esta acción no se puede deshacer.",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      },
+      "details": {
+        "title": "Detalles del Análisis",
+        "overview": "Resumen",
+        "insights": "Insights Detallados",
+        "recommendations": "Recomendaciones Específicas",
+        "technicalInfo": "Información Técnica"
+      },
+      "compare": {
+        "title": "Comparar Análisis",
+        "selectTwo": "Selecciona hasta 2 análisis para compararlos",
+        "emotionTrend": "Tendencia Emocional",
+        "confidenceComparison": "Comparación de Confianza",
+        "recommendations": "Recomendaciones Comparativas"
+      }
+    },
+    "predictions": {
+      "title": "Predicciones de Bienestar",
+      "description": "Predicciones basadas en los datos históricos de tu mascota",
+      "wellnessTrend": "Tendencia de Bienestar",
+      "moodPredictions": "Predicciones de Humor",
+      "healthForecasts": "Pronósticos de Salud",
+      "weatherImpact": "Impacto del Clima",
+      "dataRange": "Rango de Datos",
+      "selectRange": "Seleccionar rango para predicciones",
+      "lastMonth": "Último Mes",
+      "last3Months": "Últimos 3 Meses",
+      "last6Months": "Últimos 6 Meses",
+      "lastYear": "Último Año",
+      "futureTrend": "Tendencia de Bienestar Futuro",
+      "predictionDesc": "Predicción basada en datos históricos",
+      "aiRecommendations": "Recomendaciones de IA",
+      "aiRecommendationsDesc": "Sugerencias basadas en patrones detectados",
+      "seasonalPatterns": "Patrones Estacionales Reales",
+      "seasonalPatternsDesc": "Análisis de comportamiento por estación basado en datos reales",
+      "realData": "DATOS REALES",
+      "analysisReal": "ANÁLISIS REAL",
+      "patternReal": "PATRÓN REAL",
+      "alertReal": "ALERTA REAL",
+      "trendPositive": "TENDENCIA POSITIVA",
+      "improvement": "Mejora",
+      "decline": "Declive",
+      "stable": "Estable",
+      "wellnessImproving": "El bienestar de tu mascota está mejorando. Continúa con el cuidado actual.",
+      "wellnessDeclining": "El bienestar muestra signos de declive. Considera una visita veterinaria.",
+      "wellnessStable": "El bienestar es estable. Mantén la rutina actual.",
+      "noWellnessData": "No hay datos de bienestar disponibles para generar predicciones.",
+      "currentScore": "Puntuación Actual",
+      "prediction30Days": "Predicción 30 días",
+      "spring": "Primavera",
+      "summer": "Verano",
+      "autumn": "Otoño",
+      "winter": "Invierno",
+      "positiveEmotions": "Emociones positivas:",
+      "problemsDetected": "Problemas detectados:",
+      "predominantEmotion": "Emoción predominante:",
+      "dataFrom": "Datos de {{count}} grabaciones reales",
+      "noDataAvailable": "No hay datos disponibles",
+      "continueAnalyzing": "Continúa analizando para recopilar datos estacionales",
+      "analysesCount": "{{count}} análisis",
+      "basedOnAnalyses": "Basado en {{count}} análisis totales",
+      "highPriority": "🔴 Alta prioridad",
+      "mediumPriority": "🟡 Prioridad media",
+      "lowPriority": "🟢 Baja prioridad",
+      "anxietyEpisodes": "episodios de ansiedad en los últimos 7 días. Recomiendo consulta veterinaria comportamental.",
+      "anxietyDetected": "episodios de ansiedad detectados. Considera técnicas de relajación.",
+      "sadnessPattern": "episodios de tristeza en los últimos 7 días. Aumenta las actividades estimulantes.",
+      "aggressiveAlert": "episodios agresivos detectados. Intervención comportamental inmediata recomendada.",
+      "happyTrend": "episodios felices en los últimos 7 días! Mantén las estrategias actuales.",
+      "dataQuality": "CALIDAD DE DATOS: Confianza promedio",
+      "improveRecording": "%. Mejora las condiciones de grabación.",
+      "frequency": "FRECUENCIA: Solo",
+      "analysisLast7Days": "análisis en los últimos 7 días. Aumenta el monitoreo para datos más precisos.",
+      "realImprovement": "MEJORA REAL:",
+      "positiveEmotionsIncrease": "% de emociones positivas comparado con la semana anterior.",
+      "declineDetected": "DECLIVE DETECTADO:",
+      "positiveEmotionsDecrease": "% de emociones positivas. Se necesita atención.",
+      "normalState": "ESTADO NORMAL:",
+      "recentAnalysesStable": "análisis recientes muestran comportamiento estable. Continúa el monitoreo regular.",
+      "weatherMoodPredictor": "Predictor del Estado de Ánimo Meteorológico",
+      "weatherPredictionDesc": "Predicciones comportamentales basadas en el clima real",
+      "behaviorPredictions": "Predicciones Comportamentales",
+      "humidity": "Humedad:",
+      "pressure": "Presión:",
+      "wind": "Viento:",
+      "uvIndex": "Índice UV:",
+      "autoUpdate": "Actualización automática cada 10 min",
+      "realTimeData": "● Datos en tiempo real",
+      "analyzingWeather": "Analizando condiciones climáticas...",
+      "geolocationUnavailable": "Geolocalización no disponible",
+      "enableGeolocation": "Habilita la geolocalización en el navegador para usar el Predictor del Estado de Ánimo Meteorológico",
+      "weatherUpdated": "¡Datos meteorológicos actualizados automáticamente!",
+      "weatherError": "Error al cargar datos meteorológicos - usando datos simulados",
+      "mockDataDescription": "Datos simulados - error de API",
+      "normalBehavior": "Comportamiento normal",
+      "mockReasoningError": "Datos simulados - imposible obtener predicciones precisas",
+      "manualCheckRecommendation": "Verifica manualmente el comportamiento de tu mascota",
+      "genericPlaylist": "Lista Genérica",
+      "defaultMusicDescription": "Música predeterminada - datos meteorológicos no disponibles",
+      "natureSounds": "Sonidos de la naturaleza",
+      "relaxingMusic": "Música relajante",
+      "calmEnvironment": "Ambiente tranquilo",
+      "seekingShade": "Buscando sombra",
+      "highTempReasoning": "Las altas temperaturas empujan a los animales a buscar refrigerio",
+      "coolZoneRecommendation": "Asegúrate de que tengan acceso a zonas frescas y agua fresca",
+      "increasedThirst": "Aumento de sed",
+      "heatThirstReasoning": "El calor incrementa notablemente las necesidades de agua",
+      "waterBowlRecommendation": "Revisa frecuentemente el bebedero",
+      "seekingWarmth": "Buscando calor",
+      "coldTempReasoning": "Las bajas temperaturas empujan a los animales a buscar fuentes de calor",
+      "warmPlaceRecommendation": "Prepara un lugar cálido y acogedor",
+      "loading": "Cargando...",
+      "activateGeolocation": "Activar Geolocalización",
+      "hyperactivity": "Hiperactividad",
+      "sunnyDayReasoning": "Los días soleados aumentan la energía y las ganas de jugar",
+      "outdoorActivityRecommendation": "Programa actividad física extra y juegos al aire libre",
+      "lethargy": "Letargo",
+      "rainyDayReasoning": "La lluvia tiende a hacer que los animales estén más calmados y perezosos",
+      "indoorActivityRecommendation": "Las actividades en interiores y caricias son ideales",
+      "anxiety": "Ansiedad",
+      "stormReasoning": "Las tormentas y truenos pueden causar estrés y miedo",
+      "safeEnvironmentRecommendation": "Crea un ambiente seguro y tranquilizador",
+      "restlessness": "Inquietud",
+      "lowPressureReasoning": "La baja presión puede afectar el comportamiento",
+      "monitorBehaviorRecommendation": "Monitorea cualquier cambio de comportamiento",
+      "sunnyDayPlaylist": "Día Soleado",
+      "energeticMusicDescription": "Música energética para días brillantes y cálidos",
+      "rainyRelaxPlaylist": "Relajación Lluviosa",
+      "relaxingSoundsDescription": "Sonidos relajantes para días lluviosos",
+      "recommendation": "Recomendación:"
+    },
+    "success": {
+      "analysisCompleted": "Análisis Completado",
+      "textAnalyzed": "¡La descripción del comportamiento ha sido analizada exitosamente!",
+      "filesAnalyzed": "{{count}} archivos analizados exitosamente",
+      "analysisDeleted": "Análisis eliminado exitosamente",
+      "analysisShared": "Análisis compartido exitosamente",
+      "pdfGenerated": "PDF generado exitosamente",
+      "dataExported": "Datos exportados exitosamente"
+    },
+    "errors": {
+      "selectPet": "Selecciona una mascota antes de iniciar el análisis",
+      "fileUploadError": "Error al subir archivo",
+      "analysisError": "Error durante el análisis",
+      "loadError": "No se pueden cargar los análisis",
+      "deleteError": "Error durante la eliminación",
+      "shareError": "Error durante el compartir",
+      "networkError": "Error de red. Intenta de nuevo más tarde.",
+      "invalidFile": "Tipo de archivo inválido",
+      "fileTooLarge": "Archivo demasiado grande. Máximo 50MB",
+      "recordingError": "Error durante la grabación",
+      "textTooShort": "Descripción demasiado corta. Ingresa al menos 10 caracteres."
+    },
+    "startAnalysis": "Iniciar Análisis",
+    "results": "Resultados",
+    "confidence": "Confianza",
+    "recommendations": "Recomendaciones",
+    "moodDetected": "Estado de Ánimo Detectado",
+    "behaviorPatterns": "Patrones de Comportamiento",
+    "noAnalysisTitle": "No hay Análisis Disponible",
+    "noAnalysisDesc": "Carga el primer archivo de audio o video para comenzar",
+    "filterTitle": "Filtros Avanzados",
+    "fileName": "Nombre de archivo, emoción...",
+    "allLevelsPlaceholder": "Todos los niveles",
+    "filtersResults": "{{count}} de {{total}} análisis",
+    "mockData": {
+      "insights": {
+        "default": "Comportamiento normal observado durante el análisis",
+        "ansioso": {
+          "1": "La mascota manifiesta signos de ansiedad generalizada con temblores e inquietud",
+          "2": "Comportamiento de evitación y búsqueda constante de refugios seguros",
+          "3": "Respiración acelerada e hipervigilancia hacia estímulos externos",
+          "4": "Dificultad para relajarse, con tendencia al pacing y vocalizaciones excesivas"
+        },
+        "triste": {
+          "1": "Actividad general reducida y disminución del interés por el juego",
+          "2": "Postura corporal agachada con orejas hacia atrás y cola baja",
+          "3": "Menor interacción social y tendencia al aislamiento",
+          "4": "Apetito reducido y sueño irregular con signos de melancolía"
+        },
+        "aggressivo": {
+          "1": "Tensión muscular elevada con postura rígida y amenazante",
+          "2": "Vocalizaciones agresivas acompañadas de gruñidos y ladridos intensos",
+          "3": "Territorialidad exacerbada y reactividad a estímulos específicos",
+          "4": "Comportamiento desafiante con fijación prolongada y movimiento rígido"
+        },
+        "felice": {
+          "1": "Alta reactividad positiva con movimientos fluidos y juguetones",
+          "2": "Interacción social aumentada y búsqueda activa de contacto",
+          "3": "Postura corporal relajada con cola alzada y orejas erectas",
+          "4": "Energía equilibrada con interés espontáneo por el entorno circundante"
+        },
+        "eccitato": {
+          "1": "Hiperactivación con movimiento frenético y dificultad de concentración",
+          "2": "Búsqueda compulsiva de estímulos y actividades de alta intensidad",
+          "3": "Respiración rápida alternada con vocalizaciones agudas y frecuentes",
+          "4": "Dificultad en el control de impulsos con comportamientos repetitivos"
+        },
+        "calmo": {
+          "1": "Estado de relajación profunda con respiración regular y lenta",
+          "2": "Postura estirada y cómoda con músculos completamente relajados",
+          "3": "Atención difusa pero no hipervigilante hacia el ambiente",
+          "4": "Equilibrio emocional estable con respuestas apropiadas a los estímulos"
+        },
+        "giocoso": {
+          "1": "Activación comportamental dirigida al juego con secuencias repetitivas",
+          "2": "Interacción social dinámica con invitación al juego hacia otros",
+          "3": "Energía enfocada en actividades lúdicas con variaciones de intensidad",
+          "4": "Comportamiento exploratorio con curiosidad hacia objetos y espacios nuevos"
+        }
+      },
+      "recommendations": {
+        "ansioso": {
+          "1": "Implementar técnicas de desensibilización gradual a los triggers",
+          "2": "Crear una zona segura con objetos de confort familiares",
+          "3": "Introducir ejercicios de respiración guiada y relajación muscular",
+          "4": "Evaluar el uso de feromonas calmantes o suplementos naturales",
+          "5": "Mantener rutinas predecibles para reducir la incertidumbre"
+        },
+        "triste": {
+          "1": "Aumentar gradualmente las actividades físicas estimulantes",
+          "2": "Implementar sesiones de juego interactivo diarias",
+          "3": "Incrementar el contacto social positivo y las caricias",
+          "4": "Evaluar cambios en la dieta para mejorar la energía",
+          "5": "Monitorear posibles causas médicas subyacentes"
+        },
+        "aggressivo": {
+          "1": "Implementar protocolos de manejo de reactividad inmediatos",
+          "2": "Trabajar en liderazgo positivo y control de impulsos",
+          "3": "Evitar triggers identificados hasta completar el entrenamiento",
+          "4": "Consultar un experto comportamental calificado",
+          "5": "Evaluar el ambiente para remover factores desencadenantes"
+        },
+        "felice": {
+          "1": "Mantener el nivel actual de estimulación positiva",
+          "2": "Continuar las actividades que promueven este estado emocional",
+          "3": "Utilizar este estado para introducir nuevos aprendizajes",
+          "4": "Documentar las condiciones que favorecen el bienestar",
+          "5": "Mantener una rutina equilibrada de actividad y descanso"
+        },
+        "eccitato": {
+          "1": "Introducir ejercicios de autocontrol y entrenamiento de 'calma'",
+          "2": "Reducir temporalmente estímulos de alta intensidad",
+          "3": "Implementar pausas forzadas durante las actividades",
+          "4": "Trabajar en comandos básicos para mejorar la concentración",
+          "5": "Equilibrar actividades físicas con momentos de calma"
+        },
+        "calmo": {
+          "1": "Mantener el ambiente actual que favorece la tranquilidad",
+          "2": "Utilizar este estado para sesiones de entrenamiento avanzado",
+          "3": "Introducir gradualmente nuevas experiencias positivas",
+          "4": "Documentar las rutinas que promueven la relajación",
+          "5": "Mantener un ambiente estable y predecible"
+        },
+        "giocoso": {
+          "1": "Canalizar la energía lúdica en actividades estructuradas",
+          "2": "Introducir juegos que estimulen la mente además del cuerpo",
+          "3": "Equilibrar el juego libre con el juego dirigido",
+          "4": "Utilizar el juego como herramienta de aprendizaje",
+          "5": "Programar sesiones de juego regulares y variadas"
+        }
+      },
+      "triggers": {
+        "ansioso": {
+          "1": "Ruidos súbitos de alta intensidad (truenos, fuegos artificiales)",
+          "2": "Separación del propietario o figuras de apego",
+          "3": "Presencia de extraños o animales desconocidos en el ambiente",
+          "4": "Cambios en la rutina diaria o en el ambiente doméstico"
+        },
+        "triste": {
+          "1": "Pérdida o ausencia prolongada de compañeros (humanos o animales)",
+          "2": "Reducción de actividades sociales y recreativas habituales",
+          "3": "Cambios estacionales o climáticos significativos",
+          "4": "Disminución de la atención e interacción social"
+        },
+        "aggressivo": {
+          "1": "Invasión del territorio o de los recursos (comida, juguetes)",
+          "2": "Contacto físico no deseado o forzado",
+          "3": "Competencia con otros animales por recursos limitados",
+          "4": "Dolor físico o malestar médico no diagnosticado"
+        },
+        "felice": {
+          "1": "Presencia del propietario o personas queridas",
+          "2": "Actividades recreativas preferidas (paseos, juegos)",
+          "3": "Recibir atención positiva y refuerzos",
+          "4": "Ambientes familiares y seguros con rutinas estables"
+        },
+        "eccitato": {
+          "1": "Anticipación de eventos placenteros (comidas, salidas)",
+          "2": "Estimulación sensorial intensa (sonidos, movimientos)",
+          "3": "Interacción con juguetes de alta estimulación",
+          "4": "Presencia de otros animales o personas enérgicas"
+        },
+        "calmo": {
+          "1": "Ambientes tranquilos con iluminación suave",
+          "2": "Rutinas relajantes consolidadas (masajes, caricias)",
+          "3": "Ausencia de estímulos estresantes o perturbadores",
+          "4": "Presencia de objetos de confort familiares"
+        },
+        "giocoso": {
+          "1": "Presencia de juguetes interactivos o estimulantes",
+          "2": "Interacción con otros animales jóvenes o juguetones",
+          "3": "Espacios abiertos que fomentan la exploración",
+          "4": "Horarios específicos del día asociados con el juego"
+        }
+      }
+    }
+  },
+  "diary": {
+    "title": "Diario",
+    "addEntry": "Añadir Entrada",
+    "editEntry": "Editar Entrada",
+    "entryTitle": "Título",
+    "entryContent": "Contenido",
+    "mood": "Estado de Ánimo",
+    "weather": "Clima",
+    "temperature": "Temperatura",
+    "behaviorTags": "Etiquetas de Comportamiento",
+    "photos": "Fotos",
+    "voiceNote": "Nota de Voz",
+    "noEntries": "Sin entradas en el diario",
+    "noEntriesDesc": "Comienza registrando momentos especiales con tu mascota"
+  },
+  "calendar": {
+    "title": "Calendario",
+    "addEvent": "Añadir Evento",
+    "editEvent": "Editar Evento",
+    "eventTitle": "Título del Evento",
+    "eventDescription": "Descripción",
+    "startTime": "Hora de Inicio",
+    "endTime": "Hora de Fin",
+    "location": "Ubicación",
+    "category": "Categoría",
+    "attendees": "Asistentes",
+    "reminders": "Recordatorios",
+    "recurring": "Recurrente",
+    "allDay": "Todo el día",
+    "noEvents": "Sin eventos programados"
+  },
+  "wellness": {
+    "title": "Bienestar",
+    "healthMetrics": "Métricas de Salud",
+    "vitals": "Signos Vitales",
+    "activity": "Actividad",
+    "nutrition": "Nutrición",
+    "sleep": "Sueño",
+    "weight": "Peso",
+    "heartRate": "Frecuencia Cardíaca",
+    "temperature": "Temperatura",
+    "lastCheckup": "Último Chequeo",
+    "nextAppointment": "Próxima Cita"
+  },
+  "aiTraining": {
+    "title": "Protocolos de Entrenamiento IA",
+    "subtitle": "Protocolos de entrenamiento personalizados con inteligencia artificial",
+    "tabs": {
+      "protocols": "Protocolos Activos",
+      "sessions": "Sesiones",
+      "analytics": "Análisis"
+    },
+    "protocol": {
+      "day": "Día",
+      "success": "éxito",
+      "progress": "Progreso",
+      "difficulty": {
+        "facile": "Fácil",
+        "medio": "Medio", 
+        "difficile": "Difícil"
+      },
+      "status": {
+        "active": "Activo",
+        "completed": "Completado",
+        "paused": "Pausado",
+        "available": "Disponible"
+      }
+    },
+    "sessions": {
+      "title": "Sesión",
+      "exercises": "Ejercicios",
+      "notes": "Notas",
+      "videoAnalysis": "Análisis de Video IA",
+      "videoButton": "Análisis de Video",
+      "posture": "Postura",
+      "engagement": "Compromiso",
+      "stress": "Estrés",
+      "recommendations": "Recomendaciones IA"
+    },
+    "analytics": {
+      "title": "Análisis de Rendimiento",
+      "protocolsCompleted": "Protocolos Completados",
+      "avgSuccessRate": "Tasa de Éxito Promedio",
+      "totalSessions": "Sesiones Totales",
+      "improvementRate": "Tasa de Mejora"
+    },
+    "messages": {
+      "loading": "Cargando protocolos...",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar este protocolo?",
+      "editClick": "¡EDITAR PRESIONADO!",
+      "deleteClick": "¡ELIMINAR PRESIONADO!"
+    },
+    "buttons": {
+      "edit": "EDITAR",
+      "delete": "ELIMINAR"
+    },
+    "dialog": {
+      "editTitle": "Editar Protocolo",
+      "titleLabel": "Título",
+      "descriptionLabel": "Descripción",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "analytics": {
+      "activeProtocols": "Protocolos Activos",
+      "avgSuccess": "Éxito Promedio",
+      "totalTime": "Tiempo Total",
+      "completedSessions": "Sesiones Completadas",
+      "aiInsight": "Insight IA",
+      "insightMessage": "El protocolo \"Anxiety Relief\" está mostrando un progreso excelente. Considera aumentar la frecuencia de las sesiones para optimizar los resultados."
+    },
+    "stats": {
+      "activeProtocols": "Protocolos Activos",
+      "activeDescription": "en progreso",
+      "completed": "Completados",
+      "completedDescription": "con éxito", 
+      "successRate": "Tasa de Éxito",
+      "successRateDescription": "promedio personal",
+      "community": "Comunidad",
+      "communityDescription": "protocolos compartidos"
+    },
+    "tabs": {
+      "protocols": "Protocolos",
+      "active": "Activos", 
+      "completed": "Completados",
+      "suggestions": "Sugerencias IA",
+      "community": "Comunidad"
+    },
+    "actions": {
+      "start": "Iniciar",
+      "continue": "Continuar",
+      "view": "Ver",
+      "restart": "Reiniciar"
+    }
+  },
+  "training": {
+    "title": "Protocolos de Entrenamiento IA",
+    "subtitle": "Accede a protocolos avanzados basados en inteligencia artificial para optimizar el comportamiento y bienestar de tu mascota",
+    "protocols": "Protocolos",
+    "exercises": "Ejercicios",
+    "progress": "Progreso",
+    "difficulty": "Dificultad",
+    "duration": "Duración",
+    "materials": "Materiales",
+    "instructions": "Instrucciones",
+    "completed": "Completado",
+    "inProgress": "En Progreso",
+    "notStarted": "No Iniciado",
+    "protocolCreated": "Protocolo creado",
+    "protocolCreatedDescription": "El protocolo de entrenamiento ha sido creado con éxito",
+    "protocolStarted": "Protocolo iniciado",
+    "protocolStartedDescription": "El protocolo \"{title}\" ha sido iniciado con éxito",
+    "protocolStopped": "Protocolo detenido", 
+    "protocolStoppedDescription": "El protocolo \"{title}\" ha sido detenido con éxito",
+    "protocolDeleted": "Protocolo eliminado",
+    "protocolDeletedDescription": "El protocolo ha sido eliminado con éxito",
+    "protocolCompleted": "Protocolo completado con éxito",
+    "exerciseCompleted": "Ejercicio completado",
+    "progressSaved": "Progreso guardado",
+    "errorCreating": "Error al crear",
+    "errorCreatingDescription": "No se pudo crear el protocolo",
+    "errorUpdating": "Error al actualizar",
+    "errorUpdatingDescription": "No se pudo actualizar el protocolo",
+    "errorDeleting": "Error al eliminar", 
+    "errorDeletingDescription": "No se pudo eliminar el protocolo",
+    "title": "Protocolos de Entrenamiento IA",
+    "subtitle": "Accede a protocolos avanzados basados en inteligencia artificial para optimizar el comportamiento y bienestar de tu mascota",
+    "protocols": "Protocolos",
+    "exercises": "Ejercicios",
+    "progress": "Progreso",
+    "difficulty": "Dificultad",
+    "duration": "Duración",
+    "materials": "Materiales",
+    "instructions": "Instrucciones",
+    "completed": "Completado",
+    "inProgress": "En Progreso",
+    "notStarted": "No Iniciado",
+    "tabs": {
+      "all": "Todos los Protocolos",
+      "active": "Mis Activos",
+      "completed": "Completados",
+      "community": "Comunidad"
+    },
+    "stats": {
+      "active": "Protocolos Activos",
+      "inProgress": "en progreso",
+      "completed": "Completados",
+      "success": "con éxito",
+      "successRate": "Tasa de Éxito",
+      "personalAverage": "promedio personal",
+      "community": "Comunidad",
+      "sharedProtocols": "protocolos compartidos"
+    },
+    "difficulty": {
+      "facile": "fácil",
+      "medio": "medio",
+      "difficile": "difícil"
+    },
+    "status": {
+      "available": "disponible",
+      "active": "activo",
+      "completed": "completado",
+      "paused": "pausado"
+    },
+    "buttons": {
+      "details": "Detalles",
+      "startProtocol": "Iniciar Protocolo",
+      "continue": "Continuar",
+      "alreadyActive": "Ya Activo"
+    },
+    "labels": {
+      "days": "días",
+      "success": "éxito",
+      "uses": "usos",
+      "difficulty": "Dificultad",
+      "duration": "Duración",
+      "successRate": "Tasa de éxito",
+      "communityUses": "Usos de la comunidad"
+    },
+    "protocols": {
+      "socializzazioneProgressiva": {
+        "title": "Socialización Progresiva",
+        "description": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas."
+      },
+      "controlloAggressivitaReattiva": {
+        "title": "Control de Agresividad Reactiva",
+        "description": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en la seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional."
+      },
+      "gestioneAnsiaSeparazione": {
+        "title": "Gestión de Ansiedad por Separación",
+        "description": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual."
+      },
+      "rieducazioneAlimentareComportamentale": {
+        "title": "Reeducación Alimentaria Comportamental",
+        "description": "Protocolo intermedio para resolver trastornos comportamentales relacionados con la alimentación. Aborda alimentación compulsiva, rechazo de comida, guardia de alimentos y ansiedad alimentaria a través de un enfoque gradual y no punitivo."
+      },
+      "ottimizzazioneCicloSonnoVeglia": {
+        "title": "Optimización del Ciclo Sueño-Vigilia",
+        "description": "Protocolo especializado para establecer patrones de sueño saludables, reducir insomnio y despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores."
+      },
+      "superareFobiePaureSpecifiche": {
+        "title": "Superar Fobias y Miedos Específicos",
+        "description": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales"
+      },
+      "stopComportamentiDistruttivi": {
+        "title": "Detener Comportamientos Destructivos",
+        "description": "Protocolo intensivo para eliminar masticación destructiva, excavación excesiva y destrucción de objetos domésticos."
+      },
+      "gestioneGelosiaEPossessivita": {
+        "title": "Gestión de Celos y Posesividad",
+        "description": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos."
+      },
+      "riattivazioneEnergiaMotivazione": {
+        "title": "Reactivación de Energía y Motivación",
+        "description": "Protocolo gradual para combatir depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social."
+      },
+      "gestioneIperattivatEDeficitAttenzione": {
+        "title": "Gestión de Hiperactividad y Déficit de Atención",
+        "description": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
+      }
+    },
+    "descriptions": {
+      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
+      "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale.": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional.",
+      "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale.": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual.",
+      "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo.": "Protocolo intermedio para resolver trastornos de comportamiento relacionados con la alimentación. Aborda alimentación compulsiva, rechazo a la comida, protección de alimentos y ansiedad alimentaria a través de un enfoque gradual y no punitivo.",
+      "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori.": "Protocolo especializado para establecer patrones de sueño saludables, reducir insomnio y despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores.",
+      "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programa avanzado de desensibilización sistemática para superar fobias intensas a ruidos, objetos y situaciones específicas a través de técnicas científicas graduales",
+      "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.": "Protocolo intensivo para eliminar masticación destructiva, excavación excesiva y destrucción de objetos domésticos.",
+      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos.",
+      "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.": "Protocolo gradual para combatir depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social.",
+      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
+    },
+    "search": {
+      "placeholder": "Buscar protocolos...",
+      "allCategories": "Todas las categorías"
+    },
+    "createProtocol": {
+      "title": "Crear Nuevo Protocolo",
+      "form": {
+        "title": "Título",
+        "description": "Descripción",
+        "category": "Categoría",
+        "difficulty": "Dificultad",
+        "durationDays": "Duración (días)",
+        "targetBehavior": "Comportamiento objetivo"
+      },
+      "buttons": {
+        "create": "Crear Protocolo",
+        "cancel": "Cancelar"
+      }
+    },
+    "emptyState": {
+      "title": "No se encontraron protocolos",
+      "description": "Comienza creando tu primer protocolo de entrenamiento personalizado."
+    }
+  },
+  "community": {
+    "title": "Comunidad",
+    "channels": "Canales",
+    "messages": "Mensajes",
+    "members": "Miembros",
+    "online": "En línea",
+    "typeMessage": "Escribe un mensaje...",
+    "sendMessage": "Enviar Mensaje",
+    "joinChannel": "Unirse al Canal",
+    "leaveChannel": "Salir del Canal"
+  },
+  "notifications": {
+    "newPet": {
+      "title": "¡Nueva mascota añadida!",
+      "message": "{petName} ha sido añadida a tu familia. ¡Comienza con un análisis emocional!"
+    },
+    "analysisCompleted": {
+      "title": "¡Análisis completado!",
+      "message": "El análisis emocional de {petName} está listo. ¡Mira los resultados!"
+    },
+    "diaryUpdated": {
+      "title": "Diario actualizado",
+      "message": "Nueva entrada añadida al diario de {petName}"
+    },
+    "wellnessReminder": {
+      "title": "Verificar bienestar",
+      "message": "Es hora de verificar la puntuación de bienestar de {petName}"
+    },
+    "appointmentReminder": {
+      "title": "Recordatorio de cita",
+      "message": "Cita {appointmentType} para {petName} mañana a las 10:00"
+    },
+    "diaryReminder": {
+      "title": "Recordatorio de diario",
+      "message": "No olvides actualizar el diario de {petName} hoy"
+    },
+    "newCommunityMessage": {
+      "title": "Nuevo mensaje de la comunidad",
+      "message": "Nuevo mensaje en el grupo {channelName}"
+    },
+    "newPrivateMessage": {
+      "title": "Nuevo mensaje privado",
+      "message": "{senderName}: {messagePreview}"
+    },
+    "medicationExpiring": {
+      "title": "Medicamento por vencer",
+      "message": "El medicamento \"{medicationName}\" vence en pocos días"
+    },
+    "eventReminder": {
+      "title": "Recordatorio de evento",
+      "message": "\"{eventTitle}\" está programado para mañana a las {eventTime}"
+    },
+    "eventImminent": {
+      "title": "Evento próximo",
+      "message": "\"{eventTitle}\" comienza en {hoursUntil} horas"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "account": "Cuenta",
+    "privacy": "Privacidad",
+    "notifications": "Notificaciones",
+    "language": "Idioma",
+    "theme": "Tema",
+    "appearance": "Apariencia",
+    "subscription": "Suscripción",
+    "billing": "Facturación",
+    "support": "Soporte",
+    "about": "Acerca de"
+  },
+  "auth": {
+    "welcome": "Bienvenido a PetVoice",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "forgotPassword": "¿Olvidaste la contraseña?",
+    "resetPassword": "Restablecer Contraseña",
+    "emailPlaceholder": "Ingresa tu email",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "fullName": "Nombre Completo",
+    "createAccount": "Crear Cuenta",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signInWithEmail": "Iniciar sesión con Email",
+    "signUpWithEmail": "Registrarse con Email"
+  },
+  "errors": {
+    "somethingWentWrong": "Algo salió mal",
+    "tryAgain": "Intentar de nuevo",
+    "networkError": "Error de red",
+    "unauthorized": "No autorizado",
+    "notFound": "No encontrado",
+    "validationError": "Error de validación",
+    "serverError": "Error del servidor"
+  },
+  "success": {
+    "saved": "Guardado exitosamente",
+    "deleted": "Eliminado exitosamente",
+    "updated": "Actualizado exitosamente",
+    "created": "Creado exitosamente"
+  },
+  "toast": {
+    "auth": {
+      "loginSuccess": "Inicio de sesión exitoso",
+      "loginError": "Error en el inicio de sesión",
+      "logoutSuccess": "Cierre de sesión exitoso",
+      "signupSuccess": "Registro completado exitosamente",
+      "signupError": "Error en el registro",
+      "passwordChangeSuccess": "Contraseña cambiada exitosamente",
+      "passwordChangeError": "Error al cambiar la contraseña",
+      "passwordResetSent": "Email de restablecimiento de contraseña enviado",
+      "passwordResetError": "Error al enviar restablecimiento de contraseña",
+      "emailConfirmationSent": "Email de confirmación enviado",
+      "profileUpdated": "Perfil actualizado exitosamente",
+      "profileError": "Error al actualizar perfil"
+    },
+    "pets": {
+      "petAdded": "Mascota añadida exitosamente",
+      "petAddedDescription": "ahora es parte de tu familia!",
+      "petAddError": "Error al añadir mascota",
+      "petUpdated": "Información de mascota actualizada",
+      "petUpdatedDescription": "La información de {name} ha sido actualizada",
+      "petUpdateError": "Error al actualizar mascota",
+      "petDeleted": "Mascota eliminada",
+      "petDeletedDescription": "ha sido eliminada de tu familia",
+      "petDeleteError": "Error al eliminar mascota",
+      "petSelected": "Mascota seleccionada",
+      "validationRequired": "El nombre y tipo de mascota son obligatorios",
+      "avatarUploaded": "Foto de perfil cargada",
+      "avatarUploadError": "Error al cargar foto",
+      "avatarRemoved": "Foto de perfil eliminada"
+    },
+    "analysis": {
+      "analysisStarted": "Análisis iniciado",
+      "analysisComplete": "Análisis completado",
+      "analysisError": "Error en el análisis",
+      "fileUploadSuccess": "Archivo cargado exitosamente",
+      "fileUploadError": "Error al cargar archivo",
+      "invalidFileType": "Tipo de archivo no soportado",
+      "fileTooLarge": "Archivo demasiado grande",
+      "recordingStarted": "Grabación iniciada",
+      "recordingStopped": "Grabación detenida",
+      "recordingError": "Error en la grabación",
+      "textAnalysisComplete": "Análisis de texto completado",
+      "analysisShared": "Análisis compartido exitosamente"
+    },
+    "community": {
+      "messageSent": "Mensaje enviado",
+      "messageError": "Error al enviar mensaje",
+      "messageDeleted": "Mensaje eliminado",
+      "messageDeleteError": "Error al eliminar mensaje",
+      "joinedChannel": "Te uniste al canal",
+      "leftChannel": "Saliste del canal",
+      "channelError": "Error en el canal",
+      "voiceMessageSent": "Mensaje de voz enviado",
+      "voiceMessageError": "Error al enviar mensaje de voz",
+      "fileShared": "Archivo compartido",
+      "fileShareError": "Error al compartir archivo",
+      "emergencyMessageSent": "Mensaje de emergencia enviado",
+      "userBlocked": "Usuario bloqueado",
+      "userUnblocked": "Usuario desbloqueado"
+    },
+    "diary": {
+      "entryAdded": "Entrada del diario añadida",
+      "entryAddError": "Error al añadir entrada",
+      "entryUpdated": "Entrada del diario actualizada",
+      "entryUpdateError": "Error al actualizar entrada",
+      "entryDeleted": "Entrada del diario eliminada",
+      "entryDeleteError": "Error al eliminar entrada",
+      "photoUploaded": "Foto cargada",
+      "photoUploadError": "Error al cargar foto",
+      "voiceNoteAdded": "Nota de voz añadida",
+      "voiceNoteError": "Error en la nota de voz"
+    },
+    "calendar": {
+      "eventAdded": "Evento añadido al calendario",
+      "eventAddError": "Error al añadir evento",
+      "eventUpdated": "Evento actualizado",
+      "eventUpdateError": "Error al actualizar evento",
+      "eventDeleted": "Evento eliminado",
+      "eventDeleteError": "Error al eliminar evento",
+      "reminderSet": "Recordatorio establecido",
+      "reminderError": "Error al establecer recordatorio"
+    },
+    "wellness": {
+      "metricsUpdated": "Métricas de bienestar actualizadas",
+      "metricsError": "Error al actualizar métricas",
+      "alertCreated": "Alerta de salud creada",
+      "alertResolved": "Alerta de salud resuelta",
+      "appointmentScheduled": "Cita veterinaria programada",
+      "appointmentError": "Error al programar cita"
+    },
+    "settings": {
+      "settingsSaved": "Configuración guardada",
+      "settingsError": "Error al guardar configuración",
+      "languageChanged": "Idioma cambiado",
+      "themeChanged": "Tema cambiado",
+      "notificationsUpdated": "Preferencias de notificaciones actualizadas",
+      "privacyUpdated": "Configuración de privacidad actualizada",
+      "accountDeleted": "Cuenta eliminada",
+      "accountDeleteError": "Error al eliminar cuenta",
+      "dataExported": "Datos exportados exitosamente",
+      "dataExportError": "Error al exportar datos",
+      "dataImported": "Datos importados exitosamente",
+      "dataImportError": "Error al importar datos"
+    },
+    "training": {
+      "protocolStarted": "Protocolo de entrenamiento iniciado",
+      "protocolCompleted": "Protocolo completado exitosamente",
+      "exerciseCompleted": "Ejercicio completado",
+      "progressSaved": "Progreso guardado",
+      "protocolError": "Error en protocolo de entrenamiento"
+    },
+    "subscription": {
+      "planUpgraded": "Plan actualizado exitosamente",
+      "planDowngraded": "Plan cambiado",
+      "subscriptionCancelled": "Suscripción cancelada",
+      "paymentSuccess": "Pago completado exitosamente",
+      "paymentError": "Error en el pago",
+      "planLimitReached": "Límite del plan alcanzado"
+    },
+    "general": {
+      "operationSuccess": "Operación completada exitosamente",
+      "operationError": "Error en la operación",
+      "networkError": "Error de conexión de red",
+      "serverError": "Error del servidor",
+      "validationError": "Error de validación",
+      "permissionDenied": "Permiso denegado",
+      "sessionExpired": "Sesión expirada",
+      "featureNotAvailable": "Función no disponible",
+      "copiedToClipboard": "Copiado al portapapeles",
+      "downloadStarted": "Descarga iniciada",
+      "downloadComplete": "Descarga completada",
+      "uploadComplete": "Carga completada"
+    }
+  },
+  "protocols": {
+    "titles": {
+      "Gestione Gelosia e Possessività": "Gestión de Celos y Posesividad",
+      "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención", 
+      "Socializzazione Progressiva": "Socialización Progresiva",
+      "Controllo Aggressività Reattiva": "Control de Agresividad Reactiva",
+      "Gestione Ansia da Separazione": "Gestión de Ansiedad por Separación",
+      "Training Richiamo e Libertà": "Entrenamiento de Llamada y Libertad",
+      "Gestione Paure e Fobie": "Gestión de Miedos y Fobias",
+      "Controllo Impulsi e Calma": "Control de Impulsos y Calma",
+      "Obbedienza Base": "Obediencia Básica",
+      "Gestione Comportamenti Distruttivi": "Gestión de Comportamientos Destructivos"
+    },
+    "descriptions": {
+      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos.",
+      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde la descarga de energía constructiva hasta el control de impulsos, llegando a la relajación y autocontrol.",
+      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
+      "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales"
+    },
+    "exercises": {
+      "titles": {
+        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
+        "Confidence Building con Handler": "Construcción de Confianza con Cuidador",
+        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
+      },
+      "descriptions": {
+        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales."
+      },
+      "instructions": {
+        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
+        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
+        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
+        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
+        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento tranquilo y relajado",
+        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
+        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
+        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar",
+        "Osserva postura rilassata, coda in posizione neutrale": "Observa postura relajada, cola en posición neutral",
+        "Cerca respiro regolare e orecchie rilassate": "Busca respiración regular y orejas relajadas",
+        "Evita segnali stress come ansimare o tremare": "Evita señales de estrés como jadear o temblar"
+      }
+    },
+    "materials": {
+      "snack premio altissimo valore": "premios de muy alto valor",
+      "giocattoli sociali": "juguetes sociales",
+      "guinzaglio lungo": "correa larga",
+      "tappetino comfort": "alfombrilla de confort",
+      "barriere visive mobili": "barreras visuales móviles",
+      "spazi neutri sicuri": "espacios neutros seguros",
+      "snack premio": "premios",
+      "spazio tranquillo": "espacio tranquilo"
+    }
+  },
+  "buttons": {
+    "basic": {
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "submit": "Enviar",
+      "add": "Añadir",
+      "remove": "Quitar",
+      "close": "Cerrar",
+      "open": "Abrir",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "continue": "Continuar",
+      "finish": "Finalizar",
+      "complete": "Completar",
+      "start": "Iniciar",
+      "stop": "Detener",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "reset": "Reiniciar",
+      "retry": "Reintentar",
+      "refresh": "Actualizar",
+      "reload": "Recargar"
+    },
+    "auth": {
+      "login": "Iniciar Sesión",
+      "logout": "Cerrar Sesión",
+      "signup": "Registrarse",
+      "signIn": "Iniciar Sesión",
+      "signUp": "Registrarse",
+      "signOut": "Cerrar Sesión",
+      "forgotPassword": "Olvidé la Contraseña",
+      "resetPassword": "Restablecer Contraseña",
+      "changePassword": "Cambiar Contraseña",
+      "createAccount": "Crear Cuenta"
+    },
+    "pets": {
+      "addPet": "Añadir Mascota",
+      "editPet": "Editar Mascota",
+      "deletePet": "Eliminar Mascota",
+      "selectPet": "Seleccionar Mascota",
+      "managePets": "Gestionar Mascotas",
+      "uploadPhoto": "Subir Foto",
+      "removePhoto": "Quitar Foto",
+      "setFavorite": "Marcar Favorito"
+    },
+    "analysis": {
+      "startAnalysis": "Iniciar Análisis",
+      "uploadFile": "Subir Archivo",
+      "recordAudio": "Grabar Audio",
+      "stopRecording": "Detener Grabación",
+      "analyzeText": "Analizar Texto",
+      "shareAnalysis": "Compartir Análisis",
+      "downloadReport": "Descargar Reporte",
+      "viewDetails": "Ver Detalles"
+    },
+    "community": {
+      "joinChannel": "Unirse al Canal",
+      "leaveChannel": "Salir del Canal",
+      "sendMessage": "Enviar Mensaje",
+      "deleteMessage": "Eliminar Mensaje",
+      "editMessage": "Editar Mensaje",
+      "shareFile": "Compartir Archivo",
+      "startPrivateChat": "Chat Privado",
+      "blockUser": "Bloquear Usuario",
+      "reportUser": "Reportar Usuario"
+    },
+    "diary": {
+      "addEntry": "Añadir Entrada",
+      "editEntry": "Editar Entrada",
+      "deleteEntry": "Eliminar Entrada",
+      "addPhoto": "Añadir Foto",
+      "addVoiceNote": "Añadir Nota de Voz",
+      "saveEntry": "Guardar Entrada",
+      "viewEntry": "Ver Entrada"
+    },
+    "calendar": {
+      "addEvent": "Añadir Evento",
+      "editEvent": "Editar Evento",
+      "deleteEvent": "Eliminar Evento",
+      "setReminder": "Establecer Recordatorio",
+      "viewEvent": "Ver Evento",
+      "scheduleAppointment": "Programar Cita"
+    },
+    "training": {
+      "startProtocol": "Iniciar Protocolo",
+      "completeExercise": "Completar Ejercicio",
+      "skipExercise": "Saltar Ejercicio",
+      "saveProgress": "Guardar Progreso",
+      "viewProtocol": "Ver Protocolo",
+      "customizeProtocol": "Personalizar Protocolo"
+    },
+    "settings": {
+      "saveSettings": "Guardar Configuración",
+      "resetSettings": "Restaurar Configuración",
+      "exportData": "Exportar Datos",
+      "importData": "Importar Datos",
+      "deleteAccount": "Eliminar Cuenta",
+      "changeLanguage": "Cambiar Idioma",
+      "changeTheme": "Cambiar Tema",
+      "manageSubscription": "Gestionar Suscripción"
+    },
+    "subscription": {
+      "upgrade": "Actualizar Plan",
+      "downgrade": "Cambiar Plan",
+      "cancel": "Cancelar Suscripción",
+      "reactivate": "Reactivar Suscripción",
+      "viewPlans": "Ver Planes",
+      "choosePlan": "Elegir Plan",
+      "payNow": "Pagar Ahora"
+    },
+    "general": {
+      "view": "Ver",
+      "hide": "Ocultar",
+      "show": "Mostrar",
+      "search": "Buscar",
+      "filter": "Filtrar",
+      "sort": "Ordenar",
+      "copy": "Copiar",
+      "paste": "Pegar",
+      "cut": "Cortar",
+      "select": "Seleccionar",
+      "selectAll": "Seleccionar Todo",
+      "download": "Descargar",
+      "upload": "Subir",
+      "share": "Compartir",
+      "print": "Imprimir",
+      "preview": "Vista Previa",
+      "maximize": "Maximizar",
+      "minimize": "Minimizar",
+      "fullscreen": "Pantalla Completa",
+      "help": "Ayuda",
+      "support": "Soporte",
+      "contact": "Contactar",
+      "feedback": "Comentarios",
+      "report": "Reportar",
+      "demo": "Demo",
+      "test": "Probar",
+      "try": "Intentar",
+      "learn": "Aprender",
+      "tutorial": "Tutorial",
+      "guide": "Guía"
+    },
+    "navigation": {
+      "home": "Inicio",
+      "dashboard": "Panel de Control",
+      "back": "Atrás",
+      "forward": "Adelante",
+      "up": "Arriba",
+      "down": "Abajo",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "menu": "Menú",
+      "sidebar": "Barra Lateral",
+      "goTo": "Ir A",
+      "navigate": "Navegar"
+  },
+  "protocols": {
+    "titles": {
+      "Rieducazione Alimentare Comportamentale": "Reeducación Alimentaria Conductual",
+      "Ottimizzazione Ciclo Sonno-Veglia": "Optimización del Ciclo Sueño-Vigilia",
+      "Superare Fobie e Paure Specifiche": "Superar Fobias y Miedos Específicos",
+      "Stop Comportamenti Distruttivi": "Detener Comportamientos Destructivos",
+      "Riattivazione Energia e Motivazione": "Reactivación de Energía y Motivación",
+      "Socializzazione Progressiva": "Socialización Progresiva",
+      "Controllo Aggressività Reattiva": "Control de Agresividad Reactiva",
+      "Gestione Ansia da Separazione": "Manejo de Ansiedad por Separación",
+      "Gestione Gelosia e Possessività": "Manejo de Celos y Posesividad",
+      "Gestione Iperattività e Deficit Attenzione": "Manejo de Hiperactividad y Déficit de Atención"
+    }
+  }
   }
 }
