@@ -49,7 +49,7 @@ interface ToastWithIconOptions {
   title: string;
   description?: string;
   type?: ToastType;
-  variant?: 'default' | 'destructive';
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
   duration?: number;
 }
 
@@ -62,18 +62,16 @@ export const useToastWithIcon = () => {
     duration
   }: ToastWithIconOptions) => {
     const iconConfig = toastIcons[type];
-    const IconComponent = iconConfig.icon;
     
     // Determina automaticamente la variante se non specificata
-    const toastVariant = variant || (type === 'error' || type === 'delete' ? 'destructive' : 'default');
+    const toastVariant = variant || 
+      (type === 'error' || type === 'delete' ? 'destructive' : 
+       type === 'success' || type === 'complete' || type === 'achievement' ? 'success' :
+       type === 'warning' ? 'warning' : 
+       type === 'info' ? 'info' : 'default');
 
     toast({
-      title: (
-        <div className="flex items-center gap-2">
-          <IconComponent className={`h-5 w-5 ${iconConfig.className}`} />
-          <span>{title}</span>
-        </div>
-      ) as any,
+      title: `${iconConfig.emoji} ${title}`,
       description,
       variant: toastVariant,
       duration

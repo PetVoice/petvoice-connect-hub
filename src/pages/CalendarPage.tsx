@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
@@ -23,6 +24,7 @@ const CalendarPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
   const { addNotification } = useNotifications();
+  const { showToast } = useTranslatedToast();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -68,10 +70,10 @@ const CalendarPage: React.FC = () => {
       setEvents(data || []);
     } catch (error) {
       console.error('Error loading events:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare gli eventi",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'calendar.error.cannotLoad',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -147,7 +149,11 @@ const CalendarPage: React.FC = () => {
           .eq('id', editingEvent.id);
 
         if (error) throw error;
-        toast({ title: "Evento aggiornato con successo!" });
+        showToast({
+          title: 'calendar.eventUpdated.title',
+          description: 'calendar.eventUpdated.description',
+          variant: 'success'
+        });
       } else {
         const { data: newEvent, error } = await supabase
           .from('calendar_events')
@@ -167,7 +173,11 @@ const CalendarPage: React.FC = () => {
           });
         }
         
-        toast({ title: "Nuovo evento creato!" });
+        showToast({
+          title: 'calendar.eventCreated.title',
+          description: 'calendar.eventCreated.description',
+          variant: 'success'
+        });
       }
 
       setIsFormOpen(false);
@@ -175,10 +185,10 @@ const CalendarPage: React.FC = () => {
       loadEvents();
     } catch (error) {
       console.error('Error saving event:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare l'evento",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'calendar.error.cannotSave',
+        variant: 'destructive'
       });
     }
   };
@@ -209,7 +219,11 @@ const CalendarPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: "Evento eliminato con successo!" });
+      showToast({
+        title: 'calendar.eventDeleted.title',
+        description: 'calendar.eventDeleted.description',
+        variant: 'success'
+      });
       loadEvents();
       
       // Update modal state
@@ -219,10 +233,10 @@ const CalendarPage: React.FC = () => {
       }));
     } catch (error) {
       console.error('Error deleting event:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'evento",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'calendar.error.cannotDelete',
+        variant: 'destructive'
       });
     }
   };
@@ -236,8 +250,11 @@ const CalendarPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ 
-        title: `${eventIds.length} ${eventIds.length === 1 ? 'evento eliminato' : 'eventi eliminati'} con successo!` 
+      showToast({
+        title: 'calendar.eventsDeleted.title',
+        description: 'calendar.eventsDeleted.description',
+        variant: 'success',
+        variables: { count: eventIds.length.toString() }
       });
       loadEvents();
       
@@ -248,10 +265,10 @@ const CalendarPage: React.FC = () => {
       }));
     } catch (error) {
       console.error('Error deleting events:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare gli eventi",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'calendar.error.cannotDeleteMultiple',
+        variant: 'destructive'
       });
     }
   };
@@ -378,16 +395,18 @@ const CalendarPage: React.FC = () => {
       // Save PDF
       doc.save(`calendario-${activePet.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
       
-      toast({
-        title: "PDF Esportato!",
-        description: `Calendario di ${activePet.name} scaricato con successo`
+      showToast({
+        title: 'calendar.pdfExported.title',
+        description: 'calendar.pdfExported.description',
+        variant: 'success',
+        variables: { petName: activePet.name }
       });
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile esportare il PDF",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'calendar.error.cannotExport',
+        variant: 'destructive'
       });
     }
   };

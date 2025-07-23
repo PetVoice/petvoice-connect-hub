@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
@@ -20,6 +21,7 @@ import { DiaryEntry, DayEntriesModalState } from '@/types/diary';
 const DiaryPage: React.FC = () => {
   const { pets, selectedPet } = usePets();
   const { triggerDiaryAdded } = useNotificationEventsContext();
+  const { showToast } = useTranslatedToast();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -62,10 +64,10 @@ const DiaryPage: React.FC = () => {
       setEntries(data || []);
     } catch (error) {
       console.error('Error loading entries:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare le voci del diario",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'diary.error.cannotLoad',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -138,14 +140,22 @@ const DiaryPage: React.FC = () => {
           .eq('id', editingEntry.id);
 
         if (error) throw error;
-        toast({ title: "Nota aggiornata con successo!" });
+        showToast({
+          title: 'diary.entryUpdated.title',
+          description: 'diary.entryUpdated.description',
+          variant: 'success'
+        });
       } else {
         const { error } = await supabase
           .from('diary_entries')
           .insert(data);
 
         if (error) throw error;
-        toast({ title: "Nuova voce salvata!" });
+        showToast({
+          title: 'diary.entryCreated.title',
+          description: 'diary.entryCreated.description',
+          variant: 'success'
+        });
         
         // Trigger notification for new diary entry
         if (selectedPet) {
@@ -158,10 +168,10 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error saving entry:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare la voce",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'diary.error.cannotSave',
+        variant: 'destructive'
       });
     }
   };
@@ -266,16 +276,18 @@ const DiaryPage: React.FC = () => {
       // Save PDF
       doc.save(`diario-${selectedPet.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
       
-      toast({
-        title: "PDF Esportato!",
-        description: `Diario di ${selectedPet.name} scaricato con successo`
+      showToast({
+        title: 'diary.pdfExported.title',
+        description: 'diary.pdfExported.description',
+        variant: 'success',
+        variables: { petName: selectedPet.name }
       });
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile esportare il PDF",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'diary.error.cannotExport',
+        variant: 'destructive'
       });
     }
   };
@@ -289,7 +301,11 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ title: "Voce eliminata", description: "La voce è stata eliminata con successo" });
+      showToast({
+        title: 'diary.entryDeleted.title',
+        description: 'diary.entryDeleted.description',
+        variant: 'success'
+      });
       
       // Update modal state
       setDayEntriesModal(prev => ({
@@ -300,10 +316,10 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error deleting entry:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare la voce",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'diary.error.cannotDelete',
+        variant: 'destructive'
       });
     }
   };
@@ -317,9 +333,11 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      toast({ 
-        title: "Voci eliminate", 
-        description: `${entryIds.length} ${entryIds.length === 1 ? 'voce eliminata' : 'voci eliminate'} con successo` 
+      showToast({
+        title: 'diary.entriesDeleted.title',
+        description: 'diary.entriesDeleted.description',
+        variant: 'success',
+        variables: { count: entryIds.length.toString() }
       });
       
       // Update modal state
@@ -331,10 +349,10 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error deleting entries:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare le voci",
-        variant: "destructive"
+      showToast({
+        title: 'error.title',
+        description: 'diary.error.cannotDeleteMultiple',
+        variant: 'destructive'
       });
     }
   };

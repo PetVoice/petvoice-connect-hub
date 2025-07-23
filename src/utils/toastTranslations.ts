@@ -85,7 +85,41 @@ const toastTranslations = {
     'protocol.restarted.description': 'Il protocollo "{protocolName}" è stato riavviato da capo',
     'protocol.stopped.title': 'Protocollo interrotto',
     'protocol.stopped.description': 'Il protocollo "{protocolName}" è stato interrotto con successo',
-    'protocol.error.cannotStart': 'Impossibile avviare il protocollo'
+    'protocol.error.cannotStart': 'Impossibile avviare il protocollo',
+    
+    // Calendar messages
+    'calendar.eventUpdated.title': 'Evento aggiornato',
+    'calendar.eventUpdated.description': 'L\'evento è stato aggiornato con successo',
+    'calendar.eventCreated.title': 'Evento creato',
+    'calendar.eventCreated.description': 'Nuovo evento creato con successo',
+    'calendar.eventDeleted.title': 'Evento eliminato',
+    'calendar.eventDeleted.description': 'L\'evento è stato eliminato con successo',
+    'calendar.eventsDeleted.title': 'Eventi eliminati',
+    'calendar.eventsDeleted.description': '{count} eventi eliminati con successo',
+    'calendar.pdfExported.title': 'PDF esportato',
+    'calendar.pdfExported.description': 'Calendario di {petName} scaricato con successo',
+    'calendar.error.cannotLoad': 'Impossibile caricare gli eventi',
+    'calendar.error.cannotSave': 'Impossibile salvare l\'evento',
+    'calendar.error.cannotDelete': 'Impossibile eliminare l\'evento',
+    'calendar.error.cannotDeleteMultiple': 'Impossibile eliminare gli eventi',
+    'calendar.error.cannotExport': 'Impossibile esportare il PDF',
+    
+    // Diary messages  
+    'diary.entryUpdated.title': 'Nota aggiornata',
+    'diary.entryUpdated.description': 'La nota è stata aggiornata con successo',
+    'diary.entryCreated.title': 'Voce salvata',
+    'diary.entryCreated.description': 'Nuova voce del diario salvata',
+    'diary.entryDeleted.title': 'Voce eliminata',
+    'diary.entryDeleted.description': 'La voce è stata eliminata con successo',
+    'diary.entriesDeleted.title': 'Voci eliminate',
+    'diary.entriesDeleted.description': '{count} voci eliminate con successo',
+    'diary.pdfExported.title': 'PDF esportato',
+    'diary.pdfExported.description': 'Diario di {petName} scaricato con successo',
+    'diary.error.cannotLoad': 'Impossibile caricare le voci del diario',
+    'diary.error.cannotSave': 'Impossibile salvare la voce',
+    'diary.error.cannotDelete': 'Impossibile eliminare la voce',
+    'diary.error.cannotDeleteMultiple': 'Impossibile eliminare le voci',
+    'diary.error.cannotExport': 'Impossibile esportare il PDF'
   },
   en: {
     // Generic messages
@@ -170,7 +204,41 @@ const toastTranslations = {
     'protocol.restarted.description': 'Protocol "{protocolName}" has been restarted from the beginning', 
     'protocol.stopped.title': 'Protocol stopped',
     'protocol.stopped.description': 'Protocol "{protocolName}" has been successfully stopped',
-    'protocol.error.cannotStart': 'Unable to start the protocol'
+    'protocol.error.cannotStart': 'Unable to start the protocol',
+    
+    // Calendar messages
+    'calendar.eventUpdated.title': 'Event updated',
+    'calendar.eventUpdated.description': 'The event has been successfully updated',
+    'calendar.eventCreated.title': 'Event created',
+    'calendar.eventCreated.description': 'New event created successfully',
+    'calendar.eventDeleted.title': 'Event deleted',
+    'calendar.eventDeleted.description': 'The event has been successfully deleted',
+    'calendar.eventsDeleted.title': 'Events deleted',
+    'calendar.eventsDeleted.description': '{count} events deleted successfully',
+    'calendar.pdfExported.title': 'PDF exported',
+    'calendar.pdfExported.description': '{petName}\'s calendar downloaded successfully',
+    'calendar.error.cannotLoad': 'Unable to load events',
+    'calendar.error.cannotSave': 'Unable to save the event',
+    'calendar.error.cannotDelete': 'Unable to delete the event',
+    'calendar.error.cannotDeleteMultiple': 'Unable to delete events',
+    'calendar.error.cannotExport': 'Unable to export PDF',
+    
+    // Diary messages
+    'diary.entryUpdated.title': 'Entry updated',
+    'diary.entryUpdated.description': 'The entry has been successfully updated',
+    'diary.entryCreated.title': 'Entry saved',
+    'diary.entryCreated.description': 'New diary entry saved',
+    'diary.entryDeleted.title': 'Entry deleted',
+    'diary.entryDeleted.description': 'The entry has been successfully deleted',
+    'diary.entriesDeleted.title': 'Entries deleted',
+    'diary.entriesDeleted.description': '{count} entries deleted successfully',
+    'diary.pdfExported.title': 'PDF exported',
+    'diary.pdfExported.description': '{petName}\'s diary downloaded successfully',
+    'diary.error.cannotLoad': 'Unable to load diary entries',
+    'diary.error.cannotSave': 'Unable to save the entry',
+    'diary.error.cannotDelete': 'Unable to delete the entry',
+    'diary.error.cannotDeleteMultiple': 'Unable to delete entries',
+    'diary.error.cannotExport': 'Unable to export PDF'
   },
   es: {
     // Generic messages
@@ -246,7 +314,41 @@ const toastTranslations = {
     'protocol.restarted.description': 'El protocolo "{protocolName}" ha sido reiniciado desde el principio',
     'protocol.stopped.title': 'Protocolo detenido', 
     'protocol.stopped.description': 'El protocolo "{protocolName}" ha sido detenido exitosamente',
-    'protocol.error.cannotStart': 'No se puede iniciar el protocolo'
+    'protocol.error.cannotStart': 'No se puede iniciar el protocolo',
+    
+    // Calendar messages
+    'calendar.eventUpdated.title': 'Evento actualizado',
+    'calendar.eventUpdated.description': 'El evento ha sido actualizado exitosamente',
+    'calendar.eventCreated.title': 'Evento creado',
+    'calendar.eventCreated.description': 'Nuevo evento creado exitosamente',
+    'calendar.eventDeleted.title': 'Evento eliminado',
+    'calendar.eventDeleted.description': 'El evento ha sido eliminado exitosamente',
+    'calendar.eventsDeleted.title': 'Eventos eliminados',
+    'calendar.eventsDeleted.description': '{count} eventos eliminados exitosamente',
+    'calendar.pdfExported.title': 'PDF exportado',
+    'calendar.pdfExported.description': 'Calendario de {petName} descargado exitosamente',
+    'calendar.error.cannotLoad': 'No se pueden cargar los eventos',
+    'calendar.error.cannotSave': 'No se puede guardar el evento',
+    'calendar.error.cannotDelete': 'No se puede eliminar el evento',
+    'calendar.error.cannotDeleteMultiple': 'No se pueden eliminar los eventos',
+    'calendar.error.cannotExport': 'No se puede exportar el PDF',
+    
+    // Diary messages
+    'diary.entryUpdated.title': 'Entrada actualizada',
+    'diary.entryUpdated.description': 'La entrada ha sido actualizada exitosamente',
+    'diary.entryCreated.title': 'Entrada guardada',
+    'diary.entryCreated.description': 'Nueva entrada del diario guardada',
+    'diary.entryDeleted.title': 'Entrada eliminada',
+    'diary.entryDeleted.description': 'La entrada ha sido eliminada exitosamente',
+    'diary.entriesDeleted.title': 'Entradas eliminadas',
+    'diary.entriesDeleted.description': '{count} entradas eliminadas exitosamente',
+    'diary.pdfExported.title': 'PDF exportado',
+    'diary.pdfExported.description': 'Diario de {petName} descargado exitosamente',
+    'diary.error.cannotLoad': 'No se pueden cargar las entradas del diario',
+    'diary.error.cannotSave': 'No se puede guardar la entrada',
+    'diary.error.cannotDelete': 'No se puede eliminar la entrada',
+    'diary.error.cannotDeleteMultiple': 'No se pueden eliminar las entradas',
+    'diary.error.cannotExport': 'No se puede exportar el PDF'
   }
 };
 
