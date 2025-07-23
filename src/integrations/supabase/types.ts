@@ -3466,6 +3466,17 @@ export type Database = {
         Args: { italian_text: string }
         Returns: string
       }
+      upsert_protocol_rating: {
+        Args: {
+          p_protocol_id: string
+          p_user_id: string
+          p_effectiveness_rating: number
+          p_ease_rating: number
+          p_improvement_rating: number
+          p_overall_satisfaction: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
