@@ -1,21 +1,6 @@
 import React from 'react';
-import { 
-  Home, 
-  PawPrint, 
-  Microscope, 
-  BookOpen, 
-  Calendar, 
-  Heart, 
-  BarChart3, 
-  Users, 
-  CreditCard, 
-  HeadphonesIcon, 
-  Settings,
-  Network,
-  Brain,
-  Music
-} from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Home, PawPrint, Microscope, Music, Brain, BookOpen, Calendar, Heart, BarChart3, Users, HeadphonesIcon, Settings } from 'lucide-react';
+import { useLocation, NavLink } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +12,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-
 
 // Navigation items
 const navigationItems = [
@@ -52,12 +36,10 @@ const supportItems = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { state, open, setOpen, openMobile, setOpenMobile, isMobile } = useSidebar();
+  const { state, openMobile, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
   
-  
   const isCollapsed = state === 'collapsed';
-  
 
   // Auto-hide sidebar on navigation for mobile
   React.useEffect(() => {
@@ -73,11 +55,38 @@ const AppSidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const getNavClassName = (path: string) => {
-    return isActive(path) 
-      ? "bg-azure/20 text-azure border-r-2 border-azure font-medium shadow-glow" 
-      : "hover:bg-azure/10 text-muted-foreground hover:text-foreground hover:shadow-glow transition-all duration-300";
-  };
+  const renderNavItems = (items: typeof navigationItems, label?: string) => (
+    <SidebarGroup>
+      {label && (
+        <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
+          {label}
+        </SidebarGroupLabel>
+      )}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                <NavLink 
+                  to={item.url} 
+                  className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 group ${
+                    isActive(item.url)
+                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-soft'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                  }`}
+                >
+                  <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
+                  {(!isCollapsed || isMobile) && (
+                    <span className="font-medium transition-colors">{item.title}</span>
+                  )}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
 
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon" data-guide="sidebar">
@@ -88,83 +97,21 @@ const AppSidebar: React.FC = () => {
             <span className="text-white font-bold text-sm">🐾</span>
           </div>
           {(!isCollapsed || isMobile) && (
-            <div className="animate-fade-in">
-              <h1 className="text-lg font-bold text-primary">
+            <div>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 PetVoice
               </h1>
+              <p className="text-xs text-muted-foreground">AI Pet Care</p>
             </div>
           )}
         </div>
 
-        {/* Main Navigation */}
-        <SidebarGroup data-guide="main-navigation">
-          <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
-            Navigazione Principale
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="px-2">
-            <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => {
-                // Add data-guide attributes for tutorial
-                const getDataGuide = (url: string) => {
-                  switch (url) {
-                    case '/': return 'dashboard-menu';
-                    case '/pets': return 'pets-menu';
-                    case '/analysis': return 'ai-analysis-menu';
-                    case '/ai-music-therapy': return 'music-therapy-menu';
-                    case '/training': return 'training-menu';
-                    case '/diary': return 'diary-menu';
-                    default: return undefined;
-                  }
-                };
-
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.url} 
-                        className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
-                        data-guide={getDataGuide(item.url)}
-                      >
-                        <item.icon className="h-5 w-5 shrink-0" />
-                        {(!isCollapsed || isMobile) && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-              
-              {/* Community items */}
-              {communityItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
-                    >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              
-              {/* Support items */}
-              {supportItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={`${getNavClassName(item.url)} transition-smooth flex items-center gap-3 p-3 rounded-lg`}
-                    >
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {(!isCollapsed || isMobile) && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Navigation Sections */}
+        <div className="flex-1 overflow-y-auto py-4">
+          {renderNavItems(navigationItems, "Navigazione Principale")}
+          {renderNavItems(communityItems)}
+          {renderNavItems(supportItems)}
+        </div>
       </SidebarContent>
     </Sidebar>
   );
