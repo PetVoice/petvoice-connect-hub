@@ -287,11 +287,12 @@ const TrainingDashboard: React.FC = () => {
       
       // Calcola il progresso del protocollo
       const completedCount = currentExercise + 1; // Esercizio appena completato
-      const exercisesPerDay = todayExercises.length; // 3 esercizi per giorno
+      const exercisesPerDay = 3; // FISSO a 3 esercizi per giorno sempre
       const totalExercises = exercisesPerDay * protocol.duration_days;
       
       // Calcola totale esercizi completati nel protocollo
-      const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
+      const currentDay = protocol.current_day || 1;
+      const exercisesCompletedInPreviousDays = (currentDay - 1) * exercisesPerDay;
       const totalCompletedExercises = exercisesCompletedInPreviousDays + completedCount;
       
       // Calcola percentuale (arrotondata verso il basso per evitare valori >= 100)
@@ -320,6 +321,12 @@ const TrainingDashboard: React.FC = () => {
           last_activity_at: new Date().toISOString(),
         }
       });
+
+      // AGGIORNA ANCHE LO STATO LOCALE per aggiornamenti in tempo reale
+      setProtocol(prev => prev ? {
+        ...prev,
+        progress_percentage: Math.min(newProgressPercentage, 100).toString()
+      } : null);
 
       // SE È L'ULTIMO ESERCIZIO DEL GIORNO (esercizio 3), PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
       if (completedCount === exercisesPerDay) {
