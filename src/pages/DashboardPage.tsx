@@ -73,7 +73,12 @@ const DashboardPage: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-2xl">{selectedPet.name}</h2>
-                <p className="text-muted-foreground">{selectedPet.type}</p>
+                <p className="text-muted-foreground">
+                  {selectedPet.type}
+                  {selectedPet.breed && ` - ${selectedPet.breed}`}
+                  {selectedPet.birth_date && ` - ${Math.floor((new Date().getTime() - new Date(selectedPet.birth_date).getTime()) / (1000 * 60 * 60 * 24 * 365.25))} ${t('pets.petCard.years')}`}
+                  {selectedPet.weight && ` - ${selectedPet.weight} Kg`}
+                </p>
               </div>
             </CardTitle>
           </CardHeader>
