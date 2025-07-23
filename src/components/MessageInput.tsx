@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { Send, Camera, Mic, MicOff, Upload, Smile } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +20,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   disabled = false
 }) => {
   const { user } = useAuth();
+  const { showToast } = useTranslatedToast();
   const [messageText, setMessageText] = useState('');
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -80,16 +81,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       setMessageText('');
       onMessageSent?.();
       
-      toast({
+      showToast({
         title: "Messaggio inviato",
-        description: `Messaggio inviato in ${channelName}`
+        description: "Messaggio inviato in {channelName}",
+        variables: { channelName }
       });
     } catch (error) {
       console.error('Errore invio messaggio:', error);
-      toast({
+      showToast({
         title: "Errore",
-        description: `Impossibile inviare il messaggio: ${error.message}`,
-        variant: "destructive"
+        description: "Impossibile inviare il messaggio: {error}",
+        variant: "destructive",
+        variables: { error: error.message }
       });
     } finally {
       setSending(false);
@@ -111,7 +114,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       
       // Validazione file
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
+        showToast({
           title: "File troppo grande",
           description: "L'immagine deve essere inferiore a 5MB",
           variant: "destructive"
@@ -159,13 +162,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         if (error) throw error;
         
         onMessageSent?.();
-        toast({
+        showToast({
           title: "Immagine caricata",
-          description: `Immagine condivisa in ${channelName}`
+          description: "Immagine condivisa in {channelName}",
+          variables: { channelName }
         });
       } catch (error) {
         console.error('Errore upload immagine:', error);
-        toast({
+        showToast({
           title: "Errore",
           description: "Impossibile caricare l'immagine",
           variant: "destructive"
@@ -243,13 +247,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           if (error) throw error;
           
           onMessageSent?.();
-          toast({
+          showToast({
             title: "Audio registrato",
-            description: `Messaggio vocale inviato in ${channelName}`
+            description: "Messaggio vocale inviato in {channelName}",
+            variables: { channelName }
           });
         } catch (error) {
           console.error('Errore registrazione audio:', error);
-          toast({
+          showToast({
             title: "Errore",
             description: "Impossibile inviare il messaggio vocale",
             variant: "destructive"
@@ -274,7 +279,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
       
     } catch (error) {
       console.error('Errore avvio registrazione:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile accedere al microfono",
         variant: "destructive"

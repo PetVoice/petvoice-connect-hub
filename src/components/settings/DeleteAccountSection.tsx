@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Trash2, AlertTriangle } from 'lucide-react';
 
@@ -14,11 +14,11 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   const handleDeleteAccount = async () => {
     if (confirmText !== 'ELIMINA') {
-      toast({
+      showToast({
         title: "Errore",
         description: 'Digita "ELIMINA" per confermare',
         variant: "destructive"
@@ -36,8 +36,8 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
       
       if (error) throw error;
       
-      toast({
-        title: "Account eliminato",
+      showToast({
+        title: "Account eliminato con successo",
         description: "Il tuo account è stato eliminato definitivamente."
       });
       
@@ -46,10 +46,11 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
       
     } catch (error: any) {
       console.error('Errore eliminazione account:', error);
-      toast({
+      showToast({
         title: "Errore",
-        description: `Errore eliminazione account: ${error.message}`,
-        variant: "destructive"
+        description: "Impossibile eliminare l'account: {error}",
+        variant: "destructive",
+        variables: { error: error.message }
       });
     } finally {
       setDeleting(false);

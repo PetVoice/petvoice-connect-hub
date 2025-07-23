@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Key, Eye, EyeOff } from 'lucide-react';
 
@@ -18,7 +18,7 @@ export const ChangePasswordForm: React.FC = () => {
     confirm: false
   });
   const [updating, setUpdating] = useState(false);
-  const { toast } = useToast();
+  const { showToast } = useTranslatedToast();
   
   // Traduzioni errori Supabase
   const translateError = (error: any) => {
@@ -68,7 +68,7 @@ export const ChangePasswordForm: React.FC = () => {
     
     // Validazioni lato client
     if (passwords.new !== passwords.confirm) {
-      toast({
+      showToast({
         title: "Errore",
         description: "Le nuove password non corrispondono",
         variant: "destructive"
@@ -78,16 +78,17 @@ export const ChangePasswordForm: React.FC = () => {
     
     const validationErrors = validatePassword(passwords.new);
     if (validationErrors.length > 0) {
-      toast({
+      showToast({
         title: "Errore",
-        description: "Password troppo debole: " + validationErrors.join(', '),
-        variant: "destructive"
+        description: "Password troppo debole: {errors}",
+        variant: "destructive",
+        variables: { errors: validationErrors.join(', ') }
       });
       return;
     }
     
     if (passwords.new === passwords.current) {
-      toast({
+      showToast({
         title: "Errore",
         description: "La nuova password deve essere diversa da quella attuale",
         variant: "destructive"
@@ -108,7 +109,7 @@ export const ChangePasswordForm: React.FC = () => {
         throw new Error(italianError);
       }
       
-      toast({
+      showToast({
         title: "Successo",
         description: "Password aggiornata con successo!"
       });
@@ -117,7 +118,7 @@ export const ChangePasswordForm: React.FC = () => {
       
     } catch (error: any) {
       console.error('Errore cambio password:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: error.message,
         variant: "destructive"
