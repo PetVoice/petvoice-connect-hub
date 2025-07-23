@@ -331,12 +331,19 @@ const TrainingDashboard: React.FC = () => {
         }
       });
 
-      // AGGIORNA ANCHE LO STATO LOCALE per aggiornamenti in tempo reale
-      setProtocol(prev => prev ? {
-        ...prev,
-        progress_percentage: Math.min(newProgressPercentage, 100).toString(),
-        current_day: currentDay // Assicurati che current_day sia sempre aggiornato
-      } : null);
+      // AGGIORNA LO STATO LOCALE IMMEDIATAMENTE per aggiornamenti in tempo reale
+      const newProtocolData = {
+        ...protocol,
+        progress_percentage: Math.min(newProgressPercentage, 100).toString()
+      };
+      setProtocol(newProtocolData);
+      
+      console.log('🔄 AGGIORNAMENTO IMMEDIATO UI:', {
+        newDailyCompleted,
+        newProgressPercentage,
+        currentDay,
+        completedCount
+      });
 
       // SE È L'ULTIMO ESERCIZIO DEL GIORNO (esercizio 3), PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
       if (completedCount === exercisesPerDay) {
