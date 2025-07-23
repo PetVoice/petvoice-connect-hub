@@ -268,7 +268,8 @@
     },
     "ageCalculated": "Edad: {{age}} años"
   },
-  "dashboard": {
+    "dashboard": {
+      "dayOf": "Día {{current}} de {{total}}",
     "welcome": "¡Bienvenido a PetVoice!",
     "welcomeDesc": "Monitorea la salud y el bienestar de tu amigo de cuatro patas con inteligencia artificial",
     "quickActions": "Acciones Rápidas",
@@ -1254,6 +1255,9 @@
     "emptyState": {
       "title": "No se encontraron protocolos",
       "description": "Comienza creando tu primer protocolo de entrenamiento personalizado."
+    },
+    "dashboard": {
+      "dayOf": "Día {{current}} de {{total}}"
     }
   },
   "community": {
