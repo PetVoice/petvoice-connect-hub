@@ -1301,19 +1301,19 @@ export const AITrainingHub: React.FC = () => {
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-primary">{selectedProtocol.duration_days}</div>
-                    <div className="text-sm text-muted-foreground">Giorni</div>
+                    <div className="text-sm text-muted-foreground">{t('training.labels.days')}</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">{selectedProtocol.progress_percentage}%</div>
-                    <div className="text-sm text-muted-foreground">Completato</div>
+                    <div className="text-sm text-muted-foreground">{t('training.labels.completed')}</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">{selectedProtocol.current_day}</div>
-                    <div className="text-sm text-muted-foreground">Giorno corrente</div>
+                    <div className="text-sm text-muted-foreground">{t('training.labels.currentDay')}</div>
                   </div>
                 </Card>
                 <Card className="p-4">
@@ -1332,7 +1332,7 @@ export const AITrainingHub: React.FC = () => {
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <FileText className="h-5 w-5 text-primary" />
-                      Descrizione
+                      {t('training.labels.description')}
                     </h3>
                     <p className="text-muted-foreground leading-relaxed">{translateProtocolDescription(selectedProtocol.description)}</p>
                   </Card>
@@ -1374,7 +1374,7 @@ export const AITrainingHub: React.FC = () => {
                     <Card className="p-6">
                       <h3 className="font-semibold mb-4 flex items-center gap-2">
                         <Package className="h-5 w-5 text-primary" />
-                        Materiali richiesti
+                        {t('training.labels.requiredMaterials')}
                       </h3>
                       <div className="space-y-2">
                         {selectedProtocol.required_materials.map((material, index) => (
@@ -1392,7 +1392,7 @@ export const AITrainingHub: React.FC = () => {
                     <Card className="p-6">
                       <h3 className="font-semibold mb-4 flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-primary" />
-                        Trigger comportamentali
+                        {t('training.labels.behavioralTriggers')}
                       </h3>
                       <div className="space-y-2">
                         {selectedProtocol.triggers.map((trigger, index) => (
@@ -1409,25 +1409,25 @@ export const AITrainingHub: React.FC = () => {
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Shield className="h-5 w-5 text-primary" />
-                      Indicatori qualità
+                      {t('training.labels.qualityIndicators')}
                     </h3>
                     <div className="space-y-3">
                       {selectedProtocol.veterinary_approved && (
                         <div className="flex items-center gap-3 text-green-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">Approvato da veterinario</span>
+                          <span className="text-sm">{t('training.labels.veterinaryApproved')}</span>
                         </div>
                       )}
                       {selectedProtocol.mentor_recommended && (
                         <div className="flex items-center gap-3 text-blue-600">
                           <Star className="h-4 w-4" />
-                          <span className="text-sm">Raccomandato da mentor</span>
+                          <span className="text-sm">{t('training.labels.mentorRecommended')}</span>
                         </div>
                       )}
                       {selectedProtocol.community_usage > 10 && (
                         <div className="flex items-center gap-3 text-purple-600">
                           <Users className="h-4 w-4" />
-                          <span className="text-sm">{selectedProtocol.community_usage} utenti l'hanno usato</span>
+                          <span className="text-sm">{selectedProtocol.community_usage} {t('training.labels.usersUsedIt')}</span>
                         </div>
                       )}
                     </div>
@@ -1442,7 +1442,7 @@ export const AITrainingHub: React.FC = () => {
                   onClick={() => setSelectedProtocol(null)}
                   className="min-w-24"
                 >
-                  Chiudi
+                  {t('common.close')}
                 </Button>
                 <Button
                   onClick={() => {

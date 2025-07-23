@@ -1176,7 +1176,16 @@
       "difficulty": "Difficulty",
       "duration": "Duration",
       "successRate": "Success rate",
-      "communityUses": "Community uses"
+      "communityUses": "Community uses",
+      "completed": "Completed",
+      "currentDay": "Current day",
+      "description": "Description",
+      "requiredMaterials": "Required materials",
+      "behavioralTriggers": "Behavioral triggers",
+      "qualityIndicators": "Quality indicators",
+      "veterinaryApproved": "Veterinary approved",
+      "mentorRecommended": "Mentor recommended",
+      "usersUsedIt": "users have used it"
     },
     "protocols": {
       "socializzazioneProgressiva": {
