@@ -387,10 +387,11 @@ const TrainingDashboard: React.FC = () => {
         }
       });
 
-      showToast({
-        title: 'Protocollo interrotto',
-        description: `Il protocollo "${protocol.title}" è stato interrotto con successo`,
-        type: 'info'
+      showTranslatedToast({
+        title: 'protocol.stopped.title',
+        description: 'protocol.stopped.description',
+        variant: 'default',
+        variables: { protocolName: protocol.title }
       });
 
       // Torna alla dashboard principale
