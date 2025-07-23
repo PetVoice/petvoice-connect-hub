@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -155,6 +156,7 @@ const PetsPage: React.FC = () => {
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
   const { t, language } = useTranslation();
+  const { showToast } = useTranslatedToast();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -207,10 +209,10 @@ const PetsPage: React.FC = () => {
     if (!user) return;
 
     if (!formData.name || !formData.type) {
-      toast({
-        title: t('errors.validationError'),
-        description: t('toast.pets.validationRequired'),
-        variant: "destructive",
+      showToast({
+        title: 'error.title',
+        description: 'pets.error.validationRequired',
+        variant: 'destructive'
       });
       return;
     }
@@ -239,9 +241,11 @@ const PetsPage: React.FC = () => {
       if (editingPet) {
         await updatePet(editingPet.id, petData);
         // Toast per modifica pet
-        toast({
-          title: t('toast.pets.petUpdated'),
-          description: t('toast.pets.petUpdatedDescription').replace('{name}', formData.name),
+        showToast({
+          title: 'pets.petUpdated.title',
+          description: 'pets.petUpdated.description',
+          variant: 'success',
+          variables: { petName: formData.name }
         });
         
         // Notifica per modifica pet
@@ -257,9 +261,11 @@ const PetsPage: React.FC = () => {
         await addPet(petData);
         
         // Toast per nuovo pet
-        toast({
-          title: t('toast.pets.petAdded'),
-          description: `${formData.name} ${t('toast.pets.petAddedDescription')}`,
+        showToast({
+          title: 'pets.petAdded.title',
+          description: 'pets.petAdded.description',
+          variant: 'success',
+          variables: { petName: formData.name }
         });
       }
       
@@ -307,10 +313,11 @@ const PetsPage: React.FC = () => {
       
       // Toast per eliminazione pet
       if (petToDelete) {
-        toast({
-          title: t('toast.pets.petDeleted'),
-          description: `${petToDelete.name} ${t('toast.pets.petDeletedDescription')}`,
-          variant: "destructive",
+        showToast({
+          title: 'pets.petDeleted.title',
+          description: 'pets.petDeleted.description',
+          variant: 'destructive',
+          variables: { petName: petToDelete.name }
         });
         
         // Notifica per eliminazione pet

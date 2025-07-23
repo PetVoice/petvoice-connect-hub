@@ -120,9 +120,9 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
 
     if (!formData.name || !formData.type) {
       showToast({
-        title: "Errore",
-        description: "Nome e tipo sono obbligatori",
-        variant: "destructive"
+        title: 'error.title',
+        description: 'pets.error.validationRequired',
+        variant: 'destructive'
       });
       return;
     }

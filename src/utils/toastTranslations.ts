@@ -119,7 +119,20 @@ const toastTranslations = {
     'diary.error.cannotSave': 'Impossibile salvare la voce',
     'diary.error.cannotDelete': 'Impossibile eliminare la voce',
     'diary.error.cannotDeleteMultiple': 'Impossibile eliminare le voci',
-    'diary.error.cannotExport': 'Impossibile esportare il PDF'
+    'diary.error.cannotExport': 'Impossibile esportare il PDF',
+    
+    // Pet messages
+    'pets.petAdded.title': 'Pet aggiunto',
+    'pets.petAdded.description': '{petName} è stato aggiunto con successo',
+    'pets.petUpdated.title': 'Pet aggiornato',
+    'pets.petUpdated.description': 'Le informazioni del pet sono state aggiornate',
+    'pets.petDeleted.title': 'Pet eliminato',
+    'pets.petDeleted.description': 'Il pet è stato eliminato con successo',
+    'pets.error.validationRequired': 'Nome e tipo sono obbligatori',
+    'pets.error.cannotLoad': 'Impossibile caricare i pet',
+    'pets.error.cannotAdd': 'Errore durante l\'aggiunta del pet',
+    'pets.error.cannotUpdate': 'Errore durante l\'aggiornamento del pet',
+    'pets.error.cannotDelete': 'Errore durante l\'eliminazione del pet'
   },
   en: {
     // Generic messages
@@ -238,7 +251,20 @@ const toastTranslations = {
     'diary.error.cannotSave': 'Unable to save the entry',
     'diary.error.cannotDelete': 'Unable to delete the entry',
     'diary.error.cannotDeleteMultiple': 'Unable to delete entries',
-    'diary.error.cannotExport': 'Unable to export PDF'
+    'diary.error.cannotExport': 'Unable to export PDF',
+    
+    // Pet messages
+    'pets.petAdded.title': 'Pet added',
+    'pets.petAdded.description': '{petName} has been successfully added',
+    'pets.petUpdated.title': 'Pet updated',
+    'pets.petUpdated.description': 'Pet information has been updated',
+    'pets.petDeleted.title': 'Pet deleted',
+    'pets.petDeleted.description': 'Pet has been successfully deleted',
+    'pets.error.validationRequired': 'Name and type are required',
+    'pets.error.cannotLoad': 'Unable to load pets',
+    'pets.error.cannotAdd': 'Error adding pet',
+    'pets.error.cannotUpdate': 'Error updating pet',
+    'pets.error.cannotDelete': 'Error deleting pet'
   },
   es: {
     // Generic messages
@@ -348,7 +374,20 @@ const toastTranslations = {
     'diary.error.cannotSave': 'No se puede guardar la entrada',
     'diary.error.cannotDelete': 'No se puede eliminar la entrada',
     'diary.error.cannotDeleteMultiple': 'No se pueden eliminar las entradas',
-    'diary.error.cannotExport': 'No se puede exportar el PDF'
+    'diary.error.cannotExport': 'No se puede exportar el PDF',
+    
+    // Pet messages
+    'pets.petAdded.title': 'Mascota añadida',
+    'pets.petAdded.description': '{petName} ha sido añadida exitosamente',
+    'pets.petUpdated.title': 'Mascota actualizada',
+    'pets.petUpdated.description': 'La información de la mascota ha sido actualizada',
+    'pets.petDeleted.title': 'Mascota eliminada',
+    'pets.petDeleted.description': 'La mascota ha sido eliminada exitosamente',
+    'pets.error.validationRequired': 'Nombre y tipo son obligatorios',
+    'pets.error.cannotLoad': 'No se pueden cargar las mascotas',
+    'pets.error.cannotAdd': 'Error al añadir mascota',
+    'pets.error.cannotUpdate': 'Error al actualizar mascota',
+    'pets.error.cannotDelete': 'Error al eliminar mascota'
   }
 };
 

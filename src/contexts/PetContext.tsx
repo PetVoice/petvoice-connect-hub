@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { useTranslatedToast } from '@/hooks/use-translated-toast';
 
 interface Pet {
   id: string;
@@ -52,6 +53,7 @@ interface PetProviderProps {
 
 export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
   const { user } = useAuth();
+  const { showToast } = useTranslatedToast();
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetId, setSelectedPetIdState] = useState<string>(() => {
     return localStorage.getItem('petvoice-selected-pet') || '';
@@ -87,10 +89,10 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Error loading pets:', error);
-        toast({
-          title: "Errore",
-          description: "Errore nel caricamento dei pet",
-          variant: "destructive",
+        showToast({
+          title: 'error.title',
+          description: 'pets.error.cannotLoad',
+          variant: 'destructive'
         });
         return;
       }
@@ -115,10 +117,10 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Error loading pets:', error);
-      toast({
-        title: "Errore",
-        description: "Errore nel caricamento dei pet",
-        variant: "destructive",
+      showToast({
+        title: 'error.title',
+        description: 'pets.error.cannotLoad',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -157,18 +159,20 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
         setSelectedPetId(data.id);
       }
 
-      toast({
-        title: "Successo",
-        description: "Pet aggiunto con successo!",
+      showToast({
+        title: 'pets.petAdded.title',
+        description: 'pets.petAdded.description',
+        variant: 'success',
+        variables: { petName: petData.name || 'Pet' }
       });
 
       return data;
     } catch (error) {
       console.error('Error adding pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante l'aggiunta del pet",
-        variant: "destructive",
+      showToast({
+        title: 'error.title',
+        description: 'pets.error.cannotAdd',
+        variant: 'destructive'
       });
       return null;
     } finally {
@@ -192,19 +196,20 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
         )
       );
 
-      toast({
-        title: "Successo",
-        description: "Pet aggiornato con successo!",
+      showToast({
+        title: 'pets.petUpdated.title',
+        description: 'pets.petUpdated.description',
+        variant: 'success'
       });
 
       // Forza un refresh per assicurarsi che i dati siano sincronizzati
       await refreshPets();
     } catch (error) {
       console.error('Error updating pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante l'aggiornamento del pet",
-        variant: "destructive",
+      showToast({
+        title: 'error.title',
+        description: 'pets.error.cannotUpdate',
+        variant: 'destructive'
       });
     }
   };
@@ -231,16 +236,17 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
         }
       }
 
-      toast({
-        title: "Successo",
-        description: "Pet eliminato con successo!",
+      showToast({
+        title: 'pets.petDeleted.title',
+        description: 'pets.petDeleted.description',
+        variant: 'success'
       });
     } catch (error) {
       console.error('Error deleting pet:', error);
-      toast({
-        title: "Errore",
-        description: "Errore durante l'eliminazione del pet",
-        variant: "destructive",
+      showToast({
+        title: 'error.title',
+        description: 'pets.error.cannotDelete',
+        variant: 'destructive'
       });
     }
   };
