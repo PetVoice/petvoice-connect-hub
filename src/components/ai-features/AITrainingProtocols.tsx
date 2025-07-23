@@ -32,29 +32,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
-interface TrainingProtocol {
-  id: string;
-  name: string;
-  description: string;
-  duration: number; // days
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  targetBehaviors: string[];
-  currentDay: number;
-  successRate: number;
-  status: 'active' | 'completed' | 'paused';
-  phases: TrainingPhase[];
-}
-
-interface TrainingPhase {
-  id: string;
-  name: string;
-  dayRange: [number, number];
-  objectives: string[];
-  techniques: string[];
-  successCriteria: string[];
-  isCompleted: boolean;
-}
-
 interface TrainingSession {
   id: string;
   date: string;
@@ -127,9 +104,7 @@ export const AITrainingProtocols: React.FC = () => {
   // Get current user ID
   useEffect(() => {
     const getCurrentUser = async () => {
-      console.log('Getting current user...');
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user from auth:', user?.id);
       setCurrentUserId(user?.id || null);
     };
     getCurrentUser();
@@ -168,16 +143,7 @@ export const AITrainingProtocols: React.FC = () => {
   };
 
   const isUserCreated = (protocol: any) => {
-    const isUserProtocol = protocol.user_id === currentUserId && protocol.ai_generated !== true;
-    console.log('Protocol check for:', protocol.title, {
-      protocolUserId: protocol.user_id,
-      currentUserId,
-      aiGenerated: protocol.ai_generated,
-      isUserProtocol,
-      userIdMatch: protocol.user_id === currentUserId,
-      notAiGenerated: protocol.ai_generated !== true
-    });
-    return isUserProtocol;
+    return protocol.user_id === currentUserId && protocol.ai_generated !== true;
   };
 
   const handleEditProtocol = (protocol: any) => {
@@ -230,123 +196,89 @@ export const AITrainingProtocols: React.FC = () => {
 
             <TabsContent value="protocols" className="mt-4">
               <div className="grid gap-4">
-                {protocols.map((protocol) => {
-                  console.log('Rendering protocol:', protocol.title, {
-                    protocolUserId: protocol.user_id,
-                    currentUserId,
-                    shouldShowButtons: currentUserId && protocol.user_id === currentUserId
-                  });
-                  return (
-                    <Card
-                      key={protocol.id} 
-                      className="cursor-pointer hover:bg-accent/50 focus-within:bg-accent/50 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2" 
-                      onClick={() => setSelectedProtocol(protocol)}
-                      tabIndex={0}
-                      role="button"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedProtocol(protocol);
-                        }
-                      }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{translateProtocolTitle(protocol.title)}</h3>
-                              <Badge className={getDifficultyColor(protocol.difficulty)}>
-                                {protocol.difficulty}
-                              </Badge>
-                              <Badge className={getStatusColor(protocol.status)}>
-                                {protocol.status}
-                              </Badge>
-                              {protocol.ai_generated && (
-                                <Badge variant="outline">AI</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {translateProtocolDescription(protocol.description)}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm">
-                               <span className="flex items-center gap-1">
-                                 <Calendar className="h-4 w-4" />
-                                 {t('aiTraining.protocol.day')} {protocol.current_day}/{protocol.duration_days}
-                               </span>
-                               <span className="flex items-center gap-1">
-                                 <TrendingUp className="h-4 w-4" />
-                                 {Math.round(protocol.success_rate)}% {t('aiTraining.protocol.success')}
-                               </span>
-                            </div>
-                            <div className="mt-3">
-                               <div className="flex items-center justify-between text-sm mb-1">
-                                 <span>{t('aiTraining.protocol.progress')}</span>
-                                 <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
-                              </div>
-                              <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
-                            </div>
+                {protocols.map((protocol) => (
+                  <Card
+                    key={protocol.id} 
+                    className="cursor-pointer hover:bg-accent/50 transition-colors" 
+                    onClick={() => setSelectedProtocol(protocol)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold">{translateProtocolTitle(protocol.title)}</h3>
+                            <Badge className={getDifficultyColor(protocol.difficulty)}>
+                              {t(`aiTraining.protocol.difficulty.${protocol.difficulty}`)}
+                            </Badge>
+                            <Badge className={getStatusColor(protocol.status)}>
+                              {t(`aiTraining.protocol.status.${protocol.status}`)}
+                            </Badge>
+                            {protocol.ai_generated && (
+                              <Badge variant="outline">AI</Badge>
+                            )}
                           </div>
-                          
-                          {/* PULSANTI SUPER VISIBILI! */}
-                          <div style={{ 
-                            backgroundColor: 'red', 
-                            padding: '20px', 
-                            margin: '10px',
-                            border: '5px solid purple',
-                            minWidth: '200px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '10px'
-                          }}>
-                            <div style={{ backgroundColor: 'yellow', padding: '10px', fontSize: '20px', fontWeight: 'bold' }}>
-                              PULSANTI QUI!!! 🔥🔥🔥
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {translateProtocolDescription(protocol.description)}
+                          </p>
+                          <div className="flex items-center gap-4 text-sm">
+                             <span className="flex items-center gap-1">
+                               <Calendar className="h-4 w-4" />
+                               {t('aiTraining.protocol.day')} {protocol.current_day}/{protocol.duration_days}
+                             </span>
+                             <span className="flex items-center gap-1">
+                               <TrendingUp className="h-4 w-4" />
+                               {Math.round(protocol.success_rate)}% {t('aiTraining.protocol.success')}
+                             </span>
+                          </div>
+                          <div className="mt-3">
+                             <div className="flex items-center justify-between text-sm mb-1">
+                               <span>{t('aiTraining.protocol.progress')}</span>
+                               <span>{Math.round((protocol.current_day / protocol.duration_days) * 100)}%</span>
                             </div>
-                            <Button 
-                              size="lg" 
-                              variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 alert(t('aiTraining.messages.editClick'));
-                                 handleEditProtocol(protocol);
-                               }}
-                               style={{ 
-                                 backgroundColor: 'blue', 
-                                 color: 'white', 
-                                 fontSize: '16px',
-                                 padding: '15px',
-                                 border: '3px solid black'
-                               }}
-                             >
-                               <Edit className="h-4 w-4 mr-1" />
-                               {t('aiTraining.buttons.edit')} 🔧
-                            </Button>
-                            <Button 
-                              size="lg" 
-                              variant="outline"
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 alert(t('aiTraining.messages.deleteClick'));
-                                 if (window.confirm(t('aiTraining.messages.deleteConfirm'))) {
-                                   handleDeleteProtocol(protocol.id);
-                                 }
-                               }}
-                               style={{ 
-                                 backgroundColor: 'red', 
-                                 color: 'white', 
-                                 fontSize: '16px',
-                                 padding: '15px',
-                                 border: '3px solid black'
-                               }}
-                             >
-                               <Trash2 className="h-4 w-4 mr-1" />
-                               {t('aiTraining.buttons.delete')} 🗑️
-                             </Button>
+                            <Progress value={(protocol.current_day / protocol.duration_days) * 100} />
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                        
+                        {/* Menu dropdown per azioni sui protocolli creati dall'utente */}
+                        {currentUserId && isUserCreated(protocol) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={(e) => e.stopPropagation()}
+                                className="h-8 w-8 p-0"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditProtocol(protocol);
+                                }}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                {t('aiTraining.buttons.edit')}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteProtocol(protocol.id);
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                {t('aiTraining.buttons.delete')}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </TabsContent>
 
@@ -357,7 +289,7 @@ export const AITrainingProtocols: React.FC = () => {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-semibold">Sessione {session.date}</h3>
+                          <h3 className="font-semibold">{t('aiTraining.sessions.title')} {session.date}</h3>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
@@ -371,13 +303,13 @@ export const AITrainingProtocols: React.FC = () => {
                         </div>
                         <Button size="sm" variant="outline">
                           <Video className="h-4 w-4 mr-2" />
-                          Analisi Video
+                          {t('aiTraining.sessions.videoButton')}
                         </Button>
                       </div>
                       
                       <div className="space-y-3">
                         <div>
-                          <h4 className="text-sm font-medium mb-1">Esercizi</h4>
+                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.exercises')}</h4>
                           <div className="flex flex-wrap gap-2">
                             {session.exercises.map((exercise, index) => (
                               <Badge key={index} variant="secondary">{exercise}</Badge>
@@ -386,29 +318,29 @@ export const AITrainingProtocols: React.FC = () => {
                         </div>
                         
                         <div>
-                          <h4 className="text-sm font-medium mb-1">Note</h4>
+                          <h4 className="text-sm font-medium mb-1">{t('aiTraining.sessions.notes')}</h4>
                           <p className="text-sm text-muted-foreground">{session.notes}</p>
                         </div>
                         
                         {session.videoAnalysis && (
                           <div>
-                            <h4 className="text-sm font-medium mb-2">Analisi Video AI</h4>
+                            <h4 className="text-sm font-medium mb-2">{t('aiTraining.sessions.videoAnalysis')}</h4>
                             <div className="grid grid-cols-3 gap-4 mb-3">
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-blue-600">{session.videoAnalysis.posture}%</div>
-                                <div className="text-xs text-muted-foreground">Postura</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.posture')}</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-green-600">{session.videoAnalysis.engagement}%</div>
-                                <div className="text-xs text-muted-foreground">Engagement</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.engagement')}</div>
                               </div>
                               <div className="text-center">
                                 <div className="text-2xl font-bold text-red-600">{session.videoAnalysis.stress}%</div>
-                                <div className="text-xs text-muted-foreground">Stress</div>
+                                <div className="text-xs text-muted-foreground">{t('aiTraining.sessions.stress')}</div>
                               </div>
                             </div>
                             <div>
-                              <h5 className="text-sm font-medium mb-1">Raccomandazioni AI</h5>
+                              <h5 className="text-sm font-medium mb-1">{t('aiTraining.sessions.recommendations')}</h5>
                               <ul className="text-sm text-muted-foreground space-y-1">
                                 {session.videoAnalysis.recommendations.map((rec, index) => (
                                   <li key={index} className="flex items-center gap-2">
@@ -431,25 +363,25 @@ export const AITrainingProtocols: React.FC = () => {
               <div className="grid gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Performance Analytics</CardTitle>
+                    <CardTitle>{t('aiTraining.analytics.title')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="text-center">
                         <div className="text-3xl font-bold text-blue-600">3</div>
-                        <div className="text-sm text-muted-foreground">Protocolli Attivi</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.protocolsCompleted')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-green-600">85%</div>
-                        <div className="text-sm text-muted-foreground">Successo Medio</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.avgSuccessRate')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-purple-600">24h</div>
-                        <div className="text-sm text-muted-foreground">Tempo Totale</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.totalSessions')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-3xl font-bold text-orange-600">12</div>
-                        <div className="text-sm text-muted-foreground">Sessioni Completate</div>
+                        <div className="text-sm text-muted-foreground">{t('aiTraining.analytics.improvementRate')}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -468,7 +400,7 @@ export const AITrainingProtocols: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Edit Protocol Dialog */}
+      {/* Dialog per modificare protocolli */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>

@@ -549,10 +549,6 @@
         "exploratoryBehaviorCuriosity": "Comportamiento exploratorio con curiosidad hacia nuevos objetos y espacios"
       }
     },
-    "results": {
-      "emotion": "Emoción",
-      "behavioralInsights": "Insights Conductuales"
-    },
     "pdf": {
       "multipleAnalysisTitle": "INFORME DE ANÁLISIS MÚLTIPLES - PET VOICE",
       "pet": "Mascota",
@@ -1079,6 +1075,48 @@
       "continue": "Continuar",
       "view": "Ver",
       "restart": "Reiniciar"
+    },
+    "protocols": {
+      "socializzazioneProgressiva": {
+        "title": "Socialización Progresiva",
+        "description": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas."
+      },
+      "controlloAggressivitaReattiva": {
+        "title": "Control de Agresividad Reactiva",
+        "description": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en la seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional."
+      },
+      "gestioneAnsiaSeparazione": {
+        "title": "Gestión de Ansiedad por Separación",
+        "description": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual."
+      },
+      "rieducazioneAlimentareComportamentale": {
+        "title": "Reeducación Alimentaria Comportamental",
+        "description": "Protocolo intermedio para resolver trastornos comportamentales relacionados con la alimentación. Aborda alimentación compulsiva, rechazo de comida, guardia de alimentos y ansiedad alimentaria a través de un enfoque gradual y no punitivo."
+      },
+      "ottimizzazioneCicloSonnoVeglia": {
+        "title": "Optimización del Ciclo Sueño-Vigilia",
+        "description": "Protocolo especializado para establecer patrones de sueño saludables, reducir insomnio y despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores."
+      },
+      "superareFobiePaureSpecifiche": {
+        "title": "Superar Fobias y Miedos Específicos",
+        "description": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales"
+      },
+      "stopComportamentiDistruttivi": {
+        "title": "Detener Comportamientos Destructivos",
+        "description": "Protocolo intensivo para eliminar masticación destructiva, excavación excesiva y destrucción de objetos domésticos."
+      },
+      "gestioneGelosiaEPossessivita": {
+        "title": "Gestión de Celos y Posesividad",
+        "description": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos."
+      },
+      "riattivazioneEnergiaMotivazione": {
+        "title": "Reactivación de Energía y Motivación",
+        "description": "Protocolo gradual para combatir depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social."
+      },
+      "gestioneIperattivatEDeficitAttenzione": {
+        "title": "Gestión de Hiperactividad y Déficit de Atención",
+        "description": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
+      }
     }
   },
   "training": {
@@ -1135,60 +1173,6 @@
       "duration": "Duración",
       "successRate": "Tasa de éxito",
       "communityUses": "Usos de la comunidad"
-    },
-    "protocols": {
-      "socializzazioneProgressiva": {
-        "title": "Socialización Progresiva",
-        "description": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas."
-      },
-      "controlloAggressivitaReattiva": {
-        "title": "Control de Agresividad Reactiva",
-        "description": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en la seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional."
-      },
-      "gestioneAnsiaSeparazione": {
-        "title": "Gestión de Ansiedad por Separación",
-        "description": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual."
-      },
-      "rieducazioneAlimentareComportamentale": {
-        "title": "Reeducación Alimentaria Comportamental",
-        "description": "Protocolo intermedio para resolver trastornos comportamentales relacionados con la alimentación. Aborda alimentación compulsiva, rechazo de comida, guardia de alimentos y ansiedad alimentaria a través de un enfoque gradual y no punitivo."
-      },
-      "ottimizzazioneCicloSonnoVeglia": {
-        "title": "Optimización del Ciclo Sueño-Vigilia",
-        "description": "Protocolo especializado para establecer patrones de sueño saludables, reducir insomnio y despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores."
-      },
-      "superareFobiePaureSpecifiche": {
-        "title": "Superar Fobias y Miedos Específicos",
-        "description": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales"
-      },
-      "stopComportamentiDistruttivi": {
-        "title": "Detener Comportamientos Destructivos",
-        "description": "Protocolo intensivo para eliminar masticación destructiva, excavación excesiva y destrucción de objetos domésticos."
-      },
-      "gestioneGelosiaEPossessivita": {
-        "title": "Gestión de Celos y Posesividad",
-        "description": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos."
-      },
-      "riattivazioneEnergiaMotivazione": {
-        "title": "Reactivación de Energía y Motivación",
-        "description": "Protocolo gradual para combatir depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social."
-      },
-      "gestioneIperattivatEDeficitAttenzione": {
-        "title": "Gestión de Hiperactividad y Déficit de Atención",
-        "description": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
-      }
-    },
-    "descriptions": {
-      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
-      "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale.": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional.",
-      "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale.": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual.",
-      "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo.": "Protocolo intermedio para resolver trastornos de comportamiento relacionados con la alimentación. Aborda alimentación compulsiva, rechazo a la comida, protección de alimentos y ansiedad alimentaria a través de un enfoque gradual y no punitivo.",
-      "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori.": "Protocolo especializado para establecer patrones de sueño saludables, reducir insomnio y despertares nocturnos. A través de rutinas pre-sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores.",
-      "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programa avanzado de desensibilización sistemática para superar fobias intensas a ruidos, objetos y situaciones específicas a través de técnicas científicas graduales",
-      "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.": "Protocolo intensivo para eliminar masticación destructiva, excavación excesiva y destrucción de objetos domésticos.",
-      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos.",
-      "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.": "Protocolo gradual para combatir depresión, apatía y pérdida de interés en animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social.",
-      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde descarga de energía constructiva al control de impulsos, hasta relajación y autocontrol."
     },
     "search": {
       "placeholder": "Buscar protocolos...",
