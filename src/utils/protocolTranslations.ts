@@ -2,6 +2,13 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export const useProtocolTranslations = () => {
   const { t, language } = useTranslation();
+  
+  // Debug del sistema di traduzione
+  console.log('🔍 useProtocolTranslations hook initialized:', { 
+    language, 
+    tFunction: typeof t,
+    testTranslation: t('common.save', 'DEFAULT')
+  });
 
   // Mapping delle descrizioni basato sui titoli dei protocolli
   const descriptionMapping: Record<string, string> = {
