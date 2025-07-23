@@ -87,26 +87,13 @@ const descriptionTranslations = {
 };
 
 export const useProtocolTranslations = () => {
-  const { language } = useTranslation();
-
+  // NO TRANSLATION - Always return Italian content from database
   const translateProtocolTitle = (title: string): string => {
-    // If language is English, translate Italian titles to English
-    if (language === 'en') {
-      const lang = language as 'it' | 'en' | 'es';
-      const translation = titleTranslations[lang]?.[title] || title;
-      return translation;
-    }
-    return title; // Return Italian for 'it' or other languages
+    return title;
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {
-    // If language is English, translate Italian descriptions to English
-    if (language === 'en') {
-      const lang = language as 'it' | 'en' | 'es';
-      const translation = descriptionTranslations[lang]?.[description] || description;
-      return translation;
-    }
-    return description; // Return Italian for 'it' or other languages
+    return description;
   };
 
   return {
