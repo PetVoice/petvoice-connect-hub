@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -680,20 +679,19 @@ const SupportPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Caricamento supporto...</p>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">{/* Removed Layout wrapper */}
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -1816,12 +1814,11 @@ const SupportPage: React.FC = () => {
             </div>
           </DialogContent>
         </Dialog>
+        
+        {/* AI Live Chat */}
+        <AILiveChatButton />
       </div>
-      
-      {/* AI Live Chat */}
-      <AILiveChatButton />
-    </Layout>
-  );
+    );
 };
 
 export default SupportPage;

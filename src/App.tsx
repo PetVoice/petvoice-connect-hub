@@ -4,13 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { PetProvider } from "@/contexts/PetContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
-import Layout from "@/components/Layout";
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
@@ -146,7 +144,9 @@ function AppContent() {
         } />
         <Route path="/support" element={
           <ProtectedRoute>
-            <SupportPage />
+            <AppLayout>
+              <SupportPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/settings" element={
