@@ -19,17 +19,13 @@ export default {
 		},
 		extend: {
 			colors: {
-				// PetVoice Azure System
-				azure: {
-					DEFAULT: 'hsl(var(--azure))',
-					light: 'hsl(var(--azure-light))',
-					dark: 'hsl(var(--azure-dark))',
-					glow: 'hsl(var(--azure-glow))',
-				},
-				navy: {
-					DEFAULT: 'hsl(var(--navy))',
-					light: 'hsl(var(--navy-light))',
-					dark: 'hsl(var(--navy-dark))',
+				// Azzurrino Chiaro System
+				sky: {
+					DEFAULT: 'hsl(var(--sky-blue))',  
+					light: 'hsl(var(--sky-light))',   
+					soft: 'hsl(var(--sky-soft))',     
+					dark: 'hsl(var(--sky-dark))',     
+					accent: 'hsl(var(--sky-accent))', 
 				},
 				// Standard colors
 				border: 'hsl(var(--border))',

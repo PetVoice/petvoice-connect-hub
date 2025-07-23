@@ -8,82 +8,76 @@
 
 @layer base {
   :root {
-    /* PetVoice New Blue System */
-    --azure: 206 100% 65%;           /* #3BAAFF - Main Azure */
-    --azure-light: 206 100% 85%;     /* Light Azure */
-    --azure-dark: 206 100% 45%;      /* Dark Azure */
-    --azure-glow: 206 100% 75%;      /* Glow Azure */
+    /* Azzurrino Chiaro System */
+    --sky-blue: 200 85% 70%;         /* #87CEEB - Azzurrino principale */
+    --sky-light: 200 90% 85%;        /* Azzurrino molto chiaro */
+    --sky-soft: 200 70% 80%;         /* Azzurrino tenue */
+    --sky-dark: 200 80% 55%;         /* Azzurrino scuro */
+    --sky-accent: 210 75% 75%;       /* Azzurrino accent */
     
-    --navy: 220 39% 11%;             /* #131A2B - Navy for dark theme */
-    --navy-light: 220 39% 20%;       /* Light Navy */
-    --navy-dark: 220 39% 8%;         /* Darker Navy */
+    /* Light Theme - Azzurrino Chiaro */
+    --background: 200 30% 98%;       /* Bianco con hint azzurrino */
+    --foreground: 210 20% 25%;       /* Grigio scuro con hint azzurrino */
 
-    /* Light Theme Colors - Modern Azure */
-    --background: 206 40% 99%;           /* Very light azure tint */
-    --foreground: 220 15% 25%;           /* Darker, warmer text */
+    --card: 200 40% 97%;             /* Card con sfumatura azzurrina */
+    --card-foreground: 210 20% 25%;
 
-    --card: 206 30% 98%;                 /* Light azure card background */
-    --card-foreground: 220 15% 25%;
+    --popover: 200 40% 97%;
+    --popover-foreground: 210 20% 25%;
 
-    --popover: 206 30% 98%;
-    --popover-foreground: 220 15% 25%;
-
-    --primary: 206 95% 60%;              /* Vibrant azure primary */
+    --primary: 200 85% 70%;          /* Azzurrino principale */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 206 25% 94%;            /* Light azure secondary */
-    --secondary-foreground: 220 20% 35%;
+    --secondary: 200 25% 92%;        /* Azzurrino molto tenue */
+    --secondary-foreground: 210 25% 30%;
 
-    --muted: 206 20% 95%;                /* Subtle azure muted */
-    --muted-foreground: 220 15% 50%;
+    --muted: 200 20% 94%;            /* Muted azzurrino */
+    --muted-foreground: 210 15% 45%;
 
-    --accent: 206 35% 92%;               /* Elegant azure accent */
-    --accent-foreground: 220 20% 30%;
+    --accent: 200 30% 90%;           /* Accent azzurrino */
+    --accent-foreground: 210 25% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
-    --success-foreground: 210 40% 98%;
+    --success: 140 60% 45%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 210 40% 98%;
+    --warning: 35 85% 55%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 206 25% 88%;               /* Soft azure border */
-    --input: 206 20% 92%;                /* Light azure input */
-    --ring: 206 95% 60%;
+    --border: 200 25% 85%;           /* Border azzurrino tenue */
+    --input: 200 20% 90%;            /* Input azzurrino */
+    --ring: 200 85% 70%;
 
-    /* Gradients - Light Theme - More Azure */
-    --gradient-azure: linear-gradient(135deg, hsl(206 95% 60%), hsl(206 40% 99%));
-    --gradient-azure-white: linear-gradient(135deg, hsl(206 80% 70%), hsl(206 30% 96%));
-    --gradient-hero: linear-gradient(135deg, hsl(206 95% 60%), hsl(206 70% 75%), hsl(206 30% 96%));
-    --gradient-subtle: linear-gradient(180deg, hsl(206 40% 99%), hsl(206 25% 94%));
-    --gradient-card: linear-gradient(135deg, hsl(206 30% 98%), hsl(206 20% 95%));
+    /* Gradients - Light Theme Azzurrino */
+    --gradient-azure: linear-gradient(135deg, hsl(200 85% 70%), hsl(200 30% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(200 85% 70%), hsl(200 70% 80%), hsl(200 30% 98%));
+    --gradient-subtle: linear-gradient(180deg, hsl(200 30% 98%), hsl(200 25% 92%));
+    --gradient-card: linear-gradient(135deg, hsl(200 40% 97%), hsl(200 20% 94%));
 
-    /* Enhanced Shadows with Azure */
-    --shadow-soft: 0 4px 6px -1px hsl(206 95% 60% / 0.12), 0 2px 4px -1px hsl(206 95% 60% / 0.08);
-    --shadow-medium: 0 10px 15px -3px hsl(206 95% 60% / 0.18), 0 4px 6px -4px hsl(206 95% 60% / 0.12);
-    --shadow-glow: 0 0 0 1px hsl(206 95% 60% / 0.15), 0 0 35px hsl(206 80% 70% / 0.35);
-    --shadow-popup: 0 0 60px hsl(206 80% 70% / 0.25);
-    --shadow-dialog: 0 0 100px hsl(206 95% 60% / 0.3);
-    --shadow-elegant: 0 8px 25px -5px hsl(206 95% 60% / 0.15), 0 4px 12px -2px hsl(206 80% 70% / 0.1);
+    /* Shadows Azzurrini */
+    --shadow-soft: 0 4px 6px -1px hsl(200 85% 70% / 0.1), 0 2px 4px -1px hsl(200 85% 70% / 0.05);
+    --shadow-medium: 0 10px 15px -3px hsl(200 85% 70% / 0.15), 0 4px 6px -4px hsl(200 85% 70% / 0.1);
+    --shadow-glow: 0 0 0 1px hsl(200 85% 70% / 0.1), 0 0 25px hsl(200 85% 70% / 0.2);
+    --shadow-elegant: 0 8px 25px -5px hsl(200 85% 70% / 0.1), 0 4px 12px -2px hsl(200 85% 70% / 0.05);
 
     /* Animation Variables */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.75rem;
 
-    /* Modern Sidebar - Light */
-    --sidebar-background: 206 35% 97%;
-    --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 206 95% 60%;
+    /* Sidebar Light - Azzurrino */
+    --sidebar-background: 200 35% 96%;
+    --sidebar-foreground: 210 20% 25%;
+    --sidebar-primary: 200 85% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 206 25% 94%;
-    --sidebar-accent-foreground: 220 20% 30%;
-    --sidebar-border: 206 20% 90%;
-    --sidebar-ring: 206 95% 60%;
+    --sidebar-accent: 200 25% 92%;
+    --sidebar-accent-foreground: 210 25% 25%;
+    --sidebar-border: 200 20% 88%;
+    --sidebar-ring: 200 85% 70%;
+  }
   }
 
 /* ================================================================
@@ -332,65 +326,63 @@
 }
 
   .dark {
-    /* Dark Theme - Modern Azure & Navy */
-    --background: 220 45% 8%;            /* Deep navy background */
-    --foreground: 206 30% 95%;           /* Light azure-tinted text */
+    /* Dark Theme - Azzurrino Chiaro su Navy */
+    --background: 210 45% 8%;        /* Navy scuro */
+    --foreground: 200 40% 92%;       /* Azzurrino molto chiaro per testo */
 
-    --card: 220 40% 12%;                 /* Navy card background */
-    --card-foreground: 206 25% 92%;
+    --card: 210 40% 12%;             /* Card navy */
+    --card-foreground: 200 35% 90%;
 
-    --popover: 220 40% 12%;
-    --popover-foreground: 206 25% 92%;
+    --popover: 210 40% 12%;
+    --popover-foreground: 200 35% 90%;
 
-    --primary: 206 90% 65%;              /* Bright azure primary */
-    --primary-foreground: 220 45% 8%;
+    --primary: 200 85% 75%;          /* Azzurrino brillante per dark */
+    --primary-foreground: 210 45% 8%;
 
-    --secondary: 220 35% 18%;            /* Dark navy secondary */
-    --secondary-foreground: 206 20% 85%;
+    --secondary: 210 35% 18%;        /* Navy chiaro */
+    --secondary-foreground: 200 30% 85%;
 
-    --muted: 220 30% 16%;                /* Muted navy */
-    --muted-foreground: 206 15% 65%;
+    --muted: 210 30% 16%;            /* Navy muted */
+    --muted-foreground: 200 25% 65%;
 
-    --accent: 220 35% 20%;               /* Navy accent */
-    --accent-foreground: 206 25% 90%;
+    --accent: 210 35% 20%;           /* Navy accent */
+    --accent-foreground: 200 30% 88%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success: 140 55% 50%;
+    --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 210 40% 98%;
+    --warning: 35 80% 60%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 220 25% 22%;               /* Navy border */
-    --input: 220 30% 18%;                /* Navy input */
-    --ring: 206 90% 65%;
+    --border: 210 25% 22%;           /* Border navy */
+    --input: 210 30% 18%;            /* Input navy */
+    --ring: 200 85% 75%;
 
-    /* Gradients - Dark Theme - Azure & Navy */
-    --gradient-azure: linear-gradient(135deg, hsl(206 90% 65%), hsl(220 45% 8%));
-    --gradient-azure-white: linear-gradient(135deg, hsl(206 80% 70%), hsl(220 40% 12%));
-    --gradient-hero: linear-gradient(135deg, hsl(206 90% 65%), hsl(206 70% 50%), hsl(220 45% 8%));
-    --gradient-subtle: linear-gradient(180deg, hsl(220 45% 8%), hsl(220 35% 18%));
-    --gradient-card: linear-gradient(135deg, hsl(220 40% 12%), hsl(220 45% 8%));
+    /* Gradients - Dark Theme Azzurrino */
+    --gradient-azure: linear-gradient(135deg, hsl(200 85% 75%), hsl(210 45% 8%));
+    --gradient-hero: linear-gradient(135deg, hsl(200 85% 75%), hsl(200 70% 60%), hsl(210 45% 8%));
+    --gradient-subtle: linear-gradient(180deg, hsl(210 45% 8%), hsl(210 35% 18%));
+    --gradient-card: linear-gradient(135deg, hsl(210 40% 12%), hsl(210 45% 8%));
 
-    /* Enhanced Shadows for Dark */
-    --shadow-soft: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(206 90% 65% / 0.1);
-    --shadow-medium: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(206 90% 65% / 0.15);
-    --shadow-glow: 0 0 0 1px hsl(206 90% 65% / 0.2), 0 0 40px hsl(206 80% 70% / 0.3);
-    --shadow-popup: 0 0 80px hsl(206 80% 70% / 0.2);
-    --shadow-dialog: 0 0 120px hsl(206 90% 65% / 0.25);
-    --shadow-elegant: 0 8px 25px -5px hsl(0 0% 0% / 0.3), 0 4px 12px -2px hsl(206 90% 65% / 0.15);
+    /* Shadows Dark Azzurrini */
+    --shadow-soft: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(200 85% 75% / 0.1);
+    --shadow-medium: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(200 85% 75% / 0.15);
+    --shadow-glow: 0 0 0 1px hsl(200 85% 75% / 0.15), 0 0 30px hsl(200 85% 75% / 0.25);
+    --shadow-elegant: 0 8px 25px -5px hsl(0 0% 0% / 0.3), 0 4px 12px -2px hsl(200 85% 75% / 0.1);
 
-    /* Modern Sidebar - Dark */
-    --sidebar-background: 220 40% 10%;
-    --sidebar-foreground: 206 25% 92%;
-    --sidebar-primary: 206 90% 65%;
-    --sidebar-primary-foreground: 220 45% 8%;
-    --sidebar-accent: 220 30% 18%;
-    --sidebar-accent-foreground: 206 20% 85%;
-    --sidebar-border: 220 25% 20%;
-    --sidebar-ring: 206 90% 65%;
+    /* Sidebar Dark - Azzurrino */
+    --sidebar-background: 210 40% 10%;
+    --sidebar-foreground: 200 35% 90%;
+    --sidebar-primary: 200 85% 75%;
+    --sidebar-primary-foreground: 210 45% 8%;
+    --sidebar-accent: 210 30% 18%;
+    --sidebar-accent-foreground: 200 30% 85%;
+    --sidebar-border: 210 25% 20%;
+    --sidebar-ring: 200 85% 75%;
+  }
   }
 }
 
