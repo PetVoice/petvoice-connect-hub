@@ -72,8 +72,10 @@ const DashboardPage: React.FC = () => {
                 </span>
               </div>
               <div>
-                <h2 className="text-2xl">{selectedPet.name} - {selectedPet.type} - {selectedPet.breed} - {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni</h2>
-                <p className="text-muted-foreground">{selectedPet.type}</p>
+                <h2 className="text-2xl">{selectedPet.name}</h2>
+                <p className="text-muted-foreground">
+                  {selectedPet.type} • {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
+                </p>
               </div>
             </CardTitle>
           </CardHeader>

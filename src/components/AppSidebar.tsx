@@ -93,12 +93,12 @@ const AppSidebar: React.FC = () => {
       <SidebarContent className="gap-0">
         {/* Logo and Title */}
         <div className={`flex items-center gap-3 p-4 border-b border-border ${isCollapsed && !isMobile ? "justify-center" : ""}`}>
-          <div className="w-8 h-8 rounded-lg gradient-azure flex items-center justify-center shadow-glow animate-gentle-float">
-            <span className="text-white font-bold text-sm">🐾</span>
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">🐾</span>
           </div>
           {(!isCollapsed || isMobile) && (
             <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <h1 className="text-lg font-bold text-foreground">
                 PetVoice
               </h1>
               <p className="text-xs text-muted-foreground">AI Pet Care</p>
@@ -108,7 +108,7 @@ const AppSidebar: React.FC = () => {
 
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto py-4">
-          {renderNavItems(navigationItems, "Navigazione Principale")}
+          {renderNavItems(navigationItems)}
           {renderNavItems(communityItems)}
           {renderNavItems(supportItems)}
         </div>
