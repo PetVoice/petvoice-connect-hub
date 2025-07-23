@@ -38,6 +38,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 interface Exercise {
   id: string;
@@ -58,6 +59,7 @@ const TrainingDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { showToast: showTranslatedToast } = useTranslatedToast();
   const { showToast } = useToastWithIcon();
+  const { translateProtocolTitle } = useProtocolTranslations();
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
   const updateProtocol = useUpdateProtocol();
@@ -391,7 +393,7 @@ const TrainingDashboard: React.FC = () => {
         title: 'protocol.stopped.title',
         description: 'protocol.stopped.description',
         variant: 'default',
-        variables: { protocolName: protocol.title }
+        variables: { protocolName: translateProtocolTitle(protocol.title) }
       });
 
       // Torna alla dashboard principale
