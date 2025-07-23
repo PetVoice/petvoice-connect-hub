@@ -18,9 +18,14 @@ export const useProtocolTranslations = () => {
   };
 
   const translateProtocolTitle = (title: string): string => {
-    const translationKey = `protocols.titles.${title}`;
-    const translated = t(translationKey, title);
-    return translated === translationKey ? title : translated;
+    // Trova la chiave semantica dal titolo
+    const semanticKey = descriptionMapping[title];
+    if (semanticKey) {
+      const translationKey = `protocols.titles.${semanticKey}`;
+      const translated = t(translationKey, title);
+      return translated === translationKey ? title : translated;
+    }
+    return title;
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {

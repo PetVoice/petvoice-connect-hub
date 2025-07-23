@@ -1560,16 +1560,16 @@
   },
   "protocols": {
     "titles": {
-      "Rieducazione Alimentare Comportamentale": "Rieducazione Alimentare Comportamentale",
-      "Ottimizzazione Ciclo Sonno-Veglia": "Ottimizzazione Ciclo Sonno-Veglia",
-      "Superare Fobie e Paure Specifiche": "Superare Fobie e Paure Specifiche",
-      "Stop Comportamenti Distruttivi": "Stop Comportamenti Distruttivi",
-      "Riattivazione Energia e Motivazione": "Riattivazione Energia e Motivazione",
-      "Socializzazione Progressiva": "Socializzazione Progressiva",
-      "Controllo Aggressività Reattiva": "Controllo Aggressività Reattiva",
-      "Gestione Ansia da Separazione": "Gestione Ansia da Separazione",
-      "Gestione Gelosia e Possessività": "Gestione Gelosia e Possessività",
-      "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione"
+      "rieducazioneAlimentare": "Rieducazione Alimentare Comportamentale",
+      "ottimizzazioneSonno": "Ottimizzazione Ciclo Sonno-Veglia",
+      "superareFobie": "Superare Fobie e Paure Specifiche",
+      "stopComportamentiDistruttivi": "Stop Comportamenti Distruttivi",
+      "riattivazioneEnergia": "Riattivazione Energia e Motivazione",
+      "socializzazioneProgressiva": "Socializzazione Progressiva",
+      "controlloAggressivitaReattiva": "Controllo Aggressività Reattiva",
+      "gestioneAnsiaSeperazione": "Gestione Ansia da Separazione",
+      "gestioneGelosia": "Gestione Gelosia e Possessività",
+      "gestioneIperattivita": "Gestione Iperattività e Deficit Attenzione"
     }
   }
   },

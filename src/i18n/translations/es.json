@@ -1706,16 +1706,16 @@
   },
   "protocols": {
     "titles": {
-      "Rieducazione Alimentare Comportamentale": "Reeducación Alimentaria Conductual",
-      "Ottimizzazione Ciclo Sonno-Veglia": "Optimización del Ciclo Sueño-Vigilia",
-      "Superare Fobie e Paure Specifiche": "Superar Fobias y Miedos Específicos",
-      "Stop Comportamenti Distruttivi": "Detener Comportamientos Destructivos",
-      "Riattivazione Energia e Motivazione": "Reactivación de Energía y Motivación",
-      "Socializzazione Progressiva": "Socialización Progresiva",
-      "Controllo Aggressività Reattiva": "Control de Agresividad Reactiva",
-      "Gestione Ansia da Separazione": "Manejo de Ansiedad por Separación",
-      "Gestione Gelosia e Possessività": "Manejo de Celos y Posesividad",
-      "Gestione Iperattività e Deficit Attenzione": "Manejo de Hiperactividad y Déficit de Atención"
+      "rieducazioneAlimentare": "Reeducación Alimentaria Conductual",
+      "ottimizzazioneSonno": "Optimización del Ciclo Sueño-Vigilia",
+      "superareFobie": "Superar Fobias y Miedos Específicos",
+      "stopComportamentiDistruttivi": "Detener Comportamientos Destructivos",
+      "riattivazioneEnergia": "Reactivación de Energía y Motivación",
+      "socializzazioneProgressiva": "Socialización Progresiva",
+      "controlloAggressivitaReattiva": "Control de Agresividad Reactiva",
+      "gestioneAnsiaSeperazione": "Manejo de Ansiedad por Separación",
+      "gestioneGelosia": "Manejo de Celos y Posesividad",
+      "gestioneIperattivita": "Manejo de Hiperactividad y Déficit de Atención"
     }
   }
   }
