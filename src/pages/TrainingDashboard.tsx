@@ -82,14 +82,10 @@ const TrainingDashboard: React.FC = () => {
     const fetchProtocol = async () => {
       if (!protocolId) return;
       
-      const { data, error } = await supabase
+      // Carica il protocollo
+      const { data: protocolData, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercises:ai_training_exercises(*),
-          metrics:ai_training_metrics(*),
-          schedule:ai_training_schedules(*)
-        `)
+        .select('*')
         .eq('id', protocolId)
         .single();
         
@@ -103,6 +99,20 @@ const TrainingDashboard: React.FC = () => {
         navigate('/training');
         return;
       }
+
+      // Carica gli esercizi separatamente
+      const { data: exercisesData } = await supabase
+        .from('ai_training_exercises')
+        .select('*')
+        .eq('protocol_id', protocolId)
+        .order('day_number', { ascending: true });
+
+      const data = {
+        ...protocolData,
+        exercises: exercisesData || [],
+        metrics: [],
+        schedule: []
+      };
       
       setProtocol({
         ...data,
