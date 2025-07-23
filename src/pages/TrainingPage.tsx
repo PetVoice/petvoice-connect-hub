@@ -26,10 +26,10 @@ const TrainingPage: React.FC = () => {
         <Brain className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            {t('aiTraining.title')}
+            Allenamento AI
           </h1>
           <p className="text-muted-foreground mt-1">
-            {t('aiTraining.subtitle')}
+            Protocolli di allenamento intelligenti per il tuo pet
           </p>
         </div>
       </div>

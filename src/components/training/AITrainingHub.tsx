@@ -72,14 +72,15 @@ import {
 } from '@/hooks/useTrainingProtocols';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 export const AITrainingHub: React.FC = () => {
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
+  const language = 'it';
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
   const { showToast } = useToastWithIcon();
   const { showToast: showTranslatedToast } = useTranslatedToast();
@@ -254,7 +255,12 @@ export const AITrainingHub: React.FC = () => {
   };
 
   const getDifficultyText = (difficulty: string) => {
-    return t(`training.difficulty.${difficulty}`, difficulty);
+    const difficultyMap: Record<string, string> = {
+      facile: 'Facile',
+      medio: 'Medio',
+      difficile: 'Difficile'
+    };
+    return difficultyMap[difficulty] || difficulty;
   };
 
   const getStatusColor = (status: string) => {

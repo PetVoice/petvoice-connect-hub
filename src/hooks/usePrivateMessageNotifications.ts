@@ -37,11 +37,8 @@ export function usePrivateMessageNotifications() {
             const finalPreview = payload.new.content?.length > 50 ? `${messagePreview}...` : messagePreview;
             
             addNotification({
-              title: t('notifications.newPrivateMessage.title'),
-              message: t('notifications.newPrivateMessage.message', '', { 
-                senderName, 
-                messagePreview: finalPreview 
-              }),
+              title: 'Nuovo Messaggio Privato',
+              message: `${senderName}: ${finalPreview}`,
               type: 'info',
               read: false,
               action_url: '/community' // Porta alla tab chat private
@@ -54,5 +51,5 @@ export function usePrivateMessageNotifications() {
     return () => {
       supabase.removeChannel(privateMessagesSubscription);
     };
-  }, [user, addNotification, t]);
+  }, [user, addNotification]);
 }

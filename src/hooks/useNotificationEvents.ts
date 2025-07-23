@@ -17,15 +17,15 @@ export function useNotificationEvents() {
     if (pets.length > previousPetsCount.current && previousPetsCount.current > 0) {
       const newPet = pets[pets.length - 1];
       addNotification({
-        title: t('notifications.newPet.title'),
-        message: t('notifications.newPet.message', '', { petName: newPet.name }),
+        title: 'Nuovo Pet Aggiunto',
+        message: `Benvenuto ${newPet.name}! Il tuo nuovo compagno è stato aggiunto con successo.`,
         type: 'success',
         read: false,
         action_url: '/analysis'
       });
     }
     previousPetsCount.current = pets.length;
-  }, [pets.length, addNotification, t]);
+  }, [pets.length, addNotification]);
 
   // Genera notifiche promemoria periodiche (solo una volta al giorno)
   useEffect(() => {
@@ -49,8 +49,8 @@ export function useNotificationEvents() {
       const lastDiaryCheck = localStorage.getItem(`last-diary-${user.id}`);
       if (!lastDiaryCheck || (now.getTime() - new Date(lastDiaryCheck).getTime()) > (24 * 60 * 60 * 1000)) {
         addNotification({
-          title: t('notifications.diaryReminder.title'),
-          message: t('notifications.diaryReminder.message', '', { petName: pets[0].name }),
+          title: 'Promemoria Diario',
+          message: `Non dimenticare di aggiornare il diario di ${pets[0].name}`,
           type: 'warning',
           read: false,
           action_url: '/diary'
@@ -63,13 +63,13 @@ export function useNotificationEvents() {
     // Controlla ogni 5 secondi per notifiche più reattive
     const interval = setInterval(generateDailyReminders, 5000);
     return () => clearInterval(interval);
-  }, [user, pets, addNotification, t]);
+  }, [user, pets, addNotification]);
 
   // Simula notifiche per eventi dell'app
   const triggerAnalysisCompleted = (petName: string) => {
     addNotification({
-      title: t('notifications.analysisCompleted.title'),
-      message: t('notifications.analysisCompleted.message', '', { petName }),
+      title: 'Analisi Completata',
+      message: `L'analisi comportamentale di ${petName} è stata completata`,
       type: 'success',
       read: false,
       action_url: '/analysis'
@@ -78,8 +78,8 @@ export function useNotificationEvents() {
 
   const triggerDiaryAdded = (petName: string) => {
     addNotification({
-      title: t('notifications.diaryUpdated.title'),
-      message: t('notifications.diaryUpdated.message', '', { petName }),
+      title: 'Diario Aggiornato',
+      message: `Il diario di ${petName} è stato aggiornato con successo`,
       type: 'info',
       read: false,
       action_url: '/diary'
@@ -88,8 +88,8 @@ export function useNotificationEvents() {
 
   const triggerWellnessReminder = (petName: string) => {
     addNotification({
-      title: t('notifications.wellnessReminder.title'),
-      message: t('notifications.wellnessReminder.message', '', { petName }),
+      title: 'Promemoria Benessere',
+      message: `È ora di controllare il benessere di ${petName}`,
       type: 'warning',
       read: false,
       action_url: '/wellness'
@@ -98,8 +98,8 @@ export function useNotificationEvents() {
 
   const triggerAppointmentReminder = (petName: string, appointmentType: string) => {
     addNotification({
-      title: t('notifications.appointmentReminder.title'),
-      message: t('notifications.appointmentReminder.message', '', { petName, appointmentType }),
+      title: 'Promemoria Appuntamento',
+      message: `Appuntamento ${appointmentType} per ${petName} in programma`,
       type: 'warning',
       read: false,
       action_url: '/calendar'

@@ -52,7 +52,7 @@ import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
@@ -245,11 +245,7 @@ const AnalysisPage: React.FC = () => {
           return insightTranslations[language][shortKey];
         }
         
-        // Se non riusciamo a trovare una traduzione diretta, proviamo il metodo t()
-        const translation = t(translationKey, insight);
-        if (translation !== translationKey) {
-          return translation;
-        }
+        // Se non riusciamo a trovare una traduzione diretta, restituiamo l'insight originale
       }
       
       // Fallback all'insight originale
@@ -261,7 +257,8 @@ const AnalysisPage: React.FC = () => {
   };
 
   const { user } = useAuth();
-  const { t, language } = useTranslation();
+  // Translation system removed - Italian only
+  const language = 'it';
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { showToast } = useTranslatedToast();
@@ -292,7 +289,7 @@ const AnalysisPage: React.FC = () => {
   const [processing, setProcessing] = useState<ProcessingState>({
     isProcessing: false,
     progress: 0,
-    stage: t('analysis.processing.preparation')
+    stage: 'Preparazione analisi'
   });
 
   // Filters

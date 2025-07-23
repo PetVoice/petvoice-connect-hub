@@ -36,8 +36,8 @@ export function useMedicationNotifications() {
 
                 if (!lastReminder || (now.getTime() - parseInt(lastReminder)) > (24 * 60 * 60 * 1000)) {
                   addNotification({
-                    title: t('notifications.medicationExpiring.title'),
-                    message: t('notifications.medicationExpiring.message', '', { medicationName: medication.name }),
+                    title: 'Farmaco in Scadenza',
+                    message: `Il farmaco ${medication.name} scadrà presto`,
                     type: 'warning',
                     read: false,
                     action_url: '/wellness'
@@ -60,5 +60,5 @@ export function useMedicationNotifications() {
     checkMedicationReminders();
 
     return () => clearInterval(interval);
-  }, [user, addNotification, t]);
+  }, [user, addNotification]);
 }

@@ -33,8 +33,8 @@ export function useCommunityNotifications() {
           if (subscriptions && subscriptions.length > 0 && payload.new.user_id !== user.id) {
             // L'utente è iscritto al canale e il messaggio non è suo
             addNotification({
-              title: t('notifications.newCommunityMessage.title'),
-              message: t('notifications.newCommunityMessage.message', '', { channelName: payload.new.channel_name }),
+              title: 'Nuovo Messaggio Community',
+              message: `Nuovo messaggio nel canale ${payload.new.channel_name}`,
               type: 'info',
               read: false,
               action_url: '/community'
@@ -47,5 +47,5 @@ export function useCommunityNotifications() {
     return () => {
       supabase.removeChannel(messagesSubscription);
     };
-  }, [user, addNotification, t]);
+  }, [user, addNotification]);
 }

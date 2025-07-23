@@ -34,11 +34,8 @@ export function useCalendarNotifications() {
             // Notifica 24 ore prima
             if (hoursUntil <= 24 && hoursUntil > 23) {
               addNotification({
-                title: t('notifications.eventReminder.title'),
-                message: t('notifications.eventReminder.message', '', { 
-                  eventTitle: event.title,
-                  eventTime: format(eventStart, 'HH:mm')
-                }),
+                title: 'Promemoria Evento',
+                message: `Evento "${event.title}" previsto per domani alle ${format(eventStart, 'HH:mm')}`,
                 type: 'warning',
                 read: false,
                 action_url: '/calendar'
@@ -48,11 +45,8 @@ export function useCalendarNotifications() {
             // Notifica 2 ore prima
             if (hoursUntil <= 2 && hoursUntil > 1) {
               addNotification({
-                title: t('notifications.eventImminent.title'),
-                message: t('notifications.eventImminent.message', '', { 
-                  eventTitle: event.title,
-                  hoursUntil: hoursUntil.toString()
-                }),
+                title: 'Evento Imminente',
+                message: `Evento "${event.title}" tra ${hoursUntil} ore`,
                 type: 'warning',
                 read: false,
                 action_url: '/calendar'
@@ -72,5 +66,5 @@ export function useCalendarNotifications() {
     checkUpcomingEvents();
 
     return () => clearInterval(interval);
-  }, [user, addNotification, t]);
+  }, [user, addNotification]);
 }

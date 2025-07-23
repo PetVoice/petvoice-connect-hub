@@ -17,9 +17,9 @@ const AIMusicTherapyPage: React.FC = () => {
             <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
               <PawPrint className="h-6 w-6 text-muted-foreground" />
             </div>
-            <CardTitle>{t('pets.noPetSelected')}</CardTitle>
+            <CardTitle>Nessun pet selezionato</CardTitle>
             <CardDescription>
-              {t('pets.selectPetDesc')}
+              Seleziona un pet per accedere alle funzionalità di musicoterapia AI
             </CardDescription>
           </CardHeader>
         </Card>
@@ -33,10 +33,10 @@ const AIMusicTherapyPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Music className="h-8 w-8 text-primary" />
-            {t('navigation.aiMusicTherapy')}
+            Musicoterapia AI
           </h1>
           <p className="text-muted-foreground">
-            {t('aiMusicTherapy.subtitle').replace('{petName}', selectedPet.name)}
+            Terapia musicale personalizzata per {selectedPet.name}
           </p>
         </div>
       </div>
