@@ -1778,13 +1778,13 @@ const AnalysisPage: React.FC = () => {
                       if (anxiousCount >= 3) {
                         recommendations.push({
                           type: 'warning',
-                          text: `⚠️ ${t('analysis.predictions.realData')}: ${anxiousCount} ${t('analysis.predictions.anxietyEpisodes')}`,
+                          text: `⚠️ Dati reali: ${anxiousCount} episodi di ansia`,
                           priority: 'high'
                         });
                       } else if (anxiousCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `📊 ${t('analysis.predictions.analysisReal')}: ${anxiousCount} ${t('analysis.predictions.anxietyDetected')}`,
+                          text: `📊 Analisi reale: ${anxiousCount} ansia rilevata`,
                           priority: 'medium'
                         });
                       }
@@ -1792,7 +1792,7 @@ const AnalysisPage: React.FC = () => {
                       if (sadCount >= 2) {
                         recommendations.push({
                           type: 'warning',
-                          text: `😔 ${t('analysis.predictions.patternReal')}: ${sadCount} ${t('analysis.predictions.sadnessPattern')}`,
+                          text: `😔 Pattern reale: ${sadCount} tristezza rilevata`,
                           priority: 'medium'
                         });
                       }
@@ -1800,7 +1800,7 @@ const AnalysisPage: React.FC = () => {
                       if (aggressiveCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `🚨 ${t('analysis.predictions.alertReal')}: ${aggressiveCount} ${t('analysis.predictions.aggressiveAlert')}`,
+                          text: `🚨 Allerta reale: ${aggressiveCount} aggressività rilevata`,
                           priority: 'high'
                         });
                       }
@@ -1808,7 +1808,7 @@ const AnalysisPage: React.FC = () => {
                       if (happyCount >= 5) {
                         recommendations.push({
                           type: 'success',
-                          text: `🎉 ${t('analysis.predictions.trendPositive')}: ${happyCount} ${t('analysis.predictions.happyTrend')}`,
+                          text: `🎉 Trend positivo: ${happyCount} momenti felici`,
                           priority: 'low'
                         });
                       }
@@ -1816,7 +1816,7 @@ const AnalysisPage: React.FC = () => {
                       if (avgConfidence < 70) {
                         recommendations.push({
                           type: 'info',
-                          text: `📈 ${t('analysis.predictions.dataQuality')} ${Math.round(avgConfidence)}${t('analysis.predictions.improveRecording')}`,
+                          text: `📈 Qualità dati ${Math.round(avgConfidence)}% - migliora registrazioni`,
                           priority: 'low'
                         });
                       }
@@ -1824,7 +1824,7 @@ const AnalysisPage: React.FC = () => {
                       if (last7Days.length < 3) {
                         recommendations.push({
                           type: 'info',
-                          text: `📅 ${t('analysis.predictions.frequency')} ${last7Days.length} ${t('analysis.predictions.analysisLast7Days')}`,
+                          text: `📅 Frequenza bassa: ${last7Days.length} analisi negli ultimi 7 giorni`,
                           priority: 'medium'
                         });
                       }
@@ -1839,13 +1839,13 @@ const AnalysisPage: React.FC = () => {
                         if (recentTrend > previousTrend + 0.2) {
                           recommendations.push({
                             type: 'success',
-                            text: `📈 ${t('analysis.predictions.realImprovement')} +${Math.round((recentTrend - previousTrend) * 100)}${t('analysis.predictions.positiveEmotionsIncrease')}`,
+                            text: `📈 Miglioramento reale +${Math.round((recentTrend - previousTrend) * 100)}% emozioni positive`,
                             priority: 'low'
                           });
                         } else if (recentTrend < previousTrend - 0.2) {
                           recommendations.push({
                             type: 'warning',
-                            text: `📉 ${t('analysis.predictions.declineDetected')} -${Math.round((previousTrend - recentTrend) * 100)}${t('analysis.predictions.positiveEmotionsDecrease')}`,
+                            text: `📉 Declino rilevato -${Math.round((previousTrend - recentTrend) * 100)}% emozioni positive`,
                             priority: 'high'
                           });
                         }
@@ -1854,7 +1854,7 @@ const AnalysisPage: React.FC = () => {
                       if (recommendations.length === 0) {
                         recommendations.push({
                           type: 'info',
-                          text: `✅ ${t('analysis.predictions.normalState')} ${last7Days.length} ${t('analysis.predictions.recentAnalysesStable')}`,
+                          text: `✅ Stato normale - ${last7Days.length} analisi recenti stabili`,
                           priority: 'low'
                         });
                       }
@@ -1876,12 +1876,12 @@ const AnalysisPage: React.FC = () => {
                         <p className="text-sm font-medium">{rec.text}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-xs">
-                            {rec.priority === 'high' ? t('analysis.predictions.highPriority') : 
-                             rec.priority === 'medium' ? t('analysis.predictions.mediumPriority') : 
-                             t('analysis.predictions.lowPriority')}
+                            {rec.priority === 'high' ? "Alta priorità" : 
+                             rec.priority === 'medium' ? "Media priorità" : 
+                             "Bassa priorità"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {t('analysis.predictions.basedOnAnalyses').replace('{{count}}', analyses.length.toString())}
+                            Basato su ${analyses.length} analisi
                           </span>
                         </div>
                       </div>
@@ -1897,10 +1897,10 @@ const AnalysisPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
-                {t('analysis.predictions.seasonalPatterns')}
+                Pattern Stagionali
               </CardTitle>
               <CardDescription>
-                {t('analysis.predictions.seasonalPatternsDesc')}
+                Tendenze basate sui dati storici
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1919,17 +1919,17 @@ const AnalysisPage: React.FC = () => {
                 // Calcola pattern stagionali REALI dalle analisi
                 const getSeasonFromDate = (date: string) => {
                   const month = new Date(date).getMonth() + 1; // 1-12
-                  if (month >= 3 && month <= 5) return t('analysis.predictions.spring');
-                  if (month >= 6 && month <= 8) return t('analysis.predictions.summer');
-                  if (month >= 9 && month <= 11) return t('analysis.predictions.autumn');
-                  return t('analysis.predictions.winter');
+                  if (month >= 3 && month <= 5) return "Primavera";
+                  if (month >= 6 && month <= 8) return "Estate";
+                  if (month >= 9 && month <= 11) return "Autunno";
+                  return "Inverno";
                 };
                 
                 const seasonalData: Record<string, { total: number; positive: number; negative: number; analyses: any[] }> = {
-                  [t('analysis.predictions.spring')]: { total: 0, positive: 0, negative: 0, analyses: [] },
-                  [t('analysis.predictions.summer')]: { total: 0, positive: 0, negative: 0, analyses: [] },
-                  [t('analysis.predictions.autumn')]: { total: 0, positive: 0, negative: 0, analyses: [] },
-                  [t('analysis.predictions.winter')]: { total: 0, positive: 0, negative: 0, analyses: [] }
+                  "Primavera": { total: 0, positive: 0, negative: 0, analyses: [] },
+                  "Estate": { total: 0, positive: 0, negative: 0, analyses: [] },
+                  "Autunno": { total: 0, positive: 0, negative: 0, analyses: [] },
+                  "Inverno": { total: 0, positive: 0, negative: 0, analyses: [] }
                 };
                 
                 // Aggrega dati REALI per stagione
@@ -1964,34 +1964,34 @@ const AnalysisPage: React.FC = () => {
                           <h4 className="font-medium mb-3 flex items-center gap-2">
                             {season}
                             <Badge variant="outline" className="text-xs">
-                              {t('analysis.predictions.analysesCount').replace('{{count}}', data.total.toString())}
+                              {data.total} analisi
                             </Badge>
                           </h4>
                           
                           {data.total > 0 ? (
                             <div className="space-y-2 text-sm">
                               <div className="flex justify-between">
-                                <span>{t('analysis.predictions.positiveEmotions')}</span>
+                                <span>Emozioni positive</span>
                                 <span className="font-medium text-green-600">{positiveRate}%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>{t('analysis.predictions.problemsDetected')}</span>
+                                <span>Problemi rilevati</span>
                                 <span className="font-medium text-red-600">{negativeRate}%</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>{t('analysis.predictions.predominantEmotion')}</span>
+                                <span>Emozione predominante</span>
                                 <span className="font-medium capitalize">{getEmotionTranslationLocal(topEmotion[0] as string, language)}</span>
                               </div>
                               <div className="pt-2 border-t">
                                 <span className="text-xs text-muted-foreground">
-                                  {t('analysis.predictions.dataFrom').replace('{{count}}', data.analyses.length.toString())}
+                                  Dati da {data.analyses.length} analisi
                                 </span>
                               </div>
                             </div>
                           ) : (
                             <div className="text-center text-muted-foreground text-sm">
-                              <p>{t('analysis.predictions.noDataAvailable')}</p>
-                              <p className="text-xs">{t('analysis.predictions.continueAnalyzing')}</p>
+                              <p>Nessun dato disponibile</p>
+                              <p className="text-xs">Continua ad analizzare per vedere i pattern</p>
                             </div>
                           )}
                         </div>
@@ -2021,10 +2021,10 @@ const AnalysisPage: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              {t('analysis.modals.details.title')}
+              Dettagli Analisi
             </DialogTitle>
             <DialogDescription>
-              {`${t('analysis.modals.details.overview')} ${detailsModal.analysis?.file_name}`}
+              {`Panoramica completa dell'analisi di ${detailsModal.analysis?.file_name}`}
             </DialogDescription>
           </DialogHeader>
           
@@ -2033,28 +2033,28 @@ const AnalysisPage: React.FC = () => {
               {/* File Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{t('analysis.results.fileInfo.file')}</CardTitle>
+                  <CardTitle className="text-lg">Informazioni File</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.file')}</Label>
+                      <Label className="text-sm font-medium">File</Label>
                       <p className="text-sm">{getReadableAnalysisName(detailsModal.analysis, language)}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">{t('pets.petType')}</Label>
+                      <Label className="text-sm font-medium">Tipo</Label>
                       <p className="text-sm">{detailsModal.analysis.file_type}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.size')}</Label>
+                      <Label className="text-sm font-medium">Dimensione</Label>
                       <p className="text-sm">{(detailsModal.analysis.file_size / 1024).toFixed(1)} KB</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.duration')}</Label>
+                      <Label className="text-sm font-medium">Durata</Label>
                       <p className="text-sm">{String(detailsModal.analysis.analysis_duration)}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">{t('analysis.results.fileInfo.date')}</Label>
+                      <Label className="text-sm font-medium">Data</Label>
                       <p className="text-sm">{format(new Date(detailsModal.analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}</p>
                     </div>
                   </div>
@@ -2064,11 +2064,11 @@ const AnalysisPage: React.FC = () => {
               {/* Emotional Analysis */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">{t('analysis.results.tabs.emotions')}</CardTitle>
+                  <CardTitle className="text-lg">Analisi Emotiva</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium">{t('analysis.results.primaryEmotion')}</Label>
+                    <Label className="text-sm font-medium">Emozione Principale</Label>
                     <div className="flex items-center gap-3 mt-2">
                       <Badge className="flex items-center gap-2 text-lg px-4 py-2">
                         <span className="text-2xl">
@@ -2091,7 +2091,7 @@ const AnalysisPage: React.FC = () => {
 
                   {Object.keys(detailsModal.analysis.secondary_emotions).length > 0 && (
                     <div>
-                      <Label className="text-sm font-medium">{t('analysis.results.secondaryEmotions')}</Label>
+                      <Label className="text-sm font-medium">Emozioni Secondarie</Label>
                        <div className="flex flex-wrap gap-2 mt-2">
                          {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
                            <Badge key={emotion} variant="outline" className="text-sm">
@@ -2110,7 +2110,7 @@ const AnalysisPage: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Brain className="h-5 w-5" />
-                      {t('analysis.results.tabs.insights')}
+                      Insights Comportamentali
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -2125,7 +2125,7 @@ const AnalysisPage: React.FC = () => {
               {detailsModal.analysis.recommendations.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">{t('analysis.recommendations')}</CardTitle>
+                    <CardTitle className="text-lg">Raccomandazioni</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -2144,7 +2144,7 @@ const AnalysisPage: React.FC = () => {
               {detailsModal.analysis.triggers.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">{t('analysis.results.triggers.title')}</CardTitle>
+                    <CardTitle className="text-lg">Trigger Identificati</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
@@ -2166,7 +2166,7 @@ const AnalysisPage: React.FC = () => {
                   className="flex items-center gap-2"
                 >
                   <Download className="h-4 w-4" />
-                  {t('analysis.actions.downloadPDF')}
+                  Scarica PDF
                 </Button>
               </div>
             </div>
@@ -2204,7 +2204,7 @@ const AnalysisPage: React.FC = () => {
                     <div className="text-2xl font-bold">
                       {format(new Date(Math.min(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...compareModal.analyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
                     </div>
-                    <p className="text-xs text-muted-foreground">{t('analysis.history.period')}</p>
+                    <p className="text-xs text-muted-foreground">Periodo</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -2212,7 +2212,7 @@ const AnalysisPage: React.FC = () => {
                     <div className="text-2xl font-bold">
                       {(compareModal.analyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / compareModal.analyses.length).toFixed(1)}%
                     </div>
-                    <p className="text-xs text-muted-foreground">{t('analysis.confidence')}</p>
+                    <p className="text-xs text-muted-foreground">Confidenza</p>
                   </CardContent>
                 </Card>
               </div>
@@ -2299,13 +2299,13 @@ const AnalysisPage: React.FC = () => {
                       pdf.save(fileName);
                       
                       showToast({
-                        title: t('analysis.success.pdfGenerated'),
-                        description: `${t('analysis.success.dataExported')}: ${fileName}`,
+                        title: 'PDF generato',
+                        description: `Dati esportati: ${fileName}`,
                       });
                     } catch (error) {
                       showToast({
-                        title: t('errors.somethingWentWrong'),
-                        description: t('analysis.errors.shareError'),
+                        title: 'Errore',
+                        description: 'Errore durante la generazione del PDF',
                         variant: "destructive"
                       });
                     }
@@ -2325,14 +2325,14 @@ const AnalysisPage: React.FC = () => {
       <ConfirmDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}
-        title={deleteConfirm.isMultiple ? t('analysis.modals.deleteConfirm.title') : t('analysis.modals.deleteConfirm.title')}
+        title={deleteConfirm.isMultiple ? "Conferma eliminazione" : "Conferma eliminazione"}
         description={
           deleteConfirm.isMultiple 
-            ? t('analysis.modals.deleteConfirm.multiple').replace('{{count}}', selectedAnalyses.length.toString())
-            : t('analysis.modals.deleteConfirm.single')
+            ? `Sei sicuro di voler eliminare ${selectedAnalyses.length} analisi?`
+            : "Sei sicuro di voler eliminare questa analisi?"
         }
-        confirmText={t('common.delete')}
-        cancelText={t('common.cancel')}
+        confirmText="Elimina"
+        cancelText="Annulla"
         variant="destructive"
         onConfirm={() => {
           if (deleteConfirm.isMultiple) {
