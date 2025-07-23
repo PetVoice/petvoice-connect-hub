@@ -258,6 +258,12 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const handleCompleteExercise = async () => {
+    console.log('🚨 INIZIO COMPLETAMENTO ESERCIZIO - STATO ATTUALE:', {
+      dailyCompletedExercises,
+      currentExercise,
+      currentDay,
+      protocolProgressPercentage: protocol.progress_percentage
+    });
     try {
       // Verifica che esista un esercizio corrente
       if (!todayExercises || todayExercises.length === 0) {
