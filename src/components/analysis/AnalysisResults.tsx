@@ -1561,9 +1561,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                       // Verifica se l'utente ha già questo protocollo attivo
                                       const { data: existingProtocol } = await supabase
                                         .from('ai_training_protocols')
-                                        .select('id')
+                                        .select('id, status')
                                         .eq('user_id', user.id)
-                                        .or(`title_it.eq.${originalProtocol.title_it},title_en.eq.${originalProtocol.title_en},title_es.eq.${originalProtocol.title_es}`)
+                                        .eq('title', originalProtocol.title)
                                         .single();
 
                                       if (existingProtocol) {
@@ -1572,39 +1572,25 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                         return;
                                       }
 
-                                      // Crea una nuova copia del protocollo per l'utente usando il formato multilingua
+                                      // Crea una nuova copia del protocollo per l'utente
                                       const newProtocol = {
-                                        id: crypto.randomUUID(),
-                                        title_it: originalProtocol.title_it,
-                                        title_en: originalProtocol.title_en,
-                                        title_es: originalProtocol.title_es,
-                                        description_it: originalProtocol.description_it,
-                                        description_en: originalProtocol.description_en,
-                                        description_es: originalProtocol.description_es,
-                                        category_it: originalProtocol.category_it,
-                                        category_en: originalProtocol.category_en,
-                                        category_es: originalProtocol.category_es,
-                                        difficulty_it: originalProtocol.difficulty_it,
-                                        difficulty_en: originalProtocol.difficulty_en,
-                                        difficulty_es: originalProtocol.difficulty_es,
+                                        title: originalProtocol.title,
+                                        description: originalProtocol.description,
+                                        category: originalProtocol.category,
+                                        difficulty: originalProtocol.difficulty,
                                         duration_days: originalProtocol.duration_days,
-                                        target_behavior_it: originalProtocol.target_behavior_it,
-                                        target_behavior_en: originalProtocol.target_behavior_en,
-                                        target_behavior_es: originalProtocol.target_behavior_es,
-                                        triggers_it: originalProtocol.triggers_it,
-                                        triggers_en: originalProtocol.triggers_en,
-                                        triggers_es: originalProtocol.triggers_es,
-                                        required_materials_it: originalProtocol.required_materials_it,
-                                        required_materials_en: originalProtocol.required_materials_en,
-                                        required_materials_es: originalProtocol.required_materials_es,
+                                        target_behavior: originalProtocol.target_behavior,
+                                        triggers: originalProtocol.triggers,
+                                        required_materials: originalProtocol.required_materials,
                                         current_day: 1,
-                                        progress_percentage: '0',
+                                        progress_percentage: 0,
+                                        status: 'active',
                                         success_rate: 0,
                                         ai_generated: false,
                                         is_public: false,
                                         veterinary_approved: false,
                                         community_rating: 0,
-                                        community_usage: '0',
+                                        community_usage: 0,
                                         mentor_recommended: false,
                                         notifications_enabled: true,
                                         last_activity_at: new Date().toISOString(),
@@ -1613,11 +1599,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                         integration_source: 'analysis',
                                         estimated_cost: null,
                                         share_code: null,
-                                        created_at: new Date().toISOString(),
-                                        updated_at: new Date().toISOString(),
-                                        status_it: 'attivo',
-                                        status_en: 'active',
-                                        status_es: 'activo'
                                       };
 
                                       const { data: createdProtocol, error: createError } = await supabase

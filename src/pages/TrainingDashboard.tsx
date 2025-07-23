@@ -33,16 +33,12 @@ import {
   ChevronRight,
   BarChart3
 } from 'lucide-react';
-import { useTrainingProtocols, useUpdateProtocol } from '@/hooks/useTrainingProtocols';
-import { TrainingProtocol } from '@/types/trainingProtocol';
+import { useTrainingProtocols, useUpdateProtocol, TrainingProtocol } from '@/hooks/useTrainingProtocols';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { convertToStandardProtocol, SupportedLanguage } from '@/utils/protocolLanguage';
-import { useProtocolTranslations } from '@/utils/protocolTranslations';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 interface Exercise {
   id: string;
@@ -63,15 +59,7 @@ const TrainingDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { showToast: showTranslatedToast } = useTranslatedToast();
   const { showToast } = useToastWithIcon();
-  const { t, language } = useTranslation();
-  const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
-
-  // NO TRANSLATION - Display content directly from database in Italian
-  const translateExerciseTitle = (title: string) => title;
-  const translateExerciseDescription = (description: string) => description;
-  const translateExerciseInstruction = (instruction: string) => instruction;
-  const translateMaterial = (material: string) => material;
-  
+  const { translateProtocolTitle } = useProtocolTranslations();
   const queryClient = useQueryClient();
   const { data: protocols } = useTrainingProtocols();
   const updateProtocol = useUpdateProtocol();
@@ -84,7 +72,6 @@ const TrainingDashboard: React.FC = () => {
   const [protocolNotes, setProtocolNotes] = useState('');
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
-  const userLanguage = (language as SupportedLanguage) || 'it';
   const [protocol, setProtocol] = useState<TrainingProtocol | null>(null);
   
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
@@ -117,25 +104,20 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      if (data) {
-        // Convert multi-language protocol to standard format
-        const convertedProtocol = convertToStandardProtocol(data as any, userLanguage);
-        
-        setProtocol({
-          ...convertedProtocol,
-          integration_source: convertedProtocol.integration_source as any || 'manual',
-          exercises: Array.isArray(data.exercises) ? data.exercises.map((ex: any) => ({
-            ...ex,
-            exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
-          })) : [],
-          metrics: Array.isArray(data.metrics) && data.metrics.length > 0 ? data.metrics[0] : null,
-          schedule: Array.isArray(data.schedule) && data.schedule.length > 0 ? data.schedule[0] : null,
-        });
-      }
+      setProtocol({
+        ...data,
+        difficulty: data.difficulty as 'facile' | 'medio' | 'difficile',
+        exercises: (data.exercises || []).map((ex: any) => ({
+          ...ex,
+          exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
+        })),
+        metrics: data.metrics?.[0] || null,
+        schedule: data.schedule?.[0] || null,
+      } as TrainingProtocol);
     };
     
     fetchProtocol();
-  }, [protocolId, navigate, showToast, userLanguage]);
+  }, [protocolId, navigate, showTranslatedToast]);
 
   // Calcola l'esercizio corrente basato sul progresso del protocollo quando il protocollo viene caricato
   useEffect(() => {
@@ -309,7 +291,7 @@ const TrainingDashboard: React.FC = () => {
           showToast({
             title: `Esercizio ${currentExercise + 1} completato!`,
             description: `Giorno ${protocol.current_day} completato! Passaggio automatico al giorno ${protocol.current_day + 1}...`,
-            type: 'exercise'
+            type: 'complete'
           });
           
           // 2. Aggiorna il database: current_day + 1
@@ -433,24 +415,15 @@ const TrainingDashboard: React.FC = () => {
     setIsSubmittingRating(true);
     try {
       // Inserisci o aggiorna la valutazione nel database (UPSERT)
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        showToast({
-          title: 'Errore',
-          description: 'Utente non autenticato.',
-          type: 'error'
-        });
-        return;
-      }
-
       const { error } = await supabase
         .from('protocol_ratings')
         .upsert({
           protocol_id: protocol.id,
-          user_id: user.id,
-          rating: protocolRating
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          rating: protocolRating,
+          comment: protocolNotes.trim() || null
         }, {
-          onConflict: 'user_id,protocol_id'
+          onConflict: 'protocol_id,user_id'
         });
 
       if (error) {
@@ -545,13 +518,13 @@ const TrainingDashboard: React.FC = () => {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">{translateProtocolTitle(protocol.title)}</h1>
+            <h1 className="text-2xl font-bold">{protocol.title}</h1>
             <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
               <Calendar className="h-3 w-3 mr-1" />
-              {t('training.dashboard.dayOf').replace('{{current}}', protocol.current_day.toString()).replace('{{total}}', protocol.duration_days.toString())}
+              Giorno {protocol.current_day} di {protocol.duration_days}
             </Badge>
           </div>
-          <p className="text-muted-foreground">{translateProtocolDescription(protocol.description)}</p>
+          <p className="text-muted-foreground">{protocol.description}</p>
         </div>
       </div>
 
@@ -563,7 +536,7 @@ const TrainingDashboard: React.FC = () => {
               <Trophy className="h-5 w-5 text-yellow-500" />
               <div>
                 <div className="text-lg font-bold">{protocol.current_day}</div>
-                <p className="text-xs text-muted-foreground">{t('training.dashboard.currentDay')}</p>
+                <p className="text-xs text-muted-foreground">Giorno corrente</p>
               </div>
             </div>
           </CardContent>
@@ -575,7 +548,7 @@ const TrainingDashboard: React.FC = () => {
               <Target className="h-5 w-5 text-blue-500" />
               <div>
                 <div className="text-lg font-bold">{protocol.progress_percentage}%</div>
-                <p className="text-xs text-muted-foreground">{t('training.dashboard.totalProgress')}</p>
+                <p className="text-xs text-muted-foreground">Progresso totale</p>
               </div>
             </div>
           </CardContent>
@@ -587,7 +560,7 @@ const TrainingDashboard: React.FC = () => {
               <Star className="h-5 w-5 text-green-500" />
               <div>
                 <div className="text-lg font-bold">{Math.round(protocol.success_rate)}%</div>
-                <p className="text-xs text-muted-foreground">{t('training.dashboard.successRate')}</p>
+                <p className="text-xs text-muted-foreground">Tasso successo</p>
               </div>
             </div>
           </CardContent>
@@ -599,7 +572,7 @@ const TrainingDashboard: React.FC = () => {
               <CheckCircle className="h-5 w-5 text-primary" />
               <div>
                 <div className="text-lg font-bold">{completedExercises}/{totalExercisesToday}</div>
-                <p className="text-xs text-muted-foreground">{t('training.dashboard.exercisesToday')}</p>
+                <p className="text-xs text-muted-foreground">Esercizi oggi</p>
               </div>
             </div>
           </CardContent>
@@ -611,14 +584,14 @@ const TrainingDashboard: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            {t('training.dashboard.todaysProgress')}
+            Progresso di Oggi
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>{t('training.dashboard.exercisesCompleted')}</span>
-              <span>{completedExercises} {t('training.dashboard.of')} {totalExercisesToday}</span>
+              <span>Esercizi completati</span>
+              <span>{completedExercises} di {totalExercisesToday}</span>
             </div>
             <Progress value={dayProgress} className="h-3" />
           </div>
@@ -634,10 +607,10 @@ const TrainingDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Book className="h-5 w-5" />
-                  {translateExerciseTitle(currentEx.title)}
+                  {currentEx.title}
                 </CardTitle>
                 <Badge variant="outline">
-                  {currentExercise + 1} {t('training.dashboard.of')} {totalExercisesToday}
+                  {currentExercise + 1} di {totalExercisesToday}
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -652,11 +625,11 @@ const TrainingDashboard: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-muted-foreground">{translateExerciseDescription(currentEx.description)}</p>
+              <p className="text-muted-foreground">{currentEx.description}</p>
 
               {/* Esercizi di Oggi */}
               <div>
-                <h3 className="font-semibold mb-3">{t('training.dashboard.todaysExercises')}</h3>
+                <h3 className="font-semibold mb-3">Esercizi di Oggi</h3>
                 <div className="space-y-2">
                   {todayExercises.slice(0, 3).map((exercise, index) => (
                     <div
@@ -680,7 +653,7 @@ const TrainingDashboard: React.FC = () => {
                             <Clock className="h-5 w-5 text-muted-foreground" />
                           )}
                           <div>
-                            <div className="font-medium text-sm">{translateExerciseTitle(exercise.title)}</div>
+                            <div className="font-medium text-sm">{exercise.title}</div>
                             <div className="text-xs text-muted-foreground">
                               {exercise.duration} min
                             </div>
@@ -698,34 +671,34 @@ const TrainingDashboard: React.FC = () => {
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                   <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
                     <Book className="h-4 w-4" />
-                    {t('training.dashboard.details')} {translateExerciseTitle(currentEx.title)}
+                    Dettagli: {currentEx.title}
                   </h4>
                   
                   <div className="space-y-4 text-sm">
                     {/* Descrizione */}
                     <div>
-                      <h5 className="font-medium text-blue-800 mb-1">📝 {t('training.dashboard.description')}</h5>
-                      <p className="text-blue-700 leading-relaxed">{translateExerciseDescription(currentEx.description)}</p>
+                      <h5 className="font-medium text-blue-800 mb-1">📝 Descrizione:</h5>
+                      <p className="text-blue-700 leading-relaxed">{currentEx.description}</p>
                     </div>
                     
                     {/* Istruzioni Step-by-Step */}
                     <div>
-                      <h5 className="font-medium text-blue-800 mb-2">🎯 {t('training.dashboard.stepByStepInstructions')}</h5>
+                      <h5 className="font-medium text-blue-800 mb-2">🎯 Istruzioni passo-passo:</h5>
                       <ol className="list-decimal list-inside space-y-1 text-blue-700">
                         {currentEx.instructions.map((instruction, index) => (
-                          <li key={index} className="leading-relaxed">{translateExerciseInstruction(instruction)}</li>
+                          <li key={index} className="leading-relaxed">{instruction}</li>
                         ))}
                       </ol>
                     </div>
                     
                     {/* Materiali necessari */}
                     <div>
-                      <h5 className="font-medium text-blue-800 mb-2">🛠️ {t('training.dashboard.requiredMaterials')}</h5>
+                      <h5 className="font-medium text-blue-800 mb-2">🛠️ Materiali necessari:</h5>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                         {currentEx.materials.map((material, index) => (
                           <div key={index} className="flex items-center gap-2 text-blue-700">
                             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                            {translateMaterial(material)}
+                            {material}
                           </div>
                         ))}
                       </div>
@@ -735,11 +708,11 @@ const TrainingDashboard: React.FC = () => {
                     <div className="flex items-center gap-4 pt-2 border-t border-blue-200">
                       <div className="flex items-center gap-1 text-blue-600">
                         <Clock className="h-4 w-4" />
-                        <span className="font-medium">{t('training.dashboard.duration')} {currentEx.duration} {t('training.dashboard.minutes')}</span>
+                        <span className="font-medium">Durata: {currentEx.duration} minuti</span>
                       </div>
                       <div className="flex items-center gap-1 text-blue-600">
                         <Target className="h-4 w-4" />
-                        <span className="font-medium">{t('training.dashboard.level')} {t('training.dashboard.beginner')}</span>
+                        <span className="font-medium">Livello: Principiante</span>
                       </div>
                     </div>
                     
@@ -747,10 +720,11 @@ const TrainingDashboard: React.FC = () => {
                     <div className="bg-blue-100 p-3 rounded-md border border-blue-300">
                       <h5 className="font-medium text-blue-800 mb-1 flex items-center gap-1">
                         <Lightbulb className="h-4 w-4" />
-                        💡 {t('training.dashboard.tip')}
+                        💡 Consiglio:
                       </h5>
                       <p className="text-blue-700 text-xs leading-relaxed">
-                        {t('training.dashboard.tipText')}
+                        Mantieni sempre un atteggiamento positivo e paziente. Se il tuo pet non risponde immediatamente, 
+                        ripeti l'esercizio più lentamente e ricompensalo per ogni piccolo progresso.
                       </p>
                     </div>
                   </div>
@@ -776,7 +750,7 @@ const TrainingDashboard: React.FC = () => {
                   } disabled:opacity-50`}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  {t('training.dashboard.exerciseCompleted').replace('{{number}}', (currentExercise + 1).toString())}
+                  Esercizio {currentExercise + 1} Completato
                 </Button>
 
                 {/* Pulsante Interrompi Protocollo */}
@@ -788,23 +762,24 @@ const TrainingDashboard: React.FC = () => {
                       className="flex-shrink-0 py-3 px-4"
                     >
                       <Square className="h-4 w-4 mr-2" />
-                      {t('training.dashboard.interrupt')}
+                      Interrompi
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>{t('training.dashboard.confirmInterruption')}</AlertDialogTitle>
+                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                       <AlertDialogDescription>
-                         {t('training.dashboard.interruptProtocolDescription')}
-                       </AlertDialogDescription>
+                         Sei sicuro di voler interrompere definitivamente il protocollo "{protocol?.title || 'Caricamento...'}"? 
+                         Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                      </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>{t('training.dashboard.cancel')}</AlertDialogCancel>
+                      <AlertDialogCancel>Annulla</AlertDialogCancel>
                       <AlertDialogAction 
                         onClick={handleInterruptProtocol}
                         className="bg-red-600 hover:bg-red-700"
                       >
-                        {t('training.dashboard.yesInterrupt')}
+                        Sì, interrompi
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -822,10 +797,11 @@ const TrainingDashboard: React.FC = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {t('training.dashboard.ratingDialogTitle')}
+              🏆 Protocollo Completato!
             </DialogTitle>
             <DialogDescription>
-              {t('training.dashboard.ratingDialogDescription').replace('{{protocolTitle}}', translateProtocolTitle(protocol.title))}
+              Complimenti! Hai completato tutto il protocollo "{protocol.title}". 
+              La tua valutazione ci aiuterà a migliorare i nostri protocolli.
             </DialogDescription>
           </DialogHeader>
           
@@ -833,7 +809,7 @@ const TrainingDashboard: React.FC = () => {
             {/* Sistema di valutazione con stelle */}
             <div>
               <label className="text-sm font-medium mb-3 block">
-                {t('training.dashboard.howEffective')}
+                Quanto è stato efficace questo protocollo? (1-10)
               </label>
               <div className="flex items-center justify-center gap-2 mb-2">
                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => {
@@ -888,11 +864,11 @@ const TrainingDashboard: React.FC = () => {
                    protocolRating <= 9 ? 'text-blue-500' :
                    'text-green-500'
                  }`}>
-                    {protocolRating <= 3 && t('training.dashboard.ratingLabels.1')}
-                    {protocolRating > 3 && protocolRating <= 5 && t('training.dashboard.ratingLabels.4')}
-                    {protocolRating > 5 && protocolRating <= 7 && t('training.dashboard.ratingLabels.6')}
-                    {protocolRating > 7 && protocolRating <= 9 && t('training.dashboard.ratingLabels.8')}
-                    {protocolRating === 10 && t('training.dashboard.ratingLabels.10')}
+                   {protocolRating <= 3 && "Non ha funzionato"}
+                   {protocolRating > 3 && protocolRating <= 5 && "Parzialmente efficace"}
+                   {protocolRating > 5 && protocolRating <= 7 && "Abbastanza efficace"}
+                   {protocolRating > 7 && protocolRating <= 9 && "Molto efficace"}
+                   {protocolRating === 10 && "Perfettamente efficace!"}
                  </p>
                </div>
             </div>
@@ -900,10 +876,10 @@ const TrainingDashboard: React.FC = () => {
             {/* Campo per commenti opzionali */}
             <div>
               <label className="text-sm font-medium mb-2 block">
-                {t('training.dashboard.additionalComments')}
+                Commenti aggiuntivi (opzionale)
               </label>
               <Textarea
-                placeholder={t('training.dashboard.commentsPlaceholder')}
+                placeholder="Racconta la tua esperienza: cosa ha funzionato meglio? Cosa potresti migliorare?"
                 value={protocolNotes}
                 onChange={(e) => setProtocolNotes(e.target.value)}
                 className="min-h-[80px]"
@@ -920,12 +896,12 @@ const TrainingDashboard: React.FC = () => {
               {isSubmittingRating ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  {t('training.dashboard.sending')}
+                  Invio...
                 </>
               ) : (
                 <>
                   <Star className="h-4 w-4 mr-2" />
-                  {t('training.dashboard.submitRating')}
+                  Invia valutazione
                 </>
               )}
             </Button>

@@ -12,8 +12,7 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Stop Comportamenti Distruttivi",
     "Gestione Gelosia e Possessività": "Gestione Gelosia e Possessività",
     "Riattivazione Energia e Motivazione": "Riattivazione Energia e Motivazione",
-    "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione",
-    "Creazione Safe Space Personale": "Creazione Safe Space Personale"
+    "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione"
   },
   en: {
     "Socializzazione Progressiva": "Progressive Socialization",
@@ -25,8 +24,7 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Stop Destructive Behaviors",
     "Gestione Gelosia e Possessività": "Jealousy and Possessiveness Management",
     "Riattivazione Energia e Motivazione": "Energy and Motivation Reactivation",
-    "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management",
-    "Creazione Safe Space Personale": "Personal Safe Space Creation"
+    "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management"
   },
   es: {
     "Socializzazione Progressiva": "Socialización Progresiva",
@@ -38,8 +36,7 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Detener Comportamientos Destructivos",
     "Gestione Gelosia e Possessività": "Gestión de Celos y Posesividad",
     "Riattivazione Energia e Motivazione": "Reactivación de Energía y Motivación",
-    "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención",
-    "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal"
+    "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención"
   }
 };
 
@@ -87,13 +84,34 @@ const descriptionTranslations = {
 };
 
 export const useProtocolTranslations = () => {
-  // NO TRANSLATION - Always return Italian content from database
+  const { language } = useTranslation();
+  
+  console.log('🔄 useProtocolTranslations initialized with language:', language);
+
   const translateProtocolTitle = (title: string): string => {
-    return title;
+    console.log('🔤 translateProtocolTitle called:', { title, language });
+    
+    const lang = language as 'it' | 'en' | 'es';
+    const translation = titleTranslations[lang]?.[title] || title;
+    
+    console.log('✅ Title translation result:', { title, language: lang, translation });
+    return translation;
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {
-    return description;
+    console.log('📝 translateProtocolDescription called:', { description: description.substring(0, 50) + '...', title, language });
+    
+    const lang = language as 'it' | 'en' | 'es';
+    const translation = descriptionTranslations[lang]?.[description] || description;
+    
+    console.log('✅ Description translation result:', { 
+      descriptionStart: description.substring(0, 30) + '...', 
+      language: lang, 
+      translationStart: translation.substring(0, 30) + '...',
+      wasTranslated: translation !== description
+    });
+    
+    return translation;
   };
 
   return {

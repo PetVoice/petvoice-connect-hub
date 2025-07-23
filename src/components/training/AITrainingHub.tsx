@@ -55,27 +55,24 @@ import {
 } from 'lucide-react';
 
 // Import hooks for real data
-import {
-  useTrainingProtocols,
-  useActiveProtocols, 
-  useSuggestedProtocols,
+import { 
+  useTrainingProtocols, 
+  useActiveProtocols,
+  useSuggestedProtocols, 
   useTrainingTemplates, 
-  useCreateProtocol,
-  useUpdateProtocol,
+  useCreateProtocol, 
+  useUpdateProtocol, 
   useAcceptSuggestion, 
   useDismissSuggestion,
   useDeleteProtocol,
-  useCompletedProtocols
-} from '@/hooks/useTrainingProtocols';
-import {
+  useCompletedProtocols,
   TrainingProtocol,
-  SuggestedProtocol, 
+  SuggestedProtocol,
   TrainingTemplate
-} from '@/types/trainingProtocol';
+} from '@/hooks/useTrainingProtocols';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useTranslation } from '@/hooks/useTranslation';
-import { convertFromStandardProtocol, SupportedLanguage } from '@/utils/protocolLanguage';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -99,10 +96,7 @@ export const AITrainingHub: React.FC = () => {
 
   // Force refresh on mount to ensure data is loaded
   React.useEffect(() => {
-    console.log('🎯 AITrainingHub mounted!');
-    console.log('📋 Protocols loaded:', protocols.length);
-    console.log('⏳ Protocols loading:', protocolsLoading);
-    console.log('📊 Sample protocol data:', protocols.slice(0, 1));
+    console.log('Protocols loaded:', protocols.length);
     if (protocols.length === 0 && !protocolsLoading) {
       console.log('Forcing protocol refetch...');
       refetchProtocols();
@@ -147,9 +141,6 @@ export const AITrainingHub: React.FC = () => {
       setCurrentView('completed');
     } else if (tabParam === 'active') {
       setCurrentView('active');
-    } else {
-      // Se non ci sono parametri o il parametro non è riconosciuto, vai ai protocolli disponibili
-      setCurrentView('protocols');
     }
   }, [searchParams]);
 
@@ -237,10 +228,10 @@ export const AITrainingHub: React.FC = () => {
     const completedProtocolsCount = completedProtocols.length; // Usa completedProtocols dal hook dedicato
     const totalProtocols = protocols.length + activeCount + completedProtocolsCount;
     
-    // Calculate success rate based on completed protocols only (using personal ratings)
-    const completedWithData = completedProtocols.filter(p => p.personal_success_rate && p.personal_success_rate > 0);
+    // Calculate success rate based on completed protocols only
+    const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
     const avgSuccessRate = completedWithData.length > 0 
-      ? Math.round(completedWithData.reduce((sum, p) => sum + (p.personal_success_rate || 0), 0) / completedWithData.length)
+      ? Math.round(completedWithData.reduce((sum, p) => sum + p.success_rate, 0) / completedWithData.length)
       : 0;
     
     return {
@@ -264,23 +255,6 @@ export const AITrainingHub: React.FC = () => {
 
   const getDifficultyText = (difficulty: string) => {
     return t(`training.difficulty.${difficulty}`, difficulty);
-  };
-
-  // Translation helper functions for dynamic content
-  const translateCategory = (category: string) => {
-    return t(`training.categories.${category}`, category);
-  };
-
-  const translateMaterial = (material: string) => {
-    return t(`training.materials.${material}`, material);
-  };
-
-  const translateTrigger = (trigger: string) => {
-    return t(`training.triggers.${trigger}`, trigger);
-  };
-
-  const translateTargetBehavior = (targetBehavior: string) => {
-    return t(`training.targetBehaviors.${targetBehavior}`, targetBehavior);
   };
 
   const getStatusColor = (status: string) => {
@@ -422,16 +396,7 @@ export const AITrainingHub: React.FC = () => {
           return;
         }
 
-        // Ottieni la lingua dell'utente corrente
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('language')
-          .eq('user_id', user.id)
-          .single();
-        
-        const userLanguage = (profile?.language as SupportedLanguage) || 'it';
-
-        const standardProtocol = {
+        const newProtocol = {
           title: protocol.title,
           description: protocol.description,
           category: protocol.category,
@@ -459,26 +424,18 @@ export const AITrainingHub: React.FC = () => {
           share_code: null,
         };
 
-        // Converte nel formato multilingua
-        const newProtocol = convertFromStandardProtocol(standardProtocol, userLanguage);
-
         const { data: createdProtocol, error } = await supabase
           .from('ai_training_protocols')
-          .insert({
-            ...newProtocol,
-            id: crypto.randomUUID(),
-            user_id: user.id,
-          })
+          .insert(newProtocol)
           .select()
           .single();
 
         if (error) throw error;
         
         // INCREMENTA IL CONTEGGIO DEGLI UTILIZZI DEL PROTOCOLLO ORIGINALE
-        const currentUsage = parseInt(protocol.community_usage?.toString() || '0');
         await supabase
           .from('ai_training_protocols')
-          .update({ community_usage: (currentUsage + 1).toString() })
+          .update({ community_usage: (protocol.community_usage || 0) + 1 })
           .eq('id', protocol.id);
 
         // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO
@@ -524,12 +481,11 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza immediatamente alla dashboard del nuovo protocollo
+        // Reindirizza alla dashboard del nuovo protocollo
         setTimeout(() => {
-          navigate(`/training/dashboard/${createdProtocol.id}`);
-        }, 500);
+          window.location.href = `/training/dashboard/${createdProtocol.id}`;
+        }, 1500);
       } else if (protocol.status === 'completed') {
-        console.log('🔄 RIFAI - Resetting completed protocol:', protocol.id, protocol.title);
         // Se è un protocollo completato, resettalo completamente
         await updateProtocol.mutateAsync({
           id: protocol.id,
@@ -557,9 +513,10 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Naviga direttamente senza cambiare lo state locale (replace evita conflitti URL)
-        console.log('🚀 RIFAI - Navigating to dashboard:', `/training/dashboard/${protocol.id}`);
-        navigate(`/training/dashboard/${protocol.id}`, { replace: true });
+        // Reindirizza alla dashboard del protocollo resettato
+        setTimeout(() => {
+          window.location.href = `/training/dashboard/${protocol.id}`;
+        }, 1500);
       } else {
         // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
@@ -577,10 +534,10 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza immediatamente alla dashboard del protocollo
+        // Reindirizza alla dashboard del protocollo
         setTimeout(() => {
-          navigate(`/training/dashboard/${protocol.id}`);
-        }, 500);
+          window.location.href = `/training/dashboard/${protocol.id}`;
+        }, 1500);
       }
     } catch (error) {
       console.error('Error starting protocol:', error);
@@ -778,7 +735,7 @@ export const AITrainingHub: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">{stats.avgSuccessRate}%</div>
-            <p className="text-xs text-muted-foreground">media personale</p>
+            <p className="text-xs text-muted-foreground">{t('aiTraining.stats.successRateDescription')}</p>
           </CardContent>
         </Card>
 
@@ -885,11 +842,11 @@ export const AITrainingHub: React.FC = () => {
                           )}
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
-                            <span>{protocol.community_usage || 0} {t('training.labels.uses')}</span>
+                            <span>{protocol.community_usage || 0} utilizzi</span>
                           </div>
                         </div>
                       </div>
@@ -1037,7 +994,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% {t('training.labels.success')}</span>
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1167,10 +1124,7 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{protocol.personal_success_rate ? Math.round(protocol.personal_success_rate) : 0}% successo</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            media personale
+                            <span>{Math.round(protocol.success_rate)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
@@ -1310,7 +1264,7 @@ export const AITrainingHub: React.FC = () => {
                         </Badge>
                         <div className="text-right">
                           <div className="text-sm font-medium">{Math.round(template.success_rate)}%</div>
-                          <div className="text-xs text-muted-foreground">{t('training.labels.success')}</div>
+                          <div className="text-xs text-muted-foreground">successo</div>
                         </div>
                       </div>
                     </div>
@@ -1347,25 +1301,25 @@ export const AITrainingHub: React.FC = () => {
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-primary">{selectedProtocol.duration_days}</div>
-                    <div className="text-sm text-muted-foreground">{t('training.labels.days')}</div>
+                    <div className="text-sm text-muted-foreground">Giorni</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">{selectedProtocol.progress_percentage}%</div>
-                    <div className="text-sm text-muted-foreground">{t('training.labels.completed')}</div>
+                    <div className="text-sm text-muted-foreground">Completato</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">{selectedProtocol.current_day}</div>
-                    <div className="text-sm text-muted-foreground">{t('training.labels.currentDay')}</div>
+                    <div className="text-sm text-muted-foreground">Giorno corrente</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate)}%</div>
-                    <div className="text-sm text-muted-foreground">{t('training.labels.success')}</div>
+                    <div className="text-sm text-muted-foreground">Successo</div>
                   </div>
                 </Card>
               </div>
@@ -1378,7 +1332,7 @@ export const AITrainingHub: React.FC = () => {
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <FileText className="h-5 w-5 text-primary" />
-                      {t('training.labels.description')}
+                      Descrizione
                     </h3>
                     <p className="text-muted-foreground leading-relaxed">{translateProtocolDescription(selectedProtocol.description)}</p>
                   </Card>
@@ -1392,7 +1346,7 @@ export const AITrainingHub: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">{t('training.createProtocol.form.category')}:</span>
-                        <Badge variant="secondary">{translateCategory(selectedProtocol.category)}</Badge>
+                        <Badge variant="secondary">{selectedProtocol.category}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">{t('training.labels.difficulty')}:</span>
@@ -1406,7 +1360,7 @@ export const AITrainingHub: React.FC = () => {
                       {selectedProtocol.target_behavior && (
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">{t('training.createProtocol.form.targetBehavior')}:</span>
-                          <span className="font-medium">{translateTargetBehavior(selectedProtocol.target_behavior)}</span>
+                          <span className="font-medium">{selectedProtocol.target_behavior}</span>
                         </div>
                       )}
                     </div>
@@ -1420,13 +1374,13 @@ export const AITrainingHub: React.FC = () => {
                     <Card className="p-6">
                       <h3 className="font-semibold mb-4 flex items-center gap-2">
                         <Package className="h-5 w-5 text-primary" />
-                        {t('training.labels.requiredMaterials')}
+                        Materiali richiesti
                       </h3>
                       <div className="space-y-2">
                         {selectedProtocol.required_materials.map((material, index) => (
                           <div key={index} className="flex items-center gap-3">
                             <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            <span className="text-sm">{translateMaterial(material)}</span>
+                            <span className="text-sm">{material}</span>
                           </div>
                         ))}
                       </div>
@@ -1438,13 +1392,13 @@ export const AITrainingHub: React.FC = () => {
                     <Card className="p-6">
                       <h3 className="font-semibold mb-4 flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-primary" />
-                        {t('training.labels.behavioralTriggers')}
+                        Trigger comportamentali
                       </h3>
                       <div className="space-y-2">
                         {selectedProtocol.triggers.map((trigger, index) => (
                           <div key={index} className="flex items-center gap-3">
                             <AlertCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                            <span className="text-sm">{translateTrigger(trigger)}</span>
+                            <span className="text-sm">{trigger}</span>
                           </div>
                         ))}
                       </div>
@@ -1455,25 +1409,25 @@ export const AITrainingHub: React.FC = () => {
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Shield className="h-5 w-5 text-primary" />
-                      {t('training.labels.qualityIndicators')}
+                      Indicatori qualità
                     </h3>
                     <div className="space-y-3">
                       {selectedProtocol.veterinary_approved && (
                         <div className="flex items-center gap-3 text-green-600">
                           <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">{t('training.labels.veterinaryApproved')}</span>
+                          <span className="text-sm">Approvato da veterinario</span>
                         </div>
                       )}
                       {selectedProtocol.mentor_recommended && (
                         <div className="flex items-center gap-3 text-blue-600">
                           <Star className="h-4 w-4" />
-                          <span className="text-sm">{t('training.labels.mentorRecommended')}</span>
+                          <span className="text-sm">Raccomandato da mentor</span>
                         </div>
                       )}
                       {selectedProtocol.community_usage > 10 && (
                         <div className="flex items-center gap-3 text-purple-600">
                           <Users className="h-4 w-4" />
-                          <span className="text-sm">{selectedProtocol.community_usage} {t('training.labels.usersUsedIt')}</span>
+                          <span className="text-sm">{selectedProtocol.community_usage} utenti l'hanno usato</span>
                         </div>
                       )}
                     </div>
@@ -1488,7 +1442,7 @@ export const AITrainingHub: React.FC = () => {
                   onClick={() => setSelectedProtocol(null)}
                   className="min-w-24"
                 >
-                  {t('common.close')}
+                  Chiudi
                 </Button>
                 <Button
                   onClick={() => {

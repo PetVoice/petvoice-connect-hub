@@ -32,7 +32,7 @@
     "year": "Año"
   },
   "navigation": {
-    "dashboard": "Dashboard",
+    "dashboard": "Panel de Control",
     "pets": "Mis Mascotas",
     "analysis": "Análisis Emocional",
     "aiMusicTherapy": "Musicoterapia IA",
@@ -268,8 +268,7 @@
     },
     "ageCalculated": "Edad: {{age}} años"
   },
-    "dashboard": {
-      "dayOf": "Día {{current}} de {{total}}",
+  "dashboard": {
     "welcome": "¡Bienvenido a PetVoice!",
     "welcomeDesc": "Monitorea la salud y el bienestar de tu amigo de cuatro patas con inteligencia artificial",
     "quickActions": "Acciones Rápidas",
@@ -1255,55 +1254,6 @@
     "emptyState": {
       "title": "No se encontraron protocolos",
       "description": "Comienza creando tu primer protocolo de entrenamiento personalizado."
-    },
-    "dashboard": {
-      "dayOf": "Día {{current}} de {{total}}",
-      "currentDay": "Día actual",
-      "totalProgress": "Progreso total",
-      "successRate": "Tasa de éxito", 
-      "exercisesToday": "Ejercicios de hoy",
-      "todaysProgress": "Progreso de Hoy",
-      "exercisesCompleted": "Ejercicios completados",
-      "of": "de",
-      "todaysExercises": "Ejercicios de Hoy",
-      "details": "Detalles:",
-      "description": "Descripción:",
-      "stepByStepInstructions": "Instrucciones paso a paso:",
-      "requiredMaterials": "Materiales necesarios:",
-      "duration": "Duración:",
-      "level": "Nivel:",
-      "tip": "Consejo:",
-      "beginner": "Principiante",
-      "exerciseCompleted": "Ejercicio {{number}} Completado",
-      "minutes": "minutos",
-      "tipText": "La paciencia es clave. Permite que tu mascota explore a su propio ritmo.",
-      "interrupt": "Interrumpir Entrenamiento",
-      "confirmInterruption": "Confirmar Interrupción",
-      "interruptProtocolDescription": "¿Estás seguro de que quieres interrumpir este protocolo de entrenamiento? El progreso se guardará pero tendrás que empezar desde el principio.",
-      "yesInterrupt": "Sí, Interrumpir",
-      "cancel": "Cancelar"
-    },
-    "exercises": {
-      "titles": {
-        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
-        "Confidence Building con Handler": "Construcción de Confianza con el Cuidador", 
-        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
-      },
-      "instructions": {
-        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
-        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de comodidad en una esquina segura",
-        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
-        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
-        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento calmado y relajado",
-        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
-        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar"
-      }
-    },
-    "materials": {
-      "tappetino comfort": "alfombrilla de comodidad",
-      "snack premio": "premios/snacks",
-      "spazio tranquillo": "espacio tranquilo"
     }
   },
   "community": {
@@ -1560,40 +1510,6 @@
       "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde la descarga de energía constructiva hasta el control de impulsos, llegando a la relajación y autocontrol.",
       "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
       "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales"
-    },
-    "exercises": {
-      "titles": {
-        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
-        "Confidence Building con Handler": "Construcción de Confianza con Cuidador",
-        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente",
-        "Identificazione Threshold Sicurezza": "Identificación Umbral Seguridad"
-      },
-      "descriptions": {
-        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales."
-      },
-      "instructions": {
-        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
-        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
-        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
-        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
-        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento tranquilo y relajado",
-        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
-        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar",
-        "Osserva postura rilassata, coda in posizione neutrale": "Observa postura relajada, cola en posición neutral",
-        "Cerca respiro regolare e orecchie rilassate": "Busca respiración regular y orejas relajadas",
-        "Evita segnali stress come ansimare o tremare": "Evita señales de estrés como jadear o temblar"
-      }
-    },
-    "materials": {
-      "snack premio altissimo valore": "premios de muy alto valor",
-      "giocattoli sociali": "juguetes sociales",
-      "guinzaglio lungo": "correa larga",
-      "tappetino comfort": "alfombrilla de confort",
-      "barriere visive mobili": "barreras visuales móviles",
-      "spazi neutri sicuri": "espacios neutros seguros",
-      "snack premio": "premios",
-      "spazio tranquillo": "espacio tranquilo"
     }
   },
   "buttons": {
@@ -1767,59 +1683,6 @@
       "Gestione Ansia da Separazione": "Manejo de Ansiedad por Separación",
       "Gestione Gelosia e Possessività": "Manejo de Celos y Posesividad",
       "Gestione Iperattività e Deficit Attenzione": "Manejo de Hiperactividad y Déficit de Atención"
-    },
-    "descriptions": {
-      "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo.": "Protocolo intermedio para resolver trastornos de comportamiento relacionados con la alimentación. Aborda la alimentación compulsiva, el rechazo de alimentos, la protección de comida y la ansiedad alimentaria a través de un enfoque gradual y no punitivo.",
-      "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori.": "Protocolo especializado para establecer patrones de sueño saludables, reducir el insomnio y los despertares nocturnos. A través de rutinas previas al sueño, optimización ambiental y regulación circadiana, ayuda a los animales a desarrollar hábitos de descanso naturales y reparadores.",
-      "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali": "Programa avanzado de desensibilización sistemática para superar fobias intensas de ruidos, objetos y situaciones específicas a través de técnicas científicas graduales",
-      "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.": "Protocolo intensivo para eliminar la masticación destructiva, el cavado excesivo y la destrucción de objetos domésticos.",
-      "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.": "Protocolo gradual para combatir la depresión, apatía y pérdida de interés en los animales. Enfoque suave y progresivo para despertar la motivación a través de estímulos sensoriales, activación física y restauración del interés social.",
-      "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
-      "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale.": "Protocolo avanzado para el manejo seguro de la agresividad reactiva. Prioridad absoluta en la seguridad, control de impulsos y desarrollo de comportamientos alternativos. Requiere supervisión profesional.",
-      "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale.": "Protocolo científico para reducir la ansiedad por separación a través de desensibilización gradual. Desarrolla independencia y tranquilidad durante las ausencias del propietario con enfoque ultra-gradual.",
-      "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos.",
-      "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde la descarga de energía constructiva hasta el control de impulsos, llegando a la relajación y autocontrol."
-    },
-    "exercises": {
-      "titles": {
-        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
-        "Confidence Building con Handler": "Construcción de Confianza con Cuidador",
-        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente",
-        "Identificazione Threshold Sicurezza": "Identificación Umbral Seguridad",
-        "Controllo Impulsi Base": "Control de Impulsos Básico",
-        "Desensibilizzazione Trigger": "Desensibilización de Disparadores",
-        "Gestione Situazioni Critiche": "Manejo de Situaciones Críticas",
-        "Rinforzo Autocontrollo": "Refuerzo de Autocontrol",
-        "Addestramento Segnali Calma": "Entrenamiento de Señales de Calma",
-        "Valutazione Progresso": "Evaluación del Progreso"
-      },
-      "descriptions": {
-        "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales.",
-        "Lavora per identificare il limite di sicurezza dell'animale rispetto ai trigger di aggressività, stabilendo le distanze minime per un lavoro sicuro": "Trabaja para identificar el límite de seguridad del animal respecto a los disparadores de agresividad, estableciendo las distancias mínimas para un trabajo seguro"
-      },
-      "instructions": {
-        "Scegli uno spazio tranquillo e familiare per l'animale": "Elige un espacio tranquilo y familiar para el animal",
-        "Posiziona il tappetino comfort in un angolo sicuro": "Coloca la alfombrilla de confort en un rincón seguro",
-        "Offri snack premio quando l'animale si avvicina spontaneamente": "Ofrece premios cuando el animal se acerque espontáneamente",
-        "Mantieni distanza e lascia che l'animale esplori liberamente": "Mantén distancia y deja que el animal explore libremente",
-        "Rinforza positivamente ogni comportamento calmo e rilassato": "Refuerza positivamente cada comportamiento tranquilo y relajado",
-        "BODY LANGUAGE: Osserva postura rilassata, coda in posizione neutrale": "LENGUAJE CORPORAL: Observa postura relajada, cola en posición neutral",
-        "BODY LANGUAGE: Cerca respiro regolare e orecchie rilassate": "LENGUAJE CORPORAL: Busca respiración regular y orejas relajadas",
-        "BODY LANGUAGE: Evita segnali stress come ansimare o tremare": "LENGUAJE CORPORAL: Evita señales de estrés como jadear o temblar",
-        "Osserva postura rilassata, coda in posizione neutrale": "Observa postura relajada, cola en posición neutral",
-        "Cerca respiro regolare e orecchie rilassate": "Busca respiración regular y orejas relajadas",
-        "Evita segnali stress come ansimare o tremare": "Evita señales de estrés como jadear o temblar"
-      }
-    },
-    "materials": {
-      "snack premio altissimo valore": "premios de muy alto valor",
-      "giocattoli sociali": "juguetes sociales",
-      "guinzaglio lungo": "correa larga",
-      "tappetino comfort": "alfombrilla de confort",
-      "barriere visive mobili": "barreras visuales móviles",
-      "spazi neutri sicuri": "espacios neutros seguros",
-      "snack premio": "premios",
-      "spazio tranquillo": "espacio tranquilo"
     }
   }
   }

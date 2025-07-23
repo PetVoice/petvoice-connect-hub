@@ -98,9 +98,9 @@ export const usePetMatching = () => {
       const mentorsActive = allProfiles?.length || 0;
       
       // Calculate real average improvement from completed protocols
-      // Note: removed status filter since column doesn't exist in new schema
-      const averageImprovement = protocols && protocols.length > 0 
-        ? Math.round(protocols.reduce((sum, p) => sum + (p.success_rate || 75), 0) / protocols.length)
+      const completedProtocols = protocols?.filter(p => p.status === 'completed') || [];
+      const averageImprovement = completedProtocols.length > 0 
+        ? Math.round(completedProtocols.reduce((sum, p) => sum + (p.success_rate || 75), 0) / completedProtocols.length)
         : 87; // Show 87% as stated by user
         
       // Count success stories as total number of protocols created (showing activity)
@@ -190,10 +190,11 @@ export const usePetTwins = () => {
 
       if (analysesError) throw analysesError;
 
-      // Get all protocols for matching (status column doesn't exist in new schema)
+      // Get completed protocols for matching
       const { data: allProtocols, error: protocolsError } = await supabase
         .from('ai_training_protocols')
-        .select('user_id, title_it, title_en, title_es, category_it, category_en, category_es');
+        .select('user_id, title, category, status')
+        .eq('status', 'completed');
 
       if (protocolsError) throw protocolsError;
 
@@ -206,8 +207,8 @@ export const usePetTwins = () => {
 
       // Create protocols map by user
       const protocolsByUser = allProtocols?.reduce((acc, protocol) => {
-        if (protocol.user_id && !acc[protocol.user_id]) acc[protocol.user_id] = [];
-        if (protocol.user_id) acc[protocol.user_id].push(protocol);
+        if (!acc[protocol.user_id]) acc[protocol.user_id] = [];
+        acc[protocol.user_id].push(protocol);
         return acc;
       }, {} as Record<string, any[]>) || {};
 
@@ -237,12 +238,8 @@ export const usePetTwins = () => {
         const otherUserProtocols = protocolsByUser[pet.user_id] || [];
         const commonProtocols = myProtocols.filter(myProtocol => 
           otherUserProtocols.some(otherProtocol => 
-            (otherProtocol.title_it === myProtocol.title_it || 
-             otherProtocol.title_en === myProtocol.title_en ||
-             otherProtocol.title_es === myProtocol.title_es) && 
-            (otherProtocol.category_it === myProtocol.category_it ||
-             otherProtocol.category_en === myProtocol.category_en ||
-             otherProtocol.category_es === myProtocol.category_es)
+            otherProtocol.title === myProtocol.title && 
+            otherProtocol.category === myProtocol.category
           )
         );
         if (commonProtocols.length > 0) {
