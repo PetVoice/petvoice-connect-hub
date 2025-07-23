@@ -1423,9 +1423,9 @@ const AnalysisPage: React.FC = () => {
       <div className="container mx-auto p-6 max-w-4xl">
         <Card className="text-center p-8">
           <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">{t('pets.noPetSelected')}</h2>
+          <h2 className="text-xl font-semibold mb-2">Nessun pet selezionato</h2>
           <p className="text-muted-foreground">
-            {t('pets.selectPetDesc')}
+            Seleziona un pet dal menu per iniziare l'analisi
           </p>
         </Card>
       </div>
@@ -1439,10 +1439,10 @@ const AnalysisPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Microscope className="h-8 w-8 text-primary" />
-            {t('analysis.title')}
+            Analisi Emotiva
           </h1>
           <p className="text-muted-foreground mt-1">
-            {t('analysis.subtitle')} {selectedPet.name}
+            Analizza le vocalizzazioni di {selectedPet.name}
           </p>
         </div>
         <div className="flex gap-2">
@@ -1462,19 +1462,19 @@ const AnalysisPage: React.FC = () => {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            {t('analysis.tabs.upload')}
+            Carica
           </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
-            {t('analysis.tabs.results')}
+            Risultati
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            {t('analysis.tabs.history')}
+            Cronologia
           </TabsTrigger>
           <TabsTrigger value="predictions" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            {t('analysis.tabs.predictions')}
+            Previsioni
           </TabsTrigger>
         </TabsList>
 
@@ -1507,13 +1507,13 @@ const AnalysisPage: React.FC = () => {
           ) : (
             <Card className="text-center p-8">
               <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">{t('analysis.noAnalysisTitle')}</h3>
+              <h3 className="text-lg font-semibold mb-2">Nessuna analisi disponibile</h3>
               <p className="text-muted-foreground mb-4">
-                {t('analysis.noAnalysisDesc')}
+                Carica un file audio o video per iniziare l'analisi
               </p>
               <Button onClick={() => setActiveTab('upload')} className="bg-primary text-primary-foreground">
                 <Upload className="h-4 w-4 mr-2" />
-                {t('analysis.startAnalysis')}
+                Inizia Analisi
               </Button>
             </Card>
           )}
@@ -1525,17 +1525,17 @@ const AnalysisPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
-                {t('analysis.filterTitle')}
+                Filtri
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('analysis.history.search')}</label>
+                  <label className="text-sm font-medium">Cerca</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder={t('analysis.fileName')}
+                      placeholder="Nome file"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-9"
@@ -1544,32 +1544,32 @@ const AnalysisPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('analysis.history.emotion')}</label>
+                  <label className="text-sm font-medium">Emozione</label>
                   <Select value={emotionFilter} onValueChange={setEmotionFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('analysis.history.allEmotionsPlaceholder')} />
+                      <SelectValue placeholder="Tutte le emozioni" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t('analysis.history.allEmotions')}</SelectItem>
-                      <SelectItem value="felice">{t('analysis.emotions.felice')}</SelectItem>
-                      <SelectItem value="calmo">{t('analysis.emotions.calmo')}</SelectItem>
-                      <SelectItem value="ansioso">{t('analysis.emotions.ansioso')}</SelectItem>
-                      <SelectItem value="eccitato">{t('analysis.emotions.eccitato')}</SelectItem>
-                      <SelectItem value="triste">{t('analysis.emotions.triste')}</SelectItem>
-                      <SelectItem value="aggressivo">{t('analysis.emotions.aggressivo')}</SelectItem>
-                      <SelectItem value="giocoso">{t('analysis.emotions.giocoso')}</SelectItem>
+                      <SelectItem value="all">Tutte</SelectItem>
+                      <SelectItem value="felice">Felice</SelectItem>
+                      <SelectItem value="calmo">Calmo</SelectItem>
+                      <SelectItem value="ansioso">Ansioso</SelectItem>
+                      <SelectItem value="eccitato">Eccitato</SelectItem>
+                      <SelectItem value="triste">Triste</SelectItem>
+                      <SelectItem value="aggressivo">Aggressivo</SelectItem>
+                      <SelectItem value="giocoso">Giocoso</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('analysis.confidence')}</label>
+                  <label className="text-sm font-medium">Confidenza</label>
                   <Select value={confidenceFilter} onValueChange={setConfidenceFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('analysis.allLevelsPlaceholder')} />
+                      <SelectValue placeholder="Tutti i livelli" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t('analysis.history.allLevels')}</SelectItem>
+                      <SelectItem value="all">Tutti i livelli</SelectItem>
                       <SelectItem value="90">≥ 90%</SelectItem>
                       <SelectItem value="80">≥ 80%</SelectItem>
                       <SelectItem value="70">≥ 70%</SelectItem>
@@ -1579,7 +1579,7 @@ const AnalysisPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">{t('analysis.history.period')}</label>
+                  <label className="text-sm font-medium">Periodo</label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" className="w-full justify-start">
@@ -1591,7 +1591,7 @@ const AnalysisPage: React.FC = () => {
                             format(dateRange!.from, "dd/MM/yy", { locale: it })
                           )
                         ) : (
-                          t('analysis.history.selectPeriod')
+                          "Seleziona periodo"
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -1611,7 +1611,7 @@ const AnalysisPage: React.FC = () => {
               {(searchTerm || emotionFilter !== 'all' || confidenceFilter !== 'all' || dateRange?.from) && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {t('analysis.filtersResults').replace('{{count}}', filteredAnalyses.length.toString()).replace('{{total}}', analyses.length.toString())}
+                    Mostrando {filteredAnalyses.length} di {analyses.length} analisi
                   </span>
                   <Button
                     variant="ghost"
@@ -1623,7 +1623,7 @@ const AnalysisPage: React.FC = () => {
                       setDateRange(undefined);
                     }}
                   >
-                    {t('analysis.history.clearFilters')}
+                    Cancella filtri
                   </Button>
                 </div>
               )}
@@ -1654,10 +1654,10 @@ const AnalysisPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                  {t('analysis.predictions.futureTrend')}
+                  Trend Benessere Futuro
                 </CardTitle>
                 <CardDescription>
-                  {t('analysis.predictions.predictionDesc')}
+                  Previsione basata sui dati storici
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1682,7 +1682,7 @@ const AnalysisPage: React.FC = () => {
                           {(() => {
                             const trend = wellnessData.length > 1 ? 
                               (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
-                            return trend > 0 ? t('analysis.predictions.improvement') : trend < 0 ? t('analysis.predictions.decline') : t('analysis.predictions.stable');
+                            return trend > 0 ? "Miglioramento" : trend < 0 ? "Peggioramento" : "Stabile";
                           })()}
                         </span>
                       </div>
@@ -1691,17 +1691,17 @@ const AnalysisPage: React.FC = () => {
                           const trend = wellnessData.length > 1 ? 
                             (wellnessData[wellnessData.length - 1].wellness_score || 0) - (wellnessData[0].wellness_score || 0) : 0;
                           return trend > 0 ? 
-                            t('analysis.predictions.wellnessImproving') :
+                            "Il benessere generale sta migliorando" :
                             trend < 0 ?
-                            t('analysis.predictions.wellnessDeclining') :
-                            t('analysis.predictions.wellnessStable');
+                            "Il benessere generale sta peggiorando" :
+                            "Il benessere è stabile";
                         })()}
                       </p>
                     </div>
                   ) : (
                     <div className="p-4 bg-muted/50 rounded-lg text-center">
                       <p className="text-sm text-muted-foreground">
-                        {t('analysis.predictions.noWellnessData')}
+                        Dati insufficienti per previsioni
                       </p>
                     </div>
                   )}
@@ -1715,12 +1715,12 @@ const AnalysisPage: React.FC = () => {
                     return (
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>{t('analysis.predictions.currentScore')}</span>
+                          <span>Punteggio attuale</span>
                           <span>{Math.round(avgScore)}%</span>
                         </div>
                         <Progress value={avgScore} className="h-2" />
                         <div className="flex justify-between text-sm">
-                          <span>{t('analysis.predictions.prediction30Days')}</span>
+                          <span>Previsione 30 giorni</span>
                           <span>{Math.round(prediction)}%</span>
                         </div>
                       </div>
@@ -1735,10 +1735,10 @@ const AnalysisPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lightbulb className="h-5 w-5" />
-                  {t('analysis.predictions.aiRecommendations')}
+                  Raccomandazioni AI
                 </CardTitle>
                 <CardDescription>
-                  {t('analysis.predictions.aiRecommendationsDesc')}
+                  Suggerimenti personalizzati
                 </CardDescription>
               </CardHeader>
               <CardContent>
