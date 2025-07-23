@@ -325,7 +325,7 @@ export type Database = {
           difficulty?: string | null
           duration_days?: number | null
           estimated_cost?: string | null
-          id: string
+          id?: string
           integration_source?: string | null
           is_public?: boolean | null
           last_activity_at?: string | null

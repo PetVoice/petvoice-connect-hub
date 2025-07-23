@@ -412,19 +412,19 @@ export const useAcceptSuggestion = () => {
         throw new Error('User not authenticated');
       }
 
-      // 1. Crea il protocollo dal suggerimento
+      // 2. Crea il protocollo dal suggerimento
       const { data: protocol, error: protocolError } = await supabase
         .from('ai_training_protocols')
         .insert({
-          user_id: user.id,
           title: suggestion.title,
           description: suggestion.description,
           category: suggestion.category,
-          difficulty: suggestion.difficulty as any,
+          difficulty: suggestion.difficulty,
           duration_days: suggestion.duration_days,
           ai_generated: suggestion.auto_generated,
           integration_source: 'matching',
           status: 'available',
+          user_id: user.id,
         })
         .select()
         .single();

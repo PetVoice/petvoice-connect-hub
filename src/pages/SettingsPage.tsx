@@ -79,7 +79,6 @@ import { ReactivationModal } from '@/components/ReactivationModal';
 import { Check, CheckCircle as CheckCircleIcon, Loader2 } from 'lucide-react';
 
 import { useTheme } from '@/contexts/ThemeContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useAppearance } from '@/contexts/AppearanceContext';
 import { ProfileAvatar } from '@/components/settings/ProfileAvatar';
 import { ProfileEditForm } from '@/components/settings/ProfileEditForm';
@@ -159,7 +158,6 @@ const SettingsPage: React.FC = () => {
   const { showToast } = useTranslatedToast();
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
   const { appearance, updateAppearance } = useAppearance();
   const { subscription, loading: subscriptionLoading } = useSubscription();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -264,7 +262,7 @@ const SettingsPage: React.FC = () => {
             display_name: profile.display_name || '',
             avatar_url: profile.avatar_url || '',
             theme: profile.theme || 'system',
-            language: profile.language || 'it',
+            language: 'it', // Solo italiano
             notifications_enabled: profile.notifications_enabled
           });
 

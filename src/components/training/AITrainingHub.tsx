@@ -315,12 +315,12 @@ export const AITrainingHub: React.FC = () => {
         is_public: wizardData.is_public,
         ai_generated: false,
         current_day: 1,
-        progress_percentage: 0,
+        progress_percentage: "0",
         status: 'available' as const,
         success_rate: 0,
         veterinary_approved: false,
         community_rating: 0,
-        community_usage: 0,
+        community_usage: "0",
         mentor_recommended: false,
         notifications_enabled: true,
         last_activity_at: new Date().toISOString(),
@@ -587,7 +587,7 @@ export const AITrainingHub: React.FC = () => {
     setEditTitle(protocol.title);
     setEditDescription(protocol.description || '');
     setEditCategory(protocol.category);
-    setEditDifficulty(protocol.difficulty);
+    setEditDifficulty(protocol.difficulty as "facile" | "medio" | "difficile");
     setEditDurationDays(protocol.duration_days);
     setEditTargetBehavior(protocol.target_behavior || '');
     setEditIsPublic(protocol.is_public || false);
@@ -922,11 +922,11 @@ export const AITrainingHub: React.FC = () => {
                              )}
                           </div>
                          
-                           {protocol.status === 'active' && protocol.progress_percentage > 0 && (
+                           {protocol.status === 'active' && parseInt(protocol.progress_percentage || '0') > 0 && (
                              <div className="w-32">
                                <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                                  <span>Progresso</span>
-                                 <span>{protocol.progress_percentage}%</span>
+                                  <span>{parseInt(protocol.progress_percentage || '0')}%</span>
                                </div>
                                <Progress value={protocol.progress_percentage} className="h-2" />
                              </div>
@@ -1023,7 +1023,7 @@ export const AITrainingHub: React.FC = () => {
                             <span className="text-muted-foreground">Progresso</span>
                             <span className="font-medium text-blue-600">{protocol.progress_percentage}%</span>
                           </div>
-                          <Progress value={protocol.progress_percentage} className="mt-1 h-2" />
+                          <Progress value={parseInt(protocol.progress_percentage || '0')} className="mt-1 h-2" />
                         </div>
                       </div>
                       
@@ -1440,7 +1440,7 @@ export const AITrainingHub: React.FC = () => {
                           <span className="text-sm">Raccomandato da mentor</span>
                         </div>
                       )}
-                      {selectedProtocol.community_usage > 10 && (
+                      {parseInt(selectedProtocol.community_usage || '0') > 10 && (
                         <div className="flex items-center gap-3 text-purple-600">
                           <Users className="h-4 w-4" />
                           <span className="text-sm">{selectedProtocol.community_usage} utenti l'hanno usato</span>

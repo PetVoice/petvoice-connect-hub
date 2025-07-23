@@ -107,13 +107,13 @@ const TrainingDashboard: React.FC = () => {
       setProtocol({
         ...data,
         difficulty: data.difficulty as 'facile' | 'medio' | 'difficile',
-        exercises: (data.exercises || []).map((ex: any) => ({
+        exercises: Array.isArray(data.exercises) ? data.exercises.map((ex: any) => ({
           ...ex,
           exercise_type: ex.exercise_type as 'physical' | 'mental' | 'behavioral' | 'social'
-        })),
+        })) : [],
         metrics: data.metrics?.[0] || null,
         schedule: data.schedule?.[0] || null,
-      } as TrainingProtocol);
+      } as unknown as TrainingProtocol);
     };
     
     fetchProtocol();
@@ -124,7 +124,7 @@ const TrainingDashboard: React.FC = () => {
     if (protocol && protocol.progress_percentage !== undefined && !hasInitialized) {
       const exercisesPerDay = 3; // Ogni protocollo ha 3 esercizi
       const totalExercises = protocol.duration_days * exercisesPerDay;
-      const totalCompletedExercises = Math.floor((protocol.progress_percentage / 100) * totalExercises);
+      const totalCompletedExercises = Math.floor((parseInt(protocol.progress_percentage || '0') / 100) * totalExercises);
       
       // Calcola quanti esercizi sono stati completati nei giorni precedenti
       const exercisesCompletedInPreviousDays = (protocol.current_day - 1) * exercisesPerDay;
@@ -264,7 +264,7 @@ const TrainingDashboard: React.FC = () => {
       await updateProtocol.mutateAsync({
         id: protocol.id,
         updates: {
-          progress_percentage: Math.min(newProgressPercentage, 100),
+          progress_percentage: Math.min(newProgressPercentage, 100).toString(),
           last_activity_at: new Date().toISOString(),
         }
       });
@@ -317,7 +317,7 @@ const TrainingDashboard: React.FC = () => {
               id: protocol.id,
               updates: {
                 current_day: newCurrentDay,
-                progress_percentage: Math.min(newProgressPercentage, 100),
+                progress_percentage: Math.min(newProgressPercentage, 100).toString(),
                 last_activity_at: new Date().toISOString(),
               }
             });
@@ -326,7 +326,7 @@ const TrainingDashboard: React.FC = () => {
             setProtocol(prev => prev ? {
               ...prev,
               current_day: newCurrentDay,
-              progress_percentage: Math.min(newProgressPercentage, 100)
+              progress_percentage: Math.min(newProgressPercentage, 100).toString()
             } : null);
             
             // 4. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
@@ -384,7 +384,7 @@ const TrainingDashboard: React.FC = () => {
         updates: {
           status: 'available',  // Torna disponibile per essere riavviato
           current_day: 1,       // Reset al giorno 1
-          progress_percentage: 0,  // Reset progresso
+          progress_percentage: "0",  // Reset progresso
           last_activity_at: new Date().toISOString(),
         }
       });
@@ -441,7 +441,7 @@ const TrainingDashboard: React.FC = () => {
         id: protocol.id,
         updates: {
           status: 'completed',
-          progress_percentage: 100,
+          progress_percentage: "100",
           last_activity_at: new Date().toISOString(),
         }
       });
@@ -547,7 +547,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-blue-500" />
               <div>
-                <div className="text-lg font-bold">{protocol.progress_percentage}%</div>
+                <div className="text-lg font-bold">{parseInt(protocol.progress_percentage || '0')}%</div>
                 <p className="text-xs text-muted-foreground">Progresso totale</p>
               </div>
             </div>
@@ -559,7 +559,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-green-500" />
               <div>
-                <div className="text-lg font-bold">{Math.round(protocol.success_rate)}%</div>
+                <div className="text-lg font-bold">{Math.round(parseInt(protocol.success_rate?.toString() || '0'))}%</div>
                 <p className="text-xs text-muted-foreground">Tasso successo</p>
               </div>
             </div>
