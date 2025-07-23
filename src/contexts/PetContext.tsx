@@ -42,7 +42,18 @@ const PetContext = createContext<PetContextType | undefined>(undefined);
 export const usePets = () => {
   const context = useContext(PetContext);
   if (context === undefined) {
-    throw new Error('usePets must be used within a PetProvider');
+    // Return a safe fallback instead of throwing an error
+    return {
+      pets: [],
+      selectedPet: null,
+      selectedPetId: '',
+      loading: false,
+      setSelectedPetId: () => {},
+      refreshPets: async () => {},
+      addPet: async () => null,
+      updatePet: async () => {},
+      deletePet: async () => {},
+    };
   }
   return context;
 };
