@@ -7,14 +7,14 @@ export const useProtocolTranslations = () => {
   const descriptionMapping: Record<string, string> = {
     "Socializzazione Progressiva": "socializzazioneProgressiva",
     "Controllo Aggressività Reattiva": "controlloAggressivitaReattiva", 
-    "Gestione Ansia da Separazione": "gestioneAnsiaSeperazione",
-    "Rieducazione Alimentare Comportamentale": "rieducazioneAlimentare",
-    "Ottimizzazione Ciclo Sonno-Veglia": "ottimizzazioneSonno",
-    "Superare Fobie e Paure Specifiche": "superareFobie",
+    "Gestione Ansia da Separazione": "gestioneAnsiaSeparazione",
+    "Rieducazione Alimentare Comportamentale": "rieducazioneAlimentareComportamentale",
+    "Ottimizzazione Ciclo Sonno-Veglia": "ottimizzazioneCicloSonnoVeglia",
+    "Superare Fobie e Paure Specifiche": "superareFobiePaureSpecifiche",
     "Stop Comportamenti Distruttivi": "stopComportamentiDistruttivi",
-    "Gestione Gelosia e Possessività": "gestioneGelosia",
-    "Riattivazione Energia e Motivazione": "riattivazioneEnergia",
-    "Gestione Iperattività e Deficit Attenzione": "gestioneIperattivita"
+    "Gestione Gelosia e Possessività": "gestioneGelosiaEPossessivita",
+    "Riattivazione Energia e Motivazione": "riattivazioneEnergiaMotivazione",
+    "Gestione Iperattività e Deficit Attenzione": "gestioneIperattivatEDeficitAttenzione"
   };
 
   const translateProtocolTitle = (title: string): string => {
@@ -42,14 +42,14 @@ export const useProtocolTranslations = () => {
       const italianTranslations = { 
         "socializzazioneProgressiva": "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.",
         "controlloAggressivitaReattiva": "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale.",
-        "gestioneAnsiaSeperazione": "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale.",
-        "rieducazioneAlimentare": "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo.",
-        "ottimizzazioneSonno": "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori.",
-        "superareFobie": "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali",
+        "gestioneAnsiaSeparazione": "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale.",
+        "rieducazioneAlimentareComportamentale": "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo.",
+        "ottimizzazioneCicloSonnoVeglia": "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori.",
+        "superareFobiePaureSpecifiche": "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali",
         "stopComportamentiDistruttivi": "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici.",
-        "gestioneGelosia": "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.",
-        "riattivazioneEnergia": "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.",
-        "gestioneIperattivita": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo."
+        "gestioneGelosiaEPossessivita": "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.",
+        "riattivazioneEnergiaMotivazione": "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale.",
+        "gestioneIperattivatEDeficitAttenzione": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo."
       };
       
       if (italianTranslations[key] === description) {
