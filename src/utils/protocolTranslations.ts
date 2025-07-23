@@ -23,18 +23,30 @@ export const useProtocolTranslations = () => {
     // Prima prova con la sezione aiTraining.protocols
     if (descriptionMapping[title]) {
       const key = descriptionMapping[title];
-      const translated = t(`aiTraining.protocols.${key}.title`, '');
+      const translationKey = `aiTraining.protocols.${key}.title`;
+      const translated = t(translationKey, '');
+      console.log('Title translation attempt:', { 
+        title, 
+        key, 
+        translationKey, 
+        translated, 
+        hasTranslation: translated !== '',
+        language 
+      });
+      
       if (translated && translated !== '') {
-        console.log('Translated title via aiTraining mapping:', { title, key, translated });
+        console.log('✅ Successfully translated title via aiTraining mapping:', { title, key, translated });
         return translated;
+      } else {
+        console.log('❌ Failed to translate title via aiTraining mapping:', { title, key, translationKey });
       }
     }
     
     // Fallback alla sezione protocols.titles
-    const translationKey = `protocols.titles.${title}`;
-    const translated = t(translationKey, title);
-    console.log('Title translation result:', { title, translationKey, translated, isDefault: translated === translationKey });
-    return translated === translationKey ? title : translated;
+    const fallbackKey = `protocols.titles.${title}`;
+    const fallbackTranslated = t(fallbackKey, title);
+    console.log('Title fallback translation:', { title, fallbackKey, fallbackTranslated, isDefault: fallbackTranslated === title });
+    return fallbackTranslated === fallbackKey ? title : fallbackTranslated;
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {
@@ -43,10 +55,22 @@ export const useProtocolTranslations = () => {
     // Se abbiamo il titolo, proviamo a trovare la mappatura
     if (title && descriptionMapping[title]) {
       const key = descriptionMapping[title];
-      const translated = t(`aiTraining.protocols.${key}.description`, '');
+      const translationKey = `aiTraining.protocols.${key}.description`;
+      const translated = t(translationKey, '');
+      console.log('Description translation attempt via title:', { 
+        title, 
+        key, 
+        translationKey, 
+        translated, 
+        hasTranslation: translated !== '',
+        language 
+      });
+      
       if (translated && translated !== '') {
-        console.log('Translated description via title mapping:', { title, key, translated });
+        console.log('✅ Successfully translated description via title mapping:', { title, key, translated });
         return translated;
+      } else {
+        console.log('❌ Failed to translate description via title mapping:', { title, key, translationKey });
       }
     }
 
@@ -67,13 +91,14 @@ export const useProtocolTranslations = () => {
       };
       
       if (italianTranslations[key] === description) {
-        const translated = t(`aiTraining.protocols.${key}.description`, description);
-        console.log('Translated description via description match:', { protocolTitle, key, translated });
+        const translationKey = `aiTraining.protocols.${key}.description`;
+        const translated = t(translationKey, description);
+        console.log('✅ Successfully translated description via description match:', { protocolTitle, key, translationKey, translated });
         return translated;
       }
     }
 
-    console.log('No translation found for description, returning original:', description);
+    console.log('❌ No translation found for description, returning original:', description);
     return description;
   };
 
