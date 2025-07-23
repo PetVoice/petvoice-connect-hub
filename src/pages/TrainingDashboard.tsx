@@ -823,19 +823,14 @@ const TrainingDashboard: React.FC = () => {
               {/* Pulsanti Azione */}
               <div className="flex gap-3 w-full">
                 <Button
-                  onClick={async () => {
-                    // SEMPLIFICAZIONE: Solo completamento esercizi, il cambio giorno è automatico
+                  onClick={() => {
+                    console.log('🔥 CLICK PULSANTE COMPLETA!');
                     handleCompleteExercise();
                   }}
-                  disabled={currentExercise !== dailyCompletedExercises}
-                  className={`flex-1 ${
-                    currentExercise === dailyCompletedExercises 
-                      ? 'bg-primary hover:bg-primary/90 focus:bg-primary/90 active:bg-primary/80 text-primary-foreground font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50'
-                      : 'opacity-50 cursor-not-allowed'
-                  } disabled:opacity-50`}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Esercizio {currentExercise + 1} Completato
+                  Completa Esercizio {currentExercise + 1}
                 </Button>
 
                 {/* Pulsante Interrompi Protocollo */}
