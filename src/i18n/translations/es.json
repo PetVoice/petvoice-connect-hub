@@ -1709,6 +1709,7 @@
   },
   "protocols": {
     "titles": {
+      "Identificazione Threshold Sicurezza": "Identificación Threshold Seguridad",
       "Gestione Gelosia e Possessività": "Gestión de Celos y Posesividad",
       "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención", 
       "Socializzazione Progressiva": "Socialización Progresiva",
@@ -1721,6 +1722,7 @@
       "Gestione Comportamenti Distruttivi": "Gestión de Comportamientos Destructivos"
     },
     "descriptions": {
+      "Determinare la distanza minima sicura dai trigger prima che inizi arousal. FONDAMENTALE per tutti gli esercizi successivi.": "Determinar la distancia mínima segura de los desencadenantes antes de que comience la excitación. FUNDAMENTAL para todos los ejercicios posteriores.",
       "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse.": "Protocolo especializado para reducir comportamientos posesivos y celos en mascotas. Incluye técnicas avanzadas de desensibilización, entrenamiento de compartir y gestión de recursos.",
       "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo.": "Protocolo completo para reducir hiperactividad y mejorar concentración a través de un enfoque progresivo: desde la descarga de energía constructiva hasta el control de impulsos, llegando a la relajación y autocontrol.",
       "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate.": "Protocolo de 5 días para mejorar las habilidades sociales del animal con otros animales y personas. Enfoque gradual y positivo para animales tímidos o poco socializados, con enfoque en construcción de confianza e interacciones controladas.",
