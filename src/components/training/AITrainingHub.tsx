@@ -498,10 +498,10 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza alla dashboard del nuovo protocollo
+        // Reindirizza immediatamente alla dashboard del nuovo protocollo
         setTimeout(() => {
-          window.location.href = `/training/dashboard/${createdProtocol.id}`;
-        }, 1500);
+          navigate(`/training/dashboard/${createdProtocol.id}`);
+        }, 500);
       } else if (protocol.status === 'completed') {
         // Se è un protocollo completato, resettalo completamente
         await updateProtocol.mutateAsync({
@@ -530,10 +530,10 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza alla dashboard del protocollo resettato
+        // Reindirizza immediatamente alla dashboard del protocollo resettato
         setTimeout(() => {
-          window.location.href = `/training/dashboard/${protocol.id}`;
-        }, 1500);
+          navigate(`/training/dashboard/${protocol.id}`);
+        }, 500);
       } else {
         // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
@@ -551,10 +551,10 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza alla dashboard del protocollo
+        // Reindirizza immediatamente alla dashboard del protocollo
         setTimeout(() => {
-          window.location.href = `/training/dashboard/${protocol.id}`;
-        }, 1500);
+          navigate(`/training/dashboard/${protocol.id}`);
+        }, 500);
       }
     } catch (error) {
       console.error('Error starting protocol:', error);
