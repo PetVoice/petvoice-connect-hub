@@ -53,7 +53,7 @@ const DashboardPage: React.FC = () => {
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Benvenuto su PetCare AI
+          Benvenuto su PetVoice
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
@@ -72,7 +72,7 @@ const DashboardPage: React.FC = () => {
                 </span>
               </div>
               <div>
-                <h2 className="text-2xl">{selectedPet.name}</h2>
+                <h2 className="text-2xl">{selectedPet.name} - {selectedPet.type} - {selectedPet.breed} - {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni</h2>
                 <p className="text-muted-foreground">{selectedPet.type}</p>
               </div>
             </CardTitle>
