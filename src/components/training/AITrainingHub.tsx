@@ -363,8 +363,17 @@ export const AITrainingHub: React.FC = () => {
   };
 
   const handleStartProtocol = async (protocol: TrainingProtocol) => {
+    console.log('🚨 HANDLESTARTPROTOCOL CHIAMATO:', {
+      protocolId: protocol.id,
+      protocolTitle: protocol.title,
+      protocolUserId: protocol.user_id,
+      protocolIsPublic: protocol.is_public,
+      protocolStatus: protocol.status,
+      entireProtocol: protocol
+    });
     // Se il protocollo è già attivo (status 'active'), va direttamente alla dashboard
     if (protocol.status === 'active') {
+      console.log('🟢 PROTOCOLLO GIÀ ATTIVO - Redirect a dashboard');
       navigate(`/training/dashboard/${protocol.id}`);
       return;
     }
