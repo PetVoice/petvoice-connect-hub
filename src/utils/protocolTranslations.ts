@@ -12,7 +12,8 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Stop Comportamenti Distruttivi",
     "Gestione Gelosia e Possessività": "Gestione Gelosia e Possessività",
     "Riattivazione Energia e Motivazione": "Riattivazione Energia e Motivazione",
-    "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione"
+    "Gestione Iperattività e Deficit Attenzione": "Gestione Iperattività e Deficit Attenzione",
+    "Creazione Safe Space Personale": "Creazione Safe Space Personale"
   },
   en: {
     "Socializzazione Progressiva": "Progressive Socialization",
@@ -24,7 +25,8 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Stop Destructive Behaviors",
     "Gestione Gelosia e Possessività": "Jealousy and Possessiveness Management",
     "Riattivazione Energia e Motivazione": "Energy and Motivation Reactivation",
-    "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management"
+    "Gestione Iperattività e Deficit Attenzione": "Hyperactivity and Attention Deficit Management",
+    "Creazione Safe Space Personale": "Personal Safe Space Creation"
   },
   es: {
     "Socializzazione Progressiva": "Socialización Progresiva",
@@ -36,7 +38,8 @@ const titleTranslations = {
     "Stop Comportamenti Distruttivi": "Detener Comportamientos Destructivos",
     "Gestione Gelosia e Possessività": "Gestión de Celos y Posesividad",
     "Riattivazione Energia e Motivazione": "Reactivación de Energía y Motivación",
-    "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención"
+    "Gestione Iperattività e Deficit Attenzione": "Gestión de Hiperactividad y Déficit de Atención",
+    "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal"
   }
 };
 
