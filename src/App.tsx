@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AppLayout from "@/components/AppLayout";
 import Layout from "@/components/Layout";
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
@@ -47,128 +48,100 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <DashboardPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <DashboardPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/pets" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <PetsPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <PetsPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/analysis" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <AnalysisPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <AnalysisPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/diary" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <DiaryPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <DiaryPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/calendar" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <CalendarPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <CalendarPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/wellness" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <WellnessPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <WellnessPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/ai-music-therapy" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <AIMusicTherapyPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <AIMusicTherapyPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/stats" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <StatsPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <StatsPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/pet-matching" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <PetMatchingPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <PetMatchingPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/training" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <TrainingPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <TrainingPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/training/dashboard/:protocolId" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <TrainingDashboard />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <TrainingDashboard />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/community" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <CommunityPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <CommunityPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/subscription" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <SubscriptionPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <SubscriptionPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/subscription-success" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <SubscriptionSuccessPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <SubscriptionSuccessPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/support" element={
@@ -178,11 +151,9 @@ function AppContent() {
         } />
         <Route path="/settings" element={
           <ProtectedRoute>
-            <PetProvider>
-              <Layout>
-                <SettingsPage />
-              </Layout>
-            </PetProvider>
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />
