@@ -461,6 +461,7 @@ export const AITrainingHub: React.FC = () => {
           .from('ai_training_protocols')
           .insert({
             ...newProtocol,
+            id: crypto.randomUUID(),
             user_id: user.id,
           })
           .select()
@@ -469,9 +470,10 @@ export const AITrainingHub: React.FC = () => {
         if (error) throw error;
         
         // INCREMENTA IL CONTEGGIO DEGLI UTILIZZI DEL PROTOCOLLO ORIGINALE
+        const currentUsage = parseInt(protocol.community_usage?.toString() || '0');
         await supabase
           .from('ai_training_protocols')
-          .update({ community_usage: (protocol.community_usage || 0) + 1 })
+          .update({ community_usage: (currentUsage + 1).toString() })
           .eq('id', protocol.id);
 
         // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO

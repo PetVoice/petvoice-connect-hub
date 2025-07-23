@@ -10,130 +10,7 @@ import {
   SupportedLanguage 
 } from '@/utils/protocolLanguage';
 
-export interface TrainingProtocol {
-  id: string;
-  user_id: string;
-  pet_id?: string;
-  title: string;
-  description?: string;
-  category: string;
-  difficulty: 'facile' | 'medio' | 'difficile';
-  duration_days: number;
-  current_day: number;
-  progress_percentage: number;
-  status: 'available' | 'active' | 'paused' | 'completed' | 'suggested';
-  target_behavior?: string;
-  triggers?: string[];
-  success_rate: number;
-  ai_generated: boolean;
-  integration_source?: 'analysis' | 'diary' | 'wellness' | 'matching' | 'manual';
-  veterinary_approved: boolean;
-  estimated_cost?: number;
-  required_materials?: string[];
-  is_public: boolean;
-  share_code?: string;
-  community_rating: number;
-  community_usage: number;
-  mentor_recommended: boolean;
-  notifications_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-  last_activity_at: string;
-  // Personal rating fields (only for completed protocols)
-  personal_success_rate?: number;
-  personal_rating?: number;
-  // Relationships
-  exercises?: TrainingExercise[];
-  metrics?: TrainingMetrics | null;
-  schedule?: TrainingSchedule | null;
-}
-
-export interface TrainingExercise {
-  id: string;
-  protocol_id: string;
-  day_number: number;
-  title: string;
-  description?: string;
-  duration_minutes: number;
-  exercise_type: 'physical' | 'mental' | 'behavioral' | 'social';
-  instructions?: string[];
-  materials?: string[];
-  video_url?: string;
-  completed: boolean;
-  completed_at?: string;
-  feedback?: string;
-  effectiveness_score?: number;
-  photos?: string[];
-  voice_notes?: string[];
-  ai_analysis?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface TrainingMetrics {
-  id: string;
-  protocol_id: string;
-  behavior_improvement: number;
-  stress_reduction: number;
-  engagement_level: number;
-  owner_satisfaction: number;
-  community_success: number;
-  time_efficiency: number;
-  cost_effectiveness: number;
-  recorded_at: string;
-  created_at: string;
-}
-
-export interface TrainingSchedule {
-  id: string;
-  protocol_id: string;
-  start_date: string;
-  end_date?: string;
-  daily_time: string;
-  reminder_times?: string[];
-  weekdays?: number[];
-  flexible: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface SuggestedProtocol {
-  id: string;
-  user_id: string;
-  pet_id?: string;
-  title: string;
-  description?: string;
-  reason: string;
-  source: string;
-  confidence_score: number;
-  estimated_success: number;
-  similar_cases: number;
-  category: string;
-  difficulty: string;
-  duration_days: number;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
-  integration_data: any;
-  auto_generated: boolean;
-  accepted: boolean;
-  dismissed: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface TrainingTemplate {
-  id: string;
-  name: string;
-  description?: string;
-  category: string;
-  difficulty: string;
-  duration_days: number;
-  popularity_score: number;
-  success_rate: number;
-  template_data: any;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+// Interfaces are now imported from types/trainingProtocol.ts
 
 // Hook per recuperare protocolli completati (unici per titolo)
 export const useCompletedProtocols = () => {
@@ -238,7 +115,7 @@ export const useActiveProtocols = () => {
 
       if (error) throw error;
 
-      return data?.filter(rawProtocol => rawProtocol && rawProtocol.id).map(rawProtocol => {
+      return (data?.filter(rawProtocol => rawProtocol && rawProtocol.id).map(rawProtocol => {
         const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
         return {
           ...protocol,
@@ -246,7 +123,7 @@ export const useActiveProtocols = () => {
           metrics: rawProtocol.metrics?.[0] || null,
           schedule: rawProtocol.schedule?.[0] || null,
         };
-      }) as TrainingProtocol[];
+      }) || []) as TrainingProtocol[];
     },
     refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
@@ -288,7 +165,7 @@ export const useTrainingProtocols = () => {
       
       const userLanguage = (profile?.language as SupportedLanguage) || 'it';
 
-      return data?.map(rawProtocol => {
+      return (data?.map(rawProtocol => {
         const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
         return {
           ...protocol,
@@ -296,7 +173,7 @@ export const useTrainingProtocols = () => {
           metrics: rawProtocol.metrics?.[0] || null,
           schedule: rawProtocol.schedule?.[0] || null,
         };
-      }) as TrainingProtocol[];
+      }) || []) as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
@@ -374,6 +251,7 @@ export const useCreateProtocol = () => {
         .from('ai_training_protocols')
         .insert({
           ...multiLangProtocol,
+          id: crypto.randomUUID(),
           user_id: user.id,
         })
         .select()
@@ -497,17 +375,50 @@ export const useAcceptSuggestion = () => {
       }
 
       // 1. Crea il protocollo dal suggerimento
+      const standardProtocol = {
+        title: suggestion.title,
+        description: suggestion.description,
+        category: suggestion.category,
+        difficulty: suggestion.difficulty as any,
+        duration_days: suggestion.duration_days,
+        ai_generated: suggestion.auto_generated,
+        integration_source: 'matching',
+        user_id: user.id,
+        current_day: 1,
+        progress_percentage: 0,
+        success_rate: 0,
+        is_public: false,
+        veterinary_approved: false,
+        community_rating: 0,
+        community_usage: 0,
+        mentor_recommended: false,
+        notifications_enabled: true,
+        last_activity_at: new Date().toISOString(),
+        pet_id: null,
+        estimated_cost: null,
+        share_code: null,
+        target_behavior: '',
+        triggers: [],
+        required_materials: [],
+        status: 'active' as const
+      };
+
+      // Ottieni la lingua corrente dell'utente
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('language')
+        .eq('user_id', user.id)
+        .single();
+      
+      const userLanguage = (profile?.language as SupportedLanguage) || 'it';
+
+      const multiLangProtocol = convertFromStandardProtocol(standardProtocol, userLanguage);
+
       const { data: protocol, error: protocolError } = await supabase
         .from('ai_training_protocols')
         .insert({
-          user_id: user.id,
-          title: suggestion.title,
-          description: suggestion.description,
-          category: suggestion.category,
-          difficulty: suggestion.difficulty as any,
-          duration_days: suggestion.duration_days,
-          ai_generated: suggestion.auto_generated,
-          integration_source: 'matching',
+          ...multiLangProtocol,
+          id: crypto.randomUUID(),
           status: 'available',
         })
         .select()
