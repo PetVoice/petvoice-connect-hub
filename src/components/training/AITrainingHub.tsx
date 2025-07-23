@@ -388,7 +388,7 @@ export const AITrainingHub: React.FC = () => {
     }
 
     try {
-      // Se è un protocollo pubblico (senza user_id), crea una copia per l'utente
+      // Se è un protocollo pubblico (senza user_id), crea una copia per l'utente usando la funzione database
       if (!protocol.user_id) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -400,98 +400,20 @@ export const AITrainingHub: React.FC = () => {
           return;
         }
 
-        const newProtocol = {
-          title: protocol.title,
-          description: protocol.description,
-          category: protocol.category,
-          difficulty: protocol.difficulty,
-          duration_days: protocol.duration_days,
-          target_behavior: protocol.target_behavior,
-          triggers: protocol.triggers,
-          required_materials: protocol.required_materials,
-          current_day: 1,
-          progress_percentage: 0,
-          status: 'active' as const,
-          success_rate: 0,
-          ai_generated: false,
-          is_public: false,
-          veterinary_approved: false,
-          community_rating: 0,
-        community_usage: "0",
-          mentor_recommended: false,
-          notifications_enabled: true,
-          last_activity_at: new Date().toISOString(),
-          user_id: user.id,
-          pet_id: null,
-          integration_source: null,
-          estimated_cost: null,
-          share_code: null,
-        };
+        // USA LA FUNZIONE DATABASE per copiare il protocollo pubblico
+        const { data: newProtocolId, error } = await supabase.rpc('start_public_protocol', {
+          p_public_protocol_id: protocol.id,
+          p_user_id: user.id
+        });
 
-        const { data: createdProtocol, error } = await supabase
-          .from('ai_training_protocols')
-          .insert({
-            title: newProtocol.title,
-            description: newProtocol.description,
-            category: newProtocol.category,
-            difficulty: newProtocol.difficulty,
-            duration_days: newProtocol.duration_days,
-            status: newProtocol.status,
-            target_behavior: newProtocol.target_behavior,
-            triggers: newProtocol.triggers,
-            required_materials: newProtocol.required_materials,
-            ai_generated: newProtocol.ai_generated,
-            veterinary_approved: newProtocol.veterinary_approved,
-            is_public: newProtocol.is_public,
-            success_rate: newProtocol.success_rate,
-            community_rating: newProtocol.community_rating,
-            user_id: newProtocol.user_id,
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        
-        // INCREMENTA IL CONTEGGIO DEGLI UTILIZZI DEL PROTOCOLLO ORIGINALE
-        await supabase
-          .from('ai_training_protocols')
-          .update({ community_usage: String((parseInt(protocol.community_usage || '0') || 0) + 1) })
-          .eq('id', protocol.id);
-
-        // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO
-        const { data: originalExercises, error: exercisesError } = await supabase
-          .from('ai_training_exercises')
-          .select('*')
-          .eq('protocol_id', protocol.id);
-
-        if (exercisesError) {
-          console.error('Errore nel caricamento esercizi:', exercisesError);
-        } else if (originalExercises && originalExercises.length > 0) {
-          // Copia gli esercizi al nuovo protocollo
-          const exercisesToCopy = originalExercises.map(exercise => ({
-            protocol_id: createdProtocol.id,
-            title: exercise.title,
-            description: exercise.description,
-            exercise_type: exercise.exercise_type,
-            day_number: exercise.day_number,
-            duration_minutes: exercise.duration_minutes,
-            instructions: exercise.instructions,
-            materials: exercise.materials,
-            effectiveness_score: exercise.effectiveness_score,
-          }));
-
-          const { error: copyError } = await supabase
-            .from('ai_training_exercises')
-            .insert(exercisesToCopy);
-
-          if (copyError) {
-            console.error('Errore nella copia degli esercizi:', copyError);
-            showToast({
-              title: 'Attenzione',
-              description: 'Protocollo avviato ma alcuni esercizi potrebbero non essere disponibili',
-              type: 'warning'
-            });
-          }
+        if (error) {
+          console.error('Errore creazione protocollo personale:', error);
+          showToast({
+            title: 'Errore',
+            description: 'Non è stato possibile avviare il protocollo. Riprova.',
+            type: 'error'
+          });
+          return;
         }
 
         showTranslatedToast({
@@ -501,9 +423,13 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza alla dashboard del nuovo protocollo
+        // Invalida cache per aggiornare la lista protocolli attivi
+        queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+        queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+        
+        // Reindirizza alla dashboard del nuovo protocollo PERSONALE
         setTimeout(() => {
-          window.location.href = `/training/dashboard/${createdProtocol.id}`;
+          navigate(`/training/dashboard/${newProtocolId}`);
         }, 1500);
       } else if (protocol.status === 'completed') {
         // Se è un protocollo completato, resettalo completamente
