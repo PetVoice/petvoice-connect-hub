@@ -74,10 +74,21 @@ const DashboardPage: React.FC = () => {
               <div>
                 <h2 className="text-2xl">{selectedPet.name}</h2>
                 <p className="text-muted-foreground">
-                  {t(`pets.types.${selectedPet.type?.toLowerCase()}`) || selectedPet.type}
+                  {(() => {
+                    const typeMap: { [key: string]: string } = {
+                      'Cane': 'dog',
+                      'Gatto': 'cat',
+                      'Uccello': 'bird',
+                      'Pesce': 'fish',
+                      'Rettile': 'reptile',
+                      'Criceto': 'hamster',
+                      'Coniglio': 'rabbit'
+                    };
+                    const translationKey = typeMap[selectedPet.type] || selectedPet.type?.toLowerCase();
+                    return t(`pets.types.${translationKey}`) || selectedPet.type;
+                  })()}
                   {selectedPet.breed && ` - ${selectedPet.breed}`}
                   {selectedPet.birth_date && ` - ${Math.floor((new Date().getTime() - new Date(selectedPet.birth_date).getTime()) / (1000 * 60 * 60 * 24 * 365.25))} ${t('pets.petCard.years')}`}
-                  {selectedPet.weight && ` - ${selectedPet.weight} Kg`}
                 </p>
               </div>
             </CardTitle>
