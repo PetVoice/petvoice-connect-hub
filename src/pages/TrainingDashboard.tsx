@@ -77,6 +77,7 @@ const TrainingDashboard: React.FC = () => {
   // STATO SEMPLICE PER IL PROGRESSO GIORNALIERO
   const [dailyCompletedExercises, setDailyCompletedExercises] = useState(0);
   const [currentDay, setCurrentDay] = useState(1); // Stato locale per il giorno corrente
+  const [totalProgressPercentage, setTotalProgressPercentage] = useState(0); // Stato locale per progresso totale
 
   // Recupera il protocollo specifico dal database
   useEffect(() => {
@@ -343,6 +344,7 @@ const TrainingDashboard: React.FC = () => {
         progress_percentage: Math.min(newProgressPercentage, 100).toString()
       };
       setProtocol(newProtocolData);
+      setTotalProgressPercentage(Math.min(newProgressPercentage, 100)); // AGGIORNA STATO LOCALE PROGRESSO
       
       console.log('🔄 AGGIORNAMENTO IMMEDIATO UI:', {
         newDailyCompleted,
@@ -639,7 +641,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-blue-500" />
               <div>
-                <div className="text-lg font-bold">{parseInt(protocol.progress_percentage || '0')}%</div>
+                <div className="text-lg font-bold">{totalProgressPercentage}%</div>
                 <p className="text-xs text-muted-foreground">Progresso totale</p>
               </div>
             </div>
