@@ -153,7 +153,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
     <div className={`p-4 bg-secondary/30 border rounded-lg space-y-3 ${className}`}>
       <div className="flex items-center gap-2 text-sm font-medium">
         <Volume2 className="h-4 w-4" />
-        <span>{t('analysis.results.recording', 'Registrazione')}: {fileName}</span>
+        <span>{t('analysis.results.fileInfo.recording', 'Registrazione')}: {fileName}</span>
       </div>
       
       {isLoading ? (

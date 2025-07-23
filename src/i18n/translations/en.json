@@ -417,7 +417,8 @@
         "file": "File",
         "size": "Size",
         "duration": "Analysis duration",
-        "date": "Date"
+        "date": "Date",
+        "recording": "Recording"
       },
       "detailedAnalysis": "Detailed Analysis",
       "behavioralInsights": "Behavioral insights and recommendations for {{petName}}",
@@ -548,11 +549,6 @@
         "difficultyImpulseControl": "Difficulty in impulse control with repetitive behaviors",
         "exploratoryBehaviorCuriosity": "Exploratory behavior with curiosity towards new objects and spaces"
       }
-    },
-    "results": {
-      "emotion": "Emotion",
-      "behavioralInsights": "Behavioral Insights",
-      "recording": "Recording"
     },
     "pdf": {
       "multipleAnalysisTitle": "MULTIPLE ANALYSIS REPORT - PET VOICE",
