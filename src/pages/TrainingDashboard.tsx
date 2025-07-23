@@ -295,7 +295,6 @@ const TrainingDashboard: React.FC = () => {
       const totalExercises = exercisesPerDay * protocol.duration_days;
       
       // Calcola totale esercizi completati nel protocollo
-      const currentDay = protocol.current_day || 1;
       const exercisesCompletedInPreviousDays = (currentDay - 1) * exercisesPerDay;
       const totalCompletedExercises = exercisesCompletedInPreviousDays + completedCount;
       
@@ -310,11 +309,17 @@ const TrainingDashboard: React.FC = () => {
         exercisesCompletedInPreviousDays,
         totalCompletedExercises,
         newProgressPercentage,
-        currentDay: protocol.current_day
+        currentDay: currentDay
        });
 
       // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
       const newDailyCompleted = dailyCompletedExercises + 1;
+      console.log('🎯 AGGIORNAMENTO PROGRESSO LOCALE:', {
+        oldDailyCompleted: dailyCompletedExercises,
+        newDailyCompleted,
+        currentExercise,
+        completedCount
+      });
       setDailyCompletedExercises(newDailyCompleted);
 
       // Aggiorna il progresso del protocollo nel database
