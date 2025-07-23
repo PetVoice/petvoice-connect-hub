@@ -821,7 +821,10 @@ export const AITrainingHub: React.FC = () => {
                             </Button>
                              <Button
                                size="sm"
-                               onClick={() => handleStartProtocol(protocol)}
+                                onClick={() => {
+                                  console.log('🔥 PULSANTE INIZIA PROTOCOLLO CLICCATO!', protocol.title);
+                                  handleStartProtocol(protocol);
+                                }}
                                className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                              >
                                 <Play className="h-4 w-4 mr-2" />
