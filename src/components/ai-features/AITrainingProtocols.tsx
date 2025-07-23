@@ -266,7 +266,7 @@ export const AITrainingProtocols: React.FC = () => {
                               )}
                             </div>
                             <p className="text-sm text-muted-foreground mb-2">
-                              {translateProtocolDescription(protocol.description, protocol.title)}
+                              {translateProtocolDescription(protocol.description || '')}
                             </p>
                             <div className="flex items-center gap-4 text-sm">
                                <span className="flex items-center gap-1">

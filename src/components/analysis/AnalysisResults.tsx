@@ -1603,7 +1603,23 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
                                       const { data: createdProtocol, error: createError } = await supabase
                                         .from('ai_training_protocols')
-                                        .insert(newProtocol)
+                                        .insert({
+                                          title: newProtocol.title,
+                                          description: newProtocol.description,
+                                          category: newProtocol.category,
+                                          difficulty: newProtocol.difficulty,
+                                          duration_days: newProtocol.duration_days,
+                                          status: newProtocol.status,
+                                          target_behavior: newProtocol.target_behavior,
+                                          triggers: newProtocol.triggers,
+                                          required_materials: newProtocol.required_materials,
+                                          ai_generated: newProtocol.ai_generated,
+                                          veterinary_approved: newProtocol.veterinary_approved,
+                                          is_public: newProtocol.is_public,
+                                          success_rate: newProtocol.success_rate,
+                                          community_rating: newProtocol.community_rating,
+                                          user_id: newProtocol.user_id,
+                                        })
                                         .select()
                                         .single();
 

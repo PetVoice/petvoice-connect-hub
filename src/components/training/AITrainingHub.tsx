@@ -413,7 +413,7 @@ export const AITrainingHub: React.FC = () => {
           is_public: false,
           veterinary_approved: false,
           community_rating: 0,
-          community_usage: 0,
+        community_usage: "0",
           mentor_recommended: false,
           notifications_enabled: true,
           last_activity_at: new Date().toISOString(),
@@ -426,7 +426,23 @@ export const AITrainingHub: React.FC = () => {
 
         const { data: createdProtocol, error } = await supabase
           .from('ai_training_protocols')
-          .insert(newProtocol)
+          .insert({
+            title: newProtocol.title,
+            description: newProtocol.description,
+            category: newProtocol.category,
+            difficulty: newProtocol.difficulty,
+            duration_days: newProtocol.duration_days,
+            status: newProtocol.status,
+            target_behavior: newProtocol.target_behavior,
+            triggers: newProtocol.triggers,
+            required_materials: newProtocol.required_materials,
+            ai_generated: newProtocol.ai_generated,
+            veterinary_approved: newProtocol.veterinary_approved,
+            is_public: newProtocol.is_public,
+            success_rate: newProtocol.success_rate,
+            community_rating: newProtocol.community_rating,
+            user_id: newProtocol.user_id,
+          })
           .select()
           .single();
 
@@ -435,7 +451,7 @@ export const AITrainingHub: React.FC = () => {
         // INCREMENTA IL CONTEGGIO DEGLI UTILIZZI DEL PROTOCOLLO ORIGINALE
         await supabase
           .from('ai_training_protocols')
-          .update({ community_usage: (protocol.community_usage || 0) + 1 })
+          .update({ community_usage: String((parseInt(protocol.community_usage || '0') || 0) + 1) })
           .eq('id', protocol.id);
 
         // COPIARE TUTTI GLI ESERCIZI DAL PROTOCOLLO PUBBLICO
@@ -492,7 +508,7 @@ export const AITrainingHub: React.FC = () => {
           updates: {
             status: 'active',
             current_day: 1,
-            progress_percentage: 0,
+            progress_percentage: "0",
             success_rate: 0,
             last_activity_at: new Date().toISOString(),
           }

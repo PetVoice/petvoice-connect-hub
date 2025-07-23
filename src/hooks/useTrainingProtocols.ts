@@ -6,33 +6,33 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export interface TrainingProtocol {
   id: string;
-  user_id: string;
+  user_id?: string;
   pet_id?: string;
   title: string;
   description?: string;
   category: string;
-  difficulty: 'facile' | 'medio' | 'difficile';
+  difficulty: string;
   duration_days: number;
-  current_day: number;
-  progress_percentage: number;
-  status: 'available' | 'active' | 'paused' | 'completed' | 'suggested';
+  current_day?: number;
+  progress_percentage?: string;
+  status: string;
   target_behavior?: string;
-  triggers?: string[];
-  success_rate: number;
-  ai_generated: boolean;
-  integration_source?: 'analysis' | 'diary' | 'wellness' | 'matching' | 'manual';
-  veterinary_approved: boolean;
-  estimated_cost?: number;
-  required_materials?: string[];
-  is_public: boolean;
+  triggers?: any;
+  success_rate?: number;
+  ai_generated?: boolean;
+  integration_source?: string;
+  veterinary_approved?: boolean;
+  estimated_cost?: string;
+  required_materials?: any;
+  is_public?: boolean;
   share_code?: string;
-  community_rating: number;
-  community_usage: number;
-  mentor_recommended: boolean;
-  notifications_enabled: boolean;
-  created_at: string;
-  updated_at: string;
-  last_activity_at: string;
+  community_rating?: number;
+  community_usage?: string;
+  mentor_recommended?: boolean;
+  notifications_enabled?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  last_activity_at?: string;
   // Relationships
   exercises?: TrainingExercise[];
   metrics?: TrainingMetrics | null;
@@ -189,7 +189,7 @@ export const useActiveProtocols = () => {
         exercises: protocol.exercises || [],
         metrics: protocol.metrics?.[0] || null,
         schedule: protocol.schedule?.[0] || null,
-      })) as TrainingProtocol[];
+      })) as unknown as TrainingProtocol[];
     },
     refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
@@ -227,7 +227,7 @@ export const useTrainingProtocols = () => {
         exercises: protocol.exercises || [],
         metrics: protocol.metrics?.[0] || null,
         schedule: protocol.schedule?.[0] || null,
-      })) as TrainingProtocol[];
+      })) as unknown as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
@@ -292,7 +292,20 @@ export const useCreateProtocol = () => {
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .insert({
-          ...protocol,
+          title: protocol.title,
+          description: protocol.description,
+          category: protocol.category,
+          difficulty: protocol.difficulty,
+          duration_days: protocol.duration_days,
+          status: protocol.status,
+          target_behavior: protocol.target_behavior,
+          triggers: protocol.triggers,
+          required_materials: protocol.required_materials,
+          ai_generated: protocol.ai_generated || false,
+          veterinary_approved: protocol.veterinary_approved || false,
+          is_public: protocol.is_public || false,
+          success_rate: protocol.success_rate || 0,
+          community_rating: protocol.community_rating || 0,
           user_id: user.id,
         })
         .select()
