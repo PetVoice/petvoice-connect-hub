@@ -47,100 +47,128 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={
           <ProtectedRoute>
-            <Layout>
-              <DashboardPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <DashboardPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/pets" element={
           <ProtectedRoute>
-            <Layout>
-              <PetsPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <PetsPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/analysis" element={
           <ProtectedRoute>
-            <Layout>
-              <AnalysisPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <AnalysisPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/diary" element={
           <ProtectedRoute>
-            <Layout>
-              <DiaryPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <DiaryPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/calendar" element={
           <ProtectedRoute>
-            <Layout>
-              <CalendarPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <CalendarPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/wellness" element={
           <ProtectedRoute>
-            <Layout>
-              <WellnessPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <WellnessPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/ai-music-therapy" element={
           <ProtectedRoute>
-            <Layout>
-              <AIMusicTherapyPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <AIMusicTherapyPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/stats" element={
           <ProtectedRoute>
-            <Layout>
-              <StatsPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <StatsPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/pet-matching" element={
           <ProtectedRoute>
-            <Layout>
-              <PetMatchingPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <PetMatchingPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/training" element={
           <ProtectedRoute>
-            <Layout>
-              <TrainingPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <TrainingPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/training/dashboard/:protocolId" element={
           <ProtectedRoute>
-            <Layout>
-              <TrainingDashboard />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <TrainingDashboard />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/community" element={
           <ProtectedRoute>
-            <Layout>
-              <CommunityPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <CommunityPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/subscription" element={
           <ProtectedRoute>
-            <Layout>
-              <SubscriptionPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <SubscriptionPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/subscription-success" element={
           <ProtectedRoute>
-            <Layout>
-              <SubscriptionSuccessPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <SubscriptionSuccessPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="/support" element={
@@ -150,9 +178,11 @@ function AppContent() {
         } />
         <Route path="/settings" element={
           <ProtectedRoute>
-            <Layout>
-              <SettingsPage />
-            </Layout>
+            <PetProvider>
+              <Layout>
+                <SettingsPage />
+              </Layout>
+            </PetProvider>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />
@@ -165,20 +195,18 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <LanguageProvider>
-        <PetProvider>
-          <ThemeProvider>
-            <AppearanceProvider>
-              <NotificationEventsProvider>
-                <TooltipProvider>
-                  <NotificationManager />
-                  <AppContent />
-                  <Toaster />
-                  <Sonner />
-                </TooltipProvider>
-              </NotificationEventsProvider>
-            </AppearanceProvider>
-          </ThemeProvider>
-        </PetProvider>
+        <ThemeProvider>
+          <AppearanceProvider>
+            <NotificationEventsProvider>
+              <TooltipProvider>
+                <NotificationManager />
+                <AppContent />
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </NotificationEventsProvider>
+          </AppearanceProvider>
+        </ThemeProvider>
       </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
