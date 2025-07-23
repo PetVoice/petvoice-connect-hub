@@ -178,9 +178,10 @@ const TrainingDashboard: React.FC = () => {
   }, [protocol?.id, hasInitialized]); // RIMOSSO protocol?.progress_percentage dalle dipendenze!
 
   // Ottieni SOLO gli esercizi del giorno corrente (3 al giorno)
+  const currentDay = protocol?.current_day || 1; // Default al giorno 1 se null
   const todayExercises: Exercise[] = protocol?.exercises ? 
     protocol.exercises
-      .filter(ex => ex.day_number === protocol.current_day)
+      .filter(ex => ex.day_number === currentDay)
       .map(ex => ({
         id: ex.id,
         title: ex.title,
