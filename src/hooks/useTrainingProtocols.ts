@@ -202,7 +202,7 @@ export const useTrainingProtocols = () => {
         .from('ai_training_protocols')
         .select('*')
         .eq('is_public', true)
-        .eq('status', 'active')  // Solo protocolli attivi (disponibili)
+        .eq('status', 'active')  // I protocolli pubblici hanno status='active'
         .order('created_at', { ascending: false });
 
       if (error) throw error;

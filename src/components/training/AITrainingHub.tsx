@@ -212,9 +212,7 @@ export const AITrainingHub: React.FC = () => {
     if (!protocols) return [];
     
     return protocols.filter(protocol => {
-      // Show only available protocols in main "Protocolli" tab
-      if (protocol.status !== 'available') return false;
-      
+      // I protocolli pubblici sono sempre disponibili per essere usati
       const matchesSearch = protocol.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            protocol.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || protocol.category === categoryFilter;
@@ -777,12 +775,11 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
           <TabsTrigger value="active">Attivi</TabsTrigger>
           <TabsTrigger value="completed">Completati</TabsTrigger>
           <TabsTrigger value="suggestions">Suggerimenti</TabsTrigger>
-          <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
         <TabsContent value="protocols" className="space-y-4">
@@ -1266,39 +1263,6 @@ export const AITrainingHub: React.FC = () => {
         </TabsContent>
 
 
-        <TabsContent value="community" className="space-y-4">
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  Template Più Popolari
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {templates.slice(0, 5).map((template) => (
-                    <div key={template.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <h4 className="font-medium">{template.name}</h4>
-                        <p className="text-sm text-muted-foreground">{template.description}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getDifficultyColor(template.difficulty)}>
-                          {template.difficulty}
-                        </Badge>
-                        <div className="text-right">
-                          <div className="text-sm font-medium">{Math.round(template.success_rate)}%</div>
-                          <div className="text-xs text-muted-foreground">successo</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
 
 
