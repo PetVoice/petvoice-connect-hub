@@ -3423,6 +3423,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      start_public_protocol: {
+        Args: { p_public_protocol_id: string; p_user_id: string }
+        Returns: string
+      }
       upsert_protocol_rating: {
         Args: {
           p_protocol_id: string
