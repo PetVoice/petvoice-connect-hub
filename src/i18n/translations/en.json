@@ -1371,6 +1371,13 @@
     "emptyState": {
       "title": "No protocols found",
       "description": "Start by creating your first personalized training protocol."
+    },
+    "exercises": {
+      "titles": {
+        "Creazione Safe Space Personale": "Personal Safe Space Creation",
+        "Confidence Building con Handler": "Confidence Building with Handler", 
+        "Osservazione Passiva Ambiente": "Passive Environment Observation"
+      }
     }
   },
   "community": {

@@ -1274,7 +1274,17 @@
       "level": "Nivel:",
       "tip": "Consejo:",
       "beginner": "Principiante",
-      "exerciseCompleted": "Ejercicio {{number}} Completado"
+      "exerciseCompleted": "Ejercicio {{number}} Completado",
+      "minutes": "minutos",
+      "tipText": "La paciencia es clave. Permite que tu mascota explore a su propio ritmo.",
+      "interrupt": "Interrumpir Entrenamiento"
+    },
+    "exercises": {
+      "titles": {
+        "Creazione Safe Space Personale": "Creación de Espacio Seguro Personal",
+        "Confidence Building con Handler": "Construcción de Confianza con el Cuidador", 
+        "Osservazione Passiva Ambiente": "Observación Pasiva del Ambiente"
+      }
     }
   },
   "community": {
