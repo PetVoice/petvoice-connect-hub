@@ -101,11 +101,18 @@ const TrainingDashboard: React.FC = () => {
       }
 
       // Carica gli esercizi separatamente
-      const { data: exercisesData } = await supabase
+      const { data: exercisesData, error: exercisesError } = await supabase
         .from('ai_training_exercises')
         .select('*')
         .eq('protocol_id', protocolId)
         .order('day_number', { ascending: true });
+
+      console.log('🔍 CARICAMENTO ESERCIZI:', {
+        protocolId,
+        exercisesData,
+        exercisesError,
+        count: exercisesData?.length || 0
+      });
 
       const data = {
         ...protocolData,
@@ -179,9 +186,21 @@ const TrainingDashboard: React.FC = () => {
 
   // Ottieni SOLO gli esercizi del giorno corrente (3 al giorno)
   const currentDay = protocol?.current_day || 1; // Default al giorno 1 se null
+  
+  console.log('🎯 FILTRO ESERCIZI:', {
+    protocolId: protocol?.id,
+    currentDay,
+    totalExercises: protocol?.exercises?.length || 0,
+    allExercises: protocol?.exercises?.map(ex => ({ id: ex.id, day: ex.day_number, title: ex.title })) || []
+  });
+  
   const todayExercises: Exercise[] = protocol?.exercises ? 
     protocol.exercises
-      .filter(ex => ex.day_number === currentDay)
+      .filter(ex => {
+        const matches = ex.day_number === currentDay;
+        console.log(`🔍 Esercizio "${ex.title}" - giorno ${ex.day_number} vs ${currentDay}: ${matches ? 'INCLUSO' : 'ESCLUSO'}`);
+        return matches;
+      })
       .map(ex => ({
         id: ex.id,
         title: ex.title,
@@ -193,6 +212,12 @@ const TrainingDashboard: React.FC = () => {
         rating: ex.effectiveness_score,
         notes: ex.feedback
       })) : [];
+
+  console.log('✅ RISULTATO FILTRO:', {
+    currentDay,
+    todayExercisesCount: todayExercises.length,
+    todayExercises: todayExercises.map(ex => ({ id: ex.id, title: ex.title }))
+  });
 
   // Timer effect
   useEffect(() => {
