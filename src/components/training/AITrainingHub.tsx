@@ -1373,6 +1373,7 @@ export const AITrainingHub: React.FC = () => {
                 </Button>
                 <Button
                   onClick={() => {
+                    console.log('🔥 PULSANTE DIALOG INIZIA PROTOCOLLO CLICCATO!', selectedProtocol.title);
                     handleStartProtocol(selectedProtocol);
                     setSelectedProtocol(null);
                   }}
