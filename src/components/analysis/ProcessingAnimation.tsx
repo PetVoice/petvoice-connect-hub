@@ -41,23 +41,23 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
   };
 
   const getProcessingSteps = () => [
-    { label: t('analysis.processing.steps.upload', 'Upload'), icon: Upload },
-    { label: t('analysis.processing.steps.analysis', 'AI Analysis'), icon: Brain },
-    { label: t('analysis.processing.steps.save', 'Save'), icon: Zap },
-    { label: t('analysis.processing.steps.complete', 'Complete'), icon: CheckCircle2 }
+    { label: 'Upload', icon: Upload },
+    { label: 'Analisi AI', icon: Brain },
+    { label: 'Salva', icon: Zap },
+    { label: 'Completo', icon: CheckCircle2 }
   ];
 
   const getFunFact = () => {
     if (stage.includes('Caricamento') || stage.includes('Uploading') || stage.includes('Subiendo')) {
-      return t('analysis.processing.funFacts.uploading', 'I gatti hanno oltre 100 vocalizzi diversi, mentre i cani ne hanno solo 10!');
+      return 'I gatti hanno oltre 100 vocalizzi diversi, mentre i cani ne hanno solo 10!';
     } else if (stage.includes('Analisi') || stage.includes('Analysis') || stage.includes('Análisis')) {
-      return t('analysis.processing.funFacts.analyzing', "L'AI analizza oltre 50 parametri acustici per identificare le emozioni del tuo pet");
+      return "L'AI analizza oltre 50 parametri acustici per identificare le emozioni del tuo pet";
     } else if (stage.includes('Salvataggio') || stage.includes('Saving') || stage.includes('Guardando')) {
-      return t('analysis.processing.funFacts.saving', 'Le analisi vengono salvate in modo sicuro e sono sempre accessibili dalla cronologia');
+      return 'Le analisi vengono salvate in modo sicuro e sono sempre accessibili dalla cronologia';
     } else if (stage.includes('Completato') || stage.includes('Completed') || stage.includes('Completado')) {
-      return t('analysis.processing.funFacts.completed', 'Analisi completata! Ora puoi scoprire cosa pensa il tuo pet 🎉');
+      return 'Analisi completata! Ora puoi scoprire cosa pensa il tuo pet 🎉';
     }
-    return t('analysis.processing.funFacts.default', 'La nostra IA può riconoscere oltre 15 diverse emozioni nel tuo pet!');
+    return 'La nostra IA può riconoscere oltre 15 diverse emozioni nel tuo pet!';
   };
 
   return (
@@ -77,7 +77,7 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
             <div className="flex items-center justify-center gap-3">
               {getStageIcon()}
               <h2 className={cn("text-xl font-semibold", getStageColor())}>
-                {t('analysis.processing.title', 'Analisi in Corso')}
+                Analisi in Corso
               </h2>
             </div>
             
@@ -87,7 +87,7 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
             
             {currentFile && (
               <p className="text-sm text-muted-foreground truncate">
-                {t('analysis.processing.currentFile', 'File')}: {currentFile}
+                File: {currentFile}
               </p>
             )}
           </div>
@@ -96,7 +96,7 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
           <div className="space-y-3">
             <Progress value={progress} className="h-3" />
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">{t('analysis.processing.progress', 'Progresso')}</span>
+              <span className="text-muted-foreground">Progresso</span>
               <span className="font-medium">{Math.round(progress)}%</span>
             </div>
           </div>
@@ -139,7 +139,7 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
           {/* AI Processing Visualization */}
           {(stage.includes('Analisi') || stage.includes('Analysis') || stage.includes('Análisis')) && (
             <div className="space-y-3">
-              <p className="text-sm font-medium">{t('analysis.processing.analyzing', 'Analizzando Patterns Emotivi...')}</p>
+              <p className="text-sm font-medium">Analizzando Patterns Emotivi...</p>
               <div className="flex justify-center gap-1">
                 {Array.from({ length: 5 }, (_, i) => (
                   <div
@@ -153,17 +153,17 @@ const ProcessingAnimation: React.FC<ProcessingAnimationProps> = ({
                 ))}
               </div>
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>• {t('analysis.processing.steps.extractFeatures', 'Estrazione features audio')}</p>
-                <p>• {t('analysis.processing.steps.emotionalClassification', 'Classificazione emotiva')}</p>
-                <p>• {t('analysis.processing.steps.generateInsights', 'Generazione insights')}</p>
-                <p>• {t('analysis.processing.steps.createRecommendations', 'Creazione raccomandazioni')}</p>
+                <p>• Estrazione features audio</p>
+                <p>• Classificazione emotiva</p>
+                <p>• Generazione insights</p>
+                <p>• Creazione raccomandazioni</p>
               </div>
             </div>
           )}
 
           {/* Fun Facts During Processing */}
           <div className="text-xs text-muted-foreground bg-secondary/50 p-3 rounded-lg">
-            <p className="font-medium mb-1">💡 {t('analysis.processing.didYouKnow', 'Lo sapevi?')}</p>
+            <p className="font-medium mb-1">💡 Lo sapevi?</p>
             <p>{getFunFact()}</p>
           </div>
 

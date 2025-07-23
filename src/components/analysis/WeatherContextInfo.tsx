@@ -444,7 +444,7 @@ const WeatherContextInfo: React.FC<WeatherContextInfoProps> = ({ analysisDate })
       </div>
       
       <p className="text-xs opacity-75 mt-2 border-t border-green-200/30 pt-2">
-        {getText('analysisRecorded')} {getTimeOfDay()} del {new Date(analysisDate).toLocaleDateString(language === 'en' ? 'en-US' : language === 'es' ? 'es-ES' : 'it-IT')}. 
+        {getText('analysisRecorded')} {getTimeOfDay()} del {new Date(analysisDate).toLocaleDateString('it-IT')}. 
         {getText('uvIndex')} {weatherData.uvIndex}/10. 
         {getText('environmentalConditions')} {environmentalData.noiseLevel < 50 ? getText('favorableConditions') : getText('moderateDisturbances')} {getText('forBehavioralAnalysis')}
       </p>

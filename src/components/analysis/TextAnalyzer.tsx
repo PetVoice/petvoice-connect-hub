@@ -31,12 +31,12 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
     const text = description.trim();
     
     if (text.length < 10) {
-      setError(t('analysis.upload.textAnalyzer.errors.tooShort', 'La descrizione deve essere di almeno 10 caratteri'));
+      setError('La descrizione deve essere di almeno 10 caratteri');
       return;
     }
     
     if (text.length > 2000) {
-      setError(t('analysis.upload.textAnalyzer.errors.tooLong', 'La descrizione non può superare i 2000 caratteri'));
+      setError('La descrizione non può superare i 2000 caratteri');
       return;
     }
 
@@ -68,10 +68,10 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          {t('analysis.upload.textAnalyzer.title', 'Analisi Testuale Comportamento')}
+          Analisi Testuale Comportamento
         </CardTitle>
         <CardDescription>
-          {t('analysis.upload.textAnalyzer.description', 'Descrivi il comportamento del tuo pet per un\'analisi comportamentale')}
+          Descrivi il comportamento del tuo pet per un'analisi comportamentale
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -79,7 +79,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
         <div className="space-y-2">
           <div className="relative">
             <Textarea
-              placeholder={t('analysis.upload.textAnalyzer.placeholder', 'Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova...')}
+              placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
               value={description}
               onChange={(e) => handleTextChange(e.target.value)}
               disabled={isProcessing}
@@ -105,15 +105,15 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                 characterCount < minLength && "text-orange-600",
                 characterCount > maxLength && "text-destructive"
               )}>
-                {t('analysis.upload.textAnalyzer.characterCount', `${characterCount}/${maxLength} caratteri`).replace('{{count}}', characterCount.toString()).replace('{{max}}', maxLength.toString())}
-                {characterCount < minLength && ` ${t('analysis.upload.textAnalyzer.minCharacters', `(minimo ${minLength})`).replace('{{min}}', minLength.toString())}`}
+                {characterCount}/{maxLength} caratteri
+                {characterCount < minLength && ` (minimo ${minLength})`}
               </span>
             </div>
             <Badge 
               variant={isValid ? "default" : "secondary"} 
               className="text-xs"
             >
-              {isValid ? t('analysis.upload.textAnalyzer.ready', 'Pronto') : t('analysis.upload.textAnalyzer.tooShort', 'Troppo corto')}
+              {isValid ? 'Pronto' : 'Troppo corto'}
             </Badge>
           </div>
 
@@ -134,12 +134,12 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           {isProcessing ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-              {t('analysis.upload.textAnalyzer.analysisInProgress', 'Analisi in corso...')}
+              Analisi in corso...
             </>
           ) : (
             <>
               <Send className="h-4 w-4 mr-2" />
-              {t('analysis.upload.textAnalyzer.analyzeButton', 'Analizza Comportamento')}
+              Analizza Comportamento
             </>
           )}
         </Button>
@@ -149,32 +149,32 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
         <div className="bg-gradient-to-r from-purple/5 to-purple/10 p-4 rounded-lg border border-purple/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">{t('analysis.upload.textAnalyzer.intelligentAnalysis.title')}</h4>
+              <h4 className="font-semibold text-foreground mb-2">🧠 Analisi Testuale Intelligente</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                {t('analysis.upload.textAnalyzer.intelligentAnalysis.description')}
+                Il nostro sistema AI analizza la tua descrizione per rilevare emozioni, comportamenti e contesto:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.emotionalKeywords')}</span>
+                  <span>🔍 Estrazione keywords emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.contextAnalysis')}</span>
+                  <span>📝 Analisi contestuale avanzata</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.emotionalProbability')}</span>
+                  <span>📊 Calcolo probabilità emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>{t('analysis.upload.textAnalyzer.intelligentAnalysis.features.personalizedSuggestions')}</span>
+                  <span>💡 Suggerimenti personalizzati</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                ⚡ <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.averageTime')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.instant')} • 
-                🎯 <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.accuracy')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.accuracyRange')} • 
-                📋 <strong>{t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.advantages')}</strong> {t('analysis.upload.textAnalyzer.intelligentAnalysis.stats.advantagesText')}
+                ⚡ <strong>Tempo medio:</strong> Istantaneo • 
+                🎯 <strong>Accuratezza:</strong> 92-97% • 
+                📋 <strong>Vantaggi:</strong> Gratuito, veloce, sempre disponibile
               </div>
             </div>
           </div>
