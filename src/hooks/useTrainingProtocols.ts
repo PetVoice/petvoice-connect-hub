@@ -126,12 +126,13 @@ export const useTrainingProtocols = () => {
   return useQuery({
     queryKey: ['training-protocols'],
     queryFn: async (): Promise<TrainingProtocol[]> => {
-      // Per i protocolli pubblici non serve autenticazione
-      console.log('Fetching public training protocols...');
+      console.log('🚀 Starting to fetch public training protocols...');
       
       // Ottieni la lingua dell'utente (o default)
       const { data: { user } } = await supabase.auth.getUser();
       let userLanguage: SupportedLanguage = 'it';
+      
+      console.log('👤 User authenticated:', !!user);
       
       if (user) {
         const { data: profile } = await supabase
@@ -140,6 +141,9 @@ export const useTrainingProtocols = () => {
           .eq('user_id', user.id)
           .single();
         userLanguage = (profile?.language as SupportedLanguage) || 'it';
+        console.log('🌐 User language from profile:', profile?.language, '-> Final language:', userLanguage);
+      } else {
+        console.log('🌐 No user, using default language:', userLanguage);
       }
 
       // Query semplificata per protocolli pubblici/template
@@ -149,22 +153,37 @@ export const useTrainingProtocols = () => {
         .eq('is_public', true)
         .order('community_rating', { ascending: false });
 
-      console.log('Public protocols query result:', { data, error });
+      console.log('📊 Public protocols query result:', { 
+        dataCount: data?.length, 
+        error,
+        sampleTitles: data?.slice(0, 2).map(p => ({
+          id: p.id,
+          title_it: p.title_it,
+          title_en: p.title_en, 
+          title_es: p.title_es
+        }))
+      });
 
       if (error) {
-        console.error('Error fetching public protocols:', error);
+        console.error('❌ Error fetching public protocols:', error);
         throw error;
       }
 
-      return (data?.map(rawProtocol => {
+      const convertedProtocols = data?.map(rawProtocol => {
+        console.log('🔄 Converting protocol:', rawProtocol.id, 'with language:', userLanguage);
         const protocol = convertToStandardProtocol(rawProtocol as MultiLanguageTrainingProtocol, userLanguage);
+        console.log('✅ Converted protocol title:', protocol.title);
         return {
           ...protocol,
           exercises: [],
           metrics: null,
           schedule: null,
         };
-      }) || []) as TrainingProtocol[];
+      }) || [];
+
+      console.log('🎯 Final protocols count:', convertedProtocols.length, 'Sample titles:', convertedProtocols.slice(0, 2).map(p => p.title));
+      
+      return convertedProtocols as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
