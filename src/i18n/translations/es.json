@@ -1257,7 +1257,11 @@
       "description": "Comienza creando tu primer protocolo de entrenamiento personalizado."
     },
     "dashboard": {
-      "dayOf": "Día {{current}} de {{total}}"
+      "dayOf": "Día {{current}} de {{total}}",
+      "currentDay": "Día actual",
+      "totalProgress": "Progreso total",
+      "successRate": "Tasa de éxito", 
+      "exercisesToday": "Ejercicios de hoy"
     }
   },
   "community": {
