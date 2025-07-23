@@ -201,6 +201,7 @@ const TrainingDashboard: React.FC = () => {
         console.log(`🔍 Esercizio "${ex.title}" - giorno ${ex.day_number} vs ${currentDay}: ${matches ? 'INCLUSO' : 'ESCLUSO'}`);
         return matches;
       })
+      .slice(0, 3) // LIMITA A MASSIMO 3 ESERCIZI PER GIORNO
       .map(ex => ({
         id: ex.id,
         title: ex.title,
