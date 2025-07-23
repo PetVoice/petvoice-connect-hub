@@ -71,10 +71,10 @@ import {
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 export const AITrainingHub: React.FC = () => {
@@ -595,8 +595,8 @@ export const AITrainingHub: React.FC = () => {
       setEditDescription('');
       
       showToast({
-        title: 'Protocollo aggiornato',
-        description: 'Le modifiche sono state salvate con successo',
+        title: t('training.progressSaved'),
+        description: t('training.protocolCreatedDescription'),
         type: 'success'
       });
     } catch (error) {
@@ -615,8 +615,8 @@ export const AITrainingHub: React.FC = () => {
       await deleteProtocol.mutateAsync(protocolId);
       
       showToast({
-        title: 'Protocollo eliminato',
-        description: 'Il protocollo è stato eliminato con successo',
+        title: t('training.protocolDeleted'),
+        description: t('training.protocolDeletedDescription'),
         type: 'delete'
       });
     } catch (error) {
@@ -660,8 +660,8 @@ export const AITrainingHub: React.FC = () => {
     } catch (error) {
       console.error('Error updating protocol status:', error);
       showToast({
-        title: 'Errore',
-        description: 'Impossibile aggiornare lo status del protocollo',
+        title: t('training.errorUpdating'),
+        description: t('training.errorUpdatingDescription'),
         type: 'error'
       });
     }

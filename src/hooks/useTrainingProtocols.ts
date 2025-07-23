@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export interface TrainingProtocol {
   id: string;
@@ -198,6 +199,7 @@ export const useActiveProtocols = () => {
 
 export const useTrainingProtocols = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useQuery({
     queryKey: ['training-protocols'],
@@ -233,6 +235,7 @@ export const useTrainingProtocols = () => {
 
 export const useSuggestedProtocols = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useQuery({
     queryKey: ['suggested-protocols'],
@@ -245,8 +248,8 @@ export const useSuggestedProtocols = () => {
 
       if (error) {
         toast({
-          title: 'Errore nel caricamento',
-          description: 'Non è stato possibile caricare i protocolli suggeriti',
+          title: t('training.errorCreating'),
+          description: t('training.errorCreatingDescription'),
           variant: 'destructive',
         });
         throw error;
@@ -276,6 +279,7 @@ export const useTrainingTemplates = () => {
 export const useCreateProtocol = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: async (protocol: Omit<TrainingProtocol, 'id' | 'created_at' | 'updated_at'>) => {
@@ -301,14 +305,14 @@ export const useCreateProtocol = () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
       queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
       toast({
-        title: 'Protocollo creato',
-        description: 'Il protocollo di training è stato creato con successo',
+        title: t('training.protocolCreated'),
+        description: t('training.protocolCreatedDescription'),
       });
     },
     onError: (error) => {
       toast({
-        title: 'Errore nella creazione',
-        description: 'Non è stato possibile creare il protocollo',
+        title: t('training.errorCreating'),
+        description: t('training.errorCreatingDescription'),
         variant: 'destructive',
       });
       console.error('Error creating protocol:', error);
@@ -319,6 +323,7 @@ export const useCreateProtocol = () => {
 export const useUpdateProtocol = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<TrainingProtocol> }) => {
@@ -338,8 +343,8 @@ export const useUpdateProtocol = () => {
     },
     onError: (error) => {
       toast({
-        title: 'Errore nell\'aggiornamento',
-        description: 'Non è stato possibile aggiornare il protocollo',
+        title: t('training.errorUpdating'),
+        description: t('training.errorUpdatingDescription'),
         variant: 'destructive',
       });
       console.error('Error updating protocol:', error);
@@ -350,6 +355,7 @@ export const useUpdateProtocol = () => {
 export const useDeleteProtocol = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -365,14 +371,14 @@ export const useDeleteProtocol = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
       toast({
-        title: 'Protocollo eliminato',
-        description: 'Il protocollo è stato eliminato con successo',
+        title: t('training.protocolDeleted'),
+        description: t('training.protocolDeletedDescription'),
       });
     },
     onError: (error) => {
       toast({
-        title: 'Errore nell\'eliminazione',
-        description: 'Non è stato possibile eliminare il protocollo',
+        title: t('training.errorDeleting'),
+        description: t('training.errorDeletingDescription'),
         variant: 'destructive',
       });
       console.error('Error deleting protocol:', error);
@@ -383,6 +389,7 @@ export const useDeleteProtocol = () => {
 export const useAcceptSuggestion = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: async (suggestion: SuggestedProtocol) => {
@@ -425,14 +432,14 @@ export const useAcceptSuggestion = () => {
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
       queryClient.invalidateQueries({ queryKey: ['suggested-protocols'] });
       toast({
-        title: 'Suggerimento accettato',
-        description: 'Il protocollo è stato aggiunto ai tuoi training',
+        title: t('training.suggestionAccepted'),
+        description: t('training.suggestionAcceptedDescription'),
       });
     },
     onError: (error) => {
       toast({
-        title: 'Errore nell\'accettazione',
-        description: 'Non è stato possibile accettare il suggerimento',
+        title: t('training.errorAccepting'),
+        description: t('training.errorAcceptingDescription'),
         variant: 'destructive',
       });
       console.error('Error accepting suggestion:', error);
@@ -443,6 +450,7 @@ export const useAcceptSuggestion = () => {
 export const useDismissSuggestion = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: async (suggestionId: string) => {
@@ -456,14 +464,14 @@ export const useDismissSuggestion = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suggested-protocols'] });
       toast({
-        title: 'Suggerimento rifiutato',
-        description: 'Il suggerimento è stato rimosso dalla lista',
+        title: t('training.suggestionDismissed'),
+        description: t('training.suggestionDismissedDescription'),
       });
     },
     onError: (error) => {
       toast({
-        title: 'Errore nel rifiuto',
-        description: 'Non è stato possibile rifiutare il suggerimento',
+        title: t('training.errorDismissing'),
+        description: t('training.errorDismissingDescription'),
         variant: 'destructive',
       });
       console.error('Error dismissing suggestion:', error);
