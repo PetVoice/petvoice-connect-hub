@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Play, Pause, Square, Volume2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AudioPlayerProps {
   storagePath: string;
@@ -12,6 +13,7 @@ interface AudioPlayerProps {
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, className }) => {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -151,7 +153,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
     <div className={`p-4 bg-secondary/30 border rounded-lg space-y-3 ${className}`}>
       <div className="flex items-center gap-2 text-sm font-medium">
         <Volume2 className="h-4 w-4" />
-        <span>Registrazione: {fileName}</span>
+        <span>{t('analysis.results.recording', 'Registrazione')}: {fileName}</span>
       </div>
       
       {isLoading ? (

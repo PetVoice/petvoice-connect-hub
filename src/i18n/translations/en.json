@@ -551,7 +551,8 @@
     },
     "results": {
       "emotion": "Emotion",
-      "behavioralInsights": "Behavioral Insights"
+      "behavioralInsights": "Behavioral Insights",
+      "recording": "Recording"
     },
     "pdf": {
       "multipleAnalysisTitle": "MULTIPLE ANALYSIS REPORT - PET VOICE",
