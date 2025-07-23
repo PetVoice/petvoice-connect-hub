@@ -182,6 +182,10 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
 
   const updatePet = async (petId: string, petData: Partial<Pet>) => {
     try {
+      // Salva il nome del pet prima di aggiornarlo
+      const petToUpdate = pets.find(pet => pet.id === petId);
+      const petName = petData.name || petToUpdate?.name || 'Pet';
+      
       const { error } = await supabase
         .from('pets')
         .update(petData)
@@ -199,7 +203,8 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
       showToast({
         title: 'pets.petUpdated.title',
         description: 'pets.petUpdated.description',
-        variant: 'success'
+        variant: 'success',
+        variables: { petName }
       });
 
       // Forza un refresh per assicurarsi che i dati siano sincronizzati
