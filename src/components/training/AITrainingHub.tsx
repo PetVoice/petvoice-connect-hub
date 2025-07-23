@@ -257,6 +257,23 @@ export const AITrainingHub: React.FC = () => {
     return t(`training.difficulty.${difficulty}`, difficulty);
   };
 
+  // Translation helper functions for dynamic content
+  const translateCategory = (category: string) => {
+    return t(`training.categories.${category}`, category);
+  };
+
+  const translateMaterial = (material: string) => {
+    return t(`training.materials.${material}`, material);
+  };
+
+  const translateTrigger = (trigger: string) => {
+    return t(`training.triggers.${trigger}`, trigger);
+  };
+
+  const translateTargetBehavior = (targetBehavior: string) => {
+    return t(`training.targetBehaviors.${targetBehavior}`, targetBehavior);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-blue-500/20 text-blue-700 border-blue-500/20';
@@ -1346,7 +1363,7 @@ export const AITrainingHub: React.FC = () => {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">{t('training.createProtocol.form.category')}:</span>
-                        <Badge variant="secondary">{selectedProtocol.category}</Badge>
+                        <Badge variant="secondary">{translateCategory(selectedProtocol.category)}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">{t('training.labels.difficulty')}:</span>
@@ -1360,7 +1377,7 @@ export const AITrainingHub: React.FC = () => {
                       {selectedProtocol.target_behavior && (
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">{t('training.createProtocol.form.targetBehavior')}:</span>
-                          <span className="font-medium">{selectedProtocol.target_behavior}</span>
+                          <span className="font-medium">{translateTargetBehavior(selectedProtocol.target_behavior)}</span>
                         </div>
                       )}
                     </div>
@@ -1380,7 +1397,7 @@ export const AITrainingHub: React.FC = () => {
                         {selectedProtocol.required_materials.map((material, index) => (
                           <div key={index} className="flex items-center gap-3">
                             <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            <span className="text-sm">{material}</span>
+                            <span className="text-sm">{translateMaterial(material)}</span>
                           </div>
                         ))}
                       </div>
@@ -1398,7 +1415,7 @@ export const AITrainingHub: React.FC = () => {
                         {selectedProtocol.triggers.map((trigger, index) => (
                           <div key={index} className="flex items-center gap-3">
                             <AlertCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                            <span className="text-sm">{trigger}</span>
+                            <span className="text-sm">{translateTrigger(trigger)}</span>
                           </div>
                         ))}
                       </div>

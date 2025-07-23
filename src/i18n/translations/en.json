@@ -1187,6 +1187,36 @@
       "mentorRecommended": "Mentor recommended",
       "usersUsedIt": "users have used it"
     },
+    "categories": {
+      "socializzazione": "socialization",
+      "aggressività": "aggression",
+      "ansia": "anxiety",
+      "alimentazione": "feeding",
+      "sonno": "sleep",
+      "fobie": "phobias",
+      "distruzione": "destruction",
+      "gelosia": "jealousy",
+      "energia": "energy",
+      "iperattività": "hyperactivity"
+    },
+    "materials": {
+      "snack premio altissimo valore": "high-value reward treats",
+      "giocattoli sociali": "social toys",
+      "guinzaglio lungo": "long leash",
+      "tappetino comfort": "comfort mat",
+      "barriere visive mobili": "mobile visual barriers",
+      "spazi neutri sicuri": "safe neutral spaces"
+    },
+    "triggers": {
+      "presenza di estranei": "presence of strangers",
+      "altri animali": "other animals",
+      "ambienti sociali": "social environments",
+      "situazioni di gruppo": "group situations",
+      "spazi pubblici": "public spaces"
+    },
+    "targetBehaviors": {
+      "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni": "Improve social skills, reduce shyness, increase confidence in interactions"
+    },
     "protocols": {
       "socializzazioneProgressiva": {
         "title": "Progressive Socialization",

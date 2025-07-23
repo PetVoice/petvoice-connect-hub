@@ -1186,6 +1186,36 @@
       "mentorRecommended": "Raccomandato da mentor",
       "usersUsedIt": "utenti l'hanno usato"
     },
+    "categories": {
+      "socializzazione": "socializzazione",
+      "aggressività": "aggressività",
+      "ansia": "ansia",
+      "alimentazione": "alimentazione",
+      "sonno": "sonno",
+      "fobie": "fobie",
+      "distruzione": "distruzione",
+      "gelosia": "gelosia",
+      "energia": "energia",
+      "iperattività": "iperattività"
+    },
+    "materials": {
+      "snack premio altissimo valore": "snack premio altissimo valore",
+      "giocattoli sociali": "giocattoli sociali",
+      "guinzaglio lungo": "guinzaglio lungo",
+      "tappetino comfort": "tappetino comfort",
+      "barriere visive mobili": "barriere visive mobili",
+      "spazi neutri sicuri": "spazi neutri sicuri"
+    },
+    "triggers": {
+      "presenza di estranei": "presenza di estranei",
+      "altri animali": "altri animali",
+      "ambienti sociali": "ambienti sociali",
+      "situazioni di gruppo": "situazioni di gruppo",
+      "spazi pubblici": "spazi pubblici"
+    },
+    "targetBehaviors": {
+      "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni": "Migliorare competenze sociali, ridurre timidezza, aumentare fiducia nelle interazioni"
+    },
     "protocols": {
       "socializzazioneProgressiva": {
         "title": "Socializzazione Progressiva",
