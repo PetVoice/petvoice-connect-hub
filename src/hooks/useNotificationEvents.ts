@@ -2,14 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNotifications } from './useNotifications';
-import { useTranslation } from './useTranslation';
+// Translation system removed - Italian only
 
 export function useNotificationEvents() {
   try {
     const { user } = useAuth();
     const { pets } = usePets();
     const { addNotification } = useNotifications();
-    const { t } = useTranslation();
+    // Translation system removed - Italian only
     const previousPetsCount = useRef(pets.length);
 
   // Notifica quando viene aggiunto un nuovo pet

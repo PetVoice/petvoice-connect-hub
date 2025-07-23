@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
-import { useTranslation } from './useTranslation';
+// Translation system removed - Italian only
 
 export function useCommunityNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   useEffect(() => {
     if (!user) return;

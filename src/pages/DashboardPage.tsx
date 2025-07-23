@@ -16,13 +16,13 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   const quickActions = [
     {

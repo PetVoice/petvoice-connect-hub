@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 export interface TrainingProtocol {
   id: string;
@@ -199,7 +199,7 @@ export const useActiveProtocols = () => {
 
 export const useTrainingProtocols = () => {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   return useQuery({
     queryKey: ['training-protocols'],

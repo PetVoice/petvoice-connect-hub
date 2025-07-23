@@ -3,11 +3,11 @@ import { AIMusicTherapy } from '@/components/ai-features/AIMusicTherapy';
 import { usePets } from '@/contexts/PetContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PawPrint, Music } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 const AIMusicTherapyPage: React.FC = () => {
   const { selectedPet } = usePets();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   if (!selectedPet) {
     return (

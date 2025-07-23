@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AITrainingHub } from '@/components/training/AITrainingHub';
 import { useTrainingProtocols, useActiveProtocols, useCompletedProtocols } from '@/hooks/useTrainingProtocols';
 import { Brain, Target, TrendingUp, Clock, Award, Users } from 'lucide-react';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 const TrainingPage: React.FC = () => {
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
   const { data: protocols, isLoading: protocolsLoading } = useTrainingProtocols(); // Pubblici
   const { data: activeProtocols, isLoading: activeLoading } = useActiveProtocols(); // Attivi dell'utente
   const { data: completedProtocols, isLoading: completedLoading } = useCompletedProtocols(); // Completati dell'utente

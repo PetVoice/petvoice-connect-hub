@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
-import { useTranslation } from './useTranslation';
+// Translation system removed - Italian only
 import { format, parseISO, isAfter, isBefore, addHours } from 'date-fns';
 
 export function useCalendarNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   useEffect(() => {
     if (!user) return;

@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
-import { useTranslation } from './useTranslation';
+// Translation system removed - Italian only
 import { addDays, parseISO, isBefore } from 'date-fns';
 
 export function useMedicationNotifications() {
   const { user } = useAuth();
   const { addNotification } = useNotifications();
-  const { t } = useTranslation();
+  // Translation system removed - Italian only
 
   useEffect(() => {
     if (!user) return;

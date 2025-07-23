@@ -26,7 +26,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useNavigate } from 'react-router-dom';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useTranslation } from '@/hooks/useTranslation';
+// Translation system removed - Italian only
 
 interface Pet {
   id: string;
@@ -155,7 +155,7 @@ const PetsPage: React.FC = () => {
   const navigate = useNavigate();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
-  const { t, language } = useTranslation();
+  const language = 'it';
   const { showToast } = useTranslatedToast();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
