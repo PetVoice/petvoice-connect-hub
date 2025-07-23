@@ -141,6 +141,9 @@ export const AITrainingHub: React.FC = () => {
       setCurrentView('completed');
     } else if (tabParam === 'active') {
       setCurrentView('active');
+    } else {
+      // Se non ci sono parametri o il parametro non è riconosciuto, vai ai protocolli disponibili
+      setCurrentView('protocols');
     }
   }, [searchParams]);
 
