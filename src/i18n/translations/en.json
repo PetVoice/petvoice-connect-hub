@@ -1205,7 +1205,9 @@
       "guinzaglio lungo": "long leash",
       "tappetino comfort": "comfort mat",
       "barriere visive mobili": "mobile visual barriers",
-      "spazi neutri sicuri": "safe neutral spaces"
+      "spazi neutri sicuri": "safe neutral spaces",
+      "snack premio": "reward treats",
+      "spazio tranquillo": "quiet space"
     },
     "triggers": {
       "presenza di estranei": "presence of strangers",

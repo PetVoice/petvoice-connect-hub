@@ -65,19 +65,27 @@ const TrainingDashboard: React.FC = () => {
 
   // Translation helper functions for exercise content
   const translateExerciseTitle = (title: string) => {
-    return t(`training.exercises.titles.${title}`, title);
+    const translated = t(`training.exercises.titles.${title}`);
+    // Se la traduzione fallisce (restituisce la chiave), restituisci il titolo originale
+    return translated.startsWith('training.exercises.titles.') ? title : translated;
   };
 
   const translateExerciseDescription = (description: string) => {
-    return t(`training.exercises.descriptions.${description}`, description);
+    const translated = t(`training.exercises.descriptions.${description}`);
+    // Se la traduzione fallisce (restituisce la chiave), restituisci la descrizione originale
+    return translated.startsWith('training.exercises.descriptions.') ? description : translated;
   };
 
   const translateExerciseInstruction = (instruction: string) => {
-    return t(`training.exercises.instructions.${instruction}`, instruction);
+    const translated = t(`training.exercises.instructions.${instruction}`);
+    // Se la traduzione fallisce (restituisce la chiave), restituisci l'istruzione originale
+    return translated.startsWith('training.exercises.instructions.') ? instruction : translated;
   };
 
   const translateMaterial = (material: string) => {
-    return t(`training.materials.${material}`, material);
+    const translated = t(`training.materials.${material}`);
+    // Se la traduzione fallisce (restituisce la chiave), restituisci il materiale originale
+    return translated.startsWith('training.materials.') ? material : translated;
   };
   
   const queryClient = useQueryClient();
