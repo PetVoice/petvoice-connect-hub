@@ -18,8 +18,22 @@ export const useProtocolTranslations = () => {
   };
 
   const translateProtocolTitle = (title: string): string => {
+    console.log('translateProtocolTitle called with:', { title, language });
+    
+    // Prima prova con la sezione aiTraining.protocols
+    if (descriptionMapping[title]) {
+      const key = descriptionMapping[title];
+      const translated = t(`aiTraining.protocols.${key}.title`, '');
+      if (translated && translated !== '') {
+        console.log('Translated title via aiTraining mapping:', { title, key, translated });
+        return translated;
+      }
+    }
+    
+    // Fallback alla sezione protocols.titles
     const translationKey = `protocols.titles.${title}`;
     const translated = t(translationKey, title);
+    console.log('Title translation result:', { title, translationKey, translated, isDefault: translated === translationKey });
     return translated === translationKey ? title : translated;
   };
 
