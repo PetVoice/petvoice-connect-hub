@@ -1261,7 +1261,10 @@
       "currentDay": "Día actual",
       "totalProgress": "Progreso total",
       "successRate": "Tasa de éxito", 
-      "exercisesToday": "Ejercicios de hoy"
+      "exercisesToday": "Ejercicios de hoy",
+      "todaysProgress": "Progreso de Hoy",
+      "exercisesCompleted": "Ejercicios completados",
+      "of": "de"
     }
   },
   "community": {
