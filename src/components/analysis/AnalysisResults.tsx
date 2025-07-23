@@ -310,7 +310,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const translateAnalysisData = (text: string, type: 'insights' | 'recommendations' | 'triggers') => {
     // If the text looks like a translation key, return it as is
     if (text.startsWith('analysis.')) {
-      return t(text);
+      return text;
     }
     
     // Translation mappings for hardcoded Italian content

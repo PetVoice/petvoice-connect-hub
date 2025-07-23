@@ -55,13 +55,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const validateFile = useCallback((file: File): string | null => {
     // Check file type
     if (!acceptedTypes.includes(file.type)) {
-      return t('analysis.upload.fileUploader.errors.unsupportedType', `Tipo file non supportato: ${file.type}`);
+      return `Tipo file non supportato: ${file.type}`;
     }
 
     // Check file size
     const sizeInMB = file.size / (1024 * 1024);
     if (sizeInMB > maxSizePerFile) {
-      return t('analysis.upload.fileUploader.errors.fileTooLarge', `File troppo grande: ${sizeInMB.toFixed(1)}MB (max ${maxSizePerFile}MB)`);
+      return `File troppo grande: ${sizeInMB.toFixed(1)}MB (max ${maxSizePerFile}MB)`;
     }
 
     return null;

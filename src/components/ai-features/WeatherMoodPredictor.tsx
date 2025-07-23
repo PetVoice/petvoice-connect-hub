@@ -71,22 +71,22 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
     pressure: 1013,
     uvIndex: 6,
     location: 'Simulato',
-    description: t('analysis.predictions.mockDataDescription')
+    description: 'Dati meteorologici simulati per la dimostrazione'
   };
 
   const mockPredictions: BehaviorPrediction[] = [
     {
-      behavior: t('analysis.predictions.normalBehavior'),
+      behavior: 'Comportamento normale',
       probability: 75,
-      reasoning: t('analysis.predictions.mockReasoningError'),
-      recommendation: t('analysis.predictions.manualCheckRecommendation')
+      reasoning: 'Errore nel recupero dati meteo, utilizzo dati di fallback',
+      recommendation: 'Verifica manualmente il comportamento del tuo animale'
     }
   ];
 
   const mockPlaylist: MoodPlaylist = {
-    name: t('analysis.predictions.genericPlaylist'),
-    description: t('analysis.predictions.defaultMusicDescription'),
-    tracks: [t('analysis.predictions.natureSounds'), t('analysis.predictions.relaxingMusic'), t('analysis.predictions.calmEnvironment')]
+    name: 'Playlist Generica',
+    description: 'Musica rilassante per il tuo animale',
+    tracks: ['Suoni della natura', 'Musica rilassante', 'Ambiente tranquillo']
   };
 
   useEffect(() => {
@@ -184,7 +184,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       // Notifica il parent component con i dati meteo
       onWeatherUpdate?.(weatherData);
       
-      toast.success(t('analysis.predictions.weatherUpdated'));
+      toast.success('Dati meteo aggiornati con successo');
       
     } catch (error) {
       console.error('Error fetching weather:', error);
@@ -195,7 +195,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       setPredictions(mockPredictions);
       setPlaylist(mockPlaylist);
       
-      toast.error(t('analysis.predictions.weatherError'));
+      toast.error('Errore nel recupero dati meteo, utilizzo dati simulati');
     } finally {
       setIsLoading(false);
     }
@@ -207,58 +207,58 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
     // Previsioni basate sulla temperatura
     if (weather.temperature > 25) {
       predictions.push({
-        behavior: t('analysis.predictions.seekingShade'),
+        behavior: 'Ricerca di ombra',
         probability: 85,
-        reasoning: t('analysis.predictions.highTempReasoning'),
-        recommendation: t('analysis.predictions.coolZoneRecommendation')
+        reasoning: 'Temperature elevate possono causare stress termico negli animali',
+        recommendation: 'Assicurati che il tuo animale abbia accesso a zone fresche'
       });
       
       predictions.push({
-        behavior: t('analysis.predictions.increasedThirst'),
+        behavior: 'Aumento della sete',
         probability: 90,
-        reasoning: t('analysis.predictions.heatThirstReasoning'),
-        recommendation: t('analysis.predictions.waterBowlRecommendation')
+        reasoning: 'Il caldo intenso aumenta la necessità di idratazione',
+        recommendation: 'Mantieni sempre a disposizione acqua fresca e pulita'
       });
     } else if (weather.temperature < 10) {
       predictions.push({
-        behavior: t('analysis.predictions.seekingWarmth'),
+        behavior: 'Ricerca di calore',
         probability: 80,
-        reasoning: t('analysis.predictions.coldTempReasoning'),
-        recommendation: t('analysis.predictions.warmPlaceRecommendation')
+        reasoning: 'Temperature basse spingono gli animali a cercare fonti di calore',
+        recommendation: 'Fornisci un posto caldo e accogliente per il tuo animale'
       });
     }
     
     // Previsioni basate sulle condizioni meteo
     if (weather.condition === 'sunny') {
       predictions.push({
-        behavior: t('analysis.predictions.hyperactivity'),
+        behavior: 'Iperattività',
         probability: 75,
-        reasoning: t('analysis.predictions.sunnyDayReasoning'),
-        recommendation: t('analysis.predictions.outdoorActivityRecommendation')
+        reasoning: 'Le giornate soleggiate stimolano l\'energia e la voglia di giocare',
+        recommendation: 'Pianifica attività all\'aperto per far sfogare l\'energia'
       });
     } else if (weather.condition === 'rainy') {
       predictions.push({
-        behavior: t('analysis.predictions.lethargy'),
+        behavior: 'Letargia',
         probability: 70,
-        reasoning: t('analysis.predictions.rainyDayReasoning'),
-        recommendation: t('analysis.predictions.indoorActivityRecommendation')
+        reasoning: 'I giorni piovosi tendono a ridurre l\'attività degli animali',
+        recommendation: 'Organizza giochi e attività al chiuso per mantenerlo attivo'
       });
     } else if (weather.condition === 'stormy') {
       predictions.push({
-        behavior: t('analysis.predictions.anxiety'),
+        behavior: 'Ansia',
         probability: 85,
-        reasoning: t('analysis.predictions.stormReasoning'),
-        recommendation: t('analysis.predictions.safeEnvironmentRecommendation')
+        reasoning: 'I temporali possono causare stress e paura negli animali',
+        recommendation: 'Crea un ambiente sicuro e tranquillo lontano dai rumori'
       });
     }
     
     // Previsioni basate sulla pressione
     if (weather.pressure < 1000) {
       predictions.push({
-        behavior: t('analysis.predictions.restlessness'),
+        behavior: 'Irrequietezza',
         probability: 65,
-        reasoning: t('analysis.predictions.lowPressureReasoning'),
-        recommendation: t('analysis.predictions.monitorBehaviorRecommendation')
+        reasoning: 'La bassa pressione atmosferica può influenzare l\'umore degli animali',
+        recommendation: 'Monitora attentamente il comportamento e offri rassicurazione'
       });
     }
     
@@ -268,8 +268,8 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
   const generatePlaylistSuggestion = (weather: WeatherData): MoodPlaylist => {
     if (weather.condition === 'sunny') {
       return {
-        name: t('analysis.predictions.sunnyDayPlaylist'),
-        description: t('analysis.predictions.energeticMusicDescription'),
+        name: 'Giornata di Sole',
+        description: 'Musica energica per giornate soleggiate',
         tracks: [
           'Upbeat Nature Sounds',
           'Happy Dog Park',
@@ -280,8 +280,8 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
       };
     } else if (weather.condition === 'rainy') {
       return {
-        name: t('analysis.predictions.rainyRelaxPlaylist'),
-        description: t('analysis.predictions.relaxingSoundsDescription'),
+        name: 'Relax Piovoso',
+        description: 'Suoni rilassanti per giorni di pioggia',
         tracks: [
           'Gentle Rain Sounds',
           'Cozy Indoor Vibes',
@@ -350,9 +350,9 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
             <AlertCircle className="h-5 w-5 text-orange-600" />
           </div>
           <div>
-            <p className="text-orange-800 font-medium">{t('analysis.predictions.geolocationUnavailable')}</p>
+            <p className="text-orange-800 font-medium">Geolocalizzazione non disponibile</p>
             <p className="text-orange-600 text-sm">
-              {t('analysis.predictions.enableGeolocation')}
+              Abilita la geolocalizzazione per ottenere previsioni meteo personalizzate
             </p>
             <Button 
               variant="outline" 
@@ -362,7 +362,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               disabled={isLoading}
             >
               <MapPin className="h-4 w-4 mr-2" />
-              {isLoading ? t('analysis.predictions.loading') : t('analysis.predictions.activateGeolocation')}
+              {isLoading ? 'Caricamento...' : 'Attiva Geolocalizzazione'}
             </Button>
           </div>
         </CardContent>
@@ -376,17 +376,17 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            {t('analysis.predictions.weatherMoodPredictor')}
+            Predittore Umore Meteorologico
           </CardTitle>
           <CardDescription>
-            {t('analysis.predictions.weatherPredictionDesc')}
+            Analisi comportamentale basata sulle condizioni meteo in tempo reale
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <div className="text-center">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground">{t('analysis.predictions.analyzingWeather')}</p>
+              <p className="text-sm text-muted-foreground">Analizzando le condizioni meteo...</p>
             </div>
           </div>
         </CardContent>
@@ -401,10 +401,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-5 w-5" />
-            {t('analysis.predictions.weatherMoodPredictor')}
+            Predittore Umore Meteorologico
           </CardTitle>
           <CardDescription>
-            {t('analysis.predictions.weatherPredictionDesc')}
+            Analisi comportamentale basata sulle condizioni meteo in tempo reale
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -429,28 +429,28 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Droplets className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm">{t('analysis.predictions.humidity')}</span>
+                  <span className="text-sm">Umidità</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.humidity}%</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Thermometer className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{t('analysis.predictions.pressure')}</span>
+                  <span className="text-sm">Pressione</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.pressure} hPa</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Wind className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{t('analysis.predictions.wind')}</span>
+                  <span className="text-sm">Vento</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.windSpeed} km/h</span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-1">
                   <Eye className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm">{t('analysis.predictions.uvIndex')}</span>
+                  <span className="text-sm">Indice UV</span>
                 </div>
                 <span className="text-sm font-medium">{weatherData?.uvIndex}</span>
               </div>
@@ -459,10 +459,10 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
             <div className="flex justify-center items-center">
               <div className="text-center">
                 <div className="text-xs text-muted-foreground">
-                  {t('analysis.predictions.autoUpdate')}
+                  Aggiornamento automatico
                 </div>
                 <div className="text-xs text-green-600 font-medium mt-1">
-                  {t('analysis.predictions.realTimeData')}
+                  Dati in tempo reale
                 </div>
               </div>
             </div>
@@ -476,7 +476,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
           <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
-            {t('analysis.predictions.behaviorPredictions')}
+            Previsioni Comportamentali
           </CardTitle>
           </CardHeader>
           <CardContent>
@@ -493,7 +493,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
                     {prediction.reasoning}
                   </p>
                   <div className="bg-blue-50 p-2 rounded text-sm">
-                    <strong>{t('analysis.predictions.recommendation')}</strong> {prediction.recommendation}
+                    <strong>Raccomandazione:</strong> {prediction.recommendation}
                   </div>
                 </div>
               ))}

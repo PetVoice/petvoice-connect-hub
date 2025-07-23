@@ -337,17 +337,17 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mic className="h-5 w-5" />
-          {t('analysis.upload.audioRecorder.title', 'Registrazione Audio')}
+          Registrazione Audio
         </CardTitle>
         <CardDescription>
-          {t('analysis.upload.audioRecorder.description', `Registra direttamente dal microfono (max ${Math.floor(maxDuration / 60)} minuti)`)}
+          Registra direttamente dal microfono (max {Math.floor(maxDuration / 60)} minuti)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {permission === 'denied' && (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
             <AlertCircle className="h-4 w-4" />
-            {t('analysis.upload.audioRecorder.permissionDenied', 'Accesso al microfono negato. Abilita i permessi nelle impostazioni del browser.')}
+            Accesso al microfono negato. Abilita i permessi nelle impostazioni del browser.
           </div>
         )}
 
@@ -383,7 +383,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {formatTime(recordingState.duration)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {recordingState.isRecording ? t('analysis.upload.audioRecorder.recordingInProgress', 'Registrazione in corso...') : t('analysis.upload.audioRecorder.clickToStart', 'Clicca per iniziare')}
+              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare'}
             </p>
           </div>
 
@@ -399,7 +399,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         {/* Audio Visualizer */}
         {recordingState.isRecording && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-center">{t('analysis.upload.audioRecorder.audioLevels', 'Livelli Audio')}</p>
+            <p className="text-sm font-medium text-center">Livelli Audio</p>
             <div className="flex items-end justify-center gap-1 h-16">
               {audioLevels.map((level, index) => (
                 <div
@@ -420,7 +420,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         {recordingState.audioBlob && !recordingState.isRecording && !autoAnalyze && (
           <div className="space-y-4 p-4 bg-secondary/50 rounded-lg">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">{t('analysis.upload.audioRecorder.recordingCompleted', 'Registrazione completata')}</span>
+              <span className="text-sm font-medium">Registrazione completata</span>
               <span className="text-sm text-muted-foreground">
                 {formatTime(recordingState.duration)}
               </span>
@@ -448,12 +448,12 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 {recordingState.isPlaying ? (
                   <>
                     <Pause className="h-4 w-4" />
-                    {t('analysis.upload.audioRecorder.pause', 'Pausa')}
+                    Pausa
                   </>
                 ) : (
                   <>
                     <Play className="h-4 w-4" />
-                    {t('analysis.upload.audioRecorder.play', 'Riproduci')}
+                    Riproduci
                   </>
                 )}
               </Button>
@@ -464,7 +464,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 className="flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                {t('analysis.upload.audioRecorder.download', 'Download')}
+                Download
               </Button>
             </div>
 
@@ -475,7 +475,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 className="flex items-center gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                {t('analysis.upload.audioRecorder.delete', 'Elimina')}
+                Elimina
               </Button>
 
               <Button
@@ -483,7 +483,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 className="gradient-coral text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
-                {t('analysis.upload.audioRecorder.analyze', 'Analizza')}
+                Analizza
               </Button>
             </div>
           </div>
@@ -494,14 +494,14 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           <div className="space-y-4 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-green-800 dark:text-green-200">
-                {t('analysis.upload.audioRecorder.autoAnalysisMessage', '✨ Registrazione completata')}
+                ✨ Registrazione completata
               </span>
               <span className="text-sm text-green-700 dark:text-green-300">
                 {formatTime(recordingState.duration)}
               </span>
             </div>
             <p className="text-sm text-green-700 dark:text-green-300">
-              {t('analysis.upload.audioRecorder.autoAnalysisSubtext', '🚀 Avvio analisi automatica in corso...')}
+              🚀 Avvio analisi automatica in corso...
             </p>
           </div>
         )}
@@ -511,30 +511,30 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         <div className="bg-gradient-to-r from-teal/5 to-teal/10 p-4 rounded-lg border border-teal/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">{t('analysis.upload.audioRecorder.analysisDescription.title', '🎙️ Analisi Audio in Tempo Reale')}</h4>
+              <h4 className="font-semibold text-foreground mb-2">🎙️ Analisi Audio in Tempo Reale</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                {t('analysis.upload.audioRecorder.analysisDescription.subtitle', 'Registra direttamente dal microfono per un\'analisi immediata delle vocalizzazioni del tuo pet:')}
+                Registra direttamente dal microfono per un'analisi immediata delle vocalizzazioni del tuo pet:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>{t('analysis.upload.audioRecorder.analysisDescription.features.toneAnalysis', '🔊 Analisi tono e intensità vocale')}</span>
+                  <span>🔊 Analisi tono e intensità vocale</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>{t('analysis.upload.audioRecorder.analysisDescription.features.patternDetection', '📊 Rilevamento pattern sonori')}</span>
+                  <span>📊 Rilevamento pattern sonori</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>{t('analysis.upload.audioRecorder.analysisDescription.features.instantProcessing', '⚡ Processing istantaneo')}</span>
+                  <span>⚡ Processing istantaneo</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>{t('analysis.upload.audioRecorder.analysisDescription.features.immediateFeedback', '🎯 Feedback emotivo immediato')}</span>
+                  <span>🎯 Feedback emotivo immediato</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                {t('analysis.upload.audioRecorder.analysisDescription.stats', '🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate')}
+                🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate
               </div>
             </div>
           </div>

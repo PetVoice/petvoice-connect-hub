@@ -17,11 +17,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
   
   // Simple translation function just for this component
   const getRecordingLabel = () => {
-    switch(language) {
-      case 'en': return 'Recording';
-      case 'es': return 'Grabación';
-      default: return 'Registrazione';
-    }
+    return 'Registrazione';
   };
   
   const [isPlaying, setIsPlaying] = useState(false);
