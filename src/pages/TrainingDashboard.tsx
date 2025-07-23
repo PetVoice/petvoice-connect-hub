@@ -411,16 +411,23 @@ const TrainingDashboard: React.FC = () => {
               progress_percentage: Math.min(newProgressPercentage, 100).toString()
             } : null);
             
-            // AGGIORNA ANCHE LO STATO LOCALE currentDay PER L'UI
+            // 4. AGGIORNA ANCHE LO STATO LOCALE currentDay PER L'UI
             setCurrentDay(newCurrentDay);
             
-            // 4. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
+            // 5. INVALIDA CACHE PER AGGIORNARE PAGINA TRAINING
             queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
             queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
             
-            // 5. Reset statistiche del giorno DOPO l'update del database
+            // 6. Reset statistiche del giorno DOPO l'update del database
             setDailyCompletedExercises(0);
             setCurrentExercise(0);
+            
+            console.log('🎯 STATO AGGIORNATO AL NUOVO GIORNO:', {
+              newCurrentDay,
+              newProgressPercentage,
+              resetDailyCompleted: 0,
+              resetCurrentExercise: 0
+            });
             
             // 6. Toast di congratulazioni per il nuovo giorno
             showToast({
