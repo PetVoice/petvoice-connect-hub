@@ -60,7 +60,7 @@ const TrainingDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { showToast: showTranslatedToast } = useTranslatedToast();
   const { showToast } = useToastWithIcon();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
 
   // Translation helper functions for exercise content
@@ -71,6 +71,16 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const translateExerciseDescription = (description: string) => {
+    // Mapping diretto per descrizioni lunghe
+    const directMappings: Record<string, string> = {
+      "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": 
+        language === 'en' ? "Establish a safe and comfortable environment where the animal can relax and build confidence. This exercise creates the foundation for all other social training." : description
+    };
+    
+    if (directMappings[description]) {
+      return directMappings[description];
+    }
+    
     const translated = t(`training.exercises.descriptions.${description}`);
     // Se la traduzione fallisce (restituisce la chiave), restituisci la descrizione originale
     return translated.startsWith('training.exercises.descriptions.') ? description : translated;
