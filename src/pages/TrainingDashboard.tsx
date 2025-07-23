@@ -63,41 +63,25 @@ const TrainingDashboard: React.FC = () => {
   const { t, language } = useTranslation();
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
 
-  // Translation helper functions for exercise content
+  // Translation helper functions for exercise content - Now using database content directly
   const translateExerciseTitle = (title: string) => {
-    const translated = t(`training.exercises.titles.${title}`);
-    // Se la traduzione fallisce (restituisce la chiave), restituisci il titolo originale
-    return translated.startsWith('training.exercises.titles.') ? title : translated;
+    // Return database content directly - translations are already handled in the database
+    return title;
   };
 
   const translateExerciseDescription = (description: string) => {
-    // Mapping diretto per descrizioni lunghe
-    const directMappings: Record<string, string> = {
-      "Stabilire un ambiente sicuro e confortevole dove l'animale può rilassarsi e costruire fiducia. Questo esercizio crea le fondamenta per tutti gli altri allenamenti sociali.": 
-        language === 'en' ? "Establish a safe and comfortable environment where the animal can relax and build confidence. This exercise creates the foundation for all other social training." :
-        language === 'es' ? "Establecer un ambiente seguro y cómodo donde el animal pueda relajarse y construir confianza. Este ejercicio crea los cimientos para todos los demás entrenamientos sociales." :
-        description
-    };
-    
-    if (directMappings[description]) {
-      return directMappings[description];
-    }
-    
-    const translated = t(`training.exercises.descriptions.${description}`);
-    // Se la traduzione fallisce (restituisce la chiave), restituisci la descrizione originale
-    return translated.startsWith('training.exercises.descriptions.') ? description : translated;
+    // Return database content directly - translations are already handled in the database
+    return description;
   };
 
   const translateExerciseInstruction = (instruction: string) => {
-    const translated = t(`training.exercises.instructions.${instruction}`);
-    // Se la traduzione fallisce (restituisce la chiave), restituisci l'istruzione originale
-    return translated.startsWith('training.exercises.instructions.') ? instruction : translated;
+    // Return database content directly - translations are already handled in the database
+    return instruction;
   };
 
   const translateMaterial = (material: string) => {
-    const translated = t(`training.materials.${material}`);
-    // Se la traduzione fallisce (restituisce la chiave), restituisci il materiale originale
-    return translated.startsWith('training.materials.') ? material : translated;
+    // Return database content directly - translations are already handled in the database
+    return material;
   };
   
   const queryClient = useQueryClient();

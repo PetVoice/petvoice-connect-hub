@@ -90,25 +90,13 @@ export const useProtocolTranslations = () => {
   const { language } = useTranslation();
 
   const translateProtocolTitle = (title: string): string => {
-    const lang = language as 'it' | 'en' | 'es';
-    const translation = titleTranslations[lang]?.[title] || title;
-    return translation;
+    // Return database content directly - translations are already handled in the database
+    return title;
   };
 
   const translateProtocolDescription = (description: string, title?: string): string => {
-    console.log('📝 translateProtocolDescription called:', { description: description.substring(0, 50) + '...', title, language });
-    
-    const lang = language as 'it' | 'en' | 'es';
-    const translation = descriptionTranslations[lang]?.[description] || description;
-    
-    console.log('✅ Description translation result:', { 
-      descriptionStart: description.substring(0, 30) + '...', 
-      language: lang, 
-      translationStart: translation.substring(0, 30) + '...',
-      wasTranslated: translation !== description
-    });
-    
-    return translation;
+    // Return database content directly - translations are already handled in the database
+    return description;
   };
 
   return {
