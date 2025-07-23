@@ -420,6 +420,7 @@
         "date": "Fecha",
         "recording": "Grabación"
       },
+      "recording": "Grabación",
       "detailedAnalysis": "Análisis Detallado",
       "behavioralInsights": "Insights comportamentales y recomendaciones para {{petName}}",
       "tabs": {

@@ -420,6 +420,7 @@
         "date": "Data",
         "recording": "Registrazione"
       },
+      "recording": "Registrazione",
       "detailedAnalysis": "Analisi Dettagliata",
       "behavioralInsights": "Insights comportamentali e raccomandazioni per {{petName}}",
       "tabs": {
