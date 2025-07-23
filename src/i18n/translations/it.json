@@ -1012,6 +1012,38 @@
       "sessions": "Sessioni",
       "analytics": "Analytics"
     },
+    "protocols": {
+      "socializzazioneProgressiva": {
+        "description": "Protocollo di 5 giorni per migliorare le competenze sociali dell'animale con altri animali e persone. Approccio graduale e positivo per animali timidi o poco socializzati, con focus su confidence building e interazioni controllate."
+      },
+      "controlloAggressivitaReattiva": {
+        "description": "Protocollo avanzato per la gestione sicura dell'aggressività reattiva. Priorità assoluta sulla sicurezza, controllo impulsi e sviluppo comportamenti alternativi. Richiede supervisione professionale."
+      },
+      "gestioneAnsiaSeperazione": {
+        "description": "Protocollo scientifico per ridurre l'ansia da separazione attraverso desensibilizzazione graduale. Sviluppa indipendenza e tranquillità durante le assenze del proprietario con approccio ultra-graduale."
+      },
+      "rieducazioneAlimentare": {
+        "description": "Protocollo intermedio per risolvere disturbi comportamentali legati all'alimentazione. Affronta alimentazione compulsiva, rifiuto del cibo, food guarding e ansia alimentare attraverso un approccio graduale e non punitivo."
+      },
+      "ottimizzazioneSonno": {
+        "description": "Protocollo specializzato per stabilire pattern di sonno salutari, ridurre insonnia e risvegli notturni. Attraverso routine pre-sonno, ottimizzazione ambientale e regolazione circadiana, aiuta gli animali a sviluppare abitudini di riposo naturali e ristoratori."
+      },
+      "superareFobie": {
+        "description": "Programma avanzato di desensibilizzazione sistematica per superare fobie intense di rumori, oggetti e situazioni specifiche attraverso tecniche scientifiche graduali."
+      },
+      "stopComportamentiDistruttivi": {
+        "description": "Protocollo intensivo per eliminare masticazione distruttiva, scavo eccessivo e distruzione di oggetti domestici."
+      },
+      "gestioneGelosia": {
+        "description": "Protocollo specializzato per ridurre comportamenti possessivi e gelosia negli animali domestici. Include tecniche avanzate di desensibilizzazione, training di condivisione e gestione delle risorse."
+      },
+      "riattivazioneEnergia": {
+        "description": "Protocollo graduale per combattere depressione, apatia e perdita di interesse negli animali. Approccio dolce e progressivo per risvegliare la motivazione attraverso stimoli sensoriali, attivazione fisica e ripristino dell'interesse sociale."
+      },
+      "gestioneIperattivita": {
+        "description": "Protocollo completo per ridurre iperattività e migliorare concentrazione attraverso un approccio progressivo: dalla scarica di energia costruttiva al controllo degli impulsi, fino al rilassamento e autocontrollo."
+      }
+    },
     "protocol": {
       "day": "Giorno",
       "success": "successo",
