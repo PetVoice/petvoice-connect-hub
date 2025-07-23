@@ -172,24 +172,14 @@ export const useActiveProtocols = () => {
 
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercises:ai_training_exercises(*),
-          metrics:ai_training_metrics(*),
-          schedule:ai_training_schedules(*)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .in('status', ['active'])  // Solo protocolli attivi
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
-      return data?.filter(protocol => protocol && protocol.title && protocol.id).map(protocol => ({
-        ...protocol,
-        exercises: protocol.exercises || [],
-        metrics: protocol.metrics?.[0] || null,
-        schedule: protocol.schedule?.[0] || null,
-      })) as unknown as TrainingProtocol[];
+      return data?.filter(protocol => protocol && protocol.title && protocol.id) as unknown as TrainingProtocol[];
     },
     refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
@@ -210,24 +200,15 @@ export const useTrainingProtocols = () => {
       // Per la lista principale, mostra solo protocolli pubblici (template disponibili)
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercises:ai_training_exercises(*),
-          metrics:ai_training_metrics(*),
-          schedule:ai_training_schedules(*)
-        `)
+        .select('*')
         .eq('is_public', true)
-        .eq('status', 'available')  // Solo protocolli disponibili
+        .eq('status', 'active')  // Solo protocolli attivi (disponibili)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return data?.map(protocol => ({
-        ...protocol,
-        exercises: protocol.exercises || [],
-        metrics: protocol.metrics?.[0] || null,
-        schedule: protocol.schedule?.[0] || null,
-      })) as unknown as TrainingProtocol[];
+      console.log('Protocols loaded:', data?.length || 0);
+      return data as unknown as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
