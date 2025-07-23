@@ -423,7 +423,7 @@ const TrainingDashboard: React.FC = () => {
   const handleSubmitRating = async () => {
     setIsSubmittingRating(true);
     try {
-      // Inserisci o aggiorna la valutazione nel database (UPSERT) usando SQL diretto
+      // Inserisci o aggiorna la valutazione nel database (UPSERT)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
@@ -434,14 +434,15 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
 
-      const { error } = await supabase.rpc('upsert_protocol_rating', {
-        p_protocol_id: protocol.id,
-        p_user_id: user.id,
-        p_effectiveness_rating: protocolRating,
-        p_ease_rating: protocolRating,
-        p_improvement_rating: protocolRating,
-        p_overall_satisfaction: protocolRating
-      });
+      const { error } = await supabase
+        .from('protocol_ratings')
+        .upsert({
+          protocol_id: protocol.id,
+          user_id: user.id,
+          rating: protocolRating
+        }, {
+          onConflict: 'user_id,protocol_id'
+        });
 
       if (error) {
         console.error('Errore inserimento valutazione:', error);
