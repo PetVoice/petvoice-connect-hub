@@ -533,10 +533,9 @@ export const AITrainingHub: React.FC = () => {
           variables: { protocolName: translateProtocolTitle(protocol.title) }
         });
         
-        // Reindirizza immediatamente alla dashboard del protocollo resettato
-        setTimeout(() => {
-          navigate(`/training/dashboard/${protocol.id}`);
-        }, 100);
+        // Cambia immediatamente alla vista attivi e poi naviga alla dashboard
+        setCurrentView('active');
+        navigate(`/training/dashboard/${protocol.id}`);
       } else {
         // Se è già un protocollo dell'utente ma non completato, attivalo
         await updateProtocol.mutateAsync({
