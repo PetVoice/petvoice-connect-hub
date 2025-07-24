@@ -27,6 +27,7 @@ const mockProtocol = {
   id: 'mock-protocol',
   title: 'Protocollo Training Avanzato',
   description: 'Un protocollo completo per il training del tuo pet',
+  success_rate: 85, // Tasso di successo pubblico del protocollo
   exercises: [
     {
       id: 'ex1',
@@ -51,6 +52,22 @@ const mockProtocol = {
       duration: 25,
       instructions: ['Inizia con il comando "aspetta"', 'Aumenta gradualmente la difficoltà', 'Premia la pazienza'],
       materials: ['Premio', 'Guinzaglio']
+    },
+    {
+      id: 'ex4',
+      title: 'Esercizio 4: Richiamo',
+      description: 'Training per il richiamo del pet',
+      duration: 20,
+      instructions: ['Inizia a distanza ravvicinata', 'Usa il comando "vieni"', 'Premia sempre il successo'],
+      materials: ['Premio', 'Guinzaglio lungo']
+    },
+    {
+      id: 'ex5',
+      title: 'Esercizio 5: Camminata al guinzaglio',
+      description: 'Training per camminare correttamente al guinzaglio',
+      duration: 30,
+      instructions: ['Mantieni il guinzaglio morbido', 'Premia quando cammina vicino', 'Fermati se tira'],
+      materials: ['Guinzaglio', 'Premio', 'Collare']
     }
   ]
 };
@@ -236,7 +253,7 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5 text-green-500" />
               <div>
-                <div className="text-lg font-bold">90%</div>
+                <div className="text-lg font-bold">{protocol.success_rate}%</div>
                 <p className="text-xs text-muted-foreground">Tasso successo</p>
               </div>
             </div>
@@ -385,14 +402,13 @@ const TrainingDashboard: React.FC = () => {
               {allExercises.map((exercise, index) => (
                 <div
                   key={exercise.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                  className={`p-3 rounded-lg border transition-all ${
                     index === currentExerciseIndex
                       ? 'bg-primary/10 border-primary/20'
                       : completedExercises.has(exercise.id)
                       ? 'bg-green-50 border-green-200'
-                      : 'hover:bg-muted/50'
+                      : 'bg-muted/20'
                   }`}
-                  onClick={() => setCurrentExerciseIndex(index)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
