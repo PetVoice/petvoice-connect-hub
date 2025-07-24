@@ -381,17 +381,6 @@ const TrainingDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-green-500" />
-              <div>
-                <div className="text-lg font-bold">{protocol.success_rate}%</div>
-                <p className="text-xs text-muted-foreground">Tasso successo</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Progress Bar */}
