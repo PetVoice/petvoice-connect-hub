@@ -207,10 +207,12 @@ const TrainingDashboard: React.FC = () => {
       handleCompleteExercise();
     }
     
-    // Se è l'ultimo esercizio, completa automaticamente il protocollo
+    // Se è l'ultimo esercizio, mostra il dialog di valutazione
     if (currentExerciseIndex === totalExercises - 1) {
-      // Forza il completamento del protocollo
-      handleCompleteExercise();
+      // Aspetta che l'esercizio sia completato e poi mostra il rating dialog
+      setTimeout(() => {
+        setShowRatingDialog(true);
+      }, 500);
       return;
     }
     
