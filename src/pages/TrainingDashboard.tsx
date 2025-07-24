@@ -21,7 +21,8 @@ import {
   AlertCircle,
   StopCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Square
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
@@ -418,8 +419,6 @@ const TrainingDashboard: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <p className="text-muted-foreground">{currentExercise.description}</p>
-
               {/* Dettagli Esercizio */}
               <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                 <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
@@ -551,10 +550,11 @@ const TrainingDashboard: React.FC = () => {
                 <Button
                   onClick={handleInterruptProtocol}
                   variant="destructive"
+                  size="sm"
                   className="w-full"
                 >
-                  <StopCircle className="h-4 w-4 mr-2" />
-                  Interrompi Protocollo
+                  <Square className="h-4 w-4 mr-2" />
+                  Interrompi
                 </Button>
               )}
             </CardContent>
