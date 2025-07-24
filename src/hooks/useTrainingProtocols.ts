@@ -198,27 +198,33 @@ export const useTrainingProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Per la lista principale, mostra solo protocolli pubblici (template disponibili) con conteggio esercizi
+      // Per la lista principale, mostra solo protocolli pubblici (template disponibili)
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select(`
-          *,
-          exercise_count:ai_training_exercises(count)
-        `)
+        .select('*')
         .eq('is_public', true)
-        .eq('status', 'available')  // I protocolli pubblici hanno status='available'
+        .eq('status', 'available')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Trasforma i dati per includere exercise_count come numero
-      const protocols = data?.map(protocol => ({
-        ...protocol,
-        exercise_count: Array.isArray(protocol.exercise_count) ? protocol.exercise_count.length : 0
-      })) || [];
+      // Ottieni il conteggio degli esercizi per ogni protocollo con una query separata
+      const protocolsWithExerciseCount = await Promise.all(
+        (data || []).map(async (protocol) => {
+          const { count } = await supabase
+            .from('ai_training_exercises')
+            .select('*', { count: 'exact', head: true })
+            .eq('protocol_id', protocol.id);
+          
+          return {
+            ...protocol,
+            exercise_count: count || 0
+          };
+        })
+      );
 
-      console.log('Protocols loaded:', protocols?.length || 0);
-      return protocols as unknown as TrainingProtocol[];
+      console.log('Protocols loaded:', protocolsWithExerciseCount?.length || 0);
+      return protocolsWithExerciseCount as unknown as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
