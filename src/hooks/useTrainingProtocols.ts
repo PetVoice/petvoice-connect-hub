@@ -752,12 +752,6 @@ export const useCompleteExercise = () => {
       queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
       queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
       queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
-      
-      toast({
-        title: 'Esercizio completato!',
-        description: 'Il progresso è stato salvato automaticamente',
-        variant: 'default',
-      });
     },
     onError: (error) => {
       console.error('Error completing exercise:', error);
