@@ -248,8 +248,10 @@ export const AITrainingHub: React.FC = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'facile': return 'bg-green-500/20 text-green-700 border-green-500/20';
-      case 'medio': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20';
-      case 'difficile': return 'bg-red-500/20 text-red-700 border-red-500/20';
+      case 'medio': 
+      case 'intermedio': return 'bg-orange-500/20 text-orange-700 border-orange-500/20';
+      case 'difficile':
+      case 'avanzato': return 'bg-red-500/20 text-red-700 border-red-500/20';
       default: return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
     }
   };
@@ -258,7 +260,9 @@ export const AITrainingHub: React.FC = () => {
     const difficultyMap: Record<string, string> = {
       facile: 'Facile',
       medio: 'Medio',
-      difficile: 'Difficile'
+      intermedio: 'Intermedio',
+      difficile: 'Difficile',
+      avanzato: 'Avanzato'
     };
     return difficultyMap[difficulty] || difficulty;
   };
@@ -790,8 +794,8 @@ export const AITrainingHub: React.FC = () => {
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                             <span>{protocol.duration_days} giorni</span>
+                            <BookOpen className="h-4 w-4" />
+                             <span>{protocol.exercise_count || 0} esercizi</span>
                           </div>
                           {protocol.status === 'active' && (
                             <div className="flex items-center gap-1">

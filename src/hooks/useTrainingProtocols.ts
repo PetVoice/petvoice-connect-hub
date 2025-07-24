@@ -197,18 +197,27 @@ export const useTrainingProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Per la lista principale, mostra solo protocolli pubblici (template disponibili)
+      // Per la lista principale, mostra solo protocolli pubblici (template disponibili) con conteggio esercizi
       const { data, error } = await supabase
         .from('ai_training_protocols')
-        .select('*')
+        .select(`
+          *,
+          exercise_count:ai_training_exercises(count)
+        `)
         .eq('is_public', true)
         .eq('status', 'available')  // I protocolli pubblici hanno status='available'
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      console.log('Protocols loaded:', data?.length || 0);
-      return data as unknown as TrainingProtocol[];
+      // Trasforma i dati per includere exercise_count come numero
+      const protocols = data?.map(protocol => ({
+        ...protocol,
+        exercise_count: protocol.exercise_count?.[0]?.count || 0
+      })) || [];
+
+      console.log('Protocols loaded:', protocols?.length || 0);
+      return protocols as unknown as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
   });
