@@ -106,11 +106,6 @@ const TrainingDashboard: React.FC = () => {
     if (!currentExercise) return;
 
     if (completedExercises.has(currentExercise.id)) {
-      toast({
-        title: 'Esercizio già completato',
-        description: 'Questo esercizio è già stato completato.',
-        variant: 'destructive'
-      });
       return;
     }
 
@@ -118,14 +113,6 @@ const TrainingDashboard: React.FC = () => {
     const newCompleted = new Set(completedExercises);
     newCompleted.add(currentExercise.id);
     setCompletedExercises(newCompleted);
-
-    // Calcola nuovo progresso
-    const newProgress = Math.floor((newCompleted.size / totalExercises) * 100);
-
-    toast({
-      title: `Esercizio ${currentExerciseIndex + 1} completato!`,
-      description: `Ottimo lavoro! Progresso: ${newProgress}%`,
-    });
 
     // Se è l'ultimo esercizio, mostra dialog valutazione
     if (newCompleted.size === totalExercises) {
@@ -367,7 +354,8 @@ const TrainingDashboard: React.FC = () => {
                 <Button
                   onClick={handleNextExercise}
                   disabled={currentExerciseIndex === totalExercises - 1}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                  variant="outline"
+                  className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Avanti
                   <ChevronRight className="h-4 w-4 ml-2" />
