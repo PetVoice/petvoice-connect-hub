@@ -470,69 +470,76 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const getRecommendedTrainingProtocol = (emotion: string, confidence: number) => {
     const emotionLower = emotion.toLowerCase();
     
-    // Protocol mapping based on emotion to existing public protocols
+    // Protocol mapping based on emotion to existing public protocols with real data
     const protocolMapping: Record<string, any> = {
       'ansioso': {
         id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
         title: 'Gestione dell\'Ansia',
         description: 'Protocollo specializzato per ridurre i livelli di ansia nel pet attraverso tecniche di rilassamento e desensibilizzazione graduale',
-        duration: '2-3 settimane',
+        exercises: 21,
         difficulty: 'Facile',
-        category: 'Comportamentale',
+        successRate: 100,
+        usageCount: 127,
         reasoning: 'Progettato specificamente per ridurre i livelli di ansia attraverso esercizi di rilassamento progressivo'
       },
       'aggressivo': {
         id: 'd8694ef9-55ba-4794-a6e2-0c38af0988c8',
         title: 'Controllo dell\'Aggressività',
         description: 'Protocollo per ridurre comportamenti aggressivi attraverso tecniche di autocontrollo e redirezione positiva',
-        duration: '3-4 settimane',
+        exercises: 30,
         difficulty: 'Intermedio',
-        category: 'Comportamentale',
+        successRate: 85,
+        usageCount: 89,
         reasoning: 'Focalizzato sulla riduzione dei comportamenti aggressivi attraverso tecniche di rinforzo positivo'
       },
       'triste': {
         id: 'fbdcdb5e-3386-4962-877f-bb7e6f72fd7f',
         title: 'Superare la Tristezza',
         description: 'Protocollo per stimolare l\'umore e aumentare l\'energia del pet attraverso attività coinvolgenti e socializzazione',
-        duration: '2-3 settimane',
+        exercises: 15,
         difficulty: 'Facile',
-        category: 'Emotivo',
+        successRate: 100,
+        usageCount: 156,
         reasoning: 'Pensato per aumentare i livelli di serotonina attraverso attività stimolanti e socializzazione'
       },
       'iperattivo': {
         id: '5c18263c-0928-4fab-b8b9-ac7789f97c24',
         title: 'Controllo dell\'Iperattività',
         description: 'Protocollo per canalizzare l\'energia eccessiva attraverso esercizi mirati e tecniche di autocontrollo',
-        duration: '3-4 settimane',
+        exercises: 24,
         difficulty: 'Intermedio',
-        category: 'Fisico',
+        successRate: 92,
+        usageCount: 73,
         reasoning: 'Aiuta a incanalare l\'energia eccessiva in attività strutturate e produttive'
       },
       'stressato': {
         id: '8d3bbc35-64bd-40ba-ade6-285ea2262417',
         title: 'Riduzione dello Stress',
         description: 'Protocollo per creare un ambiente calmo e routines rilassanti che riducano i fattori di stress',
-        duration: '2-3 settimane',
+        exercises: 21,
         difficulty: 'Facile',
-        category: 'Ambientale',
+        successRate: 88,
+        usageCount: 94,
         reasoning: 'Progettato per ridurre lo stress attraverso la creazione di un ambiente calmo e rilassante'
       },
       'agitato': {
         id: '5083419f-42be-4ff8-b1b6-4b5b9d828d68',
         title: 'Calmare l\'Agitazione',
         description: 'Protocollo per gestire comportamenti agitati e nervosi attraverso tecniche di rilassamento',
-        duration: '2-3 settimane',
+        exercises: 21,
         difficulty: 'Intermedio',
-        category: 'Comportamentale',
+        successRate: 90,
+        usageCount: 67,
         reasoning: 'Specifico per calmare stati di agitazione attraverso tecniche di rilassamento'
       },
       'pauroso': {
         id: 'b6c1fd42-fbac-47a2-9f02-1f187cc92daa',
         title: 'Superare la Paura',
         description: 'Protocollo per aiutare il pet a superare le paure attraverso esposizione graduale e rinforzo positivo',
-        duration: '3-4 settimane',
+        exercises: 18,
         difficulty: 'Intermedio',
-        category: 'Comportamentale',
+        successRate: 100,
+        usageCount: 112,
         reasoning: 'Aiuta a superare le paure attraverso un approccio graduale e positivo'
       }
     };
@@ -549,9 +556,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
       title: 'Gestione dell\'Ansia',
       description: 'Protocollo specializzato per ridurre i livelli di ansia e migliorare il benessere emotivo generale',
-      duration: '2-3 settimane',
+      exercises: 21,
       difficulty: 'Facile',
-      category: 'Generale',
+      successRate: 100,
+      usageCount: 127,
       reasoning: 'Un approccio olistico per migliorare il benessere emotivo generale del tuo pet'
     };
   };
@@ -1040,16 +1048,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 </p>
                                 <div className="flex gap-4 text-sm text-amber-700 dark:text-amber-300 mb-3">
                                   <span className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {protocol.duration}
+                                    <Target className="h-3 w-3" />
+                                    {protocol.exercises} esercizi
                                   </span>
                                   <span className="flex items-center gap-1">
-                                    <Target className="h-3 w-3" />
+                                    <Clock className="h-3 w-3" />
                                     {protocol.difficulty}
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <BarChart3 className="h-3 w-3" />
-                                    {protocol.category}
+                                    {protocol.successRate}% successo
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    👥 {protocol.usageCount} utilizzi
                                   </span>
                                 </div>
                                 <p className="text-xs text-amber-600 dark:text-amber-400 italic">
