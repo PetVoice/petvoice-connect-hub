@@ -132,13 +132,6 @@ const TrainingDashboard: React.FC = () => {
       setTimeout(() => {
         setShowRatingDialog(true);
       }, 2000);
-    } else {
-      // Altrimenti passa al prossimo esercizio
-      setTimeout(() => {
-        if (currentExerciseIndex < totalExercises - 1) {
-          setCurrentExerciseIndex(prev => prev + 1);
-        }
-      }, 1500);
     }
   };
 
@@ -149,8 +142,16 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const handleNextExercise = () => {
+    // Prima completa l'esercizio corrente se non è già completato
+    if (!completedExercises.has(currentExercise.id)) {
+      handleCompleteExercise();
+    }
+    
+    // Poi vai al prossimo esercizio se non è l'ultimo
     if (currentExerciseIndex < totalExercises - 1) {
-      setCurrentExerciseIndex(prev => prev + 1);
+      setTimeout(() => {
+        setCurrentExerciseIndex(prev => prev + 1);
+      }, 500); // Piccolo delay per far vedere il completamento
     }
   };
 
@@ -362,28 +363,22 @@ const TrainingDashboard: React.FC = () => {
                   Indietro
                 </Button>
 
-                {/* Pulsante Completa */}
-                <Button
-                  onClick={handleCompleteExercise}
-                  disabled={completedExercises.has(currentExercise.id)}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  {completedExercises.has(currentExercise.id) ? 
-                    'Esercizio Completato' : 
-                    `Completa Esercizio ${currentExerciseIndex + 1}`
-                  }
-                </Button>
-
                 {/* Pulsante Avanti */}
                 <Button
                   onClick={handleNextExercise}
-                  disabled={currentExerciseIndex === totalExercises - 1}
-                  variant="outline"
-                  className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6"
                 >
-                  Avanti
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  {currentExerciseIndex === totalExercises - 1 ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Completa Protocollo
+                    </>
+                  ) : (
+                    <>
+                      Avanti
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
                 </Button>
               </div>
 
