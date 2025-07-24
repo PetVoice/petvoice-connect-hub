@@ -518,46 +518,72 @@ const TrainingDashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Sidebar con navigazione esercizi */}
+        {/* Sidebar con navigazione esercizi - Layout migliorato */}
         <div>
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Tutti gli Esercizi</CardTitle>
+              <p className="text-sm text-muted-foreground">{completedExercises.size}/{totalExercises} completati</p>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {allExercises.map((exercise, index) => (
-                <div
-                  key={exercise.id}
-                  className={`p-3 rounded-lg border transition-all ${
-                    completedExercises.has(exercise.id)
-                      ? 'bg-green-50 border-green-200'
-                      : index === currentExerciseIndex
-                      ? 'bg-primary/10 border-primary/20'
-                      : 'bg-muted/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {completedExercises.has(exercise.id) ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : index === currentExerciseIndex ? (
-                        <Clock className="h-4 w-4 text-primary" />
-                      ) : (
-                        <div className="w-4 h-4 border border-muted-foreground rounded-full" />
-                      )}
-                      <div>
-                        <div className="font-medium text-sm">{exercise.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {exercise.duration_minutes} min
+            <CardContent>
+              {/* Grid responsive per organizzare meglio gli esercizi */}
+              <div className="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+                {allExercises.map((exercise, index) => (
+                  <div
+                    key={exercise.id}
+                    className={`p-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm ${
+                      completedExercises.has(exercise.id)
+                        ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                        : index === currentExerciseIndex
+                        ? 'bg-primary/10 border-primary/20 hover:bg-primary/15'
+                        : 'bg-muted/20 hover:bg-muted/30'
+                    }`}
+                    onClick={() => setCurrentExerciseIndex(index)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        {completedExercises.has(exercise.id) ? (
+                          <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        ) : index === currentExerciseIndex ? (
+                          <Clock className="h-4 w-4 text-primary flex-shrink-0" />
+                        ) : (
+                          <div className="w-4 h-4 border border-muted-foreground rounded-full flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">{exercise.title}</div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            {exercise.duration_minutes} min
+                            {exercise.exercise_type && (
+                              <>
+                                <span>•</span>
+                                <span className="capitalize">{exercise.exercise_type}</span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {index + 1}
+                        </Badge>
+                        {index === currentExerciseIndex && (
+                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                        )}
+                      </div>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {index + 1}
-                    </Badge>
                   </div>
+                ))}
+              </div>
+              
+              {/* Progress indicator compatto */}
+              <div className="mt-4 pt-3 border-t">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">Progresso complessivo</span>
+                  <span className="font-medium">{progressPercentage}%</span>
                 </div>
-              ))}
+                <Progress value={progressPercentage} className="h-2" />
+              </div>
             </CardContent>
           </Card>
         </div>
