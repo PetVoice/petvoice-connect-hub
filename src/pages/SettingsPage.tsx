@@ -242,47 +242,6 @@ const SettingsPage: React.FC = () => {
     localStorage.setItem('settings-active-tab', activeTab);
   }, [activeTab]);
 
-  useEffect(() => {
-    loadUserProfile();
-    loadSecurityData();
-    loadNotificationSettings();
-  }, []);
-
-  const loadUserProfile = async () => {
-    try {
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        
-        if (profile) {
-          setProfile({
-            id: profile.id,
-            display_name: profile.display_name || '',
-            avatar_url: profile.avatar_url || '',
-            theme: profile.theme || 'system',
-            language: 'it', // Solo italiano
-            notifications_enabled: profile.notifications_enabled
-          });
-
-          // Load privacy preferences from database
-          setPrivacy({
-            profileVisibility: 'private', // This will remain local state for now
-            communityParticipation: profile.community_participation ?? true,
-            dataSharing: false, // This will remain local state for now  
-            analyticsContribution: profile.analytics_contribution ?? true,
-            marketingCommunications: profile.marketing_communications ?? false,
-            thirdPartySharing: profile.third_party_sharing ?? false
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    }
-  };
-
   const loadNotificationSettings = async () => {
     try {
       if (user) {
@@ -327,6 +286,47 @@ const SettingsPage: React.FC = () => {
         description: "Impossibile salvare le impostazioni. Riprova.",
         variant: "destructive"
       });
+    }
+  };
+
+  useEffect(() => {
+    loadUserProfile();
+    loadSecurityData();
+    loadNotificationSettings();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile) {
+          setProfile({
+            id: profile.id,
+            display_name: profile.display_name || '',
+            avatar_url: profile.avatar_url || '',
+            theme: profile.theme || 'system',
+            language: 'it', // Solo italiano
+            notifications_enabled: profile.notifications_enabled
+          });
+
+          // Load privacy preferences from database
+          setPrivacy({
+            profileVisibility: 'private', // This will remain local state for now
+            communityParticipation: profile.community_participation ?? true,
+            dataSharing: false, // This will remain local state for now  
+            analyticsContribution: profile.analytics_contribution ?? true,
+            marketingCommunications: profile.marketing_communications ?? false,
+            thirdPartySharing: profile.third_party_sharing ?? false
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
     }
   };
 
