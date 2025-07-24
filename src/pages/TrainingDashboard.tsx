@@ -233,34 +233,14 @@ const TrainingDashboard: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not found');
 
-      // Prima controlla se esiste già una valutazione
-      const { data: existingRating } = await supabase
+      // Ora che la tabella ha updated_at, possiamo usare upsert semplice
+      const { error: ratingError } = await supabase
         .from('protocol_ratings')
-        .select('id')
-        .eq('protocol_id', protocolId)
-        .eq('user_id', user.user.id)
-        .single();
-
-      let ratingError;
-      if (existingRating) {
-        // Aggiorna quella esistente
-        const { error } = await supabase
-          .from('protocol_ratings')
-          .update({ rating: rating })
-          .eq('protocol_id', protocolId)
-          .eq('user_id', user.user.id);
-        ratingError = error;
-      } else {
-        // Crea una nuova valutazione
-        const { error } = await supabase
-          .from('protocol_ratings')
-          .insert({
-            protocol_id: protocolId,
-            user_id: user.user.id,
-            rating: rating
-          });
-        ratingError = error;
-      }
+        .upsert({
+          protocol_id: protocolId,
+          user_id: user.user.id,
+          rating: rating
+        });
 
       if (ratingError) throw ratingError;
 
