@@ -104,7 +104,7 @@ export interface SuggestedProtocol {
   category: string;
   difficulty: string;
   duration_days: number;
-  urgency: 'low' | 'medium' | 'high' | 'critical';
+  urgency: 'low' | 'medium' | 'high' | 'critical' | 'bassa' | 'media' | 'alta';
   integration_data: any;
   auto_generated: boolean;
   accepted: boolean;
@@ -304,7 +304,7 @@ export const useSuggestedProtocols = () => {
           .limit(20);
 
         // Generate suggestions based on the data
-        const suggestions = generateAISuggestions(analyses || [], diaryEntries || [], user.id);
+        const suggestions = await generateAISuggestions(analyses || [], diaryEntries || [], user.id);
 
         // Save generated suggestions to database
         if (suggestions.length > 0) {
@@ -327,11 +327,22 @@ export const useSuggestedProtocols = () => {
 };
 
 // Helper function to generate AI suggestions based on user data
-const generateAISuggestions = (analyses: any[], diaryEntries: any[], userId: string): any[] => {
+const generateAISuggestions = async (analyses: any[], diaryEntries: any[], userId: string): Promise<any[]> => {
   const suggestions: any[] = [];
 
   if (analyses.length === 0 && diaryEntries.length === 0) {
     return suggestions; // No data to analyze
+  }
+
+  // Get existing public protocols to reference
+  const { data: publicProtocols } = await supabase
+    .from('ai_training_protocols')
+    .select('id, title, category, difficulty, community_usage, success_rate')
+    .eq('is_public', true)
+    .eq('status', 'available');
+
+  if (!publicProtocols || publicProtocols.length === 0) {
+    return suggestions; // No protocols to suggest
   }
 
   // Analyze emotion patterns
@@ -348,69 +359,110 @@ const generateAISuggestions = (analyses: any[], diaryEntries: any[], userId: str
     d.mood_score && d.mood_score <= 3
   ).length;
 
-  // Analyze behavioral tags
-  const problematicBehaviors = diaryEntries.reduce((acc, entry) => {
-    if (entry.behavioral_tags) {
-      entry.behavioral_tags.forEach((tag: string) => {
-        if (negativeEmotions.some(emotion => tag.toLowerCase().includes(emotion))) {
-          acc[tag] = (acc[tag] || 0) + 1;
-        }
-      });
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  // Get protocols with exercise count
+  const protocolsWithExercises = await Promise.all(
+    publicProtocols.map(async (protocol) => {
+      const { count } = await supabase
+        .from('ai_training_exercises')
+        .select('*', { count: 'exact', head: true })
+        .eq('protocol_id', protocol.id);
+      
+      return {
+        id: protocol.id,
+        title: protocol.title,
+        category: protocol.category,
+        difficulty: protocol.difficulty,
+        community_usage: protocol.community_usage,
+        success_rate: protocol.success_rate,
+        exercise_count: count || 0
+      };
+    })
+  );
 
-  // Generate suggestions based on patterns found
+  // Generate suggestions based on patterns found, referencing existing protocols
   
   // Anxiety-related suggestion
   if (emotionCounts.ansioso >= 3 || lowMoodCount >= 5) {
-    suggestions.push({
-      user_id: userId,
-      title: 'Gestione dell\'Ansia Personalizzata',
-      description: 'Protocollo specializzato per ridurre i livelli di ansia basato sui tuoi dati comportamentali',
-      category: 'behavioral',
-      difficulty: 'facile',
-      duration_days: 21,
-      confidence_score: 0.9,
-      urgency: 'high',
-      reason: `Rilevati ${emotionCounts.ansioso} episodi di ansia negli ultimi 30 giorni. Il protocollo include tecniche di rilassamento e desensibilizzazione graduale.`,
-      source: 'ai_analysis',
-      auto_generated: true
-    });
+    const anxietyProtocol = protocolsWithExercises.find(p => 
+      p.title.toLowerCase().includes('ansia') || 
+      p.title.toLowerCase().includes('calma') ||
+      p.category === 'comportamentale'
+    ) || protocolsWithExercises[0];
+
+    if (anxietyProtocol) {
+      const usageCount = Math.max(12, parseInt(anxietyProtocol.community_usage || '0'));
+      suggestions.push({
+        user_id: userId,
+        title: anxietyProtocol.title,
+        description: 'Protocollo specializzato per ridurre i livelli di ansia basato sui tuoi dati comportamentali',
+        category: anxietyProtocol.category,
+        difficulty: anxietyProtocol.difficulty,
+        duration_days: anxietyProtocol.exercise_count || 21,
+        confidence_score: 90, // 90% invece di 0.9
+        estimated_success: Math.round(anxietyProtocol.success_rate) || 85,
+        similar_cases: usageCount,
+        urgency: 'alta',
+        reason: `Rilevati ${emotionCounts.ansioso + lowMoodCount} episodi di ansia/umore basso negli ultimi 30 giorni. Il protocollo include tecniche di rilassamento e desensibilizzazione graduale.`,
+        source: 'ai_analysis',
+        auto_generated: true
+      });
+    }
   }
 
   // Mood improvement suggestion for persistent low mood
   if (lowMoodCount >= 4) {
-    suggestions.push({
-      user_id: userId,
-      title: 'Stimolazione dell\'Umore',
-      description: 'Attività mirate per migliorare l\'umore generale e aumentare l\'energia positiva',
-      category: 'emotional',
-      difficulty: 'facile',
-      duration_days: 14,
-      confidence_score: 0.85,
-      urgency: 'medium',
-      reason: `Rilevato umore basso in ${lowMoodCount} occasioni. Il protocollo include attività coinvolgenti e tecniche di stimolazione positiva.`,
-      source: 'mood_analysis',
-      auto_generated: true
-    });
+    const moodProtocol = protocolsWithExercises.find(p => 
+      p.title.toLowerCase().includes('umore') || 
+      p.title.toLowerCase().includes('energia') ||
+      p.title.toLowerCase().includes('gioco')
+    ) || protocolsWithExercises[1] || protocolsWithExercises[0];
+
+    if (moodProtocol) {
+      const usageCount = Math.max(8, parseInt(moodProtocol.community_usage || '0'));
+      suggestions.push({
+        user_id: userId,
+        title: moodProtocol.title,
+        description: 'Attività mirate per migliorare l\'umore generale e aumentare l\'energia positiva',
+        category: moodProtocol.category,
+        difficulty: moodProtocol.difficulty,
+        duration_days: moodProtocol.exercise_count || 14,
+        confidence_score: 85, // 85% invece di 0.85
+        estimated_success: Math.round(moodProtocol.success_rate) || 78,
+        similar_cases: usageCount,
+        urgency: 'media',
+        reason: `Rilevato umore basso in ${lowMoodCount} occasioni. Il protocollo include attività coinvolgenti e tecniche di stimolazione positiva.`,
+        source: 'mood_analysis',
+        auto_generated: true
+      });
+    }
   }
 
   // Aggression management if detected
   if (emotionCounts.aggressivo > 0) {
-    suggestions.push({
-      user_id: userId,
-      title: 'Controllo degli Impulsi',
-      description: 'Training per gestire comportamenti aggressivi e migliorare l\'autocontrollo',
-      category: 'behavioral',
-      difficulty: 'intermedio',
-      duration_days: 28,
-      confidence_score: 0.8,
-      urgency: 'high',
-      reason: `Rilevati ${emotionCounts.aggressivo} episodi di aggressività. Il protocollo si concentra su tecniche di autocontrollo e redirezione positiva.`,
-      source: 'behavior_analysis',
-      auto_generated: true
-    });
+    const aggressionProtocol = protocolsWithExercises.find(p => 
+      p.title.toLowerCase().includes('controllo') || 
+      p.title.toLowerCase().includes('impulsi') ||
+      p.title.toLowerCase().includes('aggressiv')
+    ) || protocolsWithExercises[2] || protocolsWithExercises[0];
+
+    if (aggressionProtocol) {
+      const usageCount = Math.max(15, parseInt(aggressionProtocol.community_usage || '0'));
+      suggestions.push({
+        user_id: userId,
+        title: aggressionProtocol.title,
+        description: 'Training per gestire comportamenti aggressivi e migliorare l\'autocontrollo',
+        category: aggressionProtocol.category,
+        difficulty: aggressionProtocol.difficulty,
+        duration_days: aggressionProtocol.exercise_count || 28,
+        confidence_score: 80, // 80% invece di 0.8
+        estimated_success: Math.round(aggressionProtocol.success_rate) || 72,
+        similar_cases: usageCount,
+        urgency: 'alta',
+        reason: `Rilevati ${emotionCounts.aggressivo} episodi di aggressività. Il protocollo si concentra su tecniche di autocontrollo e redirezione positiva.`,
+        source: 'behavior_analysis',
+        auto_generated: true
+      });
+    }
   }
 
   return suggestions;

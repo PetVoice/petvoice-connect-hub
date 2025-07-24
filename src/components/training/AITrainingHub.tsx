@@ -1153,16 +1153,14 @@ export const AITrainingHub: React.FC = () => {
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{suggestion.title}</h3>
-                          <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            AI
-                          </Badge>
-                          <Badge className={getUrgencyColor(suggestion.urgency)}>
-                            {suggestion.urgency}
-                          </Badge>
-                        </div>
+                         <div className="flex items-center gap-2 mb-2">
+                           <h3 className="font-semibold text-lg">{suggestion.title}</h3>
+                           <Badge className={getUrgencyColor(suggestion.urgency)}>
+                             {suggestion.urgency === 'alta' ? 'Priorità Alta' : 
+                              suggestion.urgency === 'media' ? 'Priorità Media' : 
+                              suggestion.urgency === 'bassa' ? 'Priorità Bassa' : suggestion.urgency}
+                           </Badge>
+                         </div>
                         <p className="text-muted-foreground mb-3">{suggestion.description}</p>
                         
                         <div className="bg-muted/50 p-3 rounded-lg mb-4">
@@ -1171,20 +1169,20 @@ export const AITrainingHub: React.FC = () => {
                           </p>
                         </div>
                         
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{suggestion.duration_days} giorni</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{suggestion.confidence_score}% confidenza</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            <span>{suggestion.similar_cases} casi simili</span>
-                          </div>
-                        </div>
+                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                           <div className="flex items-center gap-1">
+                             <BookOpen className="h-4 w-4" />
+                             <span>{suggestion.duration_days} esercizi</span>
+                           </div>
+                           <div className="flex items-center gap-1">
+                             <TrendingUp className="h-4 w-4" />
+                             <span>{suggestion.confidence_score}% confidenza</span>
+                           </div>
+                           <div className="flex items-center gap-1">
+                             <Users className="h-4 w-4" />
+                             <span>{suggestion.similar_cases} casi simili</span>
+                           </div>
+                         </div>
                       </div>
                       
                       <div className="flex flex-col gap-2">
