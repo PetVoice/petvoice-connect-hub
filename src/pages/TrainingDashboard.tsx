@@ -775,7 +775,16 @@ const TrainingDashboard: React.FC = () => {
                           ? 'bg-green-50 border-green-200'
                           : 'hover:bg-muted/50'
                       }`}
-                      onClick={() => setCurrentExercise(index)}
+                      onClick={() => {
+                        console.log('🔥 CLICK ESERCIZIO:', {
+                          clickedIndex: index,
+                          clickedExercise: exercise.title,
+                          currentExercise,
+                          dailyCompletedExercises,
+                          shouldBeDisabled: index > dailyCompletedExercises
+                        });
+                        setCurrentExercise(index);
+                      }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -881,12 +890,22 @@ const TrainingDashboard: React.FC = () => {
                   className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  {currentExercise > dailyCompletedExercises ? 
-                    `Completa prima l'esercizio ${dailyCompletedExercises + 1}` : 
-                    currentEx.completed ? 
-                      'Esercizio già completato' : 
-                      `Completa Esercizio ${currentExercise + 1}`
-                  }
+                  {(() => {
+                    console.log('🎯 RENDERING PULSANTE:', {
+                      currentExercise,
+                      dailyCompletedExercises,
+                      isDisabled: currentExercise > dailyCompletedExercises,
+                      exerciseCompleted: currentEx.completed
+                    });
+                    
+                    if (currentExercise > dailyCompletedExercises) {
+                      return `Completa prima l'esercizio ${dailyCompletedExercises + 1}`;
+                    } else if (currentEx.completed) {
+                      return 'Esercizio già completato';
+                    } else {
+                      return `Completa Esercizio ${currentExercise + 1}`;
+                    }
+                  })()}
                 </Button>
 
                 {/* Pulsante Interrompi Protocollo */}
