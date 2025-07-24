@@ -147,11 +147,11 @@ const TrainingDashboard: React.FC = () => {
       handleCompleteExercise();
     }
     
-    // Poi vai al prossimo esercizio se non è l'ultimo
+    // Se non è l'ultimo esercizio, vai al prossimo
     if (currentExerciseIndex < totalExercises - 1) {
       setTimeout(() => {
         setCurrentExerciseIndex(prev => prev + 1);
-      }, 500); // Piccolo delay per far vedere il completamento
+      }, 500);
     }
   };
 
@@ -366,19 +366,11 @@ const TrainingDashboard: React.FC = () => {
                 {/* Pulsante Avanti */}
                 <Button
                   onClick={handleNextExercise}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6"
+                  disabled={currentExerciseIndex === totalExercises - 1}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {currentExerciseIndex === totalExercises - 1 ? (
-                    <>
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Completa Protocollo
-                    </>
-                  ) : (
-                    <>
-                      Avanti
-                      <ChevronRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
+                  Avanti
+                  <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>
 
