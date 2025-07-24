@@ -251,7 +251,8 @@ const TrainingDashboard: React.FC = () => {
         .from('ai_training_protocols')
         .update({
           status: 'completed',
-          progress_percentage: '100'
+          progress_percentage: '100',
+          updated_at: new Date().toISOString()
         })
         .eq('id', protocolId)
         .eq('user_id', user.user.id);
