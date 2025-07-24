@@ -283,13 +283,10 @@ export const AITrainingHub: React.FC = () => {
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical':
-      case 'alta': return 'bg-red-500/20 text-red-700 border-red-500/20';
-      case 'high': return 'bg-red-500/20 text-red-700 border-red-500/20';
-      case 'medium':
-      case 'media': return 'bg-orange-500/20 text-orange-700 border-orange-500/20';
-      case 'low':
-      case 'bassa': return 'bg-green-500/20 text-green-700 border-green-500/20';
+      case 'critical': return 'bg-red-500/20 text-red-700 border-red-500/20';
+      case 'high': return 'bg-orange-500/20 text-orange-700 border-orange-500/20';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-700 border-yellow-500/20';
+      case 'low': return 'bg-green-500/20 text-green-700 border-green-500/20';
       default: return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
     }
   };
