@@ -477,11 +477,14 @@ export const AITrainingHub: React.FC = () => {
           window.location.href = `/training/dashboard/${protocol.id}`;
         }, 1500);
       } else {
-        // Se è già un protocollo dell'utente ma non completato, attivalo
+        // Se è già un protocollo dell'utente ma non completato, riavvialo dall'inizio
         await updateProtocol.mutateAsync({
           id: protocol.id,
           updates: {
             status: 'active',
+            current_day: 1,
+            progress_percentage: "0",
+            success_rate: 0,
             last_activity_at: new Date().toISOString(),
           }
         });
