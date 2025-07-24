@@ -245,6 +245,7 @@ const SettingsPage: React.FC = () => {
   useEffect(() => {
     loadUserProfile();
     loadSecurityData();
+    loadNotificationSettings();
   }, []);
 
   const loadUserProfile = async () => {
@@ -279,6 +280,53 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+    }
+  };
+
+  const loadNotificationSettings = async () => {
+    try {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('notification_settings')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile && profile.notification_settings) {
+          const settings = profile.notification_settings as unknown as NotificationSettings;
+          setNotifications(settings);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading notification settings:', error);
+    }
+  };
+
+  const saveNotificationSettings = async (newSettings: NotificationSettings) => {
+    try {
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ 
+            notification_settings: newSettings as any,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        
+        showToast({
+          title: "Impostazioni salvate",
+          description: "Le tue preferenze di notifica sono state aggiornate."
+        });
+      }
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile salvare le impostazioni. Riprova.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -1670,15 +1718,17 @@ Continuare?
                          key === 'achievements' ? 'Nuovi traguardi e badge ottenuti' : 'Aggiornamenti di sistema e sicurezza'}
                       </p>
                     </div>
-                    <Switch
-                      checked={value}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({
-                          ...prev, 
-                          push: {...prev.push, [key]: checked}
-                        }))
-                      }
-                    />
+                     <Switch
+                       checked={value}
+                       onCheckedChange={(checked) => {
+                         const newSettings = {
+                           ...notifications, 
+                           push: {...notifications.push, [key]: checked}
+                         };
+                         setNotifications(newSettings);
+                         saveNotificationSettings(newSettings);
+                       }}
+                     />
                   </div>
                 ))}
               </CardContent>
@@ -1707,15 +1757,17 @@ Continuare?
                               key === 'system' ? 'Sistema' :
                               key === 'newsletter' ? 'Newsletter' : 'Marketing'}</Label>
                     </div>
-                    <Switch
-                      checked={value}
-                      onCheckedChange={(checked) => 
-                        setNotifications(prev => ({
-                          ...prev, 
-                          email: {...prev.email, [key]: checked}
-                        }))
-                      }
-                    />
+                     <Switch
+                       checked={value}
+                       onCheckedChange={(checked) => {
+                         const newSettings = {
+                           ...notifications, 
+                           email: {...notifications.email, [key]: checked}
+                         };
+                         setNotifications(newSettings);
+                         saveNotificationSettings(newSettings);
+                       }}
+                     />
                   </div>
                 ))}
               </CardContent>

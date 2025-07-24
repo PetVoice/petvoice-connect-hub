@@ -2300,6 +2300,7 @@ export type Database = {
           id: string
           location: string | null
           marketing_communications: boolean | null
+          notification_settings: Json | null
           notifications_enabled: boolean | null
           postal_code: string | null
           province: string | null
@@ -2321,6 +2322,7 @@ export type Database = {
           id?: string
           location?: string | null
           marketing_communications?: boolean | null
+          notification_settings?: Json | null
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
@@ -2342,6 +2344,7 @@ export type Database = {
           id?: string
           location?: string | null
           marketing_communications?: boolean | null
+          notification_settings?: Json | null
           notifications_enabled?: boolean | null
           postal_code?: string | null
           province?: string | null
