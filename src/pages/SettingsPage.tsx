@@ -141,16 +141,6 @@ interface NotificationSettings {
     achievements: boolean;
     system: boolean;
   };
-  email: {
-    healthAlerts: boolean;
-    appointments: boolean;
-    community: boolean;
-    analysis: boolean;
-    achievements: boolean;
-    system: boolean;
-    newsletter: boolean;
-    marketing: boolean;
-  };
   frequency: 'realtime' | 'hourly' | 'daily' | 'weekly';
 }
 
@@ -183,18 +173,11 @@ const SettingsPage: React.FC = () => {
       achievements: true,
       system: true
     },
-    email: {
-      healthAlerts: true,
-      appointments: true,
-      community: false,
-      analysis: true,
-      achievements: false,
-      system: true,
-      newsletter: false,
-      marketing: false
-    },
     frequency: 'realtime'
   });
+
+  // State per tracciare modifiche non salvate
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Appearance State managed by context
 
@@ -388,6 +371,63 @@ const SettingsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error saving data management settings:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile salvare le impostazioni. Riprova.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSaveAllSettings = async () => {
+    try {
+      if (user) {
+        // Salva tutte le impostazioni contemporaneamente
+        const promises = [];
+
+        // Salva notifiche
+        promises.push(
+          supabase
+            .from('profiles')
+            .update({ 
+              notification_settings: notifications as any,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+        );
+
+        // Salva appearance
+        promises.push(
+          supabase
+            .from('profiles')
+            .update({ 
+              appearance_settings: appearance as any,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+        );
+
+        // Salva data management
+        promises.push(
+          supabase
+            .from('profiles')
+            .update({ 
+              data_management_settings: dataManagement as any,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+        );
+
+        await Promise.all(promises);
+        
+        setHasUnsavedChanges(false);
+        showToast({
+          title: "Impostazioni salvate",
+          description: "Tutte le impostazioni sono state aggiornate con successo."
+        });
+      }
+    } catch (error) {
+      console.error('Error saving all settings:', error);
       showToast({
         title: "Errore",
         description: "Impossibile salvare le impostazioni. Riprova.",
@@ -1798,7 +1838,8 @@ Continuare?
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
           {notifications && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Push Notifications */}
             <Card>
               <CardHeader>
@@ -1830,12 +1871,11 @@ Continuare?
                      <Switch
                        checked={value}
                        onCheckedChange={(checked) => {
-                         const newSettings = {
+                         setNotifications({
                            ...notifications, 
                            push: {...notifications.push, [key]: checked}
-                         };
-                         setNotifications(newSettings);
-                         saveNotificationSettings(newSettings);
+                         });
+                         setHasUnsavedChanges(true);
                        }}
                      />
                   </div>
@@ -1843,52 +1883,57 @@ Continuare?
               </CardContent>
             </Card>
 
-            {/* Email Notifications */}
+            {/* Notification Frequency */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
-                  Notifiche Email
+                  <Clock className="h-5 w-5" />
+                  Frequenza Notifiche
                 </CardTitle>
                 <CardDescription>
-                  Controlla quali email ricevere
+                  Controlla quanto spesso ricevere le notifiche
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {notifications.email && Object.entries(notifications.email).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between">
-                    <div>
-                      <Label>{key === 'healthAlerts' ? 'Avvisi Salute' : 
-                              key === 'appointments' ? 'Appuntamenti' :
-                              key === 'community' ? 'Community' :
-                              key === 'analysis' ? 'Analisi' :
-                              key === 'achievements' ? 'Traguardi' : 
-                              key === 'system' ? 'Sistema' :
-                              key === 'newsletter' ? 'Newsletter' : 'Marketing'}</Label>
-                    </div>
-                     <Switch
-                       checked={value}
-                       onCheckedChange={(checked) => {
-                         const newSettings = {
-                           ...notifications, 
-                           email: {...notifications.email, [key]: checked}
-                         };
-                         setNotifications(newSettings);
-                         saveNotificationSettings(newSettings);
-                       }}
-                     />
-                  </div>
-                ))}
+              <CardContent>
+                <Select 
+                  value={notifications.frequency} 
+                  onValueChange={(value) => {
+                    setNotifications({...notifications, frequency: value as any});
+                    setHasUnsavedChanges(true);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="realtime">Tempo reale</SelectItem>
+                    <SelectItem value="hourly">Ogni ora</SelectItem>
+                    <SelectItem value="daily">Giornaliera</SelectItem>
+                    <SelectItem value="weekly">Settimanale</SelectItem>
+                  </SelectContent>
+                </Select>
               </CardContent>
             </Card>
 
+            </div>
+            
+            {/* Save Button */}
+            {hasUnsavedChanges && (
+              <div className="flex justify-end">
+                <Button onClick={handleSaveAllSettings} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Salva Impostazioni
+                </Button>
+              </div>
+            )}
           </div>
           )}
         </TabsContent>
 
         {/* Appearance Tab */}
         <TabsContent value="appearance" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Theme */}
             <Card>
               <CardHeader>
@@ -1901,10 +1946,13 @@ Continuare?
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <RadioGroup 
-                  value={theme} 
-                  onValueChange={(value) => setTheme(value as 'light' | 'dark')}
-                >
+                 <RadioGroup 
+                   value={theme} 
+                   onValueChange={(value) => {
+                     setTheme(value as 'light' | 'dark');
+                     setHasUnsavedChanges(true);
+                   }}
+                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="light" id="light" />
                     <Label htmlFor="light" className="flex items-center gap-2">
@@ -1939,7 +1987,10 @@ Continuare?
               <CardContent className="space-y-4">
                 <div>
                   <Label>Fuso Orario</Label>
-                  <Select value={appearance.timezone} onValueChange={(value) => saveAppearanceSettings('timezone', value)}>
+                   <Select value={appearance.timezone} onValueChange={(value) => {
+                     updateAppearance('timezone', value);
+                     setHasUnsavedChanges(true);
+                   }}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1955,7 +2006,10 @@ Continuare?
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Formato Data</Label>
-                    <Select value={appearance.dateFormat} onValueChange={(value) => saveAppearanceSettings('dateFormat', value)}>
+                     <Select value={appearance.dateFormat} onValueChange={(value) => {
+                       updateAppearance('dateFormat', value);
+                       setHasUnsavedChanges(true);
+                     }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1969,7 +2023,10 @@ Continuare?
 
                   <div>
                     <Label>Formato Ora</Label>
-                    <Select value={appearance.timeFormat} onValueChange={(value) => saveAppearanceSettings('timeFormat', value)}>
+                     <Select value={appearance.timeFormat} onValueChange={(value) => {
+                       updateAppearance('timeFormat', value);
+                       setHasUnsavedChanges(true);
+                     }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1997,10 +2054,13 @@ Continuare?
               <CardContent className="space-y-4">
                 <div>
                   <Label>Sistema di Misura</Label>
-                  <RadioGroup 
-                    value={appearance.units} 
-                    onValueChange={(value) => saveAppearanceSettings('units', value)}
-                  >
+                   <RadioGroup 
+                     value={appearance.units} 
+                     onValueChange={(value) => {
+                       updateAppearance('units', value);
+                       setHasUnsavedChanges(true);
+                     }}
+                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="metric" id="metric" />
                       <Label htmlFor="metric">Metrico (kg, cm, °C)</Label>
@@ -2014,7 +2074,10 @@ Continuare?
 
                 <div>
                   <Label>Valuta</Label>
-                  <Select value={appearance.currency} onValueChange={(value) => saveAppearanceSettings('currency', value)}>
+                   <Select value={appearance.currency} onValueChange={(value) => {
+                     updateAppearance('currency', value);
+                     setHasUnsavedChanges(true);
+                   }}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -2028,6 +2091,17 @@ Continuare?
                 </div>
               </CardContent>
             </Card>
+            </div>
+            
+            {/* Save Button */}
+            {hasUnsavedChanges && (
+              <div className="flex justify-end">
+                <Button onClick={handleSaveAllSettings} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Salva Impostazioni
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -2040,7 +2114,8 @@ Continuare?
 
         {/* Accessibility Tab */}
         <TabsContent value="accessibility" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Visual Accessibility */}
             <Card>
               <CardHeader>
@@ -2058,10 +2133,13 @@ Continuare?
                     <Label>Ottimizzazione screen reader</Label>
                     <p className="text-sm text-muted-foreground">Migliora l'esperienza con lettori di schermo</p>
                   </div>
-                  <Switch
-                    checked={accessibility.screenReader}
-                    onCheckedChange={(checked) => updateSetting('screenReader', checked)}
-                  />
+                   <Switch
+                     checked={accessibility.screenReader}
+                     onCheckedChange={(checked) => {
+                       updateSetting('screenReader', checked);
+                       setHasUnsavedChanges(true);
+                     }}
+                   />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -2069,10 +2147,13 @@ Continuare?
                     <Label>Alto contrasto</Label>
                     <p className="text-sm text-muted-foreground">Aumenta il contrasto dei colori</p>
                   </div>
-                  <Switch
-                    checked={accessibility.highContrast}
-                    onCheckedChange={(checked) => updateSetting('highContrast', checked)}
-                  />
+                   <Switch
+                     checked={accessibility.highContrast}
+                     onCheckedChange={(checked) => {
+                       updateSetting('highContrast', checked);
+                       setHasUnsavedChanges(true);
+                     }}
+                   />
                 </div>
 
               </CardContent>
@@ -2109,6 +2190,17 @@ Continuare?
                 </div>
               </CardContent>
             </Card>
+            </div>
+            
+            {/* Save Button */}
+            {hasUnsavedChanges && (
+              <div className="flex justify-end">
+                <Button onClick={handleSaveAllSettings} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Salva Impostazioni
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
