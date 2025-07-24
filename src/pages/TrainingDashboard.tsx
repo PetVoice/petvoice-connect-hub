@@ -877,10 +877,16 @@ const TrainingDashboard: React.FC = () => {
                     console.log('🔥 CLICK PULSANTE COMPLETA!');
                     handleCompleteExercise();
                   }}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6"
+                  disabled={currentExercise !== dailyCompletedExercises || currentEx.completed}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Completa Esercizio {currentExercise + 1}
+                  {currentExercise !== dailyCompletedExercises ? 
+                    `Completa prima l'esercizio ${dailyCompletedExercises + 1}` : 
+                    currentEx.completed ? 
+                      'Esercizio già completato' : 
+                      `Completa Esercizio ${currentExercise + 1}`
+                  }
                 </Button>
 
                 {/* Pulsante Interrompi Protocollo */}
