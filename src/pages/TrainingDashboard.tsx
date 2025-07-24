@@ -315,6 +315,16 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
+      // Se l'esercizio è già completato, non fare nulla
+      if (currentEx.completed) {
+        showToast({
+          title: 'Esercizio già completato',
+          description: 'Questo esercizio è già stato completato.',
+          type: 'error'
+        });
+        return;
+      }
+      
       // Calcola il progresso del protocollo usando la durata effettiva
       const completedCount = currentExercise + 1; // Esercizio appena completato
       const exercisesPerDay = 3; // FISSO a 3 esercizi per giorno sempre
