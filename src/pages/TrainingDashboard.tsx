@@ -107,6 +107,17 @@ const TrainingDashboard: React.FC = () => {
         .filter(exercise => exercise.completed)
         .map(exercise => exercise.id);
       setCompletedExercises(new Set(completedIds));
+      
+      // Trova il primo esercizio non completato e imposta l'indice corrente
+      const firstIncompleteIndex = allExercises.findIndex(exercise => !exercise.completed);
+      
+      // Se tutti gli esercizi sono completati, rimani sull'ultimo
+      // Altrimenti vai al primo esercizio non completato
+      if (firstIncompleteIndex === -1) {
+        setCurrentExerciseIndex(allExercises.length - 1);
+      } else {
+        setCurrentExerciseIndex(firstIncompleteIndex);
+      }
     }
   }, [allExercises]);
 
