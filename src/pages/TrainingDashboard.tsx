@@ -247,9 +247,39 @@ const TrainingDashboard: React.FC = () => {
     }
   };
 
-  const confirmInterruptProtocol = () => {
-    setShowInterruptDialog(false);
-    navigate('/training');
+  const confirmInterruptProtocol = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !protocolId) throw new Error('User or protocol not found');
+
+      // Aggiorna lo status del protocollo a "paused" nel database
+      const { error: protocolError } = await supabase
+        .from('ai_training_protocols')
+        .update({
+          status: 'paused',
+          last_activity_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', protocolId)
+        .eq('user_id', user.id);
+
+      if (protocolError) throw protocolError;
+
+      toast({
+        title: 'Protocollo interrotto',
+        description: 'Il protocollo è stato messo in pausa. Puoi riprenderlo in seguito.',
+      });
+
+      setShowInterruptDialog(false);
+      navigate('/training');
+    } catch (error) {
+      console.error('Errore nell\'interrompere il protocollo:', error);
+      toast({
+        title: 'Errore',
+        description: 'Non è stato possibile interrompere il protocollo. Riprova.',
+        variant: 'destructive'
+      });
+    }
   };
 
   if (!currentExercise) {
