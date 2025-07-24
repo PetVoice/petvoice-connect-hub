@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { MessageList } from './MessageList';
@@ -34,6 +35,7 @@ export interface Message {
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
   const { showToast } = useToastWithIcon();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -149,9 +151,14 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
 
       showToast({
         title: "Chat privata avviata!",
-        description: `Hai iniziato una conversazione privata con ${targetUserName}. Vai alla sezione Chat Private per continuare.`,
+        description: `Reindirizzamento alla chat con ${targetUserName}...`,
         type: 'message'
       });
+
+      // Redirect to Community page private chat section with specific chat
+      setTimeout(() => {
+        navigate(`/community?tab=private&chatId=${chatId}`);
+      }, 1000);
     } catch (error) {
       console.error('Error starting private chat:', error);
       showToast({
