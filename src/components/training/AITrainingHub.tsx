@@ -577,8 +577,8 @@ export const AITrainingHub: React.FC = () => {
       await deleteProtocol.mutateAsync(protocolId);
       
       showToast({
-        title: 'Protocollo eliminato',
-        description: 'Il protocollo di allenamento è stato eliminato con successo',
+        title: 'Protocollo interrotto',
+        description: 'Il protocollo di allenamento è stato interrotto con successo',
         type: 'delete'
       });
     } catch (error) {
