@@ -625,9 +625,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         variant: "success"
       });
 
-      // Navigate to the specific protocol
+      // Navigate to the specific protocol dashboard
       setTimeout(() => {
-        navigate(`/ai-training?protocolId=${protocolCopy}`);
+        navigate(`/training/dashboard/${protocolCopy}`);
       }, 1000);
 
     } catch (error) {
