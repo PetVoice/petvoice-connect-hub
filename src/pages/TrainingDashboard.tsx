@@ -392,8 +392,8 @@ const TrainingDashboard: React.FC = () => {
       </Card>
 
       {/* Esercizio Corrente */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -520,7 +520,7 @@ const TrainingDashboard: React.FC = () => {
         </div>
 
         {/* Sidebar con navigazione esercizi - Layout migliorato */}
-        <div>
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Tutti gli Esercizi</CardTitle>
@@ -551,7 +551,7 @@ const TrainingDashboard: React.FC = () => {
                           <div className="w-4 h-4 border border-muted-foreground rounded-full flex-shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">{exercise.title}</div>
+                          <div className="font-medium text-sm">{exercise.title}</div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             {exercise.duration_minutes} min
