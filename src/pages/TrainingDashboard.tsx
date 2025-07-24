@@ -446,8 +446,8 @@ const TrainingDashboard: React.FC = () => {
                     <p className="text-blue-700 leading-relaxed">{currentExercise.description}</p>
                   </div>
                   
-                  {/* Obiettivi */}
-                  {currentExercise.objectives && currentExercise.objectives.length > 0 && (
+                  {/* Obiettivi - Debug aggiunto */}
+                  {currentExercise?.objectives ? (
                     <div>
                       <h5 className="font-medium text-blue-800 mb-2">🎯 Obiettivi:</h5>
                       <ul className="list-disc list-inside space-y-1 text-blue-700">
@@ -455,6 +455,10 @@ const TrainingDashboard: React.FC = () => {
                           <li key={index} className="leading-relaxed">{objective}</li>
                         ))}
                       </ul>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-red-500">
+                      Debug: Objectives non trovati per l'esercizio "{currentExercise?.title}"
                     </div>
                   )}
                   

@@ -60,6 +60,9 @@ export interface TrainingExercise {
   photos?: string[];
   voice_notes?: string[];
   ai_analysis?: string;
+  objectives?: string[];
+  tips?: string[];
+  success_criteria?: string[];
   created_at: string;
   updated_at: string;
 }
