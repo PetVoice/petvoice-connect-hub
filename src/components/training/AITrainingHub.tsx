@@ -204,7 +204,7 @@ export const AITrainingHub: React.FC = () => {
 
   // Check if protocol belongs to current user
   const isUserProtocol = (protocol: TrainingProtocol) => {
-    return currentUserId && protocol.user_id === currentUserId && !protocol.ai_generated;
+    return currentUserId && protocol.user_id === currentUserId;
   };
 
   // Filtered protocols - only available protocols (not active, completed, or paused)
