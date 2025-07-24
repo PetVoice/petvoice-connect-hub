@@ -266,20 +266,23 @@ export const useSuggestedProtocols = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // Clean ALL suggestions for this user for testing (including accepted ones)
-      console.log('🧹 Cleaning ALL suggestions for user:', user.id);
-      await supabase
+      // First, check if we have recent suggestions (last 24 hours)
+      const { data: existingSuggestions } = await supabase
         .from('ai_suggested_protocols')
-        .delete()
-        .eq('user_id', user.id);
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Last 24 hours
+        .order('created_at', { ascending: false });
 
-      // Also invalidate the query cache to force refresh
-      queryClient.removeQueries({ queryKey: ['suggested-protocols', user?.id] });
+      // If we have recent suggestions, return them instead of generating new ones
+      if (existingSuggestions && existingSuggestions.length > 0) {
+        console.log('📋 Found existing suggestions:', existingSuggestions.length);
+        return existingSuggestions as SuggestedProtocol[];
+      }
 
-      console.log('🧹 Cleaned old suggestions, generating new ones...');
+      console.log('🔧 No recent suggestions found, generating new ones...');
 
-      // No need to check existing since we just cleaned them all
-      // Generate new suggestions based on user data
+      // Only generate new suggestions if none exist from the last 24 hours
       try {
         console.log('🔍 Generating AI suggestions for user:', user.id);
         
@@ -327,7 +330,8 @@ export const useSuggestedProtocols = () => {
         return [];
       }
     },
-    staleTime: 0, // Always fetch fresh data
+    staleTime: 60 * 60 * 1000, // 1 hour - don't refetch for 1 hour
+    gcTime: 60 * 60 * 1000, // Keep in cache for 1 hour
   });
 };
 
