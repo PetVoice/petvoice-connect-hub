@@ -574,6 +574,16 @@ export const AITrainingHub: React.FC = () => {
         }, 1500);
       } else {
         // Se è già un protocollo dell'utente ma non completato, riavvialo dall'inizio
+        // Prima cancella la valutazione esistente per permettere una nuova valutazione
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+          await supabase
+            .from('protocol_ratings')
+            .delete()
+            .eq('protocol_id', protocol.id)
+            .eq('user_id', user.user.id);
+        }
+
         await updateProtocol.mutateAsync({
           id: protocol.id,
           updates: {

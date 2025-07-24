@@ -232,6 +232,17 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
   // Riavvia un protocollo
   const restartProtocol = async (protocolId: string) => {
     try {
+      // Prima cancella la valutazione esistente per permettere una nuova valutazione
+      const { data: user } = await supabase.auth.getUser();
+      if (user.user) {
+        await supabase
+          .from('protocol_ratings')
+          .delete()
+          .eq('protocol_id', protocolId)
+          .eq('user_id', user.user.id);
+      }
+
+      // Poi riavvia il protocollo
       const { error } = await supabase
         .from('ai_training_protocols')
         .update({ 
