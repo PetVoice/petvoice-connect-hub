@@ -278,7 +278,7 @@ const TrainingDashboard: React.FC = () => {
 
       toast({
         title: 'Protocollo interrotto',
-        description: 'Il protocollo è stato messo in pausa. Puoi riprenderlo in seguito.',
+        description: 'Il protocollo è stato interrotto e rimosso dai protocolli attivi.',
       });
 
       setShowInterruptDialog(false);
