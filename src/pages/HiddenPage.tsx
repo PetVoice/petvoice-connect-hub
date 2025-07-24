@@ -13,7 +13,7 @@ import {
 
 const HiddenPage: React.FC = () => {
   const [activeFeature, setActiveFeature] = useState(0);
-  const [selectedPlan, setSelectedPlan] = useState('pro');
+  const [selectedPlan, setSelectedPlan] = useState('premium');
   
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
@@ -29,95 +29,79 @@ const HiddenPage: React.FC = () => {
   const features = [
     {
       icon: Brain,
-      title: "AI Emotion Recognition",
-      description: "La nostra IA avanzata analizza espressioni facciali, postura e comportamento per identificare 15+ stati emotivi diversi del tuo pet.",
+      title: "Analisi Emozionale AI",
+      description: "Analizza foto, video e audio per identificare 7 stati emotivi principali: felice, calmo, ansioso, eccitato, triste, aggressivo, giocoso.",
       color: "from-blue-500 to-cyan-500"
     },
     {
       icon: Camera,
-      title: "Analisi Foto & Video",
-      description: "Carica foto o registra video per ricevere insight istantanei. Supporta analisi in tempo reale e storico delle emozioni.",
+      title: "Monitoraggio Comportamentale",
+      description: "Carica foto e video per ricevere insight comportamentali dettagliati e raccomandazioni personalizzate per il benessere.",
       color: "from-purple-500 to-pink-500"
     },
     {
       icon: Mic,
-      title: "Riconoscimento Vocale",
-      description: "Analizza miagolii, abbai e altri suoni per comprendere lo stato emotivo attraverso pattern vocali unici.",
+      title: "Analisi Audio Avanzata",
+      description: "Registra i suoni del tuo pet per analizzare vocalizzazioni e comprendere il suo stato emotivo attraverso l'AI.",
       color: "from-green-500 to-teal-500"
     },
     {
       icon: TrendingUp,
-      title: "Analytics Avanzate",
-      description: "Dashboard completa con grafici interattivi, trend temporali e report personalizzati sul benessere del tuo pet.",
+      title: "Dashboard & Statistiche",
+      description: "Monitora i progressi con score di benessere, giorni consecutivi di analisi, miglioramenti e trend dettagliati.",
       color: "from-orange-500 to-red-500"
     },
     {
       icon: Calendar,
-      title: "Calendario Benessere",
-      description: "Traccia eventi, mood giornalieri e crea routine personalizzate basate sui pattern emotivi del tuo pet.",
+      title: "Diario & Calendario",
+      description: "Traccia le attività quotidiane, eventi importanti e gestisci promemoria per cure veterinarie e farmaci.",
       color: "from-indigo-500 to-purple-500"
     },
     {
       icon: Music,
-      title: "Terapia Musicale AI",
-      description: "Genera playlist personalizzate basate sullo stato emotivo corrente per rilassare o energizzare il tuo pet.",
+      title: "Musicoterapia AI",
+      description: "Playlist personalizzate generate dall'AI basate sullo stato emotivo del tuo pet per favorire relax ed equilibrio.",
       color: "from-pink-500 to-rose-500"
+    },
+    {
+      icon: Users,
+      title: "Community & Training",
+      description: "Connettiti con altri pet owners, accedi a protocolli di addestramento AI e guide di primo soccorso.",
+      color: "from-cyan-500 to-blue-500"
+    },
+    {
+      icon: Shield,
+      title: "Gestione Multi-Pet",
+      description: "Gestisci tutti i tuoi animali domestici con profili separati, analisi individuali e monitoraggio centralizzato.",
+      color: "from-emerald-500 to-green-500"
     }
   ];
 
   const plans = [
     {
-      id: 'free',
-      name: 'Starter',
-      price: 'Gratis',
-      period: 'sempre',
-      description: 'Perfetto per iniziare',
-      features: [
-        '5 analisi al mese',
-        'Riconoscimento emotivo base',
-        'Dashboard semplificata',
-        'Supporto community'
-      ],
-      popular: false,
-      color: 'border-gray-200'
-    },
-    {
-      id: 'pro',
-      name: 'Professional',
-      price: '29€',
+      id: 'premium',
+      name: 'PetVoice Premium',
+      price: '€0,97',
       period: 'al mese',
-      description: 'Per pet parents appassionati',
+      description: 'L\'unico piano disponibile - Completo e accessibile',
       features: [
-        'Analisi illimitate',
-        'AI emotion recognition avanzata',
-        'Analytics complete',
-        'Calendario benessere',
-        'Terapia musicale AI',
-        'Supporto prioritario',
-        'Export dati',
-        'API access'
+        '🐕 Gestisci tutti i tuoi animali',
+        '🧠 Analisi emotive avanzate con AI',
+        '📊 Monitoraggio salute completo',
+        '🎵 Musicoterapia personalizzata',
+        '📅 Calendario veterinario integrato',
+        '📝 Diario comportamentale dettagliato',
+        '💊 Gestione farmaci e vaccinazioni',
+        '📈 Statistiche e trend analitici',
+        '📱 Sincronizzazione multi-dispositivo',
+        '🆘 Supporto dedicato 24/7',
+        '🏥 Guide di primo soccorso',
+        '👥 Accesso alla community',
+        '🎓 Protocolli di addestramento AI',
+        '🌤️ Predittore mood meteorologico'
       ],
       popular: true,
       color: 'border-azure ring-2 ring-azure/20'
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: '59€',
-      period: 'al mese',
-      description: 'Soluzione completa per professionisti',
-      features: [
-        'Tutto del piano Pro',
-        'Multi-pet (illimitati)',
-        'White-label dashboard',
-        'Integrazioni veterinarie',
-        'Consulenze personalizzate',
-        'Training AI personalizzato',
-        'Supporto dedicato 24/7',
-        'Custom features'
-      ],
-      popular: false,
-      color: 'border-yellow-400'
     }
   ];
 
@@ -147,24 +131,28 @@ const HiddenPage: React.FC = () => {
 
   const faqs = [
     {
-      question: "Come funziona il riconoscimento emotivo?",
-      answer: "La nostra AI analizza micro-espressioni, postura corporea, movimenti e pattern vocali usando algoritmi di deep learning addestrati su migliaia di ore di video di animali domestici."
+      question: "Come funziona l'analisi emotiva?",
+      answer: "La nostra AI analizza foto, video e audio per identificare 7 stati emotivi principali: felice, calmo, ansioso, eccitato, triste, aggressivo e giocoso. Il sistema fornisce insights comportamentali e raccomandazioni personalizzate."
     },
     {
-      question: "È sicuro per il mio pet?",
+      question: "Quanto costa PetVoice?",
+      answer: "PetVoice ha un unico piano Premium a €0,97 al mese che include tutte le funzionalità: analisi illimitate, gestione multi-pet, musicoterapia AI, calendario, diario, statistiche e supporto 24/7."
+    },
+    {
+      question: "Posso gestire più animali?",
+      answer: "Sì! Con PetVoice Premium puoi gestire tutti i tuoi animali domestici con profili individuali, analisi separate e monitoraggio centralizzato."
+    },
+    {
+      question: "Cosa include la musicoterapia AI?",
+      answer: "La musicoterapia AI genera playlist personalizzate basate sullo stato emotivo corrente del tuo pet per favorire relax, ridurre stress o aumentare l'energia secondo le necessità del momento."
+    },
+    {
+      question: "È sicuro per i miei pet?",
       answer: "Assolutamente sì! PetVoice è completamente non invasivo. Analizza solo foto, video e audio senza alcun contatto fisico o dispositivo indossabile."
     },
     {
-      question: "Quanto è accurato il sistema?",
-      answer: "I nostri test mostrano un'accuratezza del 94% nel riconoscimento degli stati emotivi principali, confermata da veterinari e comportamentalisti."
-    },
-    {
-      question: "Posso usarlo con più animali?",
-      answer: "Con il piano Professional puoi aggiungere fino a 3 pet, mentre il Premium supporta animali illimitati con profili individuali."
-    },
-    {
-      question: "I miei dati sono al sicuro?",
-      answer: "Usiamo crittografia end-to-end e storage sicuro. I tuoi dati non vengono mai condivisi e puoi eliminarli in qualsiasi momento."
+      question: "I miei dati sono protetti?",
+      answer: "Usiamo crittografia avanzata e storage sicuro. I tuoi dati non vengono mai condivisi con terze parti e puoi eliminarli in qualsiasi momento dalla piattaforma."
     }
   ];
 
@@ -271,7 +259,7 @@ const HiddenPage: React.FC = () => {
                 onClick={handleGetStarted}
                 className="px-8 py-4 bg-gradient-to-r from-azure to-azure-dark text-white rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
               >
-                <span>Inizia Gratis</span>
+                <span>Prova PetVoice</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               
@@ -348,54 +336,53 @@ const HiddenPage: React.FC = () => {
                 Scegli il piano <span className="text-azure-light">perfetto</span> per te
               </h2>
               <p className="text-xl text-white/80 max-w-2xl mx-auto">
-                Inizia gratis e scala in base alle tue esigenze. Tutti i piani includono la nostra garanzia di soddisfazione.
+                Un solo piano, tutte le funzionalità. Accesso completo alle tecnologie AI più avanzate per il benessere del tuo pet.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="flex justify-center max-w-2xl mx-auto">
               {plans.map((plan) => (
                 <Card 
                   key={plan.id}
-                  className={`relative p-8 bg-card/90 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer ${plan.color} ${plan.popular ? 'scale-105' : ''}`}
+                  className={`relative p-10 bg-card/90 backdrop-blur-md rounded-2xl shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer ${plan.color} scale-105`}
                   onClick={() => setSelectedPlan(plan.id)}
                 >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-azure to-azure-dark text-white px-4 py-1 font-semibold">
-                        <Crown className="w-4 h-4 mr-1" />
-                        Più Popolare
-                      </Badge>
-                    </div>
-                  )}
-
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
-                    <div className="mb-4">
-                      <span className="text-4xl font-bold text-azure">{plan.price}</span>
-                      <span className="text-muted-foreground ml-2">{plan.period}</span>
-                    </div>
-                    <p className="text-muted-foreground">{plan.description}</p>
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-gradient-to-r from-azure to-azure-dark text-white px-6 py-2 font-bold text-lg">
+                      <Crown className="w-5 h-5 mr-2" />
+                      Piano Unico
+                    </Badge>
                   </div>
 
-                  <ul className="space-y-4 mb-8">
+                  <div className="text-center mb-10">
+                    <h3 className="text-3xl font-bold text-foreground mb-4">{plan.name}</h3>
+                    <div className="mb-6">
+                      <span className="text-6xl font-bold text-azure">{plan.price}</span>
+                      <span className="text-xl text-muted-foreground ml-3">{plan.period}</span>
+                    </div>
+                    <p className="text-xl text-muted-foreground">{plan.description}</p>
+                  </div>
+
+                  <ul className="space-y-4 mb-10">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-foreground">
-                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                      <li key={index} className="flex items-center text-foreground text-lg">
+                        <Check className="w-6 h-6 text-green-500 mr-4 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
 
                   <Button 
-                    className={`w-full h-12 font-semibold text-lg transition-all duration-300 ${
-                      plan.popular 
-                        ? 'petvoice-button hover:scale-105' 
-                        : 'border-2 border-azure text-azure hover:bg-azure hover:text-white bg-transparent'
-                    }`}
+                    className="w-full h-14 petvoice-button font-bold text-xl hover:scale-105 transition-all duration-300"
                     onClick={handleGetStarted}
                   >
-                    {plan.id === 'free' ? 'Inizia Gratis' : 'Inizia Prova Gratuita'}
+                    <Crown className="w-6 h-6 mr-3" />
+                    Attiva PetVoice Premium
                   </Button>
+                  
+                  <div className="text-center mt-6 text-sm text-muted-foreground">
+                    💳 Pagamento sicuro • 🔄 Cancella quando vuoi
+                  </div>
                 </Card>
               ))}
             </div>
@@ -475,7 +462,7 @@ const HiddenPage: React.FC = () => {
                 onClick={handleGetStarted}
                 className="px-8 py-4 bg-white text-azure font-bold text-lg rounded-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
               >
-                Inizia Gratis Ora
+                Attiva PetVoice Premium
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
@@ -491,11 +478,11 @@ const HiddenPage: React.FC = () => {
               <div className="flex items-center justify-center gap-6 flex-wrap">
                 <span className="flex items-center">
                   <Check className="w-4 h-4 mr-2 text-green-400" />
-                  Prova gratuita 14 giorni
+                  Solo €0,97 al mese
                 </span>
                 <span className="flex items-center">
                   <Check className="w-4 h-4 mr-2 text-green-400" />
-                  Nessuna carta richiesta
+                  Tutte le funzionalità incluse
                 </span>
                 <span className="flex items-center">
                   <Check className="w-4 h-4 mr-2 text-green-400" />
