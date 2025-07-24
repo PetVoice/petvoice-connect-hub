@@ -1460,17 +1460,13 @@ const AnalysisPage: React.FC = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            Carica
-          </TabsTrigger>
-          <TabsTrigger value="nlp" className="flex items-center gap-2">
-            <Brain className="h-4 w-4" />
-            Analisi Comportamentale
+            Nuova Analisi
           </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
+            <Brain className="h-4 w-4" />
             Risultati
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
@@ -1503,9 +1499,6 @@ const AnalysisPage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="nlp" className="space-y-6">
-          <NaturalLanguageProcessing />
-        </TabsContent>
 
         <TabsContent value="results" className="space-y-6" data-guide="results-section">
           {analyses.length > 0 ? (
