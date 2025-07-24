@@ -35,8 +35,8 @@ const TrainingDashboard: React.FC = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [showInterruptDialog, setShowInterruptDialog] = useState(false);
   const [rating, setRating] = useState(0);
-  const [notes, setNotes] = useState('');
 
   // Query per ottenere i dati reali del protocollo
   const { data: protocolData, isLoading, error } = useQuery({
@@ -171,14 +171,7 @@ const TrainingDashboard: React.FC = () => {
   };
 
   const handleInterruptProtocol = () => {
-    toast({
-      title: 'Protocollo interrotto',
-      description: 'Il protocollo è stato interrotto.',
-    });
-
-    setTimeout(() => {
-      navigate('/training');
-    }, 1500);
+    setShowInterruptDialog(true);
   };
 
   const handleSubmitRating = async () => {
@@ -191,8 +184,7 @@ const TrainingDashboard: React.FC = () => {
         .insert({
           protocol_id: protocolId,
           user_id: (await supabase.auth.getUser()).data.user?.id,
-          rating: rating,
-          comment: notes
+          rating: rating
         });
 
       if (error) throw error;
@@ -213,6 +205,11 @@ const TrainingDashboard: React.FC = () => {
         variant: 'destructive'
       });
     }
+  };
+
+  const confirmInterruptProtocol = () => {
+    setShowInterruptDialog(false);
+    navigate('/training');
   };
 
   if (!currentExercise) {
@@ -480,13 +477,13 @@ const TrainingDashboard: React.FC = () => {
       </div>
 
       {/* Dialog Valutazione */}
-      <Dialog open={showRatingDialog} onOpenChange={setShowRatingDialog}>
+      <Dialog open={showRatingDialog} onOpenChange={() => {}}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>🎉 Protocollo Completato!</DialogTitle>
             <DialogDescription>
               Complimenti! Hai completato tutto il protocollo "{protocol.title}". 
-              Come valuteresti la tua esperienza?
+              Valuta la tua esperienza per completare.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -518,15 +515,6 @@ const TrainingDashboard: React.FC = () => {
                 1 = 0% di successo, 10 = 100% di successo
               </p>
             </div>
-            <div>
-              <label className="text-sm font-medium">Note aggiuntive (opzionale)</label>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Scrivi qui i tuoi commenti..."
-                className="mt-2"
-              />
-            </div>
             <div className="flex gap-2">
               <Button
                 onClick={handleSubmitRating}
@@ -536,6 +524,34 @@ const TrainingDashboard: React.FC = () => {
                 Completa Protocollo
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Conferma Interruzione */}
+      <Dialog open={showInterruptDialog} onOpenChange={setShowInterruptDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>⚠️ Conferma Interruzione</DialogTitle>
+            <DialogDescription>
+              Sei sicuro di voler interrompere il protocollo? I progressi attuali verranno persi.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowInterruptDialog(false)}
+              className="flex-1"
+            >
+              Annulla
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmInterruptProtocol}
+              className="flex-1"
+            >
+              Interrompi
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
