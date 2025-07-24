@@ -998,38 +998,7 @@ export const AITrainingHub: React.FC = () => {
                                <AlertDialogHeader>
                                       <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere il protocollo "{translateProtocolTitle(protocol.title)}"? Potrai riprenderlo in seguito.
-                                      </AlertDialogDescription>
-                               </AlertDialogHeader>
-                               <AlertDialogFooter>
-                                 <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                 <AlertDialogAction 
-                                   onClick={() => handleStatusChange(protocol.id, 'paused')}
-                                   className="bg-orange-600 hover:bg-orange-700"
-                                 >
-                                   Sì, interrompi
-                                 </AlertDialogAction>
-                               </AlertDialogFooter>
-                             </AlertDialogContent>
-                           </AlertDialog>
-                         )}
-                         {isUserProtocol(protocol) && (
-                           <AlertDialog>
-                             <AlertDialogTrigger asChild>
-                               <Button
-                                 variant="outline"
-                                 size="sm"
-                                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                               >
-                                 <Trash2 className="h-4 w-4 mr-2" />
-                                 Elimina
-                               </Button>
-                             </AlertDialogTrigger>
-                             <AlertDialogContent>
-                               <AlertDialogHeader>
-                                      <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Sei sicuro di voler eliminare definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione è irreversibile e perderai tutti i progressi.
+                                        Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione eliminerà il protocollo e tutti i progressi andranno persi.
                                       </AlertDialogDescription>
                                </AlertDialogHeader>
                                <AlertDialogFooter>
@@ -1038,7 +1007,7 @@ export const AITrainingHub: React.FC = () => {
                                    onClick={() => handleDeleteProtocol(protocol.id)}
                                    className="bg-red-600 hover:bg-red-700"
                                  >
-                                   Sì, elimina
+                                   Sì, interrompi
                                  </AlertDialogAction>
                                </AlertDialogFooter>
                              </AlertDialogContent>
