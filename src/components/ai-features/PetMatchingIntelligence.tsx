@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -312,6 +313,7 @@ const mockSuccessPatterns: SuccessPattern[] = [
 
 export const PetMatchingIntelligence: React.FC = () => {
   const { showToast } = useTranslatedToast();
+  const navigate = useNavigate();
   
   // Real data hooks with proper loading states
   const { data: petTwins = [], isLoading: petsLoading } = usePetTwins();
@@ -512,8 +514,13 @@ export const PetMatchingIntelligence: React.FC = () => {
 
       showToast({
         title: "Chat avviata!",
-        description: "Hai avviato una chat privata. Vai alla sezione \"Chat Private\" per continuare la conversazione."
+        description: `Reindirizzamento alla chat con ${selectedTwin.owner_name || selectedTwin.name}...`
       });
+
+      // Redirect to Community page private chat section with specific chat
+      setTimeout(() => {
+        navigate(`/community?tab=private&chatId=${chatId}`);
+      }, 1000);
       
     } catch (error) {
       console.error('Connection error:', error);

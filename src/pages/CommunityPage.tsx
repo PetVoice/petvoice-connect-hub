@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,6 +111,7 @@ const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 const CommunityPage = () => {
   const { user } = useAuth();
   const { showToast } = useToastWithIcon();
+  const [searchParams] = useSearchParams();
   
   const [activeTab, setActiveTab] = useState('groups');
   const [myGroups, setMyGroups] = useState([]);
@@ -152,6 +154,19 @@ const CommunityPage = () => {
     // Force reload on component mount
     loadCommunityStats();
   }, [user?.id]);
+
+  // Handle URL parameters for direct navigation to chat
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const chatId = searchParams.get('chatId');
+    
+    if (tab) {
+      setActiveTab(tab);
+    }
+    
+    // If there's a chatId parameter and we're on private tab, focus that chat
+    // The PrivateChatWithReply component will handle opening the specific chat
+  }, [searchParams]);
   
   useEffect(() => {
     generateAvailableGroups();
@@ -638,7 +653,7 @@ const CommunityPage = () => {
           </TabsContent>
 
           <TabsContent value="private" className="space-y-6">
-            <PrivateChatWithReply />
+            <PrivateChatWithReply chatId={searchParams.get('chatId')} />
           </TabsContent>
           
           <TabsContent value="matching" className="space-y-6">

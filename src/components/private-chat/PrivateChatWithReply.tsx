@@ -40,7 +40,11 @@ interface PrivateChat {
   unread_count: number;
 }
 
-export const PrivateChatWithReply: React.FC = () => {
+interface PrivateChatWithReplyProps {
+  chatId?: string | null;
+}
+
+export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chatId }) => {
   console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
   const { showToast } = useTranslatedToast();
@@ -69,6 +73,17 @@ export const PrivateChatWithReply: React.FC = () => {
       setupRealtimeSubscription();
     }
   }, [user?.id]);
+
+  // Auto-select chat based on chatId prop
+  useEffect(() => {
+    if (chatId && chats.length > 0) {
+      const targetChat = chats.find(chat => chat.id === chatId);
+      if (targetChat) {
+        console.log('🎯 Auto-selecting chat from URL:', chatId);
+        setSelectedChat(targetChat);
+      }
+    }
+  }, [chatId, chats]);
 
   useEffect(() => {
     if (selectedChat) {
