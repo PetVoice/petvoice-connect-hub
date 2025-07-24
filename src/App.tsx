@@ -23,6 +23,7 @@ import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
+import HiddenPage from "@/pages/HiddenPage";
 
 import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
@@ -44,6 +45,7 @@ function AppContent() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/hidden" element={<HiddenPage />} />
         <Route path="/" element={
           <ProtectedRoute>
             <AppLayout>
