@@ -177,16 +177,32 @@ const TrainingDashboard: React.FC = () => {
     if (!rating) return;
 
     try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not found');
+
       // Salva la valutazione nel database
-      const { error } = await supabase
+      const { error: ratingError } = await supabase
         .from('protocol_ratings')
         .insert({
           protocol_id: protocolId,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.user.id,
           rating: rating
         });
 
-      if (error) throw error;
+      if (ratingError) throw ratingError;
+
+      // Aggiorna lo status del protocollo a completato
+      const { error: protocolError } = await supabase
+        .from('ai_training_protocols')
+        .update({
+          status: 'completed',
+          progress_percentage: '100',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', protocolId)
+        .eq('user_id', user.user.id);
+
+      if (protocolError) throw protocolError;
 
       toast({
         title: 'Protocollo completato!',
