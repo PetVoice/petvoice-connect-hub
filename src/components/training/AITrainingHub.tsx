@@ -834,40 +834,54 @@ export const AITrainingHub: React.FC = () => {
                                 <Play className="h-4 w-4 mr-2" />
                                 {protocol.user_id ? (protocol.status === 'active' ? 'Continua' : 'Inizia Protocollo') : 'Inizia Protocollo'}
                              </Button>
-                             {protocol.user_id && protocol.status === 'active' && (
-                               <AlertDialog>
-                                 <AlertDialogTrigger asChild>
-                                   <Button
-                                     variant="destructive"
-                                     size="sm"
-                                     className="flex items-center gap-2"
-                                   >
-                                     <Square className="h-4 w-4" />
-                                     Interrompi
-                                   </Button>
-                                 </AlertDialogTrigger>
-                                 <AlertDialogContent>
-                                   <AlertDialogHeader>
-                                     <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                         Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
-                                      </AlertDialogDescription>
-                                   </AlertDialogHeader>
-                                   <AlertDialogFooter>
-                                     <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                     <AlertDialogAction 
-                                       onClick={(e) => {
-                                         e.stopPropagation();
-                                         handleStatusChange(protocol.id, 'paused');
-                                       }}
-                                       className="bg-red-600 hover:bg-red-700"
-                                     >
-                                       Sì, interrompi
-                                     </AlertDialogAction>
-                                   </AlertDialogFooter>
-                                 </AlertDialogContent>
-                               </AlertDialog>
-                             )}
+                              {protocol.user_id && protocol.status === 'active' && parseInt(protocol.progress_percentage || '0') < 100 && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      className="flex items-center gap-2"
+                                    >
+                                      <Square className="h-4 w-4" />
+                                      Interrompi
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                                       <AlertDialogDescription>
+                                          Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                       </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleStatusChange(protocol.id, 'paused');
+                                        }}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Sì, interrompi
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                              
+                              {protocol.user_id && protocol.status === 'active' && parseInt(protocol.progress_percentage || '0') >= 100 && (
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleStatusChange(protocol.id, 'completed');
+                                  }}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                  size="sm"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Completa protocollo
+                                </Button>
+                              )}
                           </div>
                          
                            {protocol.status === 'active' && parseInt(protocol.progress_percentage || '0') > 0 && (
@@ -985,36 +999,47 @@ export const AITrainingHub: React.FC = () => {
                           <Play className="h-4 w-4 mr-2" />
                           Continua
                         </Button>
-                         {isUserProtocol(protocol) && (
-                           <AlertDialog>
-                             <AlertDialogTrigger asChild>
-                               <Button
-                                 variant="destructive"
-                                 size="sm"
-                               >
-                                 <Square className="h-4 w-4 mr-2" />
-                                 Interrompi
-                               </Button>
-                             </AlertDialogTrigger>
-                             <AlertDialogContent>
-                               <AlertDialogHeader>
-                                      <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione eliminerà il protocollo e tutti i progressi andranno persi.
-                                      </AlertDialogDescription>
-                               </AlertDialogHeader>
-                               <AlertDialogFooter>
-                                 <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                 <AlertDialogAction 
-                                   onClick={() => handleDeleteProtocol(protocol.id)}
-                                   className="bg-red-600 hover:bg-red-700"
-                                 >
-                                   Sì, interrompi
-                                 </AlertDialogAction>
-                               </AlertDialogFooter>
-                             </AlertDialogContent>
-                           </AlertDialog>
-                         )}
+                          {isUserProtocol(protocol) && parseInt(protocol.progress_percentage || '0') < 100 && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                >
+                                  <Square className="h-4 w-4 mr-2" />
+                                  Interrompi
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                       <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
+                                       <AlertDialogDescription>
+                                         Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione eliminerà il protocollo e tutti i progressi andranno persi.
+                                       </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteProtocol(protocol.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Sì, interrompi
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                          
+                          {isUserProtocol(protocol) && parseInt(protocol.progress_percentage || '0') >= 100 && (
+                            <Button
+                              onClick={() => handleStatusChange(protocol.id, 'completed')}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              size="sm"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Completa protocollo
+                            </Button>
+                          )}
                       </div>
                     </div>
                   </CardContent>

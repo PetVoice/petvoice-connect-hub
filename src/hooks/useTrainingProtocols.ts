@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 // Translation system removed - Italian only
 
 export interface TrainingProtocol {
@@ -257,29 +258,162 @@ export const useTrainingProtocols = () => {
 
 export const useSuggestedProtocols = () => {
   const { toast } = useToast();
-  // Translation system removed - Italian only
-
+  const { user } = useAuth();
+  
   return useQuery({
-    queryKey: ['suggested-protocols'],
+    queryKey: ['suggested-protocols', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!user?.id) return [];
+
+      // First check if there are existing suggestions
+      const { data: existingSuggestions, error: fetchError } = await supabase
         .from('ai_suggested_protocols')
         .select('*')
+        .eq('user_id', user.id)
         .eq('dismissed', false)
         .order('confidence_score', { ascending: false });
 
-      if (error) {
-        toast({
-          title: 'Errore nella creazione',
-          description: 'Si è verificato un errore durante la creazione del protocollo',
-          variant: 'destructive',
-        });
-        throw error;
+      if (fetchError) {
+        console.error('Error fetching suggestions:', fetchError);
+        throw fetchError;
       }
 
-      return data as SuggestedProtocol[];
+      // If we have suggestions, return them
+      if (existingSuggestions && existingSuggestions.length > 0) {
+        return existingSuggestions as SuggestedProtocol[];
+      }
+
+      // If no suggestions exist, generate them based on user data
+      try {
+        // Get user's recent analyses to generate suggestions
+        const { data: analyses } = await supabase
+          .from('pet_analyses')
+          .select('primary_emotion, primary_confidence, created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Last 30 days
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        // Get user's diary entries for more context
+        const { data: diaryEntries } = await supabase
+          .from('diary_entries')
+          .select('mood_score, behavioral_tags, created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        // Generate suggestions based on the data
+        const suggestions = generateAISuggestions(analyses || [], diaryEntries || [], user.id);
+
+        // Save generated suggestions to database
+        if (suggestions.length > 0) {
+          const { error: insertError } = await supabase
+            .from('ai_suggested_protocols')
+            .insert(suggestions);
+
+          if (insertError) {
+            console.error('Error saving suggestions:', insertError);
+          }
+        }
+
+        return suggestions as SuggestedProtocol[];
+      } catch (error) {
+        console.error('Error generating suggestions:', error);
+        return [];
+      }
     },
   });
+};
+
+// Helper function to generate AI suggestions based on user data
+const generateAISuggestions = (analyses: any[], diaryEntries: any[], userId: string): any[] => {
+  const suggestions: any[] = [];
+
+  if (analyses.length === 0 && diaryEntries.length === 0) {
+    return suggestions; // No data to analyze
+  }
+
+  // Analyze emotion patterns
+  const negativeEmotions = ['ansioso', 'triste', 'aggressivo', 'pauroso', 'stressato', 'agitato'];
+  const emotionCounts = negativeEmotions.reduce((acc, emotion) => {
+    acc[emotion] = analyses.filter(a => 
+      a.primary_emotion.toLowerCase().includes(emotion)
+    ).length;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Analyze diary mood patterns
+  const lowMoodCount = diaryEntries.filter(d => 
+    d.mood_score && d.mood_score <= 3
+  ).length;
+
+  // Analyze behavioral tags
+  const problematicBehaviors = diaryEntries.reduce((acc, entry) => {
+    if (entry.behavioral_tags) {
+      entry.behavioral_tags.forEach((tag: string) => {
+        if (negativeEmotions.some(emotion => tag.toLowerCase().includes(emotion))) {
+          acc[tag] = (acc[tag] || 0) + 1;
+        }
+      });
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Generate suggestions based on patterns found
+  
+  // Anxiety-related suggestion
+  if (emotionCounts.ansioso >= 3 || lowMoodCount >= 5) {
+    suggestions.push({
+      user_id: userId,
+      title: 'Gestione dell\'Ansia Personalizzata',
+      description: 'Protocollo specializzato per ridurre i livelli di ansia basato sui tuoi dati comportamentali',
+      category: 'behavioral',
+      difficulty: 'facile',
+      duration_days: 21,
+      confidence_score: 0.9,
+      urgency: 'high',
+      reason: `Rilevati ${emotionCounts.ansioso} episodi di ansia negli ultimi 30 giorni. Il protocollo include tecniche di rilassamento e desensibilizzazione graduale.`,
+      source: 'ai_analysis',
+      auto_generated: true
+    });
+  }
+
+  // Mood improvement suggestion for persistent low mood
+  if (lowMoodCount >= 4) {
+    suggestions.push({
+      user_id: userId,
+      title: 'Stimolazione dell\'Umore',
+      description: 'Attività mirate per migliorare l\'umore generale e aumentare l\'energia positiva',
+      category: 'emotional',
+      difficulty: 'facile',
+      duration_days: 14,
+      confidence_score: 0.85,
+      urgency: 'medium',
+      reason: `Rilevato umore basso in ${lowMoodCount} occasioni. Il protocollo include attività coinvolgenti e tecniche di stimolazione positiva.`,
+      source: 'mood_analysis',
+      auto_generated: true
+    });
+  }
+
+  // Aggression management if detected
+  if (emotionCounts.aggressivo > 0) {
+    suggestions.push({
+      user_id: userId,
+      title: 'Controllo degli Impulsi',
+      description: 'Training per gestire comportamenti aggressivi e migliorare l\'autocontrollo',
+      category: 'behavioral',
+      difficulty: 'intermedio',
+      duration_days: 28,
+      confidence_score: 0.8,
+      urgency: 'high',
+      reason: `Rilevati ${emotionCounts.aggressivo} episodi di aggressività. Il protocollo si concentra su tecniche di autocontrollo e redirezione positiva.`,
+      source: 'behavior_analysis',
+      auto_generated: true
+    });
+  }
+
+  return suggestions;
 };
 
 export const useTrainingTemplates = () => {
@@ -383,6 +517,68 @@ export const useUpdateProtocol = () => {
         variant: 'destructive',
       });
       console.error('Error updating protocol:', error);
+    },
+  });
+};
+
+// Hook per salvare automaticamente i progressi
+export const useSaveProtocolProgress = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      protocolId, 
+      currentDay, 
+      progressPercentage, 
+      completedExercises 
+    }: { 
+      protocolId: string;
+      currentDay: number;
+      progressPercentage: number;
+      completedExercises: string[];
+    }) => {
+      // Update protocol progress
+      const { error: protocolError } = await supabase
+        .from('ai_training_protocols')
+        .update({
+          current_day: currentDay,
+          progress_percentage: progressPercentage.toString(),
+          last_activity_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', protocolId);
+
+      if (protocolError) throw protocolError;
+
+      // Mark exercises as completed
+      if (completedExercises.length > 0) {
+        const { error: exerciseError } = await supabase
+          .from('ai_training_exercises')
+          .update({ 
+            completed: true, 
+            completed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .in('id', completedExercises);
+
+        if (exerciseError) throw exerciseError;
+      }
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      // Invalida le query per aggiornare i dati
+      queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+    },
+    onError: (error) => {
+      console.error('Error saving progress:', error);
+      toast({
+        title: 'Errore salvataggio',
+        description: 'Non è stato possibile salvare i progressi',
+        variant: 'destructive',
+      });
     },
   });
 };
