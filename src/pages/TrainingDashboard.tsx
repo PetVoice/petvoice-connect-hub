@@ -400,11 +400,22 @@ const TrainingDashboard: React.FC = () => {
         currentDay,
         protocolCurrentDay: protocol.current_day,
         effectiveDuration: getEffectiveDuration(protocol.exercises || []),
-        isLastDay: protocol.current_day >= getEffectiveDuration(protocol.exercises || []) // Usa durata effettiva
+        nextDay: protocol.current_day + 1,
+        isLastDay: protocol.current_day >= getEffectiveDuration(protocol.exercises || []), // Condizione attuale
+        isLastDayCorrect: (protocol.current_day + 1) > getEffectiveDuration(protocol.exercises || []) // Condizione corretta
       });
       
       if (completedCount === totalExercisesToday) { // Usa totalExercisesToday invece di exercisesPerDay
-        const isLastDay = protocol.current_day >= getEffectiveDuration(protocol.exercises || []); // Usa durata effettiva
+        const effectiveDuration = getEffectiveDuration(protocol.exercises || []);
+        const isLastDay = (protocol.current_day + 1) > effectiveDuration; // CORREZIONE: controlla se il PROSSIMO giorno supererebbe la durata
+        
+        console.log('🎯 DECISIONE FINALE:', {
+          currentDay: protocol.current_day,
+          nextDay: protocol.current_day + 1,
+          effectiveDuration,
+          isLastDay,
+          action: isLastDay ? 'TERMINA PROTOCOLLO' : 'PASSA AL GIORNO SUCCESSIVO'
+        });
         
         if (isLastDay) {
           // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
