@@ -3363,6 +3363,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      fix_protocol_duration_based_on_exercises: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string

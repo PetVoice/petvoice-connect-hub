@@ -54,6 +54,12 @@ interface Exercise {
 
 // Rimossa funzione getExercisesForProtocol hardcoded - ora usiamo esercizi dal database
 
+// Helper function per calcolare la durata effettiva del protocollo
+const getEffectiveDuration = (exercises: any[]) => {
+  if (!exercises || exercises.length === 0) return 1;
+  return Math.max(...exercises.map(ex => ex.day_number));
+};
+
 const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
@@ -309,10 +315,13 @@ const TrainingDashboard: React.FC = () => {
         return;
       }
       
-      // Calcola il progresso del protocollo
+      // Calcola il progresso del protocollo usando la durata effettiva
       const completedCount = currentExercise + 1; // Esercizio appena completato
       const exercisesPerDay = 3; // FISSO a 3 esercizi per giorno sempre
-      const totalExercises = exercisesPerDay * protocol.duration_days;
+      
+      // Calcola la durata effettiva basandosi sugli esercizi disponibili
+      const effectiveDuration = getEffectiveDuration(protocol.exercises || []);
+      const totalExercises = exercisesPerDay * effectiveDuration; // Usa durata effettiva
       
       // Calcola totale esercizi completati nel protocollo
       const exercisesCompletedInPreviousDays = (currentDay - 1) * exercisesPerDay;
@@ -373,17 +382,19 @@ const TrainingDashboard: React.FC = () => {
 
       // SE È L'ULTIMO ESERCIZIO DEL GIORNO, PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
       const totalExercisesToday = todayExercises.length; // Numero reale di esercizi oggi
+      
       console.log('🚨 CONTROLLO CAMBIO GIORNO:', {
         completedCount,
-        totalExercisesToday, // Usa il numero reale invece di exercisesPerDay fisso
+        totalExercisesToday, 
         isLastExercise: completedCount === totalExercisesToday,
         currentDay,
         protocolCurrentDay: protocol.current_day,
-        isLastDay: protocol.current_day >= protocol.duration_days
+        effectiveDuration: getEffectiveDuration(protocol.exercises || []),
+        isLastDay: protocol.current_day >= getEffectiveDuration(protocol.exercises || []) // Usa durata effettiva
       });
       
       if (completedCount === totalExercisesToday) { // Usa totalExercisesToday invece di exercisesPerDay
-        const isLastDay = protocol.current_day >= protocol.duration_days;
+        const isLastDay = protocol.current_day >= getEffectiveDuration(protocol.exercises || []); // Usa durata effettiva
         
         if (isLastDay) {
           // PROTOCOLLO TERMINATO - Mostra dialog di valutazione
@@ -412,7 +423,8 @@ const TrainingDashboard: React.FC = () => {
             
             // CALCOLA ANCHE IL PROGRESSO AGGIORNATO
             const exercisesPerDay = 3; // Fisso a 3 esercizi per giorno
-            const totalExercises = exercisesPerDay * protocol.duration_days;
+            const effectiveDuration = getEffectiveDuration(protocol.exercises || []);
+            const totalExercises = exercisesPerDay * effectiveDuration; // Usa durata effettiva
             const exercisesCompletedInPreviousDays = protocol.current_day * exercisesPerDay; // Tutti i giorni precedenti + oggi completato
             const newProgressPercentage = Math.floor((exercisesCompletedInPreviousDays / totalExercises) * 100);
             
