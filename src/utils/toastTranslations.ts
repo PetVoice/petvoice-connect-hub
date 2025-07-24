@@ -35,6 +35,14 @@ const toastMessages: Record<string, string> = {
   "Copiato negli appunti": "Copiato negli appunti",
   "Impossibile copiare": "Impossibile copiare",
   
+  // Pet messages
+  'pets.petAdded.title': 'Pet aggiunto',
+  'pets.petAdded.description': '{petName} è stato aggiunto con successo alla famiglia',
+  'pets.petUpdated.title': 'Pet aggiornato',
+  'pets.petUpdated.description': '{petName} è stato aggiornato con successo',
+  'pets.petDeleted.title': 'Pet eliminato',
+  'pets.petDeleted.description': '{petName} è stato rimosso dalla famiglia',
+  
   // Protocol messages
   'protocol.started.title': 'Protocollo avviato',
   'protocol.started.description': 'Il protocollo "{protocolName}" è stato avviato con successo',
