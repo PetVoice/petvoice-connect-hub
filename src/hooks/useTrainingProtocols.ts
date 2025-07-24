@@ -420,7 +420,7 @@ const generateAISuggestions = async (analyses: any[], diaryEntries: any[], userI
         confidence_score: 90, // 90% invece di 0.9
         estimated_success: Math.round(anxietyProtocol.success_rate || 85),
         similar_cases: usageCount,
-        urgency: 'alta',
+        urgency: 'high',
         reason: `Rilevati ${emotionCounts.ansioso + lowMoodCount} episodi di ansia/umore basso negli ultimi 30 giorni. Il protocollo include tecniche di rilassamento e desensibilizzazione graduale.`,
         source: 'ai_analysis',
         auto_generated: true
@@ -449,7 +449,7 @@ const generateAISuggestions = async (analyses: any[], diaryEntries: any[], userI
         confidence_score: 85, // 85% invece di 0.85
         estimated_success: Math.round(moodProtocol.success_rate || 78),
         similar_cases: usageCount,
-        urgency: 'media',
+        urgency: 'medium',
         reason: `Rilevato umore basso in ${lowMoodCount} occasioni. Il protocollo include attività coinvolgenti e tecniche di stimolazione positiva.`,
         source: 'mood_analysis',
         auto_generated: true
@@ -477,7 +477,7 @@ const generateAISuggestions = async (analyses: any[], diaryEntries: any[], userI
       confidence_score: 80, // 80% invece di 0.8
       estimated_success: Math.round(aggressionProtocol.success_rate || 72),
       similar_cases: usageCount,
-      urgency: 'media',
+      urgency: 'medium',
       reason: `Suggerimento basato sui pattern comportamentali identificati. Il protocollo si concentra su tecniche di autocontrollo e redirezione positiva.`,
       source: 'behavior_analysis',
       auto_generated: true
