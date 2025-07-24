@@ -240,8 +240,6 @@ const TrainingDashboard: React.FC = () => {
           protocol_id: protocolId,
           user_id: user.user.id,
           rating: rating
-        }, {
-          onConflict: 'protocol_id,user_id'
         });
 
       if (ratingError) throw ratingError;
