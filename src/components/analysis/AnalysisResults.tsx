@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -269,6 +270,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const language = 'it';
   const { showToast } = useTranslatedToast();
   const { selectedPet } = usePets();
+  const navigate = useNavigate();
 
   // Helper function to translate hardcoded analysis data
   const translateAnalysisData = (text: string, type: 'insights' | 'recommendations' | 'triggers') => {
@@ -458,6 +460,47 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       showToast({
         title: getText('error'),
         description: 'Errore nell\'avvio automatico del protocollo',
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Function to start music therapy session with recommended playlist
+  const startMusicTherapy = (playlist: any) => {
+    try {
+      if (!selectedPet?.id) {
+        showToast({
+          title: getText('error'),
+          description: getText('selectPet'),
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Navigate to AI Music Therapy page with playlist parameters
+      const playlistParams = {
+        name: playlist.name,
+        description: playlist.description,
+        frequency: playlist.frequency,
+        duration: playlist.duration,
+        reasoning: playlist.reasoning,
+        emotion: selectedAnalysis?.primary_emotion,
+        confidence: selectedAnalysis?.primary_confidence,
+        autoStart: true // Flag to auto-start the playlist
+      };
+
+      navigate(`/ai-music-therapy?petId=${selectedPet.id}&playlist=${encodeURIComponent(JSON.stringify(playlistParams))}`);
+      
+      showToast({
+        title: 'Musicoterapia Avviata!',
+        description: `Reindirizzamento alla sessione ${playlist.name}`,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Error starting music therapy:', error);
+      showToast({
+        title: getText('error'),
+        description: 'Errore nell\'avvio della sessione di musicoterapia',
         variant: "destructive"
       });
     }
@@ -772,8 +815,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 <p className="text-xs text-purple-600 dark:text-purple-400 italic">
                                   💡 {playlist.reasoning}
                                 </p>
-                              </div>
-                              <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                               </div>
+                               <Button 
+                                 size="sm" 
+                                 className="bg-purple-600 hover:bg-purple-700"
+                                 onClick={() => startMusicTherapy(playlist)}
+                               >
                                 <Activity className="h-3 w-3 mr-1" />
                                 {getText('startMusicTherapy')}
                               </Button>
