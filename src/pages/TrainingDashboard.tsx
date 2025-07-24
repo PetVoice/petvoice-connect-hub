@@ -597,12 +597,6 @@ const TrainingDashboard: React.FC = () => {
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             {exercise.duration_minutes} min
-                            {exercise.exercise_type && (
-                              <>
-                                <span>•</span>
-                                <span className="capitalize">{exercise.exercise_type}</span>
-                              </>
-                            )}
                           </div>
                         </div>
                       </div>
