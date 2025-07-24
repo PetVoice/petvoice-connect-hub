@@ -1076,7 +1076,6 @@ export const AITrainingHub: React.FC = () => {
                           <Badge className={getDifficultyColor(protocol.difficulty)}>
                             {protocol.difficulty}
                           </Badge>
-                          <Badge variant="outline">{protocol.category}</Badge>
                           <Badge className="bg-green-500/20 text-green-700 border-green-500/20">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Completato
@@ -1086,11 +1085,11 @@ export const AITrainingHub: React.FC = () => {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
-                            <span>{protocol.duration_days} giorni</span>
+                            <span>{protocol.exercise_count || 0} esercizi</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% successo</span>
+                            <span>{Math.round(protocol.community_rating * 20 || protocol.success_rate || 0)}% successo</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />

@@ -135,7 +135,7 @@ export const useCompletedProtocols = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Query per ottenere protocolli completati unici (uno per titolo)
+      // Query per ottenere protocolli completati unici (uno per titolo) con conteggio esercizi
       const { data, error } = await supabase
         .from('ai_training_protocols')
         .select('*')
@@ -145,19 +145,43 @@ export const useCompletedProtocols = () => {
 
       if (error) throw error;
 
-      // Filtra per mantenere solo un protocollo per titolo (il più recente)
-      const uniqueProtocols = data?.reduce((acc: any[], protocol: any) => {
-        if (!acc.some(p => p.title === protocol.title)) {
-          acc.push({
+      // Ottieni il conteggio degli esercizi per ogni protocollo e usa i dati pubblici per success rate
+      const protocolsWithExerciseCount = await Promise.all(
+        (data || []).map(async (protocol) => {
+          const { count } = await supabase
+            .from('ai_training_exercises')
+            .select('*', { count: 'exact', head: true })
+            .eq('protocol_id', protocol.id);
+          
+          // Cerca il protocollo pubblico corrispondente per ottenere dati aggiornati
+          const { data: publicProtocol } = await supabase
+            .from('ai_training_protocols')
+            .select('community_rating, community_usage')
+            .eq('title', protocol.title)
+            .eq('is_public', true)
+            .single();
+          
+          return {
             ...protocol,
+            exercise_count: count || 0,
+            community_rating: publicProtocol?.community_rating || protocol.community_rating || 0,
+            community_usage: publicProtocol?.community_usage || protocol.community_usage || '0',
             difficulty: protocol.difficulty as 'facile' | 'medio' | 'difficile'
-          });
+          };
+        })
+      );
+
+      // Filtra per mantenere solo un protocollo per titolo (il più recente)
+      const uniqueProtocols = protocolsWithExerciseCount?.reduce((acc: any[], protocol: any) => {
+        if (!acc.some(p => p.title === protocol.title)) {
+          acc.push(protocol);
         }
         return acc;
       }, []) || [];
 
       return uniqueProtocols as TrainingProtocol[];
     },
+    staleTime: 0, // Forza sempre il refresh
   });
 };
 

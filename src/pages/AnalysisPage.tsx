@@ -51,6 +51,7 @@ import { useNotificationEventsContext } from '@/contexts/NotificationEventsConte
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
+import { NaturalLanguageProcessing } from '@/components/ai-features/NaturalLanguageProcessing';
 import { useAuth } from '@/contexts/AuthContext';
 // Translation system removed - Italian only
 
@@ -1459,13 +1460,17 @@ const AnalysisPage: React.FC = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="upload" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             Carica
           </TabsTrigger>
-          <TabsTrigger value="results" className="flex items-center gap-2">
+          <TabsTrigger value="nlp" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
+            Analisi Comportamentale
+          </TabsTrigger>
+          <TabsTrigger value="results" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
             Risultati
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
@@ -1498,6 +1503,10 @@ const AnalysisPage: React.FC = () => {
           </div>
         </TabsContent>
 
+        <TabsContent value="nlp" className="space-y-6">
+          <NaturalLanguageProcessing />
+        </TabsContent>
+
         <TabsContent value="results" className="space-y-6" data-guide="results-section">
           {analyses.length > 0 ? (
             <AnalysisResults 
@@ -1509,7 +1518,7 @@ const AnalysisPage: React.FC = () => {
               <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <h3 className="text-lg font-semibold mb-2">Nessuna analisi disponibile</h3>
               <p className="text-muted-foreground mb-4">
-                Carica un file audio o video per iniziare l'analisi
+                Nuova Analisi - carica un file audio o video
               </p>
               <Button onClick={() => setActiveTab('upload')} className="bg-primary text-primary-foreground">
                 <Upload className="h-4 w-4 mr-2" />
