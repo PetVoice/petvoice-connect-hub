@@ -227,19 +227,20 @@ export const AITrainingHub: React.FC = () => {
     const completedProtocolsCount = completedProtocols.length; // Usa completedProtocols dal hook dedicato
     const totalProtocols = protocols.length + activeCount + completedProtocolsCount;
     
-    // Calculate success rate based on completed protocols only
-    const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
-    const avgSuccessRate = completedWithData.length > 0 
-      ? Math.round(completedWithData.reduce((sum, p) => sum + (p.success_rate || 0), 0) / completedWithData.length)
-      : completedProtocols.length > 0 
-        ? Math.round(completedProtocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / completedProtocols.length)
-        : 0;
+    // Calculate personal success rate based on user's completed protocols
+    const personalSuccessRate = completedProtocols.length > 0 
+      ? Math.round(completedProtocols.reduce((sum, p) => {
+          // Usa community_rating convertito in percentuale se disponibile, altrimenti success_rate
+          const rate = p.community_rating ? p.community_rating * 20 : (p.success_rate || 0);
+          return sum + rate;
+        }, 0) / completedProtocols.length)
+      : 0;
     
     return {
       totalProtocols,
       activeProtocols: activeCount,
       completedProtocols: completedProtocolsCount,
-      avgSuccessRate,
+      avgSuccessRate: personalSuccessRate,
       communityProtocols: protocols.filter(p => p.is_public).length
     };
   }, [protocols, activeProtocols, completedProtocols]);
@@ -1083,14 +1084,6 @@ export const AITrainingHub: React.FC = () => {
                         </div>
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{protocol.exercise_count || 0} esercizi</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.community_rating * 20 || protocol.success_rate || 0)}% successo</span>
-                          </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />
                             <span>Completato il {new Date(protocol.updated_at).toLocaleDateString()}</span>

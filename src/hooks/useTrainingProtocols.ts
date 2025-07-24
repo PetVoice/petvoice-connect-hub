@@ -251,6 +251,7 @@ export const useTrainingProtocols = () => {
       return protocolsWithExerciseCount as unknown as TrainingProtocol[];
     },
     staleTime: 0, // Forza sempre il refresh
+    refetchInterval: 5000, // Aggiorna ogni 5 secondi per vedere i cambiamenti nei utilizzi
   });
 };
 

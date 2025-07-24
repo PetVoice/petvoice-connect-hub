@@ -1373,61 +1373,143 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
                               <Target className="h-5 w-5 text-green-600" />
                             </div>
-                            <div className="flex-1">
-                              <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                                {(() => {
-                                  const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                  
-                                  if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                      emotion.includes('stress') || emotion.includes('stressato') ||
-                                      emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                    return getText('anxietySeparationManagement');
-                                  } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                             emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                             emotion.includes('irritato')) {
-                                    return getText('aggressionControl');
-                                  } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                             emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                    return getText('fearPhobiaOvercoming');
-                                  } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                             emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                    return getText('hyperactivityManagement');
-                                  } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                             emotion.includes('depresso') || emotion.includes('depressione') ||
-                                             emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                    return getText('emotionalSupportWellness');
-                                  } else {
-                                    return getText('generalBehaviorManagement');
-                                  }
-                                })()}
-                              </h5>
-                               <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                                 {(() => {
-                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                   
-                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                       emotion.includes('stress') || emotion.includes('stressato') ||
-                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                      return getText('anxietyProtocolDesc');
-                                    } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                               emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                               emotion.includes('irritato')) {
-                                      return getText('aggressionProtocolDesc');
-                                    } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                               emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                      return getText('fearProtocolDesc');
-                                    } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                               emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                      return getText('hyperactivityProtocolDesc');
-                                    } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                               emotion.includes('depresso') || emotion.includes('depressione') ||
-                                               emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                      return getText('emotionalProtocolDesc');
-                                    } else {
-                                      return getText('generalProtocolDesc');
-                                   }
-                                 })()}
-                              </p>
+                             <div className="flex-1">
+                               {(() => {
+                                 const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                 
+                                 // Mappatura emozioni -> target_behavior dei protocolli
+                                 let targetBehavior = '';
+                                 if (emotion.includes('ansia') || emotion.includes('ansioso')) {
+                                   targetBehavior = 'ansioso';
+                                 } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato')) {
+                                   targetBehavior = 'aggressivo';
+                                 } else if (emotion.includes('stress') || emotion.includes('stressato')) {
+                                   targetBehavior = 'stressato';
+                                 } else if (emotion.includes('paura') || emotion.includes('pauroso')) {
+                                   targetBehavior = 'pauroso';
+                                 } else if (emotion.includes('triste') || emotion.includes('depresso')) {
+                                   targetBehavior = 'depresso';
+                                 } else if (emotion.includes('agitato') || emotion.includes('iperattivo')) {
+                                   targetBehavior = 'iperattivo';
+                                 } else if (emotion.includes('irritabile') || emotion.includes('irritato')) {
+                                   targetBehavior = 'irritabile';
+                                 } else if (emotion.includes('confuso')) {
+                                   targetBehavior = 'confuso';
+                                 }
+
+                                 // Trova il protocollo corrispondente
+                                 const recommendedProtocol = protocols?.find(p => 
+                                   p.target_behavior === targetBehavior && p.is_public === true
+                                 );
+
+                                 if (recommendedProtocol) {
+                                   return (
+                                     <>
+                                       <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                                         {recommendedProtocol.title}
+                                       </h5>
+                                       <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                                         {recommendedProtocol.description}
+                                       </p>
+                                     </>
+                                   );
+                                 } else {
+                                   return (
+                                     <>
+                                       <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                                         Gestione Comportamentale Generale
+                                       </h5>
+                                       <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                                         Protocollo generico per il miglioramento comportamentale basato sull'emozione rilevata: {selectedAnalysis.primary_emotion}
+                                       </p>
+                                     </>
+                                   );
+                                 }
+                               })()}
+                               {(() => {
+                                 const emotion = selectedAnalysis.primary_emotion.toLowerCase();
+                                 
+                                 // Mappatura emozioni -> target_behavior dei protocolli
+                                 let targetBehavior = '';
+                                 if (emotion.includes('ansia') || emotion.includes('ansioso')) {
+                                   targetBehavior = 'ansioso';
+                                 } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato')) {
+                                   targetBehavior = 'aggressivo';
+                                 } else if (emotion.includes('stress') || emotion.includes('stressato')) {
+                                   targetBehavior = 'stressato';
+                                 } else if (emotion.includes('paura') || emotion.includes('pauroso')) {
+                                   targetBehavior = 'pauroso';
+                                 } else if (emotion.includes('triste') || emotion.includes('depresso')) {
+                                   targetBehavior = 'depresso';
+                                 } else if (emotion.includes('agitato') || emotion.includes('iperattivo')) {
+                                   targetBehavior = 'iperattivo';
+                                 } else if (emotion.includes('irritabile') || emotion.includes('irritato')) {
+                                   targetBehavior = 'irritabile';
+                                 } else if (emotion.includes('confuso')) {
+                                   targetBehavior = 'confuso';
+                                 }
+
+                                 // Trova il protocollo corrispondente
+                                 const recommendedProtocol = protocols?.find(p => 
+                                   p.target_behavior === targetBehavior && p.is_public === true
+                                 );
+
+                                 if (recommendedProtocol) {
+                                   return (
+                                     <>
+                                       <div className="grid grid-cols-2 gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
+                                         <div>
+                                           <span className="font-medium">Durata:</span> {recommendedProtocol.duration_days} giorni
+                                         </div>
+                                         <div>
+                                           <span className="font-medium">Difficoltà:</span> {recommendedProtocol.difficulty}
+                                         </div>
+                                         <div>
+                                           <span className="font-medium">Categoria:</span> {recommendedProtocol.category}
+                                         </div>
+                                         <div>
+                                           <span className="font-medium">Successo:</span> {Math.round(recommendedProtocol.community_rating * 20 || 0)}%
+                                         </div>
+                                       </div>
+                                       <div className="flex gap-2">
+                                         <Button
+                                           size="sm"
+                                           className="bg-green-600 hover:bg-green-700 text-white"
+                                           onClick={() => {
+                                             window.location.href = '/training';
+                                           }}
+                                         >
+                                           <Target className="h-3 w-3 mr-1" />
+                                           Inizia Protocollo
+                                         </Button>
+                                       </div>
+                                     </>
+                                   );
+                                 } else {
+                                   return (
+                                     <div className="flex gap-2">
+                                       <Button
+                                         size="sm"
+                                         className="bg-green-600 hover:bg-green-700 text-white"
+                                         onClick={() => {
+                                           window.location.href = '/training';
+                                         }}
+                                       >
+                                         <Target className="h-3 w-3 mr-1" />
+                                         Esplora Protocolli
+                                       </Button>
+                                     </div>
+                                   );
+                                 }
+                               })()}
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     );
+                   }
+                   return null;
+                 })()}
                                <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
                                  {(() => {
                                    const emotion = selectedAnalysis.primary_emotion.toLowerCase();
