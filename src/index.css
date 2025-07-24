@@ -8,30 +8,24 @@
 
 @layer base {
   :root {
-    /* PetVoice Landing Premium Colors */
-    --coral: 0 84% 70%;              /* #FF6B6B - Warm, caring coral */
-    --coral-light: 0 84% 80%;        /* Coral più chiaro */
-    --coral-dark: 0 84% 60%;         /* Coral più scuro */
+    /* Azzurrino Chiaro System */
+    --sky-blue: 200 85% 70%;         /* #87CEEB - Azzurrino principale */
+    --sky-light: 200 90% 85%;        /* Azzurrino molto chiaro */
+    --sky-soft: 200 70% 80%;         /* Azzurrino tenue */
+    --sky-dark: 200 80% 55%;         /* Azzurrino scuro */
+    --sky-accent: 210 75% 75%;       /* Azzurrino accent */
     
-    --teal: 177 70% 61%;             /* #4ECDC4 - Trust, tech teal */
-    --teal-light: 177 70% 75%;       /* Teal più chiaro */
-    --teal-dark: 177 70% 50%;        /* Teal più scuro */
-    
-    --sage: 145 55% 75%;             /* #95E1D3 - Nature sage green */
-    --sage-light: 145 55% 85%;       /* Sage più chiaro */
-    --sage-dark: 145 55% 65%;        /* Sage più scuro */
-    
-    /* Light Theme - Premium PetVoice */
-    --background: 0 0% 100%;         /* Pure white */
-    --foreground: 210 20% 25%;       /* Dark gray */
+    /* Light Theme - Azzurrino Chiaro */
+    --background: 200 30% 98%;       /* Bianco con hint azzurrino */
+    --foreground: 210 20% 25%;       /* Grigio scuro con hint azzurrino */
 
-    --card: 0 0% 98%;                /* Light card */
+    --card: 200 40% 97%;             /* Card con sfumatura azzurrina */
     --card-foreground: 210 20% 25%;
 
-    --popover: 0 0% 98%;
+    --popover: 200 40% 97%;
     --popover-foreground: 210 20% 25%;
 
-    --primary: 0 84% 70%;            /* Coral primary */
+    --primary: 200 85% 70%;          /* Azzurrino principale */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 200 25% 92%;        /* Azzurrino molto tenue */

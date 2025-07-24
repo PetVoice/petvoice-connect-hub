@@ -19,21 +19,13 @@ export default {
 		},
 		extend: {
 			colors: {
-				// PetVoice Landing Premium Colors
-				coral: {
-					DEFAULT: 'hsl(var(--coral))',
-					light: 'hsl(var(--coral-light))',
-					dark: 'hsl(var(--coral-dark))',
-				},
-				teal: {
-					DEFAULT: 'hsl(var(--teal))',
-					light: 'hsl(var(--teal-light))',
-					dark: 'hsl(var(--teal-dark))',
-				},
-				sage: {
-					DEFAULT: 'hsl(var(--sage))',
-					light: 'hsl(var(--sage-light))',
-					dark: 'hsl(var(--sage-dark))',
+				// Azzurrino Chiaro System
+				sky: {
+					DEFAULT: 'hsl(var(--sky-blue))',  
+					light: 'hsl(var(--sky-light))',   
+					soft: 'hsl(var(--sky-soft))',     
+					dark: 'hsl(var(--sky-dark))',     
+					accent: 'hsl(var(--sky-accent))', 
 				},
 				// Standard colors
 				border: 'hsl(var(--border))',

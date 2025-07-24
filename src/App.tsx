@@ -9,7 +9,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
-import LandingPage from "@/pages/LandingPage";
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
@@ -45,8 +44,7 @@ function AppContent() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={
+        <Route path="/" element={
           <ProtectedRoute>
             <AppLayout>
               <DashboardPage />
