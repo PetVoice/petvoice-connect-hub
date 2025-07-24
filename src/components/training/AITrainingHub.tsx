@@ -954,16 +954,12 @@ export const AITrainingHub: React.FC = () => {
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>{protocol.duration_days} giorni</span>
+                            <BookOpen className="h-4 w-4" />
+                            <span>{protocol.exercise_count || 0} esercizi</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Target className="h-4 w-4" />
-                            <span>Giorno {protocol.current_day}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <TrendingUp className="h-4 w-4" />
-                            <span>{Math.round(protocol.success_rate)}% successo</span>
+                            <span>Esercizio {(protocol.completed_exercises || 0) + 1} di {protocol.exercise_count || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />

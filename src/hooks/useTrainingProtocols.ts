@@ -35,6 +35,7 @@ export interface TrainingProtocol {
   updated_at?: string;
   last_activity_at?: string;
   exercise_count?: number; // Aggiunto campo per conteggio esercizi
+  completed_exercises?: number; // Aggiunto campo per esercizi completati
   // Relationships
   exercises?: TrainingExercise[];
   metrics?: TrainingMetrics | null;
@@ -205,7 +206,37 @@ export const useActiveProtocols = () => {
 
       if (error) throw error;
 
-      return data?.filter(protocol => protocol && protocol.title && protocol.id) as unknown as TrainingProtocol[];
+      // Ottieni il conteggio degli esercizi totali e completati per ogni protocollo
+      const protocolsWithProgress = await Promise.all(
+        (data || []).map(async (protocol) => {
+          // Conta esercizi totali
+          const { count: totalExercises } = await supabase
+            .from('ai_training_exercises')
+            .select('*', { count: 'exact', head: true })
+            .eq('protocol_id', protocol.id);
+          
+          // Conta esercizi completati
+          const { count: completedExercises } = await supabase
+            .from('ai_training_exercises')
+            .select('*', { count: 'exact', head: true })
+            .eq('protocol_id', protocol.id)
+            .eq('completed', true);
+          
+          // Calcola il progresso percentuale
+          const progressPercentage = totalExercises > 0 
+            ? Math.round((completedExercises / totalExercises) * 100)
+            : 0;
+          
+          return {
+            ...protocol,
+            exercise_count: totalExercises || 0,
+            completed_exercises: completedExercises || 0,
+            progress_percentage: progressPercentage.toString()
+          };
+        })
+      );
+
+      return protocolsWithProgress?.filter(protocol => protocol && protocol.title && protocol.id) as unknown as TrainingProtocol[];
     },
     refetchInterval: 2000, // Ricarica ogni 2 secondi invece del realtime
   });
@@ -653,6 +684,86 @@ export const useSaveProtocolProgress = () => {
       toast({
         title: 'Errore salvataggio',
         description: 'Non è stato possibile salvare i progressi',
+        variant: 'destructive',
+      });
+    },
+  });
+};
+
+// Hook per completare un singolo esercizio e aggiornare automaticamente il progresso
+export const useCompleteExercise = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      exerciseId, 
+      protocolId 
+    }: { 
+      exerciseId: string;
+      protocolId: string;
+    }) => {
+      // 1. Segna l'esercizio come completato
+      const { error: exerciseError } = await supabase
+        .from('ai_training_exercises')
+        .update({ 
+          completed: true, 
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', exerciseId);
+
+      if (exerciseError) throw exerciseError;
+
+      // 2. Calcola il nuovo progresso del protocollo
+      const { count: totalExercises } = await supabase
+        .from('ai_training_exercises')
+        .select('*', { count: 'exact', head: true })
+        .eq('protocol_id', protocolId);
+
+      const { count: completedExercises } = await supabase
+        .from('ai_training_exercises')
+        .select('*', { count: 'exact', head: true })
+        .eq('protocol_id', protocolId)
+        .eq('completed', true);
+
+      const progressPercentage = totalExercises > 0 
+        ? Math.round((completedExercises / totalExercises) * 100)
+        : 0;
+
+      // 3. Aggiorna il progresso del protocollo
+      const { error: protocolError } = await supabase
+        .from('ai_training_protocols')
+        .update({
+          progress_percentage: progressPercentage.toString(),
+          last_activity_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          // Se tutti gli esercizi sono completati, cambia status a completed
+          status: progressPercentage === 100 ? 'completed' : 'active'
+        })
+        .eq('id', protocolId);
+
+      if (protocolError) throw protocolError;
+
+      return { success: true, progressPercentage };
+    },
+    onSuccess: () => {
+      // Invalida le query per aggiornare i dati
+      queryClient.invalidateQueries({ queryKey: ['active-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
+      queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
+      
+      toast({
+        title: 'Esercizio completato!',
+        description: 'Il progresso è stato salvato automaticamente',
+        variant: 'default',
+      });
+    },
+    onError: (error) => {
+      console.error('Error completing exercise:', error);
+      toast({
+        title: 'Errore',
+        description: 'Non è stato possibile completare l\'esercizio',
         variant: 'destructive',
       });
     },
