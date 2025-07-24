@@ -233,14 +233,15 @@ const TrainingDashboard: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not found');
 
-      // Salva la valutazione nel database (UPSERT per evitare duplicati)
-      const { error: ratingError } = await supabase
-        .from('protocol_ratings')
-        .upsert({
-          protocol_id: protocolId,
-          user_id: user.user.id,
-          rating: rating
-        });
+      // Usa la funzione database per gestire correttamente l'upsert
+      const { error: ratingError } = await supabase.rpc('upsert_protocol_rating', {
+        p_protocol_id: protocolId,
+        p_user_id: user.user.id,
+        p_effectiveness_rating: rating,
+        p_ease_rating: rating,
+        p_improvement_rating: rating,
+        p_overall_satisfaction: rating
+      });
 
       if (ratingError) throw ratingError;
 
