@@ -499,15 +499,17 @@ const TrainingDashboard: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Pulsante Interrompi */}
-              <Button
-                onClick={handleInterruptProtocol}
-                variant="destructive"
-                className="w-full"
-              >
-                <StopCircle className="h-4 w-4 mr-2" />
-                Interrompi Protocollo
-              </Button>
+              {/* Pulsante Interrompi - nascosto quando si è all'ultimo esercizio */}
+              {currentExerciseIndex !== totalExercises - 1 && (
+                <Button
+                  onClick={handleInterruptProtocol}
+                  variant="destructive"
+                  className="w-full"
+                >
+                  <StopCircle className="h-4 w-4 mr-2" />
+                  Interrompi Protocollo
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
