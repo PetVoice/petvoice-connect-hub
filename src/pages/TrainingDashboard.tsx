@@ -482,10 +482,10 @@ const TrainingDashboard: React.FC = () => {
                 <div
                   key={exercise.id}
                   className={`p-3 rounded-lg border transition-all ${
-                    index === currentExerciseIndex
-                      ? 'bg-primary/10 border-primary/20'
-                      : completedExercises.has(exercise.id)
+                    completedExercises.has(exercise.id)
                       ? 'bg-green-50 border-green-200'
+                      : index === currentExerciseIndex
+                      ? 'bg-primary/10 border-primary/20'
                       : 'bg-muted/20'
                   }`}
                 >
