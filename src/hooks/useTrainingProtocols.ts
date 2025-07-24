@@ -33,6 +33,7 @@ export interface TrainingProtocol {
   created_at?: string;
   updated_at?: string;
   last_activity_at?: string;
+  exercise_count?: number;
   // Relationships
   exercises?: TrainingExercise[];
   metrics?: TrainingMetrics | null;
@@ -213,7 +214,7 @@ export const useTrainingProtocols = () => {
       // Trasforma i dati per includere exercise_count come numero
       const protocols = data?.map(protocol => ({
         ...protocol,
-        exercise_count: protocol.exercise_count?.[0]?.count || 0
+        exercise_count: Array.isArray(protocol.exercise_count) ? protocol.exercise_count[0]?.count || 0 : 0
       })) || [];
 
       console.log('Protocols loaded:', protocols?.length || 0);
