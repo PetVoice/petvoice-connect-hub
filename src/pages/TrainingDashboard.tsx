@@ -153,6 +153,17 @@ const TrainingDashboard: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const getDifficultyText = (difficulty: string) => {
+    const difficultyMap: Record<string, string> = {
+      facile: 'Facile',
+      medio: 'Medio',
+      intermedio: 'Intermedio',
+      difficile: 'Difficile',
+      avanzato: 'Avanzato'
+    };
+    return difficultyMap[difficulty.toLowerCase()] || difficulty;
+  };
+
   const handleCompleteExercise = async () => {
     if (!currentExercise || !protocolId) return;
 
@@ -505,7 +516,7 @@ const TrainingDashboard: React.FC = () => {
                     {currentExercise.level && (
                       <div className="flex items-center gap-1 text-blue-600">
                         <Target className="h-4 w-4" />
-                        <span className="font-medium">Livello: {currentExercise.level}</span>
+                        <span className="font-medium">Livello: {getDifficultyText(currentExercise.level)}</span>
                       </div>
                     )}
                   </div>
