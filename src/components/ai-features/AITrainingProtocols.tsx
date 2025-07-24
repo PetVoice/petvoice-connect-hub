@@ -192,10 +192,10 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
       fetchProtocols();
     } catch (error) {
       console.error('Errore nell\'avvio del protocollo:', error);
-      toast({
+      showToast({
         title: "Errore",
         description: "Impossibile avviare il protocollo",
-        variant: "destructive"
+        type: 'error'
       });
     }
   };
