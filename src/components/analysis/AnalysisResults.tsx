@@ -707,12 +707,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         variant: "default"
       });
 
-        // Reindirizza al training
-        window.location.href = '/training';
-      } else {
-        // Fallback: vai alla pagina training con filtro emozione
-        window.location.href = `/training?emotion=${emotion}`;
-      }
+      // Reindirizza al training
+      window.location.href = '/training';
     } catch (error) {
       console.error('Error starting protocol:', error);
       showToast({
