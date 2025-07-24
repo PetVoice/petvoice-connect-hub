@@ -470,39 +470,70 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const getRecommendedTrainingProtocol = (emotion: string, confidence: number) => {
     const emotionLower = emotion.toLowerCase();
     
-    // Protocol mapping based on emotion
+    // Protocol mapping based on emotion to existing public protocols
     const protocolMapping: Record<string, any> = {
       'ansioso': {
-        title: 'Protocollo Anti-Ansia',
-        description: 'Tecniche di rilassamento e desensibilizzazione graduale',
+        id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
+        title: 'Gestione dell\'Ansia',
+        description: 'Protocollo specializzato per ridurre i livelli di ansia nel pet attraverso tecniche di rilassamento e desensibilizzazione graduale',
         duration: '2-3 settimane',
-        difficulty: 'Medio',
+        difficulty: 'Facile',
         category: 'Comportamentale',
         reasoning: 'Progettato specificamente per ridurre i livelli di ansia attraverso esercizi di rilassamento progressivo'
       },
       'aggressivo': {
-        title: 'Protocollo Controllo Impulsi',
-        description: 'Training per la gestione dell\'aggressività e autocontrollo',
+        id: 'd8694ef9-55ba-4794-a6e2-0c38af0988c8',
+        title: 'Controllo dell\'Aggressività',
+        description: 'Protocollo per ridurre comportamenti aggressivi attraverso tecniche di autocontrollo e redirezione positiva',
         duration: '3-4 settimane',
-        difficulty: 'Avanzato',
+        difficulty: 'Intermedio',
         category: 'Comportamentale',
         reasoning: 'Focalizzato sulla riduzione dei comportamenti aggressivi attraverso tecniche di rinforzo positivo'
       },
       'triste': {
-        title: 'Protocollo Stimolazione Positiva',
-        description: 'Attività per migliorare l\'umore e la socializzazione',
+        id: 'fbdcdb5e-3386-4962-877f-bb7e6f72fd7f',
+        title: 'Superare la Tristezza',
+        description: 'Protocollo per stimolare l\'umore e aumentare l\'energia del pet attraverso attività coinvolgenti e socializzazione',
         duration: '2-3 settimane',
         difficulty: 'Facile',
         category: 'Emotivo',
         reasoning: 'Pensato per aumentare i livelli di serotonina attraverso attività stimolanti e socializzazione'
       },
       'iperattivo': {
-        title: 'Protocollo Controllo Energie',
-        description: 'Esercizi per canalizzare l\'energia in modo costruttivo',
+        id: '5c18263c-0928-4fab-b8b9-ac7789f97c24',
+        title: 'Controllo dell\'Iperattività',
+        description: 'Protocollo per canalizzare l\'energia eccessiva attraverso esercizi mirati e tecniche di autocontrollo',
         duration: '3-4 settimane',
-        difficulty: 'Medio',
+        difficulty: 'Intermedio',
         category: 'Fisico',
         reasoning: 'Aiuta a incanalare l\'energia eccessiva in attività strutturate e produttive'
+      },
+      'stressato': {
+        id: '8d3bbc35-64bd-40ba-ade6-285ea2262417',
+        title: 'Riduzione dello Stress',
+        description: 'Protocollo per creare un ambiente calmo e routines rilassanti che riducano i fattori di stress',
+        duration: '2-3 settimane',
+        difficulty: 'Facile',
+        category: 'Ambientale',
+        reasoning: 'Progettato per ridurre lo stress attraverso la creazione di un ambiente calmo e rilassante'
+      },
+      'agitato': {
+        id: '5083419f-42be-4ff8-b1b6-4b5b9d828d68',
+        title: 'Calmare l\'Agitazione',
+        description: 'Protocollo per gestire comportamenti agitati e nervosi attraverso tecniche di rilassamento',
+        duration: '2-3 settimane',
+        difficulty: 'Intermedio',
+        category: 'Comportamentale',
+        reasoning: 'Specifico per calmare stati di agitazione attraverso tecniche di rilassamento'
+      },
+      'pauroso': {
+        id: 'b6c1fd42-fbac-47a2-9f02-1f187cc92daa',
+        title: 'Superare la Paura',
+        description: 'Protocollo per aiutare il pet a superare le paure attraverso esposizione graduale e rinforzo positivo',
+        duration: '3-4 settimane',
+        difficulty: 'Intermedio',
+        category: 'Comportamentale',
+        reasoning: 'Aiuta a superare le paure attraverso un approccio graduale e positivo'
       }
     };
 
@@ -515,10 +546,11 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
     // Default protocol for other negative emotions
     return {
-      title: 'Protocollo Benessere Generale',
-      description: 'Training completo per il miglioramento del benessere emotivo',
+      id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
+      title: 'Gestione dell\'Ansia',
+      description: 'Protocollo specializzato per ridurre i livelli di ansia e migliorare il benessere emotivo generale',
       duration: '2-3 settimane',
-      difficulty: 'Medio',
+      difficulty: 'Facile',
       category: 'Generale',
       reasoning: 'Un approccio olistico per migliorare il benessere emotivo generale del tuo pet'
     };
@@ -536,41 +568,26 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         return;
       }
 
-      // Create a new AI training protocol based on the recommendation
-      const { data: newProtocol, error } = await supabase
-        .from('ai_training_protocols')
-        .insert({
-          user_id: selectedPet.user_id,
-          pet_id: selectedPet.id,
-          title: protocol.title,
-          description: protocol.description,
-          category: protocol.category.toLowerCase(),
-          difficulty: protocol.difficulty.toLowerCase(),
-          duration_days: protocol.duration.includes('2-3') ? 21 : 28,
-          status: 'active',
-          current_day: 1,
-          progress_percentage: '0',
-          target_behavior: selectedAnalysis?.primary_emotion ? `Miglioramento per ${selectedAnalysis.primary_emotion}` : 'Benessere generale',
-          ai_generated: true,
-          is_public: false
-        })
-        .select('id')
-        .single();
+      // Start the existing public protocol instead of creating a new one
+      const { data: protocolCopy, error } = await supabase.rpc('start_public_protocol', {
+        p_public_protocol_id: protocol.id,
+        p_user_id: selectedPet.user_id
+      });
 
       if (error) {
-        console.error('Error creating protocol:', error);
+        console.error('Error starting protocol:', error);
         throw error;
       }
 
       showToast({
         title: 'Protocollo Avviato!',
-        description: `${protocol.title} è stato creato e avviato per ${selectedPet.name}`,
+        description: `${protocol.title} è stato avviato per ${selectedPet.name}`,
         variant: "default"
       });
 
-      // Navigate to training protocols page
+      // Navigate to the specific protocol
       setTimeout(() => {
-        navigate('/ai-training');
+        navigate(`/ai-training?protocolId=${protocolCopy}`);
       }, 1000);
 
     } catch (error) {
@@ -1012,16 +1029,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <Brain className="h-4 w-4" />
                             {getText('trainingProtocol')}
                           </h4>
-                          <div className="p-4 border rounded-lg bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800">
+                          <div className="p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
                             <div className="flex justify-between items-start mb-3">
                               <div>
-                                <h5 className="font-semibold text-purple-800 dark:text-purple-200 mb-1">
+                                <h5 className="font-semibold text-amber-800 dark:text-amber-200 mb-1">
                                   {protocol.title}
                                 </h5>
-                                <p className="text-sm text-purple-600 dark:text-purple-400 mb-2">
+                                <p className="text-sm text-amber-600 dark:text-amber-400 mb-2">
                                   {protocol.description}
                                 </p>
-                                <div className="flex gap-4 text-sm text-purple-700 dark:text-purple-300 mb-3">
+                                <div className="flex gap-4 text-sm text-amber-700 dark:text-amber-300 mb-3">
                                   <span className="flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
                                     {protocol.duration}
@@ -1035,14 +1052,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                     {protocol.category}
                                   </span>
                                 </div>
-                                <p className="text-xs text-purple-600 dark:text-purple-400 italic">
+                                <p className="text-xs text-amber-600 dark:text-amber-400 italic">
                                   {protocol.reasoning}
                                 </p>
                               </div>
                             </div>
                             <Button 
                               onClick={() => startTrainingProtocol(protocol)}
-                              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                              className="w-full bg-amber-600 hover:bg-amber-700 text-white"
                             >
                               <Play className="h-4 w-4 mr-2" />
                               {getText('startTrainingProtocol')}
