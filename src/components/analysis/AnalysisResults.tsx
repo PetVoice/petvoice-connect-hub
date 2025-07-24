@@ -370,7 +370,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       it: {
         // Existing translations
         noResults: 'Nessun Risultato',
-        loadFile: 'Carica un file per vedere i risultati dell\'analisi',
+        loadFile: 'Nuova Analisi',
         veryHigh: 'Molto Alta',
         high: 'Alta',
         medium: 'Media',

@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageSquare, Brain, Sparkles, TrendingUp, AlertCircle, Volume2, Mic } from 'lucide-react';
+import { MessageSquare, Brain, Sparkles, TrendingUp, AlertCircle, Volume2, Mic, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTrainingProtocols } from '@/hooks/useTrainingProtocols';
 
 interface EmotionAnalysis {
   emotion: string;
@@ -35,6 +36,22 @@ export const NaturalLanguageProcessing = () => {
   const [behaviorInsights, setBehaviorInsights] = useState<BehaviorInsight[]>([]);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
   const [sentimentScore, setSentimentScore] = useState<number | null>(null);
+  const [recommendedProtocol, setRecommendedProtocol] = useState<any>(null);
+  
+  const { data: protocols } = useTrainingProtocols();
+
+  // Mappatura emozioni negative -> target_behavior del protocollo
+  const emotionToProtocolMapping = {
+    'ansia': 'ansioso',
+    'aggressività': 'aggressivo', 
+    'tristezza': 'depresso',
+    'stress': 'stressato',
+    'paura': 'pauroso',
+    'irritabilità': 'irritabile',
+    'confusione': 'confuso',
+    'iperattività': 'iperattivo',
+    'agitazione': 'agitato'
+  };
 
   // Simulated real-time emotion analysis
   useEffect(() => {
@@ -61,8 +78,45 @@ export const NaturalLanguageProcessing = () => {
       ];
       setEmotionAnalysis(mockEmotions);
       setSentimentScore(0.67);
+      
+      // Trova protocollo raccomandato basato su emozioni negative
+      findRecommendedProtocol(mockEmotions);
     }
-  }, [textInput]);
+  }, [textInput, protocols]);
+
+  const findRecommendedProtocol = (emotions: EmotionAnalysis[]) => {
+    if (!protocols || protocols.length === 0) return;
+
+    // Cerca emozioni negative con confidence > 0.5
+    const negativeEmotions = emotions.filter(emotion => {
+      const emotionKey = emotion.emotion.toLowerCase();
+      return Object.keys(emotionToProtocolMapping).some(key => 
+        key.includes(emotionKey) || emotionKey.includes(key)
+      ) && emotion.confidence > 0.5;
+    });
+
+    if (negativeEmotions.length > 0) {
+      const primaryNegativeEmotion = negativeEmotions[0];
+      
+      // Cerca un protocollo corrispondente
+      const targetBehavior = Object.entries(emotionToProtocolMapping).find(([key]) => 
+        key.includes(primaryNegativeEmotion.emotion.toLowerCase()) || 
+        primaryNegativeEmotion.emotion.toLowerCase().includes(key)
+      )?.[1];
+
+      if (targetBehavior) {
+        const matchingProtocol = protocols.find(protocol => 
+          protocol.target_behavior === targetBehavior
+        );
+        
+        if (matchingProtocol) {
+          setRecommendedProtocol(matchingProtocol);
+        }
+      }
+    } else {
+      setRecommendedProtocol(null);
+    }
+  };
 
   const analyzeText = async () => {
     if (!textInput.trim()) {
@@ -345,6 +399,65 @@ export const NaturalLanguageProcessing = () => {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommended Training Protocol */}
+      {recommendedProtocol && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Protocollo di Training Raccomandato
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-4 border rounded-lg bg-blue-50">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h4 className="font-medium text-lg">{recommendedProtocol.title}</h4>
+                  <p className="text-sm text-gray-600 mt-1">{recommendedProtocol.description}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Badge variant="outline">{recommendedProtocol.category}</Badge>
+                  <Badge className={
+                    recommendedProtocol.difficulty === 'facile' ? 'bg-green-100 text-green-800' :
+                    recommendedProtocol.difficulty === 'intermedio' ? 'bg-orange-100 text-orange-800' :
+                    'bg-red-100 text-red-800'
+                  }>
+                    {recommendedProtocol.difficulty}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Durata:</span>
+                  <div className="text-gray-600">{recommendedProtocol.duration_days} giorni</div>
+                </div>
+                <div>
+                  <span className="font-medium">Esercizi:</span>
+                  <div className="text-gray-600">{recommendedProtocol.exercise_count || 0}</div>
+                </div>
+                <div>
+                  <span className="font-medium">Successo:</span>
+                  <div className="text-gray-600">{recommendedProtocol.success_rate}%</div>
+                </div>
+                <div>
+                  <span className="font-medium">Comportamento:</span>
+                  <div className="text-gray-600 capitalize">{recommendedProtocol.target_behavior}</div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Button className="w-full" onClick={() => {
+                  toast.success('Protocollo raccomandato! Vai alla sezione Allenamento per iniziare.');
+                }}>
+                  Inizia Protocollo di Training
+                </Button>
               </div>
             </div>
           </CardContent>
