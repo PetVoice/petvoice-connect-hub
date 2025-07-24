@@ -430,11 +430,10 @@ export const AITrainingHub: React.FC = () => {
           return;
         }
 
-        showTranslatedToast({
-          title: 'protocol.started.title',
-          description: 'protocol.started.description',
-          variant: 'default',
-          variables: { protocolName: translateProtocolTitle(protocol.title) }
+        showToast({
+          title: 'Protocollo avviato',
+          description: `Il protocollo "${translateProtocolTitle(protocol.title)}" è stato avviato con successo`,
+          type: 'success'
         });
         
         // Invalida cache per aggiornare la lista protocolli attivi
