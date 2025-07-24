@@ -263,11 +263,24 @@ const TrainingDashboard: React.FC = () => {
       dailyCompletedExercises,
       currentExercise,
       currentDay,
-      protocolProgressPercentage: protocol.progress_percentage
+      protocolProgressPercentage: protocol.progress_percentage,
+      todayExercisesLength: todayExercises.length,
+      todayExercises: todayExercises.map(ex => ({ id: ex.id, title: ex.title }))
     });
     try {
       // Verifica che esista un esercizio corrente
       if (!todayExercises || todayExercises.length === 0) {
+        console.error('❌ NESSUN ESERCIZIO DISPONIBILE:', {
+          currentDay,
+          protocolExercises: protocol?.exercises?.map(ex => ({ 
+            id: ex.id, 
+            day: ex.day_number, 
+            title: ex.title 
+          })) || [],
+          hasProtocol: !!protocol,
+          hasExercises: !!protocol?.exercises,
+          exercisesLength: protocol?.exercises?.length || 0
+        });
         showToast({
           title: 'Errore',
           description: 'Nessun esercizio disponibile per oggi.',
