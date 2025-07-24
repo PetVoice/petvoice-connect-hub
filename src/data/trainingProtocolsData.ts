@@ -9,6 +9,7 @@ export interface DetailedExercise {
   materials: string[];
   objectives: string[];
   successCriteria: string[];
+  instructions?: string[];
   tips: string[];
 }
 
@@ -726,6 +727,16 @@ export const advancedCalmTrainingProtocol: CompleteProtocol = {
           materials: ["Ambiente controllabile", "Distrazioni graduate", "Premi ad alto valore"],
           objectives: ["Mantenere calma sotto stress", "Aumentare resilienza", "Sviluppare autocontrollo"],
           successCriteria: ["Rimane calmo per 30 minuti", "Tollera distrazioni crescenti", "Risponde al comando 'calmo'"],
+          instructions: [
+            "PREPARA ambiente silenzioso con TAPPETO COMODO",
+            "POSIZIONA pet sul tappeto, SIEDITI a 1 metro di distanza", 
+            "PRONUNCIA 'calmo' quando pet è rilassato, PREMIA immediatamente",
+            "INTRODUCI distrazioni graduali (SUONI BASSI → rumori domestici)",
+            "AUMENTA durata: 5 min → 10 min → 15 min → 30 min PROGRESSIVAMENTE",
+            "PREMIA solo stati di CALMA COMPLETA, IGNORA agitazione",
+            "TERMINA con pet calmo, RIDUCI distrazioni gradualmente",
+            "MONITORA segnali stress, ADATTA intensità se necessario"
+          ],
           tips: [
             "PREPARA ambiente silenzioso con TAPPETO COMODO",
             "POSIZIONA pet sul tappeto, SIEDITI a 1 metro di distanza", 
