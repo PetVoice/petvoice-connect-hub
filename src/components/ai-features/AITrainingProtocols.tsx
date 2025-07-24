@@ -439,9 +439,6 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
                               <Badge variant="outline" className={getStatusColor(protocol.status)}>
                                 {getStatusText(protocol.status)}
                               </Badge>
-                              {protocol.ai_generated && (
-                                <Badge variant="secondary">AI</Badge>
-                              )}
                               {protocol.veterinary_approved && (
                                 <Badge variant="outline" className="text-green-600">Vet Approved</Badge>
                               )}

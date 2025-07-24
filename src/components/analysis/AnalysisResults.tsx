@@ -470,7 +470,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const getRecommendedTrainingProtocol = (emotion: string, confidence: number) => {
     const emotionLower = emotion.toLowerCase();
     
-    // Protocol mapping based on emotion to existing public protocols with real data
+    // Protocol mapping based on emotion to existing public protocols with REAL usage data
     const protocolMapping: Record<string, any> = {
       'ansioso': {
         id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
@@ -479,7 +479,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 21,
         difficulty: 'Facile',
         successRate: 100,
-        usageCount: 127,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Progettato specificamente per ridurre i livelli di ansia attraverso esercizi di rilassamento progressivo'
       },
       'aggressivo': {
@@ -489,7 +489,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 30,
         difficulty: 'Intermedio',
         successRate: 85,
-        usageCount: 89,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Focalizzato sulla riduzione dei comportamenti aggressivi attraverso tecniche di rinforzo positivo'
       },
       'triste': {
@@ -499,7 +499,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 15,
         difficulty: 'Facile',
         successRate: 100,
-        usageCount: 156,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Pensato per aumentare i livelli di serotonina attraverso attività stimolanti e socializzazione'
       },
       'iperattivo': {
@@ -509,7 +509,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 24,
         difficulty: 'Intermedio',
         successRate: 92,
-        usageCount: 73,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Aiuta a incanalare l\'energia eccessiva in attività strutturate e produttive'
       },
       'stressato': {
@@ -519,7 +519,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 21,
         difficulty: 'Facile',
         successRate: 88,
-        usageCount: 94,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Progettato per ridurre lo stress attraverso la creazione di un ambiente calmo e rilassante'
       },
       'agitato': {
@@ -529,7 +529,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 21,
         difficulty: 'Intermedio',
         successRate: 90,
-        usageCount: 67,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Specifico per calmare stati di agitazione attraverso tecniche di rilassamento'
       },
       'pauroso': {
@@ -539,29 +539,61 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         exercises: 18,
         difficulty: 'Intermedio',
         successRate: 100,
-        usageCount: 112,
+        usageCount: 0, // Will be updated with real data
         reasoning: 'Aiuta a superare le paure attraverso un approccio graduale e positivo'
+      }
+    };
+
+    // Fetch real usage count from database for the protocol
+    const fetchRealUsageCount = async (protocolId: string, protocolTitle: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('ai_training_protocols')
+          .select('user_id')
+          .eq('title', protocolTitle)
+          .eq('is_public', false)
+          .not('user_id', 'is', null);
+        
+        if (error) throw error;
+        
+        // Count unique users who have started this protocol
+        const uniqueUsers = new Set(data?.map(d => d.user_id) || []);
+        return uniqueUsers.size;
+      } catch (error) {
+        console.error('Error fetching usage count:', error);
+        return 0;
       }
     };
 
     // Find matching protocol or default
     for (const [key, protocol] of Object.entries(protocolMapping)) {
       if (emotionLower.includes(key)) {
+        // Fetch real usage count
+        fetchRealUsageCount(protocol.id, protocol.title).then(realCount => {
+          protocol.usageCount = realCount;
+        });
         return protocol;
       }
     }
 
     // Default protocol for other negative emotions
-    return {
+    const defaultProtocol = {
       id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
       title: 'Gestione dell\'Ansia',
       description: 'Protocollo specializzato per ridurre i livelli di ansia e migliorare il benessere emotivo generale',
       exercises: 21,
       difficulty: 'Facile',
       successRate: 100,
-      usageCount: 127,
+      usageCount: 0,
       reasoning: 'Un approccio olistico per migliorare il benessere emotivo generale del tuo pet'
     };
+    
+    // Fetch real usage count for default protocol too
+    fetchRealUsageCount(defaultProtocol.id, defaultProtocol.title).then(realCount => {
+      defaultProtocol.usageCount = realCount;
+    });
+    
+    return defaultProtocol;
   };
 
   // Function to start training protocol

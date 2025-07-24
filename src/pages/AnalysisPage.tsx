@@ -1960,7 +1960,7 @@ const AnalysisPage: React.FC = () => {
                              "Bassa priorità"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            Basato su ${analyses.length} analisi
+                            Basato su {analyses.length} analisi
                           </span>
                         </div>
                       </div>

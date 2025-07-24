@@ -777,21 +777,16 @@ export const AITrainingHub: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{translateProtocolTitle(protocol.title)}</h3>
-                          {protocol.ai_generated && (
-                             <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              AI
-                            </Badge>
-                          )}
                            <Badge className={getDifficultyColor(protocol.difficulty)}>
                              {getDifficultyText(protocol.difficulty)}
                            </Badge>
-                           <Badge variant={protocol.status === 'available' ? 'available' : 'default'} className={protocol.status === 'available' ? '' : getStatusColor(protocol.status)}>
-                              {protocol.status === 'available' ? 'Disponibile' : 
-                               protocol.status === 'active' ? 'Attivo' : 
-                               protocol.status === 'completed' ? 'Completato' : 
-                               protocol.status === 'paused' ? 'In pausa' : protocol.status}
-                           </Badge>
+                           {protocol.status !== 'available' && (
+                             <Badge variant={'default'} className={getStatusColor(protocol.status)}>
+                                {protocol.status === 'active' ? 'Attivo' : 
+                                 protocol.status === 'completed' ? 'Completato' : 
+                                 protocol.status === 'paused' ? 'In pausa' : protocol.status}
+                             </Badge>
+                           )}
                         </div>
                         <p className="text-muted-foreground mb-4">{translateProtocolDescription(protocol.description)}</p>
                         
