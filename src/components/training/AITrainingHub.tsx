@@ -1090,13 +1090,6 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Progresso</span>
-                            <span className="font-medium text-green-600">100%</span>
-                          </div>
-                          <Progress value={100} className="mt-1 h-2" />
-                        </div>
                       </div>
                       
                       <div className="flex flex-col gap-2 ml-4">
