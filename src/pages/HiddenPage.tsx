@@ -163,10 +163,10 @@ const HiddenPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl gradient-azure flex items-center justify-center">
-              <Heart className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl gradient-azure flex items-center justify-center animate-gentle-float">
+              <Heart className="w-6 h-6 text-white animate-pulse" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent animate-pulse">
               PetVoice
             </span>
           </div>
@@ -244,7 +244,7 @@ const HiddenPage: React.FC = () => {
             <h1 className="text-6xl lg:text-8xl font-bold leading-tight mb-8 animate-fade-in">
               <span className="text-foreground">Comprendi le</span>
               <br />
-              <span className="text-azure font-black animate-pulse">
+              <span className="text-azure-dark font-black animate-pulse">
                 emozioni
               </span>
               <br />
@@ -467,6 +467,7 @@ const HiddenPage: React.FC = () => {
               <Button 
                 variant="outline"
                 className="px-8 py-4 border-2 border-white text-white font-bold text-lg rounded-xl hover:bg-white hover:text-azure transition-all duration-300 bg-white/10 backdrop-blur-sm"
+                onClick={() => window.location.href = 'mailto:petvoice2025@gmail.com'}
               >
                 <MessageCircle className="mr-2 w-5 h-5" />
                 Contatta il Team
