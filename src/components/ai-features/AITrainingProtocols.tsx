@@ -186,7 +186,7 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
       showToast({
         title: "Protocollo avviato",
         description: "Il protocollo è stato avviato con successo",
-        type: 'complete'
+        type: 'success'
       });
 
       fetchProtocols();
