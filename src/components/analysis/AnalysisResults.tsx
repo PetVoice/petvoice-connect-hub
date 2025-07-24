@@ -449,9 +449,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       if (error) throw error;
 
       showToast({
-        title: 'Protocollo Avviato!',
+        title: '⚡ Protocollo Avviato!',
         description: `${protocol.name} è stato avviato con successo`,
-        variant: "default"
+        variant: "success"
       });
 
       // Redirect to training page
@@ -620,9 +620,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       }
 
       showToast({
-        title: 'Protocollo Avviato!',
+        title: '⚡ Protocollo Avviato!',
         description: `${protocol.title} è stato avviato per ${selectedPet.name}`,
-        variant: "default"
+        variant: "success"
       });
 
       // Navigate to the specific protocol

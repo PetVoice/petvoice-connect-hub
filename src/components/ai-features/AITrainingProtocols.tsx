@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 
 interface Protocol {
   id: string;
@@ -71,6 +72,7 @@ interface AITrainingProtocolsProps {
 
 export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ selectedPet }) => {
   const { toast } = useToast();
+  const { showToast } = useToastWithIcon();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [filteredProtocols, setFilteredProtocols] = useState<Protocol[]>([]);
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(null);
@@ -181,9 +183,10 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
 
       if (error) throw error;
 
-      toast({
+      showToast({
         title: "Protocollo avviato",
         description: "Il protocollo è stato avviato con successo",
+        type: 'complete'
       });
 
       fetchProtocols();
