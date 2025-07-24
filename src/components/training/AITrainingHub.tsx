@@ -457,6 +457,9 @@ export const AITrainingHub: React.FC = () => {
           }
         });
 
+        // Reset di tutti gli esercizi del protocollo
+        await supabase.rpc('reset_protocol_exercises', { p_protocol_id: protocol.id });
+
         // Invalida e ricarica immediatamente le query per aggiornare le liste
         await queryClient.invalidateQueries({ queryKey: ['completed-protocols'] });
         await queryClient.invalidateQueries({ queryKey: ['training-protocols'] });
@@ -488,6 +491,9 @@ export const AITrainingHub: React.FC = () => {
             last_activity_at: new Date().toISOString(),
           }
         });
+
+        // Reset di tutti gli esercizi del protocollo
+        await supabase.rpc('reset_protocol_exercises', { p_protocol_id: protocol.id });
         
         showTranslatedToast({
           title: 'protocol.started.title',

@@ -3439,6 +3439,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      reset_protocol_exercises: {
+        Args: { p_protocol_id: string }
+        Returns: undefined
+      }
       start_public_protocol: {
         Args: { p_public_protocol_id: string; p_user_id: string }
         Returns: string
