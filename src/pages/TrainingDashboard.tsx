@@ -233,16 +233,34 @@ const TrainingDashboard: React.FC = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not found');
 
-      // Salva la valutazione usando upsert diretto
-      const { error: ratingError } = await supabase
+      // Prima controlla se esiste già una valutazione
+      const { data: existingRating } = await supabase
         .from('protocol_ratings')
-        .upsert({
-          protocol_id: protocolId,
-          user_id: user.user.id,
-          rating: rating
-        }, {
-          onConflict: 'protocol_id,user_id'
-        });
+        .select('id')
+        .eq('protocol_id', protocolId)
+        .eq('user_id', user.user.id)
+        .single();
+
+      let ratingError;
+      if (existingRating) {
+        // Aggiorna quella esistente
+        const { error } = await supabase
+          .from('protocol_ratings')
+          .update({ rating: rating })
+          .eq('protocol_id', protocolId)
+          .eq('user_id', user.user.id);
+        ratingError = error;
+      } else {
+        // Crea una nuova valutazione
+        const { error } = await supabase
+          .from('protocol_ratings')
+          .insert({
+            protocol_id: protocolId,
+            user_id: user.user.id,
+            rating: rating
+          });
+        ratingError = error;
+      }
 
       if (ratingError) throw ratingError;
 
