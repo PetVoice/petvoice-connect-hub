@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -75,7 +76,6 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 // Translation system removed - Italian only
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 export const AITrainingHub: React.FC = () => {
@@ -230,8 +230,10 @@ export const AITrainingHub: React.FC = () => {
     // Calculate success rate based on completed protocols only
     const completedWithData = completedProtocols.filter(p => p.success_rate > 0);
     const avgSuccessRate = completedWithData.length > 0 
-      ? Math.round(completedWithData.reduce((sum, p) => sum + p.success_rate, 0) / completedWithData.length)
-      : 0;
+      ? Math.round(completedWithData.reduce((sum, p) => sum + (p.success_rate || 0), 0) / completedWithData.length)
+      : completedProtocols.length > 0 
+        ? Math.round(completedProtocols.reduce((sum, p) => sum + (p.success_rate || 0), 0) / completedProtocols.length)
+        : 0;
     
     return {
       totalProtocols,
@@ -996,16 +998,47 @@ export const AITrainingHub: React.FC = () => {
                                <AlertDialogHeader>
                                       <AlertDialogTitle>Conferma interruzione</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Sei sicuro di voler interrompere definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione fermerà il protocollo e dovrai riavviarlo dall'inizio se vorrai riprenderlo.
+                                        Sei sicuro di voler interrompere il protocollo "{translateProtocolTitle(protocol.title)}"? Potrai riprenderlo in seguito.
                                       </AlertDialogDescription>
                                </AlertDialogHeader>
                                <AlertDialogFooter>
                                  <AlertDialogCancel>Annulla</AlertDialogCancel>
                                  <AlertDialogAction 
                                    onClick={() => handleStatusChange(protocol.id, 'paused')}
-                                   className="bg-red-600 hover:bg-red-700"
+                                   className="bg-orange-600 hover:bg-orange-700"
                                  >
                                    Sì, interrompi
+                                 </AlertDialogAction>
+                               </AlertDialogFooter>
+                             </AlertDialogContent>
+                           </AlertDialog>
+                         )}
+                         {isUserProtocol(protocol) && (
+                           <AlertDialog>
+                             <AlertDialogTrigger asChild>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                               >
+                                 <Trash2 className="h-4 w-4 mr-2" />
+                                 Elimina
+                               </Button>
+                             </AlertDialogTrigger>
+                             <AlertDialogContent>
+                               <AlertDialogHeader>
+                                      <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Sei sicuro di voler eliminare definitivamente il protocollo "{translateProtocolTitle(protocol.title)}"? Questa azione è irreversibile e perderai tutti i progressi.
+                                      </AlertDialogDescription>
+                               </AlertDialogHeader>
+                               <AlertDialogFooter>
+                                 <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                 <AlertDialogAction 
+                                   onClick={() => handleDeleteProtocol(protocol.id)}
+                                   className="bg-red-600 hover:bg-red-700"
+                                 >
+                                   Sì, elimina
                                  </AlertDialogAction>
                                </AlertDialogFooter>
                              </AlertDialogContent>
