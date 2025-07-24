@@ -353,11 +353,24 @@ const TrainingDashboard: React.FC = () => {
 
       // INCREMENTA IL PROGRESSO LOCALE GIORNALIERO
       const newDailyCompleted = dailyCompletedExercises + 1;
+      
+      // MARCA L'ESERCIZIO COME COMPLETATO NEL PROTOCOLLO LOCALE
+      if (protocol && protocol.exercises) {
+        const updatedProtocol = {
+          ...protocol,
+          exercises: protocol.exercises.map(ex => 
+            ex.id === currentEx.id ? { ...ex, completed: true } : ex
+          )
+        };
+        setProtocol(updatedProtocol);
+      }
+      
       console.log('🎯 AGGIORNAMENTO PROGRESSO LOCALE:', {
         oldDailyCompleted: dailyCompletedExercises,
         newDailyCompleted,
         currentExercise,
-        completedCount
+        completedCount,
+        exerciseMarkedCompleted: currentEx.title
       });
       setDailyCompletedExercises(newDailyCompleted);
       setTotalProgressPercentage(Math.min(newProgressPercentage, 100)); // AGGIORNA SUBITO IL PROGRESSO
