@@ -732,6 +732,17 @@ export const AITrainingHub: React.FC = () => {
             </Select>
           </div>
 
+          {/* Protocols List Header */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Protocolli Disponibili</h2>
+            </div>
+            <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/20">
+              {filteredProtocols.length} disponibili
+            </Badge>
+          </div>
+
           {/* Protocols List */}
           <div className="grid gap-4">
             {filteredProtocols.length === 0 ? (
