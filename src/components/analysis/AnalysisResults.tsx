@@ -24,7 +24,8 @@ import {
   Activity,
   Zap,
   BarChart3,
-  AudioLines
+  AudioLines,
+  Play
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -465,6 +466,123 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     }
   };
 
+  // Function to get recommended training protocol based on emotion
+  const getRecommendedTrainingProtocol = (emotion: string, confidence: number) => {
+    const emotionLower = emotion.toLowerCase();
+    
+    // Protocol mapping based on emotion
+    const protocolMapping: Record<string, any> = {
+      'ansioso': {
+        title: 'Protocollo Anti-Ansia',
+        description: 'Tecniche di rilassamento e desensibilizzazione graduale',
+        duration: '2-3 settimane',
+        difficulty: 'Medio',
+        category: 'Comportamentale',
+        reasoning: 'Progettato specificamente per ridurre i livelli di ansia attraverso esercizi di rilassamento progressivo'
+      },
+      'aggressivo': {
+        title: 'Protocollo Controllo Impulsi',
+        description: 'Training per la gestione dell\'aggressività e autocontrollo',
+        duration: '3-4 settimane',
+        difficulty: 'Avanzato',
+        category: 'Comportamentale',
+        reasoning: 'Focalizzato sulla riduzione dei comportamenti aggressivi attraverso tecniche di rinforzo positivo'
+      },
+      'triste': {
+        title: 'Protocollo Stimolazione Positiva',
+        description: 'Attività per migliorare l\'umore e la socializzazione',
+        duration: '2-3 settimane',
+        difficulty: 'Facile',
+        category: 'Emotivo',
+        reasoning: 'Pensato per aumentare i livelli di serotonina attraverso attività stimolanti e socializzazione'
+      },
+      'iperattivo': {
+        title: 'Protocollo Controllo Energie',
+        description: 'Esercizi per canalizzare l\'energia in modo costruttivo',
+        duration: '3-4 settimane',
+        difficulty: 'Medio',
+        category: 'Fisico',
+        reasoning: 'Aiuta a incanalare l\'energia eccessiva in attività strutturate e produttive'
+      }
+    };
+
+    // Find matching protocol or default
+    for (const [key, protocol] of Object.entries(protocolMapping)) {
+      if (emotionLower.includes(key)) {
+        return protocol;
+      }
+    }
+
+    // Default protocol for other negative emotions
+    return {
+      title: 'Protocollo Benessere Generale',
+      description: 'Training completo per il miglioramento del benessere emotivo',
+      duration: '2-3 settimane',
+      difficulty: 'Medio',
+      category: 'Generale',
+      reasoning: 'Un approccio olistico per migliorare il benessere emotivo generale del tuo pet'
+    };
+  };
+
+  // Function to start training protocol
+  const startTrainingProtocol = async (protocol: any) => {
+    try {
+      if (!selectedPet?.id) {
+        showToast({
+          title: getText('error'),
+          description: getText('selectPet'),
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create a new AI training protocol based on the recommendation
+      const { data: newProtocol, error } = await supabase
+        .from('ai_training_protocols')
+        .insert({
+          user_id: selectedPet.user_id,
+          pet_id: selectedPet.id,
+          title: protocol.title,
+          description: protocol.description,
+          category: protocol.category.toLowerCase(),
+          difficulty: protocol.difficulty.toLowerCase(),
+          duration_days: protocol.duration.includes('2-3') ? 21 : 28,
+          status: 'active',
+          current_day: 1,
+          progress_percentage: '0',
+          target_behavior: selectedAnalysis?.primary_emotion ? `Miglioramento per ${selectedAnalysis.primary_emotion}` : 'Benessere generale',
+          ai_generated: true,
+          is_public: false
+        })
+        .select('id')
+        .single();
+
+      if (error) {
+        console.error('Error creating protocol:', error);
+        throw error;
+      }
+
+      showToast({
+        title: 'Protocollo Avviato!',
+        description: `${protocol.title} è stato creato e avviato per ${selectedPet.name}`,
+        variant: "default"
+      });
+
+      // Navigate to training protocols page
+      setTimeout(() => {
+        navigate('/ai-training');
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error starting training protocol:', error);
+      showToast({
+        title: getText('error'),
+        description: 'Errore nell\'avvio del protocollo di training',
+        variant: "destructive"
+      });
+    }
+  };
+
   // Function to start music therapy session with recommended playlist
   const startMusicTherapy = (playlist: any) => {
     try {
@@ -865,6 +983,70 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                 {getText('startTrainingProtocol')}
                               </Button>
                             </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+
+                  {/* Training Protocol - Solo per emozioni negative */}
+                  {(() => {
+                    const negativeEmotions = [
+                      'ansia', 'ansioso', 'stressato', 'nervoso', 'agitato', 'iperattivo', 
+                      'triste', 'depresso', 'apatico', 
+                      'aggressivo', 'irritato', 'arrabbiato',
+                      'pauroso', 'spaventato', 'timido'
+                    ];
+                    
+                    const isNegative = negativeEmotions.some(neg => 
+                      selectedAnalysis.primary_emotion.toLowerCase().includes(neg)
+                    );
+
+                    if (isNegative) {
+                      const protocol = getRecommendedTrainingProtocol(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
+                      
+                      return (
+                        <div>
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            <Brain className="h-4 w-4" />
+                            {getText('trainingProtocol')}
+                          </h4>
+                          <div className="p-4 border rounded-lg bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h5 className="font-semibold text-purple-800 dark:text-purple-200 mb-1">
+                                  {protocol.title}
+                                </h5>
+                                <p className="text-sm text-purple-600 dark:text-purple-400 mb-2">
+                                  {protocol.description}
+                                </p>
+                                <div className="flex gap-4 text-sm text-purple-700 dark:text-purple-300 mb-3">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {protocol.duration}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Target className="h-3 w-3" />
+                                    {protocol.difficulty}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <BarChart3 className="h-3 w-3" />
+                                    {protocol.category}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-purple-600 dark:text-purple-400 italic">
+                                  {protocol.reasoning}
+                                </p>
+                              </div>
+                            </div>
+                            <Button 
+                              onClick={() => startTrainingProtocol(protocol)}
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              <Play className="h-4 w-4 mr-2" />
+                              {getText('startTrainingProtocol')}
+                            </Button>
                           </div>
                         </div>
                       );
