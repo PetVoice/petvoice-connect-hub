@@ -699,6 +699,49 @@ export const calmingProtocol: CompleteProtocol = {
   ]
 };
 
+// PROTOCOLLO 11: TRAINING DI CALMA AVANZATO (21 giorni, Avanzato)
+export const advancedCalmTrainingProtocol: CompleteProtocol = {
+  id: "advanced-calm-training",
+  name: "Training di Calma Avanzato",
+  description: "Esercizi per mantenere la calma in situazioni di stress crescente.",
+  category: "Comportamento",
+  difficulty: "avanzato",
+  durationDays: 21,
+  targetBehaviors: ["calma", "controllo stress", "resilienza"],
+  phases: [
+    { name: "Fondamenti di Calma", days: "1-7" },
+    { name: "Gestione Distrazioni", days: "8-14" },
+    { name: "Calma Avanzata", days: "15-21" }
+  ],
+  days: [
+    {
+      day: 1,
+      phase: "Fondamenti di Calma",
+      exercises: [
+        {
+          name: "Training di Calma Avanzato",
+          duration: "30 minuti",
+          level: "Avanzato",
+          description: "Esercizi per mantenere la calma in situazioni di stress crescente.",
+          materials: ["Ambiente controllabile", "Distrazioni graduate", "Premi ad alto valore"],
+          objectives: ["Mantenere calma sotto stress", "Aumentare resilienza", "Sviluppare autocontrollo"],
+          successCriteria: ["Rimane calmo per 30 minuti", "Tollera distrazioni crescenti", "Risponde al comando 'calmo'"],
+          tips: [
+            "PREPARA ambiente silenzioso con TAPPETO COMODO",
+            "POSIZIONA pet sul tappeto, SIEDITI a 1 metro di distanza", 
+            "PRONUNCIA 'calmo' quando pet è rilassato, PREMIA immediatamente",
+            "INTRODUCI distrazioni graduali (SUONI BASSI → rumori domestici)",
+            "AUMENTA durata: 5 min → 10 min → 15 min → 30 min PROGRESSIVAMENTE",
+            "PREMIA solo stati di CALMA COMPLETA, IGNORA agitazione",
+            "TERMINA con pet calmo, RIDUCI distrazioni gradualmente",
+            "MONITORA segnali stress, ADATTA intensità se necessario"
+          ]
+        }
+      ]
+    }
+  ]
+};
+
 // Template per generare tutti i protocolli
 export const allProtocols = {
   ansietyManagement: ansietyManagementProtocol,
@@ -710,7 +753,8 @@ export const allProtocols = {
   destructiveBehaviors: destructiveBehaviorsProtocol,
   separationAnxiety: separationAnxietyProtocol,
   advancedTraining: advancedTrainingProtocol,
-  calmingAgitation: calmingProtocol
+  calmingAgitation: calmingProtocol,
+  advancedCalmTraining: advancedCalmTrainingProtocol
 };
 
 // Funzione per raccomandare protocolli basati sull'analisi dell'umore
