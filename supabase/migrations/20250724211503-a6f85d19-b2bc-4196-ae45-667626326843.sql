@@ -1,0 +1,12 @@
+UPDATE public.ai_training_exercises 
+SET instructions = ARRAY[
+  '1. PREPARAZIONE AMBIENTE CONTROLLATO: Scegli una stanza di 3x3 metri, rimuovi tutti i giocattoli rumorosi e oggetti che potrebbero distrarre. Imposta luce soffusa (lampada da tavolo), temperatura 20-22°C. Chiudi porte e finestre, spegni TV e telefoni. Prepara un tappeto morbido di 1x1 metro come zona di calma.',
+  '2. POSIZIONAMENTO STRATEGICO INIZIALE: Posiziona il pet al centro del tappeto, siediti a 1 metro di distanza con postura rilassata (spalle basse, braccia aperte). Evita il contatto visivo diretto nei primi 2 minuti. Respira visibilmente e lentamente per trasmettere calma.',
+  '3. INSEGNAMENTO COMANDO "CALMO": Pronuncia "calmo" con voce bassa e dolce quando il pet è naturalmente rilassato. Al primo segno di rilassamento (orecchie abbassate, corpo che si adagia), premia immediatamente con snack ad alto valore. Ripeti il comando ogni 30 secondi nei primi 5 minuti.',
+  '4. INTRODUZIONE DISTRAZIONI GRADUATE: Settimana 1: suoni bassi (TV volume 1, musica soft). Settimana 2: rumori domestici (aspirapolvere distante, telefono). Settimana 3: suoni più intensi (campanello, persone che parlano). Aumenta intensità solo se il pet mantiene calma per 3 minuti consecutivi.',
+  '5. PROGRESSIONE TEMPORALE STRUTTURATA: Giorni 1-3: sessioni da 5 minuti. Giorni 4-7: 10 minuti. Settimana 2: 15 minuti. Settimana 3: 20 minuti. Settimana 4: 30 minuti. Non procedere al livello successivo se il pet mostra stress (ansimare, agitazione, tentativi di fuga).',
+  '6. RINFORZO DIFFERENZIALE: Premia SOLO quando il pet è completamente calmo (respiro normale, posizione rilassata, muscoli non tesi). Ignora comportamenti neutri. Se il pet si agita, riduci le distrazioni e torna al livello precedente. Usa premi variabili (cibo, carezze, lodi verbali).',
+  '7. CHIUSURA SESSIONE GRADUALE: Termina sempre con il pet in stato di calma profonda. Riduci gradualmente le distrazioni negli ultimi 2 minuti. Dai il comando "libero" con voce dolce, premia generosamente e lascia che il pet si allontani spontaneamente dal tappeto. Non alzarti bruscamente.',
+  '8. MONITORAGGIO E ADATTAMENTO: Osserva segnali di stress (tremori, salivazione eccessiva, respirazione accelerata). Se compaiono, interrompi immediatamente e riprendi il giorno dopo con intensità ridotta. Tieni un diario giornaliero dei progressi: durata calma mantenuta, livello distrazioni tollerato, qualità del rilassamento.'
+]
+WHERE id = 'a0651e98-6f89-4a26-8001-53fbf8e3121f';
