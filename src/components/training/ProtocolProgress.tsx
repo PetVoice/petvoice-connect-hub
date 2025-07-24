@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { allProtocols } from '@/data/trainingProtocolsData';
 import { 
   CheckCircle, 
   Clock, 
@@ -32,10 +33,12 @@ interface DailyExercise {
   day: number;
   title: string;
   description: string;
-  duration: number;
-  type: 'physical' | 'mental' | 'behavioral' | 'social';
-  instructions: string[];
+  duration: string;
+  level: string;
   materials: string[];
+  objectives: string[];
+  successCriteria: string[];
+  tips: string[];
   completed: boolean;
   completedAt?: string;
   feedback?: string;
@@ -53,79 +56,6 @@ interface ProtocolProgressProps {
   overallProgress: number;
 }
 
-const mockDailyExercises: DailyExercise[] = [
-  {
-    id: '1',
-    day: 1,
-    title: 'Introduzione alla Calma',
-    description: 'Esercizio di base per introdurre stati di calma e rilassamento',
-    duration: 15,
-    type: 'behavioral',
-    instructions: [
-      'Prepara uno spazio tranquillo senza distrazioni',
-      'Usa comandi vocali dolci e rilassanti',
-      'Premia ogni momento di calma con snack di alta qualità',
-      'Ripeti 3 volte durante la giornata per 5 minuti ciascuna'
-    ],
-    materials: ['Tappetino rilassante', 'Snack premium', 'Ambiente silenzioso'],
-    completed: true,
-    completedAt: '2024-01-15T10:30:00Z',
-    feedback: 'Ottima risposta! Luna ha mostrato segni di rilassamento già dalla prima sessione.',
-    effectiveness: 8
-  },
-  {
-    id: '2',
-    day: 2,
-    title: 'Desensibilizzazione Graduale',
-    description: 'Introduzione graduale agli stimoli che causano ansia',
-    duration: 20,
-    type: 'behavioral',
-    instructions: [
-      'Inizia con stimoli molto deboli (volume basso, distanza maggiore)',
-      'Associa sempre lo stimolo a qualcosa di positivo',
-      'Mantieni le sessioni brevi per evitare sovraccarico',
-      'Aumenta l\'intensità solo se il pet rimane calmo'
-    ],
-    materials: ['Registrazioni audio', 'Snack di alto valore', 'Clicker (opzionale)'],
-    completed: true,
-    completedAt: '2024-01-16T14:15:00Z',
-    feedback: 'Progressi evidenti! Luna è rimasta calma per tutto l\'esercizio.',
-    effectiveness: 9
-  },
-  {
-    id: '3',
-    day: 3,
-    title: 'Rinforzo Positivo Avanzato',
-    description: 'Tecniche avanzate di rinforzo per consolidare i comportamenti calmi',
-    duration: 25,
-    type: 'behavioral',
-    instructions: [
-      'Usa il timing perfetto per il rinforzo (entro 3 secondi)',
-      'Varia i tipi di rinforzo (cibo, gioco, coccole)',
-      'Pratica il "capturing" dei comportamenti spontanei',
-      'Documenta i miglioramenti con foto/video'
-    ],
-    materials: ['Varietà di snack', 'Giocattoli motivanti', 'Smartphone per documentare'],
-    completed: false,
-    videoUrl: 'https://example.com/training-video-3'
-  },
-  {
-    id: '4',
-    day: 4,
-    title: 'Gestione delle Partenze',
-    description: 'Protocollo specifico per ridurre l\'ansia da separazione',
-    duration: 30,
-    type: 'behavioral',
-    instructions: [
-      'Pratica partenze finte molto brevi (30 secondi)',
-      'Non fare grandi cerimonie per partenze e ritorni',
-      'Lascia puzzle alimentari per mantenere occupato il pet',
-      'Aumenta gradualmente la durata delle assenze'
-    ],
-    materials: ['Kong riempibile', 'Puzzle alimentari', 'Videocamera per monitoraggio'],
-    completed: false
-  }
-];
 
 export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
   protocolId,
@@ -142,28 +72,48 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
   const [feedback, setFeedback] = useState('');
   const [effectiveness, setEffectiveness] = useState(5);
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'physical': return 'bg-green-500/20 text-green-700';
-      case 'mental': return 'bg-blue-500/20 text-blue-700';
-      case 'behavioral': return 'bg-purple-500/20 text-purple-700';
-      case 'social': return 'bg-orange-500/20 text-orange-700';
+  // Trova il protocollo corretto dai dati reali
+  const currentProtocol = useMemo(() => {
+    const protocolsArray = Object.values(allProtocols);
+    return protocolsArray.find(protocol => protocol.id === protocolId);
+  }, [protocolId]);
+
+  // Trasforma i dati del protocollo in formato DailyExercise
+  const dailyExercises = useMemo(() => {
+    if (!currentProtocol) return [];
+    
+    return currentProtocol.days.flatMap(dayData => 
+      dayData.exercises.map((exercise, exerciseIndex) => ({
+        id: `${dayData.day}-${exerciseIndex}`,
+        day: dayData.day,
+        title: exercise.name,
+        description: exercise.description,
+        duration: exercise.duration,
+        level: exercise.level,
+        materials: exercise.materials,
+        objectives: exercise.objectives,
+        successCriteria: exercise.successCriteria,
+        tips: exercise.tips,
+        completed: Math.random() > 0.7, // Simulazione stato completamento
+        completedAt: Math.random() > 0.5 ? new Date().toISOString() : undefined,
+        feedback: undefined,
+        videoUrl: undefined,
+        effectiveness: Math.random() > 0.5 ? Math.floor(Math.random() * 4) + 7 : undefined
+      }))
+    );
+  }, [currentProtocol]);
+
+  const getDifficultyColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'facile': return 'bg-green-500/20 text-green-700';
+      case 'intermedio': return 'bg-yellow-500/20 text-yellow-700';
+      case 'avanzato': return 'bg-red-500/20 text-red-700';
       default: return 'bg-gray-500/20 text-gray-700';
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'physical': return '🏃‍♂️';
-      case 'mental': return '🧠';
-      case 'behavioral': return '🎯';
-      case 'social': return '👥';
-      default: return '📝';
-    }
-  };
-
   const handleCompleteExercise = (exerciseId: string) => {
-    const exercise = mockDailyExercises.find(e => e.id === exerciseId);
+    const exercise = dailyExercises.find(e => e.id === exerciseId);
     if (exercise) {
       exercise.completed = true;
       exercise.completedAt = new Date().toISOString();
@@ -190,9 +140,9 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
     });
   };
 
-  const todaysExercise = mockDailyExercises.find(e => e.day === currentDay);
-  const completedExercises = mockDailyExercises.filter(e => e.completed);
-  const upcomingExercises = mockDailyExercises.filter(e => !e.completed && e.day > currentDay);
+  const todaysExercise = dailyExercises.find(e => e.day === currentDay);
+  const completedExercises = dailyExercises.filter(e => e.completed);
+  const upcomingExercises = dailyExercises.filter(e => !e.completed && e.day > currentDay);
 
   return (
     <div className="space-y-6">
@@ -252,23 +202,46 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
                 <p className="text-sm text-muted-foreground">{todaysExercise.description}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className={getTypeColor(todaysExercise.type)}>
-                  {getTypeIcon(todaysExercise.type)} {todaysExercise.type}
+                <Badge className={getDifficultyColor(todaysExercise.level)}>
+                  🎯 {todaysExercise.level}
                 </Badge>
                 <Badge variant="outline">
                   <Clock className="h-3 w-3 mr-1" />
-                  {todaysExercise.duration}min
+                  {todaysExercise.duration}
                 </Badge>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h5 className="font-medium">Istruzioni:</h5>
-              <ol className="list-decimal list-inside space-y-1">
-                {todaysExercise.instructions.map((instruction, idx) => (
-                  <li key={idx} className="text-sm">{instruction}</li>
+              <h5 className="font-medium">Descrizione Dettagliata:</h5>
+              <p className="text-sm text-muted-foreground">{todaysExercise.description}</p>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-medium">Obiettivi:</h5>
+              <ul className="list-disc list-inside space-y-1">
+                {todaysExercise.objectives.map((objective, idx) => (
+                  <li key={idx} className="text-sm">{objective}</li>
                 ))}
-              </ol>
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-medium">Criteri di Successo:</h5>
+              <ul className="list-disc list-inside space-y-1">
+                {todaysExercise.successCriteria.map((criteria, idx) => (
+                  <li key={idx} className="text-sm text-green-600">{criteria}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-3">
+              <h5 className="font-medium">Consigli Pratici:</h5>
+              <ul className="list-disc list-inside space-y-1">
+                {todaysExercise.tips.map((tip, idx) => (
+                  <li key={idx} className="text-sm text-blue-600">{tip}</li>
+                ))}
+              </ul>
             </div>
 
             <div className="space-y-3">
@@ -450,8 +423,8 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
                       <div className="text-xs text-muted-foreground">{exercise.description}</div>
                     </div>
                   </div>
-                  <Badge className={getTypeColor(exercise.type)}>
-                    {getTypeIcon(exercise.type)} {exercise.type}
+                  <Badge className={getDifficultyColor(exercise.level)}>
+                    🎯 {exercise.level}
                   </Badge>
                 </div>
               ))}
