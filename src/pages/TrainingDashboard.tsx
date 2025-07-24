@@ -356,7 +356,7 @@ const TrainingDashboard: React.FC = () => {
       </div>
 
       {/* Progress Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-center max-w-2xl mx-auto">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
