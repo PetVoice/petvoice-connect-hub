@@ -230,8 +230,10 @@ export const AITrainingHub: React.FC = () => {
     // Calculate personal success rate based on user's completed protocols
     const personalSuccessRate = completedProtocols.length > 0 
       ? Math.round(completedProtocols.reduce((sum, p) => {
-          // Usa community_rating convertito in percentuale se disponibile, altrimenti success_rate
-          const rate = p.community_rating ? p.community_rating * 20 : (p.success_rate || 0);
+          // Usa community_rating come percentuale (0-5 scala convertita a 0-100), altrimenti success_rate
+          let rate = p.community_rating ? Math.min(p.community_rating * 20, 100) : (p.success_rate || 0);
+          // Assicura che il rate non superi mai 100
+          rate = Math.min(rate, 100);
           return sum + rate;
         }, 0) / completedProtocols.length)
       : 0;
