@@ -1172,20 +1172,24 @@ export const AITrainingHub: React.FC = () => {
                           </p>
                         </div>
                         
-                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                           <div className="flex items-center gap-1">
-                             <BookOpen className="h-4 w-4" />
-                             <span>{suggestion.duration_days} esercizi</span>
-                           </div>
-                           <div className="flex items-center gap-1">
-                             <TrendingUp className="h-4 w-4" />
-                             <span>{suggestion.confidence_score}% confidenza</span>
-                           </div>
-                           <div className="flex items-center gap-1">
-                             <Users className="h-4 w-4" />
-                             <span>{suggestion.similar_cases} casi simili</span>
-                           </div>
-                         </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <BookOpen className="h-4 w-4" />
+                              <span>{suggestion.duration_days} esercizi</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="h-4 w-4" />
+                              <span>{suggestion.confidence_score}% confidenza</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              <span>{suggestion.similar_cases} casi simili</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Award className="h-4 w-4" />
+                              <span>{Math.round(suggestion.estimated_success)}% successo</span>
+                            </div>
+                          </div>
                       </div>
                       
                       <div className="flex flex-col gap-2">
