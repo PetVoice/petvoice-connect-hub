@@ -462,11 +462,20 @@ const TrainingDashboard: React.FC = () => {
                   {currentExercise.instructions && currentExercise.instructions.length > 0 && (
                     <div>
                       <h5 className="font-medium text-blue-800 mb-2">📋 Istruzioni passo-passo:</h5>
-                      <ul className="list-none space-y-1 text-blue-700 ml-4">
-                        {currentExercise.instructions.map((instruction, index) => (
-                          <li key={index} className="leading-relaxed">{instruction}</li>
-                        ))}
-                      </ul>
+                      {/* Rileva se le istruzioni hanno già numerazione manuale */}
+                      {/^\d+\./.test(currentExercise.instructions[0]) ? (
+                        <ul className="list-none space-y-1 text-blue-700 ml-4">
+                          {currentExercise.instructions.map((instruction, index) => (
+                            <li key={index} className="leading-relaxed">{instruction}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <ol className="list-decimal list-inside space-y-1 text-blue-700 ml-4">
+                          {currentExercise.instructions.map((instruction, index) => (
+                            <li key={index} className="leading-relaxed">{instruction}</li>
+                          ))}
+                        </ol>
+                      )}
                     </div>
                   )}
                   
