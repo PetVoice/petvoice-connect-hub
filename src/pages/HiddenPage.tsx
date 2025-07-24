@@ -220,10 +220,12 @@ const HiddenPage: React.FC = () => {
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-azure/8 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }} />
       </div>
 
-      {/* Floating Elements */}
-      <div className="absolute top-32 left-10 w-3 h-3 bg-azure rounded-full animate-bounce" />
-      <div className="absolute top-40 right-20 w-2 h-2 bg-azure-light rounded-full animate-bounce" style={{ animationDelay: '1s' }} />
-      <div className="absolute bottom-32 left-20 w-4 h-4 bg-azure/60 rounded-full animate-bounce" style={{ animationDelay: '2s' }} />
+      {/* Floating Elements with enhanced animations */}
+      <div className="absolute top-32 left-10 w-3 h-3 bg-azure rounded-full animate-bounce animate-gentle-float" />
+      <div className="absolute top-40 right-20 w-2 h-2 bg-azure-light rounded-full animate-bounce animate-gentle-float" style={{ animationDelay: '1s' }} />
+      <div className="absolute bottom-32 left-20 w-4 h-4 bg-azure/60 rounded-full animate-bounce animate-gentle-float" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-2/3 right-10 w-2 h-2 bg-azure-glow rounded-full animate-pulse animate-gentle-float" style={{ animationDelay: '3s' }} />
+      <div className="absolute bottom-1/3 left-1/3 w-3 h-3 bg-azure/40 rounded-full animate-ping animate-gentle-float" style={{ animationDelay: '0.5s' }} />
 
       {/* Main Content */}
       <div className="relative z-10 pt-20">
@@ -232,14 +234,14 @@ const HiddenPage: React.FC = () => {
           <div className="max-w-7xl mx-auto text-center">
             <div className="mb-8 animate-bounce-in">
               <div className="relative inline-block">
-                <div className="w-24 h-24 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow">
+                <div className="w-24 h-24 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow animate-gentle-float">
                   <span className="text-white font-bold text-4xl">🐾</span>
                 </div>
                 <div className="absolute -inset-2 bg-azure/20 rounded-3xl blur-lg -z-10 animate-pulse" />
               </div>
             </div>
 
-            <h1 className="text-6xl lg:text-8xl font-bold leading-tight mb-8">
+            <h1 className="text-6xl lg:text-8xl font-bold leading-tight mb-8 animate-fade-in">
               <span className="text-foreground">Comprendi le</span>
               <br />
               <span className="text-azure font-black animate-pulse">
@@ -249,29 +251,30 @@ const HiddenPage: React.FC = () => {
               <span className="text-foreground">del tuo pet</span>
             </h1>
 
-            <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12">
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               L'intelligenza artificiale più avanzata per analizzare il comportamento e le emozioni 
               dei tuoi animali domestici. Crea un legame più profondo con chi ami.
             </p>
 
-            <div className="flex justify-center mb-16">
-            <Button 
-              onClick={handleGetStarted}
-              className="petvoice-button px-8 py-4 font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
-            >
-              <span>Prova PetVoice</span>
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div className="flex justify-center mb-16 animate-scale-in" style={{ animationDelay: '0.4s' }}>
+              <Button 
+                onClick={handleGetStarted}
+                className="petvoice-button px-8 py-4 font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-azure-light/20 to-azure/20 animate-shimmer"></div>
+                <span>Prova PetVoice</span>
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </div>
 
             {/* Social Proof */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-muted-foreground animate-slide-up" style={{ animationDelay: '0.6s' }}>
               <div className="flex -space-x-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-3 border-white/30"></div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-3 border-white/30"></div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-3 border-white/30"></div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-3 border-white/30"></div>
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-3 border-white/30"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-3 border-white/30 animate-gentle-float"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-3 border-white/30 animate-gentle-float" style={{ animationDelay: '0.5s' }}></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-3 border-white/30 animate-gentle-float" style={{ animationDelay: '1s' }}></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-3 border-white/30 animate-gentle-float" style={{ animationDelay: '1.5s' }}></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-3 border-white/30 animate-gentle-float" style={{ animationDelay: '2s' }}></div>
               </div>
               <div className="text-center sm:text-left">
                 <div className="font-semibold text-lg">25.000+ Amanti degli Animali</div>
@@ -284,7 +287,7 @@ const HiddenPage: React.FC = () => {
         {/* Features Section */}
         <section className="py-20 px-6 bg-gradient-to-b from-transparent to-card/50 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 animate-fade-in">
               <h2 className="text-4xl font-bold text-foreground mb-4">
                 Perché <span className="text-azure font-bold">25.000+ amanti degli animali</span> scelgono PetVoice
               </h2>
@@ -299,10 +302,11 @@ const HiddenPage: React.FC = () => {
                 return (
                   <Card 
                     key={index}
-                    className="group p-8 bg-card/90 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl border border-azure/20 hover:border-azure/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
+                    className="group p-8 bg-card/90 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-2xl border border-azure/20 hover:border-azure/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer animate-slide-up"
+                    style={{ animationDelay: `${index * 0.1}s` }}
                     onClick={() => setActiveFeature(index)}
                   >
-                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 animate-gentle-float`}>
                       <IconComponent className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-azure transition-colors">
@@ -321,7 +325,7 @@ const HiddenPage: React.FC = () => {
         {/* Pricing Section */}
         <section className="py-20 px-6 bg-gradient-to-b from-card/50 to-transparent backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 animate-fade-in">
               <h2 className="text-4xl font-bold text-foreground mb-4">
                 <span className="text-azure font-bold">Un solo piano</span>, tutte le funzionalità
               </h2>
@@ -334,10 +338,10 @@ const HiddenPage: React.FC = () => {
               {plans.map((plan) => (
                 <Card 
                   key={plan.id}
-                  className={`relative p-10 bg-card/90 backdrop-blur-md rounded-2xl shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer ${plan.color} scale-105`}
+                  className={`relative p-10 bg-card/90 backdrop-blur-md rounded-2xl shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer ${plan.color} scale-105 animate-scale-in`}
                   onClick={() => setSelectedPlan(plan.id)}
                 >
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 animate-gentle-float">
                     <Badge className="bg-gradient-to-r from-azure to-azure-dark text-white px-6 py-2 font-bold text-lg">
                       <Crown className="w-5 h-5 mr-2" />
                       Piano Unico
@@ -345,17 +349,17 @@ const HiddenPage: React.FC = () => {
                   </div>
 
                   <div className="text-center mb-10">
-                    <h3 className="text-3xl font-bold text-foreground mb-4">{plan.name}</h3>
-                    <div className="mb-6">
+                    <h3 className="text-3xl font-bold text-foreground mb-4 animate-slide-up">{plan.name}</h3>
+                    <div className="mb-6 animate-scale-in" style={{ animationDelay: '0.2s' }}>
                       <span className="text-6xl font-bold text-azure">{plan.price}</span>
                       <span className="text-xl text-muted-foreground ml-3">{plan.period}</span>
                     </div>
-                    <p className="text-xl text-muted-foreground">{plan.description}</p>
+                    <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: '0.3s' }}>{plan.description}</p>
                   </div>
 
                   <ul className="space-y-4 mb-10">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-foreground text-lg">
+                      <li key={index} className="flex items-center text-foreground text-lg animate-slide-in-left" style={{ animationDelay: `${index * 0.05}s` }}>
                         <Check className="w-6 h-6 text-green-500 mr-4 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
@@ -363,14 +367,15 @@ const HiddenPage: React.FC = () => {
                   </ul>
 
                   <Button 
-                    className="w-full h-14 petvoice-button font-bold text-xl hover:scale-105 transition-all duration-300"
+                    className="w-full h-14 petvoice-button font-bold text-xl hover:scale-105 transition-all duration-300 relative overflow-hidden group animate-bounce-in"
                     onClick={handleGetStarted}
                   >
-                    <Crown className="w-6 h-6 mr-3" />
-                    Attiva PetVoice Premium
+                    <div className="absolute inset-0 bg-gradient-to-r from-azure-light/20 to-azure/20 animate-shimmer"></div>
+                    <Crown className="w-6 h-6 mr-3 relative z-10" />
+                    <span className="relative z-10">Attiva PetVoice Premium</span>
                   </Button>
                   
-                  <div className="text-center mt-6 text-sm text-muted-foreground">
+                  <div className="text-center mt-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.8s' }}>
                     💳 Pagamento sicuro • 🔄 Cancella quando vuoi
                   </div>
                 </Card>
@@ -382,7 +387,7 @@ const HiddenPage: React.FC = () => {
         {/* Testimonials Section */}
         <section className="py-20 px-6 bg-gradient-to-br from-azure/10 to-transparent backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-16 animate-fade-in">
               <h2 className="text-4xl font-bold text-foreground mb-4">
                 Amato da professionisti <span className="text-azure font-bold">in tutta Italia</span>
               </h2>
@@ -390,17 +395,21 @@ const HiddenPage: React.FC = () => {
 
             <div className="grid md:grid-cols-3 gap-8">
               {testimonials.map((testimonial, index) => (
-                <Card key={index} className="p-8 bg-card/90 backdrop-blur-md rounded-2xl shadow-lg border border-azure/20 hover:shadow-xl transition-shadow duration-300">
-                  <div className="flex items-center space-x-1 mb-6">
+                <Card 
+                  key={index} 
+                  className="p-8 bg-card/90 backdrop-blur-md rounded-2xl shadow-lg border border-azure/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-slide-in-right"
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                >
+                  <div className="flex items-center space-x-1 mb-6 animate-fade-in" style={{ animationDelay: `${index * 0.2 + 0.1}s` }}>
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current animate-bounce-in" style={{ animationDelay: `${index * 0.2 + i * 0.1}s` }} />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-6 italic leading-relaxed">
+                  <p className="text-muted-foreground mb-6 italic leading-relaxed animate-slide-up" style={{ animationDelay: `${index * 0.2 + 0.2}s` }}>
                     "{testimonial.content}"
                   </p>
-                  <div className="flex items-center space-x-4">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${testimonial.avatar} rounded-full`}></div>
+                  <div className="flex items-center space-x-4 animate-fade-in" style={{ animationDelay: `${index * 0.2 + 0.3}s` }}>
+                    <div className={`w-12 h-12 bg-gradient-to-br ${testimonial.avatar} rounded-full animate-gentle-float`} style={{ animationDelay: `${index}s` }}></div>
                     <div>
                       <div className="font-semibold text-foreground">{testimonial.name}</div>
                       <div className="text-sm text-muted-foreground">{testimonial.role}</div>
