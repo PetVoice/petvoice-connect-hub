@@ -935,22 +935,6 @@ export const AITrainingHub: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <Badge className={getDifficultyColor(protocol.difficulty)}>
-                            {protocol.difficulty}
-                          </Badge>
-                          <Badge variant="outline">{protocol.category}</Badge>
-                          <Badge className="bg-blue-500/20 text-blue-700 border-blue-500/20">
-                            <Play className="h-3 w-3 mr-1" />
-                            Attivo
-                          </Badge>
-                          {protocol.ai_generated && (
-                            <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white">
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              AI
-                            </Badge>
-                          )}
-                        </div>
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
