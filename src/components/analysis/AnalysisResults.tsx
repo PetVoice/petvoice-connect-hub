@@ -707,8 +707,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 </div>
                 <div>
                   <span className="text-sm text-muted-foreground">{getText('confidenceLabel')}: </span>
-                  <Badge className={cn("ml-2", getConfidenceColor(selectedAnalysis.primary_confidence))}>
-                    {selectedAnalysis.primary_confidence}% - {getConfidenceText(selectedAnalysis.primary_confidence)}
+                  <Badge className={cn("ml-2", getConfidenceColor(selectedAnalysis.primary_confidence < 1 ? selectedAnalysis.primary_confidence * 100 : selectedAnalysis.primary_confidence))}>
+                    {selectedAnalysis.primary_confidence < 1 ? (selectedAnalysis.primary_confidence * 100).toFixed(0) : selectedAnalysis.primary_confidence.toFixed(0)}% - {getConfidenceText(selectedAnalysis.primary_confidence < 1 ? selectedAnalysis.primary_confidence * 100 : selectedAnalysis.primary_confidence)}
                   </Badge>
                 </div>
               </div>
