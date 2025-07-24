@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCompleteExercise } from '@/hooks/useTrainingProtocols';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,9 @@ const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Hook per completare esercizi e salvare progressi
+  const completeExercise = useCompleteExercise();
 
   // Stati semplificati
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
@@ -96,6 +100,16 @@ const TrainingDashboard: React.FC = () => {
     setTimeElapsed(0);
   }, [currentExerciseIndex]);
 
+  // Carica gli esercizi completati dal database all'avvio
+  useEffect(() => {
+    if (allExercises.length > 0) {
+      const completedIds = allExercises
+        .filter(exercise => exercise.completed)
+        .map(exercise => exercise.id);
+      setCompletedExercises(new Set(completedIds));
+    }
+  }, [allExercises]);
+
   if (isLoading) {
     return <div className="container mx-auto p-6"><div>Caricamento...</div></div>;
   }
@@ -124,23 +138,34 @@ const TrainingDashboard: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleCompleteExercise = () => {
-    if (!currentExercise) return;
+  const handleCompleteExercise = async () => {
+    if (!currentExercise || !protocolId) return;
 
     if (completedExercises.has(currentExercise.id)) {
       return;
     }
 
-    // Marca esercizio come completato
-    const newCompleted = new Set(completedExercises);
-    newCompleted.add(currentExercise.id);
-    setCompletedExercises(newCompleted);
+    try {
+      // SALVA NEL DATABASE usando il nostro hook
+      await completeExercise.mutateAsync({
+        exerciseId: currentExercise.id,
+        protocolId: protocolId
+      });
 
-    // Se è l'ultimo esercizio, mostra dialog valutazione
-    if (newCompleted.size === totalExercises) {
-      setTimeout(() => {
-        setShowRatingDialog(true);
-      }, 2000);
+      // Aggiorna lo stato locale SOLO dopo il salvataggio nel database
+      const newCompleted = new Set(completedExercises);
+      newCompleted.add(currentExercise.id);
+      setCompletedExercises(newCompleted);
+
+      // Se è l'ultimo esercizio, mostra dialog valutazione
+      if (newCompleted.size === totalExercises) {
+        setTimeout(() => {
+          setShowRatingDialog(true);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Errore nel completare l\'esercizio:', error);
+      // Il toast di errore è gestito dal hook useCompleteExercise
     }
   };
 
