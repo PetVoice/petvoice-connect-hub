@@ -195,14 +195,6 @@ const HiddenPage: React.FC = () => {
 
             {/* Action Buttons */}
             <Button
-              variant="ghost"
-              onClick={handleGoBack}
-              className="hover:bg-azure/10 transition-colors text-foreground hover:text-azure"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Home
-            </Button>
-            <Button
               onClick={handleGetStarted}
               className="petvoice-button font-medium group"
             >
