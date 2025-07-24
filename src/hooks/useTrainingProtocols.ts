@@ -259,40 +259,27 @@ export const useTrainingProtocols = () => {
 export const useSuggestedProtocols = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
   return useQuery({
     queryKey: ['suggested-protocols', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // Clean old suggestions first for testing
+      // Clean ALL suggestions for this user for testing (including accepted ones)
+      console.log('🧹 Cleaning ALL suggestions for user:', user.id);
       await supabase
         .from('ai_suggested_protocols')
         .delete()
         .eq('user_id', user.id);
 
+      // Also invalidate the query cache to force refresh
+      queryClient.removeQueries({ queryKey: ['suggested-protocols', user?.id] });
+
       console.log('🧹 Cleaned old suggestions, generating new ones...');
 
-      // First check if there are existing suggestions
-      const { data: existingSuggestions, error: fetchError } = await supabase
-        .from('ai_suggested_protocols')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('dismissed', false)
-        .order('confidence_score', { ascending: false });
-
-      if (fetchError) {
-        console.error('Error fetching suggestions:', fetchError);
-        throw fetchError;
-      }
-
-      // If we have suggestions, return them
-      if (existingSuggestions && existingSuggestions.length > 0) {
-        console.log('📋 Found existing suggestions:', existingSuggestions.length);
-        return existingSuggestions as SuggestedProtocol[];
-      }
-
-      // If no suggestions exist, generate them based on user data
+      // No need to check existing since we just cleaned them all
+      // Generate new suggestions based on user data
       try {
         console.log('🔍 Generating AI suggestions for user:', user.id);
         
@@ -340,6 +327,7 @@ export const useSuggestedProtocols = () => {
         return [];
       }
     },
+    staleTime: 0, // Always fetch fresh data
   });
 };
 
