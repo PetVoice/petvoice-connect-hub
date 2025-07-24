@@ -1155,12 +1155,11 @@ export const AITrainingHub: React.FC = () => {
                 </Card>
               </div>
 
-              {/* Main Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  {/* Description */}
-                  <Card className="p-6">
+              {/* Main Content with improved layout */}
+              <div className="space-y-8">
+                {/* Left Column - Description */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <Card className="lg:col-span-2 p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <FileText className="h-5 w-5 text-primary" />
                       Descrizione
@@ -1168,97 +1167,107 @@ export const AITrainingHub: React.FC = () => {
                     <p className="text-muted-foreground leading-relaxed">{translateProtocolDescription(selectedProtocol.description)}</p>
                   </Card>
 
-                  {/* Category & Difficulty */}
+                  {/* Category & Difficulty - Compact */}
                   <Card className="p-6">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Tag className="h-5 w-5 text-primary" />
                       Dettagli
                     </h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Categoria:</span>
-                        <Badge variant="secondary">{selectedProtocol.category}</Badge>
+                      <div>
+                        <span className="text-xs text-muted-foreground">Categoria</span>
+                        <div><Badge variant="secondary" className="text-xs">{selectedProtocol.category}</Badge></div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Difficoltà:</span>
-                        <Badge variant={
+                      <div>
+                        <span className="text-xs text-muted-foreground">Difficoltà</span>
+                        <div><Badge variant={
                           selectedProtocol.difficulty === 'facile' ? 'default' :
                           selectedProtocol.difficulty === 'medio' ? 'secondary' : 'destructive'
-                        }>
+                        } className="text-xs">
                           {getDifficultyText(selectedProtocol.difficulty)}
-                        </Badge>
+                        </Badge></div>
                       </div>
                       {selectedProtocol.target_behavior && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">Comportamento Target:</span>
-                          <span className="font-medium">{selectedProtocol.target_behavior}</span>
+                        <div>
+                          <span className="text-xs text-muted-foreground">Target</span>
+                          <div className="text-sm font-medium">{selectedProtocol.target_behavior}</div>
                         </div>
                       )}
                     </div>
                   </Card>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-6">
+                {/* Bottom Section - Compact Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Materials */}
                   {selectedProtocol.required_materials && selectedProtocol.required_materials.length > 0 && (
-                    <Card className="p-6">
-                      <h3 className="font-semibold mb-4 flex items-center gap-2">
-                        <Package className="h-5 w-5 text-primary" />
+                    <Card className="p-4">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+                        <Package className="h-4 w-4 text-primary" />
                         Materiali richiesti
-                      </h3>
-                      <div className="space-y-2">
-                        {selectedProtocol.required_materials.map((material, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                            <span className="text-sm">{material}</span>
+                      </h4>
+                      <div className="space-y-1">
+                        {selectedProtocol.required_materials.slice(0, 3).map((material, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                            <span className="text-xs">{material}</span>
                           </div>
                         ))}
+                        {selectedProtocol.required_materials.length > 3 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{selectedProtocol.required_materials.length - 3} altri...
+                          </div>
+                        )}
                       </div>
                     </Card>
                   )}
 
                   {/* Triggers */}
                   {selectedProtocol.triggers && selectedProtocol.triggers.length > 0 && (
-                    <Card className="p-6">
-                      <h3 className="font-semibold mb-4 flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-primary" />
+                    <Card className="p-4">
+                      <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+                        <AlertTriangle className="h-4 w-4 text-primary" />
                         Trigger comportamentali
-                      </h3>
-                      <div className="space-y-2">
-                        {selectedProtocol.triggers.map((trigger, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <AlertCircle className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                            <span className="text-sm">{trigger}</span>
+                      </h4>
+                      <div className="space-y-1">
+                        {selectedProtocol.triggers.slice(0, 3).map((trigger, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <AlertCircle className="h-3 w-3 text-orange-500 flex-shrink-0" />
+                            <span className="text-xs">{trigger}</span>
                           </div>
                         ))}
+                        {selectedProtocol.triggers.length > 3 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{selectedProtocol.triggers.length - 3} altri...
+                          </div>
+                        )}
                       </div>
                     </Card>
                   )}
 
                   {/* Status Indicators */}
-                  <Card className="p-6">
-                    <h3 className="font-semibold mb-4 flex items-center gap-2">
-                      <Shield className="h-5 w-5 text-primary" />
-                      Indicatori qualità
-                    </h3>
-                    <div className="space-y-3">
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+                      <Shield className="h-4 w-4 text-primary" />
+                      Qualità
+                    </h4>
+                    <div className="space-y-2">
                       {selectedProtocol.veterinary_approved && (
-                        <div className="flex items-center gap-3 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="text-sm">Approvato da veterinario</span>
+                        <div className="flex items-center gap-2 text-green-600">
+                          <CheckCircle className="h-3 w-3" />
+                          <span className="text-xs">Approvato da veterinario</span>
                         </div>
                       )}
                       {selectedProtocol.mentor_recommended && (
-                        <div className="flex items-center gap-3 text-blue-600">
-                          <Star className="h-4 w-4" />
-                          <span className="text-sm">Raccomandato da mentor</span>
+                        <div className="flex items-center gap-2 text-blue-600">
+                          <Star className="h-3 w-3" />
+                          <span className="text-xs">Raccomandato da mentor</span>
                         </div>
                       )}
                       {parseInt(selectedProtocol.community_usage || '0') > 10 && (
-                        <div className="flex items-center gap-3 text-purple-600">
-                          <Users className="h-4 w-4" />
-                          <span className="text-sm">{selectedProtocol.community_usage} utenti l'hanno usato</span>
+                        <div className="flex items-center gap-2 text-purple-600">
+                          <Users className="h-3 w-3" />
+                          <span className="text-xs">{selectedProtocol.community_usage} utilizzi</span>
                         </div>
                       )}
                     </div>
