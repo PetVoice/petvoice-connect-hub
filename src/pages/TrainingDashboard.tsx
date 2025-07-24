@@ -513,10 +513,10 @@ const TrainingDashboard: React.FC = () => {
                       <Clock className="h-4 w-4" />
                       <span className="font-medium">Durata: {currentExercise.duration_minutes} minuti</span>
                     </div>
-                    {currentExercise.level && (
+                    {protocol?.difficulty && (
                       <div className="flex items-center gap-1 text-blue-600">
                         <Target className="h-4 w-4" />
-                        <span className="font-medium">Livello: {getDifficultyText(currentExercise.level)}</span>
+                        <span className="font-medium">Livello: {getDifficultyText(protocol.difficulty)}</span>
                       </div>
                     )}
                   </div>
