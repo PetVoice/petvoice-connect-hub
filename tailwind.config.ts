@@ -27,6 +27,13 @@ export default {
 					dark: 'hsl(var(--sky-dark))',     
 					accent: 'hsl(var(--sky-accent))', 
 				},
+				// Azure aliases for components
+				azure: {
+					DEFAULT: 'hsl(var(--azure))',
+					light: 'hsl(var(--azure-light))',
+					dark: 'hsl(var(--azure-dark))',
+					glow: 'hsl(var(--azure-glow))',
+				},
 				// Standard colors
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -124,8 +131,8 @@ export default {
 					'100%': { opacity: '1', transform: 'scale(1)' }
 				},
 				'glow': {
-					'0%, 100%': { boxShadow: '0 0 20px hsl(var(--azure) / 0.3)' },
-					'50%': { boxShadow: '0 0 40px hsl(var(--azure) / 0.6)' }
+					'0%, 100%': { boxShadow: '0 0 20px hsl(var(--primary) / 0.3)' },
+					'50%': { boxShadow: '0 0 40px hsl(var(--primary) / 0.6)' }
 				},
 				'float': {
 					'0%, 100%': { transform: 'translateY(0px)' },
