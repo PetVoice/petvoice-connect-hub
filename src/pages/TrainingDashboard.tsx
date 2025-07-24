@@ -181,15 +181,38 @@ const TrainingDashboard: React.FC = () => {
     }, 1500);
   };
 
-  const handleSubmitRating = () => {
-    toast({
-      title: 'Protocollo completato!',
-      description: 'Congratulazioni! Hai completato tutto il protocollo.',
-    });
+  const handleSubmitRating = async () => {
+    if (!rating) return;
 
-    setTimeout(() => {
-      navigate('/training');
-    }, 2000);
+    try {
+      // Salva la valutazione nel database
+      const { error } = await supabase
+        .from('protocol_ratings')
+        .insert({
+          protocol_id: protocolId,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
+          rating: rating,
+          comment: notes
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Protocollo completato!',
+        description: 'Grazie per la tua valutazione! Hai completato tutto il protocollo.',
+      });
+
+      setTimeout(() => {
+        navigate('/training');
+      }, 2000);
+    } catch (error) {
+      console.error('Errore nel salvare la valutazione:', error);
+      toast({
+        title: 'Errore',
+        description: 'Errore nel salvare la valutazione. Riprova.',
+        variant: 'destructive'
+      });
+    }
   };
 
   if (!currentExercise) {
@@ -468,18 +491,32 @@ const TrainingDashboard: React.FC = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Valutazione (1-5 stelle)</label>
-              <div className="flex gap-1 mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-6 w-6 cursor-pointer ${
-                      star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                    }`}
-                    onClick={() => setRating(star)}
-                  />
-                ))}
+              <label className="text-sm font-medium">Valutazione obbligatoria (1-10)</label>
+              <div className="grid grid-cols-5 gap-2 mt-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
+                  const getScoreColor = (score: number) => {
+                    if (score <= 3) return 'bg-red-500 hover:bg-red-600 text-white';
+                    if (score <= 5) return 'bg-orange-500 hover:bg-orange-600 text-white';
+                    if (score <= 7) return 'bg-yellow-500 hover:bg-yellow-600 text-white';
+                    return 'bg-green-500 hover:bg-green-600 text-white';
+                  };
+
+                  return (
+                    <Button
+                      key={score}
+                      variant={rating === score ? "default" : "outline"}
+                      size="sm"
+                      className={`${rating === score ? getScoreColor(score) : ''} transition-all`}
+                      onClick={() => setRating(score)}
+                    >
+                      {score}
+                    </Button>
+                  );
+                })}
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                1 = 0% di successo, 10 = 100% di successo
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium">Note aggiuntive (opzionale)</label>
@@ -493,16 +530,10 @@ const TrainingDashboard: React.FC = () => {
             <div className="flex gap-2">
               <Button
                 onClick={handleSubmitRating}
-                className="flex-1"
+                disabled={!rating}
+                className="flex-1 disabled:opacity-50"
               >
                 Completa Protocollo
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/training')}
-                className="flex-1"
-              >
-                Salta Valutazione
               </Button>
             </div>
           </div>
