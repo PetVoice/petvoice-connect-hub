@@ -2290,12 +2290,15 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accessibility_settings: Json | null
           analytics_contribution: boolean | null
+          appearance_settings: Json | null
           avatar_url: string | null
           city: string | null
           community_participation: boolean | null
           country: string | null
           created_at: string
+          data_management_settings: Json | null
           display_name: string | null
           id: string
           location: string | null
@@ -2312,12 +2315,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          accessibility_settings?: Json | null
           analytics_contribution?: boolean | null
+          appearance_settings?: Json | null
           avatar_url?: string | null
           city?: string | null
           community_participation?: boolean | null
           country?: string | null
           created_at?: string
+          data_management_settings?: Json | null
           display_name?: string | null
           id?: string
           location?: string | null
@@ -2334,12 +2340,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          accessibility_settings?: Json | null
           analytics_contribution?: boolean | null
+          appearance_settings?: Json | null
           avatar_url?: string | null
           city?: string | null
           community_participation?: boolean | null
           country?: string | null
           created_at?: string
+          data_management_settings?: Json | null
           display_name?: string | null
           id?: string
           location?: string | null

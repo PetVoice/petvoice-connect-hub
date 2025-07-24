@@ -261,6 +261,49 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const loadAppearanceSettings = async () => {
+    try {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('appearance_settings')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile && profile.appearance_settings) {
+          const settings = profile.appearance_settings as any;
+          // Aggiorna il contesto appearance con i valori dal database
+          Object.keys(settings).forEach(key => {
+            if (key in appearance) {
+              updateAppearance(key as keyof typeof appearance, settings[key]);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading appearance settings:', error);
+    }
+  };
+
+  const loadDataManagementSettings = async () => {
+    try {
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('data_management_settings')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile && profile.data_management_settings) {
+          const settings = profile.data_management_settings as any;
+          setDataManagement(prev => ({ ...prev, ...settings }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading data management settings:', error);
+    }
+  };
+
   const saveNotificationSettings = async (newSettings: NotificationSettings) => {
     try {
       if (user) {
@@ -289,10 +332,76 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const saveAppearanceSettings = async (key: keyof typeof appearance, value: string) => {
+    try {
+      if (user) {
+        // Prima aggiorna il contesto locale
+        updateAppearance(key, value);
+        
+        // Poi salva nel database
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('appearance_settings')
+          .eq('user_id', user.id)
+          .single();
+        
+        const currentSettings = (profile?.appearance_settings as any) || {};
+        const newSettings = { ...currentSettings, [key]: value };
+        
+        const { error } = await supabase
+          .from('profiles')
+          .update({ 
+            appearance_settings: newSettings as any,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error saving appearance settings:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile salvare le impostazioni di aspetto.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const saveDataManagementSettings = async (newSettings: any) => {
+    try {
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ 
+            data_management_settings: newSettings as any,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        
+        showToast({
+          title: "Impostazioni salvate",
+          description: "Le tue preferenze di gestione dati sono state aggiornate."
+        });
+      }
+    } catch (error) {
+      console.error('Error saving data management settings:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile salvare le impostazioni. Riprova.",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     loadUserProfile();
     loadSecurityData();
     loadNotificationSettings();
+    loadAppearanceSettings();
+    loadDataManagementSettings();
   }, []);
 
   const loadUserProfile = async () => {
@@ -1830,7 +1939,7 @@ Continuare?
               <CardContent className="space-y-4">
                 <div>
                   <Label>Fuso Orario</Label>
-                  <Select value={appearance.timezone} onValueChange={(value) => updateAppearance('timezone', value)}>
+                  <Select value={appearance.timezone} onValueChange={(value) => saveAppearanceSettings('timezone', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -1846,7 +1955,7 @@ Continuare?
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Formato Data</Label>
-                    <Select value={appearance.dateFormat} onValueChange={(value) => updateAppearance('dateFormat', value)}>
+                    <Select value={appearance.dateFormat} onValueChange={(value) => saveAppearanceSettings('dateFormat', value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1860,7 +1969,7 @@ Continuare?
 
                   <div>
                     <Label>Formato Ora</Label>
-                    <Select value={appearance.timeFormat} onValueChange={(value) => updateAppearance('timeFormat', value)}>
+                    <Select value={appearance.timeFormat} onValueChange={(value) => saveAppearanceSettings('timeFormat', value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1890,7 +1999,7 @@ Continuare?
                   <Label>Sistema di Misura</Label>
                   <RadioGroup 
                     value={appearance.units} 
-                    onValueChange={(value) => updateAppearance('units', value)}
+                    onValueChange={(value) => saveAppearanceSettings('units', value)}
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="metric" id="metric" />
@@ -1905,7 +2014,7 @@ Continuare?
 
                 <div>
                   <Label>Valuta</Label>
-                  <Select value={appearance.currency} onValueChange={(value) => updateAppearance('currency', value)}>
+                  <Select value={appearance.currency} onValueChange={(value) => saveAppearanceSettings('currency', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
