@@ -214,21 +214,21 @@ const AuthPage: React.FC = () => {
         {/* Logo Section */}
         <div className="text-center mb-8 animate-bounce-in">
           <div className="relative">
-            <div className="w-20 h-20 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow">
-              <span className="text-white font-bold text-3xl">🐾</span>
+            <div className="w-20 h-20 rounded-3xl gradient-azure flex items-center justify-center mx-auto mb-6 shadow-glow animate-glow animate-gentle-float">
+              <span className="text-white font-bold text-3xl animate-pulse">🐾</span>
             </div>
             <div className="absolute -inset-2 bg-azure/20 rounded-3xl blur-lg -z-10 animate-pulse" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-azure-light to-white bg-clip-text text-transparent mb-3 animate-slide-in-left">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-azure-light to-white bg-clip-text text-transparent mb-3 animate-slide-in-left animate-pulse">
             PetVoice
           </h1>
           <p className="text-white/90 text-lg animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
             Analizza le emozioni del tuo pet
           </p>
           <div className="flex justify-center mt-4 gap-3">
-            <Heart className="w-5 h-5 text-azure-light animate-bounce" style={{ animationDelay: '0s' }} />
-            <Sparkles className="w-5 h-5 text-white animate-bounce" style={{ animationDelay: '0.3s' }} />
-            <Star className="w-5 h-5 text-azure-glow animate-bounce" style={{ animationDelay: '0.6s' }} />
+            <Heart className="w-5 h-5 text-azure-light animate-bounce animate-gentle-float" style={{ animationDelay: '0s' }} />
+            <Sparkles className="w-5 h-5 text-white animate-bounce animate-gentle-float" style={{ animationDelay: '0.3s' }} />
+            <Star className="w-5 h-5 text-azure-glow animate-bounce animate-gentle-float" style={{ animationDelay: '0.6s' }} />
           </div>
         </div>
 
