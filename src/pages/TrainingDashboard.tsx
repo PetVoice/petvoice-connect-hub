@@ -428,34 +428,74 @@ const TrainingDashboard: React.FC = () => {
                 </h4>
                 
                 <div className="space-y-4 text-sm">
-                  {/* Descrizione */}
+                  {/* Descrizione Dettagliata */}
                   <div>
                     <h5 className="font-medium text-blue-800 mb-1">📝 Descrizione:</h5>
                     <p className="text-blue-700 leading-relaxed">{currentExercise.description}</p>
                   </div>
                   
+                  {/* Obiettivi */}
+                  {currentExercise.objectives && currentExercise.objectives.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">🎯 Obiettivi:</h5>
+                      <ul className="list-disc list-inside space-y-1 text-blue-700">
+                        {currentExercise.objectives.map((objective, index) => (
+                          <li key={index} className="leading-relaxed">{objective}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
                   {/* Istruzioni */}
-                  <div>
-                    <h5 className="font-medium text-blue-800 mb-2">🎯 Istruzioni passo-passo:</h5>
-                    <ol className="list-decimal list-inside space-y-1 text-blue-700">
-                      {currentExercise.instructions.map((instruction, index) => (
-                        <li key={index} className="leading-relaxed">{instruction}</li>
-                      ))}
-                    </ol>
-                  </div>
+                  {currentExercise.instructions && currentExercise.instructions.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">📋 Istruzioni passo-passo:</h5>
+                      <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                        {currentExercise.instructions.map((instruction, index) => (
+                          <li key={index} className="leading-relaxed">{instruction}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                  
+                  {/* Criteri di Successo */}
+                  {currentExercise.success_criteria && currentExercise.success_criteria.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">✅ Criteri di Successo:</h5>
+                      <ul className="list-disc list-inside space-y-1 text-green-700">
+                        {currentExercise.success_criteria.map((criteria, index) => (
+                          <li key={index} className="leading-relaxed">{criteria}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* Consigli Pratici */}
+                  {currentExercise.tips && currentExercise.tips.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">💡 Consigli Pratici:</h5>
+                      <ul className="list-disc list-inside space-y-1 text-orange-700">
+                        {currentExercise.tips.map((tip, index) => (
+                          <li key={index} className="leading-relaxed">{tip}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
                   {/* Materiali */}
-                  <div>
-                    <h5 className="font-medium text-blue-800 mb-2">🛠️ Materiali necessari:</h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                      {currentExercise.materials.map((material, index) => (
-                        <div key={index} className="flex items-center gap-2 text-blue-700">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                          {material}
-                        </div>
-                      ))}
+                  {currentExercise.materials && currentExercise.materials.length > 0 && (
+                    <div>
+                      <h5 className="font-medium text-blue-800 mb-2">🛠️ Materiali necessari:</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                        {currentExercise.materials.map((material, index) => (
+                          <div key={index} className="flex items-center gap-2 text-blue-700">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                            {material}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                   
                   {/* Info aggiuntive */}
                   <div className="flex items-center gap-4 pt-2 border-t border-blue-200">
@@ -463,10 +503,12 @@ const TrainingDashboard: React.FC = () => {
                       <Clock className="h-4 w-4" />
                       <span className="font-medium">Durata: {currentExercise.duration_minutes} minuti</span>
                     </div>
-                    <div className="flex items-center gap-1 text-blue-600">
-                      <Target className="h-4 w-4" />
-                      <span className="font-medium">Livello: Principiante</span>
-                    </div>
+                    {currentExercise.level && (
+                      <div className="flex items-center gap-1 text-blue-600">
+                        <Target className="h-4 w-4" />
+                        <span className="font-medium">Livello: {currentExercise.level}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

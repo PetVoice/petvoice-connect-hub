@@ -189,9 +189,13 @@ export type Database = {
           feedback: string | null
           id: string
           instructions: string[] | null
+          level: string | null
           materials: string[] | null
+          objectives: string[] | null
           photos: string[] | null
           protocol_id: string
+          success_criteria: string[] | null
+          tips: string[] | null
           title: string
           updated_at: string | null
           video_url: string | null
@@ -210,9 +214,13 @@ export type Database = {
           feedback?: string | null
           id?: string
           instructions?: string[] | null
+          level?: string | null
           materials?: string[] | null
+          objectives?: string[] | null
           photos?: string[] | null
           protocol_id: string
+          success_criteria?: string[] | null
+          tips?: string[] | null
           title: string
           updated_at?: string | null
           video_url?: string | null
@@ -231,9 +239,13 @@ export type Database = {
           feedback?: string | null
           id?: string
           instructions?: string[] | null
+          level?: string | null
           materials?: string[] | null
+          objectives?: string[] | null
           photos?: string[] | null
           protocol_id?: string
+          success_criteria?: string[] | null
+          tips?: string[] | null
           title?: string
           updated_at?: string | null
           video_url?: string | null
