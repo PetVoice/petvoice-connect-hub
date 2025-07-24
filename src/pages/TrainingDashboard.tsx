@@ -23,11 +23,13 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 
 const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showToast } = useToastWithIcon();
   
   // Hook per completare esercizi e salvare progressi
   const completeExercise = useCompleteExercise();
@@ -240,9 +242,10 @@ const TrainingDashboard: React.FC = () => {
 
       if (protocolError) throw protocolError;
 
-      toast({
+      showToast({
         title: 'Protocollo completato!',
         description: 'Grazie per la tua valutazione! Hai completato tutto il protocollo.',
+        type: 'success'
       });
 
       setTimeout(() => {
@@ -250,10 +253,10 @@ const TrainingDashboard: React.FC = () => {
       }, 2000);
     } catch (error) {
       console.error('Errore nel salvare la valutazione:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Errore nel salvare la valutazione. Riprova.',
-        variant: 'destructive'
+        type: 'error'
       });
     }
   };
@@ -276,19 +279,20 @@ const TrainingDashboard: React.FC = () => {
 
       if (protocolError) throw protocolError;
 
-      toast({
+      showToast({
         title: 'Protocollo interrotto',
         description: 'Il protocollo è stato interrotto e rimosso dai protocolli attivi.',
+        type: 'warning'
       });
 
       setShowInterruptDialog(false);
       navigate('/training');
     } catch (error) {
       console.error('Errore nell\'interrompere il protocollo:', error);
-      toast({
+      showToast({
         title: 'Errore',
         description: 'Non è stato possibile interrompere il protocollo. Riprova.',
-        variant: 'destructive'
+        type: 'error'
       });
     }
   };
