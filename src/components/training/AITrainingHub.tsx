@@ -969,7 +969,7 @@ export const AITrainingHub: React.FC = () => {
                           <Play className="h-4 w-4 mr-2" />
                           Continua
                         </Button>
-                          {isUserProtocol(protocol) && parseInt(protocol.progress_percentage || '0') < 100 && (
+                          {isUserProtocol(protocol) && parseInt(protocol.progress_percentage || '0') < 100 && protocol.current_day < protocol.duration_days && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
