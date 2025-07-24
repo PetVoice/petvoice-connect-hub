@@ -29,45 +29,10 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
-
-
-// Funzione per tradurre le emozioni
-const getEmotionTranslation = (emotion: string, language: string = 'it') => {
-  const emotions: Record<string, Record<string, string>> = {
-    it: {
-      felice: 'Felice',
-      calmo: 'Calmo',
-      ansioso: 'Ansioso',
-      eccitato: 'Eccitato',
-      triste: 'Triste',
-      aggressivo: 'Aggressivo',
-      giocoso: 'Giocoso'
-    },
-    en: {
-      felice: 'Happy',
-      calmo: 'Calm',
-      ansioso: 'Anxious',
-      eccitato: 'Excited',
-      triste: 'Sad',
-      aggressivo: 'Aggressive',
-      giocoso: 'Playful'
-    },
-    es: {
-      felice: 'Alegre',
-      calmo: 'Tranquilo',
-      ansioso: 'Ansioso',
-      eccitato: 'Emocionado',
-      triste: 'Triste',
-      aggressivo: 'Agresivo',
-      giocoso: 'Juguetón'
-    }
-  };
-  
-  return emotions[language]?.[emotion.toLowerCase()] || emotion;
-};
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsData';
+import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 import jsPDF from 'jspdf';
 import AudioPlayer from './AudioPlayer';
 import WeatherContextInfo from './WeatherContextInfo';
@@ -148,6 +113,41 @@ const EMOTION_ICONS: Record<string, React.ReactNode> = {
   giocoso: '😄',
   playful: '😄',
   jugueton: '😄'
+};
+
+// Funzione per tradurre le emozioni
+const getEmotionTranslation = (emotion: string, language: string = 'it') => {
+  const emotions: Record<string, Record<string, string>> = {
+    it: {
+      felice: 'Felice',
+      calmo: 'Calmo',
+      ansioso: 'Ansioso',
+      eccitato: 'Eccitato',
+      triste: 'Triste',
+      aggressivo: 'Aggressivo',
+      giocoso: 'Giocoso'
+    },
+    en: {
+      felice: 'Happy',
+      calmo: 'Calm',
+      ansioso: 'Anxious',
+      eccitato: 'Excited',
+      triste: 'Sad',
+      aggressivo: 'Aggressive',
+      giocoso: 'Playful'
+    },
+    es: {
+      felice: 'Alegre',
+      calmo: 'Tranquilo',
+      ansioso: 'Ansioso',
+      eccitato: 'Emocionado',
+      triste: 'Triste',
+      aggressivo: 'Agresivo',
+      giocoso: 'Juguetón'
+    }
+  };
+  
+  return emotions[language]?.[emotion.toLowerCase()] || emotion;
 };
 
 // Genera playlist solo per emozioni negative che richiedono intervento
@@ -301,10 +301,33 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
   }
 };
 
+const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const getConfidenceLabel = (confidence: number): string => {
+  if (confidence >= 90) return 'Molto Alta';
+  if (confidence >= 75) return 'Alta';
+  if (confidence >= 50) return 'Media';
+  return 'Bassa';
+};
+
+const getConfidenceColor = (confidence: number): string => {
+  if (confidence >= 90) return 'text-green-600';
+  if (confidence >= 75) return 'text-blue-600';
+  if (confidence >= 50) return 'text-yellow-600';
+  return 'text-red-600';
+};
+
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const language = 'it';
   const { showToast } = useTranslatedToast();
   const { selectedPet } = usePets();
+  const createProtocol = useCreateProtocol();
 
   // Helper function to translate hardcoded analysis data
   const translateAnalysisData = (text: string, type: 'insights' | 'recommendations' | 'triggers') => {
@@ -355,6 +378,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     
     return translations[type]?.[language]?.[text] || text;
   };
+
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -471,394 +495,51 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         aggressionProtocolDesc: 'Tecniche di controllo per gestire comportamenti aggressivi e reattivi.',
         fearProtocolDesc: 'Esercizi di desensibilizzazione per superare paure specifiche.',
         hyperactivityProtocolDesc: 'Attività per canalizzare l\'energia eccessiva in comportamenti positivi.',
-        emotionalProtocolDesc: 'Supporto emotivo personalizzato per migliorare l\'umore e il benessere del pet.',
-        generalProtocolDesc: 'Protocollo generale per migliorare il comportamento e il benessere complessivo.',
-        // Training labels
-        days: 'giorni',
-        level: 'Livello:',
-        basedOn: 'Basato su:',
-        variable: 'Variabile',
-        personalized: 'Personalizzato',
-        difficult: 'Difficile',
-        // Health and recommendations
-        healthConditions: 'Condizioni di salute:',
-        healthAdvice: 'Monitora attentamente i segni di stress durante il training. Consulta il veterinario prima di iniziare protocolli intensivi.',
-        forEmotion: 'Per l\'emozione',
-        recommendedFrequency: 'Frequenza raccomandata:',
-        shortSessions23: '2-3 sessioni brevi al giorno',
-        sessions12: '1-2 sessioni al giorno',
-        session1: '1 sessione al giorno per evitare sovrastimolazione',
-        // Emotion-specific advice
-        anxietyAdvice: 'Crea un ambiente sicuro e prevedibile. Evita cambiamenti bruschi nella routine.',
-        aggressionAdvice: 'Mantieni calma e distanza di sicurezza. Usa rinforzi positivi, mai punizioni.',
-        fearAdvice: 'Desensibilizzazione graduale. Non forzare l\'esposizione, procedi con pazienza.',
-        sadnessAdvice: 'Aumenta attività gratificanti e interazioni sociali positive.',
-        generalAdvice: 'Mantieni coerenza nel training e celebra ogni piccolo progresso.',
-        // Comparison modal
-        emotionalAnalysisComparison: 'Confronto Analisi Emotive',
-        comparativeAnalysisOf: 'Analisi comparativa di',
-        results: 'risultati',
-        comparedAnalyses: 'Analisi Confrontate',
-        analyzedPeriod: 'Periodo Analizzato',
-        averageConfidence: 'Confidenza Media',
-        secondaryEmotionsShort: 'Emozioni Secondarie',
-        insightsShort: 'Insights',
-        analysis: 'Analisi',
-        shareAnalysisTitle: 'Condividi Analisi',
-        shareAnalysisDescription: 'Scegli come condividere i risultati dell\'analisi di',
-        facebook: 'Facebook',
-        twitter: 'Twitter',
-        whatsapp: 'WhatsApp',
-        email: 'Email'
-      },
-      en: {
-        // Existing translations
-        noResults: 'No Results',
-        loadFile: 'Load a file to see analysis results',
-        veryHigh: 'Very High',
-        high: 'High',
-        medium: 'Medium',
-        low: 'Low',
-        emotionalAnalysis: 'Emotional Analysis',
-        analysisOf: 'Analysis of',
-        primaryEmotion: 'Primary emotion',
-        confidence: 'confidence',
-        insights: 'Insights',
-        recommendations: 'Recommendations',
-        identifiedTriggers: 'Identified triggers',
-        success: 'Success!',
-        addedSuccessfully: 'Analysis added to diary successfully!',
-        cannotAdd: 'Unable to add analysis to diary',
-        error: 'Error',
-        selectPet: 'No pet selected',
-        // New translations
-        selectAnalysis: 'Select Analysis',
-        showResults: 'Show results for',
-        recentAnalyses: 'recent analyses',
-        primaryEmotionCard: 'Primary Emotion',
-        confidenceLabel: 'Confidence',
-        fileLabel: 'File:',
-        sizeLabel: 'Size:',
-        durationLabel: 'Analysis duration:',
-        dateLabel: 'Date:',
-        detailedAnalysis: 'Detailed Analysis',
-        behavioralInsights: 'Behavioral insights and recommendations for',
-        emotionsTab: 'Emotions',
-        insightsTab: 'Insights',
-        adviceTab: 'Advice',
-        triggersTab: 'Triggers',
-        audioTab: 'Audio',
-        secondaryEmotions: 'Secondary Emotions',
-        behavioralAnalysis: 'Behavioral Analysis',
-        environmentalContext: 'Environmental Context',
-        aiMusicTherapy: 'AI Music Therapy Playlist Recommended',
-        trainingProtocol: 'Recommended Training Protocol',
-        personalizedRecommendations: 'Personalized Recommendations',
-        startMusicTherapy: 'Start Music Therapy Session',
-        startTrainingProtocol: 'Start Training Protocol',
-        share: 'Share',
-        downloadReport: 'Download Report',
-        addToDiary: 'Add to Diary',
-        scheduleFollowUp: 'Schedule Follow-up',
-        compareAnalyses: 'Compare Analyses',
-        patternRecognition: 'Pattern Recognition',
-        previousComparisons: 'Comparisons with previous analyses',
-        similarEpisode: 'Similar Episode',
-        confidenceVariation: 'Confidence Variation',
-        lastAnalysis: 'From Last Analysis',
-        emotionalConsistency: 'Emotional Consistency',
-        petIsWell: 'is well!',
-        positiveEmotionalState: 'Your pet is in a positive emotional state!',
-        emotionDetected: 'Emotion',
-        detected: 'detected.',
-        similarBehavior: 'Similar behavior observed on',
-        withEmotion: 'with emotion',
-        confidenceLevel: 'confidence',
-        daysSince: 'days',
-        day: 'day',
-        followUpScheduled: 'Follow-up Scheduled',
-        reminderCreated: 'Reminder created for',
-        inCalendar: 'in calendar',
-        cannotCreateReminder: 'Unable to create calendar reminder',
-        reportGenerated: 'PDF Report Downloaded',
-        reportSaved: 'PDF report has been saved as',
-        cannotGenerateReport: 'Unable to generate PDF report',
-        monitorTrigger: 'Monitor this factor to identify behavioral patterns',
-        originalRecording: 'Original Recording',
-        notAudioFile: 'This file is not audio. Player available only for audio recordings.',
-        today: 'Today',
-        // Additional translations for hardcoded content
-        confidenceColon: 'Confidence:',
-        recording: 'Recording:',
-        humidity: 'humidity',
-        wind: 'wind',
-        realEnvironmentalContext: 'Real Environmental Context:',
-        moderate: 'moderate',
-        moderateTraffic: 'Moderate traffic',
-        highActivity: 'High activity',
-        daylight: 'daylight',
-        disturbancesDetected: 'Disturbances detected: quiet environment',
-        analysisRecorded: 'Analysis recorded afternoon of',
-        uvIndex: 'UV Index:',
-        environmentalConditions: 'Environmental conditions with moderate disturbances for behavioral analysis.',
-        quietEnvironmentsSoftLighting: 'Quiet environments with soft lighting',
-        consolidatedRelaxingRoutines: 'Consolidated relaxing routines (massages, cuddles)',
-        // Training protocol names
-        anxietySeparationManagement: 'Separation Anxiety Management',
-        aggressionControl: 'Aggression Control',
-        fearPhobiaOvercoming: 'Fear and Phobia Overcoming',
-        hyperactivityManagement: 'Hyperactivity Management',
-        emotionalSupportWellness: 'Emotional Support and Wellness',
-        generalBehaviorManagement: 'General Behavior Management',
-        // Training protocol descriptions
-        anxietyProtocolDesc: 'Specific protocol to reduce separation anxiety and improve pet confidence.',
-        aggressionProtocolDesc: 'Control techniques to manage aggressive and reactive behaviors.',
-        fearProtocolDesc: 'Desensitization exercises to overcome specific fears.',
-        hyperactivityProtocolDesc: 'Activities to channel excessive energy into positive behaviors.',
-        emotionalProtocolDesc: 'Personalized emotional support to improve pet mood and wellness.',
-        generalProtocolDesc: 'General protocol to improve behavior and overall wellness.',
-        // Training labels
-        days: 'days',
-        level: 'Level:',
-        basedOn: 'Based on:',
-        variable: 'Variable',
-        personalized: 'Personalized',
-        difficult: 'Difficult',
-        // Health and recommendations
-        healthConditions: 'Health conditions:',
-        healthAdvice: 'Carefully monitor signs of stress during training. Consult veterinarian before starting intensive protocols.',
-        forEmotion: 'For emotion',
-        recommendedFrequency: 'Recommended frequency:',
-        shortSessions23: '2-3 short sessions per day',
-        sessions12: '1-2 sessions per day',
-        session1: '1 session per day to avoid overstimulation',
-        // Emotion-specific advice
-        anxietyAdvice: 'Create a safe and predictable environment. Avoid sudden routine changes.',
-        aggressionAdvice: 'Stay calm and maintain safe distance. Use positive reinforcement, never punishment.',
-        fearAdvice: 'Gradual desensitization. Don\'t force exposure, proceed with patience.',
-        sadnessAdvice: 'Increase gratifying activities and positive social interactions.',
-        generalAdvice: 'Maintain consistency in training and celebrate every small progress.',
-        // Comparison modal
-        emotionalAnalysisComparison: 'Emotional Analysis Comparison',
-        comparativeAnalysisOf: 'Comparative analysis of',
-        results: 'results',
-        comparedAnalyses: 'Compared Analyses',
-        analyzedPeriod: 'Analyzed Period',
-        averageConfidence: 'Average Confidence',
-        secondaryEmotionsShort: 'Secondary Emotions',
-        insightsShort: 'Insights',
-        analysis: 'Analysis',
-        shareAnalysisTitle: 'Share Analysis',
-        shareAnalysisDescription: 'Choose how to share the analysis results of',
-        facebook: 'Facebook',
-        twitter: 'Twitter',
-        whatsapp: 'WhatsApp',
-        email: 'Email'
-      },
-      es: {
-        // Existing translations
-        noResults: 'Sin Resultados',
-        loadFile: 'Carga un archivo para ver los resultados del análisis',
-        veryHigh: 'Muy Alta',
-        high: 'Alta',
-        medium: 'Media',
-        low: 'Baja',
-        emotionalAnalysis: 'Análisis Emocional',
-        analysisOf: 'Análisis del',
-        primaryEmotion: 'Emoción primaria',
-        confidence: 'confianza',
-        insights: 'Información',
-        recommendations: 'Recomendaciones',
-        identifiedTriggers: 'Desencadenantes identificados',
-        success: '¡Éxito!',
-        addedSuccessfully: '¡Análisis agregado al diario exitosamente!',
-        cannotAdd: 'No se puede agregar el análisis al diario',
-        error: 'Error',
-        selectPet: 'Ninguna mascota seleccionada',
-        // New translations
-        selectAnalysis: 'Seleccionar Análisis',
-        showResults: 'Mostrar resultados para',
-        recentAnalyses: 'análisis recientes',
-        primaryEmotionCard: 'Emoción Primaria',
-        confidenceLabel: 'Confianza',
-        fileLabel: 'Archivo:',
-        sizeLabel: 'Tamaño:',
-        durationLabel: 'Duración del análisis:',
-        dateLabel: 'Fecha:',
-        detailedAnalysis: 'Análisis Detallado',
-        behavioralInsights: 'Información del comportamiento y recomendaciones para',
-        emotionsTab: 'Emociones',
-        insightsTab: 'Información',
-        adviceTab: 'Consejos',
-        triggersTab: 'Desencadenantes',
-        audioTab: 'Audio',
-        secondaryEmotions: 'Emociones Secundarias',
-        behavioralAnalysis: 'Análisis del Comportamiento',
-        environmentalContext: 'Contexto Ambiental',
-        aiMusicTherapy: 'Playlist de Musicoterapia IA Recomendada',
-        trainingProtocol: 'Protocolo de Entrenamiento Recomendado',
-        personalizedRecommendations: 'Recomendaciones Personalizadas',
-        startMusicTherapy: 'Iniciar Sesión de Musicoterapia',
-        startTrainingProtocol: 'Iniciar Protocolo de Entrenamiento',
-        share: 'Compartir',
-        downloadReport: 'Descargar Reporte',
-        addToDiary: 'Agregar al Diario',
-        scheduleFollowUp: 'Programar Seguimiento',
-        compareAnalyses: 'Comparar Análisis',
-        patternRecognition: 'Reconocimiento de Patrones',
-        previousComparisons: 'Comparaciones con análisis anteriores',
-        similarEpisode: 'Episodio Similar',
-        confidenceVariation: 'Variación de Confianza',
-        lastAnalysis: 'Desde el Último Análisis',
-        emotionalConsistency: 'Consistencia Emocional',
-        petIsWell: '¡está bien!',
-        positiveEmotionalState: '¡Tu mascota está en un estado emocional positivo!',
-        emotionDetected: 'Emoción',
-        detected: 'detectada.',
-        similarBehavior: 'Comportamiento similar observado el',
-        withEmotion: 'con emoción',
-        confidenceLevel: 'confianza',
-        daysSince: 'días',
-        day: 'día',
-        followUpScheduled: 'Seguimiento Programado',
-        reminderCreated: 'Recordatorio creado para el',
-        inCalendar: 'en el calendario',
-        cannotCreateReminder: 'No se puede crear el recordatorio del calendario',
-        reportGenerated: 'Reporte PDF Descargado',
-        reportSaved: 'El reporte PDF se ha guardado como',
-        cannotGenerateReport: 'No se puede generar el reporte PDF',
-        monitorTrigger: 'Monitorear este factor para identificar patrones de comportamiento',
-        originalRecording: 'Grabación Original',
-        notAudioFile: 'Este archivo no es audio. Reproductor disponible solo para grabaciones de audio.',
-        today: 'Hoy',
-        // Additional translations for hardcoded content
-        confidenceColon: 'Confianza:',
-        recording: 'Grabación:',
-        humidity: 'humedad',
-        wind: 'viento',
-        realEnvironmentalContext: 'Contexto Ambiental Real:',
-        moderate: 'moderado',
-        moderateTraffic: 'Tráfico moderado',
-        highActivity: 'Actividad alta',
-        daylight: 'diurna',
-        disturbancesDetected: 'Perturbaciones detectadas: ambiente silencioso',
-        analysisRecorded: 'Análisis registrado tarde del',
-        uvIndex: 'Índice UV:',
-        environmentalConditions: 'Condiciones ambientales con perturbaciones moderadas para el análisis conductual.',
-        quietEnvironmentsSoftLighting: 'Ambientes tranquilos con iluminación suave',
-        consolidatedRelaxingRoutines: 'Rutinas relajantes consolidadas (masajes, mimos)',
-        // Training protocol names
-        anxietySeparationManagement: 'Gestión de Ansiedad por Separación',
-        aggressionControl: 'Control de Agresión',
-        fearPhobiaOvercoming: 'Superación de Miedos y Fobias',
-        hyperactivityManagement: 'Gestión de Hiperactividad',
-        emotionalSupportWellness: 'Apoyo Emocional y Bienestar',
-        generalBehaviorManagement: 'Gestión General del Comportamiento',
-        // Training protocol descriptions
-        anxietyProtocolDesc: 'Protocolo específico para reducir la ansiedad por separación y mejorar la confianza de la mascota.',
-        aggressionProtocolDesc: 'Técnicas de control para manejar comportamientos agresivos y reactivos.',
-        fearProtocolDesc: 'Ejercicios de desensibilización para superar miedos específicos.',
-        hyperactivityProtocolDesc: 'Actividades para canalizar la energía excesiva en comportamientos positivos.',
-        emotionalProtocolDesc: 'Apoyo emocional personalizado para mejorar el estado de ánimo y bienestar de la mascota.',
-        generalProtocolDesc: 'Protocolo general para mejorar el comportamiento y bienestar general.',
-        // Training labels
-        days: 'días',
-        level: 'Nivel:',
-        basedOn: 'Basado en:',
-        variable: 'Variable',
-        personalized: 'Personalizado',
-        difficult: 'Difícil',
-        // Health and recommendations
-        healthConditions: 'Condiciones de salud:',
-        healthAdvice: 'Monitore cuidadosamente los signos de estrés durante el entrenamiento. Consulte al veterinario antes de comenzar protocolos intensivos.',
-        forEmotion: 'Para la emoción',
-        recommendedFrequency: 'Frecuencia recomendada:',
-        shortSessions23: '2-3 sesiones cortas por día',
-        sessions12: '1-2 sesiones por día',
-        session1: '1 sesión por día para evitar sobreestimulación',
-        // Emotion-specific advice
-        anxietyAdvice: 'Crear un ambiente seguro y predecible. Evitar cambios bruscos en la rutina.',
-        aggressionAdvice: 'Mantener la calma y distancia de seguridad. Usar refuerzo positivo, nunca castigo.',
-        fearAdvice: 'Desensibilización gradual. No forzar la exposición, proceder con paciencia.',
-        sadnessAdvice: 'Aumentar actividades gratificantes e interacciones sociales positivas.',
-        generalAdvice: 'Mantener consistencia en el entrenamiento y celebrar cada pequeño progreso.',
-        // Comparison modal
-        emotionalAnalysisComparison: 'Comparación de Análisis Emocional',
-        comparativeAnalysisOf: 'Análisis comparativo de',
-        results: 'resultados',
-        comparedAnalyses: 'Análisis Comparados',
-        analyzedPeriod: 'Período Analizado',
-        averageConfidence: 'Confianza Promedio',
-        secondaryEmotionsShort: 'Emociones Secundarias',
-        insightsShort: 'Información',
-        analysis: 'Análisis',
-        shareAnalysisTitle: 'Compartir Análisis',
-        shareAnalysisDescription: 'Elige cómo compartir los resultados del análisis de',
-        facebook: 'Facebook',
-        twitter: 'Twitter',
-        whatsapp: 'WhatsApp',
-        email: 'Correo'
+        emotionalSupportDesc: 'Supporto emotivo e strategie per migliorare il benessere generale del pet.',
+        generalBehaviorDesc: 'Tecniche generali per migliorare il comportamento e l\'obbedienza.',
+        // Protocol start messages
+        protocolStarting: 'Avvio protocollo in corso...',
+        protocolStarted: 'Protocollo avviato con successo!',
+        protocolStartError: 'Errore nell\'avvio del protocollo'
       }
     };
-    return texts[language]?.[key] || texts.it[key] || key;
+    
+    return texts[language]?.[key] || key;
   };
 
-  // Seleziona la prima analisi solo se non c'è nessuna selezione
+  // Fetch sharing templates on component mount
   useEffect(() => {
-    if (analyses.length > 0 && !selectedAnalysis) {
-      setSelectedAnalysis(analyses[0]); // Solo se non c'è già una selezione
-    }
-  }, [analyses, selectedAnalysis]);
+    const fetchTemplates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('sharing_templates')
+          .select('*')
+          .eq('is_active', true);
 
-  useEffect(() => {
-    loadSharingTemplates();
+        if (error) throw error;
+        setTemplates(data || []);
+      } catch (error) {
+        console.error('Error fetching sharing templates:', error);
+      }
+    };
+
+    fetchTemplates();
   }, []);
 
-  const loadSharingTemplates = async () => {
-    try {
-      const { data: templateData } = await supabase
-        .from('sharing_templates')
-        .select('*')
-        .eq('is_active', true);
-      
-      setTemplates(templateData || []);
-    } catch (error) {
-      console.error('Error loading templates:', error);
-    }
+  // Generate social sharing content based on analysis
+  const generateSharingContent = (analysis: AnalysisData, template: SharingTemplate): string => {
+    const emotion = getEmotionTranslation(analysis.primary_emotion, language);
+    const confidence = Math.round(analysis.primary_confidence * 100);
+    
+    return template.content
+      .replace('{{petName}}', petName)
+      .replace('{{emotion}}', emotion)
+      .replace('{{confidence}}', confidence.toString())
+      .replace('{{date}}', format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it }));
   };
 
-  if (analyses.length === 0) {
-    return (
-      <Card className="text-center p-8">
-        <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-semibold mb-2">{getText('noResults')}</h3>
-        <p className="text-muted-foreground">
-          {getText('loadFile')}
-        </p>
-      </Card>
-    );
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 90) return 'text-green-600';
-    if (confidence >= 75) return 'text-yellow-600';
-    if (confidence >= 60) return 'text-orange-600';
-    return 'text-red-600';
-  };
-
-  const getConfidenceLabel = (confidence: number) => {
-    if (confidence >= 90) return getText('veryHigh');
-    if (confidence >= 75) return getText('high'); 
-    if (confidence >= 60) return getText('medium');
-    return getText('low');
+  const shareAnalysis = async (analysis: AnalysisData) => {
+    setShareDialogOpen(true);
   };
 
   const addToDiary = async (analysis: AnalysisData) => {
@@ -872,30 +553,33 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     }
 
     try {
-      // Create diary entry with analysis data
-      const emotionTranslation = getEmotionTranslation(analysis.primary_emotion, language);
-      const diaryData = {
-        title: `${getText('emotionalAnalysis')} - ${emotionTranslation}`,
-        content: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}:\n\n${getText('primaryEmotion')}: ${emotionTranslation} (${Math.round(analysis.primary_confidence * 100)}% ${getText('confidence')})\n\n${getText('insights')}: ${analysis.behavioral_insights}\n\n${getText('recommendations')}:\n${analysis.recommendations.map(r => `• ${r}`).join('\n')}\n\n${getText('identifiedTriggers')}: ${analysis.triggers.join(', ')}`,
-        mood_score: analysis.primary_emotion === 'felice' ? 8 : 
-                   analysis.primary_emotion === 'calmo' ? 7 : 
-                   analysis.primary_emotion === 'triste' ? 3 : 
-                   analysis.primary_emotion === 'ansioso' ? 4 : 5,
-        behavioral_tags: [analysis.primary_emotion, ...Object.keys(analysis.secondary_emotions)],
-        entry_date: format(new Date(), 'yyyy-MM-dd'),
+      const diaryEntry = {
+        user_id: (await supabase.auth.getUser()).data.user?.id,
         pet_id: selectedPet.id,
-        user_id: selectedPet.user_id
+        title: `${getText('emotionalAnalysis')} - ${getEmotionTranslation(analysis.primary_emotion, language)}`,
+        content: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd MMMM yyyy', { locale: it })}\n\n${getText('primaryEmotion')}: ${getEmotionTranslation(analysis.primary_emotion, language)} (${Math.round(analysis.primary_confidence * 100)}% ${getText('confidence')})\n\n${getText('insights')}:\n${translateAnalysisData(analysis.behavioral_insights, 'insights')}\n\n${getText('recommendations')}:\n${analysis.recommendations.map(rec => `• ${rec}`).join('\n')}`,
+        entry_date: analysis.created_at,
+        mood_score: Math.round(analysis.primary_confidence * 10),
+        behavioral_tags: [analysis.primary_emotion, ...Object.keys(analysis.secondary_emotions || {})],
+        analysis_metadata: {
+          analysis_id: analysis.id,
+          file_name: analysis.file_name,
+          confidence: analysis.primary_confidence,
+          secondary_emotions: analysis.secondary_emotions,
+          triggers: analysis.triggers
+        }
       };
 
       const { error } = await supabase
         .from('diary_entries')
-        .insert(diaryData);
+        .insert(diaryEntry);
 
       if (error) throw error;
-      
+
       showToast({
         title: getText('success'),
         description: getText('addedSuccessfully'),
+        variant: "default"
       });
     } catch (error) {
       console.error('Error adding to diary:', error);
@@ -908,44 +592,43 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   };
 
   const scheduleFollowUp = async (analysis: AnalysisData) => {
-      if (!selectedPet) {
-        showToast({
-          title: getText('error'),
-          description: getText('selectPet'),
-          variant: "destructive"
-        });
-        return;
-      }
+    if (!selectedPet) {
+      showToast({
+        title: getText('error'),
+        description: getText('selectPet'),
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
-      // Calculate suggested follow-up date (7 days from now)
       const followUpDate = new Date();
-      followUpDate.setDate(followUpDate.getDate() + 7);
-      
-      // Create calendar event for follow-up
-      const eventData = {
-        title: `Follow-up analisi emotiva - ${petName}`,
-        description: `Controllo comportamentale programmato dopo l'analisi del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}.\n\nEmozione rilevata: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}% confidenza)\n\nNote: Verificare il comportamento e l'umore del pet, confrontare con i risultati precedenti.`,
-        start_time: followUpDate.toISOString(),
-        end_time: new Date(followUpDate.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
-        category: 'behavioral_check',
+      followUpDate.setDate(followUpDate.getDate() + 7); // Schedule for next week
+
+      const event = {
+        user_id: (await supabase.auth.getUser()).data.user?.id,
         pet_id: selectedPet.id,
-        user_id: selectedPet.user_id,
-        notes: `Analisi di riferimento: ${analysis.id}\nRaccomandazioni da verificare: ${analysis.recommendations.slice(0, 2).join(', ')}`
+        title: `Follow-up ${getEmotionTranslation(analysis.primary_emotion, language)}`,
+        description: `Controllo di follow-up per l'analisi emotiva del ${format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}`,
+        start_time: followUpDate.toISOString(),
+        event_type: 'follow_up',
+        reminder_time: 60, // 1 hour before
+        analysis_reference: analysis.id
       };
 
       const { error } = await supabase
         .from('calendar_events')
-        .insert(eventData);
+        .insert(event);
 
       if (error) throw error;
 
       showToast({
         title: getText('followUpScheduled'),
-        description: `${getText('reminderCreated')} ${format(followUpDate, 'dd/MM/yyyy HH:mm', { locale: it })} ${getText('inCalendar')}`,
+        description: `${getText('reminderCreated')} ${format(followUpDate, 'dd/MM/yyyy', { locale: it })} ${getText('inCalendar')}`,
+        variant: "default"
       });
     } catch (error) {
-      console.error('Error creating follow-up event:', error);
+      console.error('Error scheduling follow-up:', error);
       showToast({
         title: getText('error'),
         description: getText('cannotCreateReminder'),
@@ -954,144 +637,40 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     }
   };
 
-  const shareToSocial = (platform: string, template: SharingTemplate, analysis: AnalysisData) => {
-    if (!selectedPet) return;
-
-    let content = template.content;
-    const currentUrl = window.location.href;
-    
-    // Replace variables in template
-    content = content.replace(/\{\{pet_name\}\}/g, petName);
-    content = content.replace(/\{\{emotion\}\}/g, analysis.primary_emotion);
-    content = content.replace(/\{\{confidence\}\}/g, analysis.primary_confidence.toString());
-    content = content.replace(/\{\{insights\}\}/g, analysis.behavioral_insights);
-    content = content.replace(/\{\{url\}\}/g, currentUrl);
-
-    let shareUrl = '';
-    
-    switch (platform) {
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(content)}`;
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(content)}`;
-        break;
-      case 'instagram':
-        // Instagram web interface
-        shareUrl = `https://www.instagram.com/`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${encodeURIComponent(content)}`;
-        break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`;
-        break;
-    }
-
-    if (shareUrl) {
-      window.open(shareUrl, '_blank', 'width=600,height=400');
-    }
-  };
-
-  const shareAnalysis = (analysis: AnalysisData) => {
-    setShareDialogOpen(true);
-  };
-
-  const downloadReport = (analysis: AnalysisData) => {
+  const downloadReport = async (analysis: AnalysisData) => {
     try {
       const pdf = new jsPDF();
       
-      // Set font
-      pdf.setFont('helvetica', 'normal');
-      
-      let yPosition = 20;
-      const lineHeight = 7;
-      const pageWidth = pdf.internal.pageSize.width;
-      const margin = 20;
-      const contentWidth = pageWidth - (margin * 2);
-      
-      // Helper function to add text with word wrap
-      const addText = (text: string, fontSize: number = 12, isBold: boolean = false) => {
-        pdf.setFontSize(fontSize);
-        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
-        
-        if (text.length > 60) {
-          const lines = pdf.splitTextToSize(text, contentWidth);
-          lines.forEach((line: string) => {
-            if (yPosition > 270) {
-              pdf.addPage();
-              yPosition = 20;
-            }
-            pdf.text(line, margin, yPosition);
-            yPosition += lineHeight;
-          });
-        } else {
-          if (yPosition > 270) {
-            pdf.addPage();
-            yPosition = 20;
-          }
-          pdf.text(text, margin, yPosition);
-          yPosition += lineHeight;
-        }
-        yPosition += 3; // Extra spacing
-      };
-
       // Title
-      addText(`REPORT ANALISI EMOTIVA - ${petName.toUpperCase()}`, 16, true);
-      yPosition += 5;
+      pdf.setFontSize(20);
+      pdf.text(`Analisi Emotiva - ${petName}`, 20, 30);
       
-      // Header info
-      addText(`Data Analisi: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 10);
-      addText(`File Analizzato: ${getReadableAnalysisName(analysis, language)}`, 10);
-      addText(`Dimensione File: ${formatFileSize(analysis.file_size)}`, 10);
-      addText(`Durata Analisi: ${String(analysis.analysis_duration)}`, 10);
-      yPosition += 10;
-
-      // Primary results
-      addText('RISULTATI PRIMARI', 14, true);
-      addText(`Emozione Principale: ${analysis.primary_emotion.toUpperCase()}`, 12);
-      addText(`Livello di Confidenza: ${Math.round(analysis.primary_confidence * 100)}% (${getConfidenceLabel(Math.round(analysis.primary_confidence * 100))})`, 12);
-      yPosition += 10;
-
-      // Secondary emotions
-      addText('EMOZIONI SECONDARIE', 14, true);
-      Object.entries(analysis.secondary_emotions).forEach(([emotion, confidence]) => {
-        addText(`${emotion}: ${confidence}%`, 10);
-      });
-      yPosition += 10;
-
+      // Analysis details
+      pdf.setFontSize(14);
+      pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 20, 50);
+      pdf.text(`Emozione Primaria: ${getEmotionTranslation(analysis.primary_emotion, language)}`, 20, 70);
+      pdf.text(`Confidenza: ${Math.round(analysis.primary_confidence * 100)}%`, 20, 90);
+      
       // Behavioral insights
-      addText(getText('behavioralAnalysis').toUpperCase(), 14, true);
-      addText(analysis.behavioral_insights, 10);
-      yPosition += 10;
-
+      pdf.setFontSize(12);
+      pdf.text('Insights Comportamentali:', 20, 120);
+      const insights = pdf.splitTextToSize(translateAnalysisData(analysis.behavioral_insights, 'insights'), 170);
+      pdf.text(insights, 20, 140);
+      
       // Recommendations
-      addText('RACCOMANDAZIONI', 14, true);
-      analysis.recommendations.forEach((recommendation, index) => {
-        addText(`${index + 1}. ${recommendation}`, 10);
+      let yPosition = 140 + (insights.length * 7);
+      pdf.text('Raccomandazioni:', 20, yPosition + 20);
+      analysis.recommendations.forEach((rec, index) => {
+        pdf.text(`• ${rec}`, 25, yPosition + 40 + (index * 10));
       });
-      yPosition += 10;
-
-      // Triggers
-      if (analysis.triggers && analysis.triggers.length > 0) {
-        addText(getText('identifiedTriggers').toUpperCase(), 14, true);
-        analysis.triggers.forEach((trigger, index) => {
-          addText(`• ${trigger}`, 10);
-        });
-        yPosition += 10;
-      }
-
-      // Footer
-      addText(`Report generato il ${format(new Date(), 'dd/MM/yyyy HH:mm', { locale: it })}`, 8);
-      addText('PetVoice - Analisi Emotiva Avanzata', 8);
-
-      // Save the PDF
-      const fileName = `analisi-emotiva-${petName}-${format(new Date(analysis.created_at), 'yyyy-MM-dd-HHmm')}.pdf`;
+      
+      const fileName = `analisi_${petName}_${format(new Date(analysis.created_at), 'yyyyMMdd_HHmm', { locale: it })}.pdf`;
       pdf.save(fileName);
       
       showToast({
         title: getText('reportGenerated'),
         description: `${getText('reportSaved')} ${fileName}`,
+        variant: "default"
       });
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -1100,6 +679,50 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         description: getText('cannotGenerateReport'),
         variant: "destructive"
       });
+    }
+  };
+
+  const handleStartProtocol = async (emotion: string) => {
+    if (!selectedPet) {
+      showToast({
+        title: getText('error'),
+        description: getText('selectPet'),
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Mostra toast di avvio
+      showToast({
+        title: getText('protocolStarting'),
+        description: 'Creazione protocollo personalizzato...',
+        variant: "default"
+      });
+
+      // Reindirizza direttamente al training per avvio automatico
+      showToast({
+        title: getText('protocolStarted'),
+        description: `Avvio protocollo per ${getEmotionTranslation(emotion, language)}`,
+        variant: "default"
+      });
+
+        // Reindirizza al training
+        window.location.href = '/training';
+      } else {
+        // Fallback: vai alla pagina training con filtro emozione
+        window.location.href = `/training?emotion=${emotion}`;
+      }
+    } catch (error) {
+      console.error('Error starting protocol:', error);
+      showToast({
+        title: getText('protocolStartError'),
+        description: 'Impossibile avviare il protocollo. Riprova più tardi.',
+        variant: "destructive"
+      });
+      
+      // Fallback in caso di errore
+      window.location.href = `/training?emotion=${emotion}`;
     }
   };
 
@@ -1221,462 +844,139 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="emotions">{getText('emotionsTab')}</TabsTrigger>
                 <TabsTrigger value="insights">{getText('insightsTab')}</TabsTrigger>
-                <TabsTrigger value="recommendations">{getText('adviceTab')}</TabsTrigger>
+                <TabsTrigger value="advice">{getText('adviceTab')}</TabsTrigger>
                 <TabsTrigger value="triggers">{getText('triggersTab')}</TabsTrigger>
                 <TabsTrigger value="audio">{getText('audioTab')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="emotions" className="space-y-4">
+                {/* Secondary Emotions */}
                 <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <Activity className="h-4 w-4" />
-                    {getText('secondaryEmotions')}
-                  </h4>
-                  <div className="space-y-3">
-                    {Object.entries(selectedAnalysis.secondary_emotions).map(([emotion, confidence]) => (
-                      <div key={emotion} className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span className="flex items-center gap-2">
-                            <span>{EMOTION_ICONS[emotion] || '🔹'}</span>
-                            {getEmotionTranslation(emotion, language)}
-                          </span>
-                          <span className="font-medium">{confidence}%</span>
-                        </div>
-                        <Progress value={confidence} className="h-2" />
-                      </div>
-                    ))}
-                  </div>
+                  <h3 className="font-medium mb-3">{getText('secondaryEmotions')}</h3>
+                  {selectedAnalysis.secondary_emotions && Object.keys(selectedAnalysis.secondary_emotions).length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(selectedAnalysis.secondary_emotions).map(([emotion, confidence]) => (
+                        <Badge 
+                          key={emotion}
+                          variant="outline" 
+                          className={cn(
+                            "text-sm",
+                            EMOTION_COLORS[emotion] || 'text-gray-500 bg-gray-500/10'
+                          )}
+                        >
+                          {getEmotionTranslation(emotion, language)} ({Math.round((confidence as number) * 100)}%)
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">Nessuna emozione secondaria rilevata</p>
+                  )}
                 </div>
               </TabsContent>
 
               <TabsContent value="insights" className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                  <h4 className="font-medium mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                    <Brain className="h-4 w-4" />
-                    {getText('behavioralAnalysis')}
-                  </h4>
-                  <p className="text-blue-800 dark:text-blue-200">
-                    {translateAnalysisData(selectedAnalysis.behavioral_insights, 'insights')}
-                  </p>
+                <div>
+                  <h3 className="font-medium mb-3">{getText('behavioralAnalysis')}</h3>
+                  <div className="p-4 bg-secondary/50 rounded-lg">
+                    <p className="text-sm leading-relaxed">
+                      {translateAnalysisData(selectedAnalysis.behavioral_insights, 'insights')}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Environmental Context */}
-                <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                  <h4 className="font-medium mb-2 flex items-center gap-2 text-green-700 dark:text-green-300">
-                    <Zap className="h-4 w-4" />
-                    {getText('environmentalContext')}
-                  </h4>
+                <div>
+                  <h3 className="font-medium mb-3">{getText('environmentalContext')}</h3>
                   <WeatherContextInfo analysisDate={selectedAnalysis.created_at} />
                 </div>
               </TabsContent>
 
-              <TabsContent value="recommendations" className="space-y-4">
-
-                {/* AI Music Therapy Recommendations - Solo per emozioni negative */}
+              <TabsContent value="advice" className="space-y-4">
+                {/* AI Music Therapy - Solo per emozioni negative */}
                 {(() => {
-                  const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
-                  if (!playlist) {
+                  const playlist = getRecommendedPlaylist(selectedAnalysis.primary_emotion, Math.round(selectedAnalysis.primary_confidence * 100));
+                  if (playlist) {
                     return (
-                      <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 rounded-lg border">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                            <Heart className="h-5 w-5 text-green-600" />
-                          </div>
+                      <div className="p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <AudioLines className="h-5 w-5 text-purple-600" />
+                          <h3 className="font-medium text-purple-700">{getText('aiMusicTherapy')}</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
                           <div>
-                            <h5 className="font-medium text-green-800 dark:text-green-200 mb-1">
-                              ✨ {petName} {getText('petIsWell')}
-                            </h5>
-                            <p className="text-sm text-green-700 dark:text-green-300">
-                              {getText('emotionDetected')} "{getEmotionTranslation(selectedAnalysis.primary_emotion, language)}" {getText('detected')} {getText('positiveEmotionalState')}
-                            </p>
+                            <p className="font-medium text-purple-800">{playlist.name}</p>
+                            <p className="text-sm text-purple-600">{playlist.description}</p>
                           </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-purple-600">Frequenza:</span>
+                              <p className="font-medium">{playlist.frequency}</p>
+                            </div>
+                            <div>
+                              <span className="text-purple-600">Durata:</span>
+                              <p className="font-medium">{playlist.duration} min</p>
+                            </div>
+                          </div>
+                          
+                          <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded text-xs text-purple-700">
+                            <strong>Motivazione IA:</strong> {playlist.reasoning}
+                          </div>
+                          
+                          <Button 
+                            size="sm" 
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            onClick={() => {
+                              showToast({
+                                title: "Sessione Musicoterapia",
+                                description: `Avvio playlist "${playlist.name}" per ${playlist.duration} minuti`,
+                                variant: "default"
+                              });
+                            }}
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            {getText('startMusicTherapy')}
+                          </Button>
                         </div>
                       </div>
                     );
                   }
-                  
-                  return (
-                    <div>
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <AudioLines className="h-4 w-4" />
-                        {getText('aiMusicTherapy')}
-                      </h4>
-                      <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 rounded-lg border">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg">
-                            <AudioLines className="h-5 w-5 text-purple-600" />
-                          </div>
-                          <div className="flex-1">
-                            <h5 className="font-medium text-purple-800 dark:text-purple-200 mb-2">
-                              {playlist.name}
-                            </h5>
-                            <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
-                              {playlist.description}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs text-purple-600 dark:text-purple-400 mb-3">
-                              <span>🎵 {playlist.frequency}</span>
-                              <span>⏱️ {playlist.duration} min</span>
-                              <span>🎯 {getText('confidenceColon')} {Math.round(selectedAnalysis.primary_confidence * 100)}%</span>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="bg-purple-600 hover:bg-purple-700 text-white"
-                              onClick={() => {
-                                const playlistData = encodeURIComponent(JSON.stringify({
-                                  ...playlist,
-                                  emotion: selectedAnalysis.primary_emotion,
-                                  confidence: Math.round(selectedAnalysis.primary_confidence * 100),
-                                  autoStart: true
-                                }));
-                                const url = `/ai-music-therapy?petId=${selectedPet?.id}&playlist=${playlistData}&autoStart=true`;
-                                console.log('DEBUG - Generated URL:', url);
-                                console.log('DEBUG - Playlist data:', playlist);
-                                window.location.href = url;
-                              }}
-                            >
-                              <AudioLines className="h-3 w-3 mr-1" />
-                              {getText('startMusicTherapy')}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
+                  return null;
                 })()}
 
-                {/* Training Protocol Recommendation - Solo per risultati negativi */}
+                {/* Training Protocol - Solo per emozioni che richiedono intervento */}
                 {(() => {
                   const negativeEmotions = [
-                    'ansia', 'ansioso', 
-                    'paura', 'pauroso', 'spaventato', 'terrorizzato',
-                    'stress', 'stressato', 
-                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
-                    'tristezza', 'triste', 'melanconico', 
-                    'depressione', 'depresso', 'abbattuto',
-                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
-                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
-                    'dolore', 'sofferente', 'malessere'
+                    'ansia', 'ansioso', 'stress', 'stressato', 'aggressivo', 'aggressivita', 'iperattivo', 'iperattivita',
+                    'depresso', 'triste', 'paura', 'pauroso', 'nervoso', 'agitato', 'irritato'
                   ];
-                  const isNegativeEmotion = negativeEmotions.some(emotion => 
-                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
-                  );
                   
-                  if (isNegativeEmotion) {
+                  if (negativeEmotions.some(emotion => 
+                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion) ||
+                    Object.keys(selectedAnalysis.secondary_emotions || {}).some(secEmotion => 
+                      secEmotion.toLowerCase().includes(emotion)
+                    )
+                  )) {
                     return (
-                      <div className="mt-6">
-                        <h4 className="font-medium mb-3 flex items-center gap-2">
-                          <Target className="h-4 w-4" />
-                          {getText('trainingProtocol')}
-                        </h4>
-                        <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-lg border">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/50 rounded-lg">
-                              <Target className="h-5 w-5 text-green-600" />
-                            </div>
-                             <div className="flex-1">
-                               <h5 className="font-medium text-green-800 dark:text-green-200 mb-2">
-                                 {(() => {
-                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                   
-                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                       emotion.includes('stress') || emotion.includes('stressato') ||
-                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                     return getText('anxietySeparationManagement');
-                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                              emotion.includes('irritato')) {
-                                     return getText('aggressionControl');
-                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                     return getText('fearPhobiaOvercoming');
-                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                     return getText('hyperactivityManagement');
-                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                              emotion.includes('depresso') || emotion.includes('depressione') ||
-                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                     return getText('emotionalSupportWellness');
-                                   } else {
-                                     return getText('generalBehaviorManagement');
-                                   }
-                                 })()}
-                               </h5>
-                               <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                                 {getText('generalProtocolDesc')}
-                               </p>
-                               <div className="grid grid-cols-2 gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
-                                 <div>
-                                   <span className="font-medium">Durata:</span> 7-14 giorni
-                                 </div>
-                                 <div>
-                                   <span className="font-medium">Difficoltà:</span> Intermedio
-                                 </div>
-                                 <div>
-                                   <span className="font-medium">Categoria:</span> Comportamentale
-                                 </div>
-                                 <div>
-                                   <span className="font-medium">Successo:</span> 85%
-                                 </div>
-                               </div>
-                             </div>
-                             <div className="flex gap-2">
-                               <Button
-                                 size="sm"
-                                 className="bg-green-600 hover:bg-green-700 text-white"
-                                 onClick={() => {
-                                   window.location.href = '/training';
-                                 }}
-                               >
-                                 <Target className="h-3 w-3 mr-1" />
-                                 Inizia Protocollo
-                               </Button>
-                             </div>
-                           </div>
-                         </div>
-                       </div>
-                     );
-                   }
-                   return null;
-                 })()}
-                               <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400 mb-3">
-                                 {(() => {
-                                   const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                   
-                                   // Dati reali dei protocolli dal database
-                                   if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                       emotion.includes('stress') || emotion.includes('stressato') ||
-                                       emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                     return (
-                                       <>
-                                          <span>📅 3 {getText('days')}</span>
-                                          <span>🎯 {getText('level')} {getText('medium')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                              emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                              emotion.includes('irritato')) {
-                                     return (
-                                       <>
-                                          <span>📅 3 {getText('days')}</span>
-                                          <span>🎯 {getText('level')} {getText('difficult')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                              emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                     return (
-                                       <>
-                                          <span>📅 42 {getText('days')}</span>
-                                          <span>🎯 {getText('level')} {getText('difficult')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                              emotion.includes('nervoso') || emotion.includes('irrequieto')) {
-                                     return (
-                                       <>
-                                          <span>📅 28 {getText('days')}</span>
-                                          <span>🎯 {getText('level')} {getText('medium')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                              emotion.includes('depresso') || emotion.includes('depressione') ||
-                                              emotion.includes('abbattuto') || emotion.includes('melanconico')) {
-                                     return (
-                                       <>
-                                          <span>📅 28 {getText('days')}</span>
-                                          <span>🎯 {getText('level')} {getText('medium')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   } else {
-                                     return (
-                                       <>
-                                          <span>📅 {getText('variable')}</span>
-                                          <span>🎯 {getText('level')} {getText('personalized')}</span>
-                                          <span>📊 {getText('basedOn')} {selectedAnalysis.primary_emotion}</span>
-                                       </>
-                                     );
-                                   }
-                                 })()}
-                               </div>
-                                <Button 
-                                  size="sm" 
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={async () => {
-                                    const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                    let protocolId = '';
-                                    
-                                    // Mappa l'emozione al protocollo ID corretto dal database (IDs aggiornati)
-                                    if (emotion.includes('ansia') || emotion.includes('ansioso') || 
-                                        emotion.includes('stress') || emotion.includes('stressato') ||
-                                        emotion.includes('preoccupato') || emotion.includes('inquieto')) {
-                                      protocolId = 'd19a882e-db8b-47f4-b760-371379f0a7ad'; // Gestione Ansia da Separazione
-                                    } else if (emotion.includes('aggressiv') || emotion.includes('arrabbiato') || 
-                                               emotion.includes('rabbioso') || emotion.includes('frustrato') ||
-                                               emotion.includes('irritato')) {
-                                      protocolId = 'abe1baef-06fe-4850-aaf6-1defa06a2dff'; // Controllo Aggressività Reattiva
-                                    } else if (emotion.includes('paura') || emotion.includes('pauroso') || 
-                                               emotion.includes('spaventato') || emotion.includes('terrorizzato')) {
-                                      protocolId = '12a29252-4ef5-4564-b943-46377ac252f9'; // Superare Fobie e Paure Specifiche
-                                    } else if (emotion.includes('agitato') || emotion.includes('agitazione') ||
-                                               emotion.includes('nervoso') || emotion.includes('irrequieto') ||
-                                               emotion.includes('iperattiv')) {
-                                      protocolId = 'f1e2d3c4-b5a6-4d5c-8f9e-1a2b3c4d5e6f'; // Gestione Iperattività e Deficit Attenzione
-                                    } else if (emotion.includes('triste') || emotion.includes('tristezza') ||
-                                               emotion.includes('depresso') || emotion.includes('depressione') ||
-                                               emotion.includes('abbattuto') || emotion.includes('melanconico') ||
-                                               emotion.includes('apatico') || emotion.includes('letargico')) {
-                                      protocolId = '14b93624-bc7d-4bfd-9484-b4811880838c'; // Riattivazione Energia e Motivazione
-                                    } else if (emotion.includes('timido') || emotion.includes('insicuro') ||
-                                               emotion.includes('riservato') || emotion.includes('introverso')) {
-                                      protocolId = '1ece2f5b-29cf-4f36-9987-26523a96e3f6'; // Socializzazione Progressiva
-                                    } else if (emotion.includes('geloso') || emotion.includes('possessiv') ||
-                                               emotion.includes('invidioso')) {
-                                      protocolId = 'ad9c3aef-ba6c-4994-8d3f-91f4e8dc2b5e'; // Gestione Gelosia e Possessività
-                                    } else if (emotion.includes('distruttiv') || emotion.includes('disobbedient') ||
-                                               emotion.includes('ribelle')) {
-                                      protocolId = '7036439d-8a2d-43dd-8a62-71b866f7b661'; // Stop Comportamenti Distruttivi
-                                    } else {
-                                      // Fallback - vai alla lista generale
-                                      window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
-                                      return;
-                                    }
-                                    
-                                    try {
-                                      // Ottieni l'utente corrente
-                                      const { data: { user } } = await supabase.auth.getUser();
-                                      if (!user) {
-                                        console.error('User not authenticated');
-                                        return;
-                                      }
-
-                                      // Ottieni il protocollo pubblico originale
-                                      const { data: originalProtocol, error: protocolError } = await supabase
-                                        .from('ai_training_protocols')
-                                        .select('*')
-                                        .eq('id', protocolId)
-                                        .eq('is_public', true)
-                                        .single();
-
-                                      if (protocolError || !originalProtocol) {
-                                        console.error('Error fetching protocol:', protocolError);
-                                        // Fallback
-                                        window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
-                                        return;
-                                      }
-
-                                      // Verifica se l'utente ha già questo protocollo attivo
-                                      const { data: existingProtocol } = await supabase
-                                        .from('ai_training_protocols')
-                                        .select('id, status')
-                                        .eq('user_id', user.id)
-                                        .eq('title', originalProtocol.title)
-                                        .single();
-
-                                      if (existingProtocol) {
-                                        // Se esiste già, vai direttamente al protocollo esistente
-                                        window.location.href = `/training/dashboard/${existingProtocol.id}`;
-                                        return;
-                                      }
-
-                                      // Crea una nuova copia del protocollo per l'utente
-                                      const newProtocol = {
-                                        title: originalProtocol.title,
-                                        description: originalProtocol.description,
-                                        category: originalProtocol.category,
-                                        difficulty: originalProtocol.difficulty,
-                                        duration_days: originalProtocol.duration_days,
-                                        target_behavior: originalProtocol.target_behavior,
-                                        triggers: originalProtocol.triggers,
-                                        required_materials: originalProtocol.required_materials,
-                                        current_day: 1,
-                                        progress_percentage: 0,
-                                        status: 'active',
-                                        success_rate: 0,
-                                        ai_generated: false,
-                                        is_public: false,
-                                        veterinary_approved: false,
-                                        community_rating: 0,
-                                        community_usage: 0,
-                                        mentor_recommended: false,
-                                        notifications_enabled: true,
-                                        last_activity_at: new Date().toISOString(),
-                                        user_id: user.id,
-                                        pet_id: null,
-                                        integration_source: 'analysis',
-                                        estimated_cost: null,
-                                        share_code: null,
-                                      };
-
-                                      const { data: createdProtocol, error: createError } = await supabase
-                                        .from('ai_training_protocols')
-                                        .insert({
-                                          title: newProtocol.title,
-                                          description: newProtocol.description,
-                                          category: newProtocol.category,
-                                          difficulty: newProtocol.difficulty,
-                                          duration_days: newProtocol.duration_days,
-                                          status: newProtocol.status,
-                                          target_behavior: newProtocol.target_behavior,
-                                          triggers: newProtocol.triggers,
-                                          required_materials: newProtocol.required_materials,
-                                          ai_generated: newProtocol.ai_generated,
-                                          veterinary_approved: newProtocol.veterinary_approved,
-                                          is_public: newProtocol.is_public,
-                                          success_rate: newProtocol.success_rate,
-                                          community_rating: newProtocol.community_rating,
-                                          user_id: newProtocol.user_id,
-                                        })
-                                        .select()
-                                        .single();
-
-                                      if (createError) {
-                                        console.error('Error creating protocol:', createError);
-                                        return;
-                                      }
-
-                                      // Copia tutti gli esercizi dal protocollo originale
-                                      const { data: originalExercises, error: exercisesError } = await supabase
-                                        .from('ai_training_exercises')
-                                        .select('*')
-                                        .eq('protocol_id', protocolId);
-
-                                      if (!exercisesError && originalExercises && originalExercises.length > 0) {
-                                        const exercisesToCopy = originalExercises.map(exercise => ({
-                                          protocol_id: createdProtocol.id,
-                                          title: exercise.title,
-                                          description: exercise.description,
-                                          exercise_type: exercise.exercise_type,
-                                          day_number: exercise.day_number,
-                                          duration_minutes: exercise.duration_minutes,
-                                          instructions: exercise.instructions,
-                                          materials: exercise.materials,
-                                          effectiveness_score: exercise.effectiveness_score,
-                                        }));
-
-                                        await supabase
-                                          .from('ai_training_exercises')
-                                          .insert(exercisesToCopy);
-                                      }
-
-                                      // Vai al protocollo appena creato
-                                      window.location.href = `/training/dashboard/${createdProtocol.id}`;
-                                      
-                                    } catch (error) {
-                                      console.error('Error starting protocol from analysis:', error);
-                                      // Fallback in caso di errore
-                                      window.location.href = `/training?emotion=${selectedAnalysis.primary_emotion}`;
-                                    }
-                                  }}
-                               >
-                                <Target className="h-3 w-3 mr-1" />
-                                {getText('startTrainingProtocol')}
-                              </Button>
-                            </div>
-                          </div>
+                      <div className="p-4 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Target className="h-5 w-5 text-green-600" />
+                          <h3 className="font-medium text-green-700">{getText('trainingProtocol')}</h3>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <p className="text-sm text-green-600">
+                            Protocollo di training consigliato per {getEmotionTranslation(selectedAnalysis.primary_emotion, language)}
+                          </p>
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleStartProtocol(selectedAnalysis.primary_emotion)}
+                          >
+                            <Target className="h-3 w-3 mr-1" />
+                            {getText('startTrainingProtocol')}
+                          </Button>
                         </div>
                       </div>
                     );
@@ -1687,144 +987,69 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                 {/* Raccomandazioni Personalizzate - Solo per emozioni negative */}
                 {(() => {
                   const negativeEmotions = [
-                    'ansia', 'ansioso', 
-                    'paura', 'pauroso', 'spaventato', 'terrorizzato',
-                    'stress', 'stressato', 
-                    'aggressività', 'aggressivo', 'arrabbiato', 'rabbioso',
-                    'tristezza', 'triste', 'melanconico', 
-                    'depressione', 'depresso', 'abbattuto',
-                    'agitazione', 'agitato', 'nervoso', 'irrequieto',
-                    'frustrato', 'irritato', 'preoccupato', 'inquieto',
-                    'dolore', 'sofferente', 'malessere'
+                    'ansia', 'ansioso', 'stress', 'stressato', 'aggressivo', 'aggressivita', 'iperattivo', 'iperattivita',
+                    'depresso', 'triste', 'paura', 'pauroso', 'nervoso', 'agitato', 'irritato'
                   ];
-                  const isNegativeEmotion = negativeEmotions.some(emotion => 
-                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion)
-                  );
                   
-                  if (isNegativeEmotion && selectedPet) {
+                  if (!negativeEmotions.some(emotion => 
+                    selectedAnalysis.primary_emotion.toLowerCase().includes(emotion) ||
+                    Object.keys(selectedAnalysis.secondary_emotions || {}).some(secEmotion => 
+                      secEmotion.toLowerCase().includes(emotion)
+                    )
+                  )) {
                     return (
-                      <div className="mt-6">
-                        <h4 className="font-medium mb-3 flex items-center gap-2">
-                          <Brain className="h-4 w-4" />
-                          {getText('personalizedRecommendations')}
-                        </h4>
-                        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg border">
-                          <div className="space-y-3">
-                            {/* Raccomandazioni basate sull'età */}
-                            {selectedPet.age && (
-                              <div className="text-sm">
-                                <span className="font-medium text-blue-800 dark:text-blue-200">Età ({selectedPet.age} anni): </span>
-                                <span className="text-blue-700 dark:text-blue-300">
-                                  {selectedPet.age < 1 ? "Pazienza extra - i cuccioli hanno bisogno di tempi di adattamento più lunghi" :
-                                   selectedPet.age < 3 ? "Energia giovanile - aumenta l'attività fisica per ridurre stress" :
-                                   selectedPet.age < 7 ? "Fase adulta - mantieni routine costanti per stabilità" :
-                                   "Età senior - riduci i cambiamenti bruschi e aumenta il comfort"}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* Raccomandazioni basate sulla razza */}
-                            {selectedPet.breed && (
-                              <div className="text-sm">
-                                <span className="font-medium text-blue-800 dark:text-blue-200">Razza ({selectedPet.breed}): </span>
-                                <span className="text-blue-700 dark:text-blue-300">
-                                  {selectedPet.breed.toLowerCase().includes('border') ? "Razza intelligente - stimoli mentali quotidiani sono essenziali" :
-                                   selectedPet.breed.toLowerCase().includes('labrador') ? "Razza socievole - aumenta le interazioni positive" :
-                                   selectedPet.breed.toLowerCase().includes('golden') ? "Temperamento dolce - rinforzi positivi molto efficaci" :
-                                   selectedPet.breed.toLowerCase().includes('pastore') ? "Razza protettiva - lavora sulla socializzazione graduale" :
-                                   "Considera le caratteristiche specifiche della razza per il training"}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* Raccomandazioni basate sul peso */}
-                            {selectedPet.weight && (
-                              <div className="text-sm">
-                                <span className="font-medium text-blue-800 dark:text-blue-200">Peso ({selectedPet.weight}kg): </span>
-                                <span className="text-blue-700 dark:text-blue-300">
-                                  {selectedPet.weight < 5 ? "Piccola taglia - sessioni brevi (5-10 min) ma frequenti" :
-                                   selectedPet.weight < 20 ? "Media taglia - sessioni standard (15-20 min)" :
-                                   "Grande taglia - sessioni più lunghe (20-30 min) con pause"}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* Raccomandazioni basate sulle condizioni di salute */}
-                            {selectedPet.health_conditions && selectedPet.health_conditions.length > 0 && (
-                              <div className="text-sm">
-                                <span className="font-medium text-blue-800 dark:text-blue-200">{getText('healthConditions')} </span>
-                                <span className="text-blue-700 dark:text-blue-300">
-                                  {getText('healthAdvice')}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {/* Raccomandazione generale basata sull'emozione */}
-                            <div className="text-sm">
-                              <span className="font-medium text-blue-800 dark:text-blue-200">{getText('forEmotion')} "{selectedAnalysis.primary_emotion}": </span>
-                              <span className="text-blue-700 dark:text-blue-300">
-                                {(() => {
-                                  const emotion = selectedAnalysis.primary_emotion.toLowerCase();
-                                   if (emotion.includes('ansia') || emotion.includes('stress')) {
-                                    return getText('anxietyAdvice');
-                                  } else if (emotion.includes('aggressiv') || emotion.includes('frustrato')) {
-                                    return getText('aggressionAdvice');
-                                  } else if (emotion.includes('paura')) {
-                                    return getText('fearAdvice');
-                                  } else if (emotion.includes('triste') || emotion.includes('depresso')) {
-                                    return getText('sadnessAdvice');
-                                  } else {
-                                    return getText('generalAdvice');
-                                  }
-                                })()}
-                              </span>
-                            </div>
-                            
-                            {/* Frequenza delle sessioni personalizzata */}
-                            <div className="text-sm">
-                              <span className="font-medium text-blue-800 dark:text-blue-200">{getText('recommendedFrequency')} </span>
-                              <span className="text-blue-700 dark:text-blue-300">
-                                {selectedPet.age && selectedPet.age < 1 ? getText('shortSessions23') :
-                                 selectedAnalysis.primary_confidence > 80 ? getText('sessions12') :
-                                 getText('session1')}
-                              </span>
-                            </div>
-                          </div>
+                      <div className="p-4 bg-gradient-to-r from-green-500/10 to-yellow-500/10 border border-green-500/20 rounded-lg text-center">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Heart className="h-5 w-5 text-green-600" />
+                          <h3 className="font-medium text-green-700">{petName} {getText('petIsWell')}</h3>
                         </div>
+                        <p className="text-sm text-green-600">{getText('positiveEmotionalState')}</p>
                       </div>
                     );
                   }
-                  return null;
+                  
+                  return (
+                    <div>
+                      <h3 className="font-medium mb-3">{getText('personalizedRecommendations')}</h3>
+                      <div className="space-y-3">
+                        {selectedAnalysis.recommendations.map((recommendation, index) => (
+                          <div key={index} className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg">
+                            <Lightbulb className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                            <p className="text-sm">{recommendation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
                 })()}
               </TabsContent>
 
               <TabsContent value="triggers" className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    {getText('identifiedTriggers')}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {selectedAnalysis.triggers.map((trigger, index) => (
-                      <div key={index} className="p-3 border rounded-lg bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800">
-                        <p className="font-medium text-orange-800 dark:text-orange-200">
-                          {translateAnalysisData(trigger, 'triggers')}
-                        </p>
-                        <p className="text-sm text-orange-600 dark:text-orange-300 mt-1">
-                          {getText('monitorTrigger')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  <h3 className="font-medium mb-3">{getText('identifiedTriggers')}</h3>
+                  {selectedAnalysis.triggers && selectedAnalysis.triggers.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedAnalysis.triggers.map((trigger, index) => (
+                        <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
+                          <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium">{translateAnalysisData(trigger, 'triggers')}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {getText('monitorTrigger')}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">Nessun trigger comportamentale identificato</p>
+                  )}
                 </div>
               </TabsContent>
 
               <TabsContent value="audio" className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <AudioLines className="h-4 w-4" />
-                    {getText('originalRecording')}
-                  </h4>
+                  <h3 className="font-medium mb-3">{getText('originalRecording')}</h3>
                   {selectedAnalysis.file_type.startsWith('audio/') ? (
                     <AudioPlayer 
                       storagePath={selectedAnalysis.storage_path}
@@ -1998,131 +1223,65 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               {/* Summary Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">{comparedAnalyses.length}</div>
-                    <p className="text-xs text-muted-foreground">{language === 'it' ? 'Confronta Analisi' : language === 'es' ? 'Comparar Análisis' : 'Compare Analyses'}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {Math.round(Math.abs(comparedAnalyses[0].primary_confidence - comparedAnalyses[1].primary_confidence) * 100)}%
+                    </p>
+                    <p className="text-sm text-muted-foreground">Differenza Confidenza</p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-2xl font-bold">
-                      {format(new Date(Math.min(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')} - {format(new Date(Math.max(...comparedAnalyses.map(a => new Date(a.created_at).getTime()))), 'dd/MM')}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{language === 'it' ? 'Periodo' : language === 'es' ? 'Período' : 'Period'}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-green-600">
+                      {Math.ceil(Math.abs(new Date(comparedAnalyses[0].created_at).getTime() - new Date(comparedAnalyses[1].created_at).getTime()) / (1000 * 60 * 60 * 24))}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Giorni di Distanza</p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardContent className="pt-6">
-                     <div className="text-2xl font-bold">
-                       {(comparedAnalyses.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / comparedAnalyses.length).toFixed(1)}%
-                     </div>
-                     <p className="text-xs text-muted-foreground">{language === 'it' ? 'Confidenza' : language === 'es' ? 'Confianza' : 'Confidence'}</p>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold text-purple-600">
+                      {comparedAnalyses[0].primary_emotion === comparedAnalyses[1].primary_emotion ? '✓' : '✗'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Emozione Consistente</p>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Detailed Comparison */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Side by side comparison */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {comparedAnalyses.map((analysis, index) => (
                   <Card key={analysis.id}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        {analysis.file_type.startsWith('audio/') ? (
-                          <FileAudio className="h-5 w-5" />
-                        ) : (
-                          <FileVideo className="h-5 w-5" />
-                        )}
-                        {language === 'it' ? 'Analisi' : language === 'es' ? 'Análisis' : 'Analysis'} {index + 1}
+                      <CardTitle className="text-sm">
+                        Analisi {index + 1} - {format(new Date(analysis.created_at), 'dd/MM/yyyy', { locale: it })}
                       </CardTitle>
-                      <CardDescription>
-                        {format(new Date(analysis.created_at), 'dd MMMM yyyy, HH:mm', { locale: it })}
-                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="text-center">
                         <div className="text-4xl mb-2">
                           {EMOTION_ICONS[analysis.primary_emotion] || '🤔'}
                         </div>
-                        <Badge className={cn("mb-2", EMOTION_COLORS[analysis.primary_emotion])}>
+                        <Badge className={cn("mb-2", EMOTION_COLORS[analysis.primary_emotion] || 'text-gray-500 bg-gray-500/10')}>
                           {getEmotionTranslation(analysis.primary_emotion, language)}
                         </Badge>
-                        <div className="text-lg font-bold">{(analysis.primary_confidence * 100).toFixed(0)}%</div>
+                        <Progress value={Math.round(analysis.primary_confidence * 100)} className="h-2 mb-2" />
+                        <p className="font-bold">{Math.round(analysis.primary_confidence * 100)}%</p>
                       </div>
                       
-                       <div className="space-y-2">
-                         <h4 className="font-medium text-sm">{language === 'it' ? 'Emozioni Secondarie' : language === 'es' ? 'Emociones Secundarias' : 'Secondary Emotions'}</h4>
-                        {Object.entries(analysis.secondary_emotions).slice(0, 3).map(([emotion, confidence]) => (
-                          <div key={emotion} className="flex justify-between text-sm">
-                            <span>{emotion}</span>
-                            <span>{confidence}%</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-sm mb-1">{language === 'it' ? 'Insights' : language === 'es' ? 'Insights' : 'Insights'}</h4>
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {analysis.behavioral_insights}
-                        </p>
+                      <div className="text-sm space-y-2">
+                        <div>
+                          <span className="font-medium">Insights:</span>
+                          <p className="text-muted-foreground text-xs mt-1">{analysis.behavioral_insights.substring(0, 100)}...</p>
+                        </div>
+                        <div>
+                          <span className="font-medium">Raccomandazioni:</span>
+                          <p className="text-muted-foreground text-xs mt-1">{analysis.recommendations.length} consigli</p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    try {
-                      const pdf = new jsPDF();
-                      
-                      // Title
-                      pdf.setFontSize(16);
-                      pdf.setFont('helvetica', 'bold');
-                      pdf.text('CONFRONTO ANALISI EMOTIVE - PET VOICE', 20, 20);
-                      
-                      let yPosition = 40;
-                      pdf.setFontSize(14);
-                      pdf.text(`Pet: ${petName}`, 20, yPosition);
-                      yPosition += 20;
-                      
-                      comparedAnalyses.forEach((analysis, index) => {
-                        pdf.setFontSize(12);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.text(`ANALISI ${index + 1}`, 20, yPosition);
-                        yPosition += 10;
-                        
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.text(`Data: ${format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}`, 20, yPosition);
-                        yPosition += 7;
-                        pdf.text(`Emozione: ${analysis.primary_emotion} (${Math.round(analysis.primary_confidence * 100)}%)`, 20, yPosition);
-                        yPosition += 7;
-                        pdf.text(`File: ${getReadableAnalysisName(analysis, language)}`, 20, yPosition);
-                        yPosition += 15;
-                      });
-                      
-                      const fileName = `confronto-analisi-${petName}-${format(new Date(), 'yyyy-MM-dd-HHmm')}.pdf`;
-                      pdf.save(fileName);
-                      
-                      showToast({
-                        title: "Download completato",
-                        description: "Report di confronto scaricato: {fileName}",
-                        variables: { fileName }
-                      });
-                    } catch (error) {
-                      showToast({
-                        title: "Errore",
-                        description: "Impossibile generare il report PDF",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Scarica PDF
-                </Button>
               </div>
             </div>
           )}
@@ -2131,21 +1290,27 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
       {/* Share Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>{getText('shareAnalysisTitle')}</DialogTitle>
+            <DialogTitle>Condividi Analisi</DialogTitle>
             <DialogDescription>
-              {getText('shareAnalysisDescription')} {petName}
+              Scegli una piattaforma per condividere i risultati dell'analisi di {petName}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
-            {templates.slice(0, 4).map((template) => (
-              <Button
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((template) => (
+              <Button 
                 key={template.id}
-                variant="outline"
-                className="h-20 flex-col"
+                variant="outline" 
+                className="h-16"
                 onClick={() => {
-                  shareToSocial(template.platform, template, selectedAnalysis);
+                  const content = generateSharingContent(selectedAnalysis, template);
+                  navigator.clipboard.writeText(content);
+                  showToast({
+                    title: "Contenuto copiato!",
+                    description: `Testo per ${template.platform} copiato negli appunti`,
+                    variant: "default"
+                  });
                   setShareDialogOpen(false);
                 }}
               >
