@@ -533,14 +533,13 @@ const TrainingDashboard: React.FC = () => {
                 {allExercises.map((exercise, index) => (
                   <div
                     key={exercise.id}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm ${
+                    className={`p-3 rounded-lg border transition-all ${
                       completedExercises.has(exercise.id)
-                        ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                        ? 'bg-green-50 border-green-200'
                         : index === currentExerciseIndex
-                        ? 'bg-primary/10 border-primary/20 hover:bg-primary/15'
-                        : 'bg-muted/20 hover:bg-muted/30'
+                        ? 'bg-primary/10 border-primary/20'
+                        : 'bg-muted/20'
                     }`}
-                    onClick={() => setCurrentExerciseIndex(index)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 flex-1">
