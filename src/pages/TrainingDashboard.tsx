@@ -371,17 +371,18 @@ const TrainingDashboard: React.FC = () => {
         completedCount
       });
 
-      // SE È L'ULTIMO ESERCIZIO DEL GIORNO (esercizio 3), PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
+      // SE È L'ULTIMO ESERCIZIO DEL GIORNO, PASSA AUTOMATICAMENTE AL GIORNO SUCCESSIVO
+      const totalExercisesToday = todayExercises.length; // Numero reale di esercizi oggi
       console.log('🚨 CONTROLLO CAMBIO GIORNO:', {
         completedCount,
-        exercisesPerDay,
-        isLastExercise: completedCount === exercisesPerDay,
+        totalExercisesToday, // Usa il numero reale invece di exercisesPerDay fisso
+        isLastExercise: completedCount === totalExercisesToday,
         currentDay,
         protocolCurrentDay: protocol.current_day,
         isLastDay: protocol.current_day >= protocol.duration_days
       });
       
-      if (completedCount === exercisesPerDay) {
+      if (completedCount === totalExercisesToday) { // Usa totalExercisesToday invece di exercisesPerDay
         const isLastDay = protocol.current_day >= protocol.duration_days;
         
         if (isLastDay) {
@@ -594,8 +595,8 @@ const TrainingDashboard: React.FC = () => {
 
   const currentEx = todayExercises[currentExercise];
   
-  // FOTTUTAMENTE SEMPLICE: Stato che parte da 0 e si incrementa sui click
-  const totalExercisesToday = 3; // Sempre 3 esercizi per giorno
+  // FOTTUTAMENTE SEMPLICE: Stato che parte da 0 e si incrementa sui click  
+  const totalExercisesToday = todayExercises.length; // Usa il numero reale di esercizi oggi
   const completedExercises = dailyCompletedExercises; // Questo DEVE funzionare!
   const dayProgress = (completedExercises / totalExercisesToday) * 100;
 
