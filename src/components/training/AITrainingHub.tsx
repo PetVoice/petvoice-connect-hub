@@ -59,16 +59,12 @@ import {
 import { 
   useTrainingProtocols, 
   useActiveProtocols,
-  useSuggestedProtocols, 
   useTrainingTemplates, 
   useCreateProtocol, 
   useUpdateProtocol, 
-  useAcceptSuggestion, 
-  useDismissSuggestion,
   useDeleteProtocol,
   useCompletedProtocols,
   TrainingProtocol,
-  SuggestedProtocol,
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
 import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
@@ -91,7 +87,6 @@ export const AITrainingHub: React.FC = () => {
   // Real data hooks - separati per tipo
   const { data: protocols = [], isLoading: protocolsLoading, refetch: refetchProtocols } = useTrainingProtocols(); // Solo pubblici
   const { data: activeProtocols = [], isLoading: activeLoading } = useActiveProtocols(); // Solo attivi dell'utente
-  const { data: suggestedProtocols = [], isLoading: suggestionsLoading } = useSuggestedProtocols();
   const { data: templates = [], isLoading: templatesLoading } = useTrainingTemplates();
   const { data: completedProtocols = [], isLoading: completedLoading } = useCompletedProtocols();
 
@@ -117,8 +112,6 @@ export const AITrainingHub: React.FC = () => {
   // Mutations
   const createProtocol = useCreateProtocol();
   const updateProtocol = useUpdateProtocol();
-  const acceptSuggestion = useAcceptSuggestion();
-  const dismissSuggestion = useDismissSuggestion();
 
   // Import delete protocol hook
   const deleteProtocol = useDeleteProtocol();
@@ -133,7 +126,7 @@ export const AITrainingHub: React.FC = () => {
   const [selectedProtocol, setSelectedProtocol] = useState<TrainingProtocol | null>(null);
   const [showWizard, setShowWizard] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'suggestions' | 'completed'>('protocols');
+  const [currentView, setCurrentView] = useState<'protocols' | 'active' | 'completed'>('protocols');
 
   // Check URL parameters to set initial tab
   useEffect(() => {
@@ -516,21 +509,6 @@ export const AITrainingHub: React.FC = () => {
     }
   };
 
-  const handleAcceptSuggestion = async (suggestion: SuggestedProtocol) => {
-    try {
-      await acceptSuggestion.mutateAsync(suggestion);
-    } catch (error) {
-      console.error('Error accepting suggestion:', error);
-    }
-  };
-
-  const handleDismissSuggestion = async (suggestionId: string) => {
-    try {
-      await dismissSuggestion.mutateAsync(suggestionId);
-    } catch (error) {
-      console.error('Error dismissing suggestion:', error);
-    }
-  };
 
   // Handle edit protocol
   const handleEditProtocol = (protocol: TrainingProtocol) => {
@@ -640,7 +618,7 @@ export const AITrainingHub: React.FC = () => {
     }
   };
 
-  if (protocolsLoading || suggestionsLoading || templatesLoading || completedLoading) {
+  if (protocolsLoading || templatesLoading || completedLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -722,11 +700,10 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="protocols">Protocolli</TabsTrigger>
           <TabsTrigger value="active">Attivi</TabsTrigger>
           <TabsTrigger value="completed">Completati</TabsTrigger>
-          <TabsTrigger value="suggestions">Suggerimenti</TabsTrigger>
         </TabsList>
 
         <TabsContent value="protocols" className="space-y-4">
@@ -1136,87 +1113,6 @@ export const AITrainingHub: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="suggestions" className="space-y-4">
-          <div className="grid gap-4">
-            {suggestedProtocols.length === 0 ? (
-              <Card className="p-8 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <Lightbulb className="h-12 w-12 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium">Nessun suggerimento disponibile</h3>
-                    <p className="text-sm text-muted-foreground">
-                      L'AI analizzerà i tuoi dati per suggerire protocolli personalizzati
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ) : (
-              suggestedProtocols.map((suggestion) => (
-                <Card key={suggestion.id} className="hover:shadow-lg transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                         <div className="flex items-center gap-2 mb-2">
-                           <h3 className="font-semibold text-lg">{suggestion.title}</h3>
-                           <Badge className={getUrgencyColor(suggestion.urgency)}>
-                             {suggestion.urgency === 'alta' ? 'Priorità Alta' : 
-                              suggestion.urgency === 'media' ? 'Priorità Media' : 
-                              suggestion.urgency === 'bassa' ? 'Priorità Bassa' : suggestion.urgency}
-                           </Badge>
-                         </div>
-                        <p className="text-muted-foreground mb-3">{suggestion.description}</p>
-                        
-                        <div className="bg-muted/50 p-3 rounded-lg mb-4">
-                          <p className="text-sm text-muted-foreground">
-                            <strong>Motivo:</strong> {suggestion.reason}
-                          </p>
-                        </div>
-                        
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <BookOpen className="h-4 w-4" />
-                              <span>{suggestion.duration_days} esercizi</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <TrendingUp className="h-4 w-4" />
-                              <span>{suggestion.confidence_score}% confidenza</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Users className="h-4 w-4" />
-                              <span>{suggestion.similar_cases} casi simili</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Award className="h-4 w-4" />
-                              <span>{Math.round(suggestion.estimated_success)}% successo</span>
-                            </div>
-                          </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleAcceptSuggestion(suggestion)}
-                          className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Accetta
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDismissSuggestion(suggestion.id)}
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          Rifiuta
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        </TabsContent>
 
 
       </Tabs>
