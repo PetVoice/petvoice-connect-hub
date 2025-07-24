@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,56 +24,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data per ora - andrebbe sostituito con veri dati dal database
-const mockProtocol = {
-  id: 'mock-protocol',
-  title: 'Protocollo Training Avanzato',
-  description: 'Un protocollo completo per il training del tuo pet',
-  success_rate: 85, // Tasso di successo pubblico del protocollo
-  exercises: [
-    {
-      id: 'ex1',
-      title: 'Esercizio 1: Rilassamento',
-      description: 'Primo esercizio di rilassamento per calmare il pet',
-      duration: 15,
-      instructions: ['Trova un ambiente tranquillo', 'Fai sedere il pet', 'Inizia le carezze dolci'],
-      materials: ['Tappetino', 'Premio']
-    },
-    {
-      id: 'ex2', 
-      title: 'Esercizio 2: Concentrazione',
-      description: 'Esercizio per migliorare la concentrazione',
-      duration: 20,
-      instructions: ['Usa il comando di attenzione', 'Mantieni il contatto visivo', 'Premia i comportamenti corretti'],
-      materials: ['Premio', 'Clicker']
-    },
-    {
-      id: 'ex3',
-      title: 'Esercizio 3: Controllo impulsi',
-      description: 'Training per il controllo degli impulsi',
-      duration: 25,
-      instructions: ['Inizia con il comando "aspetta"', 'Aumenta gradualmente la difficoltà', 'Premia la pazienza'],
-      materials: ['Premio', 'Guinzaglio']
-    },
-    {
-      id: 'ex4',
-      title: 'Esercizio 4: Richiamo',
-      description: 'Training per il richiamo del pet',
-      duration: 20,
-      instructions: ['Inizia a distanza ravvicinata', 'Usa il comando "vieni"', 'Premia sempre il successo'],
-      materials: ['Premio', 'Guinzaglio lungo']
-    },
-    {
-      id: 'ex5',
-      title: 'Esercizio 5: Camminata al guinzaglio',
-      description: 'Training per camminare correttamente al guinzaglio',
-      duration: 30,
-      instructions: ['Mantieni il guinzaglio morbido', 'Premia quando cammina vicino', 'Fermati se tira'],
-      materials: ['Guinzaglio', 'Premio', 'Collare']
-    }
-  ]
-};
-
 const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
@@ -86,8 +38,40 @@ const TrainingDashboard: React.FC = () => {
   const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState('');
 
-  const protocol = mockProtocol;
-  const allExercises = protocol.exercises;
+  // Query per ottenere i dati reali del protocollo
+  const { data: protocolData, isLoading, error } = useQuery({
+    queryKey: ['protocol-with-exercises', protocolId],
+    queryFn: async () => {
+      if (!protocolId) throw new Error('Protocol ID not found');
+      
+      // Prima ottieni il protocollo
+      const { data: protocol, error: protocolError } = await supabase
+        .from('ai_training_protocols')
+        .select('*')
+        .eq('id', protocolId)
+        .single();
+
+      if (protocolError) throw protocolError;
+
+      // Poi ottieni tutti gli esercizi del protocollo
+      const { data: exercises, error: exercisesError } = await supabase
+        .from('ai_training_exercises')
+        .select('*')
+        .eq('protocol_id', protocolId)
+        .order('day_number, id');
+
+      if (exercisesError) throw exercisesError;
+
+      return {
+        ...protocol,
+        exercises: exercises || []
+      };
+    },
+    enabled: !!protocolId,
+  });
+
+  const protocol = protocolData;
+  const allExercises = protocol?.exercises || [];
   const currentExercise = allExercises[currentExerciseIndex];
   const totalExercises = allExercises.length;
   const progressPercentage = Math.floor((completedExercises.size / totalExercises) * 100);
@@ -112,6 +96,28 @@ const TrainingDashboard: React.FC = () => {
     setIsTimerActive(true);
     setTimeElapsed(0);
   }, [currentExerciseIndex]);
+
+  if (isLoading) {
+    return <div className="container mx-auto p-6"><div>Caricamento...</div></div>;
+  }
+
+  if (error || !protocol) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Protocollo non trovato</h2>
+          <p className="text-muted-foreground mb-4">
+            Il protocollo richiesto non è disponibile.
+          </p>
+          <Button onClick={() => navigate('/training')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Torna ai Protocolli
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -151,12 +157,17 @@ const TrainingDashboard: React.FC = () => {
       handleCompleteExercise();
     }
     
-    // Se non è l'ultimo esercizio, vai al prossimo
-    if (currentExerciseIndex < totalExercises - 1) {
-      setTimeout(() => {
-        setCurrentExerciseIndex(prev => prev + 1);
-      }, 500);
+    // Se è l'ultimo esercizio, completa automaticamente il protocollo
+    if (currentExerciseIndex === totalExercises - 1) {
+      // Forza il completamento del protocollo
+      handleCompleteExercise();
+      return;
     }
+    
+    // Altrimenti vai al prossimo esercizio
+    setTimeout(() => {
+      setCurrentExerciseIndex(prev => prev + 1);
+    }, 500);
   };
 
   const handleInterruptProtocol = () => {
@@ -292,7 +303,7 @@ const TrainingDashboard: React.FC = () => {
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  {currentExercise.duration} min
+                  {currentExercise.duration_minutes} min
                 </div>
                 <div className="flex items-center gap-1">
                   <Timer className="h-4 w-4" />
@@ -344,7 +355,7 @@ const TrainingDashboard: React.FC = () => {
                   <div className="flex items-center gap-4 pt-2 border-t border-blue-200">
                     <div className="flex items-center gap-1 text-blue-600">
                       <Clock className="h-4 w-4" />
-                      <span className="font-medium">Durata: {currentExercise.duration} minuti</span>
+                      <span className="font-medium">Durata: {currentExercise.duration_minutes} minuti</span>
                     </div>
                     <div className="flex items-center gap-1 text-blue-600">
                       <Target className="h-4 w-4" />
@@ -370,12 +381,20 @@ const TrainingDashboard: React.FC = () => {
                 {/* Pulsante Avanti */}
                 <Button
                   onClick={handleNextExercise}
-                  disabled={currentExerciseIndex === totalExercises - 1}
                   variant="outline"
-                  className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1"
                 >
-                  Avanti
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  {currentExerciseIndex === totalExercises - 1 ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Completa protocollo
+                    </>
+                  ) : (
+                    <>
+                      Avanti
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
                 </Button>
               </div>
 
@@ -422,7 +441,7 @@ const TrainingDashboard: React.FC = () => {
                       <div>
                         <div className="font-medium text-sm">{exercise.title}</div>
                         <div className="text-xs text-muted-foreground">
-                          {exercise.duration} min
+                          {exercise.duration_minutes} min
                         </div>
                       </div>
                     </div>
