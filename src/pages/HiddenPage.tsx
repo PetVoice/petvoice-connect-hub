@@ -197,7 +197,7 @@ const HiddenPage: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleGoBack}
-              className="hover:bg-azure/10 transition-colors"
+              className="hover:bg-azure/10 transition-colors text-foreground hover:text-azure"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Home
@@ -242,7 +242,7 @@ const HiddenPage: React.FC = () => {
             <h1 className="text-6xl lg:text-8xl font-bold leading-tight mb-8">
               <span className="text-foreground">Comprendi le</span>
               <br />
-              <span className="bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent animate-pulse font-black">
+              <span className="text-azure font-black animate-pulse">
                 emozioni
               </span>
               <br />
@@ -255,13 +255,13 @@ const HiddenPage: React.FC = () => {
             </p>
 
             <div className="flex justify-center mb-16">
-              <Button 
-                onClick={handleGetStarted}
-                className="px-8 py-4 bg-gradient-to-r from-azure to-azure-dark text-white rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
-              >
-                <span>Prova PetVoice</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            <Button 
+              onClick={handleGetStarted}
+              className="petvoice-button px-8 py-4 font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
+            >
+              <span>Prova PetVoice</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
             </div>
 
             {/* Social Proof */}
