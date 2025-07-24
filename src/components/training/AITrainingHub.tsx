@@ -74,6 +74,99 @@ import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
+// Componente per mostrare dettagli aggregati degli esercizi del protocollo
+const ProtocolExerciseDetails: React.FC<{ protocolId: string }> = ({ protocolId }) => {
+  const [exercises, setExercises] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('ai_training_exercises')
+          .select('objectives, success_criteria, tips')
+          .eq('protocol_id', protocolId);
+
+        if (error) throw error;
+        setExercises(data || []);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExercises();
+  }, [protocolId]);
+
+  if (loading) {
+    return <div className="text-center py-4">Caricamento dettagli...</div>;
+  }
+
+  // Aggrega tutti gli obiettivi, criteri di successo e consigli da tutti gli esercizi
+  const allObjectives = [...new Set(exercises.flatMap(ex => ex.objectives || []))];
+  const allSuccessCriteria = [...new Set(exercises.flatMap(ex => ex.success_criteria || []))];
+  const allTips = [...new Set(exercises.flatMap(ex => ex.tips || []))];
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      {/* Obiettivi */}
+      {allObjectives.length > 0 && (
+        <Card className="p-4">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <Target className="h-4 w-4 text-primary" />
+            🎯 Obiettivi
+          </h4>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {allObjectives.map((objective, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <div className="w-1 h-1 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                {objective}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {/* Criteri di Successo */}
+      {allSuccessCriteria.length > 0 && (
+        <Card className="p-4">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            ✅ Criteri di Successo
+          </h4>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {allSuccessCriteria.map((criteria, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <div className="w-1 h-1 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
+                {criteria}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {/* Consigli Pratici */}
+      {allTips.length > 0 && (
+        <Card className="p-4">
+          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
+            <Lightbulb className="h-4 w-4 text-orange-600" />
+            💡 Consigli Pratici
+          </h4>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {allTips.map((tip, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <div className="w-1 h-1 bg-orange-600 rounded-full mt-2 flex-shrink-0"></div>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 export const AITrainingHub: React.FC = () => {
   // Translation system removed - Italian only
   const language = 'it';
@@ -1205,6 +1298,9 @@ export const AITrainingHub: React.FC = () => {
                     </div>
                   </Card>
                 </div>
+
+                {/* Sezioni aggregate da tutti gli esercizi */}
+                {selectedProtocol && <ProtocolExerciseDetails protocolId={selectedProtocol.id} />}
 
                 {/* Bottom Section - Compact Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

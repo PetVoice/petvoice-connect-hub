@@ -448,18 +448,6 @@ const TrainingDashboard: React.FC = () => {
                     <p className="text-blue-700 leading-relaxed">{currentExercise.description}</p>
                   </div>
                   
-                  {/* Obiettivi */}
-                  {currentExercise.objectives && currentExercise.objectives.length > 0 && (
-                    <div>
-                      <h5 className="font-medium text-blue-800 mb-2">🎯 Obiettivi:</h5>
-                      <ul className="list-disc list-inside space-y-1 text-blue-700">
-                        {currentExercise.objectives.map((objective, index) => (
-                          <li key={index} className="leading-relaxed">{objective}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
                   {/* Istruzioni */}
                   {currentExercise.instructions && currentExercise.instructions.length > 0 && (
                     <div>
@@ -478,30 +466,6 @@ const TrainingDashboard: React.FC = () => {
                           ))}
                         </ol>
                       )}
-                    </div>
-                  )}
-                  
-                  {/* Criteri di Successo */}
-                  {currentExercise.success_criteria && currentExercise.success_criteria.length > 0 && (
-                    <div>
-                      <h5 className="font-medium text-blue-800 mb-2">✅ Criteri di Successo:</h5>
-                      <ul className="list-disc list-inside space-y-1 text-green-700">
-                        {currentExercise.success_criteria.map((criteria, index) => (
-                          <li key={index} className="leading-relaxed">{criteria}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {/* Consigli Pratici */}
-                  {currentExercise.tips && currentExercise.tips.length > 0 && (
-                    <div>
-                      <h5 className="font-medium text-blue-800 mb-2">💡 Consigli Pratici:</h5>
-                      <ul className="list-disc list-inside space-y-1 text-orange-700">
-                        {currentExercise.tips.map((tip, index) => (
-                          <li key={index} className="leading-relaxed">{tip}</li>
-                        ))}
-                      </ul>
                     </div>
                   )}
                   
