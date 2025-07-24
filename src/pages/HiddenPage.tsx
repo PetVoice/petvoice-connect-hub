@@ -240,21 +240,21 @@ const HiddenPage: React.FC = () => {
             </div>
 
             <h1 className="text-6xl lg:text-8xl font-bold leading-tight mb-8">
-              <span className="text-white">Comprendi le</span>
+              <span className="text-foreground">Comprendi le</span>
               <br />
-              <span className="bg-gradient-to-r from-azure via-azure-light to-azure-glow bg-clip-text text-transparent animate-pulse">
+              <span className="bg-gradient-to-r from-azure to-azure-dark bg-clip-text text-transparent animate-pulse font-black">
                 emozioni
               </span>
               <br />
-              <span className="text-white">del tuo pet</span>
+              <span className="text-foreground">del tuo pet</span>
             </h1>
 
-            <p className="text-xl text-white/90 leading-relaxed max-w-3xl mx-auto mb-12">
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12">
               L'intelligenza artificiale più avanzata per analizzare il comportamento e le emozioni 
               dei tuoi animali domestici. Crea un legame più profondo con chi ami.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <div className="flex justify-center mb-16">
               <Button 
                 onClick={handleGetStarted}
                 className="px-8 py-4 bg-gradient-to-r from-azure to-azure-dark text-white rounded-xl font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 group"
@@ -262,25 +262,19 @@ const HiddenPage: React.FC = () => {
                 <span>Prova PetVoice</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              
-              <Button 
-                variant="outline"
-                className="px-8 py-4 border-2 border-white/30 hover:border-azure text-white hover:text-azure rounded-xl font-semibold text-lg transition-all duration-300 group bg-white/10 backdrop-blur-sm"
-              >
-                <Play className="mr-2 w-5 h-5" />
-                <span>Guarda Demo</span>
-              </Button>
             </div>
 
             {/* Social Proof */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-white/80">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8 text-muted-foreground">
               <div className="flex -space-x-3">
-                {[1,2,3,4,5].map(i => (
-                  <div key={i} className="w-12 h-12 rounded-full bg-gradient-to-br from-azure to-azure-dark border-3 border-white/30"></div>
-                ))}
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-3 border-white/30"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-3 border-white/30"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-3 border-white/30"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-3 border-white/30"></div>
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 border-3 border-white/30"></div>
               </div>
               <div className="text-center sm:text-left">
-                <div className="font-semibold text-lg">25.000+ Pet Parents</div>
+                <div className="font-semibold text-lg">25.000+ Amanti degli Animali</div>
                 <div className="text-sm">si fidano di noi ogni giorno</div>
               </div>
             </div>
@@ -291,10 +285,10 @@ const HiddenPage: React.FC = () => {
         <section className="py-20 px-6 bg-gradient-to-b from-transparent to-card/50 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Perché <span className="text-azure-light">25.000+ pet parents</span> scelgono PetVoice
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Perché <span className="text-azure font-bold">25.000+ amanti degli animali</span> scelgono PetVoice
               </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Tecnologia AI rivoluzionaria che trasforma il modo in cui comprendi il tuo amico a quattro zampe
               </p>
             </div>
@@ -314,13 +308,9 @@ const HiddenPage: React.FC = () => {
                     <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-azure transition-colors">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed mb-6">
+                    <p className="text-muted-foreground leading-relaxed">
                       {feature.description}
                     </p>
-                    <div className="flex items-center text-azure font-medium group-hover:translate-x-2 transition-transform">
-                      <span>Scopri di più</span>
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </div>
                   </Card>
                 );
               })}
@@ -332,11 +322,11 @@ const HiddenPage: React.FC = () => {
         <section className="py-20 px-6 bg-gradient-to-b from-card/50 to-transparent backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Scegli il piano <span className="text-azure-light">perfetto</span> per te
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                <span className="text-azure font-bold">Un solo piano</span>, tutte le funzionalità
               </h2>
-              <p className="text-xl text-white/80 max-w-2xl mx-auto">
-                Un solo piano, tutte le funzionalità. Accesso completo alle tecnologie AI più avanzate per il benessere del tuo pet.
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Accesso completo alle tecnologie AI più avanzate per il benessere del tuo pet.
               </p>
             </div>
 
@@ -393,8 +383,8 @@ const HiddenPage: React.FC = () => {
         <section className="py-20 px-6 bg-gradient-to-br from-azure/10 to-transparent backdrop-blur-sm">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Amato da professionisti <span className="text-azure-light">in tutta Italia</span>
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Amato da professionisti <span className="text-azure font-bold">in tutta Italia</span>
               </h2>
             </div>
 
@@ -426,10 +416,10 @@ const HiddenPage: React.FC = () => {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Domande <span className="text-azure-light">Frequenti</span>
+              <h2 className="text-4xl font-bold text-foreground mb-4">
+                Domande <span className="text-azure font-bold">Frequenti</span>
               </h2>
-              <p className="text-xl text-white/80">
+              <p className="text-xl text-muted-foreground">
                 Tutto quello che devi sapere su PetVoice
               </p>
             </div>
@@ -448,13 +438,13 @@ const HiddenPage: React.FC = () => {
         {/* Final CTA */}
         <section className="py-20 px-6 bg-gradient-to-r from-azure/20 via-azure/10 to-azure/20 backdrop-blur-sm">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-5xl font-bold text-white mb-6">
+            <h2 className="text-5xl font-bold text-foreground mb-6">
               Pronto a scoprire cosa <br />
-              <span className="text-azure-light">prova veramente</span> il tuo pet?
+              <span className="text-azure font-bold">prova veramente</span> il tuo pet?
             </h2>
             
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Unisciti a migliaia di pet parents che hanno già migliorato la relazione con i loro amici a quattro zampe
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Unisciti a migliaia di amanti degli animali che hanno già migliorato la relazione con i loro amici a quattro zampe
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8">
@@ -474,7 +464,7 @@ const HiddenPage: React.FC = () => {
               </Button>
             </div>
             
-            <div className="text-white/80 text-sm space-y-2">
+            <div className="text-muted-foreground text-sm space-y-2">
               <div className="flex items-center justify-center gap-6 flex-wrap">
                 <span className="flex items-center">
                   <Check className="w-4 h-4 mr-2 text-green-400" />
@@ -506,7 +496,7 @@ const HiddenPage: React.FC = () => {
                 </span>
               </div>
               
-              <div className="flex items-center space-x-6 text-sm text-white/70">
+              <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                 <span>© 2024 PetVoice. Tutti i diritti riservati.</span>
                 <div className="flex items-center space-x-4">
                   <span>Privacy</span>
