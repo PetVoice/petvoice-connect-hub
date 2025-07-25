@@ -46,14 +46,60 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   }, [petId, userId]);
 
   const wellnessTrendData = useMemo(() => {
-    const periods = Array.from({ length: 6 }, (_, i) => {
-      const monthDate = subMonths(new Date(), 5 - i);
-      return {
-        start: startOfMonth(monthDate),
-        end: endOfMonth(monthDate),
-        label: format(monthDate, 'MMM', { locale: it })
-      };
-    });
+    const now = new Date();
+    let periods = [];
+
+    switch (selectedPeriod) {
+      case 'oggi':
+        periods = Array.from({ length: 24 }, (_, i) => {
+          const hour = i;
+          return {
+            start: new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour),
+            end: new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour + 1),
+            label: `${hour}:00`
+          };
+        });
+        break;
+      case 'settimana':
+        periods = Array.from({ length: 7 }, (_, i) => {
+          const dayDate = subDays(now, 6 - i);
+          return {
+            start: startOfDay(dayDate),
+            end: endOfDay(dayDate),
+            label: format(dayDate, 'E', { locale: it })
+          };
+        });
+        break;
+      case 'anno':
+        periods = Array.from({ length: 12 }, (_, i) => {
+          const monthDate = subMonths(now, 11 - i);
+          return {
+            start: startOfMonth(monthDate),
+            end: endOfMonth(monthDate),
+            label: format(monthDate, 'MMM', { locale: it })
+          };
+        });
+        break;
+      case 'tutto':
+        periods = Array.from({ length: 12 }, (_, i) => {
+          const monthDate = subMonths(now, 11 - i);
+          return {
+            start: startOfMonth(monthDate),
+            end: endOfMonth(monthDate),
+            label: format(monthDate, 'MMM yyyy', { locale: it })
+          };
+        });
+        break;
+      default: // 'mese'
+        periods = Array.from({ length: 6 }, (_, i) => {
+          const monthDate = subMonths(now, 5 - i);
+          return {
+            start: startOfMonth(monthDate),
+            end: endOfMonth(monthDate),
+            label: format(monthDate, 'MMM', { locale: it })
+          };
+        });
+    }
 
     const emotionScores = {
       'felice': 90, 'calmo': 85, 'giocoso': 88, 'eccitato': 75,
@@ -81,7 +127,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   }, [petAnalyses, diaryEntries]);
 
   return (
-    <Card className="w-full bg-card border border-border shadow-sm">
+    <Card className="w-full bg-primary/10 border border-primary/20 shadow-soft">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -98,7 +144,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
               <Badge 
                 key={period} 
                 variant={selectedPeriod === period ? "default" : "outline"} 
-                className="cursor-pointer bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
+                className="cursor-pointer"
                 onClick={() => setSelectedPeriod(period)}
               >
                 {period.charAt(0).toUpperCase() + period.slice(1)}

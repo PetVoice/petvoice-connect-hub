@@ -254,7 +254,7 @@ const DashboardPage: React.FC = () => {
       {/* Health Score Progress Bar */}
       {selectedPet && (
         <div className="mb-6">
-          <div className="space-y-4 p-6 bg-card border border-border rounded-lg">
+          <div className="space-y-4 p-6 bg-primary/10 border border-primary/20 rounded-lg shadow-soft">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Heart className="h-6 w-6 text-red-500" />
@@ -300,7 +300,7 @@ const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           
           {/* Detailed Emotions Analysis Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <PieChartIcon className="h-5 w-5 text-pink-500" />
@@ -316,7 +316,7 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -342,7 +342,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Behavioral Insights Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -368,7 +368,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Active Medications Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -394,7 +394,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Recent Visits Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -420,7 +420,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Insurance Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -446,7 +446,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* First Aid Guide Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -471,7 +471,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Emergency Contacts Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -497,7 +497,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Veterinarian Card */}
-          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -526,7 +526,7 @@ const DashboardPage: React.FC = () => {
       )}
 
       {/* Quick Actions */}
-      <Card className="border border-blue-200 bg-blue-50">
+      <Card className="bg-primary/10 border border-primary/20 shadow-soft">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-foreground" />
@@ -542,7 +542,7 @@ const DashboardPage: React.FC = () => {
               <Button
                 key={index}
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all border-blue-200 bg-blue-50 hover:bg-blue-100"
+                className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all"
                 onClick={action.onClick}
               >
                 <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
@@ -560,7 +560,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Getting Started */}
       {pets.length === 0 && (
-        <Card className="border-dashed border-2 border-blue-200 bg-blue-50">
+        <Card className="border-dashed border-2 border-primary/20 bg-primary/10">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center mb-4">
               <PawPrint className="h-6 w-6 text-blue-600" />
