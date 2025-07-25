@@ -1973,6 +1973,70 @@ const WellnessPage = () => {
                       <p className="text-sm">Nessun documento caricato</p>
                     </div>
                   )}
+                 </CardContent>
+               </Card>
+
+              {/* Insurance Card */}
+              <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-teal-500" />
+                      Assicurazione
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddInsurance(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {insurances.filter(ins => ins.is_active).length > 0 ? (
+                    <div className="space-y-2">
+                       {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
+                         const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
+                         return (
+                           <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
+                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
+                                   {isExpired ? "Disattiva" : "Attiva"}
+                                 </Badge>
+                               </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                          </div>
+                           <div className="text-xs text-muted-foreground mt-1">
+                             Polizza: {insurance.policy_number}
+                           </div>
+                           {insurance.premium_amount && (
+                             <div className="text-xs text-muted-foreground">
+                               Premio: €{insurance.premium_amount}
+                             </div>
+                           )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna assicurazione attiva</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -2160,70 +2224,6 @@ const WellnessPage = () => {
                       Apri Guida
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Insurance Card */}
-              <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-teal-500" />
-                      Assicurazione
-                    </CardTitle>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => setShowAddInsurance(true)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {insurances.filter(ins => ins.is_active).length > 0 ? (
-                    <div className="space-y-2">
-                       {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
-                         const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
-                         return (
-                           <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-2">
-                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
-                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
-                                   {isExpired ? "Disattiva" : "Attiva"}
-                                 </Badge>
-                               </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </div>
-                          </div>
-                           <div className="text-xs text-muted-foreground mt-1">
-                             Polizza: {insurance.policy_number}
-                           </div>
-                           {insurance.premium_amount && (
-                             <div className="text-xs text-muted-foreground">
-                               Premio: €{insurance.premium_amount}
-                             </div>
-                           )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna assicurazione attiva</p>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
