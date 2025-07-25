@@ -1767,52 +1767,6 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Active Medications Card - moved to second row */}
-
-              {/* Behavioral Insights Card */}
-              <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Brain className="h-5 w-5 text-purple-500" />
-                      Comportamenti Osservati
-                    </CardTitle>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={handleAddBehavior}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {behavioralTags.length > 0 ? (
-                    <div className="space-y-2">
-                      {Object.entries(behavioralTagCounts).slice(0, 3).map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between">
-                          <Badge variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                          <span className="text-sm font-medium">{count}x</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Eye className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun comportamento osservato</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-            </div>
-
-            {/* Second Row: Farmaci attivi, visite recenti, documenti medici, assicurazione */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              
               {/* Active Medications Card */}
               <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
@@ -1891,6 +1845,11 @@ const WellnessPage = () => {
                   )}
                 </CardContent>
               </Card>
+
+            </div>
+
+            {/* Secondary Health Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
@@ -1955,148 +1914,6 @@ const WellnessPage = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Medical Documents Card */}
-              <Card className="hover-scale bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-background border-indigo-500/20 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <FileImage className="h-5 w-5 text-indigo-500" />
-                      Documenti Medici
-                    </CardTitle>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => setShowAddDocument(true)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {medicalRecords.filter(record => record.document_url).length > 0 ? (
-                    <div className="space-y-2">
-                      {medicalRecords.filter(record => record.document_url).slice(0, 3).map((record) => (
-                        <div key={record.id} className="border-l-2 border-indigo-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{record.title}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {translateRecordType(record.record_type)}
-                              </Badge>
-                            </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0"
-                                 onClick={() => window.open(record.document_url, '_blank')}
-                                 title="Scarica"
-                               >
-                                 <Download className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-blue-500"
-                                 onClick={() => handleEditRecord(record)}
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('documento', record.id, record.title)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {format(new Date(record.record_date), 'dd/MM/yyyy')}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun documento medico</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Insurance Card */}
-              <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <CreditCard className="h-5 w-5 text-teal-500" />
-                      Assicurazione
-                    </CardTitle>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => setShowAddInsurance(true)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {insurances.filter(ins => ins.is_active).length > 0 ? (
-                    <div className="space-y-2">
-                       {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
-                         const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
-                         return (
-                           <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-2">
-                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
-                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
-                                   {isExpired ? "Disattiva" : "Attiva"}
-                                 </Badge>
-                               </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </div>
-                          </div>
-                           <div className="text-xs text-muted-foreground mt-1">
-                             Polizza: {insurance.policy_number}
-                           </div>
-                           {insurance.premium_amount && (
-                             <div className="text-xs text-muted-foreground">
-                               Premio: €{insurance.premium_amount}
-                             </div>
-                           )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna assicurazione attiva</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-            </div>
-
-            {/* Third Row: Contatti emergenza, veterinario, primo soccorso */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {/* Emergency Contacts Card */}
               <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
@@ -2280,13 +2097,135 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-      </div>
+              {/* Insurance Card */}
+              <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-teal-500" />
+                      Assicurazione
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddInsurance(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {insurances.filter(ins => ins.is_active).length > 0 ? (
+                    <div className="space-y-2">
+                       {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
+                         const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
+                         return (
+                           <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
+                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
+                                   {isExpired ? "Disattiva" : "Attiva"}
+                                 </Badge>
+                               </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                          </div>
+                           <div className="text-xs text-muted-foreground mt-1">
+                             Polizza: {insurance.policy_number}
+                           </div>
+                           {insurance.premium_amount && (
+                             <div className="text-xs text-muted-foreground">
+                               Premio: €{insurance.premium_amount}
+                             </div>
+                           )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna assicurazione attiva</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-      {/* Dialog Components */}
+              {/* Medical Documents Card */}
+              <Card className="hover-scale bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-background border-indigo-500/20 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileImage className="h-5 w-5 text-indigo-500" />
+                      Documenti Medici
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddDocument(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {medicalRecords.filter(record => record.document_url).length > 0 ? (
+                    <div className="space-y-2">
+                      {medicalRecords.filter(record => record.document_url).slice(0, 3).map((record) => (
+                        <div key={record.id} className="border-l-2 border-indigo-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{record.title}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {translateRecordType(record.record_type)}
+                              </Badge>
+                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => window.open(record.document_url, '_blank')}
+                                 title="Scarica"
+                               >
+                                 <Download className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('visita', record.id, record.title)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                             </div>
+                           </div>
+                        ))
+                      }
+                     </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessun documento caricato</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
             </div>
 
