@@ -585,11 +585,6 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Wellness Cards - Tutte le 10 card di wellness sotto il grafico */}
-      {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-
-
       {/* Comportamenti Osservati Card - Full width */}
       {selectedPet && (
         <div className="w-full mb-6">
@@ -604,26 +599,83 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Cronologia degli atteggiamenti e comportamenti del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Qui dovrebbero essere mostrati i comportamenti reali dai diary entries */}
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500/20 to-violet-500/10 flex items-center justify-center">
-                  <Eye className="h-10 w-10 text-purple-500/60" />
+              {Object.keys(behaviorStats).length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                  {Object.entries(behaviorStats)
+                    .sort(([,a], [,b]) => b.count - a.count)
+                    .map(([behavior, data]) => {
+                      const behaviorColors = {
+                        'felice': 'from-green-400 to-emerald-500',
+                        'giocoso': 'from-yellow-400 to-orange-500',
+                        'calmo': 'from-blue-400 to-cyan-500',
+                        'energico': 'from-orange-400 to-red-500',
+                        'ansioso': 'from-red-400 to-pink-500',
+                        'aggressivo': 'from-red-500 to-red-600',
+                        'socievole': 'from-pink-400 to-purple-500',
+                        'timido': 'from-gray-400 to-slate-500',
+                        'curioso': 'from-indigo-400 to-purple-500',
+                        'rilassato': 'from-teal-400 to-cyan-500'
+                      };
+                      const behaviorIcons = {
+                        'felice': '😊',
+                        'giocoso': '🎾',
+                        'calmo': '😌',
+                        'energico': '⚡',
+                        'ansioso': '😰',
+                        'aggressivo': '😠',
+                        'socievole': '🤝',
+                        'timido': '🙈',
+                        'curioso': '🧐',
+                        'rilassato': '😎'
+                      };
+                      const gradientClass = behaviorColors[behavior as keyof typeof behaviorColors] || 'from-purple-400 to-violet-500';
+                      const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || '🐾';
+                      
+                      return (
+                        <div 
+                          key={behavior} 
+                          className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+                        >
+                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                          <div className="relative p-4 text-center">
+                            <div className="text-2xl mb-2">{icon}</div>
+                            <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
+                              {behavior.replace('_', ' ')}
+                            </div>
+                            <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                              {data.count}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {data.lastSeen}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessun comportamento registrato</p>
-                <Button 
-                  onClick={() => navigate('/diary')} 
-                  className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Brain className="h-5 w-5 mr-2" />
-                  Registra Comportamenti
-                </Button>
-              </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500/20 to-violet-500/10 flex items-center justify-center">
+                    <Brain className="h-10 w-10 text-purple-500/60" />
+                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessun comportamento registrato</p>
+                  <Button 
+                    onClick={() => navigate('/diary')} 
+                    className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Brain className="h-5 w-5 mr-2" />
+                    Registra Comportamenti
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       )}
 
       {/* Wellness Cards - Tutte le card rimanenti in griglia */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
           {/* Active Medications Card */}
           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
