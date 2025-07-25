@@ -363,6 +363,17 @@ export const AITrainingHub: React.FC = () => {
     return difficultyMap[difficulty] || difficulty;
   };
 
+  const getCategoryText = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      behavioral: 'Comportamentale',
+      cognitive: 'Cognitivo',
+      emotional: 'Emotivo',
+      environmental: 'Ambientale',
+      physical: 'Fisico'
+    };
+    return categoryMap[category?.toLowerCase()] || category;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-blue-500/20 text-blue-700 border-blue-500/20';
@@ -1283,7 +1294,7 @@ export const AITrainingHub: React.FC = () => {
                     <div className="space-y-3">
                       <div>
                         <span className="text-xs text-muted-foreground">Categoria</span>
-                        <div><Badge variant="secondary" className="text-xs">{selectedProtocol.category}</Badge></div>
+                        <div><Badge variant="secondary" className="text-xs">{getCategoryText(selectedProtocol.category)}</Badge></div>
                       </div>
                       <div>
                         <span className="text-xs text-muted-foreground">Difficoltà</span>
