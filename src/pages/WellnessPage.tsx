@@ -2685,7 +2685,7 @@ const WellnessPage = () => {
 
       {/* Add Medical Record Dialog */}
       <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingRecord ? 'Modifica Visita' : 'Nuova Visita'}</DialogTitle>
           </DialogHeader>
@@ -2972,7 +2972,7 @@ const WellnessPage = () => {
 
       {/* Add Insurance Dialog */}
       <Dialog open={showAddInsurance} onOpenChange={setShowAddInsurance}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nuova Assicurazione</DialogTitle>
           </DialogHeader>

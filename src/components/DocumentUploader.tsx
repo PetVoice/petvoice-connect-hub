@@ -164,52 +164,66 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       </div>
 
       {/* File Preview */}
-      {(existingFiles.length > 0 || previewFiles.length > 0) && (
+      {previewFiles.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-sm font-medium">File caricati:</h4>
           <div className="grid grid-cols-1 gap-2">
-            {existingFiles.map((url, index) => {
-              const preview = previewFiles.find(f => f.url === url);
-              const fileName = preview?.name || `Documento ${index + 1}`;
-              const fileType = preview?.type || 'application/pdf';
-              const fileSize = preview?.size;
-              
-              return (
-                <Card key={url} className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3 flex-1 min-w-0">
-                      {getFileIcon(fileType)}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{fileName}</p>
-                        {fileSize && (
-                          <p className="text-xs text-muted-foreground">
-                            {formatFileSize(fileSize)}
-                          </p>
-                        )}
+            {previewFiles.map((preview, index) => (
+              <Card key={preview.url} className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    {isImage(preview.type) ? (
+                      <div className="relative">
+                        <img 
+                          src={preview.url} 
+                          alt={preview.name}
+                          className="w-12 h-12 object-cover rounded border"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const icon = target.nextElementSibling as HTMLElement;
+                            if (icon) icon.style.display = 'block';
+                          }}
+                        />
+                        <div style={{ display: 'none' }}>
+                          {getFileIcon(preview.type)}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {isImage(fileType) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedImage(url)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                    ) : (
+                      <div className="w-12 h-12 flex items-center justify-center bg-muted rounded border">
+                        {getFileIcon(preview.type)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{preview.name}</p>
+                      {preview.size > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(preview.size)}
+                        </p>
                       )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {isImage(preview.type) && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFile(url)}
+                        onClick={() => setSelectedImage(preview.url)}
                       >
-                        <X className="h-4 w-4" />
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(preview.url)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                </Card>
-              );
-            })}
+                </div>
+              </Card>
+            ))}
           </div>
         </div>
       )}
