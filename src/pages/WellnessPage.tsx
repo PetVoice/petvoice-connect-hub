@@ -499,6 +499,7 @@ const WellnessPage = () => {
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
   const [loading, setLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState('month'); // Default to month
   
   // Get selected pet from URL or default to first pet
   const selectedPetId = searchParams.get('pet') || pets[0]?.id;
@@ -538,38 +539,121 @@ const WellnessPage = () => {
 
   // Calculate wellness trend data from real health metrics and diary entries
   const wellnessTrendData = useMemo(() => {
-    const last6Months = Array.from({ length: 6 }, (_, i) => {
-      const date = subMonths(new Date(), 5 - i);
-      const monthStart = startOfMonth(date);
-      const monthEnd = endOfMonth(date);
+    const now = new Date();
+    let periods: Array<{ start: Date; end: Date; label: string }> = [];
+
+    // Define periods based on selected filter
+    switch (selectedPeriod) {
+      case 'day':
+        // Last 7 days
+        periods = Array.from({ length: 7 }, (_, i) => {
+          const date = subDays(now, 6 - i);
+          return {
+            start: startOfDay(date),
+            end: endOfDay(date),
+            label: format(date, 'dd/MM', { locale: it })
+          };
+        });
+        break;
       
-      // Get metrics for this month
-      const monthMetrics = healthMetrics.filter(metric => {
+      case 'week':
+        // Last 8 weeks
+        periods = Array.from({ length: 8 }, (_, i) => {
+          const weekStart = subDays(now, (7 - i) * 7);
+          const weekEnd = subDays(weekStart, -6);
+          return {
+            start: startOfDay(weekStart),
+            end: endOfDay(weekEnd),
+            label: `${format(weekStart, 'dd', { locale: it })}-${format(weekEnd, 'dd MMM', { locale: it })}`
+          };
+        });
+        break;
+      
+      case 'month':
+        // Last 6 months (default)
+        periods = Array.from({ length: 6 }, (_, i) => {
+          const date = subMonths(now, 5 - i);
+          return {
+            start: startOfMonth(date),
+            end: endOfMonth(date),
+            label: format(date, 'MMM', { locale: it })
+          };
+        });
+        break;
+      
+      case 'year':
+        // Last 3 years
+        periods = Array.from({ length: 3 }, (_, i) => {
+          const year = now.getFullYear() - (2 - i);
+          return {
+            start: new Date(year, 0, 1),
+            end: new Date(year, 11, 31),
+            label: year.toString()
+          };
+        });
+        break;
+      
+      case 'all':
+        // All time - group by months, but show more data points
+        const firstEntry = [...healthMetrics, ...diaryEntries]
+          .map(item => new Date('recorded_at' in item ? item.recorded_at : item.entry_date))
+          .sort((a, b) => a.getTime() - b.getTime())[0];
+        
+        if (firstEntry) {
+          const monthsDiff = differenceInDays(now, firstEntry) / 30;
+          const numPeriods = Math.min(Math.max(Math.ceil(monthsDiff), 6), 24); // Between 6 and 24 months
+          
+          periods = Array.from({ length: numPeriods }, (_, i) => {
+            const date = subMonths(now, numPeriods - 1 - i);
+            return {
+              start: startOfMonth(date),
+              end: endOfMonth(date),
+              label: format(date, 'MMM yy', { locale: it })
+            };
+          });
+        } else {
+          // Fallback to 6 months if no data
+          periods = Array.from({ length: 6 }, (_, i) => {
+            const date = subMonths(now, 5 - i);
+            return {
+              start: startOfMonth(date),
+              end: endOfMonth(date),
+              label: format(date, 'MMM', { locale: it })
+            };
+          });
+        }
+        break;
+    }
+
+    // Calculate wellness score for each period
+    return periods.map(period => {
+      // Get metrics for this period
+      const periodMetrics = healthMetrics.filter(metric => {
         const metricDate = new Date(metric.recorded_at);
-        return isAfter(metricDate, monthStart) && isBefore(metricDate, monthEnd);
+        return isAfter(metricDate, period.start) && isBefore(metricDate, period.end);
       });
       
-      // Get diary entries for this month
-      const monthDiary = diaryEntries.filter(entry => {
+      // Get diary entries for this period
+      const periodDiary = diaryEntries.filter(entry => {
         const entryDate = new Date(entry.entry_date);
-        return isAfter(entryDate, monthStart) && isBefore(entryDate, monthEnd);
+        return isAfter(entryDate, period.start) && isBefore(entryDate, period.end);
       });
       
-      // Calculate wellness score for this month
+      // Calculate wellness score for this period
       let score = 50; // base score
       
       // Factor in mood scores
-      const moodScores = monthDiary.map(entry => entry.mood_score).filter(Boolean);
+      const moodScores = periodDiary.map(entry => entry.mood_score).filter(Boolean);
       if (moodScores.length > 0) {
         const avgMood = moodScores.reduce((a, b) => a + b, 0) / moodScores.length;
         score += (avgMood - 5) * 10; // scale from 1-10 to impact score
       }
       
       // Factor in vital signs with critical status evaluation
-      const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
-      const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
-      const respMetrics = monthMetrics.filter(m => m.metric_type === 'respiration');
-      const gumMetrics = monthMetrics.filter(m => m.metric_type === 'gum_color');
+      const tempMetrics = periodMetrics.filter(m => m.metric_type === 'temperature');
+      const heartMetrics = periodMetrics.filter(m => m.metric_type === 'heart_rate');
+      const respMetrics = periodMetrics.filter(m => m.metric_type === 'respiration');
+      const gumMetrics = periodMetrics.filter(m => m.metric_type === 'gum_color');
       
       if (tempMetrics.length > 0) {
         const avgTemp = tempMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / tempMetrics.length;
@@ -608,13 +692,11 @@ const WellnessPage = () => {
       score = Math.max(0, Math.min(100, score));
       
       return {
-        date: format(date, 'MMM', { locale: it }),
+        date: period.label,
         wellness: Math.round(score)
       };
     });
-    
-    return last6Months;
-  }, [healthMetrics, diaryEntries]);
+  }, [healthMetrics, diaryEntries, selectedPeriod, selectedPet?.type]);
 
   // Auto-detect unit when metric type changes
   const handleMetricTypeChange = (metricType: string) => {
@@ -1688,13 +1770,41 @@ const WellnessPage = () => {
           {/* Unified Wellness Trend Chart */}
           <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
             <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <TrendingUp className="h-6 w-6 text-primary" />
-                Trend Generale Benessere
-              </CardTitle>
-              <CardDescription>
-                Andamento complessivo del benessere di {selectedPet?.name || 'il tuo pet'} nel tempo
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                    Trend Generale Benessere
+                  </CardTitle>
+                  <CardDescription>
+                    Andamento complessivo del benessere di {selectedPet?.name || 'il tuo pet'} nel tempo
+                  </CardDescription>
+                </div>
+                
+                {/* Period Filter Badges */}
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { key: 'day', label: 'Giorno' },
+                    { key: 'week', label: 'Settimana' }, 
+                    { key: 'month', label: 'Mese' },
+                    { key: 'year', label: 'Anno' },
+                    { key: 'all', label: 'Tutto' }
+                  ].map((period) => (
+                    <Badge
+                      key={period.key}
+                      variant={selectedPeriod === period.key ? 'default' : 'outline'}
+                      className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+                        selectedPeriod === period.key 
+                          ? 'bg-primary text-primary-foreground shadow-md' 
+                          : 'hover:bg-muted border-2'
+                      }`}
+                      onClick={() => setSelectedPeriod(period.key)}
+                    >
+                      {period.label}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-80 relative overflow-hidden">
