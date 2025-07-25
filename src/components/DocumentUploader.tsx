@@ -387,7 +387,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             <AlertDialogCancel onClick={() => setFileToDelete(null)}>
               Annulla
             </AlertDialogCancel>
-            <AlertDialogAction onClick={confirmRemoveFile}>
+            <AlertDialogAction 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmRemoveFile}
+            >
               Elimina
             </AlertDialogAction>
           </AlertDialogFooter>
