@@ -742,6 +742,31 @@ const WellnessPage = () => {
     to: new Date()
   });
   
+  // Pet analyses for comprehensive health dashboard
+  const [petAnalyses, setPetAnalyses] = useState([]);
+  
+  React.useEffect(() => {
+    const fetchPetAnalyses = async () => {
+      if (!selectedPet?.id || !user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('pet_analyses')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        setPetAnalyses(data || []);
+      } catch (error) {
+        console.error('Error fetching pet analyses:', error);
+        setPetAnalyses([]);
+      }
+    };
+    
+    fetchPetAnalyses();
+  }, [selectedPet?.id, user?.id]);
+  
   // Dialog states
   const [showAddDocument, setShowAddDocument] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
@@ -3368,24 +3393,7 @@ const WellnessPage = () => {
                 const generateUnifiedHealthData = () => {
                   const months = [];
                   
-                  // First, fetch existing analyses data for mood calculation
-                  const [analyses, setAnalyses] = React.useState([]);
                   
-                  React.useEffect(() => {
-                    const fetchAnalyses = async () => {
-                      try {
-                        const { data } = await supabase
-                          .from('pet_analyses')
-                          .select('*')
-                          .eq('pet_id', selectedPet.id)
-                          .order('created_at', { ascending: false });
-                        setAnalyses(data || []);
-                      } catch (error) {
-                        console.error('Error fetching analyses:', error);
-                      }
-                    };
-                    fetchAnalyses();
-                  }, [selectedPet.id]);
                   for (let i = 11; i >= 0; i--) {
                     const date = subMonths(new Date(), i);
                     const monthStart = startOfMonth(date);
@@ -3551,24 +3559,8 @@ const WellnessPage = () => {
                 
                 const unifiedData = generateUnifiedHealthData();
                 
-                // Check if we have ANY data including pet analyses
-                const [petAnalyses, setPetAnalyses] = React.useState([]);
                 
-                React.useEffect(() => {
-                  const fetchAnalyses = async () => {
-                    if (!selectedPet?.id) return;
-                    try {
-                      const { data } = await supabase
-                        .from('pet_analyses')
-                        .select('*')
-                        .eq('pet_id', selectedPet.id);
-                      setPetAnalyses(data || []);
-                    } catch (error) {
-                      console.error('Error fetching analyses:', error);
-                    }
-                  };
-                  fetchAnalyses();
-                }, [selectedPet?.id]);
+                // Check if we have ANY data including pet analyses (using state from parent component)
                 
                 const hasAnyData = unifiedData.some(d => 
                   d.temperature !== null || d.heartRate !== null || d.respiration !== null || 
