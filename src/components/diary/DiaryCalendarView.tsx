@@ -153,8 +153,8 @@ export const DiaryCalendarView: React.FC<DiaryCalendarViewProps> = ({
                 key={day.toISOString()}
                 className={`
                   relative ${viewMode === 'day' ? 'min-h-96 mb-4' : 'aspect-square h-24'} p-2 border border-primary/20 rounded-lg cursor-pointer transition-all duration-200
-                  ${isCurrentMonth ? 'bg-primary/10 hover:bg-primary/20 hover:shadow-glow hover:scale-[1.02]' : 'bg-primary/5 text-muted-foreground hover:bg-primary/10'}
-                  ${todayDate ? 'ring-2 ring-primary bg-primary/20' : ''}
+                  ${isCurrentMonth ? 'bg-white hover:bg-primary/20 hover:shadow-glow hover:scale-[1.02]' : 'bg-white/50 text-muted-foreground hover:bg-primary/10'}
+                  ${todayDate ? 'ring-2 ring-primary bg-primary/10' : ''}
                 `}
                 onClick={() => onDayClick(day)}
               >
