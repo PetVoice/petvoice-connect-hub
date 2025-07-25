@@ -72,6 +72,7 @@ const DashboardPage: React.FC = () => {
 
   // Load pet statistics when selectedPet changes
   useEffect(() => {
+    console.log('📊 DashboardPage: loading stats for pet:', selectedPet?.name, 'user:', user?.id);
     const loadPetStats = async () => {
       if (!selectedPet || !user) {
         setPetStats({
