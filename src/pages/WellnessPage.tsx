@@ -3331,195 +3331,384 @@ const WellnessPage = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Health Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Trend Salute Generale
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const trendData = generateHealthTrendData();
-                  const hasData = trendData.some(d => d.score !== null);
-                  
-                  if (!hasData) {
-                    return (
-                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                        <div className="text-center">
-                          <div className="text-lg font-medium mb-2">Nessun dato disponibile</div>
-                          <p className="text-sm">Aggiungi metriche sanitarie per vedere il trend della salute</p>
-                        </div>
-                      </div>
-                    );
+          {/* Unified Health Analytics Dashboard */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5" />
+                    Dashboard Salute Unificato
+                  </CardTitle>
+                  <CardDescription>
+                    Visualizzazione completa di tutti i dati sanitari e comportamentali
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      // Generate and download health report
+                      const doc = new jsPDF();
+                      doc.text(`Report Salute - ${selectedPet.name}`, 20, 20);
+                      doc.text(`Data: ${format(new Date(), 'dd/MM/yyyy')}`, 20, 30);
+                      doc.save(`report-salute-${selectedPet.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Esporta Report
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {(() => {
+                // Generate unified chart data
+                const generateUnifiedHealthData = () => {
+                  const months = [];
+                  for (let i = 11; i >= 0; i--) {
+                    const date = subMonths(new Date(), i);
+                    const monthStart = startOfMonth(date);
+                    const monthEnd = endOfMonth(date);
+                    
+                    // Get metrics for this month
+                    const monthMetrics = healthMetrics.filter(m => {
+                      const metricDate = new Date(m.recorded_at);
+                      return isAfter(metricDate, monthStart) && isBefore(metricDate, monthEnd);
+                    });
+                    
+                    // Get medical records for this month  
+                    const monthRecords = medicalRecords.filter(r => {
+                      const recordDate = new Date(r.record_date);
+                      return isAfter(recordDate, monthStart) && isBefore(recordDate, monthEnd);
+                    });
+                    
+                    // Calculate averages and scores
+                    const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
+                    const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
+                    const respMetrics = monthMetrics.filter(m => m.metric_type === 'respiration' || m.metric_type === 'respiratory_rate');
+                    
+                    const avgTemp = tempMetrics.length > 0 
+                      ? tempMetrics.reduce((sum, m) => sum + m.value, 0) / tempMetrics.length 
+                      : null;
+                    const avgHeart = heartMetrics.length > 0 
+                      ? heartMetrics.reduce((sum, m) => sum + m.value, 0) / heartMetrics.length 
+                      : null;
+                    const avgResp = respMetrics.length > 0 
+                      ? respMetrics.reduce((sum, m) => sum + m.value, 0) / respMetrics.length 
+                      : null;
+                    
+                    // Health score calculation (simplified)
+                    let healthScore = null;
+                    if (monthMetrics.length > 0) {
+                      let score = 70; // Base score
+                      
+                      // Temperature score
+                      if (avgTemp && avgTemp >= 38 && avgTemp <= 39.2) score += 10;
+                      else if (avgTemp) score -= 5;
+                      
+                      // Heart rate score (simplified)
+                      if (avgHeart && avgHeart >= 60 && avgHeart <= 140) score += 10;
+                      else if (avgHeart) score -= 5;
+                      
+                      // Respiration score
+                      if (avgResp && avgResp >= 10 && avgResp <= 30) score += 10;
+                      else if (avgResp) score -= 5;
+                      
+                      // Medical visits impact
+                      monthRecords.forEach(record => {
+                        if (record.record_type === 'visit' || record.record_type === 'checkup') score += 5;
+                        if (record.record_type === 'emergency') score -= 10;
+                      });
+                      
+                      healthScore = Math.max(0, Math.min(100, score));
+                    }
+                    
+                    months.push({
+                      month: format(date, 'MMM', { locale: it }),
+                      temperature: avgTemp ? Number(avgTemp.toFixed(1)) : null,
+                      heartRate: avgHeart ? Math.round(avgHeart) : null,
+                      respiration: avgResp ? Math.round(avgResp) : null,
+                      healthScore: healthScore,
+                      visits: monthRecords.length,
+                      criticalAlerts: monthMetrics.filter(m => {
+                        const evaluation = evaluateVitalParameter(m.metric_type, m.value, selectedPet?.species);
+                        return evaluation.status === 'critical';
+                      }).length
+                    });
                   }
-                  
+                  return months;
+                };
+                
+                const unifiedData = generateUnifiedHealthData();
+                const hasAnyData = unifiedData.some(d => 
+                  d.temperature !== null || d.heartRate !== null || d.respiration !== null || d.healthScore !== null
+                );
+                
+                if (!hasAnyData) {
                   return (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-
-            {/* Visit Distribution */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Distribuzione Visite
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const visitData = generateVisitDistribution();
-                  
-                  if (visitData.length === 0) {
-                    return (
-                      <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                        <div className="text-center">
-                          <div className="text-lg font-medium mb-2">Nessuna visita registrata</div>
-                          <p className="text-sm">Aggiungi visite mediche per vedere la distribuzione</p>
-                        </div>
-                      </div>
-                    );
-                  }
-                  
-                  return (
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={visitData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {visitData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`hsl(${index * 60}, 70%, 50%)`} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Analytics Cards */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Correlazioni Salute-Umore</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {healthMetrics.length > 0 ? (
-                  <>
-                    <div className="text-2xl font-bold">
-                      {Math.round((healthMetrics.filter(m => m.value > 7).length / healthMetrics.length) * 100)}%
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Correlazione tra visite regolari e metriche sanitarie positive
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-lg text-muted-foreground">Non disponibile</div>
-                    <p className="text-sm text-muted-foreground">
-                      Aggiungi metriche sanitarie per vedere le correlazioni
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Pattern Stagionali</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const seasonalData = medicalRecords.reduce((acc, record) => {
-                    const month = new Date(record.record_date).getMonth();
-                    const season = month >= 2 && month <= 4 ? 'Primavera' :
-                                 month >= 5 && month <= 7 ? 'Estate' :
-                                 month >= 8 && month <= 10 ? 'Autunno' : 'Inverno';
-                    acc[season] = (acc[season] || 0) + 1;
-                    return acc;
-                  }, {} as Record<string, number>);
-                  
-                  const mostActiveSeason = Object.entries(seasonalData)
-                    .sort(([,a], [,b]) => b - a)[0];
-                  
-                  return mostActiveSeason ? (
-                    <>
-                      <div className="text-2xl font-bold">{mostActiveSeason[0]}</div>
-                      <p className="text-sm text-muted-foreground">
-                        Periodo con maggior numero di controlli ({mostActiveSeason[1]} visite)
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="text-lg text-muted-foreground">Non disponibile</div>
-                      <p className="text-sm text-muted-foreground">
-                        Aggiungi più visite per vedere i pattern stagionali
-                      </p>
-                    </>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Efficacia Farmaci</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {(() => {
-                  const totalMedications = medications.length;
-                  const completedMedications = medications.filter(m => 
-                    !m.is_active && m.end_date
-                  ).length;
-                  
-                  if (totalMedications === 0) {
-                    return (
-                      <>
-                        <div className="text-lg text-muted-foreground">Non disponibile</div>
-                        <p className="text-sm text-muted-foreground">
-                          Aggiungi farmaci per vedere l'efficacia delle terapie
+                    <div className="flex items-center justify-center h-[500px] text-muted-foreground">
+                      <div className="text-center space-y-4">
+                        <div className="text-lg font-medium mb-2">Nessun dato disponibile</div>
+                        <p className="text-sm max-w-md">
+                          Inizia ad aggiungere metriche sanitarie, visite veterinarie e farmaci per vedere 
+                          il dashboard completo della salute di {selectedPet.name}
                         </p>
-                      </>
-                    );
-                  }
-                  
-                  const successRate = Math.round((completedMedications / totalMedications) * 100);
-                  
-                  return (
-                    <>
-                      <div className="text-2xl font-bold">{successRate}%</div>
-                      <p className="text-sm text-muted-foreground">
-                        Tasso di completamento delle terapie farmacologiche ({completedMedications}/{totalMedications})
-                      </p>
-                    </>
+                        <div className="flex gap-2 justify-center mt-4">
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              setEditingMetric(null);
+                              setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
+                              setShowAddMetric(true);
+                            }}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Aggiungi Metrica
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setShowAddDocument(true)}
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Aggiungi Visita
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   );
-                })()}
-              </CardContent>
-            </Card>
-          </div>
+                }
+                
+                return (
+                  <div className="space-y-6">
+                    {/* Unified Chart */}
+                    <div className="h-[400px]">
+                      <ChartContainer
+                        config={{
+                          healthScore: {
+                            label: "Punteggio Salute",
+                            color: "hsl(var(--primary))",
+                          },
+                          temperature: {
+                            label: "Temperatura (°C)",
+                            color: "hsl(var(--destructive))",
+                          },
+                          heartRate: {
+                            label: "Battito (bpm)",
+                            color: "#3b82f6",
+                          },
+                          respiration: {
+                            label: "Respirazione",
+                            color: "#22c55e",
+                          },
+                        }}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={unifiedData}>
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                            <XAxis 
+                              dataKey="month" 
+                              tick={{ fontSize: 12 }}
+                              stroke="hsl(var(--muted-foreground))"
+                            />
+                            <YAxis 
+                              yAxisId="left"
+                              tick={{ fontSize: 12 }}
+                              stroke="hsl(var(--muted-foreground))"
+                              label={{ value: 'Parametri Vitali', angle: -90, position: 'insideLeft' }}
+                            />
+                            <YAxis 
+                              yAxisId="right" 
+                              orientation="right"
+                              tick={{ fontSize: 12 }}
+                              stroke="hsl(var(--muted-foreground))"
+                              label={{ value: 'Punteggio Salute', angle: 90, position: 'insideRight' }}
+                            />
+                            <ChartTooltip 
+                              content={<ChartTooltipContent />}
+                            />
+                            <ChartLegend content={<ChartLegendContent />} />
+                            
+                            {/* Health score line */}
+                            <Line 
+                              yAxisId="right"
+                              type="monotone" 
+                              dataKey="healthScore" 
+                              stroke="hsl(var(--primary))" 
+                              strokeWidth={3}
+                              name="Punteggio Salute"
+                              connectNulls={false}
+                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                            />
+                            
+                            {/* Vital signs lines */}
+                            <Line 
+                              yAxisId="left"
+                              type="monotone" 
+                              dataKey="temperature" 
+                              stroke="hsl(var(--destructive))" 
+                              strokeWidth={2}
+                              name="Temperatura (°C)"
+                              connectNulls={false}
+                              dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2 }}
+                            />
+                            <Line 
+                              yAxisId="left"
+                              type="monotone" 
+                              dataKey="heartRate" 
+                              stroke="#3b82f6" 
+                              strokeWidth={2}
+                              name="Battito (bpm)"
+                              connectNulls={false}
+                              dot={{ fill: "#3b82f6", strokeWidth: 2 }}
+                            />
+                            <Line 
+                              yAxisId="left"
+                              type="monotone" 
+                              dataKey="respiration" 
+                              stroke="#22c55e" 
+                              strokeWidth={2}
+                              name="Respirazione"
+                              connectNulls={false}
+                              dot={{ fill: "#22c55e", strokeWidth: 2 }}
+                            />
+                            
+                            {/* Reference lines for normal ranges */}
+                            <ReferenceLine 
+                              yAxisId="left" 
+                              y={38} 
+                              stroke="hsl(var(--destructive))" 
+                              strokeDasharray="5 5" 
+                              opacity={0.5}
+                              label="Temp Min"
+                            />
+                            <ReferenceLine 
+                              yAxisId="left" 
+                              y={39.2} 
+                              stroke="hsl(var(--destructive))" 
+                              strokeDasharray="5 5" 
+                              opacity={0.5}
+                              label="Temp Max"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Visite Totali</p>
+                              <p className="text-2xl font-bold">{medicalRecords.length}</p>
+                            </div>
+                            <Calendar className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Farmaci Attivi</p>
+                              <p className="text-2xl font-bold">
+                                {medications.filter(m => getMedicationStatus(m) === 'active').length}
+                              </p>
+                            </div>
+                            <Pill className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Metriche Totali</p>
+                              <p className="text-2xl font-bold">{healthMetrics.length}</p>
+                            </div>
+                            <Activity className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Avvisi Critici</p>
+                              <p className="text-2xl font-bold text-destructive">
+                                {healthMetrics.filter(m => {
+                                  const evaluation = evaluateVitalParameter(m.metric_type, m.value, selectedPet?.species);
+                                  return evaluation.status === 'critical';
+                                }).length}
+                              </p>
+                            </div>
+                            <AlertTriangle className="h-8 w-8 text-destructive" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    {/* Critical Alerts Section */}
+                    {(() => {
+                      const criticalAlerts = healthMetrics.filter(metric => {
+                        const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.species);
+                        return evaluation.status === 'critical';
+                      });
+
+                      if (criticalAlerts.length > 0) {
+                        return (
+                          <Card className="border-destructive">
+                            <CardHeader>
+                              <CardTitle className="flex items-center gap-2 text-destructive">
+                                <AlertTriangle className="h-5 w-5" />
+                                Avvisi Critici Attivi
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-3">
+                                {criticalAlerts.slice(0, 3).map(metric => {
+                                  const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.species);
+                                  return (
+                                    <Alert key={metric.id} className="border-destructive">
+                                      <AlertTriangle className="h-4 w-4" />
+                                      <AlertDescription>
+                                        <div className="space-y-1">
+                                          <p className="font-medium">{evaluation.message}</p>
+                                          {evaluation.recommendation && (
+                                            <p className="text-sm">{evaluation.recommendation}</p>
+                                          )}
+                                          <p className="text-xs text-muted-foreground">
+                                            {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
+                                          </p>
+                                        </div>
+                                      </AlertDescription>
+                                    </Alert>
+                                  );
+                                })}
+                                {criticalAlerts.length > 3 && (
+                                  <p className="text-sm text-muted-foreground text-center">
+                                    E altri {criticalAlerts.length - 3} avvisi critici...
+                                  </p>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                );
+              })()}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Emergency Tab */}
