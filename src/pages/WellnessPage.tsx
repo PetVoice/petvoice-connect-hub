@@ -2656,79 +2656,7 @@ const WellnessPage = () => {
           </Card>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {/* Wellness Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Trend Benessere
-                </CardTitle>
-                <CardDescription>
-                  Evoluzione del punteggio di benessere nel tempo
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={{
-                  score: { label: "Benessere", color: "hsl(var(--primary))" }
-                }} className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={displayAnalytics.wellnessTrends || []}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" />
-                      <YAxis domain={[0, 100]} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Area
-                        type="monotone"
-                        dataKey="score"
-                        stroke="hsl(var(--primary))"
-                        fill="hsl(var(--primary))"
-                        fillOpacity={0.2}
-                      />
-                      <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" />
-                      <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-
-            {/* Trend Umore */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <LineChartIcon className="h-5 w-5" />
-                  Trend Umore
-                </CardTitle>
-                <CardDescription>
-                  Variazione dell'umore nel tempo (scala 1-10)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartContainer config={{
-                  mood: { label: "Umore", color: "hsl(var(--primary))" }
-                }} className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={displayAnalytics.moodTrends}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" />
-                      <YAxis domain={[1, 10]} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line
-                        type="monotone"
-                        dataKey="mood"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={3}
-                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
-                      />
-                      <ReferenceLine y={7} stroke="hsl(var(--success))" strokeDasharray="5 5" />
-                      <ReferenceLine y={4} stroke="hsl(var(--destructive))" strokeDasharray="5 5" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Trend Salute */}
             <Card>
               <CardHeader>
@@ -2818,10 +2746,7 @@ const WellnessPage = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
 
-          {/* Parametri Vitali */}
-          <div className="grid grid-cols-1 gap-6">
             {/* Parametri Vitali */}
             <Card>
               <CardHeader>
@@ -2912,6 +2837,81 @@ const WellnessPage = () => {
                   </Alert>
                 )}
 
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Chart Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Wellness Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere
+                </CardTitle>
+                <CardDescription>
+                  Evoluzione del punteggio di benessere nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  score: { label: "Benessere", color: "hsl(var(--primary))" }
+                }} className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={displayAnalytics.wellnessTrends || []}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[0, 100]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="score"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                      <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Trend Umore */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChartIcon className="h-5 w-5" />
+                  Trend Umore
+                </CardTitle>
+                <CardDescription>
+                  Variazione dell'umore nel tempo (scala 1-10)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  mood: { label: "Umore", color: "hsl(var(--primary))" }
+                }} className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={displayAnalytics.moodTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[1, 10]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="mood"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      />
+                      <ReferenceLine y={7} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={4} stroke="hsl(var(--destructive))" strokeDasharray="5 5" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
