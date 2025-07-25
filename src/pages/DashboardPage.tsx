@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { 
   Heart, 
   PawPrint, 
   Microscope, 
   Calendar, 
+  BarChart3,
   Plus,
   TrendingUp,
   Activity,
-  Download
+  Brain
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { format, subDays } from 'date-fns';
-import { toast } from '@/hooks/use-toast';
-import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
+import { format, isToday, subDays } from 'date-fns';
+// Translation system removed - Italian only
 
 interface PetStats {
   totalAnalyses: number;
@@ -28,8 +28,6 @@ interface PetStats {
   healthStatus: string;
   diaryEntries: number;
   calendarEvents: number;
-  healthMetrics: number;
-  recentHealthMetrics: number;
 }
 
 const DashboardPage: React.FC = () => {
@@ -43,12 +41,10 @@ const DashboardPage: React.FC = () => {
     moodTrend: 0,
     healthStatus: 'N/A',
     diaryEntries: 0,
-    calendarEvents: 0,
-    healthMetrics: 0,
-    recentHealthMetrics: 0
+    calendarEvents: 0
   });
   const [loading, setLoading] = useState(false);
-  const [showDiaryDialog, setShowDiaryDialog] = useState(false);
+  // Translation system removed - Italian only
 
   const quickActions = [
     {
@@ -71,13 +67,6 @@ const DashboardPage: React.FC = () => {
       icon: Calendar,
       onClick: () => navigate('/calendar'),
       color: 'from-primary/60 to-primary/40'
-    },
-    {
-      title: 'Benessere',
-      description: 'Monitora salute e benessere',
-      icon: Heart,
-      onClick: () => navigate('/wellness'),
-      color: 'from-primary/40 to-primary/20'
     }
   ];
 
@@ -92,9 +81,7 @@ const DashboardPage: React.FC = () => {
           moodTrend: 0,
           healthStatus: 'N/A',
           diaryEntries: 0,
-          calendarEvents: 0,
-          healthMetrics: 0,
-          recentHealthMetrics: 0
+          calendarEvents: 0
         });
         return;
       }
@@ -126,21 +113,9 @@ const DashboardPage: React.FC = () => {
           .eq('pet_id', selectedPet.id)
           .eq('user_id', user.id);
 
-        // Get health metrics
-        const { data: healthMetrics } = await supabase
-          .from('health_metrics')
-          .select('*')
-          .eq('pet_id', selectedPet.id)
-          .eq('user_id', user.id)
-          .order('recorded_at', { ascending: false });
-
         const totalAnalyses = analyses?.length || 0;
         const recentAnalyses = analyses?.filter(a => 
           new Date(a.created_at) >= lastWeek
-        ).length || 0;
-
-        const recentHealthMetrics = healthMetrics?.filter(h => 
-          new Date(h.recorded_at) >= lastWeek
         ).length || 0;
 
         // Calculate wellness score based on recent analyses
@@ -201,18 +176,11 @@ const DashboardPage: React.FC = () => {
           moodTrend,
           healthStatus,
           diaryEntries: diaryEntries?.length || 0,
-          calendarEvents: calendarEvents?.length || 0,
-          healthMetrics: healthMetrics?.length || 0,
-          recentHealthMetrics
+          calendarEvents: calendarEvents?.length || 0
         });
 
       } catch (error) {
         console.error('Error loading pet stats:', error);
-        toast({
-          title: "Errore",
-          description: "Errore nel caricamento delle statistiche",
-          variant: "destructive"
-        });
       } finally {
         setLoading(false);
       }
@@ -221,95 +189,39 @@ const DashboardPage: React.FC = () => {
     loadPetStats();
   }, [selectedPet, user]);
 
-  const handleExportData = () => {
-    toast({
-      title: "Feature in arrivo",
-      description: "L'esportazione dati sarà disponibile presto"
-    });
-  };
-
-  if (!selectedPet) {
-    return (
-      <div className="container mx-auto py-6 space-y-6">
-        {/* Welcome Section for no pet selected */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Benvenuto su PetVoice
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
-          </p>
-        </div>
-
-        {/* Getting Started */}
-        {pets.length === 0 && (
-          <Card className="border-dashed border-2">
-            <CardHeader className="text-center">
-              <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                <PawPrint className="h-6 w-6 text-foreground" />
-              </div>
-              <CardTitle>Nessun pet aggiunto</CardTitle>
-              <CardDescription>
-                Aggiungi il tuo primo pet per iniziare a usare la dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Button 
-                onClick={() => navigate('/pets?add=true')} 
-                data-guide="pet-selector"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Aggiungi Pet
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {pets.length > 0 && (
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle>Seleziona un Pet</CardTitle>
-              <CardDescription>
-                Seleziona un pet dalla sidebar per visualizzare la dashboard
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-          Dashboard - {selectedPet.name}
+          Benvenuto su PetVoice
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Monitora la salute e il benessere completo del tuo pet
+          Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
         </p>
       </div>
 
       {/* Selected Pet Info */}
-      <Card className="bg-gradient-subtle border-0 shadow-elegant">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-2xl">
-                {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
-                 selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
-              </span>
-            </div>
-            <div>
-              <h2 className="text-2xl">{selectedPet.name}</h2>
-              <p className="text-muted-foreground">
-                {selectedPet.type?.toLowerCase() === 'cane' ? 'Cane' : selectedPet.type} • {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
-              </p>
-            </div>
-          </CardTitle>
-        </CardHeader>
-      </Card>
+      {selectedPet && (
+        <Card className="bg-gradient-subtle border-0 shadow-elegant">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-2xl">
+                  {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
+                   selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
+                </span>
+              </div>
+              <div>
+                <h2 className="text-2xl">{selectedPet.name}</h2>
+                <p className="text-muted-foreground">
+                  {selectedPet.type?.toLowerCase() === 'cane' ? 'Cane' : selectedPet.type} • {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
+                </p>
+              </div>
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       <Card>
@@ -323,7 +235,7 @@ const DashboardPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {quickActions.map((action, index) => (
               <Button
                 key={index}
@@ -349,14 +261,19 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-foreground">
-              Analisi Totali
+              {selectedPet ? 'Analisi Totali' : 'Pet Registrati'}
             </CardTitle>
             <Microscope className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{petStats.totalAnalyses}</div>
+            <div className="text-2xl font-bold">
+              {selectedPet ? petStats.totalAnalyses : pets.length}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {petStats.recentAnalyses} questa settimana
+              {selectedPet ? 
+                `${petStats.recentAnalyses} questa settimana` : 
+                pets.length === 1 ? '1 pet nella famiglia' : `${pets.length} pet nella famiglia`
+              }
             </p>
           </CardContent>
         </Card>
@@ -364,22 +281,28 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-foreground">
-              Score Benessere
+              {selectedPet ? 'Score Benessere' : 'Voci Diario'}
             </CardTitle>
             <Heart className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${
-              petStats.wellnessScore > 0 ?
+              selectedPet && petStats.wellnessScore > 0 ?
                 petStats.wellnessScore >= 80 ? 'text-success' :
                 petStats.wellnessScore >= 60 ? 'text-primary' :
                 petStats.wellnessScore >= 40 ? 'text-warning' : 'text-destructive'
                 : 'text-foreground'
             }`}>
-              {petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : 'N/A'}
+              {selectedPet ? 
+                petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : 'N/A' :
+                petStats.diaryEntries
+              }
             </div>
             <p className="text-xs text-muted-foreground">
-              {petStats.healthStatus}
+              {selectedPet ? 
+                petStats.healthStatus : 
+                'Monitoraggio quotidiano'
+              }
             </p>
           </CardContent>
         </Card>
@@ -387,25 +310,29 @@ const DashboardPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-foreground">
-              Trend Umore
+              {selectedPet ? 'Trend Umore' : 'Eventi Calendario'}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${
-              petStats.moodTrend !== 0 ?
+              selectedPet && petStats.moodTrend !== 0 ?
                 petStats.moodTrend > 0 ? 'text-success' : 'text-destructive'
                 : 'text-foreground'
             }`}>
-              {petStats.moodTrend !== 0 ? 
-                `${petStats.moodTrend > 0 ? '+' : ''}${petStats.moodTrend}%` : 
-                'N/A'
+              {selectedPet ? 
+                petStats.moodTrend !== 0 ? 
+                  `${petStats.moodTrend > 0 ? '+' : ''}${petStats.moodTrend}%` : 
+                  'N/A' :
+                petStats.calendarEvents
               }
             </div>
             <p className="text-xs text-muted-foreground">
-              {petStats.moodTrend !== 0 ? 
-                `${petStats.moodTrend > 0 ? 'Miglioramento' : 'Peggioramento'} recente` :
-                'Serve più storico'
+              {selectedPet ? 
+                petStats.moodTrend !== 0 ? 
+                  `${petStats.moodTrend > 0 ? 'Miglioramento' : 'Peggioramento'} recente` :
+                  'Serve più storico' :
+                'Appuntamenti pianificati'
               }
             </p>
           </CardContent>
@@ -413,83 +340,47 @@ const DashboardPage: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">Metriche Salute</CardTitle>
-            <Activity className="h-4 w-4 text-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{petStats.healthMetrics}</div>
-            <p className="text-xs text-muted-foreground">
-              {petStats.recentHealthMetrics} questa settimana
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-foreground">Voci Diario</CardTitle>
-            <PawPrint className="h-4 w-4 text-foreground" />
+            <Calendar className="h-4 w-4 text-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{petStats.diaryEntries}</div>
             <p className="text-xs text-muted-foreground">
-              Registrazioni di {selectedPet.name}
+              {selectedPet ? 
+                `Registrazioni di ${selectedPet.name}` :
+                'Seleziona un pet'
+              }
             </p>
           </CardContent>
         </Card>
+      </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">Eventi Calendario</CardTitle>
-            <Calendar className="h-4 w-4 text-foreground" />
+      {/* Getting Started */}
+      {pets.length === 0 && (
+        <Card className="border-dashed border-2">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+              <PawPrint className="h-6 w-6 text-foreground" />
+            </div>
+            <CardTitle>Nessun pet aggiunto</CardTitle>
+            <CardDescription>
+              Aggiungi il tuo primo pet per iniziare
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{petStats.calendarEvents}</div>
-            <p className="text-xs text-muted-foreground">
-              Appuntamenti pianificati
-            </p>
+          <CardContent className="text-center">
+            <Button 
+              onClick={() => {
+                console.log('Navigating to pets page with add=true');
+                navigate('/pets?add=true');
+              }} 
+              data-guide="pet-selector"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Aggiungi Pet
+            </Button>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        <Button onClick={() => setShowDiaryDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Aggiungi Voce Diario
-        </Button>
-        <Button onClick={handleExportData} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Esporta Dati
-        </Button>
-      </div>
-
-      {/* Dialogs */}
-      <Dialog open={showDiaryDialog} onOpenChange={setShowDiaryDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Aggiungi Voce al Diario</DialogTitle>
-          </DialogHeader>
-          {selectedPet && (
-            <DiaryEntryForm
-              isOpen={showDiaryDialog}
-              petId={selectedPet.id}
-              userId={user?.id}
-              onClose={() => setShowDiaryDialog(false)}
-              onSave={(data) => {
-                console.log('Diary entry saved:', data);
-                setShowDiaryDialog(false);
-                toast({
-                  title: "Successo",
-                  description: "Voce del diario aggiunta con successo"
-                });
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      )}
     </div>
   );
 };
