@@ -6,6 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Configura il worker di PDF.js
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -238,9 +242,28 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         className="relative cursor-pointer group" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
-                        <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
-                          <FileText className="h-12 w-12 text-red-600 mb-1" />
-                          <span className="text-sm text-red-600 font-semibold">PDF</span>
+                        <div className="w-24 h-24 border-2 rounded-lg overflow-hidden bg-white">
+                          <Document
+                            file={preview.url}
+                            loading={
+                              <div className="w-full h-full flex items-center justify-center bg-red-50">
+                                <FileText className="h-8 w-8 text-red-600" />
+                              </div>
+                            }
+                            error={
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-red-50">
+                                <FileText className="h-8 w-8 text-red-600 mb-1" />
+                                <span className="text-xs text-red-600">PDF</span>
+                              </div>
+                            }
+                          >
+                            <Page
+                              pageNumber={1}
+                              width={92}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                          </Document>
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
                           <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
