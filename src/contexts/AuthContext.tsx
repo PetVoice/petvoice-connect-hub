@@ -8,6 +8,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userRoles: string[];
+  isAdmin: boolean;
+  isModerator: boolean;
+  refetchRoles: () => void;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, displayName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -32,7 +36,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const { showToast } = useToastWithIcon();
+
+  const fetchUserRoles = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        return;
+      }
+
+      setUserRoles(data?.map(r => r.role) || []);
+    } catch (error) {
+      console.error('Error fetching user roles:', error);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
@@ -40,6 +63,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchUserRoles(session.user.id);
+        } else {
+          setUserRoles([]);
+        }
         setLoading(false);
       }
     );
@@ -48,6 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserRoles(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -182,10 +213,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const isAdmin = userRoles.includes('admin');
+  const isModerator = userRoles.includes('moderator');
+
+  const refetchRoles = () => {
+    if (user) {
+      fetchUserRoles(user.id);
+    }
+  };
+
   const value = {
     user,
     session,
     loading,
+    userRoles,
+    isAdmin,
+    isModerator,
+    refetchRoles,
     signIn,
     signUp,
     signOut,

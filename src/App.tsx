@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { AdminRoute } from "@/components/AdminRoute";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
@@ -17,7 +18,6 @@ import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
 import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
-
 
 import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
@@ -29,7 +29,7 @@ import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
 import TrainingDashboard from "@/pages/TrainingDashboard";
-
+import AdminDashboard from "@/pages/AdminDashboard";
 
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
@@ -149,6 +149,13 @@ function AppContent() {
             <AppLayout>
               <SettingsPage />
             </AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />
