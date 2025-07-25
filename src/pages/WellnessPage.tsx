@@ -502,6 +502,7 @@ const WellnessPage = () => {
   const [insuranceUploadedFiles, setInsuranceUploadedFiles] = useState<File[]>([]);
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
+  const [filePreview, setFilePreview] = useState<{ open: boolean; file: File | null; url: string }>({ open: false, file: null, url: '' });
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('month'); // Default to month
   
@@ -2836,7 +2837,7 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             const url = URL.createObjectURL(file);
-                            window.open(url, '_blank');
+                            setFilePreview({ open: true, file, url });
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
@@ -2871,7 +2872,7 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                setConfirmDialog(prev => ({ ...prev, open: false }));
+                                setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
                               }
                             });
                           }}
@@ -3245,7 +3246,7 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             const url = URL.createObjectURL(file);
-                            window.open(url, '_blank');
+                            setFilePreview({ open: true, file, url });
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
@@ -3280,7 +3281,7 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setInsuranceUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                setConfirmDialog(prev => ({ ...prev, open: false }));
+                                setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
                               }
                             });
                           }}
@@ -3325,6 +3326,64 @@ const WellnessPage = () => {
         variant="destructive"
          confirmText="Elimina"
        />
+
+       {/* File Preview Dialog */}
+       <Dialog open={filePreview.open} onOpenChange={(open) => {
+         if (!open) {
+           if (filePreview.url) {
+             URL.revokeObjectURL(filePreview.url);
+           }
+           setFilePreview({ open: false, file: null, url: '' });
+         }
+       }}>
+         <DialogContent className="max-w-4xl max-h-[90vh]">
+           <DialogHeader>
+             <DialogTitle>Anteprima File</DialogTitle>
+             <DialogDescription>
+               {filePreview.file?.name} ({(filePreview.file?.size || 0 / 1024 / 1024).toFixed(2)} MB)
+             </DialogDescription>
+           </DialogHeader>
+           <div className="flex-1 overflow-auto">
+             {filePreview.file && (
+               <div className="w-full h-full flex items-center justify-center">
+                 {filePreview.file.type.startsWith('image/') ? (
+                   <img 
+                     src={filePreview.url} 
+                     alt={filePreview.file.name}
+                     className="max-w-full max-h-[60vh] object-contain"
+                   />
+                 ) : filePreview.file.type === 'application/pdf' ? (
+                   <iframe 
+                     src={filePreview.url}
+                     className="w-full h-[60vh] border rounded"
+                     title={filePreview.file.name}
+                   />
+                 ) : (
+                   <div className="text-center p-8">
+                     <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                     <p className="text-lg font-medium">{filePreview.file.name}</p>
+                     <p className="text-muted-foreground">Anteprima non disponibile per questo tipo di file</p>
+                     <Button 
+                       className="mt-4"
+                       onClick={() => {
+                         const a = document.createElement('a');
+                         a.href = filePreview.url;
+                         a.download = filePreview.file?.name || 'file';
+                         document.body.appendChild(a);
+                         a.click();
+                         document.body.removeChild(a);
+                       }}
+                     >
+                       <Download className="h-4 w-4 mr-2" />
+                       Scarica File
+                     </Button>
+                   </div>
+                 )}
+               </div>
+             )}
+           </div>
+         </DialogContent>
+       </Dialog>
 
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
