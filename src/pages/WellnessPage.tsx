@@ -775,8 +775,9 @@ const WellnessPage = () => {
 
   // Fetch all health data
   const fetchHealthData = useCallback(async () => {
-    if (!user || !selectedPet) return;
+    if (!user?.id || !selectedPet?.id) return;
     
+    console.log('Fetching health data for user:', user.id, 'pet:', selectedPet.id);
     setLoading(true);
     try {
       // Fetch health metrics
@@ -795,7 +796,9 @@ const WellnessPage = () => {
         .eq('pet_id', selectedPet.id)
         .order('record_date', { ascending: false });
       
-  // Fetch medications and check for expired ones
+      console.log('Fetched medical records:', records?.length || 0, records);
+      
+      // Fetch medications and check for expired ones
       const { data: meds } = await supabase
         .from('medications')
         .select('*')
@@ -886,7 +889,7 @@ const WellnessPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, selectedPet, toast]);
+  }, [user?.id, selectedPet?.id, toast]);
 
   useEffect(() => {
     fetchHealthData();
