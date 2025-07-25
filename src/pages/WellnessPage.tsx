@@ -2489,7 +2489,6 @@ const WellnessPage = () => {
           </Card>
           {/* Two Column Layout */}
           <div className="grid lg:grid-cols-2 gap-6">
-            
             {/* Left Column */}
             <div className="space-y-6">
               {/* Overview Analytics Cards */}
@@ -3196,8 +3195,8 @@ const WellnessPage = () => {
         </Card>
       </div>
     </TabsContent>
-
-        {/* Medical Profile Tab */}
+    
+    {/* Medical Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Veterinarians */}
