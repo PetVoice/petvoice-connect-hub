@@ -15,6 +15,7 @@ import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 import WellnessPage from "@/pages/WellnessPage";
+import WellnessNewPage from "@/pages/WellnessNewPage";
 import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
 
@@ -85,6 +86,13 @@ function AppContent() {
           <ProtectedRoute>
             <AppLayout>
               <WellnessPage />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/wellness-new" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <WellnessNewPage />
             </AppLayout>
           </ProtectedRoute>
         } />
