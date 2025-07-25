@@ -798,7 +798,7 @@ const WellnessPage = () => {
       setShowAddMetric(false);
       setEditingMetric(null);
       // Update local state instead of refetching
-      if (editingMetric) {
+      if (editingMetric && editingMetric.id && !editingMetric.id.startsWith('temp_')) {
         setHealthMetrics(prev => prev.map(metric => 
           metric.id === editingMetric.id 
             ? { ...metric, metric_type: newMetric.metric_type, value: parseFloat(newMetric.value), unit: newMetric.unit, notes: newMetric.notes }
@@ -807,7 +807,7 @@ const WellnessPage = () => {
       } else {
         // Add new metric to local state
         const newMetricData = {
-          id: Date.now().toString(), // Temporary ID
+          id: `temp_${Date.now()}`, // Temporary ID with prefix
           metric_type: newMetric.metric_type,
           value: parseFloat(newMetric.value),
           unit: newMetric.unit,
@@ -840,7 +840,7 @@ const WellnessPage = () => {
     }
 
     try {
-      if (editingContact) {
+      if (editingContact && editingContact.id && !editingContact.id.startsWith('temp_')) {
         // Update existing contact
         const { error } = await supabase
           .from('emergency_contacts')
@@ -903,7 +903,7 @@ const WellnessPage = () => {
       } else {
         // Add new emergency contact to local state
         const newContactData = {
-          id: Date.now().toString(), // Temporary ID
+          id: `temp_${Date.now()}`, // Temporary ID with prefix
           user_id: user.id,
           name: newContact.name,
           contact_type: newContact.contact_type || 'other',
@@ -964,7 +964,7 @@ const WellnessPage = () => {
       setShowAddInsurance(false);
       // Add new insurance to local state
       const newInsuranceData = {
-        id: Date.now().toString(), // Temporary ID
+          id: `temp_${Date.now()}`, // Temporary ID with prefix
         user_id: user.id,
         pet_id: selectedPet.id,
         provider_name: newInsurance.provider_name,
@@ -1001,7 +1001,7 @@ const WellnessPage = () => {
     }
 
     try {
-      if (editingVet) {
+      if (editingVet && editingVet.id && !editingVet.id.startsWith('temp_')) {
         // Update existing veterinarian
         const { error } = await supabase
           .from('veterinarians')
@@ -1067,7 +1067,7 @@ const WellnessPage = () => {
       } else {
         // Add new veterinarian to local state
         const newVetData = {
-          id: Date.now().toString(), // Temporary ID
+        id: `temp_${Date.now()}`, // Temporary ID with prefix
           user_id: user.id,
           name: newVet.name,
           clinic_name: newVet.clinic_name || null,
@@ -1103,7 +1103,7 @@ const WellnessPage = () => {
     }
 
     try {
-      if (editingRecord) {
+      if (editingRecord && editingRecord.id && !editingRecord.id.startsWith('temp_')) {
         // Update existing record
         const { error } = await supabase
           .from('medical_records')
@@ -1167,7 +1167,7 @@ const WellnessPage = () => {
       } else {
         // Add new medical record to local state
         const newRecordData = {
-          id: Date.now().toString(), // Temporary ID
+          id: `temp_${Date.now()}`, // Temporary ID with prefix
           user_id: user.id,
           pet_id: selectedPet.id,
           title: newDocument.title,
@@ -1203,8 +1203,8 @@ const WellnessPage = () => {
     }
 
     try {
-      if (editingMedication) {
-        // Update existing medication
+      if (editingMedication && editingMedication.id && !editingMedication.id.startsWith('temp_')) {
+        // Update existing medication (only if it has a real UUID)
         const { error } = await supabase
           .from('medications')
           .update({
@@ -1223,9 +1223,24 @@ const WellnessPage = () => {
           title: "Successo",
           description: "Farmaco aggiornato con successo"
         });
+        
+        // Update local state
+        setMedications(prev => prev.map(med => 
+          med.id === editingMedication.id 
+            ? { 
+                ...med, 
+                name: newMedication.name,
+                dosage: newMedication.dosage,
+                frequency: newMedication.frequency,
+                start_date: newMedication.start_date,
+                end_date: newMedication.end_date || null,
+                notes: newMedication.notes || null
+              }
+            : med
+        ));
       } else {
         // Create new medication
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('medications')
           .insert({
             user_id: user.id,
@@ -1237,7 +1252,9 @@ const WellnessPage = () => {
             end_date: newMedication.end_date || null,
             is_active: true,
             notes: newMedication.notes || null
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -1245,6 +1262,17 @@ const WellnessPage = () => {
           title: "Successo",
           description: "Farmaco aggiunto con successo"
         });
+        
+        // If we were editing a temporary item, remove it and add the real one
+        if (editingMedication && editingMedication.id.startsWith('temp_')) {
+          setMedications(prev => {
+            const filtered = prev.filter(med => med.id !== editingMedication.id);
+            return [data, ...filtered];
+          });
+        } else {
+          // Add new medication to local state with real ID
+          setMedications(prev => [data, ...prev]);
+        }
       }
 
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
@@ -1268,7 +1296,7 @@ const WellnessPage = () => {
       } else {
         // Add new medication to local state
         const newMedicationData = {
-          id: Date.now().toString(), // Temporary ID
+          id: `temp_${Date.now()}`, // Temporary ID with prefix
           user_id: user.id,
           pet_id: selectedPet.id,
           name: newMedication.name,
@@ -1426,7 +1454,7 @@ const WellnessPage = () => {
       setShowDiaryDialog(false);
       // Update local state instead of refetching
       const newDiaryEntryData = {
-        id: Date.now().toString(), // Temporary ID
+        id: `temp_${Date.now()}`, // Temporary ID with prefix
         user_id: user.id,
         pet_id: selectedPet.id,
         title: newDiaryEntry.title,
