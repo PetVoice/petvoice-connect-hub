@@ -35,6 +35,7 @@ import { format, isToday, subDays } from 'date-fns';
 import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { FirstAidGuide } from '@/components/FirstAidGuide';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -71,6 +72,7 @@ const DashboardPage: React.FC = () => {
   const [insurances, setInsurances] = useState<any[]>([]);
   const [diaryEntriesData, setDiaryEntriesData] = useState<any[]>([]);
   const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
+  const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   
   // Translation system removed - Italian only
 
@@ -100,7 +102,7 @@ const DashboardPage: React.FC = () => {
       title: 'Primo Soccorso',
       description: 'Accesso rapido alle procedure di emergenza',
       icon: AlertTriangle,
-      onClick: () => navigate('/diary'),
+      onClick: () => setShowFirstAidGuide(true),
       color: 'from-red-500 to-red-600'
     }
   ];
@@ -305,8 +307,8 @@ const DashboardPage: React.FC = () => {
               onClick={action.onClick}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-                  <action.icon className="h-6 w-6 text-primary-foreground" />
+                <div className={`w-12 h-12 rounded-lg ${action.title === 'Primo Soccorso' ? 'bg-red-500' : 'bg-primary'} flex items-center justify-center`}>
+                  <action.icon className={`h-6 w-6 ${action.title === 'Primo Soccorso' ? 'text-white' : 'text-primary-foreground'}`} />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
@@ -559,6 +561,12 @@ const DashboardPage: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* First Aid Guide Modal */}
+      <FirstAidGuide 
+        open={showFirstAidGuide} 
+        onOpenChange={setShowFirstAidGuide} 
+      />
     </div>
   );
 };
