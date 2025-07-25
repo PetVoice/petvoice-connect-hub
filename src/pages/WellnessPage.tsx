@@ -3098,29 +3098,7 @@ const WellnessPage = () => {
           </CardContent>
         </Card>
       </div>
-            {/* Dettaglio Emozioni */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Dettaglio Emozioni</CardTitle>
-                <CardDescription>
-                  Analisi approfondita delle emozioni rilevate
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {displayAnalytics.emotionDistribution.map((emotion, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium capitalize">{emotion.emotion}</span>
-                        <Badge variant="secondary">{emotion.count}</Badge>
-                      </div>
-                      <Progress value={emotion.percentage} className="h-2 mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        {emotion.percentage}% del totale
-                      </p>
-                    </div>
-                  ))}
-        </TabsContent>
+    </TabsContent>
 
         {/* Medical Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
