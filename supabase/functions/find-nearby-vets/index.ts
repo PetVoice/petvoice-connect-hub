@@ -28,17 +28,19 @@ serve(async (req) => {
         nwr["shop"="pet_grooming"]["veterinary"="yes"](around:${radius},${latitude},${longitude});
         nwr["healthcare"="veterinary"](around:${radius},${latitude},${longitude});
       );
-      out geom;
+      out center meta;
     `;
 
     const overpassUrl = 'https://overpass-api.de/api/interpreter'
     
+    console.log('Making request to Overpass API with query:', overpassQuery)
+    
     const response = await fetch(overpassUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'text/plain',
       },
-      body: `data=${encodeURIComponent(overpassQuery)}`
+      body: overpassQuery
     })
 
     const data = await response.json()
