@@ -3364,9 +3364,28 @@ const WellnessPage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {(() => {
-                // Generate comprehensive unified chart data
+                // Generate comprehensive unified chart data including existing pet analyses
                 const generateUnifiedHealthData = () => {
                   const months = [];
+                  
+                  // First, fetch existing analyses data for mood calculation
+                  const [analyses, setAnalyses] = React.useState([]);
+                  
+                  React.useEffect(() => {
+                    const fetchAnalyses = async () => {
+                      try {
+                        const { data } = await supabase
+                          .from('pet_analyses')
+                          .select('*')
+                          .eq('pet_id', selectedPet.id)
+                          .order('created_at', { ascending: false });
+                        setAnalyses(data || []);
+                      } catch (error) {
+                        console.error('Error fetching analyses:', error);
+                      }
+                    };
+                    fetchAnalyses();
+                  }, [selectedPet.id]);
                   for (let i = 11; i >= 0; i--) {
                     const date = subMonths(new Date(), i);
                     const monthStart = startOfMonth(date);
@@ -3531,20 +3550,44 @@ const WellnessPage = () => {
                 };
                 
                 const unifiedData = generateUnifiedHealthData();
+                
+                // Check if we have ANY data including pet analyses
+                const [petAnalyses, setPetAnalyses] = React.useState([]);
+                
+                React.useEffect(() => {
+                  const fetchAnalyses = async () => {
+                    if (!selectedPet?.id) return;
+                    try {
+                      const { data } = await supabase
+                        .from('pet_analyses')
+                        .select('*')
+                        .eq('pet_id', selectedPet.id);
+                      setPetAnalyses(data || []);
+                    } catch (error) {
+                      console.error('Error fetching analyses:', error);
+                    }
+                  };
+                  fetchAnalyses();
+                }, [selectedPet?.id]);
+                
                 const hasAnyData = unifiedData.some(d => 
                   d.temperature !== null || d.heartRate !== null || d.respiration !== null || 
                   d.healthScore !== null || d.moodScore !== null || d.medicationScore !== null ||
                   d.visits > 0 || d.diaryEntries > 0 || d.behaviourAnalyses > 0
-                );
+                ) || petAnalyses.length > 0;
                 
                 if (!hasAnyData) {
                   return (
                     <div className="flex items-center justify-center h-[500px] text-muted-foreground">
                       <div className="text-center space-y-4">
-                        <div className="text-lg font-medium mb-2">Nessun dato disponibile</div>
+                        <div className="text-lg font-medium mb-2">
+                          {petAnalyses.length > 0 ? 'Dati analisi disponibili!' : 'Nessun dato disponibile'}
+                        </div>
                         <p className="text-sm max-w-md">
-                          Inizia ad aggiungere metriche sanitarie, visite veterinarie e farmaci per vedere 
-                          il dashboard completo della salute di {selectedPet.name}
+                          {petAnalyses.length > 0 
+                            ? `Trovate ${petAnalyses.length} analisi comportamentali per ${selectedPet.name}. Il grafico si aggiornerà con più dati sanitari.`
+                            : `Inizia ad aggiungere metriche sanitarie, visite veterinarie e farmaci per vedere il dashboard completo della salute di ${selectedPet.name}`
+                          }
                         </p>
                         <div className="flex gap-2 justify-center mt-4">
                           <Button 
@@ -3567,6 +3610,19 @@ const WellnessPage = () => {
                             Aggiungi Visita
                           </Button>
                         </div>
+                        {petAnalyses.length > 0 && (
+                          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-medium mb-2">Ultime Analisi Comportamentali:</h4>
+                            <div className="space-y-2">
+                              {petAnalyses.slice(0, 3).map(analysis => (
+                                <div key={analysis.id} className="text-sm">
+                                  <span className="font-medium capitalize">{analysis.primary_emotion}</span>
+                                  <span className="text-muted-foreground"> - {analysis.behavioral_insights}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -3781,7 +3837,7 @@ const WellnessPage = () => {
                             <div>
                               <p className="text-sm text-muted-foreground">Analisi Comportamentali</p>
                               <p className="text-2xl font-bold">
-                                {medicalRecords.filter(r => r.record_type === 'exam').length}
+                                {petAnalyses.length}
                               </p>
                             </div>
                             <Brain className="h-8 w-8 text-muted-foreground" />
