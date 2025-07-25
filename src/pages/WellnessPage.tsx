@@ -180,10 +180,37 @@ const translateMetricType = (type: string): string => {
     'gum_color': 'Colore Gengive',
     'checkup': 'Controllo',
     'blood_pressure': 'Pressione Sanguigna',
-    'respiratory_rate': 'Frequenza Respiratoria'
+    'respiratory_rate': 'Frequenza Respiratoria',
+    'weight': 'Peso'
   };
   return translations[type] || type;
 };
+
+// Helper function to get unit for metric type
+const getMetricUnit = (metricType: string): string => {
+  const units: Record<string, string> = {
+    'temperature': '°C',
+    'heart_rate': 'bpm',
+    'respiration': 'rpm',
+    'weight': 'kg',
+    'blood_pressure': 'mmHg',
+    'respiratory_rate': 'rpm'
+  };
+  return units[metricType] || '';
+};
+
+// Helper function to check if metric requires dropdown
+const isDropdownMetric = (metricType: string): boolean => {
+  return metricType === 'gum_color';
+};
+
+// Gum color options
+const GUM_COLOR_OPTIONS = [
+  { value: '1', label: 'Rosa' },
+  { value: '2', label: 'Pallide' },
+  { value: '3', label: 'Blu/Viola' },
+  { value: '4', label: 'Gialle' }
+];
 
 // Colors for emotion charts
 const EMOTION_COLORS = {
@@ -436,6 +463,77 @@ const WellnessPage = () => {
       change: Math.abs(diff)
     };
   }, [diaryEntries]);
+
+  // Calculate wellness trend data from real health metrics and diary entries
+  const wellnessTrendData = useMemo(() => {
+    const last6Months = Array.from({ length: 6 }, (_, i) => {
+      const date = subMonths(new Date(), 5 - i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      
+      // Get metrics for this month
+      const monthMetrics = healthMetrics.filter(metric => {
+        const metricDate = new Date(metric.recorded_at);
+        return isAfter(metricDate, monthStart) && isBefore(metricDate, monthEnd);
+      });
+      
+      // Get diary entries for this month
+      const monthDiary = diaryEntries.filter(entry => {
+        const entryDate = new Date(entry.entry_date);
+        return isAfter(entryDate, monthStart) && isBefore(entryDate, monthEnd);
+      });
+      
+      // Calculate wellness score for this month
+      let score = 50; // base score
+      
+      // Factor in mood scores
+      const moodScores = monthDiary.map(entry => entry.mood_score).filter(Boolean);
+      if (moodScores.length > 0) {
+        const avgMood = moodScores.reduce((a, b) => a + b, 0) / moodScores.length;
+        score += (avgMood - 5) * 10; // scale from 1-10 to impact score
+      }
+      
+      // Factor in vital signs (temperature, heart rate)
+      const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
+      const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
+      
+      if (tempMetrics.length > 0) {
+        const avgTemp = tempMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / tempMetrics.length;
+        // Normal dog temp is 38-39.2°C
+        if (avgTemp >= 38 && avgTemp <= 39.2) score += 5;
+        else if (avgTemp < 37.5 || avgTemp > 40) score -= 15;
+        else score -= 5;
+      }
+      
+      if (heartMetrics.length > 0) {
+        const avgHeart = heartMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / heartMetrics.length;
+        // Normal dog heart rate is 60-140 bpm
+        if (avgHeart >= 60 && avgHeart <= 140) score += 5;
+        else score -= 10;
+      }
+      
+      // Ensure score is between 0-100
+      score = Math.max(0, Math.min(100, score));
+      
+      return {
+        date: format(date, 'MMM', { locale: it }),
+        wellness: Math.round(score)
+      };
+    });
+    
+    return last6Months;
+  }, [healthMetrics, diaryEntries]);
+
+  // Auto-detect unit when metric type changes
+  const handleMetricTypeChange = (metricType: string) => {
+    const unit = getMetricUnit(metricType);
+    setNewMetric(prev => ({ 
+      ...prev, 
+      metric_type: metricType, 
+      unit,
+      value: '' // Reset value when changing type
+    }));
+  };
 
   // Fetch all health data
   const fetchHealthData = async () => {
@@ -1044,14 +1142,7 @@ const WellnessPage = () => {
                   className="w-full h-full"
                 >
                   <LineChart
-                    data={[
-                      { date: "Gen", wellness: 65 },
-                      { date: "Feb", wellness: 72 },
-                      { date: "Mar", wellness: 68 },
-                      { date: "Apr", wellness: 75 },
-                      { date: "Mag", wellness: 82 },
-                      { date: "Giu", wellness: 78 },
-                    ]}
+                    data={wellnessTrendData}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" opacity={0.3} />
                     <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
@@ -1994,7 +2085,8 @@ const WellnessPage = () => {
                   setNewMetric(prev => ({ 
                     ...prev, 
                     metric_type: value,
-                    unit: units[value] || ''
+                    unit: units[value] || '',
+                    value: '' // Reset value when changing type
                   }));
                 }}
               >
@@ -2010,16 +2102,50 @@ const WellnessPage = () => {
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Show unit field for display only when not gum_color */}
+            {newMetric.metric_type && newMetric.metric_type !== 'gum_color' && (
+              <div>
+                <Label htmlFor="unit">Unità di Misura</Label>
+                <Input
+                  id="unit"
+                  value={newMetric.unit}
+                  readOnly
+                  placeholder="Auto-rilevata"
+                  className="bg-muted"
+                />
+              </div>
+            )}
+            
             <div>
-              <Label htmlFor="value">Valore *</Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.1"
-                value={newMetric.value}
-                onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
-                placeholder="Inserisci valore"
-              />
+              <Label htmlFor="value">
+                {newMetric.metric_type === 'gum_color' ? 'Colore *' : 'Valore *'}
+              </Label>
+              {newMetric.metric_type === 'gum_color' ? (
+                <Select 
+                  value={newMetric.value} 
+                  onValueChange={(value) => setNewMetric(prev => ({ ...prev, value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona colore" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Rosa</SelectItem>
+                    <SelectItem value="2">Pallide</SelectItem>
+                    <SelectItem value="3">Blu/Viola</SelectItem>
+                    <SelectItem value="4">Gialle</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="value"
+                  type="number"
+                  step="0.1"
+                  value={newMetric.value}
+                  onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
+                  placeholder="Inserisci valore"
+                />
+              )}
             </div>
             <div>
               <Label htmlFor="notes">Note</Label>
