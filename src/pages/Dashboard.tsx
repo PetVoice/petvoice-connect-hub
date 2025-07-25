@@ -445,11 +445,6 @@ const Dashboard: React.FC = () => {
         </Card>
       )}
 
-      {/* Wellness Trend Chart */}
-      {activePet && user && (
-        <WellnessTrendChart petId={activePet.id} userId={user.id} />
-      )}
-
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {quickStats.map((stat, index) => (
@@ -468,6 +463,11 @@ const Dashboard: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* Wellness Trend Chart */}
+      {activePet && user && (
+        <WellnessTrendChart petId={activePet.id} userId={user.id} />
+      )}
 
       {/* Quick Actions */}
       <Card className="petvoice-card">
