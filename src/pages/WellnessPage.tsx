@@ -541,6 +541,8 @@ const WellnessPage = () => {
 
   // Calculate wellness trend data from real health metrics and diary entries
   const wellnessTrendData = useMemo(() => {
+    if (!petAnalyses || !healthMetrics || !diaryEntries || !medications) return [];
+    
     const now = new Date();
     let periods: Array<{ start: Date; end: Date; label: string }> = [];
 
