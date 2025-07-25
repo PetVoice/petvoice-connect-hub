@@ -274,7 +274,6 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
 
   // Carica i pets iniziali
   useEffect(() => {
-    console.log('🐾 PetContext: refreshing pets for user:', user?.id);
     refreshPets();
   }, [user]);
 

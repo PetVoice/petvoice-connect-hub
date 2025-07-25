@@ -38,7 +38,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('🔐 AuthContext: auth state change event:', event, 'user:', session?.user?.id);
+        // Evita aggiornamenti se l'utente è lo stesso (per focus/blur events)
+        if (session?.user?.id === user?.id && event === 'SIGNED_IN') {
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -47,7 +51,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('🔐 AuthContext: initial session loaded:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
