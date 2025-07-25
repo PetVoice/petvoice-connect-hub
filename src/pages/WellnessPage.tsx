@@ -1277,8 +1277,8 @@ const WellnessPage = () => {
           description: "Visita aggiornata con successo"
         });
       } else {
-        // Create new record
-        const { error } = await supabase
+        // Create new record and get the returned data
+        const { data, error } = await supabase
           .from('medical_records')
           .insert({
             user_id: user.id,
@@ -1290,42 +1290,18 @@ const WellnessPage = () => {
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
             notes: newDocument.notes || null,
             document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : null
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
+
+        // Add the new record to the beginning of the list
+        setMedicalRecords(prev => [data, ...prev]);
 
         toast({
           title: "Successo",
           description: "Visita aggiunta con successo"
-        });
-      }
-
-      setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
-      setShowAddDocument(false);
-      setEditingRecord(null);
-      // Update local state instead of refetching
-      if (editingRecord) {
-        setMedicalRecords(prev => prev.map(record => 
-          record.id === editingRecord.id 
-            ? { 
-                ...record, 
-                title: newDocument.title,
-                description: newDocument.description || null,
-                record_type: newDocument.record_type,
-                record_date: newDocument.record_date,
-                cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-                notes: newDocument.notes || null
-              }
-            : record
-        ));
-      } else {
-        // Forza un refresh immediato dei dati
-        setMedicalRecords(prev => {
-          // Prima rimuovi eventuali record temporanei
-          const filtered = prev.filter(record => !record.id.toString().startsWith('temp_'));
-          // Poi ricarica i dati dal server
-          fetchHealthData();
-          return filtered;
         });
       }
     } catch (error) {
