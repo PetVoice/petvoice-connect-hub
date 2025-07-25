@@ -10,7 +10,7 @@ import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import AppLayout from "@/components/AppLayout";
-import DashboardPage from "@/pages/DashboardPage";
+import Dashboard from "@/pages/Dashboard";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
@@ -49,7 +49,7 @@ function AppContent() {
         <Route path="/" element={
           <ProtectedRoute>
             <AppLayout>
-              <DashboardPage />
+              <Dashboard />
             </AppLayout>
           </ProtectedRoute>
         } />
