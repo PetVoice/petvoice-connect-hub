@@ -75,6 +75,7 @@ const DashboardPage: React.FC = () => {
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
   const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number, unit: string, date: string}}>({});
+  const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string}}>({});
   
   // Translation system removed - Italian only
 
@@ -275,6 +276,29 @@ const DashboardPage: React.FC = () => {
         }
         
         setVitalStats(vitals);
+
+        // Calculate behavior statistics from diary entries
+        const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
+        if (diaryEntries && diaryEntries.length > 0) {
+          diaryEntries.forEach(entry => {
+            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
+              entry.behavioral_tags.forEach((tag: string) => {
+                if (tag && tag.trim()) {
+                  const behaviorKey = tag.toLowerCase().trim();
+                  if (!behaviors[behaviorKey]) {
+                    behaviors[behaviorKey] = { count: 0, lastSeen: '' };
+                  }
+                  behaviors[behaviorKey].count++;
+                  const entryDate = format(new Date(entry.entry_date), 'dd/MM');
+                  if (!behaviors[behaviorKey].lastSeen || entryDate > behaviors[behaviorKey].lastSeen) {
+                    behaviors[behaviorKey].lastSeen = entryDate;
+                  }
+                }
+              });
+            }
+          });
+        }
+        setBehaviorStats(behaviors);
 
       } catch (error) {
         console.error('Error loading pet stats:', error);
