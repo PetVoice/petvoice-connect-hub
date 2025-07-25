@@ -1659,9 +1659,11 @@ const WellnessPage = () => {
       await fetchHealthData();
       
       // Trigger diary refresh event for other pages
+      console.log('Triggering diaryUpdated event for tag edit:', oldTag, '->', newTag);
       window.dispatchEvent(new CustomEvent('diaryUpdated', { 
         detail: { type: 'behaviorTagEdited', oldTag, newTag } 
       }));
+      console.log('Event dispatched successfully');
       
       toast({
         title: "Comportamento aggiornato",
@@ -1708,9 +1710,11 @@ const WellnessPage = () => {
           await fetchHealthData();
           
           // Trigger diary refresh event for other pages
+          console.log('Triggering diaryUpdated event for tag deletion:', tagToDelete);
           window.dispatchEvent(new CustomEvent('diaryUpdated', { 
             detail: { type: 'behaviorTagDeleted', tag: tagToDelete } 
           }));
+          console.log('Event dispatched successfully');
           
           toast({
             title: "Comportamento eliminato",
