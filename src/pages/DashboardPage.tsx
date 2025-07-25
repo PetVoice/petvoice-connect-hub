@@ -288,6 +288,29 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      {/* Quick Action Cards - Individual cards between health score and chart */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {quickActions.map((action, index) => (
+            <Card
+              key={index}
+              className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+              onClick={action.onClick}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
+                  <action.icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
+                  <p className="text-sm text-muted-foreground">{action.description}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <div className="mb-16 w-full">
@@ -525,38 +548,6 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <Card className="bg-primary/10 border border-primary/20 shadow-soft">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-foreground" />
-            Azioni Rapide
-          </CardTitle>
-          <CardDescription>
-            Accedi rapidamente alle funzionalità principali
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {quickActions.map((action, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all"
-                onClick={action.onClick}
-              >
-                <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-                  <action.icon className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div className="text-center">
-                  <h3 className="font-semibold">{action.title}</h3>
-                  <p className="text-sm text-muted-foreground">{action.description}</p>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Getting Started */}
       {pets.length === 0 && (
