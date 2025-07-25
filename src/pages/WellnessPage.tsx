@@ -65,6 +65,7 @@ import { it } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import jsPDF from 'jspdf';
 import { useNotifications } from '@/hooks/useNotifications';
 import { 
@@ -484,7 +485,6 @@ const WellnessPage = () => {
   const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   const [showDiaryDialog, setShowDiaryDialog] = useState(false);
-  const [newDiaryEntry, setNewDiaryEntry] = useState({ title: '', content: '', mood_score: '', behavioral_tags: '' });
   
   // Form data states
   const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
@@ -1412,36 +1412,23 @@ const WellnessPage = () => {
   // Open diary dialog for new behavior entry
   const handleAddBehavior = () => {
     setShowDiaryDialog(true);
-    setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
   };
 
   // Handle adding new diary entry
-  const handleAddDiaryEntry = async () => {
-    if (!user || !selectedPet || !newDiaryEntry.title) {
+  const handleAddDiaryEntry = async (data: any) => {
+    if (!user || !selectedPet) {
       toast({
         title: "Errore",
-        description: "Inserisci almeno un titolo",
+        description: "Dati utente o pet mancanti",
         variant: "destructive"
       });
       return;
     }
 
     try {
-      const behavioralTagsArray = newDiaryEntry.behavioral_tags 
-        ? newDiaryEntry.behavioral_tags.split(',').map(tag => tag.trim()).filter(Boolean)
-        : [];
-
       const { error } = await supabase
         .from('diary_entries')
-        .insert({
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          title: newDiaryEntry.title,
-          content: newDiaryEntry.content || null,
-          mood_score: newDiaryEntry.mood_score ? parseInt(newDiaryEntry.mood_score) : null,
-          behavioral_tags: behavioralTagsArray.length > 0 ? behavioralTagsArray : null,
-          entry_date: new Date().toISOString()
-        });
+        .insert(data);
 
       if (error) throw error;
 
@@ -1450,18 +1437,13 @@ const WellnessPage = () => {
         description: "Voce del diario aggiunta con successo"
       });
 
-      setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
       setShowDiaryDialog(false);
       // Update local state instead of refetching
       const newDiaryEntryData = {
         id: `temp_${Date.now()}`, // Temporary ID with prefix
         user_id: user.id,
         pet_id: selectedPet.id,
-        title: newDiaryEntry.title,
-        content: newDiaryEntry.content || null,
-        entry_date: format(new Date(), 'yyyy-MM-dd'),
-        mood_score: newDiaryEntry.mood_score ? parseInt(newDiaryEntry.mood_score) : null,
-        behavioral_tags: newDiaryEntry.behavioral_tags ? newDiaryEntry.behavioral_tags.split(',').map(tag => tag.trim()) : [],
+        ...data,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -1594,14 +1576,10 @@ const WellnessPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="dashboard">
             <Activity className="h-4 w-4 mr-2" />
             Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="analytics">
-            <BarChart2 className="h-4 w-4 mr-2" />
-            Analytics
           </TabsTrigger>
         </TabsList>
 
@@ -2300,64 +2278,6 @@ const WellnessPage = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Trend Parametri Vitali</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ChartContainer
-                    config={{
-                      temperature: { label: "Temperatura", color: "hsl(var(--primary))" },
-                      heart_rate: { label: "Battito", color: "hsl(var(--secondary))" }
-                    }}
-                  >
-                    <LineChart data={[]}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line type="monotone" dataKey="temperature" stroke="hsl(var(--primary))" />
-                      <Line type="monotone" dataKey="heart_rate" stroke="hsl(var(--secondary))" />
-                    </LineChart>
-                  </ChartContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Distribuzione Emozioni</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ChartContainer
-                    config={{
-                      emotions: { label: "Emozioni", color: "hsl(var(--primary))" }
-                    }}
-                  >
-                    <PieChart>
-                      <Pie
-                        data={Object.entries(emotionCounts).map(([emotion, count]) => ({
-                          name: emotion,
-                          value: count,
-                          fill: EMOTION_COLORS[emotion] || '#6b7280'
-                        }))}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        dataKey="value"
-                      />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                    </PieChart>
-                  </ChartContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* Add Medication Dialog */}
@@ -2843,71 +2763,13 @@ const WellnessPage = () => {
        />
 
        {/* Diary Entry Dialog */}
-       <Dialog open={showDiaryDialog} onOpenChange={setShowDiaryDialog}>
-         <DialogContent>
-           <DialogHeader>
-             <DialogTitle>Nuova Voce del Diario</DialogTitle>
-           </DialogHeader>
-           <div className="space-y-4">
-             <div>
-               <Label htmlFor="diary_title">Titolo *</Label>
-               <Input
-                 id="diary_title"
-                 value={newDiaryEntry.title}
-                 onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, title: e.target.value }))}
-                 placeholder="Titolo della voce"
-               />
-             </div>
-             <div>
-               <Label htmlFor="diary_content">Contenuto</Label>
-               <Textarea
-                 id="diary_content"
-                 value={newDiaryEntry.content}
-                 onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, content: e.target.value }))}
-                 placeholder="Descrivi il comportamento osservato..."
-                 rows={3}
-               />
-             </div>
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <Label htmlFor="diary_mood">Umore (1-10)</Label>
-                 <Input
-                   id="diary_mood"
-                   type="number"
-                   min="1"
-                   max="10"
-                   value={newDiaryEntry.mood_score}
-                   onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, mood_score: e.target.value }))}
-                   placeholder="5"
-                 />
-               </div>
-               <div>
-                 <Label htmlFor="diary_tags">Comportamenti (es: giocoso,calmo)</Label>
-                 <Input
-                   id="diary_tags"
-                   value={newDiaryEntry.behavioral_tags}
-                   onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, behavioral_tags: e.target.value }))}
-                   placeholder="felice, energico"
-                 />
-               </div>
-             </div>
-           </div>
-           <div className="flex gap-2 pt-4">
-             <Button 
-               onClick={() => {
-                 setShowDiaryDialog(false);
-                 setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
-               }} 
-               variant="outline"
-             >
-               Annulla
-             </Button>
-             <Button onClick={handleAddDiaryEntry}>
-               Salva Voce
-             </Button>
-           </div>
-         </DialogContent>
-       </Dialog>
+       <DiaryEntryForm
+         isOpen={showDiaryDialog}
+         onClose={() => setShowDiaryDialog(false)}
+         onSave={handleAddDiaryEntry}
+         petId={selectedPet?.id || ''}
+         userId={user?.id || ''}
+       />
 
        {/* First Aid Guide Dialog */}
        <FirstAidGuide 
