@@ -411,10 +411,8 @@ button:not(.no-hover):hover,
   }
 
   body {
-    @apply bg-white text-black font-sans;
+    @apply bg-background text-foreground font-sans;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: white !important;
-    color: black !important;
   }
 
 @layer components {
