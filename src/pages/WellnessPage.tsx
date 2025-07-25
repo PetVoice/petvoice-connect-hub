@@ -2714,9 +2714,11 @@ const WellnessPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="visita">Visita Generale</SelectItem>
-                  <SelectItem value="vaccinazione">Vaccinazione</SelectItem>
-                  <SelectItem value="controllo">Controllo</SelectItem>
+                  <SelectItem value="vaccino">Vaccinazione</SelectItem>
+                  <SelectItem value="esame">Controllo/Esame</SelectItem>
                   <SelectItem value="emergenza">Emergenza</SelectItem>
+                  <SelectItem value="analisi">Analisi</SelectItem>
+                  <SelectItem value="trattamento">Trattamento</SelectItem>
                 </SelectContent>
               </Select>
             </div>
