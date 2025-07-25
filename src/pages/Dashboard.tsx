@@ -3258,31 +3258,26 @@ const Dashboard = () => {
             </DialogDescription>
           </DialogHeader>
           <DiaryEntryForm
-            petId={selectedPet?.id}
-            onSuccess={() => {
+            isOpen={showDiaryDialog}
+            onClose={() => {
               setShowDiaryDialog(false);
               fetchAllData();
             }}
-            onCancel={() => setShowDiaryDialog(false)}
+            onSave={(data) => {
+              setShowDiaryDialog(false);
+              fetchAllData();
+            }}
+            petId={selectedPet?.id || ''}
+            userId={user?.id || ''}
           />
         </DialogContent>
       </Dialog>
 
-      {/* First Aid Guide Dialog */}
-      <Dialog open={showFirstAidGuide} onOpenChange={setShowFirstAidGuide}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Siren className="w-5 h-5 text-red-500" />
-              Guida Pronto Soccorso Veterinario
-            </DialogTitle>
-            <DialogDescription>
-              Informazioni essenziali per le emergenze veterinarie
-            </DialogDescription>
-          </DialogHeader>
-          <FirstAidGuide />
-        </DialogContent>
-      </Dialog>
+      {/* First Aid Guide */}
+      <FirstAidGuide 
+        open={showFirstAidGuide}
+        onOpenChange={setShowFirstAidGuide}
+      />
 
       {/* Nearby Vets Dialog */}
       <Dialog open={showNearbyVets} onOpenChange={setShowNearbyVets}>
