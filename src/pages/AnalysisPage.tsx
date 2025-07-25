@@ -1697,11 +1697,11 @@ const AnalysisPage: React.FC = () => {
                           const trend = currentScore - previousScore;
                           
                           return trend > 5 ? (
-                            <TrendingUp className="h-5 w-5 text-green-600" />
+                            <TrendingUp className="h-5 w-5 text-success" />
                           ) : trend < -5 ? (
-                            <TrendingDown className="h-5 w-5 text-red-600" />
+                            <TrendingDown className="h-5 w-5 text-destructive" />
                           ) : (
-                            <div className="h-5 w-5 bg-yellow-500 rounded-full" />
+                            <div className="h-5 w-5 bg-warning rounded-full" />
                           );
                         })()}
                         <span className="font-medium">
@@ -1795,7 +1795,7 @@ const AnalysisPage: React.FC = () => {
                         <Progress value={currentScore} className="h-2" />
                         <div className="flex justify-between text-sm">
                           <span>Previsione 30 giorni</span>
-                          <span className="font-medium text-blue-600">{Math.round(prediction)}%</span>
+                          <span className="font-medium text-primary">{Math.round(prediction)}%</span>
                         </div>
                         <Progress value={prediction} className="h-2 opacity-70" />
                         <div className="text-xs text-muted-foreground">
@@ -1991,7 +1991,7 @@ const AnalysisPage: React.FC = () => {
                       if (wellnessTrend > 10) {
                         recommendations.push({
                           type: 'success',
-                          text: `📈 Miglioramento wellness: +${wellnessTrend} punti - continue così!`,
+                          text: `📈 Miglioramento wellness: +${wellnessTrend} punti - continua così!`,
                           priority: 'low',
                           category: 'benessere'
                         });
@@ -2035,28 +2035,25 @@ const AnalysisPage: React.FC = () => {
                     const comprehensiveRecommendations = generateComprehensiveAIRecommendations();
                     
                     return comprehensiveRecommendations.map((rec, index) => (
-                      <div key={index} className={`p-3 rounded-lg border-l-4 ${
-                        rec.type === 'critical' ? 'bg-red-100 border-red-500 dark:bg-red-950/30' :
-                        rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400 dark:bg-yellow-950/30' :
-                        rec.type === 'success' ? 'bg-green-50 border-green-400 dark:bg-green-950/30' :
-                        'bg-blue-50 border-blue-400 dark:bg-blue-950/30'
-                      }`}>
-                        <p className="text-sm font-medium">{rec.text}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline" className="text-xs">
-                            {rec.priority === 'critical' ? "🚨 CRITICA" :
-                             rec.priority === 'high' ? "🔴 Alta" : 
-                             rec.priority === 'medium' ? "🟡 Media" : 
-                             rec.priority === 'low' ? "🟢 Bassa" : "ℹ️ Info"}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            {rec.category}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            AI integrata: {analyses.length}A + {diaryData.length}D + {healthData.length}S + {wellnessData.length}W
-                          </span>
-                        </div>
-                      </div>
+                      <Card key={index} className="border-l-4 bg-card text-card-foreground shadow-soft hover:shadow-glow transition-smooth border-l-primary">
+                        <CardContent className="p-4">
+                          <p className="text-sm font-medium text-foreground">{rec.text}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <Badge variant="outline" className="text-xs bg-background text-foreground border-border">
+                              {rec.priority === 'critical' ? "🚨 CRITICA" :
+                               rec.priority === 'high' ? "🔴 Alta" : 
+                               rec.priority === 'medium' ? "🟡 Media" : 
+                               rec.priority === 'low' ? "🟢 Bassa" : "ℹ️ Info"}
+                            </Badge>
+                            <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground">
+                              {rec.category}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              Dati integrati: {analyses.length}A + {diaryData.length}D + {healthData.length}S + {wellnessData.length}W
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ));
                   })()}
                 </div>
@@ -2144,11 +2141,11 @@ const AnalysisPage: React.FC = () => {
                             <div className="space-y-2 text-sm">
                               <div className="flex justify-between">
                                 <span>Emozioni positive</span>
-                                <span className="font-medium text-green-600">{positiveRate}%</span>
+                                <span className="font-medium text-success">{positiveRate}%</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Problemi rilevati</span>
-                                <span className="font-medium text-red-600">{negativeRate}%</span>
+                                <span className="font-medium text-destructive">{negativeRate}%</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Emozione predominante</span>

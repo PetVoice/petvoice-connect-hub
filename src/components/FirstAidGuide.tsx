@@ -23,7 +23,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-red-600 flex items-center gap-2">
+                <CardTitle className="text-destructive flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
                   Emergenze Critiche
                 </CardTitle>
@@ -61,7 +61,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-blue-600">Parametri Vitali Normali</CardTitle>
+                <CardTitle className="text-primary">Parametri Vitali Normali</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -103,7 +103,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-green-600">Manovre di Primo Soccorso</CardTitle>
+                <CardTitle className="text-success">Manovre di Primo Soccorso</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -133,7 +133,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-purple-600">Kit Primo Soccorso</CardTitle>
+                <CardTitle className="text-accent-foreground">Kit Primo Soccorso</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="text-sm text-muted-foreground">
@@ -144,7 +144,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card className="md:col-span-2">
               <CardHeader>
-                <CardTitle className="text-red-600">⚠️ Cosa NON Fare MAI</CardTitle>
+                <CardTitle className="text-destructive">⚠️ Cosa NON Fare MAI</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -168,7 +168,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card className="md:col-span-2">
               <CardHeader>
-                <CardTitle className="text-orange-600">☠️ Sostanze Tossiche Comuni</CardTitle>
+                <CardTitle className="text-warning">☠️ Sostanze Tossiche Comuni</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
@@ -211,7 +211,7 @@ export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange
 
             <Card className="md:col-span-2">
               <CardHeader>
-                <CardTitle className="text-yellow-600">📞 Numeri di Emergenza</CardTitle>
+                <CardTitle className="text-warning">📞 Numeri di Emergenza</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4 text-sm">

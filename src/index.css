@@ -436,6 +436,60 @@ button:not(.no-hover):hover,
   .gradient-card {
     background: var(--gradient-card);
   }
+
+  /* Color Overrides per sistema azzurrino uniforme */
+  .text-green-600, .text-green-500, .text-green-700, .text-green-800 {
+    @apply text-success;
+  }
+
+  .text-red-600, .text-red-500, .text-red-700, .text-red-800 {
+    @apply text-destructive;
+  }
+
+  .text-blue-600, .text-blue-500, .text-blue-700, .text-blue-800 {
+    @apply text-primary;
+  }
+
+  .text-yellow-600, .text-yellow-500, .text-orange-600 {
+    @apply text-warning;
+  }
+
+  .text-purple-600, .text-purple-500 {
+    @apply text-accent-foreground;
+  }
+
+  .bg-green-50, .bg-green-100, .bg-green-500 {
+    @apply bg-success/20 text-success-foreground;
+  }
+
+  .bg-red-50, .bg-red-100, .bg-red-500 {
+    @apply bg-destructive/20 text-destructive-foreground;
+  }
+
+  .bg-blue-50, .bg-blue-100, .bg-blue-500 {
+    @apply bg-primary/20 text-primary-foreground;
+  }
+
+  .bg-yellow-50, .bg-yellow-100, .bg-yellow-500 {
+    @apply bg-warning/20 text-warning-foreground;
+  }
+
+  .border-green-200, .border-green-500 {
+    @apply border-success/30;
+  }
+
+  .border-red-200, .border-red-500 {
+    @apply border-destructive/30;
+  }
+
+  .border-blue-200, .border-blue-500 {
+    @apply border-primary/30;
+  }
+
+  /* Azzurrino Card System */
+  .petvoice-insight-card {
+    @apply bg-card text-card-foreground border border-primary/20 rounded-lg p-4 shadow-soft hover:shadow-glow transition-smooth hover:border-primary/40;
+  }
   
   .shadow-soft {
     box-shadow: var(--shadow-soft);
