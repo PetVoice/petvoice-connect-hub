@@ -1682,50 +1682,67 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {healthMetrics.length > 0 ? (
-                    healthMetrics.slice(0, 3).map((metric) => {
-                      const evaluation = evaluateVitalParameter(metric.metric_type, parseFloat(metric.value.toString()), selectedPet?.type);
-                      return (
-                        <div key={metric.id} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${
-                              evaluation.status === 'normal' ? 'bg-green-500' :
-                              evaluation.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                            }`} />
-                            <span className="text-sm">{translateMetricType(metric.metric_type)}</span>
-                            <span className="text-sm font-medium">
-                              {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
-                            </span>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-blue-500"
-                              onClick={() => handleEditMetric(metric)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-red-500"
-                              onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun parametro vitale registrato</p>
-                    </div>
-                  )}
-                </CardContent>
+                 <CardContent className="space-y-3">
+                   {healthMetrics.length > 0 ? (
+                     <div className="space-y-3">
+                       {healthMetrics.slice(0, 3).map((metric) => {
+                         const evaluation = evaluateVitalParameter(metric.metric_type, parseFloat(metric.value.toString()), selectedPet?.type);
+                         return (
+                           <div key={metric.id} className="space-y-2">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                 <div className={`w-2 h-2 rounded-full ${
+                                   evaluation.status === 'normal' ? 'bg-green-500' :
+                                   evaluation.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                                 }`} />
+                                 <span className="text-sm">{translateMetricType(metric.metric_type)}</span>
+                                 <span className="text-sm font-medium">
+                                   {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
+                                 </span>
+                               </div>
+                               <div className="flex gap-1">
+                                 <Button 
+                                   size="sm" 
+                                   variant="ghost" 
+                                   className="h-6 w-6 p-0 text-blue-500"
+                                   onClick={() => handleEditMetric(metric)}
+                                 >
+                                   <Edit className="h-3 w-3" />
+                                 </Button>
+                                 <Button 
+                                   size="sm" 
+                                   variant="ghost" 
+                                   className="h-6 w-6 p-0 text-red-500"
+                                   onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
+                                 >
+                                   <Trash2 className="h-3 w-3" />
+                                 </Button>
+                               </div>
+                             </div>
+                             
+                             {/* Alert per parametri anomali */}
+                             {evaluation.status !== 'normal' && (
+                               <Alert variant={evaluation.status === 'critical' ? 'destructive' : 'default'} className="py-2">
+                                 <AlertTriangle className="h-4 w-4" />
+                                 <AlertDescription className="text-xs">
+                                   <div className="font-medium">{evaluation.message}</div>
+                                   {evaluation.recommendation && (
+                                     <div className="text-muted-foreground mt-1">{evaluation.recommendation}</div>
+                                   )}
+                                 </AlertDescription>
+                               </Alert>
+                             )}
+                           </div>
+                         );
+                       })}
+                     </div>
+                   ) : (
+                     <div className="text-center py-4 text-muted-foreground">
+                       <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                       <p className="text-sm">Nessun parametro vitale registrato</p>
+                     </div>
+                   )}
+                 </CardContent>
               </Card>
 
               {/* Behavioral Insights Card */}
