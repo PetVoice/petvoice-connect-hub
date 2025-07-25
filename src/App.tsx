@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
+import { DialogStateProvider } from "@/contexts/DialogStateContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "@/pages/DashboardPage";
@@ -162,14 +163,16 @@ const App = () => (
     <AuthProvider>
       <ThemeProvider>
         <AppearanceProvider>
-          <NotificationEventsProvider>
-            <TooltipProvider>
-              <NotificationManager />
-              <AppContent />
-              <Toaster />
-              <Sonner />
-            </TooltipProvider>
-          </NotificationEventsProvider>
+          <DialogStateProvider>
+            <NotificationEventsProvider>
+              <TooltipProvider>
+                <NotificationManager />
+                <AppContent />
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </NotificationEventsProvider>
+          </DialogStateProvider>
         </AppearanceProvider>
       </ThemeProvider>
     </AuthProvider>
