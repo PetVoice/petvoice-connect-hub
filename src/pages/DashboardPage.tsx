@@ -307,9 +307,7 @@ const DashboardPage: React.FC = () => {
               onClick={action.onClick}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <action.icon className={`h-6 w-6 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
-                </div>
+                <action.icon className={`h-12 w-12 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
                 <div>
                   <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
                   <p className="text-sm text-muted-foreground">{action.description}</p>
