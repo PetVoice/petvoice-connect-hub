@@ -1043,6 +1043,10 @@ const WellnessPage = () => {
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
   const [editingInsurance, setEditingInsurance] = useState<Insurance | null>(null);
 
+  // Period filter state
+  const [periodFilter, setPeriodFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('month');
+  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>(undefined);
+
   // Helper functions
   const getMedicationStatus = (medication: Medication) => {
     if (!medication.is_active) return 'inactive';
@@ -2340,10 +2344,11 @@ const WellnessPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
+    <>
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary" />
             Salute e Benessere
@@ -2987,9 +2992,11 @@ const WellnessPage = () => {
               )}
             </CardContent>
           </Card>
+        </div>
+      </div>
 
-          {/* Additional Analytics Section - Full Width */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Additional Analytics Section - Full Width */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Dettaglio Emozioni */}
             <Card>
               <CardHeader>
@@ -3939,9 +3946,10 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
           </div>
         </TabsContent>
       </Tabs>
+    </div>
 
-      {/* Add Document Dialog */}
-      <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
+    {/* Add Document Dialog */}
+    <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -4578,7 +4586,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
       />
-    </div>
+    </>
   );
 };
 
