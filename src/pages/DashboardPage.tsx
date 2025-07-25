@@ -252,7 +252,9 @@ const DashboardPage: React.FC = () => {
 
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
-        <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
+        <div className="mb-8">
+          <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
+        </div>
       )}
 
       {/* Wellness Cards - Tutte le 10 card di wellness sotto il grafico */}

@@ -81,8 +81,8 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   }, [petAnalyses, diaryEntries]);
 
   return (
-    <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
-      <CardHeader>
+    <Card className="w-full bg-card border border-border shadow-sm">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl flex items-center gap-2">
@@ -100,8 +100,8 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="h-80">
+      <CardContent className="pb-6">
+        <div className="h-80 w-full">
           <ChartContainer config={{ wellness: { label: "Benessere", color: "hsl(var(--primary))" } }}>
             <LineChart data={wellnessTrendData}>
               <CartesianGrid strokeDasharray="3 3" />
