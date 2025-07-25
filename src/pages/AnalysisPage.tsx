@@ -2264,7 +2264,7 @@ const AnalysisPage: React.FC = () => {
                        <div className="flex flex-wrap gap-2 mt-2">
                          {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
                            <Badge key={emotion} variant="outline" className="text-sm">
-                             {emotion}: {(Number(confidence) * 100).toFixed(0)}%
+                             {emotion}: {Number(confidence).toFixed(0)}%
                            </Badge>
                          ))}
                       </div>
