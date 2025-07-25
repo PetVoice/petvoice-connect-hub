@@ -1499,6 +1499,63 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_policies: {
+        Row: {
+          coverage_details: Json | null
+          coverage_limit: number | null
+          created_at: string
+          deductible_amount: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          pet_id: string
+          policy_number: string
+          policy_type: string
+          premium_amount: number | null
+          provider_name: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coverage_details?: Json | null
+          coverage_limit?: number | null
+          created_at?: string
+          deductible_amount?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          pet_id: string
+          policy_number: string
+          policy_type: string
+          premium_amount?: number | null
+          provider_name: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coverage_details?: Json | null
+          coverage_limit?: number | null
+          created_at?: string
+          deductible_amount?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          pet_id?: string
+          policy_number?: string
+          policy_type?: string
+          premium_amount?: number | null
+          provider_name?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       intervention_recommendations: {
         Row: {
           created_at: string | null
