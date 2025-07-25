@@ -2490,21 +2490,21 @@ const WellnessPage = () => {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
-                    <Card className="p-3 bg-gradient-to-br from-blue-50/50 to-blue-100/50 border-blue-200/50">
+                    <Card className="p-3 bg-primary/5 border-primary/20">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Ultimo Controllo</p>
                       <p className="font-bold text-base text-primary">{getLastCheckup()}</p>
                     </Card>
-                    <Card className="p-3 bg-gradient-to-br from-green-50/50 to-green-100/50 border-green-200/50">
+                    <Card className="p-3 bg-success/5 border-success/20">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Prossimo Appuntamento</p>
                       <p className="font-bold text-base text-success">{getNextAppointment()}</p>
                     </Card>
-                    <Card className="p-3 bg-gradient-to-br from-purple-50/50 to-purple-100/50 border-purple-200/50">
+                    <Card className="p-3 bg-secondary/5 border-secondary/20">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Farmaci Attivi</p>
-                      <p className="font-bold text-base text-purple-900">{getActiveMedicationsCount()}</p>
+                      <p className="font-bold text-base text-secondary-foreground">{getActiveMedicationsCount()}</p>
                     </Card>
-                    <Card className="p-3 bg-gradient-to-br from-orange-50/50 to-orange-100/50 border-orange-200/50">
+                    <Card className="p-3 bg-accent/5 border-accent/20">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Documenti Medici</p>
-                      <p className="font-bold text-base text-orange-900">{getDocumentsCount()}</p>
+                      <p className="font-bold text-base text-accent-foreground">{getDocumentsCount()}</p>
                     </Card>
                   </div>
                   
@@ -2540,12 +2540,12 @@ const WellnessPage = () => {
             </CardHeader>
             <CardContent className="pt-0">
               <div className="grid md:grid-cols-3 gap-4">
-                <Card className="hover-scale bg-gradient-to-br from-blue-50/70 to-blue-100/70 border-blue-200/70 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group cursor-pointer" 
+                <Card className="hover-scale bg-primary/5 border-primary/20 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group cursor-pointer" 
                       onClick={() => setShowAddDocument(true)}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <FileText className="h-4 w-4 text-white" />
+                      <div className="p-2 bg-primary rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
+                        <FileText className="h-4 w-4 text-primary-foreground" />
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-primary text-sm">Nuovo Documento</p>
@@ -2566,7 +2566,7 @@ const WellnessPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="hover-scale bg-gradient-to-br from-green-50/70 to-green-100/70 border-green-200/70 hover:border-green-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                <Card className="hover-scale bg-success/5 border-success/20 hover:border-success/30 hover:shadow-lg transition-all duration-300 group cursor-pointer"
                       onClick={() => {
                         setEditingMedication(null);
                         setNewMedication({
@@ -2581,8 +2581,8 @@ const WellnessPage = () => {
                       }}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <Pill className="h-4 w-4 text-white" />
+                      <div className="p-2 bg-success rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
+                        <Pill className="h-4 w-4 text-success-foreground" />
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-success text-sm">Nuovo Farmaco</p>
@@ -2611,7 +2611,7 @@ const WellnessPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="hover-scale bg-gradient-to-br from-purple-50/70 to-purple-100/70 border-purple-200/70 hover:border-purple-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                <Card className="hover-scale bg-secondary/5 border-secondary/20 hover:border-secondary/30 hover:shadow-lg transition-all duration-300 group cursor-pointer"
                       onClick={() => {
                         setEditingMetric(null);
                         setNewMetric({
@@ -2624,12 +2624,12 @@ const WellnessPage = () => {
                       }}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <Activity className="h-4 w-4 text-white" />
+                      <div className="p-2 bg-secondary rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
+                        <Activity className="h-4 w-4 text-secondary-foreground" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-purple-900 text-sm">Nuova Metrica</p>
-                        <p className="text-xs text-purple-700/80">Registra valore di salute</p>
+                        <p className="font-semibold text-secondary-foreground text-sm">Nuova Metrica</p>
+                        <p className="text-xs text-muted-foreground">Registra valore di salute</p>
                       </div>
                       <Button 
                         size="sm" 
@@ -2644,7 +2644,7 @@ const WellnessPage = () => {
                           });
                           setShowAddMetric(true);
                         }}
-                        className="bg-purple-600 hover:bg-purple-700 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
+                        className="bg-secondary hover:bg-secondary/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
                       >
                         Aggiungi
                       </Button>
@@ -3754,7 +3754,7 @@ const WellnessPage = () => {
                             variant="ghost"
                             onClick={() => window.open(`tel:${contact.phone}`, '_self')}
                           >
-                            <PhoneCall className="h-4 w-4 text-green-600" />
+                            <PhoneCall className="h-4 w-4 text-success" />
                           </Button>
                           <Button 
                             size="sm" 
@@ -3980,11 +3980,11 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
               
               {/* File Preview */}
               {uploadedFileUrl && (
-                <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="mt-4 p-3 bg-success/10 rounded-lg border border-success/20">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Paperclip className="h-4 w-4 text-green-600" />
-                      <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                      <Paperclip className="h-4 w-4 text-success" />
+                      <span className="text-sm font-medium text-success-foreground">
                         File caricato con successo
                       </span>
                     </div>
@@ -3992,7 +3992,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
                       size="sm"
                       variant="ghost"
                       onClick={() => window.open(uploadedFileUrl, '_blank', 'noopener,noreferrer')}
-                      className="text-green-600 hover:text-green-700"
+                      className="text-success hover:text-success/80"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       Visualizza
