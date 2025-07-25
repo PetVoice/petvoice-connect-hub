@@ -162,14 +162,14 @@ const App = () => (
     <AuthProvider>
       <ThemeProvider>
         <AppearanceProvider>
-          <NotificationEventsProvider>
+          {/* <NotificationEventsProvider> */}
             <TooltipProvider>
               {/* <NotificationManager /> */}
               <AppContent />
               <Toaster />
               <Sonner />
             </TooltipProvider>
-          </NotificationEventsProvider>
+          {/* </NotificationEventsProvider> */}
         </AppearanceProvider>
       </ThemeProvider>
     </AuthProvider>

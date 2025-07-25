@@ -8,11 +8,11 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
-    <PetProvider>
+    // <PetProvider>
       <Layout>
         {children}
       </Layout>
-    </PetProvider>
+    // </PetProvider>
   );
 };
 
