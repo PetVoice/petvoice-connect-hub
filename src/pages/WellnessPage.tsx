@@ -501,6 +501,7 @@ const WellnessPage = () => {
   const [newInsurance, setNewInsurance] = useState({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] as string[] });
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
+  const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('month'); // Default to month
   
   // Get selected pet from URL or default to first pet
@@ -778,6 +779,7 @@ const WellnessPage = () => {
     if (!user?.id || !selectedPet?.id) return;
     
     console.log('Fetching health data for user:', user.id, 'pet:', selectedPet.id);
+    setLoading(true);
     try {
       // Fetch health metrics
       const { data: metrics } = await supabase
@@ -885,6 +887,8 @@ const WellnessPage = () => {
         description: "Impossibile caricare i dati sulla salute",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   }, [user?.id, selectedPet?.id]); // Rimuovo toast dalle dipendenze per evitare loop infinito
 
@@ -1753,6 +1757,18 @@ const WellnessPage = () => {
     setShowAddMedication(true);
   };
 
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-lg text-muted-foreground">Caricamento dati sulla salute...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedPet) {
     return (
