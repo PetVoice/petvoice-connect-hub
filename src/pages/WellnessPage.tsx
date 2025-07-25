@@ -910,11 +910,8 @@ const WellnessPage = () => {
           
         if (uploadError) throw uploadError;
         
-        const { data } = supabase.storage
-          .from('medical-documents')
-          .getPublicUrl(fileName);
-          
-        urls.push(data.publicUrl);
+        // For private buckets, store the file path, not the public URL
+        urls.push(fileName);
       } catch (error) {
         console.error('Error uploading file:', error);
         toast({
@@ -2306,7 +2303,22 @@ const WellnessPage = () => {
                                    size="sm" 
                                    variant="ghost" 
                                    className="h-6 w-6 p-0"
-                                   onClick={() => window.open(record.document_url, '_blank')}
+                                   onClick={async () => {
+                                     try {
+                                       const { data, error } = await supabase.storage
+                                         .from('medical-documents')
+                                         .createSignedUrl(record.document_url, 3600); // 1 hour expiry
+                                       
+                                       if (error) throw error;
+                                       window.open(data.signedUrl, '_blank');
+                                     } catch (error) {
+                                       toast({
+                                         title: "Errore",
+                                         description: "Impossibile aprire il documento",
+                                         variant: "destructive"
+                                       });
+                                     }
+                                   }}
                                    title="Visualizza documento"
                                  >
                                    <Download className="h-3 w-3" />
