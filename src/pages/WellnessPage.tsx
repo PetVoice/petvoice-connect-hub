@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DocumentUploader } from '@/components/DocumentUploader';
+
 import {
   Heart, 
   Activity, 
@@ -2728,15 +2728,6 @@ const WellnessPage = () => {
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
             </div>
-            <div>
-              <Label>Documenti e Foto</Label>
-              <DocumentUploader
-                onUpload={(urls) => setNewDocument(prev => ({ ...prev, document_urls: urls }))}
-                existingFiles={newDocument.document_urls}
-                maxFiles={5}
-                acceptedTypes="image/*,application/pdf,.doc,.docx"
-              />
-            </div>
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
@@ -3060,16 +3051,6 @@ const WellnessPage = () => {
                   placeholder="0.00"
                 />
               </div>
-            </div>
-            <div>
-              <Label>Documenti e Foto</Label>
-              <DocumentUploader
-                bucketName="insurance-documents"
-                onUpload={(urls) => setNewInsurance(prev => ({ ...prev, document_urls: urls }))}
-                existingFiles={newInsurance.document_urls}
-                maxFiles={5}
-                acceptedTypes="image/*,application/pdf,.doc,.docx"
-              />
             </div>
           </div>
           <div className="flex gap-2 pt-4">
