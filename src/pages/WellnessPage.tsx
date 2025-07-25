@@ -893,7 +893,7 @@ const WellnessPage = () => {
 
   useEffect(() => {
     fetchHealthData();
-  }, [fetchHealthData]);
+  }, [user?.id, selectedPet?.id]);
 
   // Handle adding/editing metric
   const handleAddMetric = async () => {
