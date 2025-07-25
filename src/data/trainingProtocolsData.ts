@@ -768,38 +768,58 @@ export const allProtocols = {
   advancedCalmTraining: advancedCalmTrainingProtocol
 };
 
-// Funzione per raccomandare protocolli basati sull'analisi dell'umore
-export const getRecommendedProtocol = (analysisResults: string[]): string | null => {
-  const negativeKeywords = analysisResults.map(result => result.toLowerCase());
+// Funzione per raccomandare protocolli basati sull'emozione rilevata
+export const getRecommendedProtocol = (emotionResults: string[]): string | null => {
+  // Converte emozioni in minuscolo per il matching
+  const emotions = emotionResults.map(emotion => emotion.toLowerCase());
   
-  if (negativeKeywords.some(keyword => ['ansia', 'stress', 'nervoso', 'tensione'].includes(keyword))) {
-    return 'anxiety-management';
+  // Mappatura emozioni -> protocolli esistenti
+  for (const emotion of emotions) {
+    switch (emotion) {
+      case 'ansioso':
+      case 'ansia':
+      case 'stress':
+      case 'nervoso':
+      case 'spaventato':
+        return 'anxiety-management';
+        
+      case 'aggressivo':
+      case 'aggressività':
+      case 'arrabbiato':
+        return 'aggression-control';
+        
+      case 'eccitato':
+      case 'iperattivo':
+      case 'agitato':
+      case 'irrequieto':
+        return 'impulse-control';
+        
+      case 'triste':
+      case 'depresso':
+      case 'apatia':
+        return 'separation-anxiety';
+        
+      case 'pauroso':
+      case 'paura':
+      case 'timido':
+        return 'fear-management';
+        
+      // Per emozioni positive, raccomanda training di base o avanzato
+      case 'felice':
+      case 'giocoso':
+      case 'curioso':
+        return 'basic-obedience';
+        
+      case 'calmo':
+      case 'rilassato':
+      case 'sereno':
+        return 'advanced-training';
+        
+      default:
+        continue;
+    }
   }
   
-  if (negativeKeywords.some(keyword => ['aggressivo', 'aggressività', 'ringhio', 'morso'].includes(keyword))) {
-    return 'aggression-control';
-  }
-  
-  if (negativeKeywords.some(keyword => ['iperattivo', 'eccitato', 'irrequieto', 'salta'].includes(keyword))) {
-    return 'impulse-control';
-  }
-  
-  if (negativeKeywords.some(keyword => ['paura', 'pauroso', 'fobia', 'spavento'].includes(keyword))) {
-    return 'fear-management';
-  }
-  
-  if (negativeKeywords.some(keyword => ['disobbediente', 'non ascolta', 'ignorante'].includes(keyword))) {
-    return 'basic-obedience';
-  }
-  
-  if (negativeKeywords.some(keyword => ['distruttivo', 'mastica', 'rompe', 'graffia'].includes(keyword))) {
-    return 'destructive-behaviors';
-  }
-  
-  // Se l'analisi mostra risultati positivi, non raccomandare protocolli
-  if (negativeKeywords.some(keyword => ['felice', 'calmo', 'equilibrato', 'sereno'].includes(keyword))) {
-    return null;
-  }
-  
-  return null;
+  // Se nessuna emozione specifica è matchata, raccomanda obbedienza di base
+  return 'basic-obedience';
 };
