@@ -2013,8 +2013,9 @@ const WellnessPage = () => {
                             {format(new Date(record.record_date), 'dd/MM/yyyy')}
                              </div>
                            </div>
-                        })}
-                    </div>
+                        ))
+                      }
+                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
                       <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
