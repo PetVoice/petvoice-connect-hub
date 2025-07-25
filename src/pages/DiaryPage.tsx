@@ -117,6 +117,20 @@ const DiaryPage: React.FC = () => {
     loadEntries();
   }, [loadEntries]);
 
+  // Listen for diary updates from other pages
+  useEffect(() => {
+    const handleDiaryUpdate = (event: CustomEvent) => {
+      console.log('Diary update event received:', event.detail);
+      loadEntries(); // Reload entries when behavior tags are modified
+    };
+
+    window.addEventListener('diaryUpdated', handleDiaryUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('diaryUpdated', handleDiaryUpdate as EventListener);
+    };
+  }, [loadEntries]);
+
   // Handlers
   const handleNewEntry = (date?: Date) => {
     if (date) setSelectedDate(date);

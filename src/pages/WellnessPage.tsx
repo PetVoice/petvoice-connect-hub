@@ -1654,6 +1654,11 @@ const WellnessPage = () => {
       // Refresh data
       await fetchHealthData();
       
+      // Trigger diary refresh event for other pages
+      window.dispatchEvent(new CustomEvent('diaryUpdated', { 
+        detail: { type: 'behaviorTagEdited', oldTag, newTag } 
+      }));
+      
       toast({
         title: "Comportamento aggiornato",
         description: `"${oldTag}" è stato rinominato in "${newTag}"`,
@@ -1694,6 +1699,11 @@ const WellnessPage = () => {
 
           // Refresh data
           await fetchHealthData();
+          
+          // Trigger diary refresh event for other pages
+          window.dispatchEvent(new CustomEvent('diaryUpdated', { 
+            detail: { type: 'behaviorTagDeleted', tag: tagToDelete } 
+          }));
           
           toast({
             title: "Comportamento eliminato",
