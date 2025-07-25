@@ -2932,11 +2932,13 @@ const WellnessPage = () => {
           </div>
         </div>
 
-        {/* Trend Salute - Full Width */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
+        {/* Analytics Section - Grid Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* Trend Salute */}
+          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="h-5 w-5 text-primary" />
                 Trend Salute
               </CardTitle>
               <CardDescription>
@@ -2951,12 +2953,12 @@ const WellnessPage = () => {
                   weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
                   respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
                   gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
-                }} className="h-[300px]">
+                }} className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={displayAnalytics.healthTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" />
-                      <YAxis />
+                      <XAxis dataKey="dateFormatted" fontSize={12} />
+                      <YAxis fontSize={12} />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <ChartLegend content={<ChartLegendContent />} />
                       {displayAnalytics.healthTrends.some(d => d.temperature) && (
@@ -3021,11 +3023,81 @@ const WellnessPage = () => {
               )}
             </CardContent>
           </Card>
-        </div>
-      </div>
 
-      {/* Additional Analytics Section - Full Width */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Dettaglio Emozioni */}
+          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Brain className="h-5 w-5 text-purple-600" />
+                Dettaglio Emozioni
+              </CardTitle>
+              <CardDescription>
+                Analisi approfondita delle emozioni rilevate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {displayAnalytics.emotionDistribution.map((emotion, index) => (
+                  <div key={index} className="p-3 border rounded-lg bg-gradient-to-br from-muted/20 to-muted/10 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium capitalize text-sm">{emotion.emotion}</span>
+                      <Badge variant="secondary" className="text-xs">{emotion.count}</Badge>
+                    </div>
+                    <Progress value={emotion.percentage} className="h-2 mb-2" />
+                    <p className="text-xs text-muted-foreground">
+                      {emotion.percentage}% del totale
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Comportamenti Osservati - Full Width */}
+        <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Eye className="h-5 w-5 text-blue-600" />
+              Comportamenti Osservati
+            </CardTitle>
+            <CardDescription>
+              Tag comportamentali più frequenti dalle osservazioni
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                {(() => {
+                  const tagCounts = diaryData
+                    .flatMap(d => d.behavioral_tags || [])
+                    .reduce((acc, tag) => {
+                      acc[tag] = (acc[tag] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                  
+                  const sortedTags = Object.entries(tagCounts)
+                    .sort(([,a], [,b]) => (Number(b) || 0) - (Number(a) || 0))
+                    .slice(0, 12);
+                  
+                  return sortedTags.map(([tag, count]) => (
+                    <div key={tag} className="flex items-center justify-between p-3 bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg border hover:shadow-md transition-all duration-200">
+                      <span className="capitalize font-medium text-sm flex-1 mr-2">{tag}</span>
+                      <Badge variant="secondary" className="text-xs">{Number(count) || 0}</Badge>
+                    </div>
+                  ));
+                })()}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Eye className="h-12 w-12 mx-auto mb-2" />
+                <p>Nessun comportamento registrato</p>
+                <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
             {/* Dettaglio Emozioni */}
             <Card>
               <CardHeader>
@@ -3048,54 +3120,6 @@ const WellnessPage = () => {
                       </p>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Comportamenti Osservati */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Comportamenti Osservati
-                </CardTitle>
-                <CardDescription>
-                  Tag comportamentali più frequenti dalle osservazioni
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
-                  <div className="space-y-3">
-                    {(() => {
-                      const tagCounts = diaryData
-                        .flatMap(d => d.behavioral_tags || [])
-                        .reduce((acc, tag) => {
-                          acc[tag] = (acc[tag] || 0) + 1;
-                          return acc;
-                        }, {} as Record<string, number>);
-                      
-                      const sortedTags = Object.entries(tagCounts)
-                        .sort(([,a], [,b]) => (Number(b) || 0) - (Number(a) || 0))
-                        .slice(0, 10);
-                      
-                      return sortedTags.map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between p-2 bg-muted/50 rounded">
-                          <span className="capitalize font-medium">{tag}</span>
-                          <Badge variant="secondary">{Number(count) || 0}</Badge>
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Eye className="h-12 w-12 mx-auto mb-2" />
-                    <p>Nessun comportamento registrato</p>
-                    <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
 
         {/* Medical Profile Tab */}
