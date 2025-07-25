@@ -258,7 +258,16 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Anteprima documento</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              Anteprima documento
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.open(selectedDocument?.url, '_blank')}
+              >
+                Apri in nuova scheda
+              </Button>
+            </DialogTitle>
             <DialogDescription>
               Visualizza l'anteprima del documento caricato
             </DialogDescription>
