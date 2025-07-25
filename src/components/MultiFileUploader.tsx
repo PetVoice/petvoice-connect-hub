@@ -79,7 +79,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     const filePath = `${bucketName}/${fileName}`;
 
     const { data, error } = await supabase.storage
-      .from('documents')
+      .from('documents') // Usa sempre il bucket documents esistente
       .upload(filePath, file);
 
     if (error) throw error;
