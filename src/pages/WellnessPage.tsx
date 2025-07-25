@@ -1907,7 +1907,7 @@ const WellnessPage = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
               <Heart className="h-8 w-8 text-primary" />
-              Wellness Dashboard
+              Salute e Benessere
             </h1>
             <p className="text-muted-foreground">
               Monitora la salute di {selectedPet.name}
@@ -1917,13 +1917,6 @@ const WellnessPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-1">
-          <TabsTrigger value="dashboard">
-            <Activity className="h-4 w-4 mr-2" />
-            Dashboard
-          </TabsTrigger>
-        </TabsList>
-
         <TabsContent value="dashboard" className="space-y-6">
           {/* Unified Wellness Trend Chart */}
           <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
