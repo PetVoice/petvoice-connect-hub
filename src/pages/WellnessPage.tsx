@@ -569,6 +569,50 @@ const WellnessPage = () => {
     }
   };
 
+  // Handle adding new emergency contact
+  const handleAddContact = async () => {
+    if (!user || !newContact.name || !newContact.phone) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('emergency_contacts')
+        .insert({
+          user_id: user.id,
+          name: newContact.name,
+          contact_type: newContact.contact_type || 'other',
+          phone: newContact.phone,
+          relationship: newContact.relationship || null,
+          email: newContact.email || null,
+          notes: newContact.notes || null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Contatto emergenza aggiunto con successo"
+      });
+
+      setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+      setShowAddContact(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding emergency contact:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il contatto emergenza",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -1300,6 +1344,20 @@ const WellnessPage = () => {
                 placeholder="es. Amico, Familiare"
               />
             </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddContact(false);
+                setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddContact}>
+              Salva
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
