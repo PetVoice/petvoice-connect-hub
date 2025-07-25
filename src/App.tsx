@@ -164,7 +164,7 @@ const App = () => (
         <AppearanceProvider>
           <NotificationEventsProvider>
             <TooltipProvider>
-              <NotificationManager />
+              {/* <NotificationManager /> */}
               <AppContent />
               <Toaster />
               <Sonner />
