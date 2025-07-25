@@ -2656,7 +2656,7 @@ const WellnessPage = () => {
           </Card>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Wellness Trend */}
             <Card>
               <CardHeader>
@@ -2818,100 +2818,12 @@ const WellnessPage = () => {
                 )}
               </CardContent>
             </Card>
+          </div>
 
+          {/* Parametri Vitali */}
+          <div className="grid grid-cols-1 gap-6">
             {/* Parametri Vitali */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Stethoscope className="h-5 w-5" />
-                  Parametri Vitali
-                </CardTitle>
-                <CardDescription>
-                  Riassunto delle metriche di salute monitorate con analisi critica
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.totalMetrics}</div>
-                    <div className="text-sm text-muted-foreground">Misurazioni Totali</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.uniqueMetricTypes}</div>
-                    <div className="text-sm text-muted-foreground">Tipi di Parametri</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.lastWeekMetrics}</div>
-                    <div className="text-sm text-muted-foreground">Ultima Settimana</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{displayAnalytics.healthMetricsSummary.criticalValues}</div>
-                    <div className="text-sm text-muted-foreground">Valori Critici</div>
-                  </div>
-                </div>
-
-                {/* Analisi Parametri Vitali basata su Guida Primo Soccorso */}
-                {healthMetrics.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Heart className="h-4 w-4" />
-                      Analisi Ultimi Parametri
-                    </h4>
-                    {(() => {
-                      // Raggruppa le metriche per tipo e prendi l'ultima misurazione
-                      const latestMetrics = healthMetrics.reduce((acc, metric) => {
-                        if (!acc[metric.metric_type] || new Date(metric.recorded_at) > new Date(acc[metric.metric_type].recorded_at)) {
-                          acc[metric.metric_type] = metric;
-                        }
-                        return acc;
-                      }, {} as Record<string, any>);
-
-                      const petType = selectedPet?.type;
-
-                      return Object.values(latestMetrics).map((metric: any) => {
-                        const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, petType);
-                        const statusColors = {
-                          normal: 'bg-green-50 border-green-200 text-green-800',
-                          warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                          critical: 'bg-red-50 border-red-200 text-red-800'
-                        };
-
-                        return (
-                          <div key={metric.id} className={`p-3 border rounded-lg ${statusColors[evaluation.status]}`}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium">
-                                {translateMetricType(metric.metric_type)}
-                              </span>
-                              <Badge variant={evaluation.status === 'critical' ? 'destructive' : evaluation.status === 'warning' ? 'secondary' : 'default'}>
-                                {evaluation.status === 'critical' ? 'CRITICO' : evaluation.status === 'warning' ? 'ATTENZIONE' : 'NORMALE'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm mb-1">{evaluation.message}</p>
-                            {evaluation.recommendation && (
-                              <p className="text-sm font-medium">{evaluation.recommendation}</p>
-                            )}
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Misurato il {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm', { locale: it })}
-                            </p>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
-                
-                {displayAnalytics.healthMetricsSummary.totalMetrics === 0 && (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      Nessun parametro vitale registrato. Inizia a monitorare peso, temperatura e battito cardiaco per vedere i trend di salute e ricevere avvisi se i valori sono critici secondo la guida di primo soccorso.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-              </CardContent>
-            </Card>
-          </div>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Stethoscope className="h-5 w-5" />
