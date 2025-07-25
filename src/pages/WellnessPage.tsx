@@ -742,6 +742,25 @@ const WellnessPage = () => {
     to: new Date()
   });
   
+  
+  // Chart component visibility toggles
+  const [chartComponents, setChartComponents] = useState({
+    healthScore: true,
+    temperature: true,
+    heartRate: true,
+    respiration: true,
+    moodScore: true,
+    medicationScore: true,
+    visitScore: true
+  });
+  
+  const toggleChartComponent = (component: keyof typeof chartComponents) => {
+    setChartComponents(prev => ({
+      ...prev,
+      [component]: !prev[component]
+    }));
+  };
+
   // Pet analyses for comprehensive health dashboard
   const [petAnalyses, setPetAnalyses] = useState([]);
   
@@ -3410,7 +3429,13 @@ const WellnessPage = () => {
                       return isAfter(recordDate, monthStart) && isBefore(recordDate, monthEnd);
                     });
 
-                    // Get diary entries for mood/behavior analysis
+                    // Get analyses for mood/behavior from petAnalyses (CORRECTED)
+                    const monthAnalyses = petAnalyses.filter(a => {
+                      const analysisDate = new Date(a.created_at);
+                      return isAfter(analysisDate, monthStart) && isBefore(analysisDate, monthEnd);
+                    });
+
+                    // Get diary entries for mood/behavior analysis (fallback)
                     const monthDiaryEntries = monthRecords.map(r => ({
                       mood: r.record_type === 'emergency' ? 'ansioso' : 
                             r.record_type === 'visit' ? 'calmo' : 'felice',
@@ -3439,16 +3464,20 @@ const WellnessPage = () => {
                       ? respMetrics.reduce((sum, m) => sum + m.value, 0) / respMetrics.length 
                       : null;
                     
-                    // Calculate mood score from diary/behavior
-                    const moodScore = monthDiaryEntries.length > 0 ? (() => {
-                      const moodValues = monthDiaryEntries.map(entry => {
-                        const moodScores = {
-                          'felice': 10, 'calmo': 8, 'giocoso': 9, 'affettuoso': 9, 'curioso': 8,
-                          'triste': 4, 'ansioso': 3, 'agitato': 2, 'spaventato': 2, 'aggressivo': 1
-                        };
-                        return moodScores[entry.mood] || 5;
+                    // Calculate mood score from REAL pet analyses (CORRECTED)
+                    const moodScore = monthAnalyses.length > 0 ? (() => {
+                      const emotionScores = {
+                        'felice': 10, 'calmo': 8, 'giocoso': 9, 'affettuoso': 9, 'curioso': 8,
+                        'eccitato': 7, 'triste': 4, 'ansioso': 3, 'agitato': 2, 'spaventato': 2, 'aggressivo': 1
+                      };
+                      
+                      const scores = monthAnalyses.map(analysis => {
+                        const primaryScore = emotionScores[analysis.primary_emotion] || 5;
+                        const confidence = analysis.primary_confidence || 0.5;
+                        return primaryScore * confidence;
                       });
-                      return moodValues.reduce((sum, val) => sum + val, 0) / moodValues.length;
+                      
+                      return scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : null;
                     })() : null;
 
                     // Calculate medication adherence score
@@ -3618,6 +3647,76 @@ const WellnessPage = () => {
                 
                 return (
                   <div className="space-y-6">
+                    {/* Chart Component Filters */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Eye className="h-4 w-4" />
+                          Visualizzazione Componenti Grafico
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="healthScore"
+                              checked={chartComponents.healthScore}
+                              onCheckedChange={() => toggleChartComponent('healthScore')}
+                            />
+                            <label htmlFor="healthScore" className="text-sm">Punteggio Salute</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="temperature"
+                              checked={chartComponents.temperature}
+                              onCheckedChange={() => toggleChartComponent('temperature')}
+                            />
+                            <label htmlFor="temperature" className="text-sm">Temperatura</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="heartRate"
+                              checked={chartComponents.heartRate}
+                              onCheckedChange={() => toggleChartComponent('heartRate')}
+                            />
+                            <label htmlFor="heartRate" className="text-sm">Battito Cardiaco</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="respiration"
+                              checked={chartComponents.respiration}
+                              onCheckedChange={() => toggleChartComponent('respiration')}
+                            />
+                            <label htmlFor="respiration" className="text-sm">Respirazione</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="moodScore"
+                              checked={chartComponents.moodScore}
+                              onCheckedChange={() => toggleChartComponent('moodScore')}
+                            />
+                            <label htmlFor="moodScore" className="text-sm">Umore</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="medicationScore"
+                              checked={chartComponents.medicationScore}
+                              onCheckedChange={() => toggleChartComponent('medicationScore')}
+                            />
+                            <label htmlFor="medicationScore" className="text-sm">Farmaci</label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="visitScore"
+                              checked={chartComponents.visitScore}
+                              onCheckedChange={() => toggleChartComponent('visitScore')}
+                            />
+                            <label htmlFor="visitScore" className="text-sm">Visite</label>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
                     {/* Unified Chart */}
                     <div className="h-[400px]">
                       <ChartContainer
@@ -3679,83 +3778,97 @@ const WellnessPage = () => {
                             <ChartLegend content={<ChartLegendContent />} />
                             
                             {/* Primary Health Score Line */}
-                            <Line 
-                              yAxisId="right"
-                              type="monotone" 
-                              dataKey="healthScore" 
-                              stroke="hsl(var(--primary))" 
-                              strokeWidth={4}
-                              name="Punteggio Salute Generale"
-                              connectNulls={false}
-                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
-                            />
+                            {chartComponents.healthScore && (
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="healthScore" 
+                                stroke="hsl(var(--primary))" 
+                                strokeWidth={4}
+                                name="Punteggio Salute Generale"
+                                connectNulls={false}
+                                dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                              />
+                            )}
                             
                             {/* Vital Signs Lines */}
-                            <Line 
-                              yAxisId="left"
-                              type="monotone" 
-                              dataKey="temperature" 
-                              stroke="hsl(var(--destructive))" 
-                              strokeWidth={2}
-                              name="Temperatura (°C)"
-                              connectNulls={false}
-                              dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2 }}
-                            />
-                            <Line 
-                              yAxisId="left"
-                              type="monotone" 
-                              dataKey="heartRate" 
-                              stroke="#3b82f6" 
-                              strokeWidth={2}
-                              name="Battito Cardiaco (bpm)"
-                              connectNulls={false}
-                              dot={{ fill: "#3b82f6", strokeWidth: 2 }}
-                            />
-                            <Line 
-                              yAxisId="left"
-                              type="monotone" 
-                              dataKey="respiration" 
-                              stroke="#22c55e" 
-                              strokeWidth={2}
-                              name="Respirazione (atti/min)"
-                              connectNulls={false}
-                              dot={{ fill: "#22c55e", strokeWidth: 2 }}
-                            />
+                            {chartComponents.temperature && (
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="temperature" 
+                                stroke="hsl(var(--destructive))" 
+                                strokeWidth={2}
+                                name="Temperatura (°C)"
+                                connectNulls={false}
+                                dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2 }}
+                              />
+                            )}
+                            {chartComponents.heartRate && (
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="heartRate" 
+                                stroke="#3b82f6" 
+                                strokeWidth={2}
+                                name="Battito Cardiaco (bpm)"
+                                connectNulls={false}
+                                dot={{ fill: "#3b82f6", strokeWidth: 2 }}
+                              />
+                            )}
+                            {chartComponents.respiration && (
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="respiration" 
+                                stroke="#22c55e" 
+                                strokeWidth={2}
+                                name="Respirazione (atti/min)"
+                                connectNulls={false}
+                                dot={{ fill: "#22c55e", strokeWidth: 2 }}
+                              />
+                            )}
                             
                             {/* Behavioral & Lifestyle Lines */}
-                            <Line 
-                              yAxisId="right"
-                              type="monotone" 
-                              dataKey="moodScore" 
-                              stroke="#8b5cf6" 
-                              strokeWidth={2}
-                              name="Punteggio Umore"
-                              connectNulls={false}
-                              dot={{ fill: "#8b5cf6", strokeWidth: 2 }}
-                              strokeDasharray="5 5"
-                            />
-                            <Line 
-                              yAxisId="right"
-                              type="monotone" 
-                              dataKey="medicationScore" 
-                              stroke="#f59e0b" 
-                              strokeWidth={2}
-                              name="Gestione Farmaci"
-                              connectNulls={false}
-                              dot={{ fill: "#f59e0b", strokeWidth: 2 }}
-                              strokeDasharray="3 3"
-                            />
-                            <Line 
-                              yAxisId="right"
-                              type="monotone" 
-                              dataKey="visitScore" 
-                              stroke="#06b6d4" 
-                              strokeWidth={2}
-                              name="Frequenza Visite"
-                              connectNulls={false}
-                              dot={{ fill: "#06b6d4", strokeWidth: 2 }}
-                              strokeDasharray="8 2"
-                            />
+                            {chartComponents.moodScore && (
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="moodScore" 
+                                stroke="#8b5cf6" 
+                                strokeWidth={2}
+                                name="Punteggio Umore"
+                                connectNulls={false}
+                                dot={{ fill: "#8b5cf6", strokeWidth: 2 }}
+                                strokeDasharray="5 5"
+                              />
+                            )}
+                            {chartComponents.medicationScore && (
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="medicationScore" 
+                                stroke="#f59e0b" 
+                                strokeWidth={2}
+                                name="Gestione Farmaci"
+                                connectNulls={false}
+                                dot={{ fill: "#f59e0b", strokeWidth: 2 }}
+                                strokeDasharray="3 3"
+                              />
+                            )}
+                            {chartComponents.visitScore && (
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="visitScore" 
+                                stroke="#06b6d4" 
+                                strokeWidth={2}
+                                name="Frequenza Visite"
+                                connectNulls={false}
+                                dot={{ fill: "#06b6d4", strokeWidth: 2 }}
+                                strokeDasharray="8 2"
+                              />
+                            )}
                             
                             {/* Reference lines for normal ranges */}
                             <ReferenceLine 
@@ -3829,7 +3942,147 @@ const WellnessPage = () => {
                               </p>
                             </div>
                             <Brain className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    
+                    {/* Detailed Parameters Table */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="h-5 w-5" />
+                          Dettagli Parametri Mensili
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left p-2">Mese</th>
+                                <th className="text-center p-2">Punteggio Salute</th>
+                                <th className="text-center p-2">Temperatura (°C)</th>
+                                <th className="text-center p-2">Battito (bpm)</th>
+                                <th className="text-center p-2">Respirazione</th>
+                                <th className="text-center p-2">Umore</th>
+                                <th className="text-center p-2">Visite</th>
+                                <th className="text-center p-2">Analisi</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {unifiedData.map((monthData, index) => (
+                                <tr key={index} className="border-b hover:bg-muted/50">
+                                  <td className="p-2 font-medium">{monthData.month}</td>
+                                  <td className="text-center p-2">
+                                    {monthData.healthScore !== null ? (
+                                      <span className={`font-medium ${
+                                        monthData.healthScore >= 80 ? 'text-green-600' :
+                                        monthData.healthScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                                      }`}>
+                                        {monthData.healthScore}/100
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                  <td className="text-center p-2">
+                                    {monthData.temperature !== null ? (
+                                      <span className={`${
+                                        monthData.temperature >= 38 && monthData.temperature <= 39.2 
+                                          ? 'text-green-600' : 'text-orange-600'
+                                      }`}>
+                                        {monthData.temperature}°C
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                  <td className="text-center p-2">
+                                    {monthData.heartRate !== null ? (
+                                      <span className={`${
+                                        monthData.heartRate >= 60 && monthData.heartRate <= 140 
+                                          ? 'text-green-600' : 'text-orange-600'
+                                      }`}>
+                                        {monthData.heartRate}
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                  <td className="text-center p-2">
+                                    {monthData.respiration !== null ? (
+                                      <span className={`${
+                                        monthData.respiration >= 10 && monthData.respiration <= 30 
+                                          ? 'text-green-600' : 'text-orange-600'
+                                      }`}>
+                                        {monthData.respiration}
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                  <td className="text-center p-2">
+                                    {monthData.moodScore !== null ? (
+                                      <span className={`${
+                                        monthData.moodScore >= 7 ? 'text-green-600' :
+                                        monthData.moodScore >= 5 ? 'text-yellow-600' : 'text-red-600'
+                                      }`}>
+                                        {monthData.moodScore.toFixed(1)}
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </td>
+                                  <td className="text-center p-2">
+                                    <span className={`${
+                                      monthData.visits === 0 ? 'text-muted-foreground' :
+                                      monthData.visits === 1 ? 'text-green-600' :
+                                      monthData.visits >= 2 ? 'text-orange-600' : 'text-muted-foreground'
+                                    }`}>
+                                      {monthData.visits}
+                                    </span>
+                                  </td>
+                                  <td className="text-center p-2">
+                                    <span className={`${
+                                      monthData.behaviourAnalyses === 0 ? 'text-muted-foreground' : 'text-blue-600'
+                                    }`}>
+                                      {monthData.behaviourAnalyses}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        
+                        {/* Legend for table colors */}
+                        <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                          <h4 className="font-medium mb-2">Legenda Colori:</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-green-600 rounded"></div>
+                              <span>Normale/Ottimo</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-yellow-600 rounded"></div>
+                              <span>Attenzione</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-red-600 rounded"></div>
+                              <span>Critico</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-orange-600 rounded"></div>
+                              <span>Fuori norma</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-blue-600 rounded"></div>
+                              <span>Analisi comportamentali</span>
+                            </div>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    {/* Summary Cards */}
                         </CardContent>
                       </Card>
                       
