@@ -1805,14 +1805,6 @@ const WellnessPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium">{medication.name}</span>
-                              <Badge variant={isExpiring ? "destructive" : "outline"} className="text-xs">
-                                {medication.frequency}
-                              </Badge>
-                              {isExpiring && (
-                                <Badge variant="destructive" className="text-xs">
-                                  Scade presto
-                                </Badge>
-                              )}
                             </div>
                              <div className="flex gap-1">
                                <Button 
