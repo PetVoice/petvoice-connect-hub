@@ -587,8 +587,10 @@ const DashboardPage: React.FC = () => {
       )}
 
       {/* Comportamenti Osservati Card - Full width */}
+      {/* Comportamenti Osservati e Farmaci Attivi - Side by side */}
       {selectedPet && (
-        <div className="w-full mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Comportamenti Osservati Card */}
           <Card className="bg-gradient-to-r from-purple-500/10 to-violet-500/5 border border-purple-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
@@ -601,7 +603,7 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {Object.keys(behaviorStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(behaviorStats)
                     .sort(([,a], [,b]) => b.count - a.count)
                     .map(([behavior, data]) => {
@@ -671,12 +673,8 @@ const DashboardPage: React.FC = () => {
               )}
             </CardContent>
           </Card>
-        </div>
-      )}
 
-      {/* Farmaci Attivi Card - Full width */}
-      {selectedPet && (
-        <div className="w-full mb-6">
+          {/* Farmaci Attivi Card */}
           <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/5 border border-green-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
