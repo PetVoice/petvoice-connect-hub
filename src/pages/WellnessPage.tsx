@@ -2175,15 +2175,15 @@ const WellnessPage = () => {
                   {behavioralTags.length > 0 ? (
                     <div className="space-y-2">
                       {Object.entries(behavioralTagCounts).slice(0, 3).map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between group">
+                        <div key={tag} className="flex items-center justify-between">
                           <div className="flex items-center gap-2 flex-1">
                             <Badge variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
                             <span className="text-sm font-medium">{count}x</span>
                           </div>
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button 
+                          <div className="flex gap-1">
+                            <Button
                               size="sm" 
                               variant="ghost" 
                               className="h-6 w-6 p-0 text-blue-500"
