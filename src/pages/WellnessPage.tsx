@@ -88,6 +88,7 @@ import {
   ReferenceLine,
   Tooltip
 } from 'recharts';
+import { calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
 
 interface HealthMetric {
   id: string;
@@ -379,8 +380,7 @@ const translateRecordType = (type: string): string => {
   return translations[type] || type;
 };
 
-// Import unified health score calculator
-import { calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
+// UnifiedHealthScore component moved outside
 
 // Unified Health Score Component
 const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
