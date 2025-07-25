@@ -477,6 +477,14 @@ const WellnessPage = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
+      // Fetch insurance
+      const { data: insurance } = await supabase
+        .from('pet_insurance')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('pet_id', selectedPet.id)
+        .order('created_at', { ascending: false });
+      
       // Fetch diary entries
       const { data: diary } = await supabase
         .from('diary_entries')
@@ -506,6 +514,7 @@ const WellnessPage = () => {
       setMedications(meds || []);
       setVeterinarians(vets || []);
       setEmergencyContacts(contacts || []);
+      setInsurances(insurance || []);
       setDiaryEntries(diary || []);
       setEmotionCounts(emotions);
       
@@ -608,6 +617,53 @@ const WellnessPage = () => {
       toast({
         title: "Errore",
         description: "Impossibile aggiungere il contatto emergenza",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle adding new insurance
+  const handleAddInsurance = async () => {
+    if (!user || !newInsurance.provider_name || !newInsurance.policy_number) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('pet_insurance')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          provider_name: newInsurance.provider_name,
+          policy_number: newInsurance.policy_number,
+          policy_type: newInsurance.policy_type || null,
+          start_date: newInsurance.start_date,
+          end_date: newInsurance.end_date || null,
+          premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
+          deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
+          is_active: true
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Assicurazione aggiunta con successo"
+      });
+
+      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+      setShowAddInsurance(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding insurance:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere l'assicurazione",
         variant: "destructive"
       });
     }
@@ -882,7 +938,7 @@ const WellnessPage = () => {
             </div>
 
             {/* Secondary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
               
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
@@ -1098,6 +1154,138 @@ const WellnessPage = () => {
                       </DialogContent>
                     </Dialog>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Insurance Card */}
+              <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-teal-500" />
+                      Assicurazione
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddInsurance(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {insurances.filter(ins => ins.is_active).length > 0 ? (
+                    <div className="space-y-2">
+                      {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => (
+                        <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{insurance.provider_name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                Attiva
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Polizza: {insurance.policy_number}
+                          </div>
+                          {insurance.premium_amount && (
+                            <div className="text-xs text-muted-foreground">
+                              Premio: €{insurance.premium_amount}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna assicurazione attiva</p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowAddInsurance(true)}
+                        className="h-8 mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Aggiungi Assicurazione
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Medical Documents Card */}
+              <Card className="hover-scale bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-background border-indigo-500/20 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileImage className="h-5 w-5 text-indigo-500" />
+                      Documenti Medici
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddDocument(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {medicalRecords.filter(record => record.document_url).length > 0 ? (
+                    <div className="space-y-2">
+                      {medicalRecords.filter(record => record.document_url).slice(0, 3).map((record) => (
+                        <div key={record.id} className="border-l-2 border-indigo-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{record.title}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {translateRecordType(record.record_type)}
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Download className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessun documento caricato</p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowAddDocument(true)}
+                        className="h-8 mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Aggiungi Documento
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -1470,6 +1658,109 @@ const WellnessPage = () => {
               Annulla
             </Button>
             <Button onClick={handleAddMetric}>
+              Salva
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Insurance Dialog */}
+      <Dialog open={showAddInsurance} onOpenChange={setShowAddInsurance}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuova Assicurazione</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="provider_name">Compagnia Assicurativa *</Label>
+              <Input
+                id="provider_name"
+                value={newInsurance.provider_name}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, provider_name: e.target.value }))}
+                placeholder="Nome della compagnia"
+              />
+            </div>
+            <div>
+              <Label htmlFor="policy_number">Numero Polizza *</Label>
+              <Input
+                id="policy_number"
+                value={newInsurance.policy_number}
+                onChange={(e) => setNewInsurance(prev => ({ ...prev, policy_number: e.target.value }))}
+                placeholder="Numero di polizza"
+              />
+            </div>
+            <div>
+              <Label htmlFor="policy_type">Tipo Polizza</Label>
+              <Select 
+                value={newInsurance.policy_type} 
+                onValueChange={(value) => setNewInsurance(prev => ({ ...prev, policy_type: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="base">Base</SelectItem>
+                  <SelectItem value="completa">Completa</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="start_date">Data Inizio *</Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={newInsurance.start_date}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, start_date: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="end_date">Data Scadenza</Label>
+                <Input
+                  id="end_date"
+                  type="date"
+                  value={newInsurance.end_date}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, end_date: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="premium_amount">Premio Annuale (€)</Label>
+                <Input
+                  id="premium_amount"
+                  type="number"
+                  step="0.01"
+                  value={newInsurance.premium_amount}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, premium_amount: e.target.value }))}
+                  placeholder="0.00"
+                />
+              </div>
+              <div>
+                <Label htmlFor="deductible">Franchigia (€)</Label>
+                <Input
+                  id="deductible"
+                  type="number"
+                  step="0.01"
+                  value={newInsurance.deductible}
+                  onChange={(e) => setNewInsurance(prev => ({ ...prev, deductible: e.target.value }))}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddInsurance(false);
+                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddInsurance}>
               Salva
             </Button>
           </div>
