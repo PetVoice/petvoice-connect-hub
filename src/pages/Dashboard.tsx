@@ -446,9 +446,15 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Wellness Trend Chart */}
-      {activePet && user && (
-        <WellnessTrendChart petId={activePet.id} userId={user.id} />
-      )}
+      {(() => {
+        console.log('Dashboard: activePet =', activePet);
+        console.log('Dashboard: user =', user);
+        return activePet && user ? (
+          <WellnessTrendChart petId={activePet.id} userId={user.id} />
+        ) : (
+          <div className="p-4 border rounded">Debug: activePet={activePet?.name}, user={user?.id}</div>
+        );
+      })()}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

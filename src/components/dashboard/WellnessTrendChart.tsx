@@ -33,6 +33,7 @@ interface WellnessTrendChartProps {
 }
 
 const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }) => {
+  console.log('WellnessTrendChart: Rendering with petId=', petId, 'userId=', userId);
   const { user } = useAuth();
   const { pets } = usePets();
   const [selectedPeriod, setSelectedPeriod] = useState('month');
