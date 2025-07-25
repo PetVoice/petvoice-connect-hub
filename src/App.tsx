@@ -8,7 +8,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { AdminRoute } from "@/components/AdminRoute";
 import AppLayout from "@/components/AppLayout";
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
@@ -23,13 +22,11 @@ import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
-import HiddenPage from "@/pages/HiddenPage";
 
 import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
 import TrainingDashboard from "@/pages/TrainingDashboard";
-import AdminDashboard from "@/pages/AdminDashboard";
 
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
@@ -45,7 +42,6 @@ function AppContent() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/hidden" element={<HiddenPage />} />
         <Route path="/" element={
           <ProtectedRoute>
             <AppLayout>
@@ -149,13 +145,6 @@ function AppContent() {
             <AppLayout>
               <SettingsPage />
             </AppLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/admin" element={
-          <ProtectedRoute>
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />
