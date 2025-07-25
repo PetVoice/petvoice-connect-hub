@@ -881,53 +881,40 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
 
                   {/* Training Protocol - Solo per emozioni negative */}
                   {(() => {
-                    const negativeEmotions = [
-                      'ansia', 'ansioso', 'stressato', 'nervoso', 'agitato', 'iperattivo', 
-                      'triste', 'depresso', 'apatico', 
-                      'aggressivo', 'irritato', 'arrabbiato',
-                      'pauroso', 'spaventato', 'timido'
-                    ];
+                    const recommendedId = getRecommendedProtocol([selectedAnalysis.primary_emotion]);
+                    const protocolsArray = Object.values(allProtocols);
+                    const protocol = recommendedId ? protocolsArray.find(p => p.id === recommendedId) : null;
                     
-                    const isNegative = negativeEmotions.some(neg => 
-                      selectedAnalysis.primary_emotion.toLowerCase().includes(neg)
-                    );
-
-                    if (isNegative) {
-                      const recommendedId = getRecommendedProtocol([selectedAnalysis.primary_emotion]);
-                      const protocolsArray = Object.values(allProtocols);
-                      const protocol = recommendedId ? protocolsArray.find(p => p.id === recommendedId) : null;
-                      
-                      if (protocol) {
-                        return (
-                          <div>
-                            <h4 className="font-medium mb-3 flex items-center gap-2">
-                              <Target className="h-4 w-4" />
-                              {getText('trainingProtocol')}
-                            </h4>
-                            <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                              <div className="flex items-start justify-between">
-                                <div className="space-y-2">
-                                  <h5 className="font-semibold text-green-800 dark:text-green-200">{protocol.name}</h5>
-                                  <p className="text-sm text-green-700 dark:text-green-300">{protocol.description}</p>
-                                  <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400">
-                                    <span>📚 {(protocol as any)?.exercises?.length || 0} esercizi</span>
-                                    <span>⏱️ ~{(protocol as any)?.duration || 4} settimane</span>
-                                    <span>🎯 Difficoltà: {(protocol as any)?.difficulty || 'Media'}</span>
-                                  </div>
+                    if (protocol) {
+                      return (
+                        <div>
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            <Target className="h-4 w-4" />
+                            {getText('trainingProtocol')}
+                          </h4>
+                          <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-2">
+                                <h5 className="font-semibold text-green-800 dark:text-green-200">{protocol.name}</h5>
+                                <p className="text-sm text-green-700 dark:text-green-300">{protocol.description}</p>
+                                <div className="flex items-center gap-4 text-xs text-green-600 dark:text-green-400">
+                                  <span>📚 {(protocol as any)?.exercises?.length || 0} esercizi</span>
+                                  <span>⏱️ ~{(protocol as any)?.duration || 4} settimane</span>
+                                  <span>🎯 Difficoltà: {(protocol as any)?.difficulty || 'Media'}</span>
                                 </div>
-                                <Button 
-                                  size="sm" 
-                                  className="bg-green-600 hover:bg-green-700"
-                                  onClick={() => autoStartProtocol(selectedAnalysis)}
-                                >
-                                  <Target className="h-3 w-3 mr-1" />
-                                  {getText('startTrainingProtocol')}
-                                </Button>
                               </div>
+                              <Button 
+                                size="sm" 
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={() => autoStartProtocol(selectedAnalysis)}
+                              >
+                                <Target className="h-3 w-3 mr-1" />
+                                {getText('startTrainingProtocol')}
+                              </Button>
                             </div>
                           </div>
-                        );
-                      }
+                        </div>
+                      );
                     }
                     return null;
                   })()}
