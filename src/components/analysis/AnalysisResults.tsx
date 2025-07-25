@@ -878,6 +878,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     return null;
                   })()}
 
+
                   {/* Training Protocol - Solo per emozioni negative */}
                   {(() => {
                     const recommendedId = getRecommendedProtocol([selectedAnalysis.primary_emotion]);
@@ -917,7 +918,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     }
                     return null;
                   })()}
-
 
                   {/* Raccomandazioni Personalizzate - Solo per emozioni negative */}
                   {(() => {
