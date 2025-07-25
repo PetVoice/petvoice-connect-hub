@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,10 +22,33 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, isToday, subDays } from 'date-fns';
+import { format, isToday, subDays, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfYear, endOfYear, subYears } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
 import { fetchHealthData, calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent 
+} from '@/components/ui/chart';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine
+} from 'recharts';
+import { DiaryEntry } from '@/types/diary';
+
+interface HealthData {
+  diaryEntries: any[];
+  healthMetrics: any[];
+  analyses: any[];
+  medications: any[];
+}
 
 interface Pet {
   id: string;
@@ -76,6 +99,11 @@ const Dashboard: React.FC = () => {
   });
   const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [healthMetrics, setHealthMetrics] = useState<any[]>([]);
+  const [diaryEntries, setDiaryEntries] = useState<any[]>([]);
+  const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
+  const [medications, setMedications] = useState<any[]>([]);
   
 
   // Usa sistema unificato di scoring - non più necessario
@@ -174,6 +202,10 @@ const Dashboard: React.FC = () => {
           recommendations: []
         });
         setRecentAnalyses([]);
+        setHealthMetrics([]);
+        setDiaryEntries([]);
+        setPetAnalyses([]);
+        setMedications([]);
         return;
       }
 
@@ -181,6 +213,12 @@ const Dashboard: React.FC = () => {
         // Usa il sistema unificato per calcolare tutti i punteggi
         const healthData = await fetchHealthData(activePet.id, user.id);
         const unifiedScore = await calculateUnifiedHealthScore(activePet.id, user.id, healthData);
+        
+        // Imposta i dati per il grafico wellness
+        setHealthMetrics(healthData.healthMetrics || []);
+        setDiaryEntries(healthData.diaryEntries || []);
+        setPetAnalyses(healthData.analyses || []);
+        setMedications(healthData.medications || []);
         
         // Calcola analisi di oggi
         const today = new Date();
@@ -249,6 +287,247 @@ const Dashboard: React.FC = () => {
 
     fetchPetAnalyses();
   }, [activePet, user]);
+
+  // Calcola i dati del trend wellness
+  const wellnessTrendData = useMemo(() => {
+    if (!petAnalyses || !healthMetrics || !diaryEntries || !medications || !activePet) return [];
+    
+    const now = new Date();
+    let periods: Array<{ start: Date; end: Date; label: string }> = [];
+
+    // Define periods based on selected filter
+    switch (selectedPeriod) {
+      case 'day':
+        // Last 7 days
+        periods = Array.from({ length: 7 }, (_, i) => {
+          const date = subDays(now, 6 - i);
+          return {
+            start: startOfDay(date),
+            end: endOfDay(date),
+            label: format(date, 'dd/MM', { locale: it })
+          };
+        });
+        break;
+      case 'week':
+        // Last 8 weeks
+        periods = Array.from({ length: 8 }, (_, i) => {
+          const weekStart = startOfWeek(subDays(now, (7 - i) * 7), { weekStartsOn: 1 });
+          const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+          return {
+            start: weekStart,
+            end: weekEnd,
+            label: `${format(weekStart, 'dd/MM', { locale: it })}`
+          };
+        });
+        break;
+      case 'month':
+        // Last 6 months
+        periods = Array.from({ length: 6 }, (_, i) => {
+          const monthStart = startOfMonth(subMonths(now, 5 - i));
+          const monthEnd = endOfMonth(monthStart);
+          return {
+            start: monthStart,
+            end: monthEnd,
+            label: format(monthStart, 'MMM', { locale: it })
+          };
+        });
+        break;
+      case 'year':
+        // Last 3 years
+        periods = Array.from({ length: 3 }, (_, i) => {
+          const yearStart = startOfYear(subYears(now, 2 - i));
+          const yearEnd = endOfYear(yearStart);
+          return {
+            start: yearStart,
+            end: yearEnd,
+            label: format(yearStart, 'yyyy')
+          };
+        });
+        break;
+      case 'all':
+        // All time - divide into reasonable chunks
+        const allAnalyses = [...petAnalyses];
+        const allDiary = [...diaryEntries];
+        const allMetrics = [...healthMetrics];
+        
+        if (allAnalyses.length === 0 && allDiary.length === 0 && allMetrics.length === 0) {
+          return [];
+        }
+        
+        // Find oldest date
+        const oldestDates = [
+          ...allAnalyses.map(a => new Date(a.created_at)),
+          ...allDiary.map(d => new Date(d.created_at)),
+          ...allMetrics.map(m => new Date(m.recorded_at))
+        ].sort((a, b) => a.getTime() - b.getTime());
+        
+        if (oldestDates.length === 0) return [];
+        
+        const oldestDate = oldestDates[0];
+        const daysDiff = Math.ceil((now.getTime() - oldestDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff <= 30) {
+          // Show weekly for last month
+          const weeksBack = Math.ceil(daysDiff / 7);
+          periods = Array.from({ length: weeksBack }, (_, i) => {
+            const weekStart = startOfWeek(subDays(now, (weeksBack - 1 - i) * 7), { weekStartsOn: 1 });
+            const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
+            return {
+              start: weekStart,
+              end: weekEnd,
+              label: `${format(weekStart, 'dd/MM', { locale: it })}`
+            };
+          });
+        } else if (daysDiff <= 365) {
+          // Show monthly for last year
+          const monthsBack = Math.ceil(daysDiff / 30);
+          periods = Array.from({ length: monthsBack }, (_, i) => {
+            const monthStart = startOfMonth(subMonths(now, monthsBack - 1 - i));
+            const monthEnd = endOfMonth(monthStart);
+            return {
+              start: monthStart,
+              end: monthEnd,
+              label: format(monthStart, 'MMM', { locale: it })
+            };
+          });
+        } else {
+          // Show yearly for longer periods
+          const yearsBack = Math.ceil(daysDiff / 365);
+          periods = Array.from({ length: yearsBack }, (_, i) => {
+            const yearStart = startOfYear(subYears(now, yearsBack - 1 - i));
+            const yearEnd = endOfYear(yearStart);
+            return {
+              start: yearStart,
+              end: yearEnd,
+              label: format(yearStart, 'yyyy')
+            };
+          });
+        }
+        break;
+    }
+
+    return periods.map(period => {
+      // Filter data for this period
+      const periodAnalyses = petAnalyses.filter(analysis => {
+        const date = new Date(analysis.created_at);
+        return date >= period.start && date <= period.end;
+      });
+      
+      const periodDiary = diaryEntries.filter(entry => {
+        const date = new Date(entry.created_at);
+        return date >= period.start && date <= period.end;
+      });
+      
+      const periodMetrics = healthMetrics.filter(metric => {
+        const date = new Date(metric.recorded_at);
+        return date >= period.start && date <= period.end;
+      });
+      
+      const periodMedications = medications.filter(med => {
+        const startDate = new Date(med.start_date);
+        const endDate = med.end_date ? new Date(med.end_date) : new Date();
+        return (startDate <= period.end && endDate >= period.start);
+      });
+
+      // Calculate wellness score for this period
+      let score = 50; // Base score
+      
+      // Emotion analysis contribution (30% max)
+      if (periodAnalyses.length > 0) {
+        const emotionScores: Record<string, number> = {
+          'felice': 100,
+          'calmo': 90,
+          'giocoso': 95,
+          'curioso': 85,
+          'affettuoso': 92,
+          'eccitato': 75,
+          'ansioso': 40,
+          'agitato': 35,
+          'triste': 30,
+          'spaventato': 25,
+          'aggressivo': 20
+        };
+        
+        const avgEmotionScore = periodAnalyses.reduce((sum, analysis) => {
+          return sum + (emotionScores[analysis.primary_emotion] || 50);
+        }, 0) / periodAnalyses.length;
+        
+        score += (avgEmotionScore - 50) * 0.3;
+      }
+      
+      // Diary mood contribution (25% max)
+      if (periodDiary.length > 0) {
+        const avgMoodScore = periodDiary
+          .filter(entry => entry.mood_score !== null)
+          .reduce((sum, entry) => sum + (entry.mood_score || 5), 0) / 
+          Math.max(1, periodDiary.filter(entry => entry.mood_score !== null).length);
+        
+        // Convert 1-10 scale to percentage and apply
+        score += ((avgMoodScore * 10) - 50) * 0.25;
+      }
+      
+      // Health metrics contribution (30% max)
+      if (periodMetrics.length > 0) {
+        let healthContribution = 0;
+        
+        periodMetrics.forEach(metric => {
+          const metricType = metric.metric_type;
+          const value = parseFloat(metric.value.toString());
+          
+          // Evaluate based on normal ranges
+          if (metricType === 'temperature') {
+            const minTemp = activePet.type?.toLowerCase() === 'cat' ? 38.1 : 38.0;
+            const maxTemp = 39.2;
+            if (value >= minTemp && value <= maxTemp) {
+              healthContribution += 5;
+            } else if (value < 37.0 || value > 40.5) {
+              healthContribution -= 15;
+            } else {
+              healthContribution -= 5;
+            }
+          } else if (metricType === 'heart_rate') {
+            let minHeart, maxHeart;
+            if (activePet.type?.toLowerCase() === 'cat') {
+              minHeart = 140; maxHeart = 220;
+            } else {
+              minHeart = 60; maxHeart = 140;
+            }
+            if (value >= minHeart && value <= maxHeart) {
+              healthContribution += 5;
+            } else if (value < 40 || value > 250) {
+              healthContribution -= 15;
+            } else {
+              healthContribution -= 5;
+            }
+          } else if (metricType === 'gum_color') {
+            if (value === 1) { // Rosa
+              healthContribution += 5;
+            } else {
+              healthContribution -= 10;
+            }
+          }
+        });
+        
+        score += Math.max(-30, Math.min(30, healthContribution));
+      }
+      
+      // Medication adherence (15% max)
+      if (periodMedications.length > 0) {
+        const activeMeds = periodMedications.filter(med => med.is_active);
+        if (activeMeds.length > 0) {
+          score += 10; // Bonus for having medication management
+        }
+      }
+      
+      // Ensure score is within bounds
+      score = Math.max(0, Math.min(100, score));
+      
+      return {
+        date: period.label,
+        wellness: Math.round(score)
+      };
+    });
+  }, [healthMetrics, diaryEntries, petAnalyses, medications, selectedPeriod, activePet]);
 
   // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
@@ -440,6 +719,82 @@ const Dashboard: React.FC = () => {
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi il tuo primo Pet
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Trend Generale Benessere Chart */}
+      {activePet && (
+        <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <TrendingUp className="h-6 w-6 text-primary" />
+                  Trend Generale Benessere
+                </CardTitle>
+                <CardDescription>
+                  Andamento complessivo del benessere di {activePet.name} nel tempo
+                </CardDescription>
+              </div>
+              
+              {/* Period Filter Badges */}
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { key: 'day', label: 'Giorno' },
+                  { key: 'week', label: 'Settimana' }, 
+                  { key: 'month', label: 'Mese' },
+                  { key: 'year', label: 'Anno' },
+                  { key: 'all', label: 'Tutto' }
+                ].map((period) => (
+                  <Badge
+                    key={period.key}
+                    variant={selectedPeriod === period.key ? 'default' : 'outline'}
+                    className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+                      selectedPeriod === period.key 
+                        ? 'bg-primary text-primary-foreground shadow-md' 
+                        : 'hover:bg-muted border-2'
+                    }`}
+                    onClick={() => setSelectedPeriod(period.key)}
+                  >
+                    {period.label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80 relative overflow-hidden">
+              <ChartContainer
+                config={{
+                  wellness: {
+                    label: "Benessere",
+                    color: "hsl(var(--primary))"
+                  }
+                }}
+                className="w-full h-full"
+              >
+                <LineChart
+                  data={wellnessTrendData}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" opacity={0.3} />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis domain={[0, 100]} stroke="hsl(var(--muted-foreground))" />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="wellness" 
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={3}
+                    dot={{ r: 5, fill: "hsl(var(--primary))" }}
+                    activeDot={{ r: 7, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
+                  />
+                  <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Ottimo" />
+                  <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" label="Medio" />
+                  <ReferenceLine y={25} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label="Attenzione" />
+                </LineChart>
+              </ChartContainer>
+            </div>
           </CardContent>
         </Card>
       )}
