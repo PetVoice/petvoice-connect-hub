@@ -212,13 +212,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     {isImage(preview.type) ? (
                       <div 
-                        className="relative cursor-pointer" 
+                        className="relative cursor-pointer group" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
                         <img 
                           src={preview.url} 
                           alt={preview.name}
-                          className="w-12 h-12 object-cover rounded border hover:opacity-80 transition-opacity"
+                          className="w-16 h-16 object-cover rounded border hover:opacity-80 transition-opacity group-hover:shadow-lg"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
@@ -226,25 +226,35 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                             if (icon) icon.style.display = 'block';
                           }}
                         />
-                        <div style={{ display: 'none' }}>
+                        <div style={{ display: 'none' }} className="w-16 h-16 flex items-center justify-center bg-muted rounded border">
                           {getFileIcon(preview.type)}
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
+                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     ) : isPDF(preview.type) ? (
                       <div 
-                        className="relative cursor-pointer" 
+                        className="relative cursor-pointer group" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
-                        <div className="w-12 h-12 border rounded flex items-center justify-center bg-red-50 hover:opacity-80 transition-opacity">
-                          <FileText className="h-6 w-6 text-red-600" />
+                        <div className="w-16 h-16 border rounded flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 transition-colors group-hover:shadow-lg">
+                          <FileText className="h-8 w-8 text-red-600" />
+                          <span className="text-xs text-red-600 font-medium">PDF</span>
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
+                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     ) : (
                       <div 
-                        className="w-12 h-12 flex items-center justify-center bg-muted rounded border cursor-pointer hover:opacity-80 transition-opacity"
+                        className="w-16 h-16 flex items-center justify-center bg-muted rounded border cursor-pointer hover:opacity-80 transition-opacity group"
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
                         {getFileIcon(preview.type)}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
+                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
