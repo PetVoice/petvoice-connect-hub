@@ -2381,88 +2381,103 @@ const WellnessPage = () => {
         </TabsList>
 
         {/* Dashboard Tab */}
-        <TabsContent value="dashboard" className="space-y-8">
+        <TabsContent value="dashboard" className="space-y-8 animate-fade-in">
           {/* Overview Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <Card className="hover-scale bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-primary">Analisi Totali</CardTitle>
-                <BarChart2 className="h-5 w-5 text-primary" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-primary">{displayAnalytics.totalAnalyses}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className="text-2xl font-bold text-primary mb-1">{displayAnalytics.totalAnalyses}</div>
+                <p className="text-xs text-muted-foreground">
                   negli ultimi {displayAnalytics.timeSpan} giorni
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-green-700">Score Benessere</CardTitle>
-                <Heart className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <Heart className="h-5 w-5 text-green-600" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold flex items-center gap-2 text-green-700">
+                <div className="text-2xl font-bold flex items-center gap-2 text-green-700 mb-1">
                   {displayAnalytics.averageWellnessScore}%
                   {displayAnalytics.wellnessTrend > 0 ? (
-                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    <TrendingUp className="h-4 w-4 text-green-600" />
                   ) : displayAnalytics.wellnessTrend < 0 ? (
-                    <TrendingDown className="h-5 w-5 text-red-600" />
+                    <TrendingDown className="h-4 w-4 text-red-600" />
                   ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs periodo precedente
+                <p className="text-xs text-muted-foreground">
+                  {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs precedente
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-blue-700">Giorni Attivi</CardTitle>
-                <Calendar className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-blue-700">{displayAnalytics.activeDays}</div>
+                <div className="text-2xl font-bold text-blue-700 mb-2">{displayAnalytics.activeDays}</div>
                 <Progress 
                   value={(displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100} 
-                  className="h-2 mt-2"
+                  className="h-2 mb-1"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground">
                   {Math.round((displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100)}% del periodo
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-purple-500/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-purple-700">Emozione Principale</CardTitle>
-                <Brain className="h-5 w-5 text-purple-600" />
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <Brain className="h-5 w-5 text-purple-600" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold capitalize text-purple-700">
+                <div className="text-2xl font-bold capitalize text-purple-700 mb-1">
                   {displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground">
                   {displayAnalytics.emotionDistribution[0]?.percentage || 0}% delle analisi
                 </p>
               </CardContent>
             </Card>
           </div>
+
           {/* Health Score Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gauge className="h-6 w-6 text-primary" />
-                  Health Score - {selectedPet.name}
-                </CardTitle>
-                <CardDescription>
-                  Punteggio generale sulla salute e monitoraggio parametri vitali
-                </CardDescription>
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-primary/10 rounded-xl">
+                      <Gauge className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl">Health Score - {selectedPet.name}</CardTitle>
+                      <CardDescription className="text-sm">
+                        Punteggio generale sulla salute e monitoraggio parametri vitali
+                      </CardDescription>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid lg:grid-cols-3 gap-8">
                   <div className="space-y-4">
                     <HealthScoreDisplay 
                       healthMetrics={healthMetrics}
@@ -2474,23 +2489,23 @@ const WellnessPage = () => {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-muted-foreground text-xs uppercase font-medium">Ultimo Controllo</p>
-                      <p className="font-semibold text-lg">{getLastCheckup()}</p>
-                    </div>
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-muted-foreground text-xs uppercase font-medium">Prossimo Appuntamento</p>
-                      <p className="font-semibold text-lg">{getNextAppointment()}</p>
-                    </div>
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-muted-foreground text-xs uppercase font-medium">Farmaci Attivi</p>
-                      <p className="font-semibold text-lg">{getActiveMedicationsCount()}</p>
-                    </div>
-                    <div className="p-3 bg-muted/30 rounded-lg">
-                      <p className="text-muted-foreground text-xs uppercase font-medium">Documenti Medici</p>
-                      <p className="font-semibold text-lg">{getDocumentsCount()}</p>
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card className="p-4 bg-gradient-to-br from-blue-50/50 to-blue-100/50 border-blue-200/50">
+                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-2">Ultimo Controllo</p>
+                      <p className="font-bold text-lg text-blue-900">{getLastCheckup()}</p>
+                    </Card>
+                    <Card className="p-4 bg-gradient-to-br from-green-50/50 to-green-100/50 border-green-200/50">
+                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-2">Prossimo Appuntamento</p>
+                      <p className="font-bold text-lg text-green-900">{getNextAppointment()}</p>
+                    </Card>
+                    <Card className="p-4 bg-gradient-to-br from-purple-50/50 to-purple-100/50 border-purple-200/50">
+                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-2">Farmaci Attivi</p>
+                      <p className="font-bold text-lg text-purple-900">{getActiveMedicationsCount()}</p>
+                    </Card>
+                    <Card className="p-4 bg-gradient-to-br from-orange-50/50 to-orange-100/50 border-orange-200/50">
+                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-2">Documenti Medici</p>
+                      <p className="font-bold text-lg text-orange-900">{getDocumentsCount()}</p>
+                    </Card>
                   </div>
                   
                   <div className="flex justify-center">
@@ -2509,33 +2524,41 @@ const WellnessPage = () => {
           </div>
 
           {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                Azioni Rapide
-              </CardTitle>
-              <CardDescription>
-                Gestisci rapidamente la salute di {selectedPet.name}
-              </CardDescription>
+          <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <Zap className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Azioni Rapide</CardTitle>
+                  <CardDescription>
+                    Gestisci rapidamente la salute di {selectedPet.name}
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-3 gap-4">
-                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-blue-500 rounded-lg">
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="hover-scale bg-gradient-to-br from-blue-50/70 to-blue-100/70 border-blue-200/70 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group cursor-pointer" 
+                      onClick={() => setShowAddDocument(true)}>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
                         <FileText className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-blue-900">Nuovo Documento</p>
-                        <p className="text-sm text-blue-700">Carica documento medico</p>
+                        <p className="font-semibold text-blue-900 mb-1">Nuovo Documento</p>
+                        <p className="text-sm text-blue-700/80">Carica documento medico</p>
                       </div>
                       <Button 
                         size="sm" 
-                        onClick={() => setShowAddDocument(true)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddDocument(true);
+                        }}
                         disabled={isUploading}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
                       >
                         {isUploading ? 'Caricamento...' : 'Aggiungi'}
                       </Button>
@@ -2543,19 +2566,32 @@ const WellnessPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-green-500 rounded-lg">
+                <Card className="hover-scale bg-gradient-to-br from-green-50/70 to-green-100/70 border-green-200/70 hover:border-green-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                      onClick={() => {
+                        setEditingMedication(null);
+                        setNewMedication({
+                          name: '',
+                          dosage: '',
+                          frequency: '',
+                          start_date: '',
+                          end_date: '',
+                          notes: ''
+                        });
+                        setShowAddMedication(true);
+                      }}>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
                         <Pill className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-green-900">Nuovo Farmaco</p>
-                        <p className="text-sm text-green-700">Aggiungi farmaco attivo</p>
+                        <p className="font-semibold text-green-900 mb-1">Nuovo Farmaco</p>
+                        <p className="text-sm text-green-700/80">Aggiungi farmaco attivo</p>
                       </div>
                        <Button 
                         size="sm" 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditingMedication(null);
                           setNewMedication({
                             name: '',
@@ -2567,7 +2603,7 @@ const WellnessPage = () => {
                           });
                           setShowAddMedication(true);
                         }}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg transition-all"
                       >
                         Aggiungi
                       </Button>
@@ -2575,19 +2611,30 @@ const WellnessPage = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-purple-500 rounded-lg">
+                <Card className="hover-scale bg-gradient-to-br from-purple-50/70 to-purple-100/70 border-purple-200/70 hover:border-purple-300 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                      onClick={() => {
+                        setEditingMetric(null);
+                        setNewMetric({
+                          metric_type: '',
+                          value: '',
+                          unit: '',
+                          notes: ''
+                        });
+                        setShowAddMetric(true);
+                      }}>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow">
                         <Activity className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-purple-900">Nuova Metrica</p>
-                        <p className="text-sm text-purple-700">Registra valore di salute</p>
+                        <p className="font-semibold text-purple-900 mb-1">Nuova Metrica</p>
+                        <p className="text-sm text-purple-700/80">Registra valore di salute</p>
                       </div>
                       <Button 
                         size="sm" 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditingMetric(null);
                           setNewMetric({
                             metric_type: '',
@@ -2597,7 +2644,7 @@ const WellnessPage = () => {
                           });
                           setShowAddMetric(true);
                         }}
-                        className="bg-purple-600 hover:bg-purple-700"
+                        className="bg-purple-600 hover:bg-purple-700 shadow-md hover:shadow-lg transition-all"
                       >
                         Aggiungi
                       </Button>
