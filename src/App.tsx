@@ -160,8 +160,8 @@ function AppContent() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <ThemeProvider>
-        <AppearanceProvider>
+      {/* <ThemeProvider> */}
+        {/* <AppearanceProvider> */}
           {/* <NotificationEventsProvider> */}
             <TooltipProvider>
               {/* <NotificationManager /> */}
@@ -170,8 +170,8 @@ const App = () => (
               <Sonner />
             </TooltipProvider>
           {/* </NotificationEventsProvider> */}
-        </AppearanceProvider>
-      </ThemeProvider>
+        {/* </AppearanceProvider> */}
+      {/* </ThemeProvider> */}
     </AuthProvider>
   </QueryClientProvider>
 );
