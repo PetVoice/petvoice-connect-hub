@@ -3411,15 +3411,11 @@ const WellnessPage = () => {
                     });
 
                     // Get diary entries for mood/behavior analysis
-                    const monthDiaryEntries = React.useMemo(() => {
-                      // This would need to fetch from diary entries if available
-                      // For now, simulate some mood data based on medical records
-                      return monthRecords.map(r => ({
-                        mood: r.record_type === 'emergency' ? 'ansioso' : 
-                              r.record_type === 'visit' ? 'calmo' : 'felice',
-                        date: r.record_date
-                      }));
-                    }, [monthRecords]);
+                    const monthDiaryEntries = monthRecords.map(r => ({
+                      mood: r.record_type === 'emergency' ? 'ansioso' : 
+                            r.record_type === 'visit' ? 'calmo' : 'felice',
+                      date: r.record_date
+                    }));
 
                     // Get active medications for this month
                     const monthMedications = medications.filter(m => {
