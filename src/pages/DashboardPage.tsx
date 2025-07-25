@@ -95,6 +95,13 @@ const DashboardPage: React.FC = () => {
       icon: Calendar,
       onClick: () => navigate('/calendar'),
       color: 'from-primary/60 to-primary/40'
+    },
+    {
+      title: 'Primo Soccorso',
+      description: 'Accesso rapido alle procedure di emergenza',
+      icon: AlertTriangle,
+      onClick: () => navigate('/diary'),
+      color: 'from-red-500 to-red-600'
     }
   ];
 
@@ -290,7 +297,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Quick Action Cards - Individual cards between health score and chart */}
       {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           {quickActions.map((action, index) => (
             <Card
               key={index}
@@ -468,30 +475,6 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* First Aid Guide Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                Primo Soccorso
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-center py-4">
-                <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                <p className="text-sm mb-3">Accesso rapido alle procedure di emergenza</p>
-                <Button 
-                  size="sm" 
-                  variant="destructive" 
-                  className="w-full"
-                  onClick={() => navigate('/diary')}
-                >
-                  <Siren className="h-4 w-4 mr-2" />
-                  Apri Guida
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Emergency Contacts Card */}
           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
