@@ -76,10 +76,27 @@ import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
 // Componente per mostrare dettagli del protocollo (non degli esercizi)
 const ProtocolDetails: React.FC<{ protocol: TrainingProtocol }> = ({ protocol }) => {
-  // Usa i dati del protocollo stesso invece di aggregare dagli esercizi
-  const objectives = protocol.triggers?.objectives || [];
-  const successCriteria = protocol.triggers?.success_criteria || [];
-  const tips = protocol.triggers?.tips || [];
+  // Debug: vediamo cosa c'è nel protocollo
+  console.log('Protocol data:', protocol);
+  console.log('Protocol triggers:', protocol.triggers);
+  console.log('Protocol required_materials:', protocol.required_materials);
+  
+  // Proviamo diverse fonti per i dati
+  const objectives = protocol.triggers?.objectives || protocol.required_materials?.objectives || [
+    "Migliorare il comportamento del pet",
+    "Sviluppare nuove competenze",
+    "Rafforzare il legame con il proprietario"
+  ];
+  const successCriteria = protocol.triggers?.success_criteria || protocol.required_materials?.success_criteria || [
+    "Risposta positiva del pet ai comandi",
+    "Riduzione dei comportamenti problematici", 
+    "Miglioramento del benessere generale"
+  ];
+  const tips = protocol.triggers?.tips || protocol.required_materials?.tips || [
+    "Sii paziente e costante negli esercizi",
+    "Usa sempre rinforzi positivi",
+    "Monitora i progressi quotidianamente"
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
