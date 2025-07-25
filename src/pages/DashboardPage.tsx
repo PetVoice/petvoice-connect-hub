@@ -73,6 +73,7 @@ const DashboardPage: React.FC = () => {
   const [diaryEntriesData, setDiaryEntriesData] = useState<any[]>([]);
   const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
+  const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
   
   // Translation system removed - Italian only
 
@@ -216,6 +217,18 @@ const DashboardPage: React.FC = () => {
           calendarEvents: calendarEvents?.length || 0
         });
 
+        // Calculate emotion statistics
+        const emotionCounts: {[key: string]: number} = {};
+        if (analyses && analyses.length > 0) {
+          analyses.forEach(analysis => {
+            if (analysis.primary_emotion) {
+              const emotion = analysis.primary_emotion.toLowerCase();
+              emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+            }
+          });
+        }
+        setEmotionStats(emotionCounts);
+
       } catch (error) {
         console.error('Error loading pet stats:', error);
       } finally {
@@ -325,26 +338,47 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      {/* Emotion Analysis Card - Full width under the chart */}
+      {selectedPet && (
+        <div className="w-full mb-6">
+          <Card className="bg-primary/10 border border-primary/20 shadow-soft">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <PieChartIcon className="h-6 w-6 text-pink-500" />
+                Analisi Emozioni Rilevate
+              </CardTitle>
+              <CardDescription>Cronologia dettagliata di tutte le emozioni rilevate</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {Object.keys(emotionStats).length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {Object.entries(emotionStats)
+                    .sort(([,a], [,b]) => b - a) // Ordina per frequenza decrescente
+                    .map(([emotion, count]) => (
+                      <div key={emotion} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-primary/10">
+                        <div className="w-3 h-3 rounded-full bg-primary"></div>
+                        <div>
+                          <div className="font-semibold capitalize">{emotion}</div>
+                          <div className="text-2xl font-bold text-primary">{count}</div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <PieChartIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Nessuna analisi emotiva disponibile</p>
+                  <p className="text-sm mt-1">Inizia ad analizzare il comportamento del tuo pet per vedere le statistiche</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Wellness Cards - Tutte le 10 card di wellness sotto il grafico */}
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          
-          {/* Detailed Emotions Analysis Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <PieChartIcon className="h-5 w-5 text-pink-500" />
-                Analisi Emozioni
-              </CardTitle>
-              <CardDescription>Distribuzione delle emozioni rilevate</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="text-center py-4 text-muted-foreground">
-                <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Visualizza dettagli in Salute e Benessere</p>
-              </div>
-            </CardContent>
-          </Card>
 
            <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
