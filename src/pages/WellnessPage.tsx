@@ -386,6 +386,10 @@ const WellnessPage = () => {
   const [showAddContact, setShowAddContact] = useState(false);
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   
+  // Edit states
+  const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
+  const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
+  
   // Form data states
   const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
   const [newDocument, setNewDocument] = useState({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
@@ -578,7 +582,7 @@ const WellnessPage = () => {
     }
   };
 
-  // Handle adding new emergency contact
+  // Handle adding/editing emergency contact
   const handleAddContact = async () => {
     if (!user || !newContact.name || !newContact.phone) {
       toast({
@@ -590,33 +594,57 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('emergency_contacts')
-        .insert({
-          user_id: user.id,
-          name: newContact.name,
-          contact_type: newContact.contact_type || 'other',
-          phone: newContact.phone,
-          relationship: newContact.relationship || null,
-          email: newContact.email || null,
-          notes: newContact.notes || null
+      if (editingContact) {
+        // Update existing contact
+        const { error } = await supabase
+          .from('emergency_contacts')
+          .update({
+            name: newContact.name,
+            contact_type: newContact.contact_type || 'other',
+            phone: newContact.phone,
+            relationship: newContact.relationship || null,
+            email: newContact.email || null,
+            notes: newContact.notes || null
+          })
+          .eq('id', editingContact.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Contatto emergenza aggiornato con successo"
         });
+      } else {
+        // Create new contact
+        const { error } = await supabase
+          .from('emergency_contacts')
+          .insert({
+            user_id: user.id,
+            name: newContact.name,
+            contact_type: newContact.contact_type || 'other',
+            phone: newContact.phone,
+            relationship: newContact.relationship || null,
+            email: newContact.email || null,
+            notes: newContact.notes || null
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Contatto emergenza aggiunto con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Contatto emergenza aggiunto con successo"
+        });
+      }
 
       setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
       setShowAddContact(false);
+      setEditingContact(null);
       fetchHealthData();
     } catch (error) {
-      console.error('Error adding emergency contact:', error);
+      console.error('Error saving emergency contact:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere il contatto emergenza",
+        description: "Impossibile salvare il contatto emergenza",
         variant: "destructive"
       });
     }
@@ -669,7 +697,7 @@ const WellnessPage = () => {
     }
   };
 
-  // Handle adding new veterinarian
+  // Handle adding/editing veterinarian
   const handleAddVet = async () => {
     if (!user || !newVet.name || !newVet.phone) {
       toast({
@@ -681,34 +709,59 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('veterinarians')
-        .insert({
-          user_id: user.id,
-          name: newVet.name,
-          clinic_name: newVet.clinic_name || null,
-          phone: newVet.phone,
-          email: newVet.email || null,
-          address: newVet.address || null,
-          specialization: newVet.specialization || null,
-          is_primary: newVet.is_primary
+      if (editingVet) {
+        // Update existing veterinarian
+        const { error } = await supabase
+          .from('veterinarians')
+          .update({
+            name: newVet.name,
+            clinic_name: newVet.clinic_name || null,
+            phone: newVet.phone,
+            email: newVet.email || null,
+            address: newVet.address || null,
+            specialization: newVet.specialization || null,
+            is_primary: newVet.is_primary
+          })
+          .eq('id', editingVet.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Veterinario aggiornato con successo"
         });
+      } else {
+        // Create new veterinarian
+        const { error } = await supabase
+          .from('veterinarians')
+          .insert({
+            user_id: user.id,
+            name: newVet.name,
+            clinic_name: newVet.clinic_name || null,
+            phone: newVet.phone,
+            email: newVet.email || null,
+            address: newVet.address || null,
+            specialization: newVet.specialization || null,
+            is_primary: newVet.is_primary
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Veterinario aggiunto con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Veterinario aggiunto con successo"
+        });
+      }
 
       setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
       setShowAddVet(false);
+      setEditingVet(null);
       fetchHealthData();
     } catch (error) {
-      console.error('Error adding veterinarian:', error);
+      console.error('Error saving veterinarian:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere il veterinario",
+        description: "Impossibile salvare il veterinario",
         variant: "destructive"
       });
     }
@@ -876,6 +929,35 @@ const WellnessPage = () => {
   // Navigate to diary for new behavior entry
   const handleAddBehavior = () => {
     window.location.href = `/diary?pet=${selectedPet?.id}&action=new`;
+  };
+
+  // Handle edit contact
+  const handleEditContact = (contact: EmergencyContact) => {
+    setEditingContact(contact);
+    setNewContact({
+      name: contact.name,
+      contact_type: contact.contact_type,
+      phone: contact.phone,
+      relationship: contact.relationship || '',
+      email: contact.email || '',
+      notes: contact.notes || ''
+    });
+    setShowAddContact(true);
+  };
+
+  // Handle edit veterinarian
+  const handleEditVet = (vet: Veterinarian) => {
+    setEditingVet(vet);
+    setNewVet({
+      name: vet.name,
+      clinic_name: vet.clinic_name || '',
+      phone: vet.phone || '',
+      email: vet.email || '',
+      address: vet.address || '',
+      specialization: vet.specialization || '',
+      is_primary: vet.is_primary
+    });
+    setShowAddVet(true);
   };
 
   if (loading) {
@@ -1271,6 +1353,15 @@ const WellnessPage = () => {
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => handleEditContact(contact)}
+                                 title="Modifica"
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
                                  className="h-6 w-6 p-0 text-red-500"
                                  onClick={() => handleDelete('contatto', contact.id, contact.name)}
                                >
@@ -1337,6 +1428,15 @@ const WellnessPage = () => {
                                  title="Chiama"
                                >
                                  <Phone className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => handleEditVet(vet)}
+                                 title="Modifica"
+                               >
+                                 <Edit className="h-3 w-3" />
                                </Button>
                                <Button 
                                  size="sm" 
@@ -1693,6 +1793,7 @@ const WellnessPage = () => {
             <Button 
               onClick={() => {
                 setShowAddVet(false);
+                setEditingVet(null);
                 setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
               }} 
               variant="outline"
@@ -1770,7 +1871,7 @@ const WellnessPage = () => {
       <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nuovo Contatto Emergenza</DialogTitle>
+            <DialogTitle>{editingContact ? 'Modifica Contatto Emergenza' : 'Nuovo Contatto Emergenza'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -1805,6 +1906,7 @@ const WellnessPage = () => {
             <Button 
               onClick={() => {
                 setShowAddContact(false);
+                setEditingContact(null);
                 setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
               }} 
               variant="outline"
@@ -1822,7 +1924,7 @@ const WellnessPage = () => {
       <Dialog open={showAddVet} onOpenChange={setShowAddVet}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nuovo Veterinario</DialogTitle>
+            <DialogTitle>{editingVet ? 'Modifica Veterinario' : 'Nuovo Veterinario'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
