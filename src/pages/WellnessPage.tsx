@@ -53,7 +53,8 @@ import {
   Music,
   PieChart as PieChartIcon,
   LineChart as LineChartIcon,
-  BarChart2
+  BarChart2,
+  BookOpen
 } from 'lucide-react';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -815,7 +816,7 @@ const WellnessPage = () => {
             </div>
 
             {/* Secondary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
@@ -889,6 +890,80 @@ const WellnessPage = () => {
                       <p className="text-sm">Nessun contatto di emergenza</p>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Veterinarian Card */}
+              <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Stethoscope className="h-5 w-5 text-purple-500" />
+                    Veterinario
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {veterinarians.filter(vet => vet.is_primary).length > 0 ? (
+                    <div className="space-y-2">
+                      {veterinarians.filter(vet => vet.is_primary).map((vet) => (
+                        <div key={vet.id} className="border-l-2 border-purple-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">{vet.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              Primario
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {vet.phone}
+                          </div>
+                          {vet.clinic_name && (
+                            <div className="text-xs text-muted-foreground">
+                              {vet.clinic_name}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessun veterinario registrato</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* First Aid Guide Card */}
+              <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    Primo Soccorso
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="text-center py-4">
+                    <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Guida rapida per emergenze
+                    </p>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="h-8">
+                          <BookOpen className="h-4 w-4 mr-1" />
+                          Apri Guida
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-red-500" />
+                            Guida Primo Soccorso
+                          </DialogTitle>
+                        </DialogHeader>
+                        <FirstAidGuide open={true} onOpenChange={() => {}} />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </CardContent>
               </Card>
 
