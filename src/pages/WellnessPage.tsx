@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -774,7 +774,7 @@ const WellnessPage = () => {
   };
 
   // Fetch all health data
-  const fetchHealthData = async () => {
+  const fetchHealthData = useCallback(async () => {
     if (!user || !selectedPet) return;
     
     setLoading(true);
@@ -886,11 +886,11 @@ const WellnessPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, selectedPet, toast]);
 
   useEffect(() => {
     fetchHealthData();
-  }, [user, selectedPet]);
+  }, [fetchHealthData]);
 
   // Handle adding/editing metric
   const handleAddMetric = async () => {
