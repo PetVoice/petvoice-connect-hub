@@ -733,7 +733,26 @@ const PetsPage: React.FC = () => {
       {/* Dialog di conferma eliminazione con persistenza */}
       <ConfirmDialog
         open={deletingPet !== null}
-        onOpenChange={(open) => !open && setDeletingPet(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingPet(null);
+            // Pulisci anche lo stato persistente
+            const savedState = sessionStorage.getItem('petvoice-dialog-state');
+            if (savedState) {
+              try {
+                const dialogStates = JSON.parse(savedState);
+                const filteredStates = dialogStates.filter((d: any) => !d.id.startsWith('delete-pet-'));
+                if (filteredStates.length > 0) {
+                  sessionStorage.setItem('petvoice-dialog-state', JSON.stringify(filteredStates));
+                } else {
+                  sessionStorage.removeItem('petvoice-dialog-state');
+                }
+              } catch (error) {
+                console.error('Errore nella pulizia dello stato:', error);
+              }
+            }
+          }
+        }}
         title="Conferma eliminazione"
         description={`Sei sicuro di voler eliminare ${deletingPet?.name || ''}?`}
         confirmText="Elimina"
