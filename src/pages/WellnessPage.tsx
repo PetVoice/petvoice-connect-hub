@@ -2656,7 +2656,7 @@ const WellnessPage = () => {
           </Card>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Wellness Trend */}
             <Card>
               <CardHeader>
@@ -2726,6 +2726,96 @@ const WellnessPage = () => {
                     </LineChart>
                   </ResponsiveContainer>
                 </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Trend Salute */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Trend Salute
+                </CardTitle>
+                <CardDescription>
+                  Andamento delle metriche di salute nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {displayAnalytics.healthTrends.length > 0 ? (
+                  <ChartContainer config={{
+                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" },
+                    heart_rate: { label: "Freq. Cardiaca (bpm)", color: "hsl(var(--primary))" },
+                    weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
+                    respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
+                    gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
+                  }} className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={displayAnalytics.healthTrends}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="dateFormatted" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        {displayAnalytics.healthTrends.some(d => d.temperature) && (
+                          <Line
+                            type="monotone"
+                            dataKey="temperature"
+                            stroke="hsl(var(--destructive))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.heart_rate) && (
+                          <Line
+                            type="monotone"
+                            dataKey="heart_rate"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.weight) && (
+                          <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="hsl(var(--secondary))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.respiration) && (
+                          <Line
+                            type="monotone"
+                            dataKey="respiration"
+                            stroke="hsl(var(--accent))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.gum_color) && (
+                          <Line
+                            type="monotone"
+                            dataKey="gum_color"
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessun dato di salute disponibile</p>
+                    <p className="text-sm">Aggiungi metriche di salute per vedere i trend</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -2826,95 +2916,6 @@ const WellnessPage = () => {
             </Card>
           </div>
 
-          {/* Trend Salute */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Trend Salute
-              </CardTitle>
-              <CardDescription>
-                Andamento delle metriche di salute nel tempo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {displayAnalytics.healthTrends.length > 0 ? (
-                <ChartContainer config={{
-                  temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" },
-                  heart_rate: { label: "Freq. Cardiaca (bpm)", color: "hsl(var(--primary))" },
-                  weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
-                  respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
-                  gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
-                }} className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={displayAnalytics.healthTrends}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <ChartLegend content={<ChartLegendContent />} />
-                      {displayAnalytics.healthTrends.some(d => d.temperature) && (
-                        <Line
-                          type="monotone"
-                          dataKey="temperature"
-                          stroke="hsl(var(--destructive))"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      )}
-                      {displayAnalytics.healthTrends.some(d => d.heart_rate) && (
-                        <Line
-                          type="monotone"
-                          dataKey="heart_rate"
-                          stroke="hsl(var(--primary))"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      )}
-                      {displayAnalytics.healthTrends.some(d => d.weight) && (
-                        <Line
-                          type="monotone"
-                          dataKey="weight"
-                          stroke="hsl(var(--secondary))"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      )}
-                      {displayAnalytics.healthTrends.some(d => d.respiration) && (
-                        <Line
-                          type="monotone"
-                          dataKey="respiration"
-                          stroke="hsl(var(--accent))"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      )}
-                      {displayAnalytics.healthTrends.some(d => d.gum_color) && (
-                        <Line
-                          type="monotone"
-                          dataKey="gum_color"
-                          stroke="hsl(var(--muted-foreground))"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Activity className="h-12 w-12 mx-auto mb-2" />
-                  <p>Nessun dato di salute disponibile</p>
-                  <p className="text-sm">Aggiungi metriche di salute per vedere i trend</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           {/* Additional Analytics Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
