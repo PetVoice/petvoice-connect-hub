@@ -282,6 +282,7 @@ const Dashboard: React.FC = () => {
 
   // Load data for wellness trend when activePet changes
   useEffect(() => {
+    console.log('Fetching wellness data for activePet:', activePet?.name);
     const fetchWellnessData = async () => {
       if (!activePet || !user) {
         setHealthMetrics([]);
@@ -318,6 +319,13 @@ const Dashboard: React.FC = () => {
             .eq('user_id', user.id)
             .order('start_date', { ascending: false })
         ]);
+
+        console.log('Wellness data loaded:', {
+          healthMetrics: healthRes.data?.length || 0,
+          diaryEntries: diaryRes.data?.length || 0,
+          analyses: analysesRes.data?.length || 0,
+          medications: medicationsRes.data?.length || 0
+        });
 
         setHealthMetrics(healthRes.data || []);
         setDiaryEntries(diaryRes.data || []);
@@ -360,6 +368,14 @@ const Dashboard: React.FC = () => {
 
   // Calculate wellness trend data from real health metrics and diary entries
   const wellnessTrendData = useMemo(() => {
+    console.log('Calculating wellnessTrendData with:', { 
+      petAnalyses: petAnalyses?.length, 
+      healthMetrics: healthMetrics?.length, 
+      diaryEntries: diaryEntries?.length, 
+      medications: medications?.length,
+      selectedPeriod 
+    });
+    
     if (!petAnalyses || !healthMetrics || !diaryEntries || !medications) return [];
     
     const now = new Date();
@@ -514,6 +530,9 @@ const Dashboard: React.FC = () => {
         wellness: Math.round(score)
       };
     });
+    
+    console.log('Generated wellnessTrendData:', periods.length, 'periods');
+    return periods;
   }, [healthMetrics, diaryEntries, petAnalyses, medications, selectedPeriod, activePet?.type]);
 
   // Funzione per ottenere l'emoji del tipo di pet
@@ -751,6 +770,12 @@ const Dashboard: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Debug info */}
+            <div className="mb-4 p-2 bg-muted/20 rounded text-xs">
+              Debug: Pet={activePet?.name}, Dati={wellnessTrendData?.length || 0} periodi, 
+              Health={healthMetrics.length}, Diary={diaryEntries.length}, 
+              Analyses={petAnalyses.length}, Meds={medications.length}
+            </div>
             <div className="h-80 relative overflow-hidden">
               <ChartContainer
                 config={{
