@@ -1278,39 +1278,6 @@ const WellnessPage = () => {
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
       setShowAddMedication(false);
       setEditingMedication(null);
-      // Update local state instead of refetching
-      if (editingMedication) {
-        setMedications(prev => prev.map(med => 
-          med.id === editingMedication.id 
-            ? { 
-                ...med, 
-                name: newMedication.name,
-                dosage: newMedication.dosage,
-                frequency: newMedication.frequency,
-                start_date: newMedication.start_date,
-                end_date: newMedication.end_date || null,
-                notes: newMedication.notes || null
-              }
-            : med
-        ));
-      } else {
-        // Add new medication to local state
-        const newMedicationData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          name: newMedication.name,
-          dosage: newMedication.dosage,
-          frequency: newMedication.frequency,
-          start_date: newMedication.start_date,
-          end_date: newMedication.end_date || null,
-          is_active: true,
-          notes: newMedication.notes || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setMedications(prev => [newMedicationData, ...prev]);
-      }
     } catch (error) {
       console.error('Error saving medication:', error);
       toast({
