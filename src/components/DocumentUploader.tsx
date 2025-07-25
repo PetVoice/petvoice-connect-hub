@@ -12,6 +12,7 @@ interface DocumentUploaderProps {
   existingFiles?: string[];
   maxFiles?: number;
   acceptedTypes?: string;
+  bucketName?: string; // Nuovo parametro per specificare il bucket
 }
 
 interface FilePreview {
@@ -25,7 +26,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   onUpload,
   existingFiles = [],
   maxFiles = 5,
-  acceptedTypes = "image/*,application/pdf,.doc,.docx"
+  acceptedTypes = "image/*,application/pdf,.doc,.docx",
+  bucketName = "medical-documents" // Default bucket
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
@@ -88,13 +90,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('medical-documents')
+          .from(bucketName)
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('medical-documents')
+          .from(bucketName)
           .getPublicUrl(filePath);
 
         uploadedUrls.push(publicUrl);
