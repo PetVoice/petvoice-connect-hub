@@ -1306,6 +1306,39 @@ const WellnessPage = () => {
   // Perform actual deletion
   const performDelete = async (type: string, id: string) => {
     try {
+      // Se è un ID temporaneo, elimina solo dallo stato locale
+      if (id.startsWith('temp_')) {
+        // Update local state immediately for temporary items
+        switch (type) {
+          case 'metrica':
+            setHealthMetrics(prev => prev.filter(metric => metric.id !== id));
+            break;
+          case 'farmaco':
+            setMedications(prev => prev.filter(med => med.id !== id));
+            break;
+          case 'visita':
+            setMedicalRecords(prev => prev.filter(record => record.id !== id));
+            break;
+          case 'contatto':
+            setEmergencyContacts(prev => prev.filter(contact => contact.id !== id));
+            break;
+          case 'veterinario':
+            setVeterinarians(prev => prev.filter(vet => vet.id !== id));
+            break;
+          case 'assicurazione':
+            setInsurances(prev => prev.filter(insurance => insurance.id !== id));
+            break;
+        }
+        
+        toast({
+          title: "Successo",
+          description: `${type.charAt(0).toUpperCase() + type.slice(1)} eliminato con successo`
+        });
+        
+        setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
+        return;
+      }
+
       let tableName: 'health_metrics' | 'medications' | 'medical_records' | 'emergency_contacts' | 'veterinarians' | 'pet_insurance' = 'health_metrics';
       
       switch (type) {
@@ -1428,6 +1461,16 @@ const WellnessPage = () => {
 
   // Handle edit contact
   const handleEditContact = (contact: EmergencyContact) => {
+    // Non permettere di modificare elementi temporanei
+    if (contact.id.startsWith('temp_')) {
+      toast({
+        title: "Modifica non disponibile",
+        description: "Gli elementi non ancora salvati possono solo essere eliminati. Salva prima l'elemento per poterlo modificare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingContact(contact);
     setNewContact({
       name: contact.name,
@@ -1442,6 +1485,16 @@ const WellnessPage = () => {
 
   // Handle edit veterinarian
   const handleEditVet = (vet: Veterinarian) => {
+    // Non permettere di modificare elementi temporanei
+    if (vet.id.startsWith('temp_')) {
+      toast({
+        title: "Modifica non disponibile",
+        description: "Gli elementi non ancora salvati possono solo essere eliminati. Salva prima l'elemento per poterlo modificare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingVet(vet);
     setNewVet({
       name: vet.name,
@@ -1457,6 +1510,16 @@ const WellnessPage = () => {
 
   // Handle edit metric
   const handleEditMetric = (metric: HealthMetric) => {
+    // Non permettere di modificare elementi temporanei
+    if (metric.id.startsWith('temp_')) {
+      toast({
+        title: "Modifica non disponibile",
+        description: "Gli elementi non ancora salvati possono solo essere eliminati. Salva prima l'elemento per poterlo modificare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingMetric(metric);
     setNewMetric({
       metric_type: metric.metric_type,
@@ -1469,6 +1532,16 @@ const WellnessPage = () => {
 
   // Handle edit medical record
   const handleEditRecord = (record: MedicalRecord) => {
+    // Non permettere di modificare elementi temporanei
+    if (record.id.startsWith('temp_')) {
+      toast({
+        title: "Modifica non disponibile",
+        description: "Gli elementi non ancora salvati possono solo essere eliminati. Salva prima l'elemento per poterlo modificare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingRecord(record);
     setNewDocument({
       title: record.title,
@@ -1483,6 +1556,16 @@ const WellnessPage = () => {
 
   // Handle edit medication
   const handleEditMedication = (medication: Medication) => {
+    // Non permettere di modificare elementi temporanei
+    if (medication.id.startsWith('temp_')) {
+      toast({
+        title: "Modifica non disponibile",
+        description: "Gli elementi non ancora salvati possono solo essere eliminati. Salva prima l'elemento per poterlo modificare.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setEditingMedication(medication);
     setNewMedication({
       name: medication.name,
