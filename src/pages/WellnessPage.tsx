@@ -405,42 +405,35 @@ const WellnessPage = () => {
 
   const confirmDelete = async (type: string, id: string) => {
     try {
-      let tableName = '';
-      let stateSetter: React.Dispatch<React.SetStateAction<any[]>> = () => {};
+      let error;
 
       switch (type) {
         case 'farmaco':
-          tableName = 'medications';
-          stateSetter = setMedications;
+          ({ error } = await supabase.from('medications').delete().eq('id', id));
+          if (!error) setMedications(prev => prev.filter(item => item.id !== id));
           break;
         case 'metrica':
-          tableName = 'health_metrics';
-          stateSetter = setHealthMetrics;
+          ({ error } = await supabase.from('health_metrics').delete().eq('id', id));
+          if (!error) setHealthMetrics(prev => prev.filter(item => item.id !== id));
           break;
         case 'visita':
         case 'documento':
-          tableName = 'medical_records';
-          stateSetter = setMedicalRecords;
+          ({ error } = await supabase.from('medical_records').delete().eq('id', id));
+          if (!error) setMedicalRecords(prev => prev.filter(item => item.id !== id));
           break;
         case 'veterinario':
-          tableName = 'veterinarians';
-          stateSetter = setVeterinarians;
+          ({ error } = await supabase.from('veterinarians').delete().eq('id', id));
+          if (!error) setVeterinarians(prev => prev.filter(item => item.id !== id));
           break;
         case 'contatto':
-          tableName = 'emergency_contacts';
-          stateSetter = setEmergencyContacts;
+          ({ error } = await supabase.from('emergency_contacts').delete().eq('id', id));
+          if (!error) setEmergencyContacts(prev => prev.filter(item => item.id !== id));
           break;
+        default:
+          throw new Error('Tipo non riconosciuto');
       }
 
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq('id', id);
-
       if (error) throw error;
-
-      // Update local state
-      stateSetter(prev => prev.filter(item => item.id !== id));
 
       toast({
         title: "Successo",
@@ -1239,8 +1232,9 @@ const WellnessPage = () => {
           setConfirmDialog(prev => ({ ...prev, open: false }));
         }}
         title={confirmDialog.title}
-        message={confirmDialog.message}
+        description={confirmDialog.message}
         confirmText="Elimina"
+        variant="destructive"
       />
 
       {/* First Aid Guide */}
@@ -1251,9 +1245,11 @@ const WellnessPage = () => {
 
       {/* Diary Entry Dialog */}
       <DiaryEntryForm
-        open={showDiaryDialog}
-        onOpenChange={setShowDiaryDialog}
+        isOpen={showDiaryDialog}
+        onClose={() => setShowDiaryDialog(false)}
         onSave={handleAddDiaryEntry}
+        petId={selectedPet?.id || ''}
+        userId={user?.id || ''}
       />
     </div>
   );
