@@ -2709,20 +2709,22 @@ const WellnessPage = () => {
               />
              </div>
 
-             {/* File Upload Section */}
-             <div className="space-y-2">
-               <Label>Documenti Medici</Label>
-               <MultiFileUploader
-                 bucketName="medical"
-                 maxFiles={10}
-                 maxSizePerFile={15}
-                 acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx', '.txt']}
-                 onFilesChanged={(files) => {
-                   setNewDocument(prev => ({ 
-                     ...prev, 
-                     document_urls: files.filter(f => f.uploaded).map(f => f.url)
-                   }));
-                 }}
+              {/* File Upload Section */}
+              <div className="space-y-2">
+                <Label>Documenti Medici</Label>
+                <MultiFileUploader
+                  bucketName="medical"
+                  maxFiles={10}
+                  maxSizePerFile={15}
+                  acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx', '.txt']}
+                  onFilesChanged={(files) => {
+                    // Solo aggiorna quando ci sono file effettivamente caricati
+                    const uploadedUrls = files.filter(f => f.uploaded).map(f => f.url);
+                    setNewDocument(prev => ({ 
+                      ...prev, 
+                      document_urls: uploadedUrls
+                    }));
+                  }}
                />
              </div>
            </div>
@@ -3054,20 +3056,22 @@ const WellnessPage = () => {
               </div>
              </div>
 
-             {/* File Upload Section */}
-             <div className="space-y-2">
-               <Label>Documenti Assicurazione</Label>
-               <MultiFileUploader
-                 bucketName="insurance"
-                 maxFiles={5}
-                 maxSizePerFile={10}
-                 acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx']}
-                 onFilesChanged={(files) => {
-                   setNewInsurance(prev => ({ 
-                     ...prev, 
-                     document_urls: files.filter(f => f.uploaded).map(f => f.url)
-                   }));
-                 }}
+              {/* File Upload Section */}
+              <div className="space-y-2">
+                <Label>Documenti Assicurazione</Label>
+                <MultiFileUploader
+                  bucketName="insurance"
+                  maxFiles={5}
+                  maxSizePerFile={10}
+                  acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx']}
+                  onFilesChanged={(files) => {
+                    // Solo aggiorna quando ci sono file effettivamente caricati
+                    const uploadedUrls = files.filter(f => f.uploaded).map(f => f.url);
+                    setNewInsurance(prev => ({ 
+                      ...prev, 
+                      document_urls: uploadedUrls
+                    }));
+                  }}
                />
              </div>
            </div>

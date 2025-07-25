@@ -215,9 +215,13 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     }
   };
 
-  // Update parent when files change
+  // Update parent when files change (debounced to avoid excessive updates)
   React.useEffect(() => {
-    onFilesChanged?.(files);
+    const timeoutId = setTimeout(() => {
+      onFilesChanged?.(files);
+    }, 100); // Debounce di 100ms
+
+    return () => clearTimeout(timeoutId);
   }, [files, onFilesChanged]);
 
   return (
