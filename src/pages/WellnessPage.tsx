@@ -886,6 +886,36 @@ const WellnessPage = () => {
       setShowAddContact(false);
       setEditingContact(null);
       // Update local state instead of refetching
+      if (editingContact) {
+        setEmergencyContacts(prev => prev.map(contact => 
+          contact.id === editingContact.id 
+            ? { 
+                ...contact, 
+                name: newContact.name,
+                contact_type: newContact.contact_type || 'other',
+                phone: newContact.phone,
+                relationship: newContact.relationship || null,
+                email: newContact.email || null,
+                notes: newContact.notes || null
+              }
+            : contact
+        ));
+      } else {
+        // Add new emergency contact to local state
+        const newContactData = {
+          id: Date.now().toString(), // Temporary ID
+          user_id: user.id,
+          name: newContact.name,
+          contact_type: newContact.contact_type || 'other',
+          phone: newContact.phone,
+          relationship: newContact.relationship || null,
+          email: newContact.email || null,
+          notes: newContact.notes || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setEmergencyContacts(prev => [newContactData, ...prev]);
+      }
     } catch (error) {
       console.error('Error saving emergency contact:', error);
       toast({
@@ -932,7 +962,23 @@ const WellnessPage = () => {
 
       setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
       setShowAddInsurance(false);
-      // Don't call fetchHealthData to prevent page reload
+      // Add new insurance to local state
+      const newInsuranceData = {
+        id: Date.now().toString(), // Temporary ID
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        provider_name: newInsurance.provider_name,
+        policy_number: newInsurance.policy_number,
+        policy_type: newInsurance.policy_type || null,
+        start_date: newInsurance.start_date,
+        end_date: newInsurance.end_date || null,
+        premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
+        deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setInsurances(prev => [newInsuranceData, ...prev]);
     } catch (error) {
       console.error('Error adding insurance:', error);
       toast({
@@ -1003,6 +1049,38 @@ const WellnessPage = () => {
       setShowAddVet(false);
       setEditingVet(null);
       // Update local state instead of refetching
+      if (editingVet) {
+        setVeterinarians(prev => prev.map(vet => 
+          vet.id === editingVet.id 
+            ? { 
+                ...vet, 
+                name: newVet.name,
+                clinic_name: newVet.clinic_name || null,
+                phone: newVet.phone,
+                email: newVet.email || null,
+                address: newVet.address || null,
+                specialization: newVet.specialization || null,
+                is_primary: newVet.is_primary
+              }
+            : vet
+        ));
+      } else {
+        // Add new veterinarian to local state
+        const newVetData = {
+          id: Date.now().toString(), // Temporary ID
+          user_id: user.id,
+          name: newVet.name,
+          clinic_name: newVet.clinic_name || null,
+          phone: newVet.phone,
+          email: newVet.email || null,
+          address: newVet.address || null,
+          specialization: newVet.specialization || null,
+          is_primary: newVet.is_primary,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setVeterinarians(prev => [newVetData, ...prev]);
+      }
     } catch (error) {
       console.error('Error saving veterinarian:', error);
       toast({
@@ -1072,6 +1150,37 @@ const WellnessPage = () => {
       setShowAddDocument(false);
       setEditingRecord(null);
       // Update local state instead of refetching
+      if (editingRecord) {
+        setMedicalRecords(prev => prev.map(record => 
+          record.id === editingRecord.id 
+            ? { 
+                ...record, 
+                title: newDocument.title,
+                description: newDocument.description || null,
+                record_type: newDocument.record_type,
+                record_date: newDocument.record_date,
+                cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
+                notes: newDocument.notes || null
+              }
+            : record
+        ));
+      } else {
+        // Add new medical record to local state
+        const newRecordData = {
+          id: Date.now().toString(), // Temporary ID
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          title: newDocument.title,
+          description: newDocument.description || null,
+          record_type: newDocument.record_type,
+          record_date: newDocument.record_date,
+          cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
+          notes: newDocument.notes || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setMedicalRecords(prev => [newRecordData, ...prev]);
+      }
     } catch (error) {
       console.error('Error saving medical record:', error);
       toast({
@@ -1142,6 +1251,38 @@ const WellnessPage = () => {
       setShowAddMedication(false);
       setEditingMedication(null);
       // Update local state instead of refetching
+      if (editingMedication) {
+        setMedications(prev => prev.map(med => 
+          med.id === editingMedication.id 
+            ? { 
+                ...med, 
+                name: newMedication.name,
+                dosage: newMedication.dosage,
+                frequency: newMedication.frequency,
+                start_date: newMedication.start_date,
+                end_date: newMedication.end_date || null,
+                notes: newMedication.notes || null
+              }
+            : med
+        ));
+      } else {
+        // Add new medication to local state
+        const newMedicationData = {
+          id: Date.now().toString(), // Temporary ID
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          name: newMedication.name,
+          dosage: newMedication.dosage,
+          frequency: newMedication.frequency,
+          start_date: newMedication.start_date,
+          end_date: newMedication.end_date || null,
+          is_active: true,
+          notes: newMedication.notes || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setMedications(prev => [newMedicationData, ...prev]);
+      }
     } catch (error) {
       console.error('Error saving medication:', error);
       toast({
@@ -1207,7 +1348,27 @@ const WellnessPage = () => {
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} eliminato con successo`
       });
 
-      // Don't call fetchHealthData to prevent page reload
+      // Update local state instead of refetching
+      switch (type) {
+        case 'metrica':
+          setHealthMetrics(prev => prev.filter(metric => metric.id !== id));
+          break;
+        case 'farmaco':
+          setMedications(prev => prev.filter(med => med.id !== id));
+          break;
+        case 'visita':
+          setMedicalRecords(prev => prev.filter(record => record.id !== id));
+          break;
+        case 'contatto':
+          setEmergencyContacts(prev => prev.filter(contact => contact.id !== id));
+          break;
+        case 'veterinario':
+          setVeterinarians(prev => prev.filter(vet => vet.id !== id));
+          break;
+        case 'assicurazione':
+          setInsurances(prev => prev.filter(insurance => insurance.id !== id));
+          break;
+      }
     } catch (error) {
       console.error('Error deleting:', error);
       toast({
@@ -1264,6 +1425,19 @@ const WellnessPage = () => {
       setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
       setShowDiaryDialog(false);
       // Update local state instead of refetching
+      const newDiaryEntryData = {
+        id: Date.now().toString(), // Temporary ID
+        user_id: user.id,
+        pet_id: selectedPet.id,
+        title: newDiaryEntry.title,
+        content: newDiaryEntry.content || null,
+        entry_date: format(new Date(), 'yyyy-MM-dd'),
+        mood_score: newDiaryEntry.mood_score ? parseInt(newDiaryEntry.mood_score) : null,
+        behavioral_tags: newDiaryEntry.behavioral_tags ? newDiaryEntry.behavioral_tags.split(',').map(tag => tag.trim()) : [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setDiaryEntries(prev => [newDiaryEntryData, ...prev]);
     } catch (error) {
       console.error('Error adding diary entry:', error);
       toast({
@@ -1638,16 +1812,33 @@ const WellnessPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {medications.filter(med => med.is_active).length > 0 ? (
+                  {medications.filter(med => {
+                    // Show active medications that haven't expired
+                    if (!med.is_active) return false;
+                    if (!med.end_date) return true; // No end date means it's ongoing
+                    return new Date(med.end_date) >= new Date(); // Not expired
+                  }).length > 0 ? (
                     <div className="space-y-2">
-                      {medications.filter(med => med.is_active).slice(0, 3).map((medication) => (
+                      {medications.filter(med => {
+                        if (!med.is_active) return false;
+                        if (!med.end_date) return true;
+                        return new Date(med.end_date) >= new Date();
+                      }).slice(0, 3).map((medication) => {
+                        const isExpiring = medication.end_date && 
+                          new Date(medication.end_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Expires in 7 days
+                        return (
                         <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium">{medication.name}</span>
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant={isExpiring ? "destructive" : "outline"} className="text-xs">
                                 {medication.frequency}
                               </Badge>
+                              {isExpiring && (
+                                <Badge variant="destructive" className="text-xs">
+                                  Scade presto
+                                </Badge>
+                              )}
                             </div>
                              <div className="flex gap-1">
                                <Button 
@@ -1676,9 +1867,10 @@ const WellnessPage = () => {
                               Fino al: {format(new Date(medication.end_date), 'dd/MM/yyyy')}
                             </div>
                           )}
-                        </div>
-                      ))}
-                    </div>
+                         </div>
+                         );
+                       })}
+                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
                       <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
