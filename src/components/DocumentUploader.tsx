@@ -97,15 +97,21 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           throw uploadError;
         }
 
-        const { data: { publicUrl } } = supabase.storage
+        const { data: signedUrlData, error: urlError } = await supabase.storage
           .from(bucketName)
-          .getPublicUrl(filePath);
+          .createSignedUrl(filePath, 60 * 60 * 24 * 7); // URL valido per 7 giorni
 
-        uploadedUrls.push(publicUrl);
+        if (urlError || !signedUrlData?.signedUrl) {
+          throw new Error('Errore nella generazione dell\'URL del file');
+        }
+
+        const fileUrl = signedUrlData.signedUrl;
+
+        uploadedUrls.push(fileUrl);
         
         // Aggiungi alla preview
         setPreviewFiles(prev => [...prev, {
-          url: publicUrl,
+          url: fileUrl,
           name: file.name,
           type: file.type,
           size: file.size
