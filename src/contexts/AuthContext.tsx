@@ -32,24 +32,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lastUserUpdate, setLastUserUpdate] = useState<number>(0);
   const { showToast } = useToastWithIcon();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        const currentTime = Date.now();
-        
-        // Evita aggiornamenti se l'utente è lo stesso e troppo poco tempo è passato
-        if (session?.user?.id === user?.id && (currentTime - lastUserUpdate) < 1000) {
-          return;
-        }
-        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        setLastUserUpdate(currentTime);
       }
     );
 
