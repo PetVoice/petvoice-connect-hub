@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,20 +50,43 @@ import {
   Target,
   Zap,
   Gauge,
-  Music
+  Music,
+  PieChart as PieChartIcon,
+  LineChart as LineChartIcon
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore, differenceInDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore, differenceInDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import jsPDF from 'jspdf';
 import { useNotifications } from '@/hooks/useNotifications';
-
+import { 
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent 
+} from '@/components/ui/chart';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  ReferenceLine,
+  Tooltip
+} from 'recharts';
 
 interface HealthMetric {
   id: string;
@@ -145,6 +168,175 @@ const translateMetricType = (type: string): string => {
     'respiratory_rate': 'Frequenza Respiratoria'
   };
   return translations[type] || type;
+};
+
+// Colors for emotion charts
+const EMOTION_COLORS = {
+  'felice': '#22c55e',
+  'triste': '#3b82f6', 
+  'ansioso': '#f59e0b',
+  'calmo': '#06b6d4',
+  'agitato': '#ef4444',
+  'giocoso': '#8b5cf6',
+  'spaventato': '#6b7280',
+  'aggressivo': '#dc2626',
+  'curioso': '#10b981',
+  'affettuoso': '#ec4899'
+};
+
+// Helper function to evaluate vital parameters  
+const evaluateVitalParameter = (metricType: string, value: number, petType?: string): { 
+  status: 'normal' | 'warning' | 'critical', 
+  message: string,
+  recommendation?: string 
+} => {
+  // Ranges for vital parameters (from first aid guide)
+  const VITAL_PARAMETERS_RANGES = {
+    temperature: {
+      dogs: { min: 38.0, max: 39.2, unit: '°C' },
+      cats: { min: 38.1, max: 39.2, unit: '°C' },
+      critical_low: 37.5,
+      critical_high: 40.0
+    },
+    heart_rate: {
+      dogs_large: { min: 60, max: 100, unit: 'bpm' },
+      dogs_small: { min: 100, max: 140, unit: 'bpm' },
+      cats: { min: 140, max: 220, unit: 'bpm' },
+      critical_low: 50,
+      critical_high: 240
+    },
+    breathing_rate: {
+      dogs: { min: 10, max: 30, unit: 'atti/min' },
+      cats: { min: 20, max: 30, unit: 'atti/min' },
+      critical_low: 8,
+      critical_high: 40
+    }
+  };
+
+  switch (metricType) {
+    case 'temperature':
+      if (value < VITAL_PARAMETERS_RANGES.temperature.critical_low) {
+        return {
+          status: 'critical',
+          message: `Temperatura critica bassa: ${value}°C`,
+          recommendation: 'Contatta immediatamente il veterinario - possibile ipotermia'
+        };
+      }
+      if (value > VITAL_PARAMETERS_RANGES.temperature.critical_high) {
+        return {
+          status: 'critical',
+          message: `Temperatura critica alta: ${value}°C`,
+          recommendation: 'EMERGENZA - Possibile colpo di calore. Raffredda gradualmente e vai dal veterinario'
+        };
+      }
+      if (value < 38.0 || value > 39.2) {
+        return {
+          status: 'warning',
+          message: `Temperatura fuori norma: ${value}°C`,
+          recommendation: 'Monitora attentamente e considera una visita veterinaria'
+        };
+      }
+      return { status: 'normal', message: `Temperatura normale: ${value}°C` };
+
+    case 'heart_rate':
+      if (value < VITAL_PARAMETERS_RANGES.heart_rate.critical_low) {
+        return {
+          status: 'critical',
+          message: `Battito cardiaco critico basso: ${value} bpm`,
+          recommendation: 'EMERGENZA - Contatta immediatamente il veterinario'
+        };
+      }
+      if (value > VITAL_PARAMETERS_RANGES.heart_rate.critical_high) {
+        return {
+          status: 'critical',
+          message: `Battito cardiaco critico alto: ${value} bpm`,
+          recommendation: 'EMERGENZA - Possibile stress grave o patologia cardiaca'
+        };
+      }
+      // Evaluation based on size (simplified)
+      const normalRange = petType === 'gatto' || petType === 'cat' 
+        ? VITAL_PARAMETERS_RANGES.heart_rate.cats
+        : value > 120 
+          ? VITAL_PARAMETERS_RANGES.heart_rate.dogs_small 
+          : VITAL_PARAMETERS_RANGES.heart_rate.dogs_large;
+      
+      if (value < normalRange.min || value > normalRange.max) {
+        return {
+          status: 'warning',
+          message: `Battito cardiaco anomalo: ${value} bpm`,
+          recommendation: 'Monitora e consulta il veterinario se persiste'
+        };
+      }
+      return { status: 'normal', message: `Battito cardiaco normale: ${value} bpm` };
+
+    case 'breathing_rate':
+    case 'respiratory_rate':
+    case 'respiration':
+      if (value < VITAL_PARAMETERS_RANGES.breathing_rate.critical_low) {
+        return {
+          status: 'critical',
+          message: `Respirazione critica lenta: ${value} atti/min`,
+          recommendation: 'EMERGENZA - Possibili problemi respiratori gravi. Contatta immediatamente il veterinario!'
+        };
+      }
+      if (value > VITAL_PARAMETERS_RANGES.breathing_rate.critical_high) {
+        return {
+          status: 'critical',
+          message: `Respirazione critica veloce: ${value} atti/min`,
+          recommendation: 'EMERGENZA - Possibile distress respiratorio o dolore. Vai immediatamente dal veterinario!'
+        };
+      }
+      
+      const breathingRange = petType === 'gatto' || petType === 'cat' 
+        ? VITAL_PARAMETERS_RANGES.breathing_rate.cats
+        : VITAL_PARAMETERS_RANGES.breathing_rate.dogs;
+      
+      if (value < breathingRange.min || value > breathingRange.max) {
+        return {
+          status: 'warning',
+          message: `Respirazione anomala: ${value} atti/min (normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})`,
+          recommendation: 'Monitora attentamente e considera una visita veterinaria se persiste'
+        };
+      }
+      return { 
+        status: 'normal', 
+        message: `Respirazione normale: ${value} atti/min (range normale ${petType === 'gatto' || petType === 'cat' ? 'gatti' : 'cani'}: ${breathingRange.min}-${breathingRange.max})` 
+      };
+
+    case 'gum_color':
+      const gumColorText = getGumColorText(value);
+      switch (value) {
+        case 1: // Rosa
+          return { 
+            status: 'normal', 
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'Gengive normali - buona circolazione sanguigna'
+          };
+        case 2: // Pallide
+          return {
+            status: 'warning',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'Gengive pallide possono indicare anemia o shock. Consulta il veterinario'
+          };
+        case 3: // Blu/Viola
+          return {
+            status: 'critical',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'EMERGENZA - Gengive cianotiche indicano mancanza di ossigeno. Vai immediatamente dal veterinario!'
+          };
+        case 4: // Gialle
+          return {
+            status: 'critical',
+            message: `Colore Gengive: ${gumColorText}`,
+            recommendation: 'CRITICO - Gengive gialle possono indicare ittero o problemi epatici. Consulta urgentemente il veterinario'
+          };
+        default:
+          return { status: 'normal', message: `Colore Gengive: ${gumColorText}` };
+      }
+
+    default:
+      return { status: 'normal', message: `${translateMetricType(metricType)}: ${value}` };
+  }
 };
 
 // Helper function to convert gum color numeric values to text
@@ -725,6 +917,15 @@ const WellnessPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   
+  // Analytics data from StatsPage
+  const [analysisData, setAnalysisData] = useState<any[]>([]);
+  const [diaryData, setDiaryData] = useState<any[]>([]);
+  const [wellnessData, setWellnessData] = useState<any[]>([]);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subMonths(new Date(), 1),
+    to: new Date()
+  });
+  
   // Dialog states
   const [showAddDocument, setShowAddDocument] = useState(false);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
@@ -889,20 +1090,28 @@ const WellnessPage = () => {
     return Object.entries(visitTypes).map(([name, value]) => ({ name, value }));
   };
 
-  // Fetch health data
+  // Fetch health data AND analytics data
   const fetchHealthData = async () => {
     if (!user || !selectedPet) return;
     
     setIsLoading(true);
     try {
-      // Fetch all data in parallel
-      const [metricsRes, recordsRes, medicationsRes, vetsRes, contactsRes, insuranceRes] = await Promise.all([
+      const { from, to } = dateRange;
+      const fromStr = format(startOfDay(from), 'yyyy-MM-dd HH:mm:ss');
+      const toStr = format(endOfDay(to), 'yyyy-MM-dd HH:mm:ss');
+
+      // Fetch all data in parallel - including analytics data
+      const [metricsRes, recordsRes, medicationsRes, vetsRes, contactsRes, insuranceRes, analysesRes, diaryRes, wellnessRes] = await Promise.all([
         supabase.from('health_metrics').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('recorded_at', { ascending: false }),
         supabase.from('medical_records').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('record_date', { ascending: false }),
         supabase.from('medications').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('created_at', { ascending: false }),
         supabase.from('veterinarians').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
         supabase.from('emergency_contacts').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('pet_insurance').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('created_at', { ascending: false })
+        supabase.from('pet_insurance').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('created_at', { ascending: false }),
+        // Analytics data
+        supabase.from('pet_analyses').select('*').eq('pet_id', selectedPet.id).gte('created_at', fromStr).lte('created_at', toStr).order('created_at', { ascending: true }),
+        supabase.from('diary_entries').select('*').eq('pet_id', selectedPet.id).gte('entry_date', format(from, 'yyyy-MM-dd')).lte('entry_date', format(to, 'yyyy-MM-dd')).order('entry_date', { ascending: true }),
+        supabase.from('pet_wellness_scores').select('*').eq('pet_id', selectedPet.id).gte('score_date', format(from, 'yyyy-MM-dd')).lte('score_date', format(to, 'yyyy-MM-dd')).order('score_date', { ascending: true })
       ]);
       
       if (metricsRes.data) setHealthMetrics(metricsRes.data);
@@ -911,6 +1120,11 @@ const WellnessPage = () => {
       if (vetsRes.data) setVeterinarians(vetsRes.data);
       if (contactsRes.data) setEmergencyContacts(contactsRes.data);
       if (insuranceRes.data) setInsurances(insuranceRes.data);
+      
+      // Set analytics data
+      if (analysesRes.data) setAnalysisData(analysesRes.data);
+      if (diaryRes.data) setDiaryData(diaryRes.data);
+      if (wellnessRes.data) setWellnessData(wellnessRes.data);
       
     } catch (error) {
       console.error('Error fetching health data:', error);
@@ -922,6 +1136,317 @@ const WellnessPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Computed analytics (copied from StatsPage)
+  const analytics = useMemo(() => {
+    if (!analysisData.length && !diaryData.length) return null;
+
+    // Overview metrics
+    const totalAnalyses = analysisData.length;
+    
+    // Calculate real health score based on multiple factors
+    const calculateHealthScore = () => {
+      if (healthMetrics.length === 0 && diaryData.length === 0) return 0;
+      
+      let score = 0;
+      let factors = 0;
+
+      // Base score from wellness data
+      if (wellnessData.length > 0) {
+        score += wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
+        factors++;
+      }
+
+      // Health metrics contribution
+      if (healthMetrics.length > 0) {
+        const recentHealthData = healthMetrics.filter(h => 
+          new Date(h.recorded_at) >= subDays(new Date(), 30)
+        );
+        
+        if (recentHealthData.length > 0) {
+          // Regular monitoring bonus
+          score += Math.min(20, recentHealthData.length * 2);
+          factors++;
+          
+          // Critical values penalty
+          const criticalCount = recentHealthData.filter(h => {
+            if (h.metric_type === 'temperature' && (h.value < 37.5 || h.value > 39.5)) return true;
+            if (h.metric_type === 'heart_rate' && (h.value < 60 || h.value > 140)) return true;
+            if (h.metric_type === 'gum_color' && (h.value === 3 || h.value === 4)) return true; // Blu/Viola o Gialle
+            return false;
+          }).length;
+          
+          score -= criticalCount * 10;
+        }
+      }
+
+      // Diary mood contribution
+      if (diaryData.length > 0) {
+        const recentMoods = diaryData
+          .filter(d => d.mood_score && new Date(d.entry_date) >= subDays(new Date(), 14))
+          .map(d => Number(d.mood_score) || 0)
+          .filter(score => !isNaN(score));
+        
+        if (recentMoods.length > 0) {
+          const avgMood = recentMoods.reduce((sum: number, m: number) => sum + m, 0) / recentMoods.length;
+          score += (avgMood * 10); // Convert 1-10 scale to percentage contribution
+          factors++;
+        }
+      }
+
+      // Default score if no data
+      if (factors === 0) return 0;
+      
+      return Math.max(0, Math.min(100, Math.round(score / factors)));
+    };
+
+    const averageWellnessScore = calculateHealthScore();
+    const activeDays = new Set([
+      ...analysisData.map(a => format(new Date(a.created_at), 'yyyy-MM-dd')),
+      ...diaryData.map(d => d.entry_date)
+    ]).size;
+
+    // Emotion distribution
+    const emotionCounts = analysisData.reduce((acc, analysis) => {
+      acc[analysis.primary_emotion] = (acc[analysis.primary_emotion] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const emotionDistribution = Object.entries(emotionCounts).map(([emotion, count]) => ({
+      emotion,
+      count,
+      percentage: totalAnalyses > 0 ? Math.round((count / totalAnalyses) * 100) : 0,
+      fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
+    }));
+
+    // Mood trends - combina dati da diario e analisi emotive
+    const diaryMoodData = diaryData
+      .filter(d => d.mood_score)
+      .map(d => ({
+        date: d.entry_date,
+        mood: d.mood_score,
+        source: 'diary',
+        dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
+      }));
+
+    // Converti analisi emotive in punteggi umore (1-10)
+    const emotionToMoodScore = {
+      'felice': 9,
+      'giocoso': 8,
+      'calmo': 7,
+      'rilassato': 6,
+      'neutro': 5,
+      'annoiato': 4,
+      'ansioso': 3,
+      'triste': 2,
+      'aggressivo': 1,
+      'spaventato': 1
+    };
+
+    const analysisMoodData = analysisData.map(a => ({
+      date: format(new Date(a.created_at), 'yyyy-MM-dd'),
+      mood: emotionToMoodScore[a.primary_emotion as keyof typeof emotionToMoodScore] || 5,
+      source: 'analysis',
+      confidence: a.primary_confidence,
+      dateFormatted: format(new Date(a.created_at), 'd MMM', { locale: it })
+    }));
+
+    // Combina e ordina tutti i dati di umore
+    const allMoodData = [...diaryMoodData, ...analysisMoodData]
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Raggruppa per data e calcola media se ci sono più valori nello stesso giorno
+    const moodByDate = allMoodData.reduce((acc, item) => {
+      if (!acc[item.date]) {
+        acc[item.date] = { values: [], date: item.date, dateFormatted: item.dateFormatted };
+      }
+      acc[item.date].values.push(item.mood);
+      return acc;
+    }, {} as Record<string, { values: number[]; date: string; dateFormatted: string }>);
+
+    const moodTrends = Object.values(moodByDate)
+      .map(item => ({
+        date: item.date,
+        mood: Math.round(item.values.reduce((sum, val) => sum + val, 0) / item.values.length * 10) / 10,
+        dateFormatted: item.dateFormatted
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Enhanced Wellness trends
+    const calculateComprehensiveWellness = () => {
+      const allDates = new Set();
+      
+      wellnessData.forEach(w => allDates.add(w.score_date));
+      diaryData.forEach(d => allDates.add(d.entry_date));
+      healthMetrics.forEach(h => allDates.add(format(new Date(h.recorded_at), 'yyyy-MM-dd')));
+      analysisData.forEach(a => allDates.add(format(new Date(a.created_at), 'yyyy-MM-dd')));
+
+      return Array.from(allDates)
+        .sort((a, b) => new Date(a as string).getTime() - new Date(b as string).getTime())
+        .map(dateStr => {
+          const date = new Date(dateStr as string);
+          let totalScore = 0;
+          let factorCount = 0;
+
+          // Wellness score
+          const wellnessForDate = wellnessData.find(w => w.score_date === dateStr);
+          if (wellnessForDate && wellnessForDate.wellness_score) {
+            totalScore += wellnessForDate.wellness_score * 0.4;
+            factorCount += 0.4;
+          }
+
+          // Diary mood score
+          const diaryForDate = diaryData.filter(d => d.entry_date === dateStr);
+          if (diaryForDate.length > 0) {
+            const avgMood = diaryForDate.reduce((sum, d) => sum + (d.mood_score || 5), 0) / diaryForDate.length;
+            const moodScore = (avgMood / 10) * 100;
+            totalScore += moodScore * 0.3;
+            factorCount += 0.3;
+          }
+
+          // Health metrics analysis
+          const healthForDate = healthMetrics.filter(h => 
+            format(new Date(h.recorded_at), 'yyyy-MM-dd') === dateStr
+          );
+          if (healthForDate.length > 0) {
+            const petType = selectedPet?.type;
+            let healthScore = 100;
+            let criticalPenalty = 0;
+            let warningPenalty = 0;
+
+            healthForDate.forEach(h => {
+              const evaluation = evaluateVitalParameter(h.metric_type, h.value, petType);
+              if (evaluation.status === 'critical') {
+                criticalPenalty += 30;
+              } else if (evaluation.status === 'warning') {
+                warningPenalty += 15;
+              }
+            });
+
+            healthScore = Math.max(0, healthScore - criticalPenalty - warningPenalty);
+            totalScore += healthScore * 0.2;
+            factorCount += 0.2;
+          }
+
+          // Emotional analysis
+          const analysesForDate = analysisData.filter(a => 
+            format(new Date(a.created_at), 'yyyy-MM-dd') === dateStr
+          );
+          if (analysesForDate.length > 0) {
+            const emotionScores = analysesForDate.map(a => {
+              const positiveEmotions = ['felice', 'giocoso', 'calmo', 'curioso', 'affettuoso'];
+              const negativeEmotions = ['triste', 'ansioso', 'agitato', 'spaventato', 'aggressivo'];
+              
+              if (positiveEmotions.includes(a.primary_emotion.toLowerCase())) {
+                return a.primary_confidence * 100;
+              } else if (negativeEmotions.includes(a.primary_emotion.toLowerCase())) {
+                return (1 - a.primary_confidence) * 100;
+              } else {
+                return 70;
+              }
+            });
+            
+            const avgEmotionScore = emotionScores.reduce((sum, score) => sum + score, 0) / emotionScores.length;
+            totalScore += avgEmotionScore * 0.1;
+            factorCount += 0.1;
+          }
+
+          const finalScore = factorCount > 0 ? Math.round(totalScore / factorCount) : 0;
+
+          return {
+            date: dateStr,
+            score: Math.min(100, Math.max(0, finalScore)),
+            dateFormatted: format(date, 'd MMM', { locale: it })
+          };
+        })
+        .filter(item => item.score > 0);
+    };
+
+    const wellnessTrends = calculateComprehensiveWellness();
+
+    // Health metrics summary
+    const healthMetricsSummary = {
+      totalMetrics: healthMetrics.length,
+      uniqueMetricTypes: new Set(healthMetrics.map(h => h.metric_type)).size,
+      lastWeekMetrics: healthMetrics.filter(h => 
+        new Date(h.recorded_at) >= subDays(new Date(), 7)
+      ).length,
+      criticalValues: healthMetrics.filter(h => {
+        const petType = selectedPet?.type;
+        const evaluation = evaluateVitalParameter(h.metric_type, h.value, petType);
+        return evaluation.status === 'critical' || evaluation.status === 'warning';
+      }).length
+    };
+
+    // Health trends
+    const healthTrends = healthMetrics.reduce((acc, metric) => {
+      const date = format(new Date(metric.recorded_at), 'yyyy-MM-dd');
+      if (!acc[date]) {
+        acc[date] = {};
+      }
+      if (!acc[date][metric.metric_type]) {
+        acc[date][metric.metric_type] = [];
+      }
+      acc[date][metric.metric_type].push(metric.value);
+      return acc;
+    }, {} as Record<string, Record<string, number[]>>);
+
+    const healthTrendsData = Object.entries(healthTrends)
+      .map(([date, metrics]) => {
+        const dataPoint: any = {
+          date,
+          dateFormatted: format(new Date(date), 'd MMM', { locale: it })
+        };
+        
+        Object.entries(metrics).forEach(([metricType, values]) => {
+          const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+          dataPoint[metricType] = Math.round(avg * 100) / 100;
+        });
+        
+        return dataPoint;
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // Trend analysis
+    const recentWellness = wellnessData.slice(-7);
+    const previousWellness = wellnessData.slice(-14, -7);
+    const wellnessTrend = recentWellness.length > 0 && previousWellness.length > 0
+      ? ((recentWellness.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / recentWellness.length) -
+         (previousWellness.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / previousWellness.length))
+      : 0;
+
+    return {
+      totalAnalyses,
+      averageWellnessScore,
+      activeDays,
+      emotionDistribution,
+      moodTrends,
+      wellnessTrends,
+      healthMetricsSummary,
+      healthTrends: healthTrendsData,
+      wellnessTrend,
+      timeSpan: differenceInDays(dateRange.to, dateRange.from)
+    };
+  }, [analysisData, diaryData, healthMetrics, wellnessData, dateRange, selectedPet]);
+
+  // Create display analytics with fallback values
+  const displayAnalytics = analytics || {
+    totalAnalyses: 0,
+    averageWellnessScore: 0,
+    activeDays: 0,
+    emotionDistribution: [],
+    moodTrends: [],
+    wellnessTrends: [],
+    healthMetricsSummary: {
+      totalMetrics: 0,
+      uniqueMetricTypes: 0,
+      lastWeekMetrics: 0,
+      criticalValues: 0
+    },
+    healthTrends: [],
+    wellnessTrend: 0,
+    timeSpan: 30
   };
 
   // Gestisci i parametri URL per aprire direttamente il tab music-therapy
