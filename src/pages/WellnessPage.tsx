@@ -2935,7 +2935,7 @@ const WellnessPage = () => {
             </Card>
           </div>
         </div>
-
+        
         {/* Analytics Section - 3 Column Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* Trend Salute */}
