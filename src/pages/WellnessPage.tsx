@@ -2145,7 +2145,7 @@ const WellnessPage = () => {
       <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nuovo Farmaco</DialogTitle>
+            <DialogTitle>{editingMedication ? 'Modifica Farmaco' : 'Nuovo Farmaco'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -2235,7 +2235,7 @@ const WellnessPage = () => {
       <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nuova Visita</DialogTitle>
+            <DialogTitle>{editingRecord ? 'Modifica Visita' : 'Nuova Visita'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -2400,7 +2400,7 @@ const WellnessPage = () => {
       <Dialog open={showAddMetric} onOpenChange={setShowAddMetric}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Nuova Metrica Salute</DialogTitle>
+            <DialogTitle>{editingMetric ? 'Modifica Metrica' : 'Nuova Metrica Salute'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
