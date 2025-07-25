@@ -11,7 +11,21 @@ import {
   Plus,
   TrendingUp,
   Activity,
-  Brain
+  Brain,
+  AlertTriangle,
+  CreditCard,
+  Download,
+  Edit,
+  Eye,
+  FileText,
+  MapPin,
+  Paperclip,
+  Phone,
+  Pill,
+  Siren,
+  Stethoscope,
+  Trash2,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
@@ -19,6 +33,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
 import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -45,6 +60,17 @@ const DashboardPage: React.FC = () => {
     calendarEvents: 0
   });
   const [loading, setLoading] = useState(false);
+  
+  // Stati per le card wellness
+  const [healthMetrics, setHealthMetrics] = useState<any[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<any[]>([]);
+  const [medications, setMedications] = useState<any[]>([]);
+  const [veterinarians, setVeterinarians] = useState<any[]>([]);
+  const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
+  const [insurances, setInsurances] = useState<any[]>([]);
+  const [diaryEntriesData, setDiaryEntriesData] = useState<any[]>([]);
+  const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
+  
   // Translation system removed - Italian only
 
   const quickActions = [
@@ -227,6 +253,264 @@ const DashboardPage: React.FC = () => {
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
+      )}
+
+      {/* Primary Health Cards from Wellness */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Health Score Card */}
+          <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Heart className="h-5 w-5 text-red-500" />
+                Punteggio Salute
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center space-y-2">
+                <div className="text-3xl font-bold text-red-500">
+                  {petStats.wellnessScore > 0 ? petStats.wellnessScore : '--'}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {petStats.healthStatus}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Detailed Emotions Analysis Card */}
+          <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <PieChartIcon className="h-5 w-5 text-pink-500" />
+                Analisi Emozioni
+              </CardTitle>
+              <CardDescription>Distribuzione delle emozioni rilevate</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-center py-4 text-muted-foreground">
+                <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Visualizza dettagli in Salute e Benessere</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Vital Parameters Card */}
+          <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-500" />
+                  Parametri Vitali
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-center py-4 text-muted-foreground">
+                <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Gestisci parametri vitali</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Behavioral Insights Card */}
+          <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-500" />
+                  Comportamenti Osservati
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/diary')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-center py-4 text-muted-foreground">
+                <Eye className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aggiungi osservazioni comportamentali</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Active Medications Card */}
+          <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Pill className="h-5 w-5 text-green-500" />
+                  Farmaci Attivi
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 overflow-hidden">
+              <div className="text-center py-4 text-muted-foreground">
+                <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Gestisci farmaci e terapie</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Visits Card */}
+          <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-blue-500" />
+                  Visite Recenti
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 overflow-hidden">
+              <div className="text-center py-4 text-muted-foreground">
+                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Registra visite veterinarie</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Insurance Card */}
+          <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-teal-500" />
+                  Assicurazione
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 overflow-hidden">
+              <div className="text-center py-4 text-muted-foreground">
+                <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Gestisci polizze assicurative</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* First Aid Guide Card */}
+          <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                Primo Soccorso
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-center py-4">
+                <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                <p className="text-sm mb-3">Accesso rapido alle procedure di emergenza</p>
+                <Button 
+                  size="sm" 
+                  variant="destructive" 
+                  className="w-full"
+                  onClick={() => navigate('/wellness')}
+                >
+                  <Siren className="h-4 w-4 mr-2" />
+                  Apri Guida
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+        </div>
+      )}
+
+      {/* Secondary Health Cards from Wellness */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Emergency Contacts Card */}
+          <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-orange-500" />
+                  Contatti Emergenza
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 overflow-hidden">
+              <div className="text-center py-4 text-muted-foreground">
+                <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Aggiungi contatti di emergenza</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Veterinarian Card */}
+          <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5 text-purple-500" />
+                  Veterinario
+                </CardTitle>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => navigate('/wellness')}
+                  className="h-8 w-8 p-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 overflow-hidden">
+              <div className="text-center py-4 text-muted-foreground">
+                <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Registra veterinario di fiducia</p>
+              </div>
+            </CardContent>
+          </Card>
+
+        </div>
       )}
 
       {/* Quick Actions */}
