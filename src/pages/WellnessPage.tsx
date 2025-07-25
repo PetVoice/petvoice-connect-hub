@@ -2837,9 +2837,20 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             if (file.type === 'application/pdf') {
-                              // Per PDF, apri direttamente nella stessa tab
+                              // Per PDF, apri in una nuova finestra che sostituisce quella corrente
                               const url = URL.createObjectURL(file);
-                              window.location.href = url;
+                              const newWindow = window.open('', '_blank');
+                              if (newWindow) {
+                                newWindow.document.write(`
+                                  <html>
+                                    <head><title>${file.name}</title></head>
+                                    <body style="margin:0;padding:0;">
+                                      <iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>
+                                    </body>
+                                  </html>
+                                `);
+                                newWindow.document.close();
+                              }
                             } else {
                               // Per altri file, usa la dialog
                               const url = URL.createObjectURL(file);
@@ -3255,9 +3266,20 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             if (file.type === 'application/pdf') {
-                              // Per PDF, apri direttamente nella stessa tab
+                              // Per PDF, apri in una nuova finestra che sostituisce quella corrente
                               const url = URL.createObjectURL(file);
-                              window.location.href = url;
+                              const newWindow = window.open('', '_blank');
+                              if (newWindow) {
+                                newWindow.document.write(`
+                                  <html>
+                                    <head><title>${file.name}</title></head>
+                                    <body style="margin:0;padding:0;">
+                                      <iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>
+                                    </body>
+                                  </html>
+                                `);
+                                newWindow.document.close();
+                              }
                             } else {
                               // Per altri file, usa la dialog
                               const url = URL.createObjectURL(file);
