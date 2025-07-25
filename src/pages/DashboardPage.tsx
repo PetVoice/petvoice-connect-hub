@@ -74,6 +74,7 @@ const DashboardPage: React.FC = () => {
   const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
+  const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number, unit: string, date: string}}>({});
   
   // Translation system removed - Italian only
 
@@ -143,6 +144,14 @@ const DashboardPage: React.FC = () => {
           .select('*')
           .eq('pet_id', selectedPet.id)
           .eq('user_id', user.id);
+
+        // Get health metrics
+        const { data: healthMetrics } = await supabase
+          .from('health_metrics')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .order('recorded_at', { ascending: false });
 
         // Get calendar events
         const { data: calendarEvents } = await supabase
@@ -228,6 +237,44 @@ const DashboardPage: React.FC = () => {
           });
         }
         setEmotionStats(emotionCounts);
+
+        // Calculate vital stats from health metrics and diary entries
+        const vitals: {[key: string]: {value: number, unit: string, date: string}} = {};
+        
+        // From health metrics
+        if (healthMetrics && healthMetrics.length > 0) {
+          const latestMetrics = healthMetrics.slice(0, 10);
+          latestMetrics.forEach(metric => {
+            vitals[metric.metric_type] = {
+              value: Number(metric.value),
+              unit: metric.unit || '',
+              date: format(new Date(metric.recorded_at), 'dd/MM')
+            };
+          });
+        }
+        
+        // From diary entries (temperature and mood)
+        if (diaryEntries && diaryEntries.length > 0) {
+          const recentEntries = diaryEntries.slice(0, 5);
+          recentEntries.forEach(entry => {
+            if (entry.temperature) {
+              vitals['temperatura'] = {
+                value: parseFloat(entry.temperature.toString()),
+                unit: '°C',
+                date: format(new Date(entry.entry_date), 'dd/MM')
+              };
+            }
+            if (entry.mood_score) {
+              vitals['umore'] = {
+                value: entry.mood_score,
+                unit: '/10',
+                date: format(new Date(entry.entry_date), 'dd/MM')
+              };
+            }
+          });
+        }
+        
+        setVitalStats(vitals);
 
       } catch (error) {
         console.error('Error loading pet stats:', error);
@@ -412,8 +459,103 @@ const DashboardPage: React.FC = () => {
                     <Microscope className="h-4 w-4 mr-2" />
                     Inizia Analisi
                   </Button>
+        </div>
+      )}
+
+      {/* Vital Parameters Card - Full width under emotion analysis */}
+      {selectedPet && (
+        <div className="w-full mb-6">
+          <Card className="bg-gradient-to-r from-blue-50/80 to-cyan-50/80 border border-blue-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl">Parametri Vitali</CardTitle>
+                    <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
+                  </div>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => navigate('/diary')}
+                  className="hover:bg-blue-50"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Aggiungi
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {Object.keys(vitalStats).length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                  {Object.entries(vitalStats).map(([vital, data]) => {
+                    const vitalColors = {
+                      'temperatura': 'from-red-400 to-orange-500',
+                      'peso': 'from-purple-400 to-pink-500',
+                      'frequenza_cardiaca': 'from-red-500 to-red-600',
+                      'pressione': 'from-indigo-400 to-blue-500',
+                      'umore': 'from-yellow-400 to-orange-400',
+                      'energia': 'from-green-400 to-emerald-500',
+                      'appetito': 'from-orange-400 to-red-400'
+                    };
+                    const vitalIcons = {
+                      'temperatura': '🌡️',
+                      'peso': '⚖️',
+                      'frequenza_cardiaca': '❤️',
+                      'pressione': '📊',
+                      'umore': '😊',
+                      'energia': '⚡',
+                      'appetito': '🍽️'
+                    };
+                    const gradientClass = vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500';
+                    const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
+                    
+                    return (
+                      <div 
+                        key={vital} 
+                        className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                        <div className="relative p-4 text-center">
+                          <div className="text-2xl mb-2">{icon}</div>
+                          <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
+                            {vital.replace('_', ' ')}
+                          </div>
+                          <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center justify-center gap-1`}>
+                            {data.value}
+                            <span className="text-sm text-gray-500">{data.unit}</span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {data.date}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-400/20 to-cyan-400/10 flex items-center justify-center">
+                    <Activity className="h-10 w-10 text-blue-500/60" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Nessun parametro vitale registrato</h3>
+                  <p className="text-gray-500 mb-4">Inizia a monitorare i parametri vitali del tuo pet per tracciarne la salute</p>
+                  <Button 
+                    onClick={() => navigate('/diary')}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                  >
+                    <Activity className="h-4 w-4 mr-2" />
+                    Registra Parametri
+                  </Button>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
             </CardContent>
           </Card>
         </div>
@@ -423,30 +565,6 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
-           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-blue-500" />
-                  Parametri Vitali
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-center py-4 text-muted-foreground">
-                <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Gestisci parametri vitali</p>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Behavioral Insights Card */}
           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
