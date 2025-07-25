@@ -113,17 +113,21 @@ const ProtocolExerciseDetails: React.FC<{ protocolId: string }> = ({ protocolId 
       {/* Obiettivi */}
       {allObjectives.length > 0 && (
         <Card className="p-4">
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-            <Target className="h-4 w-4 text-primary" />
+          <h4 className="font-semibold mb-3 text-sm">
             🎯 Obiettivi
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allObjectives.map((objective, index) => (
+            {allObjectives.slice(0, 3).map((objective, index) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                 {objective}
               </li>
             ))}
+            {allObjectives.length > 3 && (
+              <li className="text-xs text-muted-foreground italic">
+                +{allObjectives.length - 3} altri obiettivi...
+              </li>
+            )}
           </ul>
         </Card>
       )}
@@ -131,17 +135,21 @@ const ProtocolExerciseDetails: React.FC<{ protocolId: string }> = ({ protocolId 
       {/* Criteri di Successo */}
       {allSuccessCriteria.length > 0 && (
         <Card className="p-4">
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-            <CheckCircle className="h-4 w-4 text-green-600" />
+          <h4 className="font-semibold mb-3 text-sm">
             ✅ Criteri di Successo
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allSuccessCriteria.map((criteria, index) => (
+            {allSuccessCriteria.slice(0, 3).map((criteria, index) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
                 {criteria}
               </li>
             ))}
+            {allSuccessCriteria.length > 3 && (
+              <li className="text-xs text-muted-foreground italic">
+                +{allSuccessCriteria.length - 3} altri criteri...
+              </li>
+            )}
           </ul>
         </Card>
       )}
@@ -149,17 +157,21 @@ const ProtocolExerciseDetails: React.FC<{ protocolId: string }> = ({ protocolId 
       {/* Consigli Pratici */}
       {allTips.length > 0 && (
         <Card className="p-4">
-          <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-            <Lightbulb className="h-4 w-4 text-orange-600" />
+          <h4 className="font-semibold mb-3 text-sm">
             💡 Consigli Pratici
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allTips.map((tip, index) => (
+            {allTips.slice(0, 3).map((tip, index) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-orange-600 rounded-full mt-2 flex-shrink-0"></div>
                 {tip}
               </li>
             ))}
+            {allTips.length > 3 && (
+              <li className="text-xs text-muted-foreground italic">
+                +{allTips.length - 3} altri consigli...
+              </li>
+            )}
           </ul>
         </Card>
       )}
