@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface ReactivationModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface ReactivationModalProps {
   subscriptionTier: string;
   subscriptionEnd?: string;
   isLoading: boolean;
+  persistOnRefresh?: boolean;
 }
 
 export const ReactivationModal: React.FC<ReactivationModalProps> = ({
@@ -25,12 +27,28 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
   onConfirm,
   subscriptionTier,
   subscriptionEnd,
-  isLoading
+  isLoading,
+  persistOnRefresh = false
 }) => {
   const nextBillingDate = subscriptionEnd ? new Date(subscriptionEnd).toLocaleDateString('it-IT') : '';
 
+  // Gestione dialog persistente
+  const persistentDialog = usePersistentDialog(
+    'reactivation-modal',
+    persistOnRefresh ? isOpen : false,
+    { subscriptionTier, subscriptionEnd }
+  );
+
+  const modalOpen = persistOnRefresh ? persistentDialog.isOpen : isOpen;
+  const handleClose = () => {
+    if (persistOnRefresh) {
+      persistentDialog.close();
+    }
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={modalOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
@@ -57,7 +75,7 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
         <DialogFooter className="gap-2">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isLoading}
           >
             Annulla

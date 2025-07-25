@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface ChatMessage {
   id: string;
@@ -45,13 +46,15 @@ interface AILiveChatProps {
   onClose: () => void;
   minimized?: boolean;
   onToggleMinimize?: () => void;
+  persistOnRefresh?: boolean;
 }
 
 const AILiveChat: React.FC<AILiveChatProps> = ({ 
   isOpen, 
   onClose, 
   minimized = false, 
-  onToggleMinimize 
+  onToggleMinimize,
+  persistOnRefresh = false 
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -61,6 +64,21 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
   const [flowPath, setFlowPath] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Gestione chat persistente
+  const persistentChat = usePersistentDialog(
+    'ai-live-chat',
+    persistOnRefresh ? isOpen : false,
+    { minimized, messages, currentFlow, flowPath }
+  );
+
+  const chatOpen = persistOnRefresh ? persistentChat.isOpen : isOpen;
+  const handleClose = () => {
+    if (persistOnRefresh) {
+      persistentChat.close();
+    }
+    onClose();
+  };
 
   // Flusso conversazionale gerarchico
   const mainFlow: FlowOption[] = [
@@ -506,7 +524,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
 
   // Initialize chat when opened - consolidated logic
   useEffect(() => {
-    if (isOpen) {
+    if (chatOpen) {
       // Always set the main flow when chat opens
       setCurrentFlow(mainFlow);
       setFlowPath([]);
@@ -522,9 +540,9 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
         setMessages([welcomeMessage]);
       }
     }
-  }, [isOpen]);
+  }, [chatOpen]);
 
-  if (!isOpen) return null;
+  if (!chatOpen) return null;
 
   return (
     <div className={`fixed bottom-4 right-4 z-50 ${minimized ? 'w-80' : 'w-96'} max-h-[600px] transition-all duration-300`}>
@@ -553,7 +571,7 @@ const AILiveChat: React.FC<AILiveChatProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onClose}
+                onClick={handleClose}
                 className="h-8 w-8 p-0 text-primary-foreground hover:bg-white/20"
               >
                 <X className="h-4 w-4" />

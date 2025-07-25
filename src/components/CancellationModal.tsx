@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface CancellationModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface CancellationModalProps {
   subscriptionTier: string;
   subscriptionEnd?: string;
   isLoading: boolean;
+  persistOnRefresh?: boolean;
 }
 
 export const CancellationModal: React.FC<CancellationModalProps> = ({
@@ -28,9 +30,25 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
   cancellationType,
   subscriptionTier,
   subscriptionEnd,
-  isLoading
+  isLoading,
+  persistOnRefresh = false
 }) => {
   const endDate = subscriptionEnd ? new Date(subscriptionEnd).toLocaleDateString('it-IT') : '';
+
+  // Gestione dialog persistente
+  const persistentDialog = usePersistentDialog(
+    `cancellation-modal-${cancellationType}`,
+    persistOnRefresh ? isOpen : false,
+    { cancellationType, subscriptionTier, subscriptionEnd }
+  );
+
+  const modalOpen = persistOnRefresh ? persistentDialog.isOpen : isOpen;
+  const handleClose = () => {
+    if (persistOnRefresh) {
+      persistentDialog.close();
+    }
+    onClose();
+  };
 
   const immediateContent = {
     title: "⚠️ CANCELLAZIONE IMMEDIATA",
@@ -68,7 +86,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
   const content = cancellationType === 'immediate' ? immediateContent : endOfPeriodContent;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={modalOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
@@ -99,7 +117,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
         <DialogFooter className="gap-2">
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={isLoading}
           >
             Annulla

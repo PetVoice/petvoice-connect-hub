@@ -2,15 +2,40 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Heart, Thermometer, Pill } from 'lucide-react';
+import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface FirstAidGuideProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  persistOnRefresh?: boolean;
 }
 
-export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ open, onOpenChange }) => {
+export const FirstAidGuide: React.FC<FirstAidGuideProps> = ({ 
+  open, 
+  onOpenChange, 
+  persistOnRefresh = false 
+}) => {
+  // Gestione dialog persistente
+  const persistentDialog = usePersistentDialog(
+    'first-aid-guide',
+    persistOnRefresh ? open : false,
+    {}
+  );
+
+  const isOpen = persistOnRefresh ? persistentDialog.isOpen : open;
+  const handleOpenChange = (newOpen: boolean) => {
+    if (persistOnRefresh) {
+      if (newOpen) {
+        persistentDialog.open();
+      } else {
+        persistentDialog.close();
+      }
+    }
+    onOpenChange(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
