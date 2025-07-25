@@ -2898,7 +2898,7 @@ const WellnessPage = () => {
           </div>
         </div>
 
-          {/* Trend Salute - Full Width */}
+        {/* Trend Salute - Full Width */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -3938,7 +3938,6 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
             </Card>
           </div>
         </TabsContent>
-
       </Tabs>
 
       {/* Add Document Dialog */}
@@ -4579,7 +4578,6 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
       />
-      </Tabs>
     </div>
   );
 };
