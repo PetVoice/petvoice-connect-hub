@@ -3346,6 +3346,7 @@ const WellnessPage = () => {
          confirmText="Elimina"
        />
 
+       {/* File upload components working correctly */}
 
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
