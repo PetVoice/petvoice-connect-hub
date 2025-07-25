@@ -383,14 +383,50 @@ const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
       
       setLoading(true);
       try {
+        // Fetch all data needed for health score calculation
+        const [
+          healthMetricsRes,
+          medicalRecordsRes,
+          medicationsRes,
+          diaryEntriesRes,
+          analysesRes
+        ] = await Promise.all([
+          supabase
+            .from('health_metrics')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('pet_id', selectedPet.id),
+          supabase
+            .from('medical_records')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('pet_id', selectedPet.id),
+          supabase
+            .from('medications')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('pet_id', selectedPet.id),
+          supabase
+            .from('diary_entries')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('pet_id', selectedPet.id),
+          supabase
+            .from('pet_analyses')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('pet_id', selectedPet.id)
+        ]);
+
         const result = await calculateUnifiedHealthScore(selectedPet.id, user.id, {
-          healthMetrics: [],
-          medicalRecords: [],
-          medications: [],
-          analyses: [],
-          diaryEntries: [],
+          healthMetrics: healthMetricsRes.data || [],
+          medicalRecords: medicalRecordsRes.data || [],
+          medications: medicationsRes.data || [],
+          analyses: analysesRes.data || [],
+          diaryEntries: diaryEntriesRes.data || [],
           wellnessScores: []
         });
+        
         setHealthScore(result.overallScore);
         
         // Add notification if score is low
