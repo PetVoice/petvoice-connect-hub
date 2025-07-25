@@ -768,59 +768,38 @@ export const allProtocols = {
   advancedCalmTraining: advancedCalmTrainingProtocol
 };
 
-// Funzione per raccomandare protocolli basati sull'emozione rilevata (solo emozioni negative)
-export const getRecommendedProtocol = (emotionResults: string[]): string | null => {
-  // Converte emozioni in minuscolo per il matching
-  const emotions = emotionResults.map(emotion => emotion.toLowerCase());
+// Funzione per raccomandare protocolli basati sull'analisi dell'umore
+export const getRecommendedProtocol = (analysisResults: string[]): string | null => {
+  const negativeKeywords = analysisResults.map(result => result.toLowerCase());
   
-  // Lista delle emozioni negative che necessitano intervento
-  const negativeEmotions = [
-    'ansioso', 'ansia', 'stress', 'stressato', 'nervoso', 'spaventato',
-    'aggressivo', 'aggressività', 'arrabbiato', 'irritato',
-    'eccitato', 'iperattivo', 'agitato', 'irrequieto',
-    'triste', 'depresso', 'apatia', 'apatico',
-    'pauroso', 'paura', 'timido'
-  ];
+  if (negativeKeywords.some(keyword => ['ansia', 'stress', 'nervoso', 'tensione'].includes(keyword))) {
+    return 'anxiety-management';
+  }
   
-  // Verifica se almeno un'emozione è negativa
-  const hasNegativeEmotion = emotions.some(emotion => 
-    negativeEmotions.some(neg => emotion.includes(neg))
-  );
+  if (negativeKeywords.some(keyword => ['aggressivo', 'aggressività', 'ringhio', 'morso'].includes(keyword))) {
+    return 'aggression-control';
+  }
   
-  // Se non ci sono emozioni negative, non raccomandare protocolli
-  if (!hasNegativeEmotion) {
+  if (negativeKeywords.some(keyword => ['iperattivo', 'eccitato', 'irrequieto', 'salta'].includes(keyword))) {
+    return 'impulse-control';
+  }
+  
+  if (negativeKeywords.some(keyword => ['paura', 'pauroso', 'fobia', 'spavento'].includes(keyword))) {
+    return 'fear-management';
+  }
+  
+  if (negativeKeywords.some(keyword => ['disobbediente', 'non ascolta', 'ignorante'].includes(keyword))) {
+    return 'basic-obedience';
+  }
+  
+  if (negativeKeywords.some(keyword => ['distruttivo', 'mastica', 'rompe', 'graffia'].includes(keyword))) {
+    return 'destructive-behaviors';
+  }
+  
+  // Se l'analisi mostra risultati positivi, non raccomandare protocolli
+  if (negativeKeywords.some(keyword => ['felice', 'calmo', 'equilibrato', 'sereno'].includes(keyword))) {
     return null;
   }
   
-  // Mappatura emozioni negative -> protocolli esistenti
-  for (const emotion of emotions) {
-    if (emotion.includes('ansioso') || emotion.includes('ansia') || 
-        emotion.includes('stress') || emotion.includes('nervoso') || 
-        emotion.includes('spaventato')) {
-      return 'anxiety-management';
-    }
-    
-    if (emotion.includes('aggressivo') || emotion.includes('aggressività') || 
-        emotion.includes('arrabbiato') || emotion.includes('irritato')) {
-      return 'aggression-control';
-    }
-    
-    if (emotion.includes('eccitato') || emotion.includes('iperattivo') || 
-        emotion.includes('agitato') || emotion.includes('irrequieto')) {
-      return 'impulse-control';
-    }
-    
-    if (emotion.includes('triste') || emotion.includes('depresso') || 
-        emotion.includes('apatia') || emotion.includes('apatico')) {
-      return 'separation-anxiety';
-    }
-    
-    if (emotion.includes('pauroso') || emotion.includes('paura') || 
-        emotion.includes('timido')) {
-      return 'fear-management';
-    }
-  }
-  
-  // Se è presente un'emozione negativa ma non specifica, raccomanda gestione ansia
-  return 'anxiety-management';
+  return null;
 };

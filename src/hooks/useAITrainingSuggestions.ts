@@ -391,7 +391,7 @@ export const useAITrainingSuggestions = () => {
     }
     if (emotionalTriggers.includes('Aggressività')) {
       similarPetSolutions.push('Gestione Aggressività Controllata');
-      communityRecommendations.push('Gestione Aggressività Controllata');
+      communityRecommendations.push('Controllo degli Impulsi');
     }
     if (behavioralPatterns.some(p => p.includes('distruttivo'))) {
       similarPetSolutions.push('Stop Comportamenti Distruttivi');

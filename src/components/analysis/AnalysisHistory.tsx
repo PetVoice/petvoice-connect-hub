@@ -528,7 +528,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(analysis.secondary_emotions).map(([emotion, confidence]) => (
                               <Badge key={emotion} variant="outline" className="text-xs">
-                                 {EMOTION_ICONS[emotion]} {getEmotionTranslation(emotion, language)} ({typeof confidence === 'number' && confidence < 1 ? (confidence * 100).toFixed(1) : confidence}%)
+                                {EMOTION_ICONS[emotion]} {getEmotionTranslation(emotion, language)} ({typeof confidence === 'number' && confidence < 1 ? (confidence * 100).toFixed(1) : confidence}%)
                               </Badge>
                             ))}
                           </div>

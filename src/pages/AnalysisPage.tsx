@@ -2261,16 +2261,13 @@ const AnalysisPage: React.FC = () => {
                   {Object.keys(detailsModal.analysis.secondary_emotions).length > 0 && (
                     <div>
                       <Label className="text-sm font-medium">Emozioni Secondarie</Label>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => {
-                            console.log('Secondary emotion:', emotion, 'confidence:', confidence, 'type:', typeof confidence);
-                            return (
-                              <Badge key={emotion} variant="outline" className="text-sm">
-                                {emotion}: {Number(confidence).toFixed(0)}%
-                              </Badge>
-                            );
-                          })}
-                        </div>
+                       <div className="flex flex-wrap gap-2 mt-2">
+                         {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
+                           <Badge key={emotion} variant="outline" className="text-sm">
+                             {emotion}: {(Number(confidence) * 100).toFixed(0)}%
+                           </Badge>
+                         ))}
+                      </div>
                     </div>
                   )}
                 </CardContent>
