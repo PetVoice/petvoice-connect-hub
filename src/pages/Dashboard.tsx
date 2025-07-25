@@ -445,15 +445,25 @@ const Dashboard: React.FC = () => {
         </Card>
       )}
 
+      {/* DEBUG: Forza sempre il rendering */}
+      <div className="p-4 bg-red-500 text-white rounded">
+        🔴 DEBUG BOX - Se vedi questo, la Dashboard si sta renderizzando!
+      </div>
+
       {/* Wellness Trend Chart */}
       {(() => {
         console.log('Dashboard: activePet =', activePet);
         console.log('Dashboard: user =', user);
-        return activePet && user ? (
-          <WellnessTrendChart petId={activePet.id} userId={user.id} />
-        ) : (
-          <div className="p-4 border rounded">Debug: activePet={activePet?.name}, user={user?.id}</div>
-        );
+        console.log('Dashboard: activePet && user =', activePet && user);
+        
+        if (!activePet) {
+          return <div className="p-4 bg-yellow-500 text-black rounded">⚠️ NESSUN PET ATTIVO</div>;
+        }
+        if (!user) {
+          return <div className="p-4 bg-orange-500 text-white rounded">⚠️ NESSUN UTENTE</div>;
+        }
+        
+        return <WellnessTrendChart petId={activePet.id} userId={user.id} />;
       })()}
 
       {/* Quick Stats */}
