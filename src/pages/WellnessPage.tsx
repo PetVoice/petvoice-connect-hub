@@ -2092,65 +2092,65 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {medications.filter(med => {
-                    // Show active medications that haven't expired
-                    if (!med.is_active) return false;
-                    if (!med.end_date) return true; // No end date means it's ongoing
-                    return new Date(med.end_date) >= new Date(); // Not expired
-                  }).length > 0 ? (
-                    <div className="space-y-2">
-                      {medications.filter(med => {
-                        if (!med.is_active) return false;
-                        if (!med.end_date) return true;
-                        return new Date(med.end_date) >= new Date();
-                      }).slice(0, 3).map((medication) => {
-                        const isExpiring = medication.end_date && 
-                          new Date(medication.end_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Expires in 7 days
-                        return (
-                        <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{medication.name}</span>
-                            </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-blue-500"
-                                 onClick={() => handleEditMedication(medication)}
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('farmaco', medication.id, medication.name)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
+                 <CardContent className="space-y-3 overflow-hidden">
+                   {medications.filter(med => {
+                     // Show active medications that haven't expired
+                     if (!med.is_active) return false;
+                     if (!med.end_date) return true; // No end date means it's ongoing
+                     return new Date(med.end_date) >= new Date(); // Not expired
+                   }).length > 0 ? (
+                     <div className="space-y-2">
+                       {medications.filter(med => {
+                         if (!med.is_active) return false;
+                         if (!med.end_date) return true;
+                         return new Date(med.end_date) >= new Date();
+                       }).slice(0, 3).map((medication) => {
+                         const isExpiring = medication.end_date && 
+                           new Date(medication.end_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Expires in 7 days
+                         return (
+                         <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
+                           <div className="flex items-center justify-between min-w-0">
+                             <div className="flex items-center gap-2 flex-1 min-w-0">
+                               <span className="text-sm font-medium truncate">{medication.name}</span>
                              </div>
+                              <div className="flex gap-1 flex-shrink-0">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-blue-500"
+                                  onClick={() => handleEditMedication(medication)}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-red-500"
+                                  onClick={() => handleDelete('farmaco', medication.id, medication.name)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                           </div>
+                           <div className="text-xs text-muted-foreground mt-1">
+                             {medication.dosage}
+                           </div>
+                           {medication.end_date && (
+                             <div className="text-xs text-muted-foreground">
+                               Fino al: {format(new Date(medication.end_date), 'dd/MM/yyyy')}
+                             </div>
+                           )}
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {medication.dosage}
-                          </div>
-                          {medication.end_date && (
-                            <div className="text-xs text-muted-foreground">
-                              Fino al: {format(new Date(medication.end_date), 'dd/MM/yyyy')}
-                            </div>
-                          )}
-                         </div>
-                         );
-                       })}
+                          );
+                        })}
+                      </div>
+                   ) : (
+                     <div className="text-center py-4 text-muted-foreground">
+                       <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                       <p className="text-sm">Nessun farmaco attivo</p>
                      </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun farmaco attivo</p>
-                    </div>
-                  )}
-                 </CardContent>
+                   )}
+                  </CardContent>
                </Card>
 
               {/* Recent Visits Card */}
@@ -2171,25 +2171,25 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                 <CardContent className="space-y-3">
+                <CardContent className="space-y-3 overflow-hidden">
                    {medicalRecords && medicalRecords.length > 0 ? (
                      <div className="space-y-2">
                        {medicalRecords.slice(0, 3).map((record) => (
                         <div key={record.id} className="border-l-2 border-blue-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-2">
-                               <span className="text-sm font-medium">{record.title}</span>
-                               <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center justify-between min-w-0">
+                             <div className="flex items-center gap-2 flex-1 min-w-0">
+                               <span className="text-sm font-medium truncate">{record.title}</span>
+                               <Badge variant="outline" className="text-xs flex-shrink-0">
                                  {translateRecordType(record.record_type)}
                                </Badge>
                                {record.document_url && (
-                                 <Badge variant="secondary" className="text-xs">
+                                 <Badge variant="secondary" className="text-xs flex-shrink-0">
                                    <Paperclip className="h-3 w-3 mr-1" />
                                    Doc
                                  </Badge>
                                )}
                              </div>
-                              <div className="flex gap-1">
+                              <div className="flex gap-1 flex-shrink-0">
                                 {record.document_url && (
                                   <Button 
                                     size="sm" 
@@ -2253,21 +2253,21 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 overflow-hidden">
                   {insurances.filter(ins => ins.is_active).length > 0 ? (
                     <div className="space-y-2">
                        {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
                          const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
                          return (
                            <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-2">
-                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
-                                  <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
+                             <div className="flex items-center justify-between min-w-0">
+                               <div className="flex items-center gap-2 flex-1 min-w-0">
+                                 <span className="text-sm font-medium truncate">{insurance.provider_name}</span>
+                                  <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs flex-shrink-0">
                                     {isExpired ? "Scaduta" : "Attiva"}
                                   </Badge>
                                </div>
-                             <div className="flex gap-1">
+                             <div className="flex gap-1 flex-shrink-0">
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
@@ -2299,6 +2299,31 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
+              {/* First Aid Guide Card */}
+              <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                    Primo Soccorso
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="text-center py-4">
+                    <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                    <p className="text-sm mb-3">Accesso rapido alle procedure di emergenza</p>
+                    <Button 
+                      size="sm" 
+                      variant="destructive" 
+                      className="w-full"
+                      onClick={() => setShowFirstAidGuide(true)}
+                    >
+                      <Siren className="h-4 w-4 mr-2" />
+                      Apri Guida
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
             </div>
 
             {/* Secondary Health Cards */}
@@ -2322,67 +2347,67 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {emergencyContacts.length > 0 ? (
-                    <div className="space-y-2">
-                      {emergencyContacts.slice(0, 3).map((contact) => (
-                        <div key={contact.id} className="border-l-2 border-orange-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{contact.name}</span>
-                              {contact.is_primary && (
-                                <Badge variant="outline" className="text-xs">
-                                  Primario
-                                </Badge>
-                              )}
-                            </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
-                                 onClick={() => handlePhoneCall(contact.phone)}
-                                 title="Chiama"
-                               >
-                                 <Phone className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0"
-                                 onClick={() => handleEditContact(contact)}
-                                 title="Modifica"
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('contatto', contact.id, contact.name)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
+                 <CardContent className="space-y-3 overflow-hidden">
+                   {emergencyContacts.length > 0 ? (
+                     <div className="space-y-2">
+                       {emergencyContacts.slice(0, 3).map((contact) => (
+                         <div key={contact.id} className="border-l-2 border-orange-500/30 pl-3">
+                           <div className="flex items-center justify-between min-w-0">
+                             <div className="flex items-center gap-2 flex-1 min-w-0">
+                               <span className="text-sm font-medium truncate">{contact.name}</span>
+                               {contact.is_primary && (
+                                 <Badge variant="outline" className="text-xs flex-shrink-0">
+                                   Primario
+                                 </Badge>
+                               )}
                              </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {contact.phone}
-                          </div>
-                          {contact.relationship && (
-                            <div className="text-xs text-muted-foreground">
-                              {contact.relationship}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun contatto di emergenza</p>
-                    </div>
-                  )}
-                </CardContent>
+                             <div className="flex gap-1 flex-shrink-0">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
+                                  onClick={() => handlePhoneCall(contact.phone)}
+                                  title="Chiama"
+                                >
+                                  <Phone className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => handleEditContact(contact)}
+                                  title="Modifica"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-red-500"
+                                  onClick={() => handleDelete('contatto', contact.id, contact.name)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                           </div>
+                           <div className="text-xs text-muted-foreground mt-1">
+                             {contact.phone}
+                           </div>
+                           {contact.relationship && (
+                             <div className="text-xs text-muted-foreground">
+                               {contact.relationship}
+                             </div>
+                           )}
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <div className="text-center py-4 text-muted-foreground">
+                       <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                       <p className="text-sm">Nessun contatto di emergenza</p>
+                     </div>
+                   )}
+                 </CardContent>
               </Card>
 
               {/* Veterinarian Card */}
@@ -2403,111 +2428,90 @@ const WellnessPage = () => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {veterinarians.filter(vet => vet.is_primary).length > 0 ? (
-                    <div className="space-y-2">
-                      {veterinarians.filter(vet => vet.is_primary).map((vet) => (
-                        <div key={vet.id} className="border-l-2 border-purple-500/30 pl-3">
-                           <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-2">
-                               <span className="text-sm font-medium">{vet.name}</span>
-                               <Badge variant="outline" className="text-xs">
-                                 Primario
-                               </Badge>
-                             </div>
-                             <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
-                                 onClick={() => handlePhoneCall(vet.phone)}
-                                 title="Chiama"
-                               >
-                                 <Phone className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0"
-                                 onClick={() => handleEditVet(vet)}
-                                 title="Modifica"
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('veterinario', vet.id, vet.name)}
-                               >
-                                 <Trash2 className="h-3 w-3" />
-                               </Button>
-                             </div>
-                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {vet.phone}
-                          </div>
-                          {vet.clinic_name && (
-                            <div className="text-xs text-muted-foreground">
-                              {vet.clinic_name}
+                 <CardContent className="space-y-3 overflow-hidden">
+                   {veterinarians.filter(vet => vet.is_primary).length > 0 ? (
+                     <div className="space-y-2">
+                       {veterinarians.filter(vet => vet.is_primary).map((vet) => (
+                         <div key={vet.id} className="border-l-2 border-purple-500/30 pl-3">
+                            <div className="flex items-center justify-between min-w-0">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="text-sm font-medium truncate">{vet.name}</span>
+                                <Badge variant="outline" className="text-xs flex-shrink-0">
+                                  Primario
+                                </Badge>
+                              </div>
+                              <div className="flex gap-1 flex-shrink-0">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
+                                  onClick={() => handlePhoneCall(vet.phone)}
+                                  title="Chiama"
+                                >
+                                  <Phone className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => handleEditVet(vet)}
+                                  title="Modifica"
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-red-500"
+                                  onClick={() => handleDelete('veterinario', vet.id, vet.name)}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                   ) : (
-                     <div className="text-center py-4 text-muted-foreground">
-                       <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                       <p className="text-sm">Nessun veterinario registrato</p>
+                           <div className="text-xs text-muted-foreground mt-1">
+                             {vet.phone}
+                           </div>
+                           {vet.clinic_name && (
+                             <div className="text-xs text-muted-foreground">
+                               {vet.clinic_name}
+                             </div>
+                           )}
+                         </div>
+                       ))}
                      </div>
-                   )}
-                   
-                   {/* Bottone per cercare veterinari vicini */}
-                   <div className="pt-2 border-t">
-                     <Button 
-                       size="sm" 
-                       variant="outline" 
-                       className="w-full h-8"
-                       onClick={findNearbyVets}
-                       disabled={loadingNearbyVets}
-                     >
-                       {loadingNearbyVets ? (
-                         <>
-                           <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full mr-2" />
-                           Ricerca...
-                         </>
-                       ) : (
-                         <>
-                           <MapPin className="h-3 w-3 mr-2" />
-                           Trova veterinari vicini
-                         </>
-                       )}
-                     </Button>
-                   </div>
-                </CardContent>
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Nessun veterinario registrato</p>
+                      </div>
+                    )}
+                    
+                    {/* Bottone per cercare veterinari vicini */}
+                    <div className="pt-2 border-t">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full h-8"
+                        onClick={findNearbyVets}
+                        disabled={loadingNearbyVets}
+                      >
+                        {loadingNearbyVets ? (
+                          <>
+                            <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full mr-2" />
+                            Ricerca...
+                          </>
+                        ) : (
+                          <>
+                            <MapPin className="h-3 w-3 mr-2" />
+                            Trova veterinari vicini
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                 </CardContent>
               </Card>
 
-              {/* First Aid Guide Card */}
-              <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-red-500" />
-                    Primo Soccorso
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-center py-4">
-                    <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Guida rapida per emergenze
-                    </p>
-                    <Button type="button" size="sm" variant="outline" className="h-8" onClick={() => setShowFirstAidGuide(true)}>
-                      <BookOpen className="h-4 w-4 mr-1" />
-                      Apri Guida
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
 
             </div>
 
