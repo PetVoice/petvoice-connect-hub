@@ -102,11 +102,17 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
-    handleOpenChange(false);
+    if (persistOnRefresh && dialogId) {
+      persistentDialog.close();
+    }
+    onOpenChange(false); // Chiama sempre l'onOpenChange originale
   };
 
   const handleCancel = () => {
-    handleOpenChange(false);
+    if (persistOnRefresh && dialogId) {
+      persistentDialog.close();
+    }
+    onOpenChange(false); // Chiama sempre l'onOpenChange originale
   };
 
   return (
