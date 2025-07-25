@@ -743,23 +743,6 @@ const WellnessPage = () => {
   });
   
   
-  // Chart component visibility toggles
-  const [chartComponents, setChartComponents] = useState({
-    healthScore: true,
-    temperature: true,
-    heartRate: true,
-    respiration: true,
-    moodScore: true,
-    medicationScore: true,
-    visitScore: true
-  });
-  
-  const toggleChartComponent = (component: keyof typeof chartComponents) => {
-    setChartComponents(prev => ({
-      ...prev,
-      [component]: !prev[component]
-    }));
-  };
 
   // Pet analyses for comprehensive health dashboard
   const [petAnalyses, setPetAnalyses] = useState([]);
@@ -3647,108 +3630,14 @@ const WellnessPage = () => {
                 
                 return (
                   <div className="space-y-6">
-                    {/* Chart Component Filters */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Eye className="h-4 w-4" />
-                          Visualizzazione Componenti Grafico
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="healthScore"
-                              checked={chartComponents.healthScore}
-                              onCheckedChange={() => toggleChartComponent('healthScore')}
-                            />
-                            <label htmlFor="healthScore" className="text-sm">Punteggio Salute</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="temperature"
-                              checked={chartComponents.temperature}
-                              onCheckedChange={() => toggleChartComponent('temperature')}
-                            />
-                            <label htmlFor="temperature" className="text-sm">Temperatura</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="heartRate"
-                              checked={chartComponents.heartRate}
-                              onCheckedChange={() => toggleChartComponent('heartRate')}
-                            />
-                            <label htmlFor="heartRate" className="text-sm">Battito Cardiaco</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="respiration"
-                              checked={chartComponents.respiration}
-                              onCheckedChange={() => toggleChartComponent('respiration')}
-                            />
-                            <label htmlFor="respiration" className="text-sm">Respirazione</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="moodScore"
-                              checked={chartComponents.moodScore}
-                              onCheckedChange={() => toggleChartComponent('moodScore')}
-                            />
-                            <label htmlFor="moodScore" className="text-sm">Umore</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="medicationScore"
-                              checked={chartComponents.medicationScore}
-                              onCheckedChange={() => toggleChartComponent('medicationScore')}
-                            />
-                            <label htmlFor="medicationScore" className="text-sm">Farmaci</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="visitScore"
-                              checked={chartComponents.visitScore}
-                              onCheckedChange={() => toggleChartComponent('visitScore')}
-                            />
-                            <label htmlFor="visitScore" className="text-sm">Visite</label>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Unified Chart */}
+                    {/* Unified Chart - Single Health Score */}
                     <div className="h-[400px]">
                       <ChartContainer
                         config={{
                           healthScore: {
                             label: "Punteggio Salute Generale",
                             color: "hsl(var(--primary))",
-                          },
-                          temperature: {
-                            label: "Temperatura (°C)",
-                            color: "hsl(var(--destructive))",
-                          },
-                          heartRate: {
-                            label: "Battito Cardiaco (bpm)",
-                            color: "#3b82f6",
-                          },
-                          respiration: {
-                            label: "Respirazione (atti/min)",
-                            color: "#22c55e",
-                          },
-                          moodScore: {
-                            label: "Punteggio Umore",
-                            color: "#8b5cf6",
-                          },
-                          medicationScore: {
-                            label: "Gestione Farmaci",
-                            color: "#f59e0b",
-                          },
-                          visitScore: {
-                            label: "Frequenza Visite",
-                            color: "#06b6d4",
-                          },
+                          }
                         }}
                       >
                         <ResponsiveContainer width="100%" height="100%">
@@ -3760,17 +3649,10 @@ const WellnessPage = () => {
                               stroke="hsl(var(--muted-foreground))"
                             />
                             <YAxis 
-                              yAxisId="left"
                               tick={{ fontSize: 12 }}
                               stroke="hsl(var(--muted-foreground))"
-                              label={{ value: 'Parametri Vitali', angle: -90, position: 'insideLeft' }}
-                            />
-                            <YAxis 
-                              yAxisId="right" 
-                              orientation="right"
-                              tick={{ fontSize: 12 }}
-                              stroke="hsl(var(--muted-foreground))"
-                              label={{ value: 'Punteggio Salute', angle: 90, position: 'insideRight' }}
+                              label={{ value: 'Punteggio Salute', angle: -90, position: 'insideLeft' }}
+                              domain={[0, 100]}
                             />
                             <ChartTooltip 
                               content={<ChartTooltipContent />}
@@ -3778,114 +3660,37 @@ const WellnessPage = () => {
                             <ChartLegend content={<ChartLegendContent />} />
                             
                             {/* Primary Health Score Line */}
-                            {chartComponents.healthScore && (
-                              <Line 
-                                yAxisId="right"
-                                type="monotone" 
-                                dataKey="healthScore" 
-                                stroke="hsl(var(--primary))" 
-                                strokeWidth={4}
-                                name="Punteggio Salute Generale"
-                                connectNulls={false}
-                                dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
-                              />
-                            )}
+                            <Line 
+                              type="monotone" 
+                              dataKey="healthScore" 
+                              stroke="hsl(var(--primary))" 
+                              strokeWidth={4}
+                              name="Punteggio Salute Generale"
+                              connectNulls={false}
+                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 6 }}
+                            />
                             
-                            {/* Vital Signs Lines */}
-                            {chartComponents.temperature && (
-                              <Line 
-                                yAxisId="left"
-                                type="monotone" 
-                                dataKey="temperature" 
-                                stroke="hsl(var(--destructive))" 
-                                strokeWidth={2}
-                                name="Temperatura (°C)"
-                                connectNulls={false}
-                                dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2 }}
-                              />
-                            )}
-                            {chartComponents.heartRate && (
-                              <Line 
-                                yAxisId="left"
-                                type="monotone" 
-                                dataKey="heartRate" 
-                                stroke="#3b82f6" 
-                                strokeWidth={2}
-                                name="Battito Cardiaco (bpm)"
-                                connectNulls={false}
-                                dot={{ fill: "#3b82f6", strokeWidth: 2 }}
-                              />
-                            )}
-                            {chartComponents.respiration && (
-                              <Line 
-                                yAxisId="left"
-                                type="monotone" 
-                                dataKey="respiration" 
-                                stroke="#22c55e" 
-                                strokeWidth={2}
-                                name="Respirazione (atti/min)"
-                                connectNulls={false}
-                                dot={{ fill: "#22c55e", strokeWidth: 2 }}
-                              />
-                            )}
-                            
-                            {/* Behavioral & Lifestyle Lines */}
-                            {chartComponents.moodScore && (
-                              <Line 
-                                yAxisId="right"
-                                type="monotone" 
-                                dataKey="moodScore" 
-                                stroke="#8b5cf6" 
-                                strokeWidth={2}
-                                name="Punteggio Umore"
-                                connectNulls={false}
-                                dot={{ fill: "#8b5cf6", strokeWidth: 2 }}
-                                strokeDasharray="5 5"
-                              />
-                            )}
-                            {chartComponents.medicationScore && (
-                              <Line 
-                                yAxisId="right"
-                                type="monotone" 
-                                dataKey="medicationScore" 
-                                stroke="#f59e0b" 
-                                strokeWidth={2}
-                                name="Gestione Farmaci"
-                                connectNulls={false}
-                                dot={{ fill: "#f59e0b", strokeWidth: 2 }}
-                                strokeDasharray="3 3"
-                              />
-                            )}
-                            {chartComponents.visitScore && (
-                              <Line 
-                                yAxisId="right"
-                                type="monotone" 
-                                dataKey="visitScore" 
-                                stroke="#06b6d4" 
-                                strokeWidth={2}
-                                name="Frequenza Visite"
-                                connectNulls={false}
-                                dot={{ fill: "#06b6d4", strokeWidth: 2 }}
-                                strokeDasharray="8 2"
-                              />
-                            )}
-                            
-                            {/* Reference lines for normal ranges */}
+                            {/* Reference lines for health scores */}
                             <ReferenceLine 
-                              yAxisId="left" 
-                              y={38} 
-                              stroke="hsl(var(--destructive))" 
+                              y={80} 
+                              stroke="hsl(var(--chart-1))" 
                               strokeDasharray="5 5" 
                               opacity={0.5}
-                              label="Temp Min"
+                              label="Ottima Salute"
                             />
                             <ReferenceLine 
-                              yAxisId="left" 
-                              y={39.2} 
+                              y={60} 
+                              stroke="hsl(var(--chart-3))" 
+                              strokeDasharray="5 5" 
+                              opacity={0.5}
+                              label="Salute Buona"
+                            />
+                            <ReferenceLine 
+                              y={40} 
                               stroke="hsl(var(--destructive))" 
                               strokeDasharray="5 5" 
                               opacity={0.5}
-                              label="Temp Max"
+                              label="Attenzione Richiesta"
                             />
                           </LineChart>
                         </ResponsiveContainer>
