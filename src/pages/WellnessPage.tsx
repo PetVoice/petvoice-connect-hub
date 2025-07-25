@@ -502,7 +502,6 @@ const WellnessPage = () => {
   const [insuranceUploadedFiles, setInsuranceUploadedFiles] = useState<File[]>([]);
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
-  const [filePreview, setFilePreview] = useState<{ open: boolean; file: File | null; url: string }>({ open: false, file: null, url: '' });
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('month'); // Default to month
   
@@ -2837,7 +2836,15 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             const url = URL.createObjectURL(file);
-                            setFilePreview({ open: true, file, url });
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.target = '_blank';
+                            link.rel = 'noopener noreferrer';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            // Cleanup URL after a delay
+                            setTimeout(() => URL.revokeObjectURL(url), 1000);
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
@@ -3248,7 +3255,15 @@ const WellnessPage = () => {
                           variant="ghost"
                           onClick={() => {
                             const url = URL.createObjectURL(file);
-                            setFilePreview({ open: true, file, url });
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.target = '_blank';
+                            link.rel = 'noopener noreferrer';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            // Cleanup URL after a delay
+                            setTimeout(() => URL.revokeObjectURL(url), 1000);
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
@@ -3331,78 +3346,6 @@ const WellnessPage = () => {
          confirmText="Elimina"
        />
 
-       {/* File Preview Dialog */}
-       <Dialog open={filePreview.open} onOpenChange={(open) => {
-         if (!open) {
-           if (filePreview.url) {
-             URL.revokeObjectURL(filePreview.url);
-           }
-           setFilePreview({ open: false, file: null, url: '' });
-         }
-       }}>
-         <DialogContent className="max-w-4xl max-h-[90vh]">
-           <DialogHeader>
-             <DialogTitle>Anteprima File</DialogTitle>
-             <DialogDescription>
-               {filePreview.file?.name} ({(filePreview.file?.size || 0 / 1024 / 1024).toFixed(2)} MB)
-             </DialogDescription>
-           </DialogHeader>
-           <div className="flex-1 overflow-auto">
-             {filePreview.file && (
-               <div className="w-full h-full flex items-center justify-center">
-                 {filePreview.file.type.startsWith('image/') ? (
-                   <img 
-                     src={filePreview.url} 
-                     alt={filePreview.file.name}
-                     className="max-w-full max-h-[60vh] object-contain"
-                   />
-                 ) : filePreview.file.type === 'application/pdf' ? (
-                   <div className="text-center p-8">
-                     <FileText className="h-16 w-16 mx-auto mb-4 text-blue-500" />
-                     <p className="text-lg font-medium mb-2">{filePreview.file.name}</p>
-                     <p className="text-muted-foreground mb-4">
-                       File PDF - {(filePreview.file.size / 1024 / 1024).toFixed(2)} MB
-                     </p>
-                     <Button 
-                       onClick={() => {
-                         const a = document.createElement('a');
-                         a.href = filePreview.url;
-                         a.download = filePreview.file?.name || 'document.pdf';
-                         document.body.appendChild(a);
-                         a.click();
-                         document.body.removeChild(a);
-                       }}
-                     >
-                       <Download className="h-4 w-4 mr-2" />
-                       Scarica PDF
-                     </Button>
-                   </div>
-                 ) : (
-                   <div className="text-center p-8">
-                     <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                     <p className="text-lg font-medium">{filePreview.file.name}</p>
-                     <p className="text-muted-foreground">Anteprima non disponibile per questo tipo di file</p>
-                     <Button 
-                       className="mt-4"
-                       onClick={() => {
-                         const a = document.createElement('a');
-                         a.href = filePreview.url;
-                         a.download = filePreview.file?.name || 'file';
-                         document.body.appendChild(a);
-                         a.click();
-                         document.body.removeChild(a);
-                       }}
-                     >
-                       <Download className="h-4 w-4 mr-2" />
-                       Scarica File
-                     </Button>
-                   </div>
-                 )}
-               </div>
-             )}
-           </div>
-         </DialogContent>
-       </Dialog>
 
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
