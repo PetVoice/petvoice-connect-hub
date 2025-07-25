@@ -1319,21 +1319,8 @@ const WellnessPage = () => {
             : record
         ));
       } else {
-        // Add new medical record to local state
-        const newRecordData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          title: newDocument.title,
-          description: newDocument.description || null,
-          record_type: newDocument.record_type,
-          record_date: newDocument.record_date,
-          cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-          notes: newDocument.notes || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setMedicalRecords(prev => [newRecordData, ...prev]);
+        // Reload data from database to show real record
+        fetchHealthData();
       }
     } catch (error) {
       console.error('Error saving medical record:', error);
