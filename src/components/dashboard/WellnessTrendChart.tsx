@@ -101,8 +101,11 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         </div>
       </CardHeader>
       <CardContent className="pb-8">
-        <div className="h-80 w-full mb-4">
-          <ChartContainer config={{ wellness: { label: "Benessere", color: "hsl(var(--primary))" } }}>
+        <div className="w-full" style={{ height: '320px' }}>
+          <ChartContainer 
+            config={{ wellness: { label: "Benessere", color: "hsl(var(--primary))" } }}
+            className="h-full w-full max-h-80"
+          >
             <LineChart data={wellnessTrendData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
