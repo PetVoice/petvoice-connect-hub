@@ -272,10 +272,15 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
     }
   };
 
-  // Carica i pets iniziali
+  // Carica i pets iniziali - usa un ref per evitare ricaricamenti inutili
+  const lastUserIdRef = React.useRef<string | null>(null);
+  
   useEffect(() => {
-    refreshPets();
-  }, [user]);
+    if (user?.id && user.id !== lastUserIdRef.current) {
+      lastUserIdRef.current = user.id;
+      refreshPets();
+    }
+  }, [user?.id]);
 
   // Sottoscrizione realtime per sincronizzazione tra tab/dispositivi
   useEffect(() => {

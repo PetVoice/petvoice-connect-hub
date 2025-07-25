@@ -96,11 +96,14 @@ export function useNotifications() {
   };
 
   useEffect(() => {
-    loadNotifications();
-    
-    // Ricarica notifiche ogni 10 secondi per aggiornamenti più frequenti
-    const interval = setInterval(loadNotifications, 10000);
-    return () => clearInterval(interval);
+    // Solo carica se è la prima volta per questo utente
+    if (user) {
+      loadNotifications();
+      
+      // Ricarica notifiche ogni 30 secondi (ridotto da 10) per ridurre il carico
+      const interval = setInterval(loadNotifications, 30000);
+      return () => clearInterval(interval);
+    }
   }, [loadNotifications]);
 
   return {
