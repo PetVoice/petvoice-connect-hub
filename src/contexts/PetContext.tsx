@@ -355,7 +355,7 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, pets.length, selectedPetId]);
+  }, [user]); // RIMUOVO pets.length e selectedPetId per evitare loop infinito
 
   const value: PetContextType = {
     pets,
