@@ -726,6 +726,7 @@ const WellnessPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [healthMetrics, setHealthMetrics] = useState<HealthMetric[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [analyses, setAnalyses] = useState<any[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
@@ -2130,11 +2131,78 @@ const WellnessPage = () => {
     return medications.filter(m => getMedicationStatus(m) === 'active').length;
   };
 
+  const getActiveMedications = () => {
+    return medications.filter(m => getMedicationStatus(m) === 'active');
+  };
+
   const getDocumentsCount = () => {
     return medicalRecords.length;
   };
 
-  // Funzione deprecata rimossa - utilizzare HealthScoreDisplay e HealthScoreCircle components
+  // Unified wellness trend data
+  const unifiedWellnessTrend = useMemo(() => {
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), 29 - i);
+      return {
+        date: format(date, 'dd/MM'),
+        fullDate: format(date, 'yyyy-MM-dd'),
+        wellnessScore: 0,
+        dataPoints: 0
+      };
+    });
+
+    // Add health metrics data
+    healthMetrics.forEach(metric => {
+      const metricDate = format(new Date(metric.recorded_at), 'yyyy-MM-dd');
+      const dayIndex = last30Days.findIndex(day => day.fullDate === metricDate);
+      if (dayIndex !== -1) {
+        const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+        const score = evaluation.status === 'normal' ? 80 : evaluation.status === 'warning' ? 50 : 20;
+        last30Days[dayIndex].wellnessScore += score;
+        last30Days[dayIndex].dataPoints += 1;
+      }
+    });
+
+    // Add emotional analysis data
+    analyses.forEach(analysis => {
+      const analysisDate = format(new Date(analysis.created_at), 'yyyy-MM-dd');
+      const dayIndex = last30Days.findIndex(day => day.fullDate === analysisDate);
+      if (dayIndex !== -1) {
+        const emotions = analysis.emotions ? JSON.parse(analysis.emotions) : {};
+        const positiveEmotions = ['felice', 'calmo', 'giocoso', 'curioso', 'affettuoso'];
+        const emotionScore = Object.entries(emotions).reduce((score, [emotion, confidence]: [string, any]) => {
+          if (positiveEmotions.includes(emotion.toLowerCase())) {
+            return score + (confidence * 100);
+          } else {
+            return score + ((1 - confidence) * 50);
+          }
+        }, 0) / Object.keys(emotions).length || 50;
+        
+        last30Days[dayIndex].wellnessScore += emotionScore;
+        last30Days[dayIndex].dataPoints += 1;
+      }
+    });
+
+    // Add medication compliance factor
+    const activeMedications = medications.filter(med => getMedicationStatus(med) === 'active');
+    if (activeMedications.length > 0) {
+      last30Days.forEach(day => {
+        day.wellnessScore += 70; // Assume good medication compliance
+        day.dataPoints += 1;
+      });
+    }
+
+    // Calculate average and normalize scores
+    return last30Days.map(day => ({
+      ...day,
+      wellnessScore: day.dataPoints > 0 ? Math.round(day.wellnessScore / day.dataPoints) : 50
+    }));
+  }, [healthMetrics, analyses, medications, selectedPet]);
+
+  // Initialize empty analyses for now
+  useEffect(() => {
+    setAnalyses([]);
+  }, [selectedPet]);
 
   if (!selectedPet) {
     return (
@@ -2197,275 +2265,500 @@ const WellnessPage = () => {
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6 animate-fade-in">
-          {/* Overview Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <Card className="hover-scale bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-primary">Analisi Totali</CardTitle>
-                <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <BarChart2 className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
-                <div className="text-2xl font-bold text-primary mb-1">{displayAnalytics.totalAnalyses}</div>
-                <p className="text-xs text-muted-foreground">
-                  negli ultimi {displayAnalytics.timeSpan} giorni
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-success-foreground">Score Benessere</CardTitle>
-                <div className="p-1.5 bg-success/10 rounded-lg">
-                  <Heart className="h-4 w-4 text-success" />
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
-                <div className="text-2xl font-bold flex items-center gap-2 text-success-foreground mb-1">
-                  {displayAnalytics.averageWellnessScore}%
-                  {displayAnalytics.wellnessTrend > 0 ? (
-                    <TrendingUp className="h-4 w-4 text-success" />
-                  ) : displayAnalytics.wellnessTrend < 0 ? (
-                    <TrendingDown className="h-4 w-4 text-destructive" />
-                  ) : null}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs precedente
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-primary-foreground">Giorni Attivi</CardTitle>
-                <div className="p-1.5 bg-primary/10 rounded-lg">
-                  <Calendar className="h-4 w-4 text-primary" />
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
-                <div className="text-2xl font-bold text-primary-foreground mb-2">{displayAnalytics.activeDays}</div>
-                <Progress 
-                  value={(displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100} 
-                  className="h-1.5 mb-1"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {Math.round((displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100)}% del periodo
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-purple-700">Emozione Principale</CardTitle>
-                <div className="p-1.5 bg-purple-500/10 rounded-lg">
-                  <Brain className="h-4 w-4 text-purple-600" />
-                </div>
-              </CardHeader>
-              <CardContent className="pb-3">
-                <div className="text-2xl font-bold capitalize text-purple-700 mb-1">
-                  {displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {displayAnalytics.emotionDistribution[0]?.percentage || 0}% delle analisi
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Health Score Section */}
-          <div className="space-y-4">
-            <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Gauge className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">Health Score - {selectedPet.name}</CardTitle>
-                      <CardDescription className="text-sm">
-                        Punteggio generale sulla salute e monitoraggio parametri vitali
-                      </CardDescription>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid lg:grid-cols-3 gap-6">
-                  <div className="space-y-3">
-                    <UnifiedHealthScore 
-                      selectedPet={selectedPet}
-                      user={user}
-                      addNotification={addNotification}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Card className="p-3 bg-primary/5 border-primary/20">
-                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Ultimo Controllo</p>
-                      <p className="font-bold text-base text-primary">{getLastCheckup()}</p>
-                    </Card>
-                    <Card className="p-3 bg-success/5 border-success/20">
-                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Prossimo Appuntamento</p>
-                      <p className="font-bold text-base text-success">{getNextAppointment()}</p>
-                    </Card>
-                    <Card className="p-3 bg-secondary/5 border-secondary/20">
-                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Farmaci Attivi</p>
-                      <p className="font-bold text-base text-secondary-foreground">{getActiveMedicationsCount()}</p>
-                    </Card>
-                    <Card className="p-3 bg-accent/5 border-accent/20">
-                      <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Documenti Medici</p>
-                      <p className="font-bold text-base text-accent-foreground">{getDocumentsCount()}</p>
-                    </Card>
-                  </div>
-                  
-                  <div className="flex justify-center">
-                    <HealthScoreCircle 
-                      healthMetrics={healthMetrics}
-                      medicalRecords={medicalRecords}
-                      medications={medications}
-                      selectedPet={selectedPet}
-                      user={user}
-                      addNotification={addNotification}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Quick Actions */}
-          <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-lg transition-all duration-300">
+          {/* Unified Wellness Trend Chart */}
+          <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
             <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <Zap className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Azioni Rapide</CardTitle>
-                  <CardDescription className="text-sm">
-                    Gestisci rapidamente la salute di {selectedPet.name}
-                  </CardDescription>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Trend Generale Benessere - {selectedPet.name}</CardTitle>
+                    <CardDescription className="text-sm">
+                      Andamento unificato di tutti i fattori che influenzano il benessere
+                    </CardDescription>
+                  </div>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="grid md:grid-cols-3 gap-4">
-                <Card className="hover-scale bg-primary/5 border-primary/20 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group cursor-pointer" 
-                      onClick={() => setShowAddDocument(true)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <FileText className="h-4 w-4 text-primary-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-primary text-sm">Nuovo Documento</p>
-                        <p className="text-xs text-primary/80">Carica documento medico</p>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowAddDocument(true);
-                        }}
-                        disabled={isUploading}
-                        className="bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
-                      >
-                        {isUploading ? 'Caricamento...' : 'Aggiungi'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover-scale bg-success/5 border-success/20 hover:border-success/30 hover:shadow-lg transition-all duration-300 group cursor-pointer"
-                      onClick={() => {
-                        setEditingMedication(null);
-                        setNewMedication({
-                          name: '',
-                          dosage: '',
-                          frequency: '',
-                          start_date: '',
-                          end_date: '',
-                          notes: ''
-                        });
-                        setShowAddMedication(true);
-                      }}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-success rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <Pill className="h-4 w-4 text-success-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-success text-sm">Nuovo Farmaco</p>
-                        <p className="text-xs text-success/80">Aggiungi farmaco attivo</p>
-                      </div>
-                       <Button 
-                        size="sm" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingMedication(null);
-                          setNewMedication({
-                            name: '',
-                            dosage: '',
-                            frequency: '',
-                            start_date: '',
-                            end_date: '',
-                            notes: ''
-                          });
-                          setShowAddMedication(true);
-                        }}
-                        className="bg-success hover:bg-success/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
-                      >
-                        Aggiungi
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="hover-scale bg-secondary/5 border-secondary/20 hover:border-secondary/30 hover:shadow-lg transition-all duration-300 group cursor-pointer"
-                      onClick={() => {
-                        setEditingMetric(null);
-                        setNewMetric({
-                          metric_type: '',
-                          value: '',
-                          unit: '',
-                          notes: ''
-                        });
-                        setShowAddMetric(true);
-                      }}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-secondary rounded-lg shadow-lg group-hover:shadow-xl transition-shadow">
-                        <Activity className="h-4 w-4 text-secondary-foreground" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-secondary-foreground text-sm">Nuova Metrica</p>
-                        <p className="text-xs text-muted-foreground">Registra valore di salute</p>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingMetric(null);
-                          setNewMetric({
-                            metric_type: '',
-                            value: '',
-                            unit: '',
-                            notes: ''
-                          });
-                          setShowAddMetric(true);
-                        }}
-                        className="bg-secondary hover:bg-secondary/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
-                      >
-                        Aggiungi
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <ChartContainer config={{
+                wellnessScore: { label: "Benessere Unificato", color: "hsl(var(--primary))" }
+              }} className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={unifiedWellnessTrend}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 12 }}
+                      tickLine={{ stroke: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis 
+                      domain={[0, 100]} 
+                      tick={{ fontSize: 12 }}
+                      tickLine={{ stroke: 'hsl(var(--muted-foreground))' }}
+                      label={{ value: 'Punteggio Benessere', angle: -90, position: 'insideLeft' }}
+                    />
+                    <ChartTooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-background border rounded-lg shadow-lg p-3">
+                              <p className="font-medium text-sm mb-1">{`Data: ${label}`}</p>
+                              <p className="text-primary text-sm">
+                                {`Benessere: ${payload[0].value}/100`}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="wellnessScore"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary))"
+                      fillOpacity={0.3}
+                      strokeWidth={3}
+                    />
+                    <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" opacity={0.7} />
+                    <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" opacity={0.7} />
+                    <ReferenceLine y={25} stroke="hsl(var(--destructive))" strokeDasharray="5 5" opacity={0.7} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
+
+          {/* Detail Cards Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Health Score Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Gauge className="h-4 w-4 text-primary" />
+                  </div>
+                  <CardTitle className="text-base">Punteggio Salute</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <UnifiedHealthScore 
+                  selectedPet={selectedPet}
+                  user={user}
+                  addNotification={addNotification}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Vital Metrics Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-success/10 rounded-lg">
+                      <Activity className="h-4 w-4 text-success" />
+                    </div>
+                    <CardTitle className="text-base">Parametri Vitali</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingMetric(null);
+                      setNewMetric({
+                        metric_type: '',
+                        value: '',
+                        unit: '',
+                        notes: ''
+                      });
+                      setShowAddMetric(true);
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {healthMetrics.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Thermometer className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun parametro vitale registrato</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowAddMetric(true)}
+                    >
+                      Aggiungi primo parametro
+                    </Button>
+                  </div>
+                ) : (
+                  healthMetrics.slice(0, 3).map((metric) => {
+                    const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+                    return (
+                      <div key={metric.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{translateMetricType(metric.metric_type)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {metric.value} {metric.unit} - {format(new Date(metric.recorded_at), 'dd/MM/yyyy', { locale: it })}
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={evaluation.status === 'normal' ? 'default' : evaluation.status === 'warning' ? 'secondary' : 'destructive'}
+                          className="ml-2"
+                        >
+                          {evaluation.status === 'normal' ? 'Normale' : evaluation.status === 'warning' ? 'Attenzione' : 'Critico'}
+                        </Badge>
+                      </div>
+                    );
+                  })
+                )}
+                {healthMetrics.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{healthMetrics.length - 3} altri parametri
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Active Medications Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-warning/10 rounded-lg">
+                      <Pill className="h-4 w-4 text-warning" />
+                    </div>
+                    <CardTitle className="text-base">Farmaci Attivi</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingMedication(null);
+                      setNewMedication({
+                        name: '',
+                        dosage: '',
+                        frequency: '',
+                        start_date: format(new Date(), 'yyyy-MM-dd'),
+                        end_date: '',
+                        notes: ''
+                      });
+                      setShowAddMedication(true);
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {getActiveMedications().length === 0 ? (
+                  <div className="text-center py-6">
+                    <Pill className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun farmaco attivo</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowAddMedication(true)}
+                    >
+                      Aggiungi primo farmaco
+                    </Button>
+                  </div>
+                ) : (
+                  getActiveMedications().slice(0, 3).map((medication) => (
+                    <div key={medication.id} className="p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{medication.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {medication.dosage} - {medication.frequency}
+                          </p>
+                        </div>
+                        <Badge variant="default" className="ml-2">
+                          Attivo
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+                {getActiveMedications().length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{getActiveMedications().length - 3} altri farmaci
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Medical Records Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <CardTitle className="text-base">Visite Recenti</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowAddDocument(true)}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {medicalRecords.length === 0 ? (
+                  <div className="text-center py-6">
+                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessuna visita registrata</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowAddDocument(true)}
+                    >
+                      Aggiungi prima visita
+                    </Button>
+                  </div>
+                ) : (
+                  medicalRecords.slice(0, 3).map((record) => (
+                    <div key={record.id} className="p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{record.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {translateRecordType(record.record_type)} - {format(new Date(record.record_date), 'dd/MM/yyyy', { locale: it })}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="ml-2">
+                          {translateRecordType(record.record_type)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+                {medicalRecords.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{medicalRecords.length - 3} altre visite
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Emergency Contacts Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-destructive/10 rounded-lg">
+                      <Siren className="h-4 w-4 text-destructive" />
+                    </div>
+                    <CardTitle className="text-base">Contatti Emergenza</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingContact(null);
+                      setNewContact({
+                        name: '',
+                        contact_type: 'veterinario',
+                        phone: '',
+                        relationship: '',
+                        email: '',
+                        notes: ''
+                      });
+                      setShowAddContact(true);
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {emergencyContacts.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Phone className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun contatto di emergenza</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowAddContact(true)}
+                    >
+                      Aggiungi primo contatto
+                    </Button>
+                  </div>
+                ) : (
+                  emergencyContacts.slice(0, 3).map((contact) => (
+                    <div key={contact.id} className="p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{contact.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {contact.phone} - {contact.contact_type}
+                          </p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => window.open(`tel:${contact.phone}`, '_self')}>
+                          <Phone className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+                {emergencyContacts.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{emergencyContacts.length - 3} altri contatti
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Veterinarians Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <Stethoscope className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <CardTitle className="text-base">Veterinari</CardTitle>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingVet(null);
+                      setNewVet({
+                        name: '',
+                        clinic_name: '',
+                        phone: '',
+                        email: '',
+                        address: '',
+                        specialization: '',
+                        is_primary: false
+                      });
+                      setShowAddVet(true);
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {veterinarians.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Stethoscope className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun veterinario registrato</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => setShowAddVet(true)}
+                    >
+                      Aggiungi primo veterinario
+                    </Button>
+                  </div>
+                ) : (
+                  veterinarians.slice(0, 3).map((vet) => (
+                    <div key={vet.id} className="p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{vet.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {vet.clinic_name} {vet.phone && `- ${vet.phone}`}
+                          </p>
+                        </div>
+                        {vet.is_primary && (
+                          <Badge variant="default" className="ml-2">
+                            Primario
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+                {veterinarians.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{veterinarians.length - 3} altri veterinari
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Behavioral Analysis Card */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <Brain className="h-4 w-4 text-green-600" />
+                  </div>
+                  <CardTitle className="text-base">Analisi Comportamentali</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {analyses.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Brain className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessuna analisi comportamentale</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      onClick={() => window.location.href = '/analysis'}
+                    >
+                      Inizia prima analisi
+                    </Button>
+                  </div>
+                ) : (
+                  analyses.slice(0, 3).map((analysis) => {
+                    const emotions = analysis.emotions ? JSON.parse(analysis.emotions) : {};
+                    const primaryEmotion = Object.entries(emotions).sort(([,a], [,b]) => (b as number) - (a as number))[0];
+                    
+                    return (
+                      <div key={analysis.id} className="p-2 rounded-lg bg-muted/30">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium capitalize">
+                              {primaryEmotion ? primaryEmotion[0] : 'Analisi'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {format(new Date(analysis.created_at), 'dd/MM/yyyy HH:mm', { locale: it })}
+                            </p>
+                          </div>
+                          {primaryEmotion && (
+                            <Badge 
+                              variant="outline" 
+                              className="ml-2"
+                              style={{ backgroundColor: EMOTION_COLORS[primaryEmotion[0]] + '20', borderColor: EMOTION_COLORS[primaryEmotion[0]] }}
+                            >
+                              {Math.round((primaryEmotion[1] as number) * 100)}%
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+                {analyses.length > 3 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    +{analyses.length - 3} altre analisi
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
