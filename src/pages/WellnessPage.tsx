@@ -1626,35 +1626,35 @@ const WellnessPage = () => {
                   </CardTitle>
                   <CardDescription>Distribuzione completa delle emozioni</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {Object.entries(emotionCounts)
-                        .sort(([,a], [,b]) => b - a)
-                        .map(([emotion, count], index) => (
-                          <div key={emotion} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
-                              />
-                              <span className="text-sm capitalize">{emotion}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 bg-muted rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full"
-                                  style={{ 
-                                    width: `${(count / Math.max(...Object.values(emotionCounts))) * 100}%`,
-                                    backgroundColor: EMOTION_COLORS[emotion] || '#6b7280'
-                                  }}
-                                />
-                              </div>
-                              <span className="text-sm font-medium w-8 text-right">{count}</span>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
+                 <CardContent className="space-y-2">
+                   {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
+                     <div className="space-y-2 max-h-32 overflow-y-auto overflow-x-hidden">
+                       {Object.entries(emotionCounts)
+                         .sort(([,a], [,b]) => b - a)
+                         .map(([emotion, count], index) => (
+                           <div key={emotion} className="flex items-center justify-between min-w-0">
+                             <div className="flex items-center gap-2 flex-shrink-0">
+                               <div 
+                                 className="w-3 h-3 rounded-full flex-shrink-0"
+                                 style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
+                               />
+                               <span className="text-sm capitalize truncate">{emotion}</span>
+                             </div>
+                             <div className="flex items-center gap-2 flex-shrink-0">
+                               <div className="w-12 bg-muted rounded-full h-2">
+                                 <div 
+                                   className="h-2 rounded-full"
+                                   style={{ 
+                                     width: `${(count / Math.max(...Object.values(emotionCounts))) * 100}%`,
+                                     backgroundColor: EMOTION_COLORS[emotion] || '#6b7280'
+                                   }}
+                                 />
+                               </div>
+                               <span className="text-sm font-medium w-6 text-right">{count}</span>
+                             </div>
+                           </div>
+                         ))}
+                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
                       <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -2004,9 +2004,9 @@ const WellnessPage = () => {
                              <div className="flex items-center justify-between">
                                <div className="flex items-center gap-2">
                                  <span className="text-sm font-medium">{insurance.provider_name}</span>
-                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
-                                   {isExpired ? "Disattiva" : "Attiva"}
-                                 </Badge>
+                                  <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
+                                    {isExpired ? "Scaduta" : "Attiva"}
+                                  </Badge>
                                </div>
                              <div className="flex gap-1">
                                <Button 
