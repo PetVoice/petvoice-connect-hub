@@ -2761,105 +2761,116 @@ const WellnessPage = () => {
           </div>
 
           {/* Detailed Analytics Section - Factors that influence the health trend */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Comportamenti dal Diario che Influenzano la Salute */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Comportamenti che Influenzano la Salute
-                </CardTitle>
-                <CardDescription>
-                  Comportamenti registrati nel diario con impatto sul benessere
-                </CardDescription>
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                      <FileText className="h-4 w-4 text-blue-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Comportamenti che Influenzano la Salute</CardTitle>
+                      <CardDescription className="text-sm">
+                        Registrazioni dal diario con impatto sul benessere
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.location.href = '/diary'}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 {diaryData.length > 0 ? (
-                  <div className="space-y-4">
-                    {(() => {
-                      // Filtra le voci del diario con behavioral_tags e mood_score
-                      const behavioralEntries = diaryData.filter(entry => 
-                        (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
-                      ).slice(0, 5);
+                  (() => {
+                    const behavioralEntries = diaryData.filter(entry => 
+                      (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
+                    ).slice(0, 3);
 
-                      if (behavioralEntries.length === 0) {
-                        return (
-                          <div className="text-center py-8 text-muted-foreground">
-                            <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p>Nessun comportamento con impatto sulla salute registrato</p>
-                            <p className="text-sm">Aggiungi tag comportamentali e punteggi umore nel diario</p>
-                          </div>
-                        );
-                      }
+                    if (behavioralEntries.length === 0) {
+                      return (
+                        <div className="text-center py-6">
+                          <Brain className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">Nessun comportamento registrato</p>
+                          <Button size="sm" variant="outline" className="mt-2" onClick={() => window.location.href = '/diary'}>
+                            Inizia il diario comportamentale
+                          </Button>
+                        </div>
+                      );
+                    }
 
-                      return behavioralEntries.map(entry => {
-                        const moodImpact = entry.mood_score ? 
-                          (entry.mood_score >= 7 ? 'Positivo' : entry.mood_score >= 4 ? 'Neutro' : 'Negativo') : 
-                          'Non specificato';
-                        const moodColor = entry.mood_score ? 
-                          (entry.mood_score >= 7 ? 'text-success' : entry.mood_score >= 4 ? 'text-warning' : 'text-destructive') : 
-                          'text-muted-foreground';
+                    return (
+                      <>
+                        {behavioralEntries.map(entry => {
+                          const moodImpact = entry.mood_score ? 
+                            (entry.mood_score >= 7 ? 'Positivo' : entry.mood_score >= 4 ? 'Neutro' : 'Negativo') : 
+                            'Non specificato';
+                          const moodColor = entry.mood_score ? 
+                            (entry.mood_score >= 7 ? 'text-success' : entry.mood_score >= 4 ? 'text-warning' : 'text-destructive') : 
+                            'text-muted-foreground';
 
-                        return (
-                          <div key={entry.id} className="border rounded-lg p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <h4 className="font-medium">{entry.title || 'Voce del diario'}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {format(new Date(entry.entry_date), 'dd MMMM yyyy', { locale: it })}
-                                </p>
-                              </div>
-                              {entry.mood_score && (
-                                <div className="text-right">
-                                  <div className="text-sm font-medium">Umore: {entry.mood_score}/10</div>
-                                  <div className={`text-xs ${moodColor}`}>Impatto: {moodImpact}</div>
+                          return (
+                            <div key={entry.id} className="border rounded-lg p-3 hover:bg-muted/30 transition-colors">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <h4 className="font-medium text-sm">{entry.title || 'Voce del diario'}</h4>
+                                  <p className="text-xs text-muted-foreground">
+                                    {format(new Date(entry.entry_date), 'dd/MM/yyyy', { locale: it })}
+                                  </p>
                                 </div>
-                              )}
-                            </div>
-                            
-                            {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
-                              <div className="space-y-2">
-                                <div className="text-sm font-medium">Comportamenti osservati:</div>
-                                <div className="flex flex-wrap gap-2">
-                                  {entry.behavioral_tags.map((tag, index) => (
-                                    <Badge key={index} variant="outline" className="text-xs">
+                                {entry.mood_score && (
+                                  <div className="text-right">
+                                    <div className="text-xs font-medium">Umore: {entry.mood_score}/10</div>
+                                    <div className={`text-xs ${moodColor}`}>{moodImpact}</div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-2">
+                                  {entry.behavioral_tags.slice(0, 3).map((tag, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs px-2 py-0">
                                       {tag}
                                     </Badge>
                                   ))}
+                                  {entry.behavioral_tags.length > 3 && (
+                                    <Badge variant="outline" className="text-xs px-2 py-0">
+                                      +{entry.behavioral_tags.length - 3}
+                                    </Badge>
+                                  )}
                                 </div>
-                              </div>
-                            )}
-                            
-                            {entry.content && (
-                              <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                                {entry.content.length > 100 ? `${entry.content.substring(0, 100)}...` : entry.content}
-                              </div>
-                            )}
+                              )}
+                            </div>
+                          );
+                        })}
+                        
+                        {diaryData.filter(entry => 
+                          (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
+                        ).length > 3 && (
+                          <div className="text-center pt-2">
+                            <p className="text-xs text-muted-foreground">
+                              +{diaryData.filter(entry => 
+                                (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
+                              ).length - 3} altre voci comportamentali
+                            </p>
                           </div>
-                        );
-                      });
-                    })()}
-                    
-                    {diaryData.filter(entry => 
-                      (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
-                    ).length > 5 && (
-                      <div className="text-center pt-2">
-                        <Button variant="outline" size="sm" onClick={() => window.location.href = '/diary'}>
-                          Vedi tutte le {diaryData.filter(entry => 
-                            (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score
-                          ).length} voci comportamentali
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                        )}
+                      </>
+                    );
+                  })()
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nessun dato dal diario disponibile</p>
-                    <p className="text-sm">Inizia a tenere un diario per tracciare i comportamenti</p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => window.location.href = '/diary'}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Aggiungi Voce Diario
+                  <div className="text-center py-6">
+                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun dato dal diario disponibile</p>
+                    <Button size="sm" variant="outline" className="mt-2" onClick={() => window.location.href = '/diary'}>
+                      Inizia il diario
                     </Button>
                   </div>
                 )}
@@ -2867,81 +2878,82 @@ const WellnessPage = () => {
             </Card>
 
             {/* Dettaglio Emozioni Rilevate */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  Dettaglio Emozioni Rilevate
-                </CardTitle>
-                <CardDescription>
-                  Analisi approfondita delle emozioni dalle analisi comportamentali
-                </CardDescription>
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <Brain className="h-4 w-4 text-purple-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Dettaglio Emozioni</CardTitle>
+                      <CardDescription className="text-sm">
+                        Analisi delle emozioni rilevate
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.location.href = '/analysis'}
+                  >
+                    <Upload className="h-3 w-3 mr-1" />
+                    Analizza
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 {displayAnalytics.emotionDistribution.length > 0 ? (
-                  <div className="space-y-4">
-                    {displayAnalytics.emotionDistribution.slice(0, 6).map((emotion, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: EMOTION_COLORS[emotion.emotion as keyof typeof EMOTION_COLORS] || '#6b7280' }}
-                            />
-                            <span className="font-medium capitalize">{emotion.emotion}</span>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-medium">{emotion.count} volte</div>
-                            <div className="text-sm text-muted-foreground">{emotion.percentage.toFixed(1)}%</div>
-                          </div>
+                  <>
+                    {displayAnalytics.emotionDistribution.slice(0, 5).map((emotion, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: EMOTION_COLORS[emotion.emotion as keyof typeof EMOTION_COLORS] || '#6b7280' }}
+                          />
+                          <span className="text-sm font-medium capitalize">{emotion.emotion}</span>
                         </div>
-                        <Progress value={emotion.percentage} className="h-2" />
-                        <div className="text-xs text-muted-foreground">
-                          {emotion.percentage >= 30 ? 'Molto frequente' : 
-                           emotion.percentage >= 15 ? 'Frequente' : 
-                           emotion.percentage >= 5 ? 'Occasionale' : 'Raro'}
+                        <div className="text-right">
+                          <div className="text-sm font-medium">{emotion.count}x</div>
+                          <div className="text-xs text-muted-foreground">{emotion.percentage.toFixed(1)}%</div>
                         </div>
                       </div>
                     ))}
                     
-                    {displayAnalytics.emotionDistribution.length > 6 && (
+                    {displayAnalytics.emotionDistribution.length > 5 && (
                       <div className="text-center pt-2">
-                        <p className="text-sm text-muted-foreground">
-                          +{displayAnalytics.emotionDistribution.length - 6} altre emozioni rilevate
+                        <p className="text-xs text-muted-foreground">
+                          +{displayAnalytics.emotionDistribution.length - 5} altre emozioni
                         </p>
                       </div>
                     )}
                     
-                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                      <div className="text-sm font-medium mb-1">Analisi Emotiva</div>
-                      <div className="text-sm text-muted-foreground">
+                    <div className="mt-3 p-2 bg-muted/50 rounded-lg">
+                      <div className="text-xs font-medium mb-1">💡 Analisi Emotiva</div>
+                      <div className="text-xs text-muted-foreground">
                         {(() => {
                           const positiveEmotions = displayAnalytics.emotionDistribution.filter(e => 
                             ['felice', 'calmo', 'giocoso', 'curioso', 'affettuoso'].includes(e.emotion)
                           ).reduce((sum, e) => sum + e.percentage, 0);
-                          const negativeEmotions = displayAnalytics.emotionDistribution.filter(e => 
-                            ['triste', 'ansioso', 'agitato', 'spaventato', 'aggressivo'].includes(e.emotion)
-                          ).reduce((sum, e) => sum + e.percentage, 0);
                           
-                          if (positiveEmotions > negativeEmotions * 2) {
-                            return "Il tuo animale mostra prevalentemente emozioni positive. Ottimo stato emotivo!";
-                          } else if (negativeEmotions > positiveEmotions) {
-                            return "Sono state rilevate più emozioni negative. Considera di consultare un comportamentalista.";
+                          if (positiveEmotions > 60) {
+                            return "Ottimo stato emotivo - prevalentemente emozioni positive!";
+                          } else if (positiveEmotions < 30) {
+                            return "Considera una consulenza comportamentale.";
                           } else {
-                            return "Equilibrio emotivo normale con variazioni situazionali.";
+                            return "Equilibrio emotivo nella norma.";
                           }
                         })()}
                       </div>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nessuna emozione rilevata</p>
-                    <p className="text-sm">Carica file audio/video per l'analisi comportamentale</p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => window.location.href = '/analysis'}>
-                      <Upload className="h-4 w-4 mr-1" />
-                      Avvia Analisi
+                  <div className="text-center py-6">
+                    <Brain className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessuna emozione rilevata</p>
+                    <Button size="sm" variant="outline" className="mt-2" onClick={() => window.location.href = '/analysis'}>
+                      Avvia analisi comportamentale
                     </Button>
                   </div>
                 )}
@@ -2949,92 +2961,84 @@ const WellnessPage = () => {
             </Card>
 
             {/* Cronologia Parametri Vitali */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Cronologia Parametri Vitali
-                </CardTitle>
-                <CardDescription>
-                  Storico dettagliato delle misurazioni di salute
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {healthMetrics.length > 0 ? (
-                  <div className="space-y-4">
-                    {(() => {
-                      // Raggruppa per tipo di metrica e mostra le ultime 3 misurazioni per tipo
-                      const groupedMetrics = healthMetrics.reduce((acc, metric) => {
-                        if (!acc[metric.metric_type]) {
-                          acc[metric.metric_type] = [];
-                        }
-                        acc[metric.metric_type].push(metric);
-                        return acc;
-                      }, {} as Record<string, any[]>);
-
-                      return Object.entries(groupedMetrics).map(([metricType, metrics]) => {
-                        const sortedMetrics = metrics.sort((a, b) => 
-                          new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
-                        ).slice(0, 3);
-
-                        return (
-                          <div key={metricType} className="border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-medium">{translateMetricType(metricType)}</h4>
-                              <Badge variant="secondary">{metrics.length} misurazioni</Badge>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              {sortedMetrics.map((metric, index) => {
-                                const evaluation = evaluateVitalParameter(metricType, metric.value, selectedPet?.type);
-                                return (
-                                  <div key={metric.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                                    <div>
-                                      <div className="font-medium">
-                                        {metric.value} {metric.unit}
-                                      </div>
-                                      <div className="text-sm text-muted-foreground">
-                                        {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm', { locale: it })}
-                                      </div>
-                                    </div>
-                                    <Badge variant={
-                                      evaluation.status === 'critical' ? 'destructive' : 
-                                      evaluation.status === 'warning' ? 'secondary' : 'default'
-                                    } className="text-xs">
-                                      {evaluation.status === 'critical' ? 'Critico' : 
-                                       evaluation.status === 'warning' ? 'Attenzione' : 'Normale'}
-                                    </Badge>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                            
-                            {metrics.length > 3 && (
-                              <div className="text-center mt-2">
-                                <p className="text-xs text-muted-foreground">
-                                  +{metrics.length - 3} altre misurazioni
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      });
-                    })()}
-                    
-                    <div className="text-center pt-2">
-                      <Button variant="outline" size="sm" onClick={() => setActiveTab('profile')}>
-                        Gestisci Parametri Vitali
-                      </Button>
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-500/10 rounded-lg">
+                      <Activity className="h-4 w-4 text-red-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Cronologia Parametri</CardTitle>
+                      <CardDescription className="text-sm">
+                        Storico misurazioni vitali
+                      </CardDescription>
                     </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab('profile')}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {healthMetrics.length > 0 ? (
+                  (() => {
+                    // Mostra solo le ultime 3 misurazioni più recenti
+                    const recentMetrics = healthMetrics
+                      .sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
+                      .slice(0, 3);
+
+                    return (
+                      <>
+                        {recentMetrics.map((metric) => {
+                          const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+                          return (
+                            <div key={metric.id} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                              <div>
+                                <div className="text-sm font-medium">
+                                  {translateMetricType(metric.metric_type)}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {format(new Date(metric.recorded_at), 'dd/MM HH:mm', { locale: it })}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm font-medium">
+                                  {metric.value} {metric.unit}
+                                </div>
+                                <Badge variant={
+                                  evaluation.status === 'critical' ? 'destructive' : 
+                                  evaluation.status === 'warning' ? 'secondary' : 'default'
+                                } className="text-xs">
+                                  {evaluation.status === 'critical' ? 'Critico' : 
+                                   evaluation.status === 'warning' ? 'Attenzione' : 'Normale'}
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        
+                        {healthMetrics.length > 3 && (
+                          <div className="text-center pt-2">
+                            <p className="text-xs text-muted-foreground">
+                              +{healthMetrics.length - 3} altre misurazioni
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nessun parametro vitale registrato</p>
-                    <p className="text-sm">Inizia a monitorare peso, temperatura e battito cardiaco</p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => setActiveTab('profile')}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Aggiungi Parametri
+                  <div className="text-center py-6">
+                    <Activity className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun parametro registrato</p>
+                    <Button size="sm" variant="outline" className="mt-2" onClick={() => setActiveTab('profile')}>
+                      Inizia il monitoraggio
                     </Button>
                   </div>
                 )}
@@ -3042,85 +3046,82 @@ const WellnessPage = () => {
             </Card>
 
             {/* Analisi Farmaci Attivi */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Pill className="h-5 w-5" />
-                  Farmaci e Impatto sulla Salute
-                </CardTitle>
-                <CardDescription>
-                  Farmaci attivi e loro influenza sul benessere generale
-                </CardDescription>
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                      <Pill className="h-4 w-4 text-green-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Farmaci Attivi</CardTitle>
+                      <CardDescription className="text-sm">
+                        Terapie e impatto sulla salute
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab('profile')}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 {medications.filter(m => m.is_active).length > 0 ? (
-                  <div className="space-y-4">
-                    {medications.filter(m => m.is_active).map(medication => {
-                      const startDate = new Date(medication.start_date);
-                      const daysSince = differenceInDays(new Date(), startDate);
+                  <>
+                    {medications.filter(m => m.is_active).slice(0, 3).map(medication => {
+                      const daysSince = differenceInDays(new Date(), new Date(medication.start_date));
                       
                       return (
-                        <div key={medication.id} className="border rounded-lg p-4">
+                        <div key={medication.id} className="border rounded-lg p-3 hover:bg-muted/30 transition-colors">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h4 className="font-medium">{medication.name}</h4>
-                              <p className="text-sm text-muted-foreground">
+                              <h4 className="font-medium text-sm">{medication.name}</h4>
+                              <p className="text-xs text-muted-foreground">
                                 {medication.dosage} - {medication.frequency}
                               </p>
                             </div>
-                            <Badge variant="default">Attivo</Badge>
+                            <Badge variant="default" className="text-xs">Attivo</Badge>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
-                            <div>
-                              <span className="text-muted-foreground">Inizio terapia:</span>
-                              <div className="font-medium">
-                                {format(startDate, 'dd/MM/yyyy', { locale: it })}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {daysSince} giorni fa
-                              </div>
-                            </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-muted-foreground">
+                              {daysSince} giorni di terapia
+                            </span>
                             {medication.end_date && (
-                              <div>
-                                <span className="text-muted-foreground">Fine prevista:</span>
-                                <div className="font-medium">
-                                  {format(new Date(medication.end_date), 'dd/MM/yyyy', { locale: it })}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  {differenceInDays(new Date(medication.end_date), new Date())} giorni rimasti
-                                </div>
-                              </div>
+                              <span className="text-muted-foreground">
+                                {differenceInDays(new Date(medication.end_date), new Date())} giorni rimasti
+                              </span>
                             )}
                           </div>
                           
-                          {medication.notes && (
-                            <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
-                              <span className="font-medium">Note: </span>
-                              {medication.notes}
-                            </div>
-                          )}
-                          
-                          <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950/20 rounded text-sm">
-                            <span className="font-medium text-blue-700 dark:text-blue-300">
-                              Impatto potenziale: 
-                            </span>
-                            <span className="text-blue-600 dark:text-blue-400">
-                              Monitorare variazioni nel comportamento e appetito durante la terapia
+                          <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/20 rounded text-xs">
+                            <span className="font-medium text-green-700 dark:text-green-300">
+                              💊 Monitorare appetito e comportamento
                             </span>
                           </div>
                         </div>
                       );
                     })}
-                  </div>
+                    
+                    {medications.filter(m => m.is_active).length > 3 && (
+                      <div className="text-center pt-2">
+                        <p className="text-xs text-muted-foreground">
+                          +{medications.filter(m => m.is_active).length - 3} altri farmaci attivi
+                        </p>
+                      </div>
+                    )}
+                  </>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Pill className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Nessun farmaco attivo</p>
-                    <p className="text-sm">I farmaci attivi verranno mostrati qui</p>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => setActiveTab('profile')}>
-                      <Plus className="h-4 w-4 mr-1" />
-                      Gestisci Farmaci
+                  <div className="text-center py-6">
+                    <Pill className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Nessun farmaco attivo</p>
+                    <Button size="sm" variant="outline" className="mt-2" onClick={() => setActiveTab('profile')}>
+                      Gestisci farmaci
                     </Button>
                   </div>
                 )}
