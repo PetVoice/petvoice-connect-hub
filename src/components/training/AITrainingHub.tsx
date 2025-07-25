@@ -1309,9 +1309,8 @@ export const AITrainingHub: React.FC = () => {
                   {/* Materials */}
                   {selectedProtocol.required_materials && selectedProtocol.required_materials.length > 0 && (
                     <Card className="p-4">
-                      <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-                        <span>📦</span>
-                        Materiali richiesti
+                      <h4 className="font-semibold mb-3 text-sm">
+                        📦 Materiali richiesti
                       </h4>
                       <div className="space-y-1">
                         {selectedProtocol.required_materials.slice(0, 3).map((material, index) => (
@@ -1354,9 +1353,8 @@ export const AITrainingHub: React.FC = () => {
 
                   {/* Status Indicators */}
                   <Card className="p-4">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
-                      <span>🏆</span>
-                      Qualità
+                    <h4 className="font-semibold mb-3 text-sm">
+                      🏆 Qualità
                     </h4>
                     <div className="space-y-2">
                       {selectedProtocol.veterinary_approved && (
