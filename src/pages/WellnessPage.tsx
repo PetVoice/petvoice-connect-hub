@@ -2872,7 +2872,6 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
                               }
                             });
                           }}
@@ -3281,7 +3280,6 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setInsuranceUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
                               }
                             });
                           }}
