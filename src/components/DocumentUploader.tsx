@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface DocumentUploaderProps {
@@ -31,6 +32,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
+  const [viewingFile, setViewingFile] = useState<FilePreview | null>(null);
   const { toast } = useToast();
 
   // Initialize preview files with existing files
@@ -209,18 +211,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               <Card key={preview.url} className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4 flex-1 min-w-0">
-                    {isImage(preview.type) ? (
+                     {isImage(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const link = document.createElement('a');
-                          link.href = preview.url;
-                          link.target = '_blank';
-                          link.rel = 'noopener noreferrer';
-                          link.click();
-                        }}
+                        onClick={() => setViewingFile(preview)}
                       >
                         <img 
                           src={preview.url} 
@@ -240,15 +234,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : isPDF(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const link = document.createElement('a');
-                          link.href = preview.url;
-                          link.target = '_blank';
-                          link.rel = 'noopener noreferrer';
-                          link.click();
-                        }}
+                        onClick={() => setViewingFile(preview)}
                       >
                         <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
                           <FileText className="h-8 w-8 text-red-600 mb-1" />
@@ -258,15 +244,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : (
                       <div 
                         className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2 cursor-pointer hover:border-primary transition-all group relative"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          const link = document.createElement('a');
-                          link.href = preview.url;
-                          link.target = '_blank';
-                          link.rel = 'noopener noreferrer';
-                          link.click();
-                        }}
+                        onClick={() => setViewingFile(preview)}
                       >
                         {getFileIcon(preview.type)}
                       </div>
@@ -330,6 +308,42 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* File Viewing Dialog */}
+      <Dialog open={!!viewingFile} onOpenChange={() => setViewingFile(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{viewingFile?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-auto">
+            {viewingFile && isImage(viewingFile.type) ? (
+              <img 
+                src={viewingFile.url} 
+                alt={viewingFile.name}
+                className="w-full h-auto max-h-[70vh] object-contain"
+              />
+            ) : viewingFile && isPDF(viewingFile.type) ? (
+              <iframe 
+                src={viewingFile.url}
+                className="w-full h-[70vh] border-0"
+                title={viewingFile.name}
+              />
+            ) : viewingFile ? (
+              <div className="text-center p-8">
+                <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium mb-2">{viewingFile.name}</p>
+                <Button 
+                  onClick={() => downloadFile(viewingFile.url, viewingFile.name)}
+                  variant="outline"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Scarica file
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
