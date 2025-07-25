@@ -2162,8 +2162,8 @@ const AnalysisPage: React.FC = () => {
                         {detailsModal.analysis.primary_emotion.charAt(0).toUpperCase() + detailsModal.analysis.primary_emotion.slice(1)}
                       </Badge>
                       <div className="flex items-center gap-2">
-                        <Progress value={detailsModal.analysis.primary_confidence} className="w-32 h-3" />
-                        <span className="font-semibold text-lg">{detailsModal.analysis.primary_confidence}%</span>
+                        <Progress value={detailsModal.analysis.primary_confidence * 100} className="w-32 h-3" />
+                        <span className="font-semibold text-lg">{(detailsModal.analysis.primary_confidence * 100).toFixed(0)}%</span>
                       </div>
                     </div>
                   </div>
@@ -2174,7 +2174,7 @@ const AnalysisPage: React.FC = () => {
                        <div className="flex flex-wrap gap-2 mt-2">
                          {Object.entries(detailsModal.analysis.secondary_emotions).map(([emotion, confidence]) => (
                            <Badge key={emotion} variant="outline" className="text-sm">
-                             {emotion}: {String(confidence)}%
+                             {emotion}: {(Number(confidence) * 100).toFixed(0)}%
                            </Badge>
                          ))}
                       </div>

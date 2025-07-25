@@ -699,7 +699,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
           user_id: selectedPet.user_id,
           entry_date: new Date().toISOString().split('T')[0],
           title: `${getText('analysisOf')} ${format(new Date(analysis.created_at), 'dd/MM/yyyy')}`,
-          content: `${getText('primaryEmotion')}: ${analysis.primary_emotion} (${analysis.primary_confidence}% ${getText('confidence')})\n\n${getText('insights')}: ${analysis.behavioral_insights}\n\n${getText('recommendations')}: ${analysis.recommendations.join(', ')}`
+          content: `${getText('primaryEmotion')}: ${analysis.primary_emotion} (${(analysis.primary_confidence * 100).toFixed(0)}% ${getText('confidence')})\n\n${getText('insights')}: ${analysis.behavioral_insights}\n\n${getText('recommendations')}: ${analysis.recommendations.join(', ')}`
         });
 
       if (error) throw error;
@@ -764,7 +764,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       yPosition += 15;
 
       // Primary emotion
-      doc.text(`Emozione Primaria: ${analysis.primary_emotion} (${analysis.primary_confidence}%)`, 20, yPosition);
+      doc.text(`Emozione Primaria: ${analysis.primary_emotion} (${(analysis.primary_confidence * 100).toFixed(0)}%)`, 20, yPosition);
       yPosition += 15;
 
       // Behavioral insights
@@ -851,7 +851,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       <div className="text-left">
                         <div className="font-medium">{getReadableAnalysisName(analysis, language)}</div>
                         <div className="text-sm text-muted-foreground">
-                          {analysis.primary_emotion} - {analysis.primary_confidence}%
+                          {analysis.primary_emotion} - {(analysis.primary_confidence * 100).toFixed(0)}%
                         </div>
                       </div>
                     </div>
@@ -943,7 +943,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <span className="font-medium">{emotion}</span>
                           </div>
                           <Badge className={getEmotionClass(emotion)}>
-                            {confidence}%
+                            {(Number(confidence) * 100).toFixed(0)}%
                           </Badge>
                         </div>
                       ))}
@@ -1266,7 +1266,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         <div>
                           <p className="font-medium">{getText('similarEpisode')}</p>
                           <p className="text-sm text-muted-foreground">
-                            {getText('similarBehavior')} {format(new Date(analysis.created_at), 'dd/MM/yyyy')} {getText('withEmotion')} {analysis.primary_emotion} ({analysis.primary_confidence}% {getText('confidenceLevel')})
+                            {getText('similarBehavior')} {format(new Date(analysis.created_at), 'dd/MM/yyyy')} {getText('withEmotion')} {analysis.primary_emotion} ({(analysis.primary_confidence * 100).toFixed(0)}% {getText('confidenceLevel')})
                           </p>
                         </div>
                       </div>
@@ -1275,7 +1275,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           {daysDiff} {daysDiff === 1 ? getText('day') : getText('daysSince')} {getText('lastAnalysis')}
                         </div>
                         <div className={cn("text-xs", confidenceDiff > 0 ? "text-green-600" : confidenceDiff < 0 ? "text-red-600" : "text-gray-600")}>
-                          {getText('confidenceVariation')}: {confidenceDiff > 0 ? '+' : ''}{confidenceDiff}%
+                          {getText('confidenceVariation')}: {confidenceDiff > 0 ? '+' : ''}{(confidenceDiff * 100).toFixed(0)}%
                         </div>
                       </div>
                     </div>
