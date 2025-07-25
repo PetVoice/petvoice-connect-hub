@@ -89,16 +89,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `${user.id}/${fileName}`;
 
-        console.log("UPLOADING TO BUCKET:", bucketName);
-        console.log("USER ID:", user.id);
-        console.log("FILE PATH:", filePath);
-        
         const { error: uploadError } = await supabase.storage
           .from(bucketName)
           .upload(filePath, file);
 
         if (uploadError) {
-          console.error("UPLOAD ERROR:", uploadError);
           throw uploadError;
         }
 
