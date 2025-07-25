@@ -352,8 +352,8 @@ export const AITrainingHub: React.FC = () => {
       principiante: 'Facile',
       medio: 'Intermedio',
       intermedio: 'Intermedio',
-      difficile: 'Avanzato',
-      avanzato: 'Avanzato'
+      difficile: 'Difficile',
+      avanzato: 'Difficile'
     };
     return difficultyMap[difficulty] || difficulty;
   };
