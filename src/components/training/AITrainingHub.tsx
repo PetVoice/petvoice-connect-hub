@@ -74,102 +74,75 @@ import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';
 import { useProtocolTranslations } from '@/utils/protocolTranslations';
 
-// Componente per mostrare dettagli aggregati degli esercizi del protocollo
-const ProtocolExerciseDetails: React.FC<{ protocolId: string }> = ({ protocolId }) => {
-  const [exercises, setExercises] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('ai_training_exercises')
-          .select('objectives, success_criteria, tips')
-          .eq('protocol_id', protocolId);
-
-        if (error) throw error;
-        setExercises(data || []);
-      } catch (error) {
-        console.error('Error fetching exercises:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExercises();
-  }, [protocolId]);
-
-  if (loading) {
-    return <div className="text-center py-4">Caricamento dettagli...</div>;
-  }
-
-  // Aggrega tutti gli obiettivi, criteri di successo e consigli da tutti gli esercizi
-  const allObjectives = [...new Set(exercises.flatMap(ex => ex.objectives || []))];
-  const allSuccessCriteria = [...new Set(exercises.flatMap(ex => ex.success_criteria || []))];
-  const allTips = [...new Set(exercises.flatMap(ex => ex.tips || []))];
+// Componente per mostrare dettagli del protocollo (non degli esercizi)
+const ProtocolDetails: React.FC<{ protocol: TrainingProtocol }> = ({ protocol }) => {
+  // Usa i dati del protocollo stesso invece di aggregare dagli esercizi
+  const objectives = protocol.triggers?.objectives || [];
+  const successCriteria = protocol.triggers?.success_criteria || [];
+  const tips = protocol.triggers?.tips || [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-      {/* Obiettivi */}
-      {allObjectives.length > 0 && (
+      {/* Obiettivi del Protocollo */}
+      {objectives.length > 0 && (
         <Card className="p-4">
           <h4 className="font-semibold mb-3 text-sm">
             🎯 Obiettivi
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allObjectives.slice(0, 3).map((objective, index) => (
+            {objectives.slice(0, 3).map((objective: string, index: number) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                 {objective}
               </li>
             ))}
-            {allObjectives.length > 3 && (
+            {objectives.length > 3 && (
               <li className="text-xs text-muted-foreground italic">
-                +{allObjectives.length - 3} altri obiettivi...
+                +{objectives.length - 3} altri obiettivi...
               </li>
             )}
           </ul>
         </Card>
       )}
 
-      {/* Criteri di Successo */}
-      {allSuccessCriteria.length > 0 && (
+      {/* Criteri di Successo del Protocollo */}
+      {successCriteria.length > 0 && (
         <Card className="p-4">
           <h4 className="font-semibold mb-3 text-sm">
             ✅ Criteri di Successo
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allSuccessCriteria.slice(0, 3).map((criteria, index) => (
+            {successCriteria.slice(0, 3).map((criteria: string, index: number) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-green-600 rounded-full mt-2 flex-shrink-0"></div>
                 {criteria}
               </li>
             ))}
-            {allSuccessCriteria.length > 3 && (
+            {successCriteria.length > 3 && (
               <li className="text-xs text-muted-foreground italic">
-                +{allSuccessCriteria.length - 3} altri criteri...
+                +{successCriteria.length - 3} altri criteri...
               </li>
             )}
           </ul>
         </Card>
       )}
 
-      {/* Consigli Pratici */}
-      {allTips.length > 0 && (
+      {/* Consigli Pratici del Protocollo */}
+      {tips.length > 0 && (
         <Card className="p-4">
           <h4 className="font-semibold mb-3 text-sm">
             💡 Consigli Pratici
           </h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            {allTips.slice(0, 3).map((tip, index) => (
+            {tips.slice(0, 3).map((tip: string, index: number) => (
               <li key={index} className="flex items-start gap-2">
                 <div className="w-1 h-1 bg-orange-600 rounded-full mt-2 flex-shrink-0"></div>
                 {tip}
               </li>
             ))}
-            {allTips.length > 3 && (
+            {tips.length > 3 && (
               <li className="text-xs text-muted-foreground italic">
-                +{allTips.length - 3} altri consigli...
+                +{tips.length - 3} altri consigli...
               </li>
             )}
           </ul>
@@ -1309,7 +1282,7 @@ export const AITrainingHub: React.FC = () => {
                 </div>
 
                 {/* Sezioni aggregate da tutti gli esercizi */}
-                {selectedProtocol && <ProtocolExerciseDetails protocolId={selectedProtocol.id} />}
+                {selectedProtocol && <ProtocolDetails protocol={selectedProtocol} />}
 
                 {/* Bottom Section - Compact Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
