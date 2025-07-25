@@ -853,10 +853,11 @@ export const AITrainingHub: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte le categorie</SelectItem>
-                <SelectItem value="comportamento">Comportamento</SelectItem>
-                <SelectItem value="educazione">Educazione</SelectItem>
-                <SelectItem value="sociale">Sociale</SelectItem>
-                <SelectItem value="fisico">Fisico</SelectItem>
+                <SelectItem value="behavioral">Comportamentale</SelectItem>
+                <SelectItem value="cognitive">Cognitivo</SelectItem>
+                <SelectItem value="emotional">Emotivo</SelectItem>
+                <SelectItem value="environmental">Ambientale</SelectItem>
+                <SelectItem value="physical">Fisico</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -899,6 +900,9 @@ export const AITrainingHub: React.FC = () => {
                           <h3 className="font-semibold text-lg">{translateProtocolTitle(protocol.title)}</h3>
                            <Badge className={getDifficultyColor(protocol.difficulty)}>
                              {getDifficultyText(protocol.difficulty)}
+                           </Badge>
+                           <Badge variant="secondary" className="text-xs">
+                             {getCategoryText(protocol.category)}
                            </Badge>
                            {protocol.status !== 'available' && (
                              <Badge variant={'default'} className={getStatusColor(protocol.status)}>
