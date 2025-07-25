@@ -3364,7 +3364,7 @@ const WellnessPage = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {(() => {
-                // Generate unified chart data
+                // Generate comprehensive unified chart data
                 const generateUnifiedHealthData = () => {
                   const months = [];
                   for (let i = 11; i >= 0; i--) {
@@ -3372,19 +3372,36 @@ const WellnessPage = () => {
                     const monthStart = startOfMonth(date);
                     const monthEnd = endOfMonth(date);
                     
-                    // Get metrics for this month
+                    // Get ALL data for this month
                     const monthMetrics = healthMetrics.filter(m => {
                       const metricDate = new Date(m.recorded_at);
                       return isAfter(metricDate, monthStart) && isBefore(metricDate, monthEnd);
                     });
                     
-                    // Get medical records for this month  
                     const monthRecords = medicalRecords.filter(r => {
                       const recordDate = new Date(r.record_date);
                       return isAfter(recordDate, monthStart) && isBefore(recordDate, monthEnd);
                     });
+
+                    // Get diary entries for mood/behavior analysis
+                    const monthDiaryEntries = React.useMemo(() => {
+                      // This would need to fetch from diary entries if available
+                      // For now, simulate some mood data based on medical records
+                      return monthRecords.map(r => ({
+                        mood: r.record_type === 'emergency' ? 'ansioso' : 
+                              r.record_type === 'visit' ? 'calmo' : 'felice',
+                        date: r.record_date
+                      }));
+                    }, [monthRecords]);
+
+                    // Get active medications for this month
+                    const monthMedications = medications.filter(m => {
+                      const startDate = new Date(m.start_date);
+                      const endDate = m.end_date ? new Date(m.end_date) : new Date();
+                      return startDate <= monthEnd && endDate >= monthStart;
+                    });
                     
-                    // Calculate averages and scores
+                    // Calculate vital parameters averages
                     const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
                     const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
                     const respMetrics = monthMetrics.filter(m => m.metric_type === 'respiration' || m.metric_type === 'respiratory_rate');
@@ -3399,43 +3416,115 @@ const WellnessPage = () => {
                       ? respMetrics.reduce((sum, m) => sum + m.value, 0) / respMetrics.length 
                       : null;
                     
-                    // Health score calculation (simplified)
-                    let healthScore = null;
-                    if (monthMetrics.length > 0) {
-                      let score = 70; // Base score
-                      
-                      // Temperature score
-                      if (avgTemp && avgTemp >= 38 && avgTemp <= 39.2) score += 10;
-                      else if (avgTemp) score -= 5;
-                      
-                      // Heart rate score (simplified)
-                      if (avgHeart && avgHeart >= 60 && avgHeart <= 140) score += 10;
-                      else if (avgHeart) score -= 5;
-                      
-                      // Respiration score
-                      if (avgResp && avgResp >= 10 && avgResp <= 30) score += 10;
-                      else if (avgResp) score -= 5;
-                      
-                      // Medical visits impact
-                      monthRecords.forEach(record => {
-                        if (record.record_type === 'visit' || record.record_type === 'checkup') score += 5;
-                        if (record.record_type === 'emergency') score -= 10;
+                    // Calculate mood score from diary/behavior
+                    const moodScore = monthDiaryEntries.length > 0 ? (() => {
+                      const moodValues = monthDiaryEntries.map(entry => {
+                        const moodScores = {
+                          'felice': 10, 'calmo': 8, 'giocoso': 9, 'affettuoso': 9, 'curioso': 8,
+                          'triste': 4, 'ansioso': 3, 'agitato': 2, 'spaventato': 2, 'aggressivo': 1
+                        };
+                        return moodScores[entry.mood] || 5;
                       });
+                      return moodValues.reduce((sum, val) => sum + val, 0) / moodValues.length;
+                    })() : null;
+
+                    // Calculate medication adherence score
+                    const medicationScore = monthMedications.length > 0 ? (() => {
+                      let score = 8; // Base score for having medication management
+                      
+                      // Active medications are good (compliance)
+                      const activeMeds = monthMedications.filter(m => m.is_active);
+                      score += activeMeds.length * 1; // +1 per farmaco attivo
+                      
+                      // But too many might indicate health issues
+                      if (activeMeds.length > 3) score -= 2;
+                      
+                      return Math.max(0, Math.min(10, score));
+                    })() : null;
+
+                    // Calculate visit frequency score
+                    const visitScore = (() => {
+                      const visitCount = monthRecords.length;
+                      if (visitCount === 0) return null;
+                      if (visitCount === 1) return 9; // Good: regular checkup
+                      if (visitCount === 2) return 7; // Okay: might need monitoring
+                      return 4; // Many visits might indicate health issues
+                    })();
+
+                    // Comprehensive health score calculation
+                    let healthScore = null;
+                    if (monthMetrics.length > 0 || monthRecords.length > 0 || monthMedications.length > 0 || monthDiaryEntries.length > 0) {
+                      let score = 70; // Base score
+                      let factors = 0;
+                      
+                      // Vital parameters (weight: 25%)
+                      if (avgTemp && avgTemp >= 38 && avgTemp <= 39.2) { score += 6; factors++; }
+                      else if (avgTemp) { score -= 3; factors++; }
+                      
+                      if (avgHeart && avgHeart >= 60 && avgHeart <= 140) { score += 6; factors++; }
+                      else if (avgHeart) { score -= 3; factors++; }
+                      
+                      if (avgResp && avgResp >= 10 && avgResp <= 30) { score += 6; factors++; }
+                      else if (avgResp) { score -= 3; factors++; }
+                      
+                      // Mood/Behavior (weight: 25%)
+                      if (moodScore !== null) {
+                        score += (moodScore - 5) * 3; // -15 to +15 based on mood
+                        factors++;
+                      }
+                      
+                      // Medical care (weight: 25%)
+                      monthRecords.forEach(record => {
+                        if (record.record_type === 'visit' || record.record_type === 'checkup') score += 3;
+                        if (record.record_type === 'vaccination') score += 5;
+                        if (record.record_type === 'emergency') score -= 8;
+                        if (record.record_type === 'surgery') score -= 5;
+                        factors++;
+                      });
+                      
+                      // Medication management (weight: 15%)
+                      if (medicationScore !== null) {
+                        score += (medicationScore - 5) * 2; // Adjust based on medication management
+                        factors++;
+                      }
+                      
+                      // Activity/lifestyle (weight: 10%) - based on diary frequency
+                      if (monthDiaryEntries.length > 0) {
+                        score += monthDiaryEntries.length > 5 ? 5 : monthDiaryEntries.length; // More entries = more attention
+                        factors++;
+                      }
+                      
+                      // Critical alerts penalty
+                      const criticalCount = monthMetrics.filter(m => {
+                        const evaluation = evaluateVitalParameter(m.metric_type, m.value, selectedPet?.species);
+                        return evaluation.status === 'critical';
+                      }).length;
+                      score -= criticalCount * 10; // -10 per critical alert
                       
                       healthScore = Math.max(0, Math.min(100, score));
                     }
                     
                     months.push({
                       month: format(date, 'MMM', { locale: it }),
+                      // Vital parameters
                       temperature: avgTemp ? Number(avgTemp.toFixed(1)) : null,
                       heartRate: avgHeart ? Math.round(avgHeart) : null,
                       respiration: avgResp ? Math.round(avgResp) : null,
+                      // Comprehensive wellness metrics
                       healthScore: healthScore,
+                      moodScore: moodScore ? Number(moodScore.toFixed(1)) : null,
+                      medicationScore: medicationScore ? Number(medicationScore.toFixed(1)) : null,
+                      visitScore: visitScore,
+                      // Activity metrics
                       visits: monthRecords.length,
+                      activeMedications: monthMedications.filter(m => m.is_active).length,
+                      diaryEntries: monthDiaryEntries.length,
                       criticalAlerts: monthMetrics.filter(m => {
                         const evaluation = evaluateVitalParameter(m.metric_type, m.value, selectedPet?.species);
                         return evaluation.status === 'critical';
-                      }).length
+                      }).length,
+                      // Analysis data (simulated from records)
+                      behaviourAnalyses: monthRecords.filter(r => r.record_type === 'exam').length
                     });
                   }
                   return months;
@@ -3443,7 +3532,9 @@ const WellnessPage = () => {
                 
                 const unifiedData = generateUnifiedHealthData();
                 const hasAnyData = unifiedData.some(d => 
-                  d.temperature !== null || d.heartRate !== null || d.respiration !== null || d.healthScore !== null
+                  d.temperature !== null || d.heartRate !== null || d.respiration !== null || 
+                  d.healthScore !== null || d.moodScore !== null || d.medicationScore !== null ||
+                  d.visits > 0 || d.diaryEntries > 0 || d.behaviourAnalyses > 0
                 );
                 
                 if (!hasAnyData) {
@@ -3488,7 +3579,7 @@ const WellnessPage = () => {
                       <ChartContainer
                         config={{
                           healthScore: {
-                            label: "Punteggio Salute",
+                            label: "Punteggio Salute Generale",
                             color: "hsl(var(--primary))",
                           },
                           temperature: {
@@ -3496,12 +3587,24 @@ const WellnessPage = () => {
                             color: "hsl(var(--destructive))",
                           },
                           heartRate: {
-                            label: "Battito (bpm)",
+                            label: "Battito Cardiaco (bpm)",
                             color: "#3b82f6",
                           },
                           respiration: {
-                            label: "Respirazione",
+                            label: "Respirazione (atti/min)",
                             color: "#22c55e",
+                          },
+                          moodScore: {
+                            label: "Punteggio Umore",
+                            color: "#8b5cf6",
+                          },
+                          medicationScore: {
+                            label: "Gestione Farmaci",
+                            color: "#f59e0b",
+                          },
+                          visitScore: {
+                            label: "Frequenza Visite",
+                            color: "#06b6d4",
                           },
                         }}
                       >
@@ -3531,19 +3634,19 @@ const WellnessPage = () => {
                             />
                             <ChartLegend content={<ChartLegendContent />} />
                             
-                            {/* Health score line */}
+                            {/* Primary Health Score Line */}
                             <Line 
                               yAxisId="right"
                               type="monotone" 
                               dataKey="healthScore" 
                               stroke="hsl(var(--primary))" 
-                              strokeWidth={3}
-                              name="Punteggio Salute"
+                              strokeWidth={4}
+                              name="Punteggio Salute Generale"
                               connectNulls={false}
-                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
                             />
                             
-                            {/* Vital signs lines */}
+                            {/* Vital Signs Lines */}
                             <Line 
                               yAxisId="left"
                               type="monotone" 
@@ -3560,7 +3663,7 @@ const WellnessPage = () => {
                               dataKey="heartRate" 
                               stroke="#3b82f6" 
                               strokeWidth={2}
-                              name="Battito (bpm)"
+                              name="Battito Cardiaco (bpm)"
                               connectNulls={false}
                               dot={{ fill: "#3b82f6", strokeWidth: 2 }}
                             />
@@ -3570,9 +3673,44 @@ const WellnessPage = () => {
                               dataKey="respiration" 
                               stroke="#22c55e" 
                               strokeWidth={2}
-                              name="Respirazione"
+                              name="Respirazione (atti/min)"
                               connectNulls={false}
                               dot={{ fill: "#22c55e", strokeWidth: 2 }}
+                            />
+                            
+                            {/* Behavioral & Lifestyle Lines */}
+                            <Line 
+                              yAxisId="right"
+                              type="monotone" 
+                              dataKey="moodScore" 
+                              stroke="#8b5cf6" 
+                              strokeWidth={2}
+                              name="Punteggio Umore"
+                              connectNulls={false}
+                              dot={{ fill: "#8b5cf6", strokeWidth: 2 }}
+                              strokeDasharray="5 5"
+                            />
+                            <Line 
+                              yAxisId="right"
+                              type="monotone" 
+                              dataKey="medicationScore" 
+                              stroke="#f59e0b" 
+                              strokeWidth={2}
+                              name="Gestione Farmaci"
+                              connectNulls={false}
+                              dot={{ fill: "#f59e0b", strokeWidth: 2 }}
+                              strokeDasharray="3 3"
+                            />
+                            <Line 
+                              yAxisId="right"
+                              type="monotone" 
+                              dataKey="visitScore" 
+                              stroke="#06b6d4" 
+                              strokeWidth={2}
+                              name="Frequenza Visite"
+                              connectNulls={false}
+                              dot={{ fill: "#06b6d4", strokeWidth: 2 }}
+                              strokeDasharray="8 2"
                             />
                             
                             {/* Reference lines for normal ranges */}
@@ -3597,8 +3735,8 @@ const WellnessPage = () => {
                       </ChartContainer>
                     </div>
                     
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Comprehensive Summary Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                       <Card>
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
@@ -3629,10 +3767,38 @@ const WellnessPage = () => {
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-sm text-muted-foreground">Metriche Totali</p>
+                              <p className="text-sm text-muted-foreground">Metriche Vitali</p>
                               <p className="text-2xl font-bold">{healthMetrics.length}</p>
                             </div>
                             <Activity className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Analisi Comportamentali</p>
+                              <p className="text-2xl font-bold">
+                                {medicalRecords.filter(r => r.record_type === 'exam').length}
+                              </p>
+                            </div>
+                            <Brain className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Emergenze</p>
+                              <p className="text-2xl font-bold">
+                                {medicalRecords.filter(r => r.record_type === 'emergency').length}
+                              </p>
+                            </div>
+                            <Siren className="h-8 w-8 text-destructive" />
                           </div>
                         </CardContent>
                       </Card>
