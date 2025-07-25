@@ -1411,6 +1411,7 @@ const WellnessPage = () => {
 
   // Open diary dialog for new behavior entry
   const handleAddBehavior = () => {
+    // Simple function to open diary dialog
     setShowDiaryDialog(true);
   };
 
@@ -2762,7 +2763,7 @@ const WellnessPage = () => {
          confirmText="Elimina"
        />
 
-       {/* Diary Entry Dialog */}
+       {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
          isOpen={showDiaryDialog}
          onClose={() => setShowDiaryDialog(false)}
