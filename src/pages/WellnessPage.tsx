@@ -1677,7 +1677,7 @@ const WellnessPage = () => {
     });
   };
 
-  // Handle adding new diary entry
+  // Handle adding/editing diary entry
   const handleAddDiaryEntry = async (data: any) => {
     if (!user || !selectedPet) {
       toast({
@@ -1689,33 +1689,60 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('diary_entries')
-        .insert(data);
+      if (editingDiaryEntry) {
+        // Update existing entry
+        console.log('Updating diary entry:', editingDiaryEntry.id, 'with data:', data);
+        const { error } = await supabase
+          .from('diary_entries')
+          .update(data)
+          .eq('id', editingDiaryEntry.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Voce del diario aggiunta con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Voce del diario aggiornata con successo"
+        });
+        
+        // Trigger diary refresh event for other pages
+        console.log('Triggering diaryUpdated event for entry edit:', editingDiaryEntry.id);
+        window.dispatchEvent(new CustomEvent('diaryUpdated', { 
+          detail: { type: 'entryUpdated', entryId: editingDiaryEntry.id } 
+        }));
+        console.log('Event dispatched successfully');
+      } else {
+        // Create new entry
+        console.log('Creating new diary entry with data:', data);
+        const { error } = await supabase
+          .from('diary_entries')
+          .insert(data);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Voce del diario aggiunta con successo"
+        });
+        
+        // Trigger diary refresh event for other pages
+        console.log('Triggering diaryUpdated event for new entry');
+        window.dispatchEvent(new CustomEvent('diaryUpdated', { 
+          detail: { type: 'entryCreated' } 
+        }));
+        console.log('Event dispatched successfully');
+      }
 
       setShowDiaryDialog(false);
-      // Update local state instead of refetching
-      const newDiaryEntryData = {
-        id: `temp_${Date.now()}`, // Temporary ID with prefix
-        user_id: user.id,
-        pet_id: selectedPet.id,
-        ...data,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      setDiaryEntries(prev => [newDiaryEntryData, ...prev]);
+      setEditingDiaryEntry(null);
+      
+      // Refresh data
+      await fetchHealthData();
+      
     } catch (error) {
-      console.error('Error adding diary entry:', error);
+      console.error('Error saving diary entry:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere la voce del diario",
+        description: editingDiaryEntry ? "Impossibile aggiornare la voce del diario" : "Impossibile aggiungere la voce del diario",
         variant: "destructive"
       });
     }
