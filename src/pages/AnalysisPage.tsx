@@ -1664,7 +1664,7 @@ const AnalysisPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {analyses.length > 0 ? (
+                  {selectedPet ? (
                     <div className="p-4 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
                         {(() => {
@@ -1823,144 +1823,237 @@ const AnalysisPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   {(() => {
-                    // Genera raccomandazioni AI REALI basate sui dati veri
-                    const generateRealAIRecommendations = () => {
+                    // RACCOMANDAZIONI AI COMPLETE - Analisi integrata di tutti i dati
+                    const generateComprehensiveAIRecommendations = () => {
                       const recommendations = [];
                       
-                      // Analisi REALI degli ultimi 7 giorni
+                      // DATI ANALISI COMPORTAMENTALI (ultimi 7 e 30 giorni)
                       const last7Days = analyses.filter(a => 
                         new Date(a.created_at) >= subDays(new Date(), 7)
                       );
-                      
-                      // Analisi REALI degli ultimi 30 giorni
                       const last30Days = analyses.filter(a => 
                         new Date(a.created_at) >= subDays(new Date(), 30)
                       );
                       
-                      // Helper per mappare emozioni dal database alle traduzioni
-                      const isAnxiousEmotion = (emotion: string) => ['ansioso', 'anxious', 'ansioso'].includes(emotion.toLowerCase());
-                      const isSadEmotion = (emotion: string) => ['triste', 'sad', 'triste'].includes(emotion.toLowerCase());
-                      const isAggressiveEmotion = (emotion: string) => ['aggressivo', 'aggressive', 'agresivo'].includes(emotion.toLowerCase());
-                      const isHappyEmotion = (emotion: string) => ['felice', 'giocoso', 'calmo', 'happy', 'playful', 'calm', 'feliz', 'juguetón', 'tranquilo'].includes(emotion.toLowerCase());
+                      // DATI DIARIO (ultimi 7 e 14 giorni)
+                      const recentDiary = diaryData.filter(d => 
+                        new Date(d.entry_date) >= subDays(new Date(), 7)
+                      );
+                      const last14DaysDiary = diaryData.filter(d => 
+                        new Date(d.entry_date) >= subDays(new Date(), 14)
+                      );
                       
-                      // Conta emozioni specifiche negli ultimi 7 giorni
+                      // DATI SALUTE (ultimi 7 giorni)
+                      const recentHealth = healthData.filter(h => 
+                        new Date(h.recorded_at) >= subDays(new Date(), 7)
+                      );
+                      
+                      // DATI WELLNESS (ultimi 30 giorni)
+                      const recentWellness = wellnessData.filter(w => 
+                        new Date(w.score_date) >= subDays(new Date(), 30)
+                      );
+                      
+                      // Helper per classificare emozioni
+                      const isAnxiousEmotion = (emotion: string) => ['ansioso', 'stressato', 'nervoso'].includes(emotion.toLowerCase());
+                      const isSadEmotion = (emotion: string) => ['triste', 'depresso', 'apatico'].includes(emotion.toLowerCase());
+                      const isAggressiveEmotion = (emotion: string) => ['aggressivo', 'irritato', 'arrabbiato'].includes(emotion.toLowerCase());
+                      const isHappyEmotion = (emotion: string) => ['felice', 'giocoso', 'calmo', 'rilassato', 'affettuoso'].includes(emotion.toLowerCase());
+                      
+                      // 1. ANALISI COMPORTAMENTALE
                       const anxiousCount = last7Days.filter(a => isAnxiousEmotion(a.primary_emotion)).length;
                       const sadCount = last7Days.filter(a => isSadEmotion(a.primary_emotion)).length;
                       const aggressiveCount = last7Days.filter(a => isAggressiveEmotion(a.primary_emotion)).length;
                       const happyCount = last7Days.filter(a => isHappyEmotion(a.primary_emotion)).length;
                       
-                      // Pattern di confidenza
-                      const avgConfidence = last7Days.length > 0 ? 
-                        last7Days.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / last7Days.length : 0;
+                      // 2. ANALISI DIARIO
+                      const avgMood = recentDiary.length > 0 ? 
+                        recentDiary.reduce((sum, d) => sum + (d.mood_score || 5), 0) / recentDiary.length : 5;
+                      const lowMoodDays = recentDiary.filter(d => (d.mood_score || 5) <= 3).length;
+                      const highMoodDays = recentDiary.filter(d => (d.mood_score || 5) >= 8).length;
                       
-                      // Raccomandazioni basate su dati REALI
-                      if (anxiousCount >= 3) {
+                      // Analisi behavioral tags dal diario
+                      const negativeTags = recentDiary.reduce((count, d) => {
+                        return count + (d.behavioral_tags?.filter(tag => 
+                          ['aggressivo', 'ansioso', 'triste', 'agitato', 'spaventato', 'apatico'].includes(tag.toLowerCase())
+                        )?.length || 0);
+                      }, 0);
+                      
+                      const positiveTags = recentDiary.reduce((count, d) => {
+                        return count + (d.behavioral_tags?.filter(tag => 
+                          ['felice', 'giocoso', 'calmo', 'affettuoso', 'energico', 'socievole'].includes(tag.toLowerCase())
+                        )?.length || 0);
+                      }, 0);
+                      
+                      // 3. ANALISI SALUTE
+                      const tempMetrics = recentHealth.filter(h => h.metric_type === 'temperature');
+                      const heartMetrics = recentHealth.filter(h => h.metric_type === 'heart_rate');
+                      const criticalHealthIssues = recentHealth.filter(h => {
+                        if (h.metric_type === 'temperature') {
+                          return h.value < 37.5 || h.value > 40;
+                        }
+                        if (h.metric_type === 'heart_rate') {
+                          return h.value < 50 || h.value > 180;
+                        }
+                        return false;
+                      }).length;
+                      
+                      // 4. ANALISI WELLNESS TREND
+                      const wellnessTrend = recentWellness.length >= 2 ? 
+                        recentWellness[recentWellness.length - 1].wellness_score - recentWellness[0].wellness_score : 0;
+                      
+                      // GENERAZIONE RACCOMANDAZIONI PERSONALIZZATE
+                      
+                      // SALUTE CRITICA (priorità massima)
+                      if (criticalHealthIssues > 0) {
                         recommendations.push({
-                          type: 'warning',
-                          text: `⚠️ Dati reali: ${anxiousCount} episodi di ansia`,
-                          priority: 'high'
-                        });
-                      } else if (anxiousCount > 0) {
-                        recommendations.push({
-                          type: 'warning',
-                          text: `📊 Analisi reale: ${anxiousCount} ansia rilevata`,
-                          priority: 'medium'
+                          type: 'critical',
+                          text: `🚨 URGENTE: ${criticalHealthIssues} parametri vitali critici rilevati - contatta immediatamente il veterinario`,
+                          priority: 'critical',
+                          category: 'salute'
                         });
                       }
                       
-                      if (sadCount >= 2) {
+                      // PATTERN COMPORTAMENTALI PROBLEMATICI
+                      if (anxiousCount >= 3 || (recentDiary.length > 0 && negativeTags >= 5)) {
                         recommendations.push({
                           type: 'warning',
-                          text: `😔 Pattern reale: ${sadCount} tristezza rilevata`,
-                          priority: 'medium'
+                          text: `⚠️ Pattern ansia rilevato: ${anxiousCount} episodi comportamentali + ${negativeTags} segnali negativi nel diario`,
+                          priority: 'high',
+                          category: 'comportamento'
                         });
                       }
                       
                       if (aggressiveCount > 0) {
                         recommendations.push({
                           type: 'warning',
-                          text: `🚨 Allerta reale: ${aggressiveCount} aggressività rilevata`,
-                          priority: 'high'
+                          text: `🔴 Aggressività rilevata: ${aggressiveCount} episodi - valuta trigger ambientali e stress`,
+                          priority: 'high',
+                          category: 'comportamento'
                         });
                       }
                       
-                      if (happyCount >= 5) {
+                      // TREND MOOD DIARIO
+                      if (lowMoodDays >= 3) {
+                        recommendations.push({
+                          type: 'warning',
+                          text: `😔 Umore basso persistente: ${lowMoodDays} giorni con mood ≤3/10 - considera supporto comportamentale`,
+                          priority: 'medium',
+                          category: 'benessere'
+                        });
+                      } else if (avgMood < 4) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `📊 Mood medio basso (${avgMood.toFixed(1)}/10) - aumenta attività positive e interazioni`,
+                          priority: 'medium',
+                          category: 'benessere'
+                        });
+                      }
+                      
+                      // MONITORAGGIO SALUTE
+                      if (tempMetrics.length === 0 && heartMetrics.length === 0) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `💡 Nessun monitoraggio vitali recente - aggiungi temperatura e battito per prevenzione`,
+                          priority: 'medium',
+                          category: 'salute'
+                        });
+                      }
+                      
+                      // FREQUENZA DATI
+                      if (recentDiary.length < 3) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `📝 Diario incompleto: solo ${recentDiary.length} voci negli ultimi 7 giorni - migliora tracciamento`,
+                          priority: 'low',
+                          category: 'monitoraggio'
+                        });
+                      }
+                      
+                      if (last7Days.length < 2) {
+                        recommendations.push({
+                          type: 'info',
+                          text: `🔍 Poche analisi comportamentali: ${last7Days.length} negli ultimi 7 giorni - aumenta frequenza`,
+                          priority: 'low',
+                          category: 'monitoraggio'
+                        });
+                      }
+                      
+                      // TREND POSITIVI
+                      if (happyCount >= 4 && positiveTags >= 8) {
                         recommendations.push({
                           type: 'success',
-                          text: `🎉 Trend positivo: ${happyCount} momenti felici`,
-                          priority: 'low'
+                          text: `🎉 Stato ottimale: ${happyCount} emozioni positive + ${positiveTags} comportamenti positivi - mantieni routine`,
+                          priority: 'low',
+                          category: 'benessere'
                         });
                       }
                       
-                      if (avgConfidence < 70) {
+                      if (wellnessTrend > 10) {
+                        recommendations.push({
+                          type: 'success',
+                          text: `📈 Miglioramento wellness: +${wellnessTrend} punti - continue così!`,
+                          priority: 'low',
+                          category: 'benessere'
+                        });
+                      }
+                      
+                      // RACCOMANDAZIONI STAGIONALI/METEO (se disponibili)
+                      const currentSeason = new Date().getMonth();
+                      if (currentSeason >= 5 && currentSeason <= 7) { // Estate
                         recommendations.push({
                           type: 'info',
-                          text: `📈 Qualità dati ${Math.round(avgConfidence)}% - migliora registrazioni`,
-                          priority: 'low'
+                          text: `☀️ Estate: monitora temperatura corporea e idratazione - evita passeggiate nelle ore calde`,
+                          priority: 'medium',
+                          category: 'stagionale'
                         });
-                      }
-                      
-                      if (last7Days.length < 3) {
+                      } else if (currentSeason >= 11 || currentSeason <= 1) { // Inverno
                         recommendations.push({
                           type: 'info',
-                          text: `📅 Frequenza bassa: ${last7Days.length} analisi negli ultimi 7 giorni`,
-                          priority: 'medium'
+                          text: `❄️ Inverno: aumenta attività indoor e monitora articolazioni - protezione dal freddo`,
+                          priority: 'medium',
+                          category: 'stagionale'
                         });
                       }
                       
-                      // Analisi pattern temporali REALI
-                      if (last30Days.length >= 10) {
-                        const recentTrend = last7Days.length > 0 ? 
-                          last7Days.filter(a => isHappyEmotion(a.primary_emotion)).length / last7Days.length : 0;
-                        const previousTrend = last30Days.slice(7, 14).length > 0 ?
-                          last30Days.slice(7, 14).filter(a => isHappyEmotion(a.primary_emotion)).length / last30Days.slice(7, 14).length : 0;
-                        
-                        if (recentTrend > previousTrend + 0.2) {
-                          recommendations.push({
-                            type: 'success',
-                            text: `📈 Miglioramento reale +${Math.round((recentTrend - previousTrend) * 100)}% emozioni positive`,
-                            priority: 'low'
-                          });
-                        } else if (recentTrend < previousTrend - 0.2) {
-                          recommendations.push({
-                            type: 'warning',
-                            text: `📉 Declino rilevato -${Math.round((previousTrend - recentTrend) * 100)}% emozioni positive`,
-                            priority: 'high'
-                          });
-                        }
-                      }
-                      
+                      // Se non ci sono problemi specifici
                       if (recommendations.length === 0) {
                         recommendations.push({
-                          type: 'info',
-                          text: `✅ Stato normale - ${last7Days.length} analisi recenti stabili`,
-                          priority: 'low'
+                          type: 'success',
+                          text: `✅ Stato generale buono - continua monitoraggio regolare per prevenzione`,
+                          priority: 'low',
+                          category: 'generale'
                         });
                       }
                       
+                      // Ordina per priorità e categoria
                       return recommendations.sort((a, b) => {
-                        const priorityOrder = { high: 3, medium: 2, low: 1 };
+                        const priorityOrder = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
                         return priorityOrder[b.priority] - priorityOrder[a.priority];
-                      }).slice(0, 4);
+                      }).slice(0, 5); // Massimo 5 raccomandazioni
                     };
                     
-                    const realRecommendations = generateRealAIRecommendations();
+                    const comprehensiveRecommendations = generateComprehensiveAIRecommendations();
                     
-                    return realRecommendations.map((rec, index) => (
+                    return comprehensiveRecommendations.map((rec, index) => (
                       <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                        rec.type === 'critical' ? 'bg-red-100 border-red-500 dark:bg-red-950/30' :
                         rec.type === 'warning' ? 'bg-yellow-50 border-yellow-400 dark:bg-yellow-950/30' :
                         rec.type === 'success' ? 'bg-green-50 border-green-400 dark:bg-green-950/30' :
                         'bg-blue-50 border-blue-400 dark:bg-blue-950/30'
                       }`}>
                         <p className="text-sm font-medium">{rec.text}</p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-2 mt-2">
                           <Badge variant="outline" className="text-xs">
-                            {rec.priority === 'high' ? "Alta priorità" : 
-                             rec.priority === 'medium' ? "Media priorità" : 
-                             "Bassa priorità"}
+                            {rec.priority === 'critical' ? "🚨 CRITICA" :
+                             rec.priority === 'high' ? "🔴 Alta" : 
+                             rec.priority === 'medium' ? "🟡 Media" : 
+                             rec.priority === 'low' ? "🟢 Bassa" : "ℹ️ Info"}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {rec.category}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            Basato su {analyses.length} analisi
+                            AI integrata: {analyses.length}A + {diaryData.length}D + {healthData.length}S + {wellnessData.length}W
                           </span>
                         </div>
                       </div>
