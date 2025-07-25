@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { 
   Heart, 
   Activity, 
@@ -59,8 +60,9 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore, differenceInDays, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, subDays, subYears, isAfter, isBefore, differenceInDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { DateRange } from 'react-day-picker';
 import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -2382,8 +2384,77 @@ const WellnessPage = () => {
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6 animate-fade-in">
-          {/* Overview Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {/* Period Filters */}
+          <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-md transition-all duration-300">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Calendar className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Periodo di Analisi</CardTitle>
+                    <CardDescription className="text-sm">
+                      Seleziona il periodo per visualizzare i dati
+                    </CardDescription>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex gap-2">
+                  {[
+                    { value: 'day', label: 'Giorno' },
+                    { value: 'week', label: 'Settimana' },
+                    { value: 'month', label: 'Mese' },
+                    { value: 'year', label: 'Anno' },
+                    { value: 'all', label: 'Tutto' }
+                  ].map((period) => (
+                    <Button
+                      key={period.value}
+                      variant={periodFilter === period.value ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setPeriodFilter(period.value as any);
+                        if (period.value !== 'custom') {
+                          setCustomDateRange(undefined);
+                        }
+                      }}
+                      className="text-xs px-3 py-1.5"
+                    >
+                      {period.label}
+                    </Button>
+                  ))}
+                  <Button
+                    variant={periodFilter === 'custom' ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPeriodFilter('custom')}
+                    className="text-xs px-3 py-1.5"
+                  >
+                    Seleziona Periodo
+                  </Button>
+                </div>
+                
+                {periodFilter === 'custom' && (
+                  <div className="ml-4">
+                    <DatePickerWithRange
+                      className="w-auto"
+                      date={customDateRange}
+                      setDate={setCustomDateRange}
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          {/* Two Column Layout */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            
+            {/* Left Column */}
+            <div className="space-y-6">
+              {/* Overview Analytics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="hover-scale bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-primary">Analisi Totali</CardTitle>
@@ -2456,10 +2527,8 @@ const WellnessPage = () => {
                 </p>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Health Score Section */}
-          <div className="space-y-4">
+            
+            {/* Health Score Section */}
             <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -2522,8 +2591,10 @@ const WellnessPage = () => {
               </CardContent>
             </Card>
           </div>
-
-          {/* Quick Actions */}
+          
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
           <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-lg transition-all duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
@@ -2825,8 +2896,9 @@ const WellnessPage = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
 
-          {/* Trend Salute */}
+          {/* Trend Salute - Full Width */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -2916,7 +2988,7 @@ const WellnessPage = () => {
             </CardContent>
           </Card>
 
-          {/* Additional Analytics Section */}
+          {/* Additional Analytics Section - Full Width */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Dettaglio Emozioni */}
             <Card>
@@ -4507,6 +4579,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
       />
+      </Tabs>
     </div>
   );
 };
