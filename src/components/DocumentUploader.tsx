@@ -31,6 +31,21 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Initialize preview files with existing files
+  React.useEffect(() => {
+    if (existingFiles.length > 0) {
+      const initialPreviews = existingFiles.map((url, index) => ({
+        url,
+        name: `Documento ${index + 1}`,
+        type: url.toLowerCase().includes('.pdf') ? 'application/pdf' : 'image/jpeg',
+        size: 0
+      }));
+      setPreviewFiles(initialPreviews);
+    } else {
+      setPreviewFiles([]);
+    }
+  }, [existingFiles]);
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     

@@ -468,6 +468,7 @@ const WellnessPage = () => {
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [insurances, setInsurances] = useState<Insurance[]>([]);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
   const [emotionCounts, setEmotionCounts] = useState<EmotionCount>({});
   
   // Form states
@@ -640,14 +641,74 @@ const WellnessPage = () => {
         return isAfter(entryDate, period.start) && isBefore(entryDate, period.end);
       });
       
+      // Get behavior analyses for this period
+      const periodAnalyses = petAnalyses.filter(analysis => {
+        const analysisDate = new Date(analysis.created_at);
+        return isAfter(analysisDate, period.start) && isBefore(analysisDate, period.end);
+      });
+      
+      // Get medications for this period (active or ending)
+      const periodMedications = medications.filter(med => {
+        const startDate = new Date(med.start_date);
+        const endDate = med.end_date ? new Date(med.end_date) : new Date();
+        return (isAfter(startDate, period.start) && isBefore(startDate, period.end)) ||
+               (med.end_date && isAfter(endDate, period.start) && isBefore(endDate, period.end)) ||
+               (isAfter(period.start, startDate) && isBefore(period.start, endDate));
+      });
+      
       // Calculate wellness score for this period
       let score = 50; // base score
       
-      // Factor in mood scores
+      // Factor in mood scores from diary
       const moodScores = periodDiary.map(entry => entry.mood_score).filter(Boolean);
       if (moodScores.length > 0) {
         const avgMood = moodScores.reduce((a, b) => a + b, 0) / moodScores.length;
         score += (avgMood - 5) * 10; // scale from 1-10 to impact score
+      }
+      
+      // Factor in behavior analyses
+      if (periodAnalyses.length > 0) {
+        const emotionScores = periodAnalyses.map(analysis => {
+          const emotion = analysis.primary_emotion.toLowerCase();
+          const confidence = analysis.primary_confidence || 0.5;
+          
+          // Positive emotions boost score
+          if (['felice', 'giocoso', 'calmo', 'affettuoso', 'energico'].includes(emotion)) {
+            return 15 * confidence; // Up to +15 points
+          }
+          // Negative emotions reduce score
+          if (['ansioso', 'triste', 'aggressivo', 'spaventato', 'depresso'].includes(emotion)) {
+            return -20 * confidence; // Up to -20 points
+          }
+          // Neutral emotions slight positive
+          return 5 * confidence;
+        });
+        
+        const avgEmotionScore = emotionScores.reduce((a, b) => a + b, 0) / emotionScores.length;
+        score += avgEmotionScore;
+      }
+      
+      // Factor in medications
+      if (periodMedications.length > 0) {
+        periodMedications.forEach(med => {
+          const startDate = new Date(med.start_date);
+          const endDate = med.end_date ? new Date(med.end_date) : null;
+          
+          // If medication started in this period - positive impact
+          if (isAfter(startDate, period.start) && isBefore(startDate, period.end)) {
+            score += 8; // Starting medication = positive
+          }
+          
+          // If medication ended in this period - slight negative impact  
+          if (endDate && isAfter(endDate, period.start) && isBefore(endDate, period.end)) {
+            score -= 5; // Ending medication = slight concern
+          }
+          
+          // If medication is active throughout period - positive maintenance
+          if (isBefore(startDate, period.start) && (!endDate || isAfter(endDate, period.end))) {
+            score += 3; // Ongoing treatment = stability
+          }
+        });
       }
       
       // Factor in vital signs with critical status evaluation
@@ -697,7 +758,7 @@ const WellnessPage = () => {
         wellness: Math.round(score)
       };
     });
-  }, [healthMetrics, diaryEntries, selectedPeriod, selectedPet?.type]);
+  }, [healthMetrics, diaryEntries, petAnalyses, medications, selectedPeriod, selectedPet?.type]);
 
   // Auto-detect unit when metric type changes
   const handleMetricTypeChange = (metricType: string) => {
@@ -787,13 +848,13 @@ const WellnessPage = () => {
         .eq('pet_id', selectedPet.id)
         .order('entry_date', { ascending: false });
       
-      // Calculate emotion counts from primary_emotion field
+      // Get all pet analyses for wellness calculation
       const { data: analyses } = await supabase
         .from('pet_analyses')
-        .select('primary_emotion')
+        .select('primary_emotion, primary_confidence, created_at')
         .eq('user_id', user.id)
         .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
       
       // Calculate emotion counts
       const emotions: EmotionCount = {};
@@ -803,6 +864,7 @@ const WellnessPage = () => {
         }
       });
       
+      setPetAnalyses(analyses || []);
       setHealthMetrics(metrics || []);
       setMedicalRecords(records || []);
       setMedications(meds || []);
@@ -840,7 +902,7 @@ const WellnessPage = () => {
     }
 
     try {
-      if (editingMetric) {
+      if (editingMetric && editingMetric.id && !editingMetric.id.startsWith('temp_')) {
         // Update existing metric
         const { error } = await supabase
           .from('health_metrics')
@@ -848,7 +910,8 @@ const WellnessPage = () => {
             metric_type: newMetric.metric_type,
             value: parseFloat(newMetric.value),
             unit: newMetric.unit,
-            notes: newMetric.notes || null
+            notes: newMetric.notes || null,
+            recorded_at: new Date().toISOString()
           })
           .eq('id', editingMetric.id);
 
