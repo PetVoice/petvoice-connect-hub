@@ -1303,6 +1303,14 @@ const WellnessPage = () => {
           title: "Successo",
           description: "Visita aggiunta con successo"
         });
+        
+        // Force component refresh
+        setShowAddDocument(false);
+        setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
+        setEditingRecord(null);
+        
+        // Force page reload to ensure data is visible
+        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
       console.error('Error saving medical record:', error);
