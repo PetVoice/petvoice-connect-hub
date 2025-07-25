@@ -6,10 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Document, Page, pdfjs } from 'react-pdf';
-
-// Configura il worker di PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -196,6 +192,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           id="file-upload"
         />
         <Button 
+          type="button"
           variant="outline" 
           size="sm"
           disabled={uploading}
@@ -242,28 +239,9 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         className="relative cursor-pointer group" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
-                        <div className="w-24 h-24 border-2 rounded-lg overflow-hidden bg-white">
-                          <Document
-                            file={preview.url}
-                            loading={
-                              <div className="w-full h-full flex items-center justify-center bg-red-50">
-                                <FileText className="h-8 w-8 text-red-600" />
-                              </div>
-                            }
-                            error={
-                              <div className="w-full h-full flex flex-col items-center justify-center bg-red-50">
-                                <FileText className="h-8 w-8 text-red-600 mb-1" />
-                                <span className="text-xs text-red-600">PDF</span>
-                              </div>
-                            }
-                          >
-                            <Page
-                              pageNumber={1}
-                              width={92}
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                            />
-                          </Document>
+                        <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
+                          <FileText className="h-12 w-12 text-red-600 mb-1" />
+                          <span className="text-sm text-red-600 font-semibold">PDF</span>
                         </div>
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
                           <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -291,6 +269,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                   </div>
                     <div className="flex items-center space-x-2">
                       <Button
+                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
@@ -299,6 +278,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => downloadFile(preview.url, preview.name)}
@@ -307,6 +287,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button
+                        type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => setFileToDelete(preview.url)}
@@ -329,6 +310,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             <DialogTitle className="flex items-center justify-between">
               Anteprima documento
               <Button 
+                type="button"
                 variant="outline" 
                 size="sm"
                 onClick={() => window.open(selectedDocument?.url, '_blank')}
@@ -362,6 +344,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                       Il PDF è stato caricato correttamente. Clicca per aprirlo in una nuova scheda.
                     </p>
                     <Button 
+                      type="button"
                       variant="outline" 
                       className="mt-2"
                       onClick={() => window.open(selectedDocument.url, '_blank')}
@@ -376,6 +359,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
                     <p>Anteprima non disponibile per questo tipo di file</p>
                     <Button 
+                      type="button"
                       variant="outline" 
                       className="mt-2"
                       onClick={() => window.open(selectedDocument.url, '_blank')}
