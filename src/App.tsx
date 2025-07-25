@@ -160,7 +160,7 @@ function AppContent() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      {/* <ThemeProvider> */}
+      <ThemeProvider>
         {/* <AppearanceProvider> */}
           {/* <NotificationEventsProvider> */}
             <TooltipProvider>
@@ -171,7 +171,7 @@ const App = () => (
             </TooltipProvider>
           {/* </NotificationEventsProvider> */}
         {/* </AppearanceProvider> */}
-      {/* </ThemeProvider> */}
+      </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
