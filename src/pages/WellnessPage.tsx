@@ -951,7 +951,7 @@ const WellnessPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
+              <div className="h-80 relative overflow-hidden">
                 <ChartContainer
                   config={{
                     wellness: {
@@ -959,6 +959,7 @@ const WellnessPage = () => {
                       color: "hsl(var(--primary))"
                     }
                   }}
+                  className="w-full h-full"
                 >
                   <LineChart
                     data={[
@@ -1159,14 +1160,6 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessun farmaco attivo</p>
-                      <Button 
-                        size="sm" 
-                        onClick={() => setShowAddMedication(true)}
-                        className="h-8 mt-2"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Aggiungi Farmaco
-                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1348,7 +1341,7 @@ const WellnessPage = () => {
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
-                                 className="h-6 w-6 p-0"
+                                 className="h-6 w-6 p-0 text-red-500"
                                  onClick={() => handleDelete('veterinario', vet.id, vet.name)}
                                >
                                  <Trash2 className="h-3 w-3" />
@@ -1370,14 +1363,6 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessun veterinario registrato</p>
-                      <Button 
-                        size="sm" 
-                        onClick={() => setShowAddVet(true)}
-                        className="h-8 mt-2"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Aggiungi Veterinario
-                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1474,14 +1459,6 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessuna assicurazione attiva</p>
-                      <Button 
-                        size="sm" 
-                        onClick={() => setShowAddInsurance(true)}
-                        className="h-8 mt-2"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Aggiungi Assicurazione
-                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1547,14 +1524,6 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <FileImage className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessun documento caricato</p>
-                      <Button 
-                        size="sm" 
-                        onClick={() => setShowAddDocument(true)}
-                        className="h-8 mt-2"
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Aggiungi Documento
-                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -2087,6 +2056,8 @@ const WellnessPage = () => {
         title={confirmDialog.title}
         description={confirmDialog.description}
         onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
+        confirmText="Elimina"
       />
 
     </div>
