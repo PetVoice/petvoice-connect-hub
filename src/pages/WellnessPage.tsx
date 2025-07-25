@@ -725,8 +725,8 @@ const WellnessPage = () => {
   // States
   const [activeTab, setActiveTab] = useState('dashboard');
   const [healthMetrics, setHealthMetrics] = useState<HealthMetric[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [analyses, setAnalyses] = useState<any[]>([]);
-  const [diaryEntries, setDiaryEntries] = useState<any[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
@@ -2758,79 +2758,138 @@ const WellnessPage = () => {
                 )}
               </CardContent>
             </Card>
-            {/* Behavioral Diary Card */}
-            <Card className="hover:shadow-lg transition-all duration-300">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-500/10 rounded-lg">
-                      <FileText className="h-4 w-4 text-orange-600" />
-                    </div>
-                    <CardTitle className="text-base">Comportamenti Registrati</CardTitle>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => window.location.href = '/diary'}
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Aggiungi
-                  </Button>
-                </div>
+          </div>
+
+          {/* Analytics Charts Section - Moved from StatsPage */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Wellness Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere
+                </CardTitle>
+                <CardDescription>
+                  Evoluzione del punteggio di benessere nel tempo
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {diaryEntries.length === 0 ? (
-                  <div className="text-center py-6">
-                    <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Nessun comportamento registrato nel diario</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => window.location.href = '/diary'}
-                    >
-                      Inizia diario comportamentale
-                    </Button>
-                  </div>
-                ) : (
-                  diaryEntries.slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="p-2 rounded-lg bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{entry.title || 'Voce Diario'}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {entry.behavioral_tags && entry.behavioral_tags.length > 0 ? (
-                              <span className="inline-flex gap-1">
-                                {entry.behavioral_tags.slice(0, 2).map((tag, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs">{tag}</Badge>
-                                ))}
-                                {entry.behavioral_tags.length > 2 && <span>+{entry.behavioral_tags.length - 2}</span>}
-                              </span>
-                            ) : (
-                              format(new Date(entry.entry_date), 'dd/MM/yyyy', { locale: it })
-                            )}
-                          </p>
-                        </div>
-                        {entry.mood_score && (
-                          <Badge 
-                            variant={entry.mood_score >= 7 ? 'default' : entry.mood_score >= 4 ? 'secondary' : 'destructive'}
-                            className="ml-2"
-                          >
-                            Umore: {entry.mood_score}/10
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-                {diaryEntries.length > 3 && (
-                  <p className="text-xs text-muted-foreground text-center">
-                    +{diaryEntries.length - 3} altre voci
-                  </p>
-                )}
+              <CardContent>
+                <ChartContainer config={{
+                  score: { label: "Benessere", color: "hsl(var(--primary))" }
+                }} className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={displayAnalytics.wellnessTrends || []}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[0, 100]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="score"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                      <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Trend Umore */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <LineChartIcon className="h-5 w-5" />
+                  Trend Umore
+                </CardTitle>
+                <CardDescription>
+                  Variazione dell'umore nel tempo (scala 1-10)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={{
+                  mood: { label: "Umore", color: "hsl(var(--primary))" }
+                }} className="h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={displayAnalytics.moodTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[1, 10]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Line
+                        type="monotone"
+                        dataKey="mood"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={3}
+                        dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
+                      />
+                      <ReferenceLine y={7} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={4} stroke="hsl(var(--destructive))" strokeDasharray="5 5" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>
+
+          {/* Health Charts Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Trend Salute */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Trend Salute
+                </CardTitle>
+                <CardDescription>
+                  Andamento delle metriche di salute nel tempo
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {displayAnalytics.healthTrends.length > 0 ? (
+                  <ChartContainer config={{
+                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" },
+                    heart_rate: { label: "Freq. Cardiaca (bpm)", color: "hsl(var(--primary))" },
+                    weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
+                    respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
+                    gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
+                  }} className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={displayAnalytics.healthTrends}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                        <XAxis dataKey="dateFormatted" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        {displayAnalytics.healthTrends.some(d => d.temperature) && (
+                          <Line
+                            type="monotone"
+                            dataKey="temperature"
+                            stroke="hsl(var(--destructive))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.heart_rate) && (
+                          <Line
+                            type="monotone"
+                            dataKey="heart_rate"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        )}
+                        {displayAnalytics.healthTrends.some(d => d.weight) && (
+                          <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="hsl(var(--secondary))"
+                            strokeWidth={2}
                             dot={{ r: 3 }}
                             connectNulls={false}
                           />
