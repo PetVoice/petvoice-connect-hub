@@ -60,10 +60,9 @@ export function useNotificationEvents() {
       localStorage.setItem(lastReminderKey, now.toISOString());
     };
 
-    // DISABILITO polling aggressivo che causa loop infiniti
-    // const interval = setInterval(generateDailyReminders, 5000);
-    // return () => clearInterval(interval);
-    generateDailyReminders(); // Esegue solo una volta
+    // Controlla ogni 5 secondi per notifiche più reattive
+    const interval = setInterval(generateDailyReminders, 5000);
+    return () => clearInterval(interval);
   }, [user, pets, addNotification]);
 
   // Simula notifiche per eventi dell'app
