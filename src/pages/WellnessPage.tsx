@@ -144,6 +144,7 @@ interface EmergencyContact {
   relationship?: string;
   email?: string;
   notes?: string;
+  is_primary?: boolean;
 }
 
 interface Insurance {
@@ -806,6 +807,86 @@ const WellnessPage = () => {
                         <Plus className="h-4 w-4 mr-1" />
                         Aggiungi Farmaco
                       </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+            </div>
+
+            {/* Secondary Health Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              {/* Recent Visits Card */}
+              <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-500" />
+                    Visite Recenti
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {medicalRecords.length > 0 ? (
+                    <div className="space-y-2">
+                      {medicalRecords.slice(0, 3).map((record) => (
+                        <div key={record.id} className="border-l-2 border-blue-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">{record.title}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {translateRecordType(record.record_type)}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna visita registrata</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Emergency Contacts Card */}
+              <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-orange-500" />
+                    Contatti Emergenza
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {emergencyContacts.length > 0 ? (
+                    <div className="space-y-2">
+                      {emergencyContacts.slice(0, 3).map((contact) => (
+                        <div key={contact.id} className="border-l-2 border-orange-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">{contact.name}</span>
+                            {contact.is_primary && (
+                              <Badge variant="outline" className="text-xs">
+                                Primario
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {contact.phone}
+                          </div>
+                          {contact.relationship && (
+                            <div className="text-xs text-muted-foreground">
+                              {contact.relationship}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessun contatto di emergenza</p>
                     </div>
                   )}
                 </CardContent>
