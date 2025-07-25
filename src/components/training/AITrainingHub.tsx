@@ -1294,10 +1294,7 @@ export const AITrainingHub: React.FC = () => {
                       </div>
                       <div>
                         <span className="text-xs text-muted-foreground">Difficoltà</span>
-                        <div><Badge variant={
-                          selectedProtocol.difficulty === 'facile' ? 'default' :
-                          selectedProtocol.difficulty === 'medio' ? 'secondary' : 'destructive'
-                        } className="text-xs">
+                        <div><Badge className={getDifficultyColor(selectedProtocol.difficulty)} >
                           {getDifficultyText(selectedProtocol.difficulty)}
                         </Badge></div>
                       </div>
