@@ -113,7 +113,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <Card className="shadow-elegant">
+    <Card className="bg-primary/10 border border-primary/20 shadow-elegant">
       <CardContent className="p-6">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
@@ -164,9 +164,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               <div
                 key={day.toISOString()}
                 className={`
-                  relative ${viewMode === 'day' ? 'min-h-96 mb-4' : 'min-h-24'} p-2 border rounded-lg cursor-pointer transition-colors
-                  ${isCurrentMonth ? 'bg-background hover:bg-muted/50' : 'bg-muted/20 text-muted-foreground'}
-                  ${todayDate ? 'ring-2 ring-primary' : ''}
+                  relative ${viewMode === 'day' ? 'min-h-96 mb-4' : 'aspect-square h-24'} p-2 border border-primary/20 rounded-lg cursor-pointer transition-all duration-200
+                  ${isCurrentMonth ? 'bg-primary/10 hover:bg-primary/20 hover:shadow-glow hover:scale-[1.02]' : 'bg-primary/5 text-muted-foreground hover:bg-primary/10'}
+                  ${todayDate ? 'ring-2 ring-primary bg-primary/20' : ''}
                 `}
                 onClick={() => onDayClick(day)}
               >
