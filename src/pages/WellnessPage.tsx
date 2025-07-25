@@ -1299,9 +1299,8 @@ const WellnessPage = () => {
 
         if (error) throw error;
 
-        // Add the new record to the beginning of the list
-        // Force a complete data refresh instead of state manipulation
-        await fetchHealthData();
+        // Add the new record to the state directly
+        setMedicalRecords(prev => [data, ...prev]);
 
         toast({
           title: "Successo", 
