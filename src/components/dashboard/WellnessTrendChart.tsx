@@ -26,6 +26,7 @@ interface WellnessTrendChartProps {
 }
 
 const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }) => {
+  console.log('WellnessTrendChart rendered with:', { petId, userId });
   const [wellnessData, setWellnessData] = useState<WellnessDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
