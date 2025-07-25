@@ -1633,15 +1633,16 @@ const WellnessPage = () => {
                          .sort(([,a], [,b]) => b - a)
                          .map(([emotion, count], index) => (
                            <div key={emotion} className="flex items-center justify-between min-w-0">
-                             <div className="flex items-center gap-2 flex-shrink-0">
+                             <div className="flex items-center gap-2 flex-1 min-w-0">
                                <div 
                                  className="w-3 h-3 rounded-full flex-shrink-0"
                                  style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
                                />
                                <span className="text-sm capitalize truncate">{emotion}</span>
                              </div>
-                             <div className="flex items-center gap-2 flex-shrink-0">
-                               <div className="w-12 bg-muted rounded-full h-2">
+                             <div className="flex items-center gap-1 flex-shrink-0">
+                               <span className="text-sm font-medium w-6 text-right">{count}</span>
+                               <div className="w-8 bg-muted rounded-full h-2">
                                  <div 
                                    className="h-2 rounded-full"
                                    style={{ 
@@ -1650,7 +1651,6 @@ const WellnessPage = () => {
                                    }}
                                  />
                                </div>
-                               <span className="text-sm font-medium w-6 text-right">{count}</span>
                              </div>
                            </div>
                          ))}
