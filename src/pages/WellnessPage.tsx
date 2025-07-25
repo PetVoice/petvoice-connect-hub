@@ -422,7 +422,8 @@ const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
 const WellnessPage = () => {
   const { user } = useAuth();
   const { pets } = usePets();
-  const { addNotification } = useNotifications();
+  // const { addNotification } = useNotifications(); // COMMENTATO per fermare loop infinito
+  const addNotification = () => {}; // Placeholder per evitare errori
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
   
