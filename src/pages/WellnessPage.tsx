@@ -1178,19 +1178,24 @@ const WellnessPage = () => {
     const { start: startDate, end: endDate } = getDateRange();
     const timeSpan = differenceInDays(endDate, startDate) + 1;
 
-    // Overview metrics
-    const totalAnalyses = analysisData.length;
+    // Overview metrics - using filtered data
+    const totalAnalyses = filteredAnalysisData.length;
     
     // Calculate real health score based on multiple factors
     const calculateHealthScore = () => {
-      if (healthMetrics.length === 0 && diaryData.length === 0) return 0;
+      if (filteredHealthMetrics.length === 0 && filteredDiaryData.length === 0) return 0;
       
       let score = 0;
       let factors = 0;
 
-      // Base score from wellness data
-      if (wellnessData.length > 0) {
-        score += wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
+      // Base score from wellness data (filtered by date)
+      const filteredWellnessData = wellnessData.filter(w => {
+        const wellnessDate = new Date(w.created_at);
+        return wellnessDate >= startDate && wellnessDate <= endDate;
+      });
+      
+      if (filteredWellnessData.length > 0) {
+        score += filteredWellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / filteredWellnessData.length;
         factors++;
       }
 
@@ -1256,8 +1261,8 @@ const WellnessPage = () => {
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends - combina dati da diario e analisi emotive
-    const diaryMoodData = diaryData
+    // Mood trends - using filtered data
+    const diaryMoodData = filteredDiaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
@@ -1266,7 +1271,7 @@ const WellnessPage = () => {
         dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
       }));
 
-    // Converti analisi emotive in punteggi umore (1-10)
+    // Convert emotional analyses to mood scores - using filtered data  
     const emotionToMoodScore = {
       'felice': 9,
       'giocoso': 8,
@@ -1280,7 +1285,7 @@ const WellnessPage = () => {
       'spaventato': 1
     };
 
-    const analysisMoodData = analysisData.map(a => ({
+    const analysisMoodData = filteredAnalysisData.map(a => ({
       date: format(new Date(a.created_at), 'yyyy-MM-dd'),
       mood: emotionToMoodScore[a.primary_emotion as keyof typeof emotionToMoodScore] || 5,
       source: 'analysis',
@@ -2932,8 +2937,8 @@ const WellnessPage = () => {
           </div>
         </div>
 
-        {/* Analytics Section - Grid Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Analytics Section - 3 Column Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {/* Trend Salute */}
           <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
             <CardHeader className="pb-3">
@@ -3024,32 +3029,117 @@ const WellnessPage = () => {
             </CardContent>
           </Card>
 
-          {/* Dettaglio Emozioni */}
+          {/* Trend Umore */}
           <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Brain className="h-5 w-5 text-purple-600" />
-                Dettaglio Emozioni
+                Trend Umore
               </CardTitle>
               <CardDescription>
-                Analisi approfondita delle emozioni rilevate
+                Andamento dell'umore nel tempo
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {displayAnalytics.emotionDistribution.map((emotion, index) => (
-                  <div key={index} className="p-3 border rounded-lg bg-gradient-to-br from-muted/20 to-muted/10 hover:shadow-md transition-all duration-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium capitalize text-sm">{emotion.emotion}</span>
-                      <Badge variant="secondary" className="text-xs">{emotion.count}</Badge>
-                    </div>
-                    <Progress value={emotion.percentage} className="h-2 mb-2" />
-                    <p className="text-xs text-muted-foreground">
-                      {emotion.percentage}% del totale
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {displayAnalytics.moodTrends.length > 0 ? (
+                <ChartContainer config={{
+                  mood: { label: "Umore (1-10)", color: "hsl(var(--primary))" }
+                }} className="h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={displayAnalytics.moodTrends}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" fontSize={12} />
+                      <YAxis domain={[1, 10]} fontSize={12} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="mood"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.3}
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Brain className="h-12 w-12 mx-auto mb-2" />
+                  <p>Nessun dato umore disponibile</p>
+                  <p className="text-sm">Aggiungi voci del diario per vedere i trend</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Dettaglio Emozioni */}
+          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <PieChartIcon className="h-5 w-5 text-orange-600" />
+                Distribuzione Emozioni
+              </CardTitle>
+              <CardDescription>
+                Analisi delle emozioni rilevate
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {displayAnalytics.emotionDistribution.length > 0 ? (
+                <ChartContainer config={{}} className="h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={displayAnalytics.emotionDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        dataKey="count"
+                        nameKey="emotion"
+                      >
+                        {displayAnalytics.emotionDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip 
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="bg-background border rounded-lg shadow-lg p-3">
+                                <p className="font-medium capitalize">{payload[0].payload.emotion}</p>
+                                <p className="text-sm">Conteggio: {payload[0].value}</p>
+                                <p className="text-sm">Percentuale: {payload[0].payload.percentage}%</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <ChartLegend 
+                        content={({ payload }) => (
+                          <div className="flex flex-wrap justify-center gap-2 mt-4">
+                            {payload?.map((entry, index) => (
+                              <div key={index} className="flex items-center gap-1 text-xs">
+                                <div 
+                                  className="w-3 h-3 rounded-full" 
+                                  style={{ backgroundColor: entry.color }}
+                                />
+                                <span className="capitalize">{entry.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <PieChartIcon className="h-12 w-12 mx-auto mb-2" />
+                  <p>Nessuna emozione rilevata</p>
+                  <p className="text-sm">Effettua analisi per vedere le emozioni</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -3069,7 +3159,14 @@ const WellnessPage = () => {
             {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
                 {(() => {
-                  const tagCounts = diaryData
+                  // Filter diary data by date range for behavioral tags
+                  const { start: startDate, end: endDate } = getDateRange();
+                  const filteredDiaryForTags = diaryData.filter(entry => {
+                    const entryDate = new Date(entry.entry_date);
+                    return entryDate >= startDate && entryDate <= endDate;
+                  });
+                  
+                  const tagCounts = filteredDiaryForTags
                     .flatMap(d => d.behavioral_tags || [])
                     .reduce((acc, tag) => {
                       acc[tag] = (acc[tag] || 0) + 1;
