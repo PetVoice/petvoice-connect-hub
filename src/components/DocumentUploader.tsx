@@ -5,6 +5,10 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+// Configurazione PDF.js
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -28,7 +32,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<{ url: string; type: string } | null>(null);
   const { toast } = useToast();
 
   // Initialize preview files with existing files
@@ -144,6 +148,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   };
 
   const isImage = (type: string) => type.startsWith('image/');
+  const isPDF = (type: string) => type === 'application/pdf';
 
   return (
     <div className="space-y-4">
@@ -185,11 +190,14 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     {isImage(preview.type) ? (
-                      <div className="relative">
+                      <div 
+                        className="relative cursor-pointer" 
+                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                      >
                         <img 
                           src={preview.url} 
                           alt={preview.name}
-                          className="w-12 h-12 object-cover rounded border"
+                          className="w-12 h-12 object-cover rounded border hover:opacity-80 transition-opacity"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
@@ -201,8 +209,39 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                           {getFileIcon(preview.type)}
                         </div>
                       </div>
+                    ) : isPDF(preview.type) ? (
+                      <div 
+                        className="relative cursor-pointer" 
+                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                      >
+                        <div className="w-12 h-12 border rounded overflow-hidden hover:opacity-80 transition-opacity">
+                          <Document
+                            file={preview.url}
+                            loading={
+                              <div className="w-full h-full flex items-center justify-center bg-muted">
+                                <FileText className="h-6 w-6 text-muted-foreground" />
+                              </div>
+                            }
+                            error={
+                              <div className="w-full h-full flex items-center justify-center bg-muted">
+                                <FileText className="h-6 w-6 text-muted-foreground" />
+                              </div>
+                            }
+                          >
+                            <Page 
+                              pageNumber={1} 
+                              width={48}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                          </Document>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center bg-muted rounded border">
+                      <div 
+                        className="w-12 h-12 flex items-center justify-center bg-muted rounded border cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                      >
                         {getFileIcon(preview.type)}
                       </div>
                     )}
@@ -216,24 +255,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     </div>
                   </div>
                     <div className="flex items-center space-x-2">
-                      {isImage(preview.type) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedImage(preview.url)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {preview.type === 'application/pdf' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => window.open(preview.url, '_blank')}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -249,27 +277,79 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         </div>
       )}
 
-      {/* Image Preview Dialog */}
-      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+      {/* Document Preview Dialog */}
+      <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Anteprima immagine</DialogTitle>
+            <DialogTitle>Anteprima documento</DialogTitle>
             <DialogDescription>
-              Visualizza l'anteprima dell'immagine caricata
+              Visualizza l'anteprima del documento caricato
             </DialogDescription>
           </DialogHeader>
-          {selectedImage && (
+          {selectedDocument && (
             <div className="flex justify-center">
-              <img 
-                src={selectedImage} 
-                alt="Anteprima documento" 
-                className="max-w-full max-h-[70vh] object-contain rounded-lg"
-                onError={(e) => {
-                  console.error('Errore caricamento immagine:', selectedImage);
-                  const target = e.target as HTMLImageElement;
-                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltbWFnaW5lIG5vbiBkaXNwb25pYmlsZTwvdGV4dD48L3N2Zz4=';
-                }}
-              />
+              {isImage(selectedDocument.type) ? (
+                <img 
+                  src={selectedDocument.url} 
+                  alt="Anteprima documento" 
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                  onError={(e) => {
+                    console.error('Errore caricamento immagine:', selectedDocument.url);
+                    const target = e.target as HTMLImageElement;
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltbWFnaW5lIG5vbiBkaXNwb25pYmlsZTwvdGV4dD48L3N2Zz4=';
+                  }}
+                />
+              ) : isPDF(selectedDocument.type) ? (
+                <div className="w-full max-h-[70vh] overflow-auto">
+                  <Document
+                    file={selectedDocument.url}
+                    loading={
+                      <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+                          <p>Caricamento PDF...</p>
+                        </div>
+                      </div>
+                    }
+                    error={
+                      <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+                          <p>Errore nel caricamento del PDF</p>
+                          <Button 
+                            variant="outline" 
+                            className="mt-2"
+                            onClick={() => window.open(selectedDocument.url, '_blank')}
+                          >
+                            Apri in nuova scheda
+                          </Button>
+                        </div>
+                      </div>
+                    }
+                  >
+                    <Page 
+                      pageNumber={1}
+                      width={Math.min(600, window.innerWidth - 100)}
+                      renderTextLayer={false}
+                      renderAnnotationLayer={false}
+                    />
+                  </Document>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center">
+                    <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
+                    <p>Anteprima non disponibile per questo tipo di file</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => window.open(selectedDocument.url, '_blank')}
+                    >
+                      Apri file
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
