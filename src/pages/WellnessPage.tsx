@@ -769,49 +769,6 @@ const WellnessPage = () => {
             {/* Additional Health Influence Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
-              {/* Diary Entries with Health/Behavioral Tags Card */}
-              <Card className="hover-scale bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-background border-indigo-500/20 hover:border-indigo-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-indigo-500" />
-                    Voci Diario
-                  </CardTitle>
-                  <CardDescription>Tag comportamentali e di salute</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {diaryEntries.length > 0 ? (
-                    <div className="space-y-3">
-                      {diaryEntries
-                        .filter(entry => entry.behavioral_tags && entry.behavioral_tags.length > 0)
-                        .slice(0, 3)
-                        .map((entry) => (
-                          <div key={entry.id} className="border-l-2 border-indigo-500/30 pl-3">
-                            <div className="text-sm font-medium">
-                              {format(new Date(entry.entry_date), 'dd/MM/yyyy')}
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {entry.behavioral_tags?.slice(0, 3).map((tag, idx) => (
-                                <Badge key={idx} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            {entry.mood_score && (
-                              <div className="text-xs text-muted-foreground mt-1">
-                                Umore: {entry.mood_score}/10
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna voce nel diario</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
 
               {/* Detailed Emotions Analysis Card */}
               <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
