@@ -191,7 +191,11 @@ const DashboardPage: React.FC = () => {
   }, [selectedPet, user]);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto py-6 space-y-6 bg-background min-h-screen">
+      {/* Debug: Container principale */}
+      <div className="p-2 bg-green-500 text-white text-sm rounded">
+        ✅ Dashboard container renderizzato correttamente
+      </div>
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
