@@ -226,47 +226,110 @@ const EMOTION_COLORS = {
   'affettuoso': '#ec4899'
 };
 
-// Helper function to evaluate vital parameters  
+// Helper function to evaluate vital parameters using First Aid Guide ranges
 const evaluateVitalParameter = (metricType: string, value: number, petType?: string): { 
   status: 'normal' | 'warning' | 'critical', 
   message: string,
   recommendation?: string 
 } => {
-  // Simplified evaluation logic
   switch (metricType) {
     case 'temperature':
-      if (value < 37.5 || value > 40.0) {
+      // First Aid Guide ranges: Dogs 38.0-39.2°C, Cats 38.1-39.2°C
+      const minTemp = petType?.toLowerCase() === 'cat' ? 38.1 : 38.0;
+      const maxTemp = 39.2;
+      
+      if (value < 37.0 || value > 40.5) {
         return {
           status: 'critical',
-          message: `Temperatura critica: ${value}°C`,
-          recommendation: 'Contatta immediatamente il veterinario'
+          message: `⚠️ TEMPERATURA CRITICA: ${value}°C`,
+          recommendation: 'EMERGENZA VETERINARIA IMMEDIATA - Possibile ipotermia/ipertermia'
         };
       }
-      if (value < 38.0 || value > 39.2) {
+      if (value < minTemp || value > maxTemp) {
         return {
           status: 'warning',
-          message: `Temperatura fuori norma: ${value}°C`,
-          recommendation: 'Monitora attentamente'
+          message: `⚠️ Temperatura anomala: ${value}°C`,
+          recommendation: 'Monitora attentamente e contatta il veterinario se persiste'
         };
       }
-      return { status: 'normal', message: `Temperatura normale: ${value}°C` };
+      return { status: 'normal', message: `✅ Temperatura normale: ${value}°C` };
 
     case 'heart_rate':
-      if (value < 50 || value > 240) {
+      // First Aid Guide ranges: Large dogs 60-100, Small dogs 100-140, Cats 140-220
+      let minHeart, maxHeart;
+      if (petType?.toLowerCase() === 'cat') {
+        minHeart = 140;
+        maxHeart = 220;
+      } else {
+        // Default to small dog range if size unknown
+        minHeart = 60;
+        maxHeart = 140;
+      }
+      
+      if (value < 40 || value > 250) {
         return {
           status: 'critical',
-          message: `Battito cardiaco critico: ${value} bpm`,
-          recommendation: 'EMERGENZA - Contatta immediatamente il veterinario'
+          message: `⚠️ BATTITO CRITICO: ${value} bpm`,
+          recommendation: 'EMERGENZA VETERINARIA - Possibile aritmia grave'
         };
       }
-      if (value < 60 || value > 140) {
+      if (value < minHeart || value > maxHeart) {
         return {
           status: 'warning',
-          message: `Battito cardiaco anomalo: ${value} bpm`,
-          recommendation: 'Monitora e consulta il veterinario se persiste'
+          message: `⚠️ Battito anomalo: ${value} bpm`,
+          recommendation: 'Consulta il veterinario per valutazione cardiaca'
         };
       }
-      return { status: 'normal', message: `Battito cardiaco normale: ${value} bpm` };
+      return { status: 'normal', message: `✅ Battito normale: ${value} bpm` };
+
+    case 'respiration':
+      // First Aid Guide ranges: Dogs 10-30, Cats 20-30 atti/min
+      const minResp = petType?.toLowerCase() === 'cat' ? 20 : 10;
+      const maxResp = 30;
+      
+      if (value < 5 || value > 60) {
+        return {
+          status: 'critical',
+          message: `⚠️ RESPIRAZIONE CRITICA: ${value} atti/min`,
+          recommendation: 'EMERGENZA - Possibile distress respiratorio'
+        };
+      }
+      if (value < minResp || value > maxResp) {
+        return {
+          status: 'warning',
+          message: `⚠️ Respirazione anomala: ${value} atti/min`,
+          recommendation: 'Monitora e consulta veterinario se persiste'
+        };
+      }
+      return { status: 'normal', message: `✅ Respirazione normale: ${value} atti/min` };
+
+    case 'gum_color':
+      // First Aid Guide: Rosa=normal, others=warning/critical
+      const colorValue = typeof value === 'number' ? value : parseInt(String(value));
+      switch (colorValue) {
+        case 1: // Rosa
+          return { status: 'normal', message: '✅ Gengive rosa (normale)' };
+        case 2: // Pallide
+          return {
+            status: 'critical',
+            message: '⚠️ GENGIVE PALLIDE',
+            recommendation: 'EMERGENZA - Possibile shock o anemia'
+          };
+        case 3: // Blu/Viola
+          return {
+            status: 'critical',
+            message: '⚠️ GENGIVE BLU/VIOLA',
+            recommendation: 'EMERGENZA OSSIGENO - Mancanza di ossigenazione'
+          };
+        case 4: // Gialle
+          return {
+            status: 'critical',
+            message: '⚠️ GENGIVE GIALLE',
+            recommendation: 'URGENTE - Possibili problemi epatici'
+          };
+        default:
+          return { status: 'warning', message: 'Colore gengive non riconosciuto' };
+      }
 
     default:
       return { status: 'normal', message: `${translateMetricType(metricType)}: ${value}` };
@@ -275,14 +338,14 @@ const evaluateVitalParameter = (metricType: string, value: number, petType?: str
 
 // Helper function to convert gum color numeric values to text
 const getGumColorText = (value: number | string): string => {
-  if (typeof value === 'string') return value;
+  const numValue = typeof value === 'string' ? parseInt(value) : value;
   const colorMap: Record<number, string> = {
     1: 'Rosa',
     2: 'Pallide', 
     3: 'Blu/Viola',
     4: 'Gialle'
   };
-  return colorMap[value] || 'Sconosciuto';
+  return colorMap[numValue] || 'Sconosciuto';
 };
 
 // Helper function to translate record types to Italian
@@ -412,6 +475,7 @@ const WellnessPage = () => {
   const [showAddVet, setShowAddVet] = useState(false);
   const [showAddContact, setShowAddContact] = useState(false);
   const [showAddInsurance, setShowAddInsurance] = useState(false);
+  const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   
   // Edit states
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
@@ -493,23 +557,43 @@ const WellnessPage = () => {
         score += (avgMood - 5) * 10; // scale from 1-10 to impact score
       }
       
-      // Factor in vital signs (temperature, heart rate)
+      // Factor in vital signs with critical status evaluation
       const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
       const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
+      const respMetrics = monthMetrics.filter(m => m.metric_type === 'respiration');
+      const gumMetrics = monthMetrics.filter(m => m.metric_type === 'gum_color');
       
       if (tempMetrics.length > 0) {
         const avgTemp = tempMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / tempMetrics.length;
-        // Normal dog temp is 38-39.2°C
-        if (avgTemp >= 38 && avgTemp <= 39.2) score += 5;
-        else if (avgTemp < 37.5 || avgTemp > 40) score -= 15;
-        else score -= 5;
+        const tempEval = evaluateVitalParameter('temperature', avgTemp, selectedPet?.type);
+        if (tempEval.status === 'critical') score -= 25;
+        else if (tempEval.status === 'warning') score -= 10;
+        else score += 5;
       }
       
       if (heartMetrics.length > 0) {
         const avgHeart = heartMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / heartMetrics.length;
-        // Normal dog heart rate is 60-140 bpm
-        if (avgHeart >= 60 && avgHeart <= 140) score += 5;
-        else score -= 10;
+        const heartEval = evaluateVitalParameter('heart_rate', avgHeart, selectedPet?.type);
+        if (heartEval.status === 'critical') score -= 25;
+        else if (heartEval.status === 'warning') score -= 10;
+        else score += 5;
+      }
+      
+      if (respMetrics.length > 0) {
+        const avgResp = respMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / respMetrics.length;
+        const respEval = evaluateVitalParameter('respiration', avgResp, selectedPet?.type);
+        if (respEval.status === 'critical') score -= 25;
+        else if (respEval.status === 'warning') score -= 10;
+        else score += 5;
+      }
+      
+      if (gumMetrics.length > 0) {
+        // For gum color, take the most recent reading
+        const latestGum = gumMetrics[gumMetrics.length - 1];
+        const gumEval = evaluateVitalParameter('gum_color', parseFloat(latestGum.value.toString()), selectedPet?.type);
+        if (gumEval.status === 'critical') score -= 30; // Gum color is very important indicator
+        else if (gumEval.status === 'warning') score -= 15;
+        else score += 5;
       }
       
       // Ensure score is between 0-100
@@ -1573,23 +1657,10 @@ const WellnessPage = () => {
                     <p className="text-sm text-muted-foreground mb-3">
                       Guida rapida per emergenze
                     </p>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="h-8">
-                          <BookOpen className="h-4 w-4 mr-1" />
-                          Apri Guida
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-red-500" />
-                            Guida Primo Soccorso
-                          </DialogTitle>
-                        </DialogHeader>
-                        <FirstAidGuide open={true} onOpenChange={() => {}} />
-                      </DialogContent>
-                    </Dialog>
+                    <Button size="sm" variant="outline" className="h-8" onClick={() => setShowFirstAidGuide(true)}>
+                      <BookOpen className="h-4 w-4 mr-1" />
+                      Apri Guida
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -2285,10 +2356,16 @@ const WellnessPage = () => {
         description={confirmDialog.description}
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
-        confirmText="Elimina"
-      />
+         confirmText="Elimina"
+       />
 
-    </div>
+       {/* First Aid Guide Dialog */}
+       <FirstAidGuide 
+         open={showFirstAidGuide} 
+         onOpenChange={setShowFirstAidGuide} 
+       />
+
+     </div>
   );
 };
 
