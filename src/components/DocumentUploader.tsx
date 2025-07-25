@@ -154,8 +154,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   };
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="h-6 w-6" />;
-    return <FileText className="h-6 w-6" />;
+    if (type.startsWith('image/')) return <Image className="h-8 w-8" />;
+    return <FileText className="h-8 w-8" />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -215,7 +215,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                          const link = document.createElement('a');
+                          link.href = preview.url;
+                          link.target = '_blank';
+                          link.rel = 'noopener noreferrer';
+                          link.click();
                         }}
                       >
                         <img 
@@ -239,7 +243,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                          const link = document.createElement('a');
+                          link.href = preview.url;
+                          link.target = '_blank';
+                          link.rel = 'noopener noreferrer';
+                          link.click();
                         }}
                       >
                         <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
@@ -253,7 +261,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                          const link = document.createElement('a');
+                          link.href = preview.url;
+                          link.target = '_blank';
+                          link.rel = 'noopener noreferrer';
+                          link.click();
                         }}
                       >
                         {getFileIcon(preview.type)}
