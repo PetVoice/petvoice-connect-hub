@@ -2836,8 +2836,15 @@ const WellnessPage = () => {
                           size="sm"
                           variant="ghost"
                           onClick={() => {
-                            const url = URL.createObjectURL(file);
-                            setFilePreview({ open: true, file, url });
+                            if (file.type === 'application/pdf') {
+                              // Per PDF, apri direttamente nella stessa tab
+                              const url = URL.createObjectURL(file);
+                              window.location.href = url;
+                            } else {
+                              // Per altri file, usa la dialog
+                              const url = URL.createObjectURL(file);
+                              setFilePreview({ open: true, file, url });
+                            }
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
@@ -3247,8 +3254,15 @@ const WellnessPage = () => {
                           size="sm"
                           variant="ghost"
                           onClick={() => {
-                            const url = URL.createObjectURL(file);
-                            setFilePreview({ open: true, file, url });
+                            if (file.type === 'application/pdf') {
+                              // Per PDF, apri direttamente nella stessa tab
+                              const url = URL.createObjectURL(file);
+                              window.location.href = url;
+                            } else {
+                              // Per altri file, usa la dialog
+                              const url = URL.createObjectURL(file);
+                              setFilePreview({ open: true, file, url });
+                            }
                           }}
                           className="h-8 w-8 p-0"
                           title="Visualizza"
