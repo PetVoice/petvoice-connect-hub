@@ -2458,9 +2458,8 @@ const WellnessPage = () => {
             </Card>
           </div>
 
-          {/* Health Score and Parametri Vitali Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Health Score */}
+          {/* Health Score Section */}
+          <div className="space-y-4">
             <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -2520,100 +2519,6 @@ const WellnessPage = () => {
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Parametri Vitali */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Stethoscope className="h-5 w-5" />
-                  Parametri Vitali
-                </CardTitle>
-                <CardDescription>
-                  Riassunto delle metriche di salute monitorate con analisi critica
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.totalMetrics}</div>
-                    <div className="text-sm text-muted-foreground">Misurazioni Totali</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.uniqueMetricTypes}</div>
-                    <div className="text-sm text-muted-foreground">Tipi di Parametri</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">{displayAnalytics.healthMetricsSummary.lastWeekMetrics}</div>
-                    <div className="text-sm text-muted-foreground">Ultima Settimana</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{displayAnalytics.healthMetricsSummary.criticalValues}</div>
-                    <div className="text-sm text-muted-foreground">Valori Critici</div>
-                  </div>
-                </div>
-
-                {/* Analisi Parametri Vitali basata su Guida Primo Soccorso */}
-                {healthMetrics.length > 0 && (
-                  <div className="space-y-3">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Heart className="h-4 w-4" />
-                      Analisi Ultimi Parametri
-                    </h4>
-                    {(() => {
-                      // Raggruppa le metriche per tipo e prendi l'ultima misurazione
-                      const latestMetrics = healthMetrics.reduce((acc, metric) => {
-                        if (!acc[metric.metric_type] || new Date(metric.recorded_at) > new Date(acc[metric.metric_type].recorded_at)) {
-                          acc[metric.metric_type] = metric;
-                        }
-                        return acc;
-                      }, {} as Record<string, any>);
-
-                      const petType = selectedPet?.type;
-
-                      return Object.values(latestMetrics).map((metric: any) => {
-                        const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, petType);
-                        const statusColors = {
-                          normal: 'bg-green-50 border-green-200 text-green-800',
-                          warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                          critical: 'bg-red-50 border-red-200 text-red-800'
-                        };
-
-                        return (
-                          <div key={metric.id} className={`p-3 border rounded-lg ${statusColors[evaluation.status]}`}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium">{translateMetricType(metric.metric_type)}</span>
-                              <Badge 
-                                variant={evaluation.status === 'normal' ? 'default' : evaluation.status === 'warning' ? 'secondary' : 'destructive'}
-                                className="text-xs"
-                              >
-                                {evaluation.status === 'normal' ? 'Normale' : evaluation.status === 'warning' ? 'Attenzione' : 'Critico'}
-                              </Badge>
-                            </div>
-                            <div className="text-sm space-y-1">
-                              <p className="font-semibold">{evaluation.message}</p>
-                              {evaluation.recommendation && (
-                                <p className="italic">{evaluation.recommendation}</p>
-                              )}
-                              <p className="text-muted-foreground">
-                                Registrato: {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm', { locale: it })}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
-
-                {healthMetrics.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Stethoscope className="h-12 w-12 mx-auto mb-2" />
-                    <p>Nessun parametro vitale registrato</p>
-                    <p className="text-sm">Aggiungi le prime metriche di salute per iniziare il monitoraggio</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
@@ -2750,97 +2655,41 @@ const WellnessPage = () => {
             </CardContent>
           </Card>
 
-          {/* Analytics Charts Section - Trend Salute and Trend Umore */}
+          {/* Analytics Charts Section - Moved from StatsPage */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Trend Salute */}
+            {/* Wellness Trend */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Trend Salute
+                  <TrendingUp className="h-5 w-5" />
+                  Trend Benessere
                 </CardTitle>
                 <CardDescription>
-                  Andamento delle metriche di salute nel tempo
+                  Evoluzione del punteggio di benessere nel tempo
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {displayAnalytics.healthTrends.length > 0 ? (
-                  <ChartContainer config={{
-                    temperature: { label: "Temperatura (°C)", color: "hsl(var(--destructive))" },
-                    heart_rate: { label: "Freq. Cardiaca (bpm)", color: "hsl(var(--primary))" },
-                    weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
-                    respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
-                    gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
-                  }} className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={displayAnalytics.healthTrends}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                        <XAxis dataKey="dateFormatted" />
-                        <YAxis />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <ChartLegend content={<ChartLegendContent />} />
-                        {displayAnalytics.healthTrends.some(d => d.temperature) && (
-                          <Line
-                            type="monotone"
-                            dataKey="temperature"
-                            stroke="hsl(var(--destructive))"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        )}
-                        {displayAnalytics.healthTrends.some(d => d.heart_rate) && (
-                          <Line
-                            type="monotone"
-                            dataKey="heart_rate"
-                            stroke="hsl(var(--primary))"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        )}
-                        {displayAnalytics.healthTrends.some(d => d.weight) && (
-                          <Line
-                            type="monotone"
-                            dataKey="weight"
-                            stroke="hsl(var(--secondary))"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        )}
-                        {displayAnalytics.healthTrends.some(d => d.respiration) && (
-                          <Line
-                            type="monotone"
-                            dataKey="respiration"
-                            stroke="hsl(var(--accent))"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        )}
-                        {displayAnalytics.healthTrends.some(d => d.gum_color) && (
-                          <Line
-                            type="monotone"
-                            dataKey="gum_color"
-                            stroke="hsl(var(--muted-foreground))"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        )}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                    <div className="text-center">
-                      <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Nessun dato di salute disponibile</p>
-                      <p className="text-sm">Aggiungi delle metriche di salute per vedere i grafici</p>
-                    </div>
-                  </div>
-                )}
+                <ChartContainer config={{
+                  score: { label: "Benessere", color: "hsl(var(--primary))" }
+                }} className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={displayAnalytics.wellnessTrends || []}>
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis domain={[0, 100]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="score"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                      <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" />
+                      <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </CardContent>
             </Card>
 
@@ -2881,8 +2730,15 @@ const WellnessPage = () => {
             </Card>
           </div>
 
-          {/* Additional Analytics Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Parametri Vitali */}
+          <div className="grid grid-cols-1 gap-6">
+            {/* Parametri Vitali */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5" />
+                  Parametri Vitali
+                </CardTitle>
                 <CardDescription>
                   Riassunto delle metriche di salute monitorate con analisi critica
                 </CardDescription>
