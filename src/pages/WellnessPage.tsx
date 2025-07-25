@@ -797,8 +797,27 @@ const WellnessPage = () => {
       setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
       setShowAddMetric(false);
       setEditingMetric(null);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
+      if (editingMetric) {
+        setHealthMetrics(prev => prev.map(metric => 
+          metric.id === editingMetric.id 
+            ? { ...metric, metric_type: newMetric.metric_type, value: parseFloat(newMetric.value), unit: newMetric.unit, notes: newMetric.notes }
+            : metric
+        ));
+      } else {
+        // Add new metric to local state
+        const newMetricData = {
+          id: Date.now().toString(), // Temporary ID
+          metric_type: newMetric.metric_type,
+          value: parseFloat(newMetric.value),
+          unit: newMetric.unit,
+          notes: newMetric.notes || null,
+          recorded_at: new Date().toISOString(),
+          user_id: user.id,
+          pet_id: selectedPet.id
+        };
+        setHealthMetrics(prev => [newMetricData, ...prev]);
+      }
     } catch (error) {
       console.error('Error saving metric:', error);
       toast({
@@ -866,8 +885,7 @@ const WellnessPage = () => {
       setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
       setShowAddContact(false);
       setEditingContact(null);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
     } catch (error) {
       console.error('Error saving emergency contact:', error);
       toast({
@@ -914,7 +932,7 @@ const WellnessPage = () => {
 
       setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
       setShowAddInsurance(false);
-      fetchHealthData();
+      // Don't call fetchHealthData to prevent page reload
     } catch (error) {
       console.error('Error adding insurance:', error);
       toast({
@@ -984,8 +1002,7 @@ const WellnessPage = () => {
       setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
       setShowAddVet(false);
       setEditingVet(null);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
     } catch (error) {
       console.error('Error saving veterinarian:', error);
       toast({
@@ -1054,8 +1071,7 @@ const WellnessPage = () => {
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
       setShowAddDocument(false);
       setEditingRecord(null);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
     } catch (error) {
       console.error('Error saving medical record:', error);
       toast({
@@ -1125,8 +1141,7 @@ const WellnessPage = () => {
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
       setShowAddMedication(false);
       setEditingMedication(null);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
     } catch (error) {
       console.error('Error saving medication:', error);
       toast({
@@ -1192,7 +1207,7 @@ const WellnessPage = () => {
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} eliminato con successo`
       });
 
-      fetchHealthData();
+      // Don't call fetchHealthData to prevent page reload
     } catch (error) {
       console.error('Error deleting:', error);
       toast({
@@ -1248,8 +1263,7 @@ const WellnessPage = () => {
 
       setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
       setShowDiaryDialog(false);
-      // Don't await here to prevent page reload
-      fetchHealthData();
+      // Update local state instead of refetching
     } catch (error) {
       console.error('Error adding diary entry:', error);
       toast({
