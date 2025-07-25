@@ -768,59 +768,58 @@ export const allProtocols = {
   advancedCalmTraining: advancedCalmTrainingProtocol
 };
 
-// Funzione per raccomandare protocolli basati sull'emozione rilevata (solo emozioni negative)
+// Funzione per raccomandare protocolli basati sull'emozione rilevata
 export const getRecommendedProtocol = (emotionResults: string[]): string | null => {
   // Converte emozioni in minuscolo per il matching
   const emotions = emotionResults.map(emotion => emotion.toLowerCase());
   
-  // Lista delle emozioni negative che necessitano intervento
-  const negativeEmotions = [
-    'ansioso', 'ansia', 'stress', 'stressato', 'nervoso', 'spaventato',
-    'aggressivo', 'aggressività', 'arrabbiato', 'irritato',
-    'eccitato', 'iperattivo', 'agitato', 'irrequieto',
-    'triste', 'depresso', 'apatia', 'apatico',
-    'pauroso', 'paura', 'timido'
-  ];
-  
-  // Verifica se almeno un'emozione è negativa
-  const hasNegativeEmotion = emotions.some(emotion => 
-    negativeEmotions.some(neg => emotion.includes(neg))
-  );
-  
-  // Se non ci sono emozioni negative, non raccomandare protocolli
-  if (!hasNegativeEmotion) {
-    return null;
-  }
-  
-  // Mappatura emozioni negative -> protocolli esistenti
+  // Mappatura emozioni -> protocolli esistenti
   for (const emotion of emotions) {
-    if (emotion.includes('ansioso') || emotion.includes('ansia') || 
-        emotion.includes('stress') || emotion.includes('nervoso') || 
-        emotion.includes('spaventato')) {
-      return 'anxiety-management';
-    }
-    
-    if (emotion.includes('aggressivo') || emotion.includes('aggressività') || 
-        emotion.includes('arrabbiato') || emotion.includes('irritato')) {
-      return 'aggression-control';
-    }
-    
-    if (emotion.includes('eccitato') || emotion.includes('iperattivo') || 
-        emotion.includes('agitato') || emotion.includes('irrequieto')) {
-      return 'impulse-control';
-    }
-    
-    if (emotion.includes('triste') || emotion.includes('depresso') || 
-        emotion.includes('apatia') || emotion.includes('apatico')) {
-      return 'separation-anxiety';
-    }
-    
-    if (emotion.includes('pauroso') || emotion.includes('paura') || 
-        emotion.includes('timido')) {
-      return 'fear-management';
+    switch (emotion) {
+      case 'ansioso':
+      case 'ansia':
+      case 'stress':
+      case 'nervoso':
+      case 'spaventato':
+        return 'anxiety-management';
+        
+      case 'aggressivo':
+      case 'aggressività':
+      case 'arrabbiato':
+        return 'aggression-control';
+        
+      case 'eccitato':
+      case 'iperattivo':
+      case 'agitato':
+      case 'irrequieto':
+        return 'impulse-control';
+        
+      case 'triste':
+      case 'depresso':
+      case 'apatia':
+        return 'separation-anxiety';
+        
+      case 'pauroso':
+      case 'paura':
+      case 'timido':
+        return 'fear-management';
+        
+      // Per emozioni positive, raccomanda training di base o avanzato
+      case 'felice':
+      case 'giocoso':
+      case 'curioso':
+        return 'basic-obedience';
+        
+      case 'calmo':
+      case 'rilassato':
+      case 'sereno':
+        return 'advanced-training';
+        
+      default:
+        continue;
     }
   }
   
-  // Se è presente un'emozione negativa ma non specifica, raccomanda gestione ansia
-  return 'anxiety-management';
+  // Se nessuna emozione specifica è matchata, raccomanda obbedienza di base
+  return 'basic-obedience';
 };
