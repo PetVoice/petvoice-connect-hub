@@ -477,6 +477,9 @@ const WellnessPage = () => {
   const [showAddContact, setShowAddContact] = useState(false);
   const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
+  const [showNearbyVets, setShowNearbyVets] = useState(false);
+  const [nearbyVets, setNearbyVets] = useState<any[]>([]);
+  const [loadingNearbyVets, setLoadingNearbyVets] = useState(false);
   
   // Edit states
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
@@ -1291,6 +1294,53 @@ const WellnessPage = () => {
   // Handle phone call
   const handlePhoneCall = (phoneNumber: string) => {
     window.location.href = `tel:${phoneNumber}`;
+  };
+
+  // Find nearby veterinarians
+  const findNearbyVets = async () => {
+    setLoadingNearbyVets(true);
+    try {
+      // Get user's location
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+
+      // Call our edge function
+      const { data, error } = await supabase.functions.invoke('find-nearby-vets', {
+        body: { latitude, longitude, radius: 5000 } // 5km radius
+      });
+
+      if (error) throw error;
+
+      setNearbyVets(data.veterinarians || []);
+      setShowNearbyVets(true);
+
+    } catch (error: any) {
+      console.error('Error finding nearby vets:', error);
+      let errorMessage = 'Impossibile trovare veterinari nelle vicinanze';
+      
+      if (error.code === 1) { // PERMISSION_DENIED
+        errorMessage = 'Permesso di geolocalizzazione negato. Abilita la geolocalizzazione per trovare veterinari vicini.';
+      } else if (error.code === 2) { // POSITION_UNAVAILABLE
+        errorMessage = 'Posizione non disponibile. Controlla la connessione GPS.';
+      } else if (error.code === 3) { // TIMEOUT
+        errorMessage = 'Timeout nella rilevazione della posizione. Riprova.';
+      }
+      
+      toast({
+        title: "Errore",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingNearbyVets(false);
+    }
   };
 
   // Handle delete with confirmation
@@ -2296,12 +2346,35 @@ const WellnessPage = () => {
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun veterinario registrato</p>
-                    </div>
-                  )}
+                   ) : (
+                     <div className="text-center py-4 text-muted-foreground">
+                       <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                       <p className="text-sm">Nessun veterinario registrato</p>
+                     </div>
+                   )}
+                   
+                   {/* Bottone per cercare veterinari vicini */}
+                   <div className="pt-2 border-t">
+                     <Button 
+                       size="sm" 
+                       variant="outline" 
+                       className="w-full h-8"
+                       onClick={findNearbyVets}
+                       disabled={loadingNearbyVets}
+                     >
+                       {loadingNearbyVets ? (
+                         <>
+                           <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full mr-2" />
+                           Ricerca...
+                         </>
+                       ) : (
+                         <>
+                           <MapPin className="h-3 w-3 mr-2" />
+                           Trova veterinari vicini
+                         </>
+                       )}
+                     </Button>
+                   </div>
                 </CardContent>
               </Card>
 
@@ -2831,11 +2904,97 @@ const WellnessPage = () => {
          userId={user?.id || ''}
        />
 
-       {/* First Aid Guide Dialog */}
-       <FirstAidGuide 
-         open={showFirstAidGuide} 
-         onOpenChange={setShowFirstAidGuide} 
-       />
+        {/* Nearby Veterinarians Dialog */}
+        <Dialog open={showNearbyVets} onOpenChange={setShowNearbyVets}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-purple-500" />
+                Veterinari nelle vicinanze
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {nearbyVets.length > 0 ? (
+                nearbyVets.map((vet) => (
+                  <div key={vet.id} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-lg">{vet.name}</h3>
+                        <p className="text-sm text-muted-foreground">{vet.address}</p>
+                        
+                        <div className="flex items-center gap-4 mt-2">
+                          {vet.rating && (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{vet.rating}</span>
+                              {vet.userRatingsTotal && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({vet.userRatingsTotal} recensioni)
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
+                          {vet.isOpen !== undefined && (
+                            <Badge variant={vet.isOpen ? 'default' : 'secondary'}>
+                              {vet.isOpen ? 'Aperto' : 'Chiuso'}
+                            </Badge>
+                          )}
+                          
+                          {vet.priceLevel && (
+                            <div className="text-sm text-muted-foreground">
+                              {'€'.repeat(vet.priceLevel)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {vet.photo && (
+                        <img 
+                          src={vet.photo} 
+                          alt={vet.name}
+                          className="w-16 h-16 rounded-lg object-cover ml-4"
+                        />
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(vet.name + ' ' + vet.address)}&query_place_id=${vet.id}`, '_blank')}
+                      >
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Indicazioni
+                      </Button>
+                      
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(vet.name + ' ' + vet.address)}`, '_blank')}
+                      >
+                        <Phone className="h-3 w-3 mr-1" />
+                        Contatti
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Nessun veterinario trovato nelle vicinanze</p>
+                  <p className="text-sm mt-2">Prova ad aumentare la distanza di ricerca</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* First Aid Guide Dialog */}
+        <FirstAidGuide 
+          open={showFirstAidGuide} 
+          onOpenChange={setShowFirstAidGuide} 
+        />
 
      </div>
   );
