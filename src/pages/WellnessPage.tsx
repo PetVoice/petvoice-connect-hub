@@ -797,7 +797,8 @@ const WellnessPage = () => {
       setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
       setShowAddMetric(false);
       setEditingMetric(null);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error saving metric:', error);
       toast({
@@ -865,7 +866,8 @@ const WellnessPage = () => {
       setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
       setShowAddContact(false);
       setEditingContact(null);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error saving emergency contact:', error);
       toast({
@@ -982,7 +984,8 @@ const WellnessPage = () => {
       setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
       setShowAddVet(false);
       setEditingVet(null);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error saving veterinarian:', error);
       toast({
@@ -1051,7 +1054,8 @@ const WellnessPage = () => {
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
       setShowAddDocument(false);
       setEditingRecord(null);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error saving medical record:', error);
       toast({
@@ -1121,7 +1125,8 @@ const WellnessPage = () => {
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
       setShowAddMedication(false);
       setEditingMedication(null);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error saving medication:', error);
       toast({
@@ -1243,7 +1248,8 @@ const WellnessPage = () => {
 
       setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
       setShowDiaryDialog(false);
-      await fetchHealthData();
+      // Don't await here to prevent page reload
+      fetchHealthData();
     } catch (error) {
       console.error('Error adding diary entry:', error);
       toast({
@@ -1449,34 +1455,48 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Emotion Analysis Card */}
+              {/* Detailed Emotions Analysis Card */}
               <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-pink-500" />
+                    <PieChartIcon className="h-5 w-5 text-pink-500" />
                     Analisi Emozioni
                   </CardTitle>
+                  <CardDescription>Distribuzione completa delle emozioni</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {Object.keys(emotionCounts).length > 0 ? (
-                    <div className="space-y-2">
-                      {Object.entries(emotionCounts).slice(0, 3).map(([emotion, count]) => (
-                        <div key={emotion} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
-                              style={{ backgroundColor: EMOTION_COLORS[emotion] || '#64748b' }}
-                            />
-                            <span className="text-sm capitalize">{emotion}</span>
+                <CardContent className="space-y-2">
+                  {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {Object.entries(emotionCounts)
+                        .sort(([,a], [,b]) => b - a)
+                        .map(([emotion, count], index) => (
+                          <div key={emotion} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
+                              />
+                              <span className="text-sm capitalize">{emotion}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-muted rounded-full h-2">
+                                <div 
+                                  className="h-2 rounded-full"
+                                  style={{ 
+                                    width: `${(count / Math.max(...Object.values(emotionCounts))) * 100}%`,
+                                    backgroundColor: EMOTION_COLORS[emotion] || '#6b7280'
+                                  }}
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-8 text-right">{count}</span>
+                            </div>
                           </div>
-                          <span className="text-sm font-medium">{count}x</span>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
-                      <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna analisi emotiva</p>
+                      <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna emozione da analizzare</p>
                     </div>
                   )}
                 </CardContent>
@@ -1516,14 +1536,24 @@ const WellnessPage = () => {
                               {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
                             </span>
                           </div>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 text-red-500"
-                            onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 text-blue-500"
+                              onClick={() => handleEditMetric(metric)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 text-red-500"
+                              onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       );
                     })
@@ -2031,52 +2061,6 @@ const WellnessPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
 
-              {/* Detailed Emotions Analysis Card */}
-              <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <PieChartIcon className="h-5 w-5 text-pink-500" />
-                    Analisi Emozioni
-                  </CardTitle>
-                  <CardDescription>Distribuzione completa delle emozioni</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {Object.entries(emotionCounts)
-                        .sort(([,a], [,b]) => b - a)
-                        .map(([emotion, count], index) => (
-                          <div key={emotion} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
-                              />
-                              <span className="text-sm capitalize">{emotion}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 bg-muted rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full"
-                                  style={{ 
-                                    width: `${(count / Math.max(...Object.values(emotionCounts))) * 100}%`,
-                                    backgroundColor: EMOTION_COLORS[emotion] || '#6b7280'
-                                  }}
-                                />
-                              </div>
-                              <span className="text-sm font-medium w-8 text-right">{count}</span>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna emozione da analizzare</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
 
             </div>
           </div>
@@ -2383,14 +2367,15 @@ const WellnessPage = () => {
           <div className="flex gap-2 pt-4">
             <Button 
               onClick={() => {
-                setShowAddMedication(false);
-                setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+                setShowAddVet(false);
+                setEditingVet(null);
+                setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
               }} 
               variant="outline"
             >
               Annulla
             </Button>
-            <Button onClick={handleAddMedication}>
+            <Button onClick={handleAddVet}>
               Salva
             </Button>
           </div>
@@ -2495,6 +2480,7 @@ const WellnessPage = () => {
             <Button 
               onClick={() => {
                 setShowAddMetric(false);
+                setEditingMetric(null);
                 setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
               }} 
               variant="outline"
@@ -2621,6 +2607,73 @@ const WellnessPage = () => {
         variant="destructive"
          confirmText="Elimina"
        />
+
+       {/* Diary Entry Dialog */}
+       <Dialog open={showDiaryDialog} onOpenChange={setShowDiaryDialog}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle>Nuova Voce del Diario</DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4">
+             <div>
+               <Label htmlFor="diary_title">Titolo *</Label>
+               <Input
+                 id="diary_title"
+                 value={newDiaryEntry.title}
+                 onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, title: e.target.value }))}
+                 placeholder="Titolo della voce"
+               />
+             </div>
+             <div>
+               <Label htmlFor="diary_content">Contenuto</Label>
+               <Textarea
+                 id="diary_content"
+                 value={newDiaryEntry.content}
+                 onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, content: e.target.value }))}
+                 placeholder="Descrivi il comportamento osservato..."
+                 rows={3}
+               />
+             </div>
+             <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <Label htmlFor="diary_mood">Umore (1-10)</Label>
+                 <Input
+                   id="diary_mood"
+                   type="number"
+                   min="1"
+                   max="10"
+                   value={newDiaryEntry.mood_score}
+                   onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, mood_score: e.target.value }))}
+                   placeholder="5"
+                 />
+               </div>
+               <div>
+                 <Label htmlFor="diary_tags">Comportamenti (es: giocoso,calmo)</Label>
+                 <Input
+                   id="diary_tags"
+                   value={newDiaryEntry.behavioral_tags}
+                   onChange={(e) => setNewDiaryEntry(prev => ({ ...prev, behavioral_tags: e.target.value }))}
+                   placeholder="felice, energico"
+                 />
+               </div>
+             </div>
+           </div>
+           <div className="flex gap-2 pt-4">
+             <Button 
+               onClick={() => {
+                 setShowDiaryDialog(false);
+                 setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
+               }} 
+               variant="outline"
+             >
+               Annulla
+             </Button>
+             <Button onClick={handleAddDiaryEntry}>
+               Salva Voce
+             </Button>
+           </div>
+         </DialogContent>
+       </Dialog>
 
        {/* First Aid Guide Dialog */}
        <FirstAidGuide 
