@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { SimpleFileUpload } from '@/components/SimpleFileUpload';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -502,7 +503,6 @@ const WellnessPage = () => {
   const [insuranceUploadedFiles, setInsuranceUploadedFiles] = useState<File[]>([]);
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
-  const [filePreview, setFilePreview] = useState<{ open: boolean; file: File | null; url: string }>({ open: false, file: null, url: '' });
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('month'); // Default to month
   
@@ -2235,14 +2235,14 @@ const WellnessPage = () => {
                               </Badge>
                             </div>
                              <div className="flex gap-1">
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-blue-500"
-                                 onClick={() => handleEditRecord(record)}
-                               >
-                                 <Edit className="h-3 w-3" />
-                               </Button>
+                                <Button
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-6 w-6 p-0 text-blue-500"
+                                  onClick={() => handleEditRecord(record)}
+                                >
+                                  <Edit className="h-3 w-3" />
+                                </Button>
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
@@ -2807,106 +2807,14 @@ const WellnessPage = () => {
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="document_files">Documenti/Immagini</Label>
-              <Input
-                id="document_files"
-                type="file"
-                multiple
-                accept="image/*,application/pdf,.txt"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  setUploadedFiles(files);
-                }}
-                className="mt-1"
-              />
-              {uploadedFiles.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  <p className="text-sm text-muted-foreground">File selezionati:</p>
-                  {uploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 border rounded-lg">
-                      <div className="flex-1">
-                        <span className="text-sm font-medium">{file.name}</span>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (file.type === 'application/pdf') {
-                              // Per PDF, apri in una nuova finestra che sostituisce quella corrente
-                              const url = URL.createObjectURL(file);
-                              const newWindow = window.open('', '_blank');
-                              if (newWindow) {
-                                newWindow.document.write(`
-                                  <html>
-                                    <head><title>${file.name}</title></head>
-                                    <body style="margin:0;padding:0;">
-                                      <iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>
-                                    </body>
-                                  </html>
-                                `);
-                                newWindow.document.close();
-                              }
-                            } else {
-                              // Per altri file, usa la dialog
-                              const url = URL.createObjectURL(file);
-                              setFilePreview({ open: true, file, url });
-                            }
-                          }}
-                          className="h-8 w-8 p-0"
-                          title="Visualizza"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            const url = URL.createObjectURL(file);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = file.name;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                          }}
-                          className="h-8 w-8 p-0"
-                          title="Scarica"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setConfirmDialog({
-                              open: true,
-                              title: "Rimuovi File",
-                              description: `Sei sicuro di voler rimuovere "${file.name}"?`,
-                              onConfirm: () => {
-                                setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                // Reset dell'input file
-                                const fileInput = document.getElementById('document_files') as HTMLInputElement;
-                                if (fileInput) fileInput.value = '';
-                              }
-                            });
-                          }}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                          title="Rimuovi"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <SimpleFileUpload
+              id="document_files"
+              label="Documenti/Immagini"
+              accept="image/*,application/pdf,.txt"
+              multiple={true}
+              value={uploadedFiles}
+              onChange={setUploadedFiles}
+            />
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
@@ -3236,106 +3144,14 @@ const WellnessPage = () => {
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="insurance_files">Documenti Polizza</Label>
-              <Input
-                id="insurance_files"
-                type="file"
-                multiple
-                accept="image/*,application/pdf,.txt"
-                onChange={(e) => {
-                  const files = Array.from(e.target.files || []);
-                  setInsuranceUploadedFiles(files);
-                }}
-                className="mt-1"
-              />
-              {insuranceUploadedFiles.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  <p className="text-sm text-muted-foreground">File selezionati:</p>
-                  {insuranceUploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 border rounded-lg">
-                      <div className="flex-1">
-                        <span className="text-sm font-medium">{file.name}</span>
-                        <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (file.type === 'application/pdf') {
-                              // Per PDF, apri in una nuova finestra che sostituisce quella corrente
-                              const url = URL.createObjectURL(file);
-                              const newWindow = window.open('', '_blank');
-                              if (newWindow) {
-                                newWindow.document.write(`
-                                  <html>
-                                    <head><title>${file.name}</title></head>
-                                    <body style="margin:0;padding:0;">
-                                      <iframe src="${url}" width="100%" height="100%" style="border:none;"></iframe>
-                                    </body>
-                                  </html>
-                                `);
-                                newWindow.document.close();
-                              }
-                            } else {
-                              // Per altri file, usa la dialog
-                              const url = URL.createObjectURL(file);
-                              setFilePreview({ open: true, file, url });
-                            }
-                          }}
-                          className="h-8 w-8 p-0"
-                          title="Visualizza"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            const url = URL.createObjectURL(file);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = file.name;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                          }}
-                          className="h-8 w-8 p-0"
-                          title="Scarica"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setConfirmDialog({
-                              open: true,
-                              title: "Rimuovi File",
-                              description: `Sei sicuro di voler rimuovere "${file.name}"?`,
-                              onConfirm: () => {
-                                setInsuranceUploadedFiles(prev => prev.filter((_, i) => i !== index));
-                                // Reset dell'input file
-                                const fileInput = document.getElementById('insurance_files') as HTMLInputElement;
-                                if (fileInput) fileInput.value = '';
-                              }
-                            });
-                          }}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                          title="Rimuovi"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <SimpleFileUpload
+              id="insurance_files"
+              label="Documenti Polizza"
+              accept="image/*,application/pdf,.txt"
+              multiple={true}
+              value={insuranceUploadedFiles}
+              onChange={setInsuranceUploadedFiles}
+            />
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
@@ -3369,92 +3185,6 @@ const WellnessPage = () => {
 
        {/* File upload components working correctly */}
 
-       {/* File Preview Dialog */}
-       <Dialog open={filePreview.open} onOpenChange={(open) => {
-         if (!open) {
-           if (filePreview.url) {
-             URL.revokeObjectURL(filePreview.url);
-           }
-           setFilePreview({ open: false, file: null, url: '' });
-         }
-       }}>
-         <DialogContent className="max-w-6xl max-h-[95vh] w-[95vw]">
-           <DialogHeader>
-             <DialogTitle className="flex items-center gap-2">
-               <FileText className="h-5 w-5" />
-               {filePreview.file?.name}
-             </DialogTitle>
-             <DialogDescription>
-               {filePreview.file?.type} - {(filePreview.file?.size ? filePreview.file.size / 1024 / 1024 : 0).toFixed(2)} MB
-             </DialogDescription>
-           </DialogHeader>
-           <div className="flex-1 overflow-hidden">
-             {filePreview.file && (
-               <div className="w-full h-full">
-                 {filePreview.file.type.startsWith('image/') ? (
-                   <div className="w-full h-[70vh] flex items-center justify-center bg-gray-50 rounded-lg">
-                     <img 
-                       src={filePreview.url} 
-                       alt={filePreview.file.name}
-                       className="max-w-full max-h-full object-contain"
-                     />
-                   </div>
-                 ) : filePreview.file.type === 'application/pdf' ? (
-                   <div className="w-full h-[70vh] border rounded-lg">
-                     <object 
-                       data={filePreview.url}
-                       type="application/pdf"
-                       className="w-full h-full"
-                     >
-                       <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                         <FileText className="h-16 w-16 mx-auto mb-4 text-red-500" />
-                         <p className="text-lg font-medium mb-2">PDF: {filePreview.file.name}</p>
-                         <p className="text-muted-foreground mb-4">
-                           Il browser non supporta la visualizzazione PDF integrata
-                         </p>
-                         <Button 
-                           onClick={() => {
-                             const a = document.createElement('a');
-                             a.href = filePreview.url;
-                             a.download = filePreview.file?.name || 'document.pdf';
-                             document.body.appendChild(a);
-                             a.click();
-                             document.body.removeChild(a);
-                           }}
-                         >
-                           <Download className="h-4 w-4 mr-2" />
-                           Scarica PDF
-                         </Button>
-                       </div>
-                     </object>
-                   </div>
-                 ) : (
-                   <div className="w-full h-[70vh] flex flex-col items-center justify-center text-center p-8 border rounded-lg">
-                     <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                     <p className="text-lg font-medium mb-2">{filePreview.file.name}</p>
-                     <p className="text-muted-foreground mb-4">
-                       Anteprima non disponibile per questo tipo di file
-                     </p>
-                     <Button 
-                       onClick={() => {
-                         const a = document.createElement('a');
-                         a.href = filePreview.url;
-                         a.download = filePreview.file?.name || 'file';
-                         document.body.appendChild(a);
-                         a.click();
-                         document.body.removeChild(a);
-                       }}
-                     >
-                       <Download className="h-4 w-4 mr-2" />
-                       Scarica File
-                     </Button>
-                   </div>
-                 )}
-               </div>
-             )}
-           </div>
-         </DialogContent>
-       </Dialog>
 
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
