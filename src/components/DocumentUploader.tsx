@@ -31,7 +31,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
-  const [selectedDocument, setSelectedDocument] = useState<{ url: string; type: string } | null>(null);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -214,7 +213,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     {isImage(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                        onClick={() => window.open(preview.url, '_blank')}
                       >
                         <img 
                           src={preview.url} 
@@ -237,7 +236,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : isPDF(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                        onClick={() => window.open(preview.url, '_blank')}
                       >
                         <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
                           <FileText className="h-12 w-12 text-red-600 mb-1" />
@@ -250,7 +249,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : (
                       <div 
                         className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2 cursor-pointer hover:border-primary transition-all group relative"
-                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                        onClick={() => window.open(preview.url, '_blank')}
                       >
                         {getFileIcon(preview.type)}
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
@@ -268,15 +267,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     </div>
                   </div>
                     <div className="flex items-center space-x-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
-                        title="Visualizza anteprima"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
                       <Button
                         type="button"
                         variant="ghost"
@@ -303,76 +293,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         </div>
       )}
 
-      {/* Document Preview Dialog */}
-      <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              Anteprima documento
-              <Button 
-                type="button"
-                variant="outline" 
-                size="sm"
-                onClick={() => window.open(selectedDocument?.url, '_blank')}
-              >
-                Apri in nuova scheda
-              </Button>
-            </DialogTitle>
-            <DialogDescription>
-              Visualizza l'anteprima del documento caricato
-            </DialogDescription>
-          </DialogHeader>
-          {selectedDocument && (
-            <div className="flex justify-center">
-              {isImage(selectedDocument.type) ? (
-                <img 
-                  src={selectedDocument.url} 
-                  alt="Anteprima documento" 
-                  className="max-w-full max-h-[70vh] object-contain rounded-lg"
-                  onError={(e) => {
-                    console.error('Errore caricamento immagine:', selectedDocument.url);
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltbWFnaW5lIG5vbiBkaXNwb25pYmlsZTwvdGV4dD48L3N2Zz4=';
-                  }}
-                />
-              ) : isPDF(selectedDocument.type) ? (
-                <div className="flex items-center justify-center h-64">
-                  <div className="text-center">
-                    <FileText className="h-12 w-12 mx-auto mb-2 text-red-600" />
-                    <p className="text-sm text-muted-foreground mb-4">Anteprima PDF</p>
-                    <p className="text-xs text-muted-foreground mb-4">
-                      Il PDF è stato caricato correttamente. Clicca per aprirlo in una nuova scheda.
-                    </p>
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => window.open(selectedDocument.url, '_blank')}
-                    >
-                      Apri PDF
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-64">
-                  <div className="text-center">
-                    <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                    <p>Anteprima non disponibile per questo tipo di file</p>
-                    <Button 
-                      type="button"
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => window.open(selectedDocument.url, '_blank')}
-                    >
-                      Apri file
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
