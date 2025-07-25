@@ -1319,10 +1319,14 @@ const WellnessPage = () => {
             : record
         ));
       } else {
-        // Refresh data after successful save with a small delay to avoid infinite loop
-        setTimeout(() => {
+        // Forza un refresh immediato dei dati
+        setMedicalRecords(prev => {
+          // Prima rimuovi eventuali record temporanei
+          const filtered = prev.filter(record => !record.id.toString().startsWith('temp_'));
+          // Poi ricarica i dati dal server
           fetchHealthData();
-        }, 500);
+          return filtered;
+        });
       }
     } catch (error) {
       console.error('Error saving medical record:', error);
