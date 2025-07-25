@@ -1242,28 +1242,16 @@ export const AITrainingHub: React.FC = () => {
           {selectedProtocol && (
             <div className="space-y-8">
               {/* Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="p-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{selectedProtocol.duration_days}</div>
-                    <div className="text-sm text-muted-foreground">Giorni</div>
+                    <div className="text-2xl font-bold text-primary">{selectedProtocol.exercise_count || 0}</div>
+                    <div className="text-sm text-muted-foreground">Esercizi</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{selectedProtocol.progress_percentage}%</div>
-                    <div className="text-sm text-muted-foreground">Completato</div>
-                  </div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{selectedProtocol.current_day}</div>
-                    <div className="text-sm text-muted-foreground">Giorno corrente</div>
-                  </div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate)}%</div>
+                    <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate || 0)}%</div>
                     <div className="text-sm text-muted-foreground">Successo</div>
                   </div>
                 </Card>
