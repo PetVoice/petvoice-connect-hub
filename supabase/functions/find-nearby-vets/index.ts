@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,42 +20,61 @@ serve(async (req) => {
       )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_PLACES_API_KEY')
-    if (!googleApiKey) {
-      return new Response(
-        JSON.stringify({ error: 'Google Places API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    // Use OpenStreetMap Overpass API (completely free, no API key needed)
+    const overpassQuery = `
+      [out:json][timeout:25];
+      (
+        nwr["amenity"="veterinary"](around:${radius},${latitude},${longitude});
+        nwr["shop"="pet_grooming"]["veterinary"="yes"](around:${radius},${latitude},${longitude});
+        nwr["healthcare"="veterinary"](around:${radius},${latitude},${longitude});
+      );
+      out geom;
+    `;
 
-    // Search for veterinary clinics using Google Places API
-    const searchUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=veterinary_care&key=${googleApiKey}`
+    const overpassUrl = 'https://overpass-api.de/api/interpreter'
     
-    const response = await fetch(searchUrl)
+    const response = await fetch(overpassUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `data=${encodeURIComponent(overpassQuery)}`
+    })
+
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.error_message || 'Failed to fetch places')
+      throw new Error('Failed to fetch from OpenStreetMap')
     }
 
     // Transform the results to a more usable format
-    const veterinarians = data.results?.map((place: any) => ({
-      id: place.place_id,
-      name: place.name,
-      address: place.vicinity,
-      rating: place.rating,
-      userRatingsTotal: place.user_ratings_total,
-      isOpen: place.opening_hours?.open_now,
-      photo: place.photos?.[0] ? 
-        `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${googleApiKey}` 
-        : null,
-      location: {
-        lat: place.geometry.location.lat,
-        lng: place.geometry.location.lng
-      },
-      priceLevel: place.price_level,
-      types: place.types
-    })) || []
+    const veterinarians = data.elements?.map((element: any) => {
+      const tags = element.tags || {}
+      const lat = element.lat || (element.center ? element.center.lat : null)
+      const lon = element.lon || (element.center ? element.center.lon : null)
+      
+      // Calculate distance from user location
+      const distance = lat && lon ? calculateDistance(latitude, longitude, lat, lon) : null
+      
+      return {
+        id: element.id.toString(),
+        name: tags.name || tags.operator || 'Veterinario',
+        address: buildAddress(tags),
+        phone: tags.phone || tags['contact:phone'],
+        website: tags.website || tags['contact:website'],
+        email: tags.email || tags['contact:email'],
+        openingHours: tags.opening_hours,
+        location: {
+          lat: lat,
+          lng: lon
+        },
+        distance: distance ? Math.round(distance * 100) / 100 : null, // Round to 2 decimal places
+        source: 'OpenStreetMap',
+        tags: tags
+      }
+    }).filter((vet: any) => vet.location.lat && vet.location.lng) // Filter out entries without coordinates
+    .sort((a: any, b: any) => (a.distance || Infinity) - (b.distance || Infinity)) // Sort by distance
+    || []
 
     return new Response(
       JSON.stringify({ veterinarians }),
@@ -71,3 +89,38 @@ serve(async (req) => {
     )
   }
 })
+
+// Helper function to calculate distance between two points (Haversine formula)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  return R * c
+}
+
+// Helper function to build address from OSM tags
+function buildAddress(tags: any): string {
+  const parts = []
+  
+  if (tags['addr:street']) {
+    let street = tags['addr:street']
+    if (tags['addr:housenumber']) {
+      street += ` ${tags['addr:housenumber']}`
+    }
+    parts.push(street)
+  }
+  
+  if (tags['addr:city']) {
+    parts.push(tags['addr:city'])
+  }
+  
+  if (tags['addr:postcode']) {
+    parts.push(tags['addr:postcode'])
+  }
+  
+  return parts.length > 0 ? parts.join(', ') : (tags.address || 'Indirizzo non disponibile')
+}

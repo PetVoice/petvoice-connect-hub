@@ -3033,59 +3033,64 @@ const WellnessPage = () => {
                         <p className="text-sm text-muted-foreground">{vet.address}</p>
                         
                         <div className="flex items-center gap-4 mt-2">
-                          {vet.rating && (
+                          {vet.distance && (
                             <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{vet.rating}</span>
-                              {vet.userRatingsTotal && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({vet.userRatingsTotal} recensioni)
-                                </span>
-                              )}
+                              <MapPin className="h-4 w-4 text-blue-500" />
+                              <span className="text-sm font-medium">{vet.distance} km</span>
                             </div>
                           )}
                           
-                          {vet.isOpen !== undefined && (
-                            <Badge variant={vet.isOpen ? 'default' : 'secondary'}>
-                              {vet.isOpen ? 'Aperto' : 'Chiuso'}
+                          {vet.phone && (
+                            <div className="flex items-center gap-1">
+                              <Phone className="h-4 w-4 text-green-500" />
+                              <span className="text-sm">{vet.phone}</span>
+                            </div>
+                          )}
+                          
+                          {vet.openingHours && (
+                            <Badge variant="outline" className="text-xs">
+                              {vet.openingHours}
                             </Badge>
                           )}
                           
-                          {vet.priceLevel && (
-                            <div className="text-sm text-muted-foreground">
-                              {'€'.repeat(vet.priceLevel)}
-                            </div>
-                          )}
+                          <Badge variant="secondary" className="text-xs">
+                            {vet.source || 'OpenStreetMap'}
+                          </Badge>
                         </div>
                       </div>
-                      
-                      {vet.photo && (
-                        <img 
-                          src={vet.photo} 
-                          alt={vet.name}
-                          className="w-16 h-16 rounded-lg object-cover ml-4"
-                        />
-                      )}
                     </div>
                     
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(vet.name + ' ' + vet.address)}&query_place_id=${vet.id}`, '_blank')}
-                      >
-                        <MapPin className="h-3 w-3 mr-1" />
-                        Indicazioni
-                      </Button>
+                      {vet.phone && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => window.location.href = `tel:${vet.phone}`}
+                        >
+                          <Phone className="h-3 w-3 mr-1" />
+                          Chiama
+                        </Button>
+                      )}
                       
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(vet.name + ' ' + vet.address)}`, '_blank')}
                       >
-                        <Phone className="h-3 w-3 mr-1" />
-                        Contatti
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Indicazioni
                       </Button>
+                      
+                      {vet.website && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => window.open(vet.website, '_blank')}
+                        >
+                          <User className="h-3 w-3 mr-1" />
+                          Sito Web
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))
