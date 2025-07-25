@@ -2656,7 +2656,7 @@ const WellnessPage = () => {
           </Card>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Wellness Trend */}
             <Card>
               <CardHeader>
@@ -2671,7 +2671,7 @@ const WellnessPage = () => {
               <CardContent>
                 <ChartContainer config={{
                   score: { label: "Benessere", color: "hsl(var(--primary))" }
-                }} className="h-[300px]">
+                }} className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={displayAnalytics.wellnessTrends || []}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -2707,7 +2707,7 @@ const WellnessPage = () => {
               <CardContent>
                 <ChartContainer config={{
                   mood: { label: "Umore", color: "hsl(var(--primary))" }
-                }} className="h-[300px]">
+                }} className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={displayAnalytics.moodTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
@@ -2748,7 +2748,7 @@ const WellnessPage = () => {
                     weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
                     respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
                     gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
-                  }} className="h-[300px]">
+                  }} className="h-[250px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={displayAnalytics.healthTrends}>
                         <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
