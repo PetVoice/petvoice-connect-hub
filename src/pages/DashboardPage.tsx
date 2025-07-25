@@ -18,6 +18,7 @@ import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
+import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -221,6 +222,11 @@ const DashboardPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
         </Card>
+      )}
+
+      {/* Wellness Trend Chart */}
+      {selectedPet && user && (
+        <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
       )}
 
       {/* Quick Actions */}
