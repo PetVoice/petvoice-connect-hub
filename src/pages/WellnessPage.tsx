@@ -1843,14 +1843,9 @@ const WellnessPage = () => {
                       <p className="text-sm">Nessun farmaco attivo</p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                 </CardContent>
+               </Card>
 
-            </div>
-
-            {/* Secondary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
@@ -1915,7 +1910,12 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Emergency Contacts Card */}
+            </div>
+
+            {/* Secondary Health Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+               {/* Emergency Contacts Card */}
               <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
