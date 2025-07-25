@@ -154,8 +154,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   };
 
   const getFileIcon = (type: string) => {
-    if (type.startsWith('image/')) return <Image className="h-4 w-4" />;
-    return <FileText className="h-4 w-4" />;
+    if (type.startsWith('image/')) return <Image className="h-6 w-6" />;
+    return <FileText className="h-6 w-6" />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -243,8 +243,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         }}
                       >
                         <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
-                          <FileText className="h-12 w-12 text-red-600 mb-1" />
-                          <span className="text-sm text-red-600 font-semibold">PDF</span>
+                          <FileText className="h-8 w-8 text-red-600 mb-1" />
+                          <span className="text-xs text-red-600 font-semibold">PDF</span>
                         </div>
                       </div>
                     ) : (
