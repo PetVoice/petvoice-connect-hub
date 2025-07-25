@@ -1095,31 +1095,6 @@ export default function StatsPage() {
 
         {/* Emotions Tab */}
         <TabsContent value="emotions" className="space-y-6">
-          {/* Emotion Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dettaglio Emozioni</CardTitle>
-              <CardDescription>
-                Analisi approfondita delle emozioni rilevate
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {displayAnalytics.emotionDistribution.map((emotion, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium capitalize">{emotion.emotion}</span>
-                      <Badge variant="secondary">{emotion.count}</Badge>
-                    </div>
-                    <Progress value={emotion.percentage} className="h-2 mb-2" />
-                    <p className="text-sm text-muted-foreground">
-                      {emotion.percentage}% del totale
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Health Tab */}
@@ -1129,50 +1104,6 @@ export default function StatsPage() {
         {/* Behavior Tab */}
         <TabsContent value="behavior" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Behavioral Tags Analysis */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Comportamenti Osservati
-                </CardTitle>
-                <CardDescription>
-                  Tag comportamentali più frequenti dalle osservazioni
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
-                  <div className="space-y-3">
-                    {(() => {
-                      const tagCounts = diaryData
-                        .flatMap(d => d.behavioral_tags || [])
-                        .reduce((acc, tag) => {
-                          acc[tag] = (acc[tag] || 0) + 1;
-                          return acc;
-                        }, {} as Record<string, number>);
-                      
-                      const sortedTags = Object.entries(tagCounts)
-                        .sort(([,a], [,b]) => b - a)
-                        .slice(0, 10);
-                      
-                      return sortedTags.map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between p-2 bg-muted/50 rounded">
-                          <span className="capitalize font-medium">{tag}</span>
-                          <Badge variant="secondary">{count}</Badge>
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Eye className="h-12 w-12 mx-auto mb-2" />
-                    <p>Nessun comportamento registrato</p>
-                    <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Emotion-Behavior Correlation */}
             <Card>
               <CardHeader>
