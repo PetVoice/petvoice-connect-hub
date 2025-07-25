@@ -890,11 +890,11 @@ const WellnessPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, selectedPet?.id]); // Rimuovo toast dalle dipendenze per evitare loop infinito
+  }, [user?.id, selectedPet?.id, toast]);
 
   useEffect(() => {
     fetchHealthData();
-  }, [fetchHealthData]); // Ora usa fetchHealthData invece delle singole dipendenze
+  }, [user?.id, selectedPet?.id]);
 
   // Handle adding/editing metric
   const handleAddMetric = async () => {
