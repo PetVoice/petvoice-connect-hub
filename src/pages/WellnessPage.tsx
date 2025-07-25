@@ -1802,7 +1802,7 @@ const WellnessPage = () => {
           <p className="text-muted-foreground mb-4">
             Aggiungi un pet per iniziare a monitorare la sua salute
           </p>
-          <Button onClick={() => window.location.href = '/pets'}>
+          <Button type="button" onClick={() => window.location.href = '/pets'}>
             <Plus className="h-4 w-4 mr-2" />
             Aggiungi Pet
           </Button>
@@ -2572,7 +2572,7 @@ const WellnessPage = () => {
                     <p className="text-sm text-muted-foreground mb-3">
                       Guida rapida per emergenze
                     </p>
-                    <Button size="sm" variant="outline" className="h-8" onClick={() => setShowFirstAidGuide(true)}>
+                    <Button type="button" size="sm" variant="outline" className="h-8" onClick={() => setShowFirstAidGuide(true)}>
                       <BookOpen className="h-4 w-4 mr-1" />
                       Apri Guida
                     </Button>
@@ -2667,6 +2667,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddMedication(false);
                 setEditingMedication(null);
@@ -2676,7 +2677,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddMedication}>
+            <Button type="button" onClick={handleAddMedication}>
               {editingMedication ? 'Aggiorna' : 'Salva'}
             </Button>
           </div>
@@ -2731,6 +2732,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddDocument(false);
                 setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
@@ -2739,7 +2741,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddDocument}>
+            <Button type="button" onClick={handleAddDocument}>
               Salva
             </Button>
           </div>
@@ -2783,6 +2785,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddContact(false);
                 setEditingContact(null);
@@ -2792,7 +2795,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddContact}>
+            <Button type="button" onClick={handleAddContact}>
               Salva
             </Button>
           </div>
@@ -2836,6 +2839,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddVet(false);
                 setEditingVet(null);
@@ -2845,7 +2849,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddVet}>
+            <Button type="button" onClick={handleAddVet}>
               Salva
             </Button>
           </div>
@@ -2948,6 +2952,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddMetric(false);
                 setEditingMetric(null);
@@ -2957,7 +2962,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddMetric}>
+            <Button type="button" onClick={handleAddMetric}>
               Salva
             </Button>
           </div>
@@ -3055,6 +3060,7 @@ const WellnessPage = () => {
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
+              type="button"
               onClick={() => {
                 setShowAddInsurance(false);
                 setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
@@ -3063,7 +3069,7 @@ const WellnessPage = () => {
             >
               Annulla
             </Button>
-            <Button onClick={handleAddInsurance}>
+            <Button type="button" onClick={handleAddInsurance}>
               Salva
             </Button>
           </div>
