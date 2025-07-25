@@ -93,6 +93,7 @@ import {
   Tooltip
 } from 'recharts';
 import { calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
+import { DiaryEntry } from '@/types/diary';
 
 interface HealthMetric {
   id: string;
@@ -163,12 +164,6 @@ interface Insurance {
   is_active: boolean;
 }
 
-interface DiaryEntry {
-  id: string;
-  entry_date: string;
-  behavioral_tags?: string[];
-  mood_score?: number;
-}
 
 interface EmotionCount {
   [emotion: string]: number;
@@ -527,6 +522,7 @@ const WellnessPage = () => {
   const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   const [showDiaryDialog, setShowDiaryDialog] = useState(false);
+  const [editingDiaryEntry, setEditingDiaryEntry] = useState<DiaryEntry | null>(null);
   
   // Form data states
   const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
@@ -885,7 +881,7 @@ const WellnessPage = () => {
       // Fetch diary entries
       const { data: diary } = await supabase
         .from('diary_entries')
-        .select('id, entry_date, behavioral_tags, mood_score')
+        .select('*')
         .eq('user_id', user.id)
         .eq('pet_id', selectedPet.id)
         .order('entry_date', { ascending: false });
@@ -1629,102 +1625,51 @@ const WellnessPage = () => {
     setShowDiaryDialog(true);
   };
 
-  // Handle editing behavior tag
-  const handleEditBehaviorTag = async (oldTag: string) => {
-    console.log('handleEditBehaviorTag called with:', oldTag);
-    const newTag = prompt('Modifica comportamento:', oldTag);
-    console.log('User entered new tag:', newTag);
-    if (!newTag || newTag === oldTag) return;
-
-    try {
-      console.log('Starting to update behavior tag from', oldTag, 'to', newTag);
-      // Find all diary entries with this tag and update them
-      const entriesToUpdate = diaryEntries.filter(entry => 
-        entry.behavioral_tags?.includes(oldTag)
-      );
-      console.log('Found entries to update:', entriesToUpdate.length);
-
-      for (const entry of entriesToUpdate) {
-        const updatedTags = entry.behavioral_tags?.map(tag => 
-          tag === oldTag ? newTag : tag
-        ) || [];
-
-        await supabase
-          .from('diary_entries')
-          .update({ behavioral_tags: updatedTags })
-          .eq('id', entry.id);
-      }
-
-      // Refresh data
-      await fetchHealthData();
-      
-      // Trigger diary refresh event for other pages
-      console.log('Triggering diaryUpdated event for tag edit:', oldTag, '->', newTag);
-      window.dispatchEvent(new CustomEvent('diaryUpdated', { 
-        detail: { type: 'behaviorTagEdited', oldTag, newTag } 
-      }));
-      console.log('Event dispatched successfully');
-      
-      toast({
-        title: "Comportamento aggiornato",
-        description: `"${oldTag}" è stato rinominato in "${newTag}"`,
-      });
-    } catch (error) {
-      console.error('Error updating behavior tag:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare il comportamento",
-        variant: "destructive"
-      });
-    }
+  // Handle editing diary entry from behavior card
+  const handleEditDiaryEntry = (entry: DiaryEntry) => {
+    console.log('handleEditDiaryEntry called with:', entry);
+    // Set the entry to edit and open the form
+    setEditingDiaryEntry(entry);
+    setShowDiaryDialog(true);
   };
 
-  // Handle deleting behavior tag
-  const handleDeleteBehaviorTag = async (tagToDelete: string) => {
-    console.log('handleDeleteBehaviorTag called with:', tagToDelete);
+  // Handle deleting diary entry from behavior card
+  const handleDeleteDiaryEntry = (entry: DiaryEntry) => {
+    console.log('handleDeleteDiaryEntry called with:', entry);
     setConfirmDialog({
       open: true,
-      title: 'Elimina comportamento',
-      description: `Sei sicuro di voler eliminare il comportamento "${tagToDelete}" da tutte le voci del diario?`,
+      title: 'Elimina voce del diario',
+      description: `Sei sicuro di voler eliminare la voce del diario del ${format(new Date(entry.entry_date), 'dd/MM/yyyy')}?`,
       onConfirm: async () => {
         try {
-          console.log('Starting to delete behavior tag:', tagToDelete);
-          // Find all diary entries with this tag and remove it
-          const entriesToUpdate = diaryEntries.filter(entry => 
-            entry.behavioral_tags?.includes(tagToDelete)
-          );
-          console.log('Found entries to update:', entriesToUpdate.length);
+          console.log('Starting to delete diary entry:', entry.id);
+          
+          const { error } = await supabase
+            .from('diary_entries')
+            .delete()
+            .eq('id', entry.id);
 
-          for (const entry of entriesToUpdate) {
-            const updatedTags = entry.behavioral_tags?.filter(tag => 
-              tag !== tagToDelete
-            ) || [];
-
-            await supabase
-              .from('diary_entries')
-              .update({ behavioral_tags: updatedTags })
-              .eq('id', entry.id);
-          }
+          if (error) throw error;
 
           // Refresh data
           await fetchHealthData();
           
           // Trigger diary refresh event for other pages
-          console.log('Triggering diaryUpdated event for tag deletion:', tagToDelete);
+          console.log('Triggering diaryUpdated event for entry deletion:', entry.id);
           window.dispatchEvent(new CustomEvent('diaryUpdated', { 
-            detail: { type: 'behaviorTagDeleted', tag: tagToDelete } 
+            detail: { type: 'entryDeleted', entryId: entry.id } 
           }));
           console.log('Event dispatched successfully');
           
           toast({
-            title: "Comportamento eliminato",
-            description: `"${tagToDelete}" è stato rimosso da tutte le voci del diario`,
+            title: "Voce eliminata",
+            description: "La voce del diario è stata eliminata con successo",
           });
         } catch (error) {
-          console.error('Error deleting behavior tag:', error);
+          console.error('Error deleting diary entry:', error);
           toast({
             title: "Errore",
-            description: "Impossibile eliminare il comportamento",
+            description: "Impossibile eliminare la voce del diario",
             variant: "destructive"
           });
         }
@@ -2193,33 +2138,53 @@ const WellnessPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {behavioralTags.length > 0 ? (
+                  {diaryEntries.length > 0 ? (
                     <div className="space-y-2">
-                      {Object.entries(behavioralTagCounts).slice(0, 3).map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 flex-1">
-                            <Badge variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                            <span className="text-sm font-medium">{count}x</span>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-blue-500"
-                              onClick={() => handleEditBehaviorTag(tag)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-red-500"
-                              onClick={() => handleDeleteBehaviorTag(tag)}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                      {diaryEntries.slice(0, 3).map((entry) => (
+                        <div key={entry.id} className="border rounded-lg p-3 bg-muted/30">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-medium text-muted-foreground">
+                                  {format(new Date(entry.entry_date), 'dd/MM/yyyy')}
+                                </span>
+                                {entry.mood_score && (
+                                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                                    Umore: {entry.mood_score}/10
+                                  </span>
+                                )}
+                              </div>
+                              {entry.title && (
+                                <p className="text-sm font-medium truncate mb-1">{entry.title}</p>
+                              )}
+                              {entry.behavioral_tags && entry.behavioral_tags.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {entry.behavioral_tags.map((tag, index) => (
+                                    <Badge key={index} variant="secondary" className="text-xs">
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex gap-1 ml-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-6 w-6 p-0 text-blue-500"
+                                onClick={() => handleEditDiaryEntry(entry)}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-6 w-6 p-0 text-red-500"
+                                onClick={() => handleDeleteDiaryEntry(entry)}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -3222,7 +3187,11 @@ const WellnessPage = () => {
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
          isOpen={showDiaryDialog}
-         onClose={() => setShowDiaryDialog(false)}
+         onClose={() => {
+           setShowDiaryDialog(false);
+           setEditingDiaryEntry(null);
+         }}
+         entry={editingDiaryEntry}
          onSave={handleAddDiaryEntry}
          petId={selectedPet?.id || ''}
          userId={user?.id || ''}
