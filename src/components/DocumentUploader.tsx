@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Upload, X, FileText, Image, Eye, Download } from 'lucide-react';
+import { Upload, X, FileText, Image, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface DocumentUploaderProps {
@@ -229,9 +228,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         <div style={{ display: 'none' }} className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2">
                           {getFileIcon(preview.type)}
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
-                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
                       </div>
                     ) : isPDF(preview.type) ? (
                       <div 
@@ -242,9 +238,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                           <FileText className="h-12 w-12 text-red-600 mb-1" />
                           <span className="text-sm text-red-600 font-semibold">PDF</span>
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
-                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
                       </div>
                     ) : (
                       <div 
@@ -252,9 +245,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         onClick={() => window.open(preview.url, '_blank')}
                       >
                         {getFileIcon(preview.type)}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
-                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
