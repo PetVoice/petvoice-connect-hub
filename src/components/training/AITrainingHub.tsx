@@ -336,7 +336,8 @@ export const AITrainingHub: React.FC = () => {
   // Utility Functions
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'facile': return 'bg-green-500/20 text-green-700 border-green-500/20';
+      case 'facile': 
+      case 'principiante': return 'bg-green-500/20 text-green-700 border-green-500/20';
       case 'medio': 
       case 'intermedio': return 'bg-orange-500/20 text-orange-700 border-orange-500/20';
       case 'difficile':
@@ -348,9 +349,10 @@ export const AITrainingHub: React.FC = () => {
   const getDifficultyText = (difficulty: string) => {
     const difficultyMap: Record<string, string> = {
       facile: 'Facile',
-      medio: 'Medio',
+      principiante: 'Facile',
+      medio: 'Intermedio',
       intermedio: 'Intermedio',
-      difficile: 'Difficile',
+      difficile: 'Avanzato',
       avanzato: 'Avanzato'
     };
     return difficultyMap[difficulty] || difficulty;
