@@ -3064,6 +3064,7 @@ const WellnessPage = () => {
             <div>
               <Label>Documenti e Foto</Label>
               <DocumentUploader
+                bucketName="insurance-documents"
                 onUpload={(urls) => setNewInsurance(prev => ({ ...prev, document_urls: urls }))}
                 existingFiles={newInsurance.document_urls}
                 maxFiles={5}
