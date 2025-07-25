@@ -315,12 +315,21 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                   }}
                 />
               ) : isPDF(selectedDocument.type) ? (
-                <div className="w-full h-[70vh]">
-                  <iframe
-                    src={selectedDocument.url}
-                    className="w-full h-full border rounded-lg"
-                    title="Anteprima PDF"
-                  />
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center">
+                    <FileText className="h-12 w-12 mx-auto mb-2 text-red-600" />
+                    <p className="text-sm text-muted-foreground mb-4">Anteprima PDF</p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Il PDF è stato caricato correttamente. Clicca per aprirlo in una nuova scheda.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => window.open(selectedDocument.url, '_blank')}
+                    >
+                      Apri PDF
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-64">
