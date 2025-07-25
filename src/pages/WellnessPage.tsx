@@ -1631,14 +1631,18 @@ const WellnessPage = () => {
 
   // Handle editing behavior tag
   const handleEditBehaviorTag = async (oldTag: string) => {
+    console.log('handleEditBehaviorTag called with:', oldTag);
     const newTag = prompt('Modifica comportamento:', oldTag);
+    console.log('User entered new tag:', newTag);
     if (!newTag || newTag === oldTag) return;
 
     try {
+      console.log('Starting to update behavior tag from', oldTag, 'to', newTag);
       // Find all diary entries with this tag and update them
       const entriesToUpdate = diaryEntries.filter(entry => 
         entry.behavioral_tags?.includes(oldTag)
       );
+      console.log('Found entries to update:', entriesToUpdate.length);
 
       for (const entry of entriesToUpdate) {
         const updatedTags = entry.behavioral_tags?.map(tag => 
@@ -1675,16 +1679,19 @@ const WellnessPage = () => {
 
   // Handle deleting behavior tag
   const handleDeleteBehaviorTag = async (tagToDelete: string) => {
+    console.log('handleDeleteBehaviorTag called with:', tagToDelete);
     setConfirmDialog({
       open: true,
       title: 'Elimina comportamento',
       description: `Sei sicuro di voler eliminare il comportamento "${tagToDelete}" da tutte le voci del diario?`,
       onConfirm: async () => {
         try {
+          console.log('Starting to delete behavior tag:', tagToDelete);
           // Find all diary entries with this tag and remove it
           const entriesToUpdate = diaryEntries.filter(entry => 
             entry.behavioral_tags?.includes(tagToDelete)
           );
+          console.log('Found entries to update:', entriesToUpdate.length);
 
           for (const entry of entriesToUpdate) {
             const updatedTags = entry.behavioral_tags?.filter(tag => 

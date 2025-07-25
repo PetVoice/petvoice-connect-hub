@@ -120,7 +120,7 @@ const DiaryPage: React.FC = () => {
   // Listen for diary updates from other pages
   useEffect(() => {
     const handleDiaryUpdate = (event: CustomEvent) => {
-      console.log('Diary update event received:', event.detail);
+      console.log('DiaryPage - Diary update event received:', event.detail);
       loadEntries(); // Reload entries when behavior tags are modified
     };
 
