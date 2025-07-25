@@ -188,7 +188,25 @@ const PetsPage: React.FC = () => {
       // Pulisci l'URL senza ricaricare la pagina
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, []);
+
+    // Ripristina lo stato deletingPet dal sessionStorage se esiste
+    const savedDialogState = sessionStorage.getItem('petvoice-dialog-state');
+    if (savedDialogState && pets.length > 0) {
+      try {
+        const dialogStates = JSON.parse(savedDialogState);
+        const deleteDialog = dialogStates.find((d: any) => d.id.startsWith('delete-pet-') && d.isOpen);
+        if (deleteDialog) {
+          const petId = deleteDialog.id.replace('delete-pet-', '');
+          const pet = pets.find(p => p.id === petId);
+          if (pet) {
+            setDeletingPet(pet);
+          }
+        }
+      } catch (error) {
+        console.error('Errore nel ripristino dello stato di eliminazione:', error);
+      }
+    }
+  }, [pets]);
 
   const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
     if (!birthDate.day || !birthDate.month || !birthDate.year) return null;
