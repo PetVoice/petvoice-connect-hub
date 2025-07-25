@@ -98,9 +98,9 @@ export function useNotifications() {
   useEffect(() => {
     loadNotifications();
     
-    // Ricarica notifiche ogni 10 secondi per aggiornamenti più frequenti
-    const interval = setInterval(loadNotifications, 10000);
-    return () => clearInterval(interval);
+    // DISABILITO polling aggressivo che causa loop infiniti
+    // const interval = setInterval(loadNotifications, 10000);
+    // return () => clearInterval(interval);
   }, [user]);
 
   return {
