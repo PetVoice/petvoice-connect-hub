@@ -814,7 +814,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <span className="font-medium">{emotion}</span>
                           </div>
                           <Badge className={getEmotionClass(emotion)}>
-                            {(Number(confidence) * 100).toFixed(0)}%
+                            {typeof confidence === 'number' && confidence < 1 ? (confidence * 100).toFixed(0) : Math.round(Number(confidence))}%
                           </Badge>
                         </div>
                       ))}
@@ -1022,8 +1022,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             variant: "success"
                           });
 
-                          // Redirect to training page
-                          navigate('/training');
+                           // Redirect directly to training dashboard with protocol
+                          navigate(`/training-dashboard/${protocol.id}`);
                         } catch (error) {
                           console.error('Error starting protocol:', error);
                           showToast({

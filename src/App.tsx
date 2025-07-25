@@ -105,7 +105,7 @@ function AppContent() {
             </AppLayout>
           </ProtectedRoute>
         } />
-        <Route path="/training/dashboard/:protocolId" element={
+        <Route path="/training-dashboard/:protocolId" element={
           <ProtectedRoute>
             <AppLayout>
               <TrainingDashboard />
