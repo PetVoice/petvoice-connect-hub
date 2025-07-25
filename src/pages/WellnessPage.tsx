@@ -1763,7 +1763,6 @@ const WellnessPage = () => {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-lg text-muted-foreground">Caricamento dati sulla salute...</p>
           </div>
         </div>
       </div>
