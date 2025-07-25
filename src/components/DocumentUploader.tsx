@@ -209,7 +209,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             {previewFiles.map((preview, index) => (
               <Card key={preview.url} className="p-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="flex items-center space-x-4 flex-1 min-w-0">
                     {isImage(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
@@ -218,7 +218,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         <img 
                           src={preview.url} 
                           alt={preview.name}
-                          className="w-16 h-16 object-cover rounded border hover:opacity-80 transition-opacity group-hover:shadow-lg"
+                          className="w-24 h-24 object-cover rounded-lg border-2 hover:border-primary transition-all group-hover:shadow-lg"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
@@ -226,11 +226,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                             if (icon) icon.style.display = 'block';
                           }}
                         />
-                        <div style={{ display: 'none' }} className="w-16 h-16 flex items-center justify-center bg-muted rounded border">
+                        <div style={{ display: 'none' }} className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2">
                           {getFileIcon(preview.type)}
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
-                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
+                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     ) : isPDF(preview.type) ? (
@@ -238,22 +238,22 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         className="relative cursor-pointer group" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
-                        <div className="w-16 h-16 border rounded flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 transition-colors group-hover:shadow-lg">
-                          <FileText className="h-8 w-8 text-red-600" />
-                          <span className="text-xs text-red-600 font-medium">PDF</span>
+                        <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
+                          <FileText className="h-12 w-12 text-red-600 mb-1" />
+                          <span className="text-sm text-red-600 font-semibold">PDF</span>
                         </div>
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
-                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
+                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     ) : (
                       <div 
-                        className="w-16 h-16 flex items-center justify-center bg-muted rounded border cursor-pointer hover:opacity-80 transition-opacity group"
+                        className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2 cursor-pointer hover:border-primary transition-all group relative"
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
                         {getFileIcon(preview.type)}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded">
-                          <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg">
+                          <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     )}
