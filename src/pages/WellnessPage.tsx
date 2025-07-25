@@ -379,8 +379,11 @@ const translateRecordType = (type: string): string => {
   return translations[type] || type;
 };
 
-// Health Score Components - SISTEMA UNIFICATO
-const HealthScoreDisplay = ({ selectedPet, user, addNotification }: {
+// Import unified health score calculator
+import { calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
+
+// Unified Health Score Component
+const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
   selectedPet: any;
   user: any;
   addNotification: (notification: any) => void;
@@ -388,227 +391,42 @@ const HealthScoreDisplay = ({ selectedPet, user, addNotification }: {
   const [healthScore, setHealthScore] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
   
-  const calculateHealthScore = async () => {
-    if (!user || !selectedPet) return null;
-
-    let totalScore = 0;
-    
-    // 🔵 PARAMETRI VITALI (25 punti max)
-    let vitalScore = 0;
-    
-    // Peso: controlla se nella norma per la razza
-    if (selectedPet.weight) {
-      // Assumiamo peso normale per ora (dovrebbe essere basato su razza/taglia)
-      vitalScore += 5; // peso nella norma
-    }
-    
-    // Temperatura: controlla dai health_metrics
-    const tempMetrics = healthMetrics.filter(m => m.metric_type === 'temperature');
-    if (tempMetrics.length > 0) {
-      const lastTemp = tempMetrics[0];
-      if (lastTemp.value >= 38 && lastTemp.value <= 39) {
-        vitalScore += 5; // temperatura normale
-      }
-    }
-    
-    // Battito cardiaco: controlla dai health_metrics
-    const heartMetrics = healthMetrics.filter(m => m.metric_type === 'heart_rate');
-    if (heartMetrics.length > 0) {
-      const lastHeart = heartMetrics[0];
-      if (lastHeart.value >= 60 && lastHeart.value <= 120) {
-        vitalScore += 5; // battito normale
-      }
-    }
-    
-    // Colore gengive: controlla dai health_metrics
-    const gumColorMetrics = healthMetrics.filter(m => m.metric_type === 'gum_color');
-    if (gumColorMetrics.length > 0) {
-      const lastGumColor = gumColorMetrics[0];
-      if (lastGumColor.value === 1) { // Rosa - normale
-        vitalScore += 5;
-      } else if (lastGumColor.value === 2) { // Pallide - warning
-        vitalScore -= 3;
-      } else if (lastGumColor.value === 3 || lastGumColor.value === 4) { // Blu/Viola o Gialle - critico
-        vitalScore -= 10;
-      }
-    }
-    
-    // Respirazione: controlla dai health_metrics
-    const respirationMetrics = healthMetrics.filter(m => m.metric_type === 'respiration');
-    if (respirationMetrics.length > 0) {
-      const lastRespiration = respirationMetrics[0];
-      if (lastRespiration.value >= 15 && lastRespiration.value <= 30) {
-        vitalScore += 5; // respirazione normale
-      }
-    }
-    
-    totalScore += Math.min(25, vitalScore);
-    
-    // 🟢 ATTIVITÀ E COMPORTAMENTO (20 punti max)
-    let behaviorScore = 0;
-    
-    // Attività fisica: basata su entry del diario recenti
-    try {
-      const { data: recentDiary } = await supabase
-        .from('diary_entries')
-        .select('*')
-        .eq('pet_id', selectedPet.id)
-        .gte('entry_date', subDays(new Date(), 14).toISOString().split('T')[0])
-        .order('entry_date', { ascending: false });
-      
-      if (recentDiary && recentDiary.length > 0) {
-        const avgMood = recentDiary.reduce((sum, entry) => sum + (entry.mood_score || 5), 0) / recentDiary.length;
-        if (avgMood >= 7) behaviorScore += 10; // comportamento ottimo
-        else if (avgMood >= 5) behaviorScore += 5; // comportamento normale
-      }
-    } catch (error) {
-      console.error('Error fetching diary entries:', error);
-    }
-    
-    totalScore += Math.min(20, behaviorScore);
-    
-    // 🟡 CURE MEDICHE (25 punti max)
-    let medicalScore = 0;
-    
-    // Vaccini: controlla medical_records per vaccini recenti
-    const vaccinations = medicalRecords.filter(r => 
-      r.record_type === 'vaccino' || r.record_type === 'vaccination'
-    );
-    const recentVaccinations = vaccinations.filter(v => {
-      const vaccDate = new Date(v.record_date);
-      const oneYearAgo = subDays(new Date(), 365);
-      return vaccDate >= oneYearAgo;
-    });
-    
-    if (recentVaccinations.length > 0) {
-      medicalScore += 10; // vaccini aggiornati
-    }
-    
-    // Farmaci: controlla medications attive
-    const activeMeds = medications.filter(m => m.is_active);
-    if (activeMeds.length > 0) {
-      medicalScore += 10; // terapie seguite
-    }
-    
-    // Visite veterinarie
-    const recentVisits = medicalRecords.filter(r => {
-      const visitDate = new Date(r.record_date);
-      const sixMonthsAgo = subDays(new Date(), 180);
-      const oneYearAgo = subDays(new Date(), 365);
-      
-      if (visitDate >= sixMonthsAgo) return 'recent';
-      if (visitDate >= oneYearAgo) return 'medium';
-      return 'old';
-    });
-    
-    const recentVisitsCount = recentVisits.filter(r => {
-      const visitDate = new Date(r.record_date);
-      const sixMonthsAgo = subDays(new Date(), 180);
-      return visitDate >= sixMonthsAgo;
-    }).length;
-    
-    const mediumVisitsCount = recentVisits.filter(r => {
-      const visitDate = new Date(r.record_date);
-      const sixMonthsAgo = subDays(new Date(), 180);
-      const oneYearAgo = subDays(new Date(), 365);
-      return visitDate < sixMonthsAgo && visitDate >= oneYearAgo;
-    }).length;
-    
-    if (recentVisitsCount > 0) medicalScore += 5; // visite recenti
-    else if (mediumVisitsCount > 0) medicalScore += 3; // visite nell'ultimo anno
-    
-    totalScore += Math.min(25, medicalScore);
-    
-    // 🟠 INTERVENTI E CONTROLLI (15 punti max)
-    let interventionScore = 0;
-    
-    // Esami recenti
-    const recentExams = medicalRecords.filter(r => {
-      const examDate = new Date(r.record_date);
-      const sixMonthsAgo = subDays(new Date(), 180);
-      return examDate >= sixMonthsAgo && (r.record_type === 'esame' || r.record_type === 'exam');
-    });
-    
-    if (recentExams.length > 0) interventionScore += 5;
-    
-    // Operazioni necessarie
-    const surgeries = medicalRecords.filter(r => 
-      r.record_type === 'operazione' || r.record_type === 'surgery'
-    );
-    if (surgeries.length > 0) interventionScore += 5;
-    
-    // Trattamenti seguiti (basato su farmaci completati)
-    const completedMeds = medications.filter(m => !m.is_active && m.end_date);
-    if (completedMeds.length > 0) interventionScore += 5;
-    
-    totalScore += Math.min(15, interventionScore);
-    
-    // 🔴 ANALISI EMOTIVE APP (15 punti max)
-    let emotionScore = 0;
-    
-    try {
-      const { data: analyses } = await supabase
-        .from('pet_analyses')
-        .select('*')
-        .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (analyses && analyses.length > 0) {
-        const oneWeekAgo = subDays(new Date(), 7);
-        const oneMonthAgo = subDays(new Date(), 30);
-        
-        const recentAnalyses = analyses.filter(a => new Date(a.created_at) >= oneWeekAgo);
-        const monthlyAnalyses = analyses.filter(a => new Date(a.created_at) >= oneMonthAgo);
-        
-        if (recentAnalyses.length > 0) {
-          emotionScore += 15; // analisi ultima settimana
-        } else if (monthlyAnalyses.length > 0) {
-          emotionScore += 10; // analisi ultimo mese
-        } else if (analyses.length > 0) {
-          emotionScore += 5; // analisi più vecchie
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching analyses:', error);
-    }
-    
-    totalScore += Math.min(15, emotionScore);
-    
-    // Assicurati che il punteggio sia tra 0 e 100
-    const finalScore = Math.min(100, Math.max(0, Math.round(totalScore)));
-    
-    // Invia notifica se il punteggio è basso (solo una volta per evitare spam)
-    if (finalScore < 50 && finalScore > 0) {
-      const lastAlertKey = `wellness-alert-${selectedPet.id}`;
-      const lastAlert = localStorage.getItem(lastAlertKey);
-      const now = new Date().getTime();
-      
-      if (!lastAlert || (now - parseInt(lastAlert)) > (24 * 60 * 60 * 1000)) {
-        addNotification({
-          title: 'Punteggio wellness basso',
-          message: `Il punteggio di benessere di ${selectedPet.name} è di ${finalScore}/100. Considera di contattare il veterinario.`,
-          type: 'warning',
-          read: false,
-          action_url: '/wellness'
-        });
-        localStorage.setItem(lastAlertKey, now.toString());
-      }
-    }
-    
-    return finalScore;
-  };
-  
   React.useEffect(() => {
     const fetchHealthScore = async () => {
+      if (!user || !selectedPet) return;
+      
       setLoading(true);
-      const score = await calculateHealthScore();
-      setHealthScore(score);
-      setLoading(false);
+      try {
+        const result = await calculateUnifiedHealthScore(selectedPet.id, user.id, {
+          healthMetrics: [],
+          medicalRecords: [],
+          medications: [],
+          analyses: [],
+          diaryEntries: [],
+          wellnessScores: []
+        });
+        setHealthScore(result.overallScore);
+        
+        // Add notification if score is low
+        if (result.overallScore < 50) {
+          addNotification({
+            title: 'Punteggio wellness basso',
+            message: `Il punteggio di benessere di ${selectedPet.name} è di ${result.overallScore}/100.`,
+            type: 'warning',
+            read: false,
+            action_url: '/wellness'
+          });
+        }
+      } catch (error) {
+        console.error('Error calculating health score:', error);
+        setHealthScore(null);
+      } finally {
+        setLoading(false);
+      }
     };
     
     fetchHealthScore();
-  }, [healthMetrics, medicalRecords, medications, selectedPet]);
+  }, [selectedPet, user]);
   
   if (loading) {
     return (
@@ -621,7 +439,7 @@ const HealthScoreDisplay = ({ selectedPet, user, addNotification }: {
   
   const getScoreMessage = (score: number | null) => {
     if (score === null || score === 0) return "Inizia ad aggiungere più dati sulla salute";
-    if (score < 30) return "Inizia ad aggiungere più dati sulla salute";
+    if (score < 30) return "Necessita attenzione";
     if (score < 70) return "Dati insufficienti";
     return "Ottima salute";
   };
@@ -2476,7 +2294,7 @@ const WellnessPage = () => {
               <CardContent className="pt-0">
                 <div className="grid lg:grid-cols-3 gap-6">
                   <div className="space-y-3">
-                    <HealthScoreDisplay 
+                    <UnifiedHealthScore 
                       selectedPet={selectedPet}
                       user={user}
                       addNotification={addNotification}
