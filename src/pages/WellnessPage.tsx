@@ -3357,11 +3357,45 @@ const WellnessPage = () => {
                      className="max-w-full max-h-[60vh] object-contain"
                    />
                  ) : filePreview.file.type === 'application/pdf' ? (
-                   <iframe 
-                     src={filePreview.url}
-                     className="w-full h-[60vh] border rounded"
-                     title={filePreview.file.name}
-                   />
+                   <div className="text-center p-8">
+                     <FileText className="h-16 w-16 mx-auto mb-4 text-blue-500" />
+                     <p className="text-lg font-medium mb-2">{filePreview.file.name}</p>
+                     <p className="text-muted-foreground mb-4">
+                       File PDF - {(filePreview.file.size / 1024 / 1024).toFixed(2)} MB
+                     </p>
+                     <div className="space-y-2">
+                       <Button 
+                         onClick={() => {
+                           const a = document.createElement('a');
+                           a.href = filePreview.url;
+                           a.download = filePreview.file?.name || 'document.pdf';
+                           document.body.appendChild(a);
+                           a.click();
+                           document.body.removeChild(a);
+                         }}
+                         className="mr-2"
+                       >
+                         <Download className="h-4 w-4 mr-2" />
+                         Scarica PDF
+                       </Button>
+                       <Button 
+                         variant="outline"
+                         onClick={() => {
+                           // Apri in nuova tab con download immediato
+                           const link = document.createElement('a');
+                           link.href = filePreview.url;
+                           link.target = '_blank';
+                           link.rel = 'noopener noreferrer';
+                           document.body.appendChild(link);
+                           link.click();
+                           document.body.removeChild(link);
+                         }}
+                       >
+                         <Eye className="h-4 w-4 mr-2" />
+                         Apri in Nuova Tab
+                       </Button>
+                     </div>
+                   </div>
                  ) : (
                    <div className="text-center p-8">
                      <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
