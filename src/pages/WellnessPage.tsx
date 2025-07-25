@@ -684,7 +684,7 @@ const WellnessPage = () => {
           <div className="space-y-8 mt-8">
             
             {/* Primary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               {/* Health Score Card */}
               <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
@@ -764,38 +764,6 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Emotions Card */}
-              <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-green-500" />
-                    Emozioni Rilevate
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
-                    <div className="space-y-2">
-                      {Object.entries(emotionCounts).slice(0, 3).map(([emotion, count]) => (
-                        <div key={emotion} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
-                            />
-                            <span className="text-sm capitalize">{emotion}</span>
-                          </div>
-                          <span className="text-sm font-medium">{count}x</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessuna emozione rilevata</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
 
             {/* Additional Health Influence Cards */}
