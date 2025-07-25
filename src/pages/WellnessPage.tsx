@@ -2836,8 +2836,6 @@ const WellnessPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
-          </div>
-        </TabsContent>
 
         {/* Medical Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
