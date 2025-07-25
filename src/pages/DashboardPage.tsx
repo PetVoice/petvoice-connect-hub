@@ -452,15 +452,19 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-700 mb-2">Nessuna analisi disponibile</h3>
                   <p className="text-gray-500 mb-4">Inizia ad analizzare il comportamento del tuo pet per vedere le statistiche emozionali</p>
-                  <Button 
-                    onClick={() => navigate('/analysis')}
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                  >
-                    <Microscope className="h-4 w-4 mr-2" />
-                    Inizia Analisi
-                  </Button>
-        </div>
-      )}
+                   <Button 
+                     onClick={() => navigate('/analysis')}
+                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                   >
+                     <Microscope className="h-4 w-4 mr-2" />
+                     Inizia Analisi
+                   </Button>
+                 </div>
+               )}
+             </CardContent>
+           </Card>
+         </div>
+       )}
 
       {/* Vital Parameters Card - Full width under emotion analysis */}
       {selectedPet && (
@@ -552,10 +556,6 @@ const DashboardPage: React.FC = () => {
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
             </CardContent>
           </Card>
         </div>
