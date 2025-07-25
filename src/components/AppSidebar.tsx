@@ -22,7 +22,7 @@ const navigationItems = [
   { title: 'Training AI', url: '/training', icon: Brain },
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
-  { title: 'Salute e Benessere', url: '/wellness', icon: Heart },
+  
 ];
 
 const communityItems = [

@@ -300,7 +300,7 @@ const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           
           {/* Detailed Emotions Analysis Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <PieChartIcon className="h-5 w-5 text-pink-500" />
@@ -316,8 +316,7 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Vital Parameters Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -327,7 +326,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -343,7 +342,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Behavioral Insights Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -369,7 +368,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Active Medications Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -379,7 +378,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -395,7 +394,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Recent Visits Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -405,7 +404,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -421,7 +420,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Insurance Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -431,7 +430,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -447,7 +446,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* First Aid Guide Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -462,7 +461,7 @@ const DashboardPage: React.FC = () => {
                   size="sm" 
                   variant="destructive" 
                   className="w-full"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                 >
                   <Siren className="h-4 w-4 mr-2" />
                   Apri Guida
@@ -472,7 +471,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Emergency Contacts Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -482,7 +481,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -498,7 +497,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Veterinarian Card */}
-          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
+          <Card className="border border-blue-200 bg-blue-50 hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -508,7 +507,7 @@ const DashboardPage: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant="ghost"
-                  onClick={() => navigate('/wellness')}
+                  onClick={() => navigate('/diary')}
                   className="h-8 w-8 p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -527,7 +526,7 @@ const DashboardPage: React.FC = () => {
       )}
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="border border-blue-200 bg-blue-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-foreground" />
@@ -543,7 +542,7 @@ const DashboardPage: React.FC = () => {
               <Button
                 key={index}
                 variant="outline"
-                className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all"
+                className="h-auto p-4 flex flex-col items-center gap-3 hover:shadow-elegant transition-all border-blue-200 bg-blue-50 hover:bg-blue-100"
                 onClick={action.onClick}
               >
                 <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
@@ -559,111 +558,12 @@ const DashboardPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">
-              {selectedPet ? 'Analisi Totali' : 'Pet Registrati'}
-            </CardTitle>
-            <Microscope className="h-4 w-4 text-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {selectedPet ? petStats.totalAnalyses : pets.length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {selectedPet ? 
-                `${petStats.recentAnalyses} questa settimana` : 
-                pets.length === 1 ? '1 pet nella famiglia' : `${pets.length} pet nella famiglia`
-              }
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">
-              {selectedPet ? 'Score Benessere' : 'Voci Diario'}
-            </CardTitle>
-            <Heart className="h-4 w-4 text-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
-              selectedPet && petStats.wellnessScore > 0 ?
-                petStats.wellnessScore >= 80 ? 'text-success' :
-                petStats.wellnessScore >= 60 ? 'text-primary' :
-                petStats.wellnessScore >= 40 ? 'text-warning' : 'text-destructive'
-                : 'text-foreground'
-            }`}>
-              {selectedPet ? 
-                petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : 'N/A' :
-                petStats.diaryEntries
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {selectedPet ? 
-                petStats.healthStatus : 
-                'Monitoraggio quotidiano'
-              }
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">
-              {selectedPet ? 'Trend Umore' : 'Eventi Calendario'}
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
-              selectedPet && petStats.moodTrend !== 0 ?
-                petStats.moodTrend > 0 ? 'text-success' : 'text-destructive'
-                : 'text-foreground'
-            }`}>
-              {selectedPet ? 
-                petStats.moodTrend !== 0 ? 
-                  `${petStats.moodTrend > 0 ? '+' : ''}${petStats.moodTrend}%` : 
-                  'N/A' :
-                petStats.calendarEvents
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {selectedPet ? 
-                petStats.moodTrend !== 0 ? 
-                  `${petStats.moodTrend > 0 ? 'Miglioramento' : 'Peggioramento'} recente` :
-                  'Serve più storico' :
-                'Appuntamenti pianificati'
-              }
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground">Voci Diario</CardTitle>
-            <Calendar className="h-4 w-4 text-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{petStats.diaryEntries}</div>
-            <p className="text-xs text-muted-foreground">
-              {selectedPet ? 
-                `Registrazioni di ${selectedPet.name}` :
-                'Seleziona un pet'
-              }
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Getting Started */}
       {pets.length === 0 && (
-        <Card className="border-dashed border-2">
+        <Card className="border-dashed border-2 border-blue-200 bg-blue-50">
           <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
-              <PawPrint className="h-6 w-6 text-foreground" />
+            <div className="mx-auto w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center mb-4">
+              <PawPrint className="h-6 w-6 text-blue-600" />
             </div>
             <CardTitle>Nessun pet aggiunto</CardTitle>
             <CardDescription>
@@ -677,6 +577,7 @@ const DashboardPage: React.FC = () => {
                 navigate('/pets?add=true');
               }} 
               data-guide="pet-selector"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi Pet

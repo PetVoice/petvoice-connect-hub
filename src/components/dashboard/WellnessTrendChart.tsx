@@ -18,7 +18,7 @@ interface WellnessTrendChartProps {
 }
 
 const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
+  const [selectedPeriod, setSelectedPeriod] = useState('mese');
   const [petAnalyses, setPetAnalyses] = React.useState([]);
   const [diaryEntries, setDiaryEntries] = React.useState([]);
 
@@ -94,8 +94,15 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            {['Mese', 'Settimana'].map((period) => (
-              <Badge key={period} variant="outline" className="cursor-pointer">{period}</Badge>
+            {['oggi', 'settimana', 'mese', 'anno', 'tutto'].map((period) => (
+              <Badge 
+                key={period} 
+                variant={selectedPeriod === period ? "default" : "outline"} 
+                className="cursor-pointer bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200"
+                onClick={() => setSelectedPeriod(period)}
+              >
+                {period.charAt(0).toUpperCase() + period.slice(1)}
+              </Badge>
             ))}
           </div>
         </div>

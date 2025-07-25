@@ -101,7 +101,7 @@ export const DiaryCalendarView: React.FC<DiaryCalendarViewProps> = ({
   };
 
   return (
-    <Card className="shadow-elegant">
+    <Card className="shadow-elegant border-blue-200 bg-blue-50">
       <CardContent className="p-6">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-6">
@@ -152,9 +152,9 @@ export const DiaryCalendarView: React.FC<DiaryCalendarViewProps> = ({
               <div
                 key={day.toISOString()}
                 className={`
-                  relative ${viewMode === 'day' ? 'min-h-96 mb-4' : 'aspect-square'} p-2 border rounded-lg cursor-pointer transition-colors
-                  ${isCurrentMonth ? 'bg-background hover:bg-muted/50' : 'bg-muted/20 text-muted-foreground'}
-                  ${todayDate ? 'ring-2 ring-primary' : ''}
+                  relative ${viewMode === 'day' ? 'min-h-96 mb-4' : 'aspect-square h-24'} p-2 border border-blue-200 rounded-lg cursor-pointer transition-colors
+                  ${isCurrentMonth ? 'bg-blue-50 hover:bg-blue-100' : 'bg-blue-100/50 text-muted-foreground'}
+                  ${todayDate ? 'ring-2 ring-blue-500 bg-blue-100' : ''}
                 `}
                 onClick={() => onDayClick(day)}
               >
