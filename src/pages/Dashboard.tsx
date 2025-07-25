@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, isToday, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
+import { fetchHealthData, calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
 
 interface Pet {
   id: string;
@@ -49,11 +50,12 @@ interface Analysis {
 
 interface PetStats {
   analysisToday: number;
-  wellnessScore: number;
+  unifiedHealthScore: number;
   consecutiveDays: number;
   improvementPercentage: number;
   lastEmotion: string | null;
   totalAnalyses: number;
+  recommendations: string[];
 }
 
 const Dashboard: React.FC = () => {
@@ -65,26 +67,27 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [petStats, setPetStats] = useState<PetStats>({
     analysisToday: 0,
-    wellnessScore: 0,
+    unifiedHealthScore: 0,
     consecutiveDays: 0,
     improvementPercentage: 0,
     lastEmotion: null,
-    totalAnalyses: 0
+    totalAnalyses: 0,
+    recommendations: []
   });
   const [recentAnalyses, setRecentAnalyses] = useState<Analysis[]>([]);
   const [weatherData, setWeatherData] = useState<any>(null);
   
 
-  // Mappa delle emozioni per calcolare il wellness score
-  const emotionScores: Record<string, number> = {
-    'felice': 90,
-    'calmo': 85,
-    'giocoso': 88,
-    'eccitato': 75,
-    'ansioso': 40,
-    'triste': 30,
-    'aggressivo': 25
-  };
+  // Usa sistema unificato di scoring - non più necessario
+  // const emotionScores: Record<string, number> = {
+  //   'felice': 90,
+  //   'calmo': 85,
+  //   'giocoso': 88,
+  //   'eccitato': 75,
+  //   'ansioso': 40,
+  //   'triste': 30,
+  //   'aggressivo': 25
+  // };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,110 +162,93 @@ const Dashboard: React.FC = () => {
   // Carica i dati delle analisi quando cambia il pet attivo
   useEffect(() => {
     const fetchPetAnalyses = async () => {
-      if (!activePet) {
+      if (!activePet || !user) {
         // Reset stats se non c'è pet selezionato
         setPetStats({
           analysisToday: 0,
-          wellnessScore: 0,
+          unifiedHealthScore: 0,
           consecutiveDays: 0,
           improvementPercentage: 0,
           lastEmotion: null,
-          totalAnalyses: 0
+          totalAnalyses: 0,
+          recommendations: []
         });
         setRecentAnalyses([]);
         return;
       }
 
       try {
-        // Fetch tutte le analisi del pet
-        const { data: analyses } = await supabase
-          .from('pet_analyses')
-          .select('*')
-          .eq('pet_id', activePet.id)
-          .order('created_at', { ascending: false });
+        // Usa il sistema unificato per calcolare tutti i punteggi
+        const healthData = await fetchHealthData(activePet.id, user.id);
+        const unifiedScore = await calculateUnifiedHealthScore(activePet.id, user.id, healthData);
+        
+        // Calcola analisi di oggi
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const analysisToday = healthData.analyses.filter(analysis => 
+          new Date(analysis.created_at) >= todayStart
+        ).length;
 
-        if (analyses) {
-          setRecentAnalyses(analyses.slice(0, 5)); // Ultime 5 analisi
+        // Converti le analisi nel formato corretto per la dashboard
+        const dashboardAnalyses: Analysis[] = healthData.analyses.map(a => ({
+          id: a.id,
+          pet_id: activePet.id,
+          primary_emotion: a.primary_emotion,
+          primary_confidence: a.primary_confidence,
+          secondary_emotions: a.secondary_emotions || {},
+          behavioral_insights: a.behavioral_insights || '',
+          recommendations: [],
+          triggers: [],
+          created_at: a.created_at,
+          file_name: `analysis_${a.id.slice(0, 8)}`
+        }));
+        
+        // Imposta le ultime 5 analisi per la visualizzazione
+        setRecentAnalyses(dashboardAnalyses.slice(0, 5));
 
-          // Calcola statistiche reali
-          const today = new Date();
-          const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        // Calcola giorni consecutivi con analisi
+        let consecutiveDays = 0;
+        const sortedDates = [...new Set(healthData.analyses.map(analysis => 
+          new Date(analysis.created_at).toDateString()
+        ))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+        for (let i = 0; i < sortedDates.length; i++) {
+          const dateToCheck = subDays(today, i);
+          const dateString = dateToCheck.toDateString();
           
-          // Analisi di oggi
-          const analysisToday = analyses.filter(analysis => 
-            new Date(analysis.created_at) >= todayStart
-          ).length;
-
-          // Calcola wellness score basato sulle emozioni
-          const lastAnalyses = analyses.slice(0, 10); // Ultime 10 analisi
-          let wellnessScore = 0;
-          
-          if (lastAnalyses.length > 0) {
-            const emotionScores: Record<string, number> = {
-              'felice': 90,
-              'calmo': 85,
-              'giocoso': 88,
-              'eccitato': 75,
-              'ansioso': 40,
-              'triste': 30,
-              'aggressivo': 25
-            };
-
-            const avgScore = lastAnalyses.reduce((sum, analysis) => {
-              const emotionScore = emotionScores[analysis.primary_emotion] || 50;
-              const confidenceBonus = (analysis.primary_confidence - 50) / 100 * 20; // Bonus/malus per confidenza
-              return sum + emotionScore + confidenceBonus;
-            }, 0) / lastAnalyses.length;
-
-            wellnessScore = Math.round(Math.max(0, Math.min(100, avgScore)));
+          if (sortedDates.includes(dateString)) {
+            consecutiveDays++;
+          } else {
+            break;
           }
-
-          // Calcola giorni consecutivi con analisi
-          let consecutiveDays = 0;
-          const sortedDates = [...new Set(analyses.map(analysis => 
-            new Date(analysis.created_at).toDateString()
-          ))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
-
-          for (let i = 0; i < sortedDates.length; i++) {
-            const dateToCheck = subDays(today, i);
-            const dateString = dateToCheck.toDateString();
-            
-            if (sortedDates.includes(dateString)) {
-              consecutiveDays++;
-            } else {
-              break;
-            }
-          }
-
-          // Calcola miglioramento (confronta ultime 5 vs precedenti 5)
-          let improvementPercentage = 0;
-          if (analyses.length >= 5) {
-            const recent = analyses.slice(0, 5);
-            const previous = analyses.slice(5, 10);
-            
-            if (previous.length > 0) {
-              const recentAvg = recent.reduce((sum, a) => sum + (emotionScores[a.primary_emotion] || 50), 0) / recent.length;
-              const previousAvg = previous.reduce((sum, a) => sum + (emotionScores[a.primary_emotion] || 50), 0) / previous.length;
-              improvementPercentage = Math.round(((recentAvg - previousAvg) / previousAvg) * 100);
-            }
-          }
-
-          setPetStats({
-            analysisToday,
-            wellnessScore,
-            consecutiveDays,
-            improvementPercentage,
-            lastEmotion: analyses.length > 0 ? analyses[0].primary_emotion : null,
-            totalAnalyses: analyses.length
-          });
         }
+
+        // Calcola miglioramento dai punteggi wellness (se disponibili)
+        let improvementPercentage = 0;
+        if (healthData.wellnessScores.length >= 2) {
+          const recent = healthData.wellnessScores[0].wellness_score;
+          const previous = healthData.wellnessScores[1].wellness_score;
+          if (previous > 0) {
+            improvementPercentage = Math.round(((recent - previous) / previous) * 100);
+          }
+        }
+
+        setPetStats({
+          analysisToday,
+          unifiedHealthScore: unifiedScore.overallScore,
+          consecutiveDays,
+          improvementPercentage,
+          lastEmotion: healthData.analyses.length > 0 ? healthData.analyses[0].primary_emotion : null,
+          totalAnalyses: healthData.analyses.length,
+          recommendations: unifiedScore.recommendations
+        });
       } catch (error) {
-        console.error('Error fetching pet analyses:', error);
+        console.error('Error fetching unified pet health data:', error);
       }
     };
 
     fetchPetAnalyses();
-  }, [activePet]);
+  }, [activePet, user]);
 
   // Funzione per ottenere l'emoji del tipo di pet
   const getPetEmoji = (type: string) => {
@@ -310,8 +296,8 @@ const Dashboard: React.FC = () => {
       color: 'text-azure' 
     },
     { 
-      title: 'Score Benessere', 
-      value: petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : '-', 
+      title: 'Score Salute Unificato', 
+      value: petStats.unifiedHealthScore > 0 ? `${petStats.unifiedHealthScore}/100` : '-', 
       icon: Heart, 
       color: 'text-success' 
     },
@@ -407,33 +393,33 @@ const Dashboard: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Score Benessere</span>
-                <span className={`text-lg font-bold ${petStats.wellnessScore >= 75 ? 'text-success' : 
-                  petStats.wellnessScore >= 50 ? 'text-warning' : 'text-destructive'}`}>
-                  {petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : '-'}
-                </span>
-              </div>
-              <Progress value={petStats.wellnessScore} className="h-2" />
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className={`${
-                  petStats.wellnessScore >= 75 ? 'bg-success/10 text-success' : 
-                  petStats.wellnessScore >= 50 ? 'bg-warning/10 text-warning' : 
-                  petStats.wellnessScore > 0 ? 'bg-destructive/10 text-destructive' : 'bg-muted/10 text-muted-foreground'
-                }`}>
-                  <Heart className="h-3 w-3 mr-1" />
-                  {petStats.wellnessScore >= 75 ? 'Ottimo' : 
-                   petStats.wellnessScore >= 50 ? 'Buono' : 
-                   petStats.wellnessScore > 0 ? 'Preoccupante' : 'N/A'}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  {petStats.totalAnalyses > 0 ? 
-                    `Basato su ${petStats.totalAnalyses} analisi • Ultima: ${petStats.lastEmotion}` :
-                    'Inizia ad analizzare le emozioni per vedere i progressi'
-                  }
-                </span>
-              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Score Salute Unificato</span>
+                  <span className={`text-lg font-bold ${petStats.unifiedHealthScore >= 75 ? 'text-success' : 
+                    petStats.unifiedHealthScore >= 50 ? 'text-warning' : 'text-destructive'}`}>
+                    {petStats.unifiedHealthScore > 0 ? `${petStats.unifiedHealthScore}/100` : '-'}
+                  </span>
+                </div>
+                <Progress value={petStats.unifiedHealthScore} className="h-2" />
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className={`${
+                    petStats.unifiedHealthScore >= 75 ? 'bg-success/10 text-success' : 
+                    petStats.unifiedHealthScore >= 50 ? 'bg-warning/10 text-warning' : 
+                    petStats.unifiedHealthScore > 0 ? 'bg-destructive/10 text-destructive' : 'bg-muted/10 text-muted-foreground'
+                  }`}>
+                    <Heart className="h-3 w-3 mr-1" />
+                    {petStats.unifiedHealthScore >= 75 ? 'Ottimo' : 
+                     petStats.unifiedHealthScore >= 50 ? 'Buono' : 
+                     petStats.unifiedHealthScore > 0 ? 'Preoccupante' : 'N/A'}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {petStats.totalAnalyses > 0 ? 
+                      `Basato su tutti i fattori di salute • Ultima: ${petStats.lastEmotion}` :
+                      'Aggiungi dati di salute per vedere il punteggio completo'
+                    }
+                  </span>
+                </div>
             </div>
           </CardContent>
         </Card>
@@ -637,9 +623,15 @@ const Dashboard: React.FC = () => {
                           <div className="flex justify-between text-xs text-muted-foreground">
                             <span>Score medio benessere:</span>
                             <span className="font-medium">
-                              {Math.round(weekAnalyses.reduce((sum, a) => 
-                                sum + (emotionScores[a.primary_emotion] || 50), 0
-                              ) / weekAnalyses.length)}%
+                              {(() => {
+                                const emotionScores: Record<string, number> = {
+                                  'felice': 90, 'calmo': 85, 'giocoso': 88, 'eccitato': 75,
+                                  'ansioso': 40, 'triste': 30, 'aggressivo': 25
+                                };
+                                return Math.round(weekAnalyses.reduce((sum, a) => 
+                                  sum + (emotionScores[a.primary_emotion] || 50), 0
+                                ) / weekAnalyses.length);
+                              })()}%
                             </span>
                           </div>
                         </div>

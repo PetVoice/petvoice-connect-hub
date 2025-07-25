@@ -379,11 +379,8 @@ const translateRecordType = (type: string): string => {
   return translations[type] || type;
 };
 
-// Health Score Components
-const HealthScoreDisplay = ({ healthMetrics, medicalRecords, medications, selectedPet, user, addNotification }: {
-  healthMetrics: HealthMetric[];
-  medicalRecords: MedicalRecord[];
-  medications: Medication[];
+// Health Score Components - SISTEMA UNIFICATO
+const HealthScoreDisplay = ({ selectedPet, user, addNotification }: {
   selectedPet: any;
   user: any;
   addNotification: (notification: any) => void;
@@ -2480,9 +2477,6 @@ const WellnessPage = () => {
                 <div className="grid lg:grid-cols-3 gap-6">
                   <div className="space-y-3">
                     <HealthScoreDisplay 
-                      healthMetrics={healthMetrics}
-                      medicalRecords={medicalRecords}
-                      medications={medications}
                       selectedPet={selectedPet}
                       user={user}
                       addNotification={addNotification}
