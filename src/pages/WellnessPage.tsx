@@ -33,7 +33,6 @@ import {
   Download,
   PieChart as PieChartIcon
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
@@ -569,51 +568,6 @@ const WellnessPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Trend Chart Card */}
-              <Card className="hover-scale bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-background border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-emerald-500" />
-                    Trend Parametri
-                  </CardTitle>
-                  <CardDescription>Andamento parametri vitali</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-2">
-                  {healthMetrics.length > 0 ? (
-                    <div className="h-20">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={healthMetrics.slice(0, 7).reverse()}>
-                          <Line 
-                            type="monotone" 
-                            dataKey="value" 
-                            stroke="#10b981" 
-                            strokeWidth={2}
-                            dot={false}
-                          />
-                          <Tooltip 
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-background border rounded-lg px-2 py-1 shadow-lg">
-                                    <p className="text-xs">{`${payload[0].value} ${healthMetrics[0]?.unit || ''}`}</p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <TrendingUp className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun dato per il trend</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* Detailed Emotions Analysis Card */}
               <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
@@ -621,52 +575,25 @@ const WellnessPage = () => {
                     <PieChartIcon className="h-5 w-5 text-pink-500" />
                     Analisi Emozioni
                   </CardTitle>
-                  <CardDescription>Distribuzione emozioni rilevate</CardDescription>
+                  <CardDescription>Distribuzione completa delle emozioni</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {emotionCounts && Object.keys(emotionCounts).length > 0 ? (
-                    <div className="space-y-3">
-                      <div className="h-16">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={Object.entries(emotionCounts).map(([emotion, count]) => ({
-                                name: emotion,
-                                value: count,
-                                color: EMOTION_COLORS[emotion] || '#6b7280'
-                              }))}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={15}
-                              outerRadius={25}
-                              fill="#8884d8"
-                              dataKey="value"
-                            >
-                              {Object.entries(emotionCounts).map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={Object.values(emotionCounts)[index] ? EMOTION_COLORS[Object.keys(emotionCounts)[index]] || '#6b7280' : '#6b7280'} />
-                              ))}
-                            </Pie>
-                            <Tooltip />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="space-y-1 max-h-16 overflow-y-auto">
-                        {Object.entries(emotionCounts)
-                          .sort(([,a], [,b]) => b - a)
-                          .slice(0, 3)
-                          .map(([emotion, count]) => (
-                            <div key={emotion} className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div 
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
-                                />
-                                <span className="text-xs capitalize">{emotion}</span>
-                              </div>
-                              <span className="text-xs font-medium">{count}</span>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {Object.entries(emotionCounts)
+                        .sort(([,a], [,b]) => b - a)
+                        .map(([emotion, count]) => (
+                          <div key={emotion} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: EMOTION_COLORS[emotion] || '#6b7280' }}
+                              />
+                              <span className="text-sm capitalize">{emotion}</span>
                             </div>
-                          ))}
-                      </div>
+                            <span className="text-sm font-medium">{count}</span>
+                          </div>
+                        ))}
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
