@@ -188,25 +188,7 @@ const PetsPage: React.FC = () => {
       // Pulisci l'URL senza ricaricare la pagina
       window.history.replaceState({}, '', window.location.pathname);
     }
-
-    // Ripristina lo stato deletingPet dal sessionStorage se esiste
-    const savedDialogState = sessionStorage.getItem('petvoice-dialog-state');
-    if (savedDialogState && pets.length > 0) {
-      try {
-        const dialogStates = JSON.parse(savedDialogState);
-        const deleteDialog = dialogStates.find((d: any) => d.id.startsWith('delete-pet-') && d.isOpen);
-        if (deleteDialog) {
-          const petId = deleteDialog.id.replace('delete-pet-', '');
-          const pet = pets.find(p => p.id === petId);
-          if (pet) {
-            setDeletingPet(pet);
-          }
-        }
-      } catch (error) {
-        console.error('Errore nel ripristino dello stato di eliminazione:', error);
-      }
-    }
-  }, [pets]);
+  }, []);
 
   const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
     if (!birthDate.day || !birthDate.month || !birthDate.year) return null;
@@ -730,37 +712,16 @@ const PetsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Dialog di conferma eliminazione con persistenza */}
+      {/* Dialog di conferma eliminazione */}
       <ConfirmDialog
         open={deletingPet !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeletingPet(null);
-            // Pulisci anche lo stato persistente
-            const savedState = sessionStorage.getItem('petvoice-dialog-state');
-            if (savedState) {
-              try {
-                const dialogStates = JSON.parse(savedState);
-                const filteredStates = dialogStates.filter((d: any) => !d.id.startsWith('delete-pet-'));
-                if (filteredStates.length > 0) {
-                  sessionStorage.setItem('petvoice-dialog-state', JSON.stringify(filteredStates));
-                } else {
-                  sessionStorage.removeItem('petvoice-dialog-state');
-                }
-              } catch (error) {
-                console.error('Errore nella pulizia dello stato:', error);
-              }
-            }
-          }
-        }}
+        onOpenChange={(open) => !open && setDeletingPet(null)}
         title="Conferma eliminazione"
         description={`Sei sicuro di voler eliminare ${deletingPet?.name || ''}?`}
         confirmText="Elimina"
         cancelText="Annulla"
         variant="destructive"
         onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
-        dialogId={`delete-pet-${deletingPet?.id}`}
-        persistOnRefresh={true}
       />
 
     </div>

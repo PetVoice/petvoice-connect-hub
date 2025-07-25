@@ -9,7 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -20,8 +19,6 @@ interface ConfirmDialogProps {
   cancelText?: string;
   onConfirm: () => void;
   variant?: 'default' | 'destructive';
-  dialogId?: string; // ID univoco per persistenza
-  persistOnRefresh?: boolean; // Se true, la dialog persiste al refresh
 }
 
 // Modal conferma uscita gruppo
@@ -30,18 +27,8 @@ const LeaveGroupModal: React.FC<{
   groupName: string;
   onConfirm: () => void;
   onCancel: () => void;
-  persistOnRefresh?: boolean;
-}> = ({ isOpen, groupName, onConfirm, onCancel, persistOnRefresh = false }) => {
-  const persistentDialog = usePersistentDialog(
-    `leave-group-${groupName}`,
-    persistOnRefresh ? isOpen : false,
-    { groupName }
-  );
-
-  const modalOpen = persistOnRefresh ? persistentDialog.isOpen : isOpen;
-  const handleClose = persistOnRefresh ? persistentDialog.close : onCancel;
-
-  if (!modalOpen) return null;
+}> = ({ isOpen, groupName, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
   
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -55,16 +42,13 @@ const LeaveGroupModal: React.FC<{
         </p>
         <div className="flex gap-3 justify-end">
           <button 
-            onClick={handleClose} 
+            onClick={onCancel} 
             className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
           >
             Annulla
           </button>
           <button 
-            onClick={() => {
-              onConfirm();
-              handleClose();
-            }} 
+            onClick={onConfirm} 
             className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
           >
             Esci dal gruppo
@@ -83,47 +67,22 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmText = 'Conferma',
   cancelText = 'Annulla',
   onConfirm,
-  variant = 'default',
-  dialogId,
-  persistOnRefresh = false
+  variant = 'default'
 }) => {
-  // Usa il dialog persistente se è abilitato e ha un ID
-  const persistentDialog = usePersistentDialog(
-    dialogId || `confirm-${title}`, 
-    persistOnRefresh ? open : false,
-    { title, description, confirmText, cancelText, variant }
-  );
-
-  // Usa lo stato persistente se abilitato, altrimenti usa lo stato normale
-  const isOpen = persistOnRefresh && dialogId ? persistentDialog.isOpen : open;
-  const handleOpenChange = persistOnRefresh && dialogId ? persistentDialog.onOpenChange : onOpenChange;
-
-  console.log(`ConfirmDialog [${dialogId}]: persistOnRefresh=${persistOnRefresh}, isOpen=${isOpen}, open=${open}`);
-
   const handleConfirm = () => {
     onConfirm();
-    if (persistOnRefresh && dialogId) {
-      persistentDialog.close();
-    }
-    onOpenChange(false); // Chiama sempre l'onOpenChange originale
-  };
-
-  const handleCancel = () => {
-    if (persistOnRefresh && dialogId) {
-      persistentDialog.close();
-    }
-    onOpenChange(false); // Chiama sempre l'onOpenChange originale
+    onOpenChange(false);
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>{cancelText}</AlertDialogCancel>
+          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleConfirm}
             className={variant === 'destructive' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'petvoice-button'}

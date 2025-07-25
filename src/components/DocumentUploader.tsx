@@ -6,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -14,7 +13,6 @@ interface DocumentUploaderProps {
   maxFiles?: number;
   acceptedTypes?: string;
   bucketName?: string; // Nuovo parametro per specificare il bucket
-  persistOnRefresh?: boolean;
 }
 
 interface FilePreview {
@@ -29,27 +27,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   existingFiles = [],
   maxFiles = 5,
   acceptedTypes = "image/*,application/pdf,.doc,.docx",
-  bucketName = "medical-documents", // Default bucket
-  persistOnRefresh = false
+  bucketName = "medical-documents" // Default bucket
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
   const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const [viewingFile, setViewingFile] = useState<FilePreview | null>(null);
   const { toast } = useToast();
-
-  // Dialog persistenti  
-  const deleteDialog = usePersistentDialog(
-    `delete-file-${fileToDelete}`,
-    persistOnRefresh ? !!fileToDelete : false,
-    { fileName: fileToDelete }
-  );
-
-  const viewDialog = usePersistentDialog(
-    `view-file-${viewingFile?.name}`,
-    persistOnRefresh ? !!viewingFile : false,
-    viewingFile
-  );
 
   // Initialize preview files with existing files
   React.useEffect(() => {
@@ -303,15 +287,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog 
-        open={persistOnRefresh ? deleteDialog.isOpen : !!fileToDelete} 
-        onOpenChange={() => {
-          if (persistOnRefresh) {
-            deleteDialog.close();
-          }
-          setFileToDelete(null);
-        }}
-      >
+      <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
@@ -320,12 +296,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              if (persistOnRefresh) {
-                deleteDialog.close();
-              }
-              setFileToDelete(null);
-            }}>
+            <AlertDialogCancel onClick={() => setFileToDelete(null)}>
               Annulla
             </AlertDialogCancel>
             <AlertDialogAction 
@@ -339,15 +310,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       </AlertDialog>
 
       {/* File Viewing Dialog */}
-      <Dialog 
-        open={persistOnRefresh ? viewDialog.isOpen : !!viewingFile} 
-        onOpenChange={() => {
-          if (persistOnRefresh) {
-            viewDialog.close();
-          }
-          setViewingFile(null);
-        }}
-      >
+      <Dialog open={!!viewingFile} onOpenChange={() => setViewingFile(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>{viewingFile?.name}</DialogTitle>

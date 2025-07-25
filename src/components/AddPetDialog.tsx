@@ -10,12 +10,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useToast } from '@/hooks/use-toast';
-import { usePersistentDialog } from '@/hooks/usePersistentDialog';
 
 interface AddPetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  persistOnRefresh?: boolean;
 }
 
 const dogBreeds = [
@@ -48,34 +46,11 @@ const catBreeds = [
   'Tonkinese', 'Turkish Van'
 ];
 
-export const AddPetDialog: React.FC<AddPetDialogProps> = ({ 
-  open, 
-  onOpenChange, 
-  persistOnRefresh = false 
-}) => {
+export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }) => {
   const { user } = useAuth();
   const { addPet } = usePets();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  // Gestione dialog persistente
-  const persistentDialog = usePersistentDialog(
-    'add-pet-dialog',
-    persistOnRefresh ? open : false,
-    {}
-  );
-
-  const isOpen = persistOnRefresh ? persistentDialog.isOpen : open;
-  const handleOpenChange = (newOpen: boolean) => {
-    if (persistOnRefresh) {
-      if (newOpen) {
-        persistentDialog.open();
-      } else {
-        persistentDialog.close();
-      }
-    }
-    onOpenChange(newOpen);
-  };
   
   const [formData, setFormData] = useState({
     name: '',
@@ -178,7 +153,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({
       
       if (result) {
         resetForm();
-        handleOpenChange(false);
+        onOpenChange(false);
       }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
@@ -188,7 +163,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] shadow-elegant">
         <div className="max-h-[80vh] overflow-y-auto px-1">
           <DialogHeader>
@@ -364,7 +339,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Annulla
               </Button>
               <Button 
