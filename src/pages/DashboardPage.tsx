@@ -76,6 +76,7 @@ const DashboardPage: React.FC = () => {
   const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
   const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number, unit: string, date: string}}>({});
   const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string}}>({});
+  const [medicationStats, setMedicationStats] = useState<{[key: string]: {dosage: string, frequency: string, lastTaken: string}}>({});
   
   // Translation system removed - Italian only
 
@@ -673,35 +674,41 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Wellness Cards - Tutte le card rimanenti in griglia */}
+      {/* Farmaci Attivi Card - Full width */}
       {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-
-          {/* Active Medications Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Pill className="h-5 w-5 text-green-500" />
-                  Farmaci Attivi
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+        <div className="w-full mb-6">
+          <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/5 border border-green-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                  <Pill className="h-6 w-6 text-white" />
+                </div>
+                Farmaci Attivi
+              </CardTitle>
+              <CardDescription className="text-lg">Gestione farmaci e terapie in corso</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 overflow-hidden">
-              <div className="text-center py-4 text-muted-foreground">
-                <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Gestisci farmaci e terapie</p>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/10 flex items-center justify-center">
+                  <Pill className="h-10 w-10 text-green-500/60" />
+                </div>
+                <p className="text-lg text-muted-foreground mb-6">Nessun farmaco registrato</p>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Pill className="h-5 w-5 mr-2" />
+                  Registra Farmaci
+                </Button>
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Wellness Cards - Tutte le card rimanenti in griglia */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
           {/* Recent Visits Card */}
           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
