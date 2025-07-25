@@ -1,123 +1,47 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePets } from '@/contexts/PetContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/components/ui/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { format } from 'date-fns';
 import { 
   Heart, 
   Activity, 
-  TrendingUp, 
-  TrendingDown,
-  Calendar, 
+  Pill, 
   Phone, 
-  Mail,
-  MapPin,
-  Shield,
-  FileText,
-  Upload,
-  Plus,
-  Search,
-  AlertTriangle,
-  Clock,
-  Pill,
-  Scale,
-  Thermometer,
+  FileText, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  TrendingUp, 
+  Stethoscope, 
+  AlertTriangle, 
+  CreditCard, 
+  FileImage,
   Brain,
   Eye,
-  Share,
+  BookOpen,
   Download,
-  PhoneCall,
-  MessageSquare,
-  Stethoscope,
-  Siren,
-  User,
-  Paperclip,
-  CreditCard,
-  FileImage,
-  ChevronRight,
-  Trash2,
-  Edit,
-  Star,
-  Target,
-  Zap,
-  Gauge,
-  Music,
-  PieChart as PieChartIcon,
-  LineChart as LineChartIcon,
-  BarChart2,
-  BookOpen
+  PieChart as PieChartIcon
 } from 'lucide-react';
-
-import { useAuth } from '@/contexts/AuthContext';
-import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore, differenceInDays, startOfDay, endOfDay } from 'date-fns';
-import { it } from 'date-fns/locale';
-import { toast } from '@/hooks/use-toast';
-import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
-import jsPDF from 'jspdf';
-import { useNotifications } from '@/hooks/useNotifications';
-import { 
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent 
-} from '@/components/ui/chart';
-import {
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  ReferenceLine,
-  Tooltip
-} from 'recharts';
-import { calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
-
-interface HealthMetric {
-  id: string;
-  metric_type: string;
-  value: number;
-  unit: string;
-  recorded_at: string;
-  notes?: string;
-}
-
-interface MedicalRecord {
-  id: string;
-  title: string;
-  description?: string;
-  record_type: string;
-  record_date: string;
-  document_url?: string;
-  cost?: number;
-  notes?: string;
-  veterinarian?: {
-    name: string;
-    clinic_name?: string;
-  };
-}
 
 interface Medication {
   id: string;
+  user_id: string;
+  pet_id: string;
   name: string;
   dosage: string;
   frequency: string;
@@ -125,16 +49,43 @@ interface Medication {
   end_date?: string;
   is_active: boolean;
   notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface HealthMetric {
+  id: string;
+  user_id: string;
+  pet_id: string;
+  metric_type: string;
+  value: string | number;
+  unit: string;
+  recorded_at: string;
+  notes?: string;
+}
+
+interface MedicalRecord {
+  id: string;
+  user_id: string;
+  pet_id: string;
+  title: string;
+  record_type: string;
+  record_date: string;
+  description?: string;
+  document_url?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Veterinarian {
   id: string;
+  user_id: string;
   name: string;
   clinic_name?: string;
-  phone?: string;
+  phone: string;
   email?: string;
-  address?: string;
   specialization?: string;
+  address?: string;
   is_primary: boolean;
 }
 
@@ -168,1026 +119,183 @@ interface DiaryEntry {
   mood_score?: number;
 }
 
-interface EmotionCount {
-  [emotion: string]: number;
-}
-
-// Helper function to translate metric types to Italian
-const translateMetricType = (type: string): string => {
-  const translations: Record<string, string> = {
-    'temperature': 'Temperatura Corporea',
-    'heart_rate': 'Frequenza Cardiaca', 
-    'respiration': 'Respirazione',
-    'gum_color': 'Colore Gengive',
-    'checkup': 'Controllo',
-    'blood_pressure': 'Pressione Sanguigna',
-    'respiratory_rate': 'Frequenza Respiratoria',
-    'weight': 'Peso'
-  };
-  return translations[type] || type;
-};
-
-// Helper function to get unit for metric type
-const getMetricUnit = (metricType: string): string => {
-  const units: Record<string, string> = {
-    'temperature': '°C',
-    'heart_rate': 'bpm',
-    'respiration': 'rpm',
-    'weight': 'kg',
-    'blood_pressure': 'mmHg',
-    'respiratory_rate': 'rpm'
-  };
-  return units[metricType] || '';
-};
-
-// Helper function to check if metric requires dropdown
-const isDropdownMetric = (metricType: string): boolean => {
-  return metricType === 'gum_color';
-};
-
-// Gum color options
-const GUM_COLOR_OPTIONS = [
-  { value: '1', label: 'Rosa' },
-  { value: '2', label: 'Pallide' },
-  { value: '3', label: 'Blu/Viola' },
-  { value: '4', label: 'Gialle' }
-];
-
-// Colors for emotion charts
-const EMOTION_COLORS = {
-  'felice': '#22c55e',
-  'triste': '#3b82f6', 
-  'ansioso': '#f59e0b',
-  'calmo': '#06b6d4',
-  'agitato': '#ef4444',
-  'giocoso': '#8b5cf6',
-  'spaventato': '#6b7280',
+const EMOTION_COLORS: Record<string, string> = {
+  'felice': '#10b981',
+  'eccitato': '#f59e0b',
+  'calmo': '#3b82f6',
+  'ansioso': '#ef4444',
+  'stanco': '#6b7280',
+  'giocherellone': '#8b5cf6',
   'aggressivo': '#dc2626',
-  'curioso': '#10b981',
-  'affettuoso': '#ec4899'
-};
-
-// Helper function to evaluate vital parameters using First Aid Guide ranges
-const evaluateVitalParameter = (metricType: string, value: number, petType?: string): { 
-  status: 'normal' | 'warning' | 'critical', 
-  message: string,
-  recommendation?: string 
-} => {
-  switch (metricType) {
-    case 'temperature':
-      // First Aid Guide ranges: Dogs 38.0-39.2°C, Cats 38.1-39.2°C
-      const minTemp = petType?.toLowerCase() === 'cat' ? 38.1 : 38.0;
-      const maxTemp = 39.2;
-      
-      if (value < 37.0 || value > 40.5) {
-        return {
-          status: 'critical',
-          message: `⚠️ TEMPERATURA CRITICA: ${value}°C`,
-          recommendation: 'EMERGENZA VETERINARIA IMMEDIATA - Possibile ipotermia/ipertermia'
-        };
-      }
-      if (value < minTemp || value > maxTemp) {
-        return {
-          status: 'warning',
-          message: `⚠️ Temperatura anomala: ${value}°C`,
-          recommendation: 'Monitora attentamente e contatta il veterinario se persiste'
-        };
-      }
-      return { status: 'normal', message: `✅ Temperatura normale: ${value}°C` };
-
-    case 'heart_rate':
-      // First Aid Guide ranges: Large dogs 60-100, Small dogs 100-140, Cats 140-220
-      let minHeart, maxHeart;
-      if (petType?.toLowerCase() === 'cat') {
-        minHeart = 140;
-        maxHeart = 220;
-      } else {
-        // Default to small dog range if size unknown
-        minHeart = 60;
-        maxHeart = 140;
-      }
-      
-      if (value < 40 || value > 250) {
-        return {
-          status: 'critical',
-          message: `⚠️ BATTITO CRITICO: ${value} bpm`,
-          recommendation: 'EMERGENZA VETERINARIA - Possibile aritmia grave'
-        };
-      }
-      if (value < minHeart || value > maxHeart) {
-        return {
-          status: 'warning',
-          message: `⚠️ Battito anomalo: ${value} bpm`,
-          recommendation: 'Consulta il veterinario per valutazione cardiaca'
-        };
-      }
-      return { status: 'normal', message: `✅ Battito normale: ${value} bpm` };
-
-    case 'respiration':
-      // First Aid Guide ranges: Dogs 10-30, Cats 20-30 atti/min
-      const minResp = petType?.toLowerCase() === 'cat' ? 20 : 10;
-      const maxResp = 30;
-      
-      if (value < 5 || value > 60) {
-        return {
-          status: 'critical',
-          message: `⚠️ RESPIRAZIONE CRITICA: ${value} atti/min`,
-          recommendation: 'EMERGENZA - Possibile distress respiratorio'
-        };
-      }
-      if (value < minResp || value > maxResp) {
-        return {
-          status: 'warning',
-          message: `⚠️ Respirazione anomala: ${value} atti/min`,
-          recommendation: 'Monitora e consulta veterinario se persiste'
-        };
-      }
-      return { status: 'normal', message: `✅ Respirazione normale: ${value} atti/min` };
-
-    case 'gum_color':
-      // First Aid Guide: Rosa=normal, others=warning/critical
-      const colorValue = typeof value === 'number' ? value : parseInt(String(value));
-      switch (colorValue) {
-        case 1: // Rosa
-          return { status: 'normal', message: '✅ Gengive rosa (normale)' };
-        case 2: // Pallide
-          return {
-            status: 'critical',
-            message: '⚠️ GENGIVE PALLIDE',
-            recommendation: 'EMERGENZA - Possibile shock o anemia'
-          };
-        case 3: // Blu/Viola
-          return {
-            status: 'critical',
-            message: '⚠️ GENGIVE BLU/VIOLA',
-            recommendation: 'EMERGENZA OSSIGENO - Mancanza di ossigenazione'
-          };
-        case 4: // Gialle
-          return {
-            status: 'critical',
-            message: '⚠️ GENGIVE GIALLE',
-            recommendation: 'URGENTE - Possibili problemi epatici'
-          };
-        default:
-          return { status: 'warning', message: 'Colore gengive non riconosciuto' };
-      }
-
-    default:
-      return { status: 'normal', message: `${translateMetricType(metricType)}: ${value}` };
-  }
-};
-
-// Helper function to convert gum color numeric values to text
-const getGumColorText = (value: number | string): string => {
-  const numValue = typeof value === 'string' ? parseInt(value) : value;
-  const colorMap: Record<number, string> = {
-    1: 'Rosa',
-    2: 'Pallide', 
-    3: 'Blu/Viola',
-    4: 'Gialle'
-  };
-  return colorMap[numValue] || 'Sconosciuto';
-};
-
-// Helper function to translate record types to Italian
-const translateRecordType = (type: string): string => {
-  const translations: Record<string, string> = {
-    'visit': 'Visita',
-    'exam': 'Esame', 
-    'vaccination': 'Vaccino',
-    'surgery': 'Operazione',
-    'document': 'Documento',
-    'treatment': 'Trattamento',
-    'lab_work': 'Analisi',
-    'emergency': 'Emergenza',
-    'medication': 'Farmaco',
-    'other': 'Altro'
-  };
-  return translations[type] || type;
-};
-
-// Unified Health Score Component
-const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
-  selectedPet: any;
-  user: any;
-  addNotification: (notification: any) => void;
-}) => {
-  const [healthScore, setHealthScore] = React.useState<number | null>(null);
-  const [loading, setLoading] = React.useState(false);
-  
-  React.useEffect(() => {
-    const fetchHealthScore = async () => {
-      if (!user || !selectedPet) return;
-      
-      setLoading(true);
-      try {
-        const result = await calculateUnifiedHealthScore(selectedPet.id, user.id, {
-          healthMetrics: [],
-          medicalRecords: [],
-          medications: [],
-          analyses: [],
-          diaryEntries: [],
-          wellnessScores: []
-        });
-        setHealthScore(result.overallScore);
-        
-        // Add notification if score is low
-        if (result.overallScore < 50) {
-          addNotification({
-            title: 'Punteggio wellness basso',
-            message: `Il punteggio di benessere di ${selectedPet.name} è di ${result.overallScore}/100.`,
-            type: 'warning',
-            read: false,
-            action_url: '/wellness'
-          });
-        }
-      } catch (error) {
-        console.error('Error calculating health score:', error);
-        setHealthScore(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchHealthScore();
-  }, [selectedPet, user]);
-  
-  if (loading) {
-    return (
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Punteggio Generale</span>
-        <span className="text-lg text-muted-foreground">Caricamento...</span>
-      </div>
-    );
-  }
-  
-  const getScoreMessage = (score: number | null) => {
-    if (score === null || score === 0) return "Inizia ad aggiungere più dati sulla salute";
-    if (score < 30) return "Necessita attenzione";
-    if (score < 70) return "Dati insufficienti";
-    return "Ottima salute";
-  };
-  
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Punteggio Generale</span>
-        {healthScore !== null && healthScore > 0 ? (
-          <span className="text-2xl font-bold text-primary">{healthScore}/100</span>
-        ) : (
-          <span className="text-lg text-muted-foreground">Non disponibile</span>
-        )}
-      </div>
-      {healthScore !== null && healthScore > 0 ? (
-        <Progress value={healthScore} className="h-3" />
-      ) : (
-        <div className="h-3 bg-muted rounded-full">
-          <div className="h-full bg-muted-foreground/20 rounded-full"></div>
-        </div>
-      )}
-      <div className="text-sm text-center p-2 bg-muted/50 rounded-lg">
-        <span className="font-medium">{getScoreMessage(healthScore)}</span>
-      </div>
-    </div>
-  );
+  'spaventato': '#f97316',
+  'curioso': '#06b6d4',
+  'triste': '#64748b'
 };
 
 const WellnessPage = () => {
   const { user } = useAuth();
-  const { pets } = usePets();
-  const { addNotification } = useNotifications();
-  const [searchParams] = useSearchParams();
+  const { selectedPet } = usePets();
   const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // Data states
+  const [medications, setMedications] = useState<Medication[]>([]);
   const [healthMetrics, setHealthMetrics] = useState<HealthMetric[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
-  const [medications, setMedications] = useState<Medication[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [insurances, setInsurances] = useState<Insurance[]>([]);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
-  const [emotionCounts, setEmotionCounts] = useState<EmotionCount>({});
   
-  // Form states
-  const [showAddMetric, setShowAddMetric] = useState(false);
-  const [showAddDocument, setShowAddDocument] = useState(false);
+  // Dialog states
   const [showAddMedication, setShowAddMedication] = useState(false);
-  const [showAddVet, setShowAddVet] = useState(false);
-  const [showAddContact, setShowAddContact] = useState(false);
-  const [showAddInsurance, setShowAddInsurance] = useState(false);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
-  
-  // Edit states
-  const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
-  const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
-  const [editingMetric, setEditingMetric] = useState<HealthMetric | null>(null);
-  const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
-  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   const [showDiaryDialog, setShowDiaryDialog] = useState(false);
   
-  // Form data states
-  const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
-  const [newDocument, setNewDocument] = useState({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+  // Form states
   const [newMedication, setNewMedication] = useState({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
-  const [newVet, setNewVet] = useState({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
-  const [newContact, setNewContact] = useState({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
-  const [newInsurance, setNewInsurance] = useState({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
-  const [loading, setLoading] = useState(true);
-  
-  // Get selected pet from URL or default to first pet
-  const selectedPetId = searchParams.get('pet') || pets[0]?.id;
-  const selectedPet = pets.find(p => p.id === selectedPetId) || pets[0];
-  
-  // Calculate derived data
+  // Confirmation dialog
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
+  // Calculate behavioral insights
   const behavioralTags = useMemo(() => {
-    return diaryEntries
-      .filter(entry => entry.behavioral_tags && entry.behavioral_tags.length > 0)
-      .flatMap(entry => entry.behavioral_tags || []);
+    return diaryEntries.flatMap(entry => entry.behavioral_tags || []);
   }, [diaryEntries]);
-  
+
   const behavioralTagCounts = useMemo(() => {
+    return behavioralTags.reduce((acc, tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [behavioralTags]);
+
+  // Calculate emotion counts
+  const emotionCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    behavioralTags.forEach(tag => {
-      counts[tag] = (counts[tag] || 0) + 1;
+    diaryEntries.forEach(entry => {
+      if (entry.behavioral_tags) {
+        entry.behavioral_tags.forEach(tag => {
+          if (EMOTION_COLORS[tag.toLowerCase()]) {
+            counts[tag] = (counts[tag] || 0) + 1;
+          }
+        });
+      }
     });
     return counts;
-  }, [behavioralTags]);
-  
-  const moodTrend = useMemo(() => {
-    const recentEntries = diaryEntries
-      .filter(entry => entry.mood_score && isAfter(new Date(entry.entry_date), subDays(new Date(), 14)))
-      .sort((a, b) => new Date(a.entry_date).getTime() - new Date(b.entry_date).getTime());
-    
-    if (recentEntries.length < 2) return null;
-    
-    const first = recentEntries[0].mood_score!;
-    const last = recentEntries[recentEntries.length - 1].mood_score!;
-    const diff = last - first;
-    
-    return {
-      trend: diff > 1 ? 'up' : diff < -1 ? 'down' : 'stable',
-      change: Math.abs(diff)
-    };
   }, [diaryEntries]);
 
-  // Calculate wellness trend data from real health metrics and diary entries
-  const wellnessTrendData = useMemo(() => {
-    const last6Months = Array.from({ length: 6 }, (_, i) => {
-      const date = subMonths(new Date(), 5 - i);
-      const monthStart = startOfMonth(date);
-      const monthEnd = endOfMonth(date);
-      
-      // Get metrics for this month
-      const monthMetrics = healthMetrics.filter(metric => {
-        const metricDate = new Date(metric.recorded_at);
-        return isAfter(metricDate, monthStart) && isBefore(metricDate, monthEnd);
-      });
-      
-      // Get diary entries for this month
-      const monthDiary = diaryEntries.filter(entry => {
-        const entryDate = new Date(entry.entry_date);
-        return isAfter(entryDate, monthStart) && isBefore(entryDate, monthEnd);
-      });
-      
-      // Calculate wellness score for this month
-      let score = 50; // base score
-      
-      // Factor in mood scores
-      const moodScores = monthDiary.map(entry => entry.mood_score).filter(Boolean);
-      if (moodScores.length > 0) {
-        const avgMood = moodScores.reduce((a, b) => a + b, 0) / moodScores.length;
-        score += (avgMood - 5) * 10; // scale from 1-10 to impact score
-      }
-      
-      // Factor in vital signs with critical status evaluation
-      const tempMetrics = monthMetrics.filter(m => m.metric_type === 'temperature');
-      const heartMetrics = monthMetrics.filter(m => m.metric_type === 'heart_rate');
-      const respMetrics = monthMetrics.filter(m => m.metric_type === 'respiration');
-      const gumMetrics = monthMetrics.filter(m => m.metric_type === 'gum_color');
-      
-      if (tempMetrics.length > 0) {
-        const avgTemp = tempMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / tempMetrics.length;
-        const tempEval = evaluateVitalParameter('temperature', avgTemp, selectedPet?.type);
-        if (tempEval.status === 'critical') score -= 25;
-        else if (tempEval.status === 'warning') score -= 10;
-        else score += 5;
-      }
-      
-      if (heartMetrics.length > 0) {
-        const avgHeart = heartMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / heartMetrics.length;
-        const heartEval = evaluateVitalParameter('heart_rate', avgHeart, selectedPet?.type);
-        if (heartEval.status === 'critical') score -= 25;
-        else if (heartEval.status === 'warning') score -= 10;
-        else score += 5;
-      }
-      
-      if (respMetrics.length > 0) {
-        const avgResp = respMetrics.reduce((a, b) => a + parseFloat(b.value.toString()), 0) / respMetrics.length;
-        const respEval = evaluateVitalParameter('respiration', avgResp, selectedPet?.type);
-        if (respEval.status === 'critical') score -= 25;
-        else if (respEval.status === 'warning') score -= 10;
-        else score += 5;
-      }
-      
-      if (gumMetrics.length > 0) {
-        // For gum color, take the most recent reading
-        const latestGum = gumMetrics[gumMetrics.length - 1];
-        const gumEval = evaluateVitalParameter('gum_color', parseFloat(latestGum.value.toString()), selectedPet?.type);
-        if (gumEval.status === 'critical') score -= 30; // Gum color is very important indicator
-        else if (gumEval.status === 'warning') score -= 15;
-        else score += 5;
-      }
-      
-      // Ensure score is between 0-100
-      score = Math.max(0, Math.min(100, score));
-      
-      return {
-        date: format(date, 'MMM', { locale: it }),
-        wellness: Math.round(score)
-      };
-    });
-    
-    return last6Months;
-  }, [healthMetrics, diaryEntries]);
-
-  // Auto-detect unit when metric type changes
-  const handleMetricTypeChange = (metricType: string) => {
-    const unit = getMetricUnit(metricType);
-    setNewMetric(prev => ({ 
-      ...prev, 
-      metric_type: metricType, 
-      unit,
-      value: '' // Reset value when changing type
-    }));
-  };
-
-  // Fetch all health data
-  const fetchHealthData = async () => {
-    if (!user || !selectedPet) return;
-    
-    setLoading(true);
-    try {
-      // Fetch health metrics
-      const { data: metrics } = await supabase
-        .from('health_metrics')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('recorded_at', { ascending: false });
-      
-      // Fetch medical records
-      const { data: records } = await supabase
-        .from('medical_records')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('record_date', { ascending: false });
-      
-  // Fetch medications and check for expired ones
-      const { data: meds } = await supabase
-        .from('medications')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false });
-
-      // Auto-deactivate expired medications
-      if (meds) {
-        const today = new Date();
-        const expiredMeds = meds.filter(med => 
-          med.is_active && 
-          med.end_date && 
-          new Date(med.end_date) < today
-        );
-
-        if (expiredMeds.length > 0) {
-          await supabase
-            .from('medications')
-            .update({ is_active: false })
-            .in('id', expiredMeds.map(med => med.id));
-        }
-      }
-      
-      // Fetch veterinarians
-      const { data: vets } = await supabase
-        .from('veterinarians')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('is_primary', { ascending: false });
-      
-      // Fetch emergency contacts
-      const { data: contacts } = await supabase
-        .from('emergency_contacts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      
-      // Fetch insurance
-      const { data: insurance } = await supabase
-        .from('pet_insurance')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false });
-      
-      // Fetch diary entries
-      const { data: diary } = await supabase
-        .from('diary_entries')
-        .select('id, entry_date, behavioral_tags, mood_score')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('entry_date', { ascending: false });
-      
-      // Calculate emotion counts from primary_emotion field
-      const { data: analyses } = await supabase
-        .from('pet_analyses')
-        .select('primary_emotion')
-        .eq('user_id', user.id)
-        .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false });
-      
-      // Calculate emotion counts
-      const emotions: EmotionCount = {};
-      analyses?.forEach(analysis => {
-        if (analysis.primary_emotion) {
-          emotions[analysis.primary_emotion] = (emotions[analysis.primary_emotion] || 0) + 1;
-        }
-      });
-      
-      setHealthMetrics(metrics || []);
-      setMedicalRecords(records || []);
-      setMedications(meds || []);
-      setVeterinarians(vets || []);
-      setEmergencyContacts(contacts || []);
-      setInsurances(insurance || []);
-      setDiaryEntries(diary || []);
-      setEmotionCounts(emotions);
-      
-    } catch (error) {
-      console.error('Error fetching health data:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare i dati sulla salute",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Load data
   useEffect(() => {
-    fetchHealthData();
+    if (user && selectedPet) {
+      loadMedications();
+      loadHealthMetrics();
+      loadMedicalRecords();
+      loadVeterinarians();
+      loadEmergencyContacts();
+      loadDiaryEntries();
+    }
   }, [user, selectedPet]);
 
-  // Handle adding/editing metric
-  const handleAddMetric = async () => {
-    if (!user || !selectedPet || !newMetric.metric_type || !newMetric.value) {
-      toast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const loadMedications = async () => {
     try {
-      if (editingMetric) {
-        // Update existing metric
-        const { error } = await supabase
-          .from('health_metrics')
-          .update({
-            metric_type: newMetric.metric_type,
-            value: parseFloat(newMetric.value),
-            unit: newMetric.unit,
-            notes: newMetric.notes || null
-          })
-          .eq('id', editingMetric.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Metrica aggiornata con successo"
-        });
-      } else {
-        // Create new metric
-        const { error } = await supabase
-          .from('health_metrics')
-          .insert({
-            user_id: user.id,
-            pet_id: selectedPet.id,
-            metric_type: newMetric.metric_type,
-            value: parseFloat(newMetric.value),
-            unit: newMetric.unit,
-            notes: newMetric.notes || null,
-            recorded_at: new Date().toISOString()
-          });
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Metrica aggiunta con successo"
-        });
-      }
-
-      setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
-      setShowAddMetric(false);
-      setEditingMetric(null);
-      // Update local state instead of refetching
-      if (editingMetric && editingMetric.id && !editingMetric.id.startsWith('temp_')) {
-        setHealthMetrics(prev => prev.map(metric => 
-          metric.id === editingMetric.id 
-            ? { ...metric, metric_type: newMetric.metric_type, value: parseFloat(newMetric.value), unit: newMetric.unit, notes: newMetric.notes }
-            : metric
-        ));
-      } else {
-        // Add new metric to local state
-        const newMetricData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-          metric_type: newMetric.metric_type,
-          value: parseFloat(newMetric.value),
-          unit: newMetric.unit,
-          notes: newMetric.notes || null,
-          recorded_at: new Date().toISOString(),
-          user_id: user.id,
-          pet_id: selectedPet.id
-        };
-        setHealthMetrics(prev => [newMetricData, ...prev]);
-      }
-    } catch (error) {
-      console.error('Error saving metric:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare la metrica",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle adding/editing emergency contact
-  const handleAddContact = async () => {
-    if (!user || !newContact.name || !newContact.phone) {
-      toast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      if (editingContact && editingContact.id && !editingContact.id.startsWith('temp_')) {
-        // Update existing contact
-        const { error } = await supabase
-          .from('emergency_contacts')
-          .update({
-            name: newContact.name,
-            contact_type: newContact.contact_type || 'other',
-            phone: newContact.phone,
-            relationship: newContact.relationship || null,
-            email: newContact.email || null,
-            notes: newContact.notes || null
-          })
-          .eq('id', editingContact.id);
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Contatto emergenza aggiornato con successo"
-        });
-      } else {
-        // Create new contact
-        const { error } = await supabase
-          .from('emergency_contacts')
-          .insert({
-            user_id: user.id,
-            name: newContact.name,
-            contact_type: newContact.contact_type || 'other',
-            phone: newContact.phone,
-            relationship: newContact.relationship || null,
-            email: newContact.email || null,
-            notes: newContact.notes || null
-          });
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Contatto emergenza aggiunto con successo"
-        });
-      }
-
-      setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
-      setShowAddContact(false);
-      setEditingContact(null);
-      // Update local state instead of refetching
-      if (editingContact) {
-        setEmergencyContacts(prev => prev.map(contact => 
-          contact.id === editingContact.id 
-            ? { 
-                ...contact, 
-                name: newContact.name,
-                contact_type: newContact.contact_type || 'other',
-                phone: newContact.phone,
-                relationship: newContact.relationship || null,
-                email: newContact.email || null,
-                notes: newContact.notes || null
-              }
-            : contact
-        ));
-      } else {
-        // Add new emergency contact to local state
-        const newContactData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-          user_id: user.id,
-          name: newContact.name,
-          contact_type: newContact.contact_type || 'other',
-          phone: newContact.phone,
-          relationship: newContact.relationship || null,
-          email: newContact.email || null,
-          notes: newContact.notes || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setEmergencyContacts(prev => [newContactData, ...prev]);
-      }
-    } catch (error) {
-      console.error('Error saving emergency contact:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare il contatto emergenza",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle adding new insurance
-  const handleAddInsurance = async () => {
-    if (!user || !newInsurance.provider_name || !newInsurance.policy_number) {
-      toast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('pet_insurance')
-        .insert({
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          provider_name: newInsurance.provider_name,
-          policy_number: newInsurance.policy_number,
-          policy_type: newInsurance.policy_type || null,
-          start_date: newInsurance.start_date,
-          end_date: newInsurance.end_date || null,
-          premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
-          deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
-          is_active: true
-        });
+      const { data, error } = await supabase
+        .from('medications')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('pet_id', selectedPet?.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      toast({
-        title: "Successo",
-        description: "Assicurazione aggiunta con successo"
-      });
-
-      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
-      setShowAddInsurance(false);
-      // Add new insurance to local state
-      const newInsuranceData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-        user_id: user.id,
-        pet_id: selectedPet.id,
-        provider_name: newInsurance.provider_name,
-        policy_number: newInsurance.policy_number,
-        policy_type: newInsurance.policy_type || null,
-        start_date: newInsurance.start_date,
-        end_date: newInsurance.end_date || null,
-        premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
-        deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      setInsurances(prev => [newInsuranceData, ...prev]);
+      setMedications(data || []);
     } catch (error) {
-      console.error('Error adding insurance:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiungere l'assicurazione",
-        variant: "destructive"
-      });
+      console.error('Error loading medications:', error);
     }
   };
 
-  // Handle adding/editing veterinarian
-  const handleAddVet = async () => {
-    if (!user || !newVet.name || !newVet.phone) {
-      toast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const loadHealthMetrics = async () => {
     try {
-      if (editingVet && editingVet.id && !editingVet.id.startsWith('temp_')) {
-        // Update existing veterinarian
-        const { error } = await supabase
-          .from('veterinarians')
-          .update({
-            name: newVet.name,
-            clinic_name: newVet.clinic_name || null,
-            phone: newVet.phone,
-            email: newVet.email || null,
-            address: newVet.address || null,
-            specialization: newVet.specialization || null,
-            is_primary: newVet.is_primary
-          })
-          .eq('id', editingVet.id);
+      const { data, error } = await supabase
+        .from('health_metrics')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('pet_id', selectedPet?.id)
+        .order('recorded_at', { ascending: false });
 
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Veterinario aggiornato con successo"
-        });
-      } else {
-        // Create new veterinarian
-        const { error } = await supabase
-          .from('veterinarians')
-          .insert({
-            user_id: user.id,
-            name: newVet.name,
-            clinic_name: newVet.clinic_name || null,
-            phone: newVet.phone,
-            email: newVet.email || null,
-            address: newVet.address || null,
-            specialization: newVet.specialization || null,
-            is_primary: newVet.is_primary
-          });
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Veterinario aggiunto con successo"
-        });
-      }
-
-      setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
-      setShowAddVet(false);
-      setEditingVet(null);
-      // Update local state instead of refetching
-      if (editingVet) {
-        setVeterinarians(prev => prev.map(vet => 
-          vet.id === editingVet.id 
-            ? { 
-                ...vet, 
-                name: newVet.name,
-                clinic_name: newVet.clinic_name || null,
-                phone: newVet.phone,
-                email: newVet.email || null,
-                address: newVet.address || null,
-                specialization: newVet.specialization || null,
-                is_primary: newVet.is_primary
-              }
-            : vet
-        ));
-      } else {
-        // Add new veterinarian to local state
-        const newVetData = {
-        id: `temp_${Date.now()}`, // Temporary ID with prefix
-          user_id: user.id,
-          name: newVet.name,
-          clinic_name: newVet.clinic_name || null,
-          phone: newVet.phone,
-          email: newVet.email || null,
-          address: newVet.address || null,
-          specialization: newVet.specialization || null,
-          is_primary: newVet.is_primary,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setVeterinarians(prev => [newVetData, ...prev]);
-      }
+      if (error) throw error;
+      setHealthMetrics(data || []);
     } catch (error) {
-      console.error('Error saving veterinarian:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare il veterinario",
-        variant: "destructive"
-      });
+      console.error('Error loading health metrics:', error);
     }
   };
 
-  // Handle adding/editing medical record
-  const handleAddDocument = async () => {
-    if (!user || !selectedPet || !newDocument.title || !newDocument.record_type || !newDocument.record_date) {
-      toast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const loadMedicalRecords = async () => {
     try {
-      if (editingRecord && editingRecord.id && !editingRecord.id.startsWith('temp_')) {
-        // Update existing record
-        const { error } = await supabase
-          .from('medical_records')
-          .update({
-            title: newDocument.title,
-            description: newDocument.description || null,
-            record_type: newDocument.record_type,
-            record_date: newDocument.record_date,
-            cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-            notes: newDocument.notes || null
-          })
-          .eq('id', editingRecord.id);
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('pet_id', selectedPet?.id)
+        .order('record_date', { ascending: false });
 
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Visita aggiornata con successo"
-        });
-      } else {
-        // Create new record
-        const { error } = await supabase
-          .from('medical_records')
-          .insert({
-            user_id: user.id,
-            pet_id: selectedPet.id,
-            title: newDocument.title,
-            description: newDocument.description || null,
-            record_type: newDocument.record_type,
-            record_date: newDocument.record_date,
-            cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-            notes: newDocument.notes || null
-          });
-
-        if (error) throw error;
-
-        toast({
-          title: "Successo",
-          description: "Visita aggiunta con successo"
-        });
-      }
-
-      setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
-      setShowAddDocument(false);
-      setEditingRecord(null);
-      // Update local state instead of refetching
-      if (editingRecord) {
-        setMedicalRecords(prev => prev.map(record => 
-          record.id === editingRecord.id 
-            ? { 
-                ...record, 
-                title: newDocument.title,
-                description: newDocument.description || null,
-                record_type: newDocument.record_type,
-                record_date: newDocument.record_date,
-                cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-                notes: newDocument.notes || null
-              }
-            : record
-        ));
-      } else {
-        // Add new medical record to local state
-        const newRecordData = {
-          id: `temp_${Date.now()}`, // Temporary ID with prefix
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          title: newDocument.title,
-          description: newDocument.description || null,
-          record_type: newDocument.record_type,
-          record_date: newDocument.record_date,
-          cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-          notes: newDocument.notes || null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setMedicalRecords(prev => [newRecordData, ...prev]);
-      }
+      if (error) throw error;
+      setMedicalRecords(data || []);
     } catch (error) {
-      console.error('Error saving medical record:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare la visita",
-        variant: "destructive"
-      });
+      console.error('Error loading medical records:', error);
+    }
+  };
+
+  const loadVeterinarians = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('veterinarians')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setVeterinarians(data || []);
+    } catch (error) {
+      console.error('Error loading veterinarians:', error);
+    }
+  };
+
+  const loadEmergencyContacts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('emergency_contacts')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setEmergencyContacts(data || []);
+    } catch (error) {
+      console.error('Error loading emergency contacts:', error);
+    }
+  };
+
+  const loadDiaryEntries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('pet_id', selectedPet?.id)
+        .order('entry_date', { ascending: false });
+
+      if (error) throw error;
+      setDiaryEntries(data || []);
+    } catch (error) {
+      console.error('Error loading diary entries:', error);
     }
   };
 
@@ -1204,7 +312,7 @@ const WellnessPage = () => {
 
     try {
       if (editingMedication && editingMedication.id && !editingMedication.id.startsWith('temp_')) {
-        // Update existing medication (only if it has a real UUID)
+        // Update existing medication
         const { error } = await supabase
           .from('medications')
           .update({
@@ -1263,16 +371,8 @@ const WellnessPage = () => {
           description: "Farmaco aggiunto con successo"
         });
         
-        // If we were editing a temporary item, remove it and add the real one
-        if (editingMedication && editingMedication.id.startsWith('temp_')) {
-          setMedications(prev => {
-            const filtered = prev.filter(med => med.id !== editingMedication.id);
-            return [data, ...filtered];
-          });
-        } else {
-          // Add new medication to local state with real ID
-          setMedications(prev => [data, ...prev]);
-        }
+        // Add new medication to local state
+        setMedications(prev => [data, ...prev]);
       }
 
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
@@ -1298,37 +398,38 @@ const WellnessPage = () => {
     setConfirmDialog({
       open: true,
       title: `Elimina ${type}`,
-      description: `Sei sicuro di voler eliminare "${name}"? Questa azione non può essere annullata.`,
-      onConfirm: () => performDelete(type, id)
+      message: `Sei sicuro di voler eliminare "${name}"? Questa azione non può essere annullata.`,
+      onConfirm: () => confirmDelete(type, id)
     });
   };
 
-  // Perform actual deletion
-  const performDelete = async (type: string, id: string) => {
+  const confirmDelete = async (type: string, id: string) => {
     try {
-      let tableName: 'health_metrics' | 'medications' | 'medical_records' | 'emergency_contacts' | 'veterinarians' | 'pet_insurance' = 'health_metrics';
-      
+      let tableName = '';
+      let stateSetter: React.Dispatch<React.SetStateAction<any[]>> = () => {};
+
       switch (type) {
-        case 'metrica':
-          tableName = 'health_metrics';
-          break;
         case 'farmaco':
           tableName = 'medications';
+          stateSetter = setMedications;
+          break;
+        case 'metrica':
+          tableName = 'health_metrics';
+          stateSetter = setHealthMetrics;
           break;
         case 'visita':
+        case 'documento':
           tableName = 'medical_records';
-          break;
-        case 'contatto':
-          tableName = 'emergency_contacts';
+          stateSetter = setMedicalRecords;
           break;
         case 'veterinario':
           tableName = 'veterinarians';
+          stateSetter = setVeterinarians;
           break;
-        case 'assicurazione':
-          tableName = 'pet_insurance';
+        case 'contatto':
+          tableName = 'emergency_contacts';
+          stateSetter = setEmergencyContacts;
           break;
-        default:
-          throw new Error('Tipo non supportato');
       }
 
       const { error } = await supabase
@@ -1338,152 +439,24 @@ const WellnessPage = () => {
 
       if (error) throw error;
 
+      // Update local state
+      stateSetter(prev => prev.filter(item => item.id !== id));
+
       toast({
         title: "Successo",
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} eliminato con successo`
       });
-
-      // Update local state instead of refetching
-      switch (type) {
-        case 'metrica':
-          setHealthMetrics(prev => prev.filter(metric => metric.id !== id));
-          break;
-        case 'farmaco':
-          setMedications(prev => prev.filter(med => med.id !== id));
-          break;
-        case 'visita':
-          setMedicalRecords(prev => prev.filter(record => record.id !== id));
-          break;
-        case 'contatto':
-          setEmergencyContacts(prev => prev.filter(contact => contact.id !== id));
-          break;
-        case 'veterinario':
-          setVeterinarians(prev => prev.filter(vet => vet.id !== id));
-          break;
-        case 'assicurazione':
-          setInsurances(prev => prev.filter(insurance => insurance.id !== id));
-          break;
-      }
     } catch (error) {
-      console.error('Error deleting:', error);
+      console.error(`Error deleting ${type}:`, error);
       toast({
         title: "Errore",
         description: `Impossibile eliminare ${type}`,
         variant: "destructive"
       });
-    } finally {
-      setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
     }
   };
 
-  // Open diary dialog for new behavior entry
-  const handleAddBehavior = () => {
-    // Simple function to open diary dialog
-    setShowDiaryDialog(true);
-  };
-
-  // Handle adding new diary entry
-  const handleAddDiaryEntry = async (data: any) => {
-    if (!user || !selectedPet) {
-      toast({
-        title: "Errore",
-        description: "Dati utente o pet mancanti",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('diary_entries')
-        .insert(data);
-
-      if (error) throw error;
-
-      toast({
-        title: "Successo",
-        description: "Voce del diario aggiunta con successo"
-      });
-
-      setShowDiaryDialog(false);
-      // Update local state instead of refetching
-      const newDiaryEntryData = {
-        id: `temp_${Date.now()}`, // Temporary ID with prefix
-        user_id: user.id,
-        pet_id: selectedPet.id,
-        ...data,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      setDiaryEntries(prev => [newDiaryEntryData, ...prev]);
-    } catch (error) {
-      console.error('Error adding diary entry:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiungere la voce del diario",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Handle edit contact
-  const handleEditContact = (contact: EmergencyContact) => {
-    setEditingContact(contact);
-    setNewContact({
-      name: contact.name,
-      contact_type: contact.contact_type,
-      phone: contact.phone,
-      relationship: contact.relationship || '',
-      email: contact.email || '',
-      notes: contact.notes || ''
-    });
-    setShowAddContact(true);
-  };
-
-  // Handle edit veterinarian
-  const handleEditVet = (vet: Veterinarian) => {
-    setEditingVet(vet);
-    setNewVet({
-      name: vet.name,
-      clinic_name: vet.clinic_name || '',
-      phone: vet.phone || '',
-      email: vet.email || '',
-      address: vet.address || '',
-      specialization: vet.specialization || '',
-      is_primary: vet.is_primary
-    });
-    setShowAddVet(true);
-  };
-
-  // Handle edit metric
-  const handleEditMetric = (metric: HealthMetric) => {
-    setEditingMetric(metric);
-    setNewMetric({
-      metric_type: metric.metric_type,
-      value: metric.value.toString(),
-      unit: metric.unit,
-      notes: metric.notes || ''
-    });
-    setShowAddMetric(true);
-  };
-
-  // Handle edit medical record
-  const handleEditRecord = (record: MedicalRecord) => {
-    setEditingRecord(record);
-    setNewDocument({
-      title: record.title,
-      description: record.description || '',
-      record_type: record.record_type,
-      record_date: record.record_date,
-      cost: record.cost?.toString() || '',
-      notes: record.notes || ''
-    });
-    setShowAddDocument(true);
-  };
-
-  // Handle edit medication
   const handleEditMedication = (medication: Medication) => {
-    setEditingMedication(medication);
     setNewMedication({
       name: medication.name,
       dosage: medication.dosage,
@@ -1492,35 +465,63 @@ const WellnessPage = () => {
       end_date: medication.end_date || '',
       notes: medication.notes || ''
     });
+    setEditingMedication(medication);
     setShowAddMedication(true);
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <Activity className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-lg text-muted-foreground">Caricamento dati sulla salute...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Open diary dialog for new behavior entry
+  const handleAddBehavior = () => {
+    setShowDiaryDialog(true);
+  };
+
+  const handleAddDiaryEntry = async (data: any) => {
+    try {
+      const { data: savedEntry, error } = await supabase
+        .from('diary_entries')
+        .insert({
+          user_id: user?.id,
+          pet_id: selectedPet?.id,
+          entry_date: data.date,
+          behavioral_tags: data.behavioralTags,
+          mood_score: data.moodScore,
+          notes: data.notes,
+          weather_condition: data.weatherCondition,
+          location: data.location,
+          activity_level: data.activityLevel,
+          appetite_level: data.appetiteLevel,
+          sleep_quality: data.sleepQuality,
+          social_interaction: data.socialInteraction,
+          training_notes: data.trainingNotes
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setDiaryEntries(prev => [savedEntry, ...prev]);
+      setShowDiaryDialog(false);
+
+      toast({
+        title: "Successo",
+        description: "Comportamento osservato aggiunto con successo"
+      });
+    } catch (error) {
+      console.error('Error saving diary entry:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il comportamento osservato",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (!selectedPet) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-semibold mb-2">Nessun Pet Selezionato</h2>
-          <p className="text-muted-foreground mb-4">
-            Aggiungi un pet per iniziare a monitorare la sua salute
-          </p>
-          <Button onClick={() => window.location.href = '/pets'}>
-            <Plus className="h-4 w-4 mr-2" />
-            Aggiungi Pet
-          </Button>
+        <div className="text-center">
+          <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-bold mb-2">Nessun pet selezionato</h2>
+          <p className="text-muted-foreground">Seleziona un pet per visualizzare le informazioni wellness</p>
         </div>
       </div>
     );
@@ -1552,56 +553,9 @@ const WellnessPage = () => {
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
-          {/* Unified Wellness Trend Chart */}
-          <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <TrendingUp className="h-6 w-6 text-primary" />
-                Trend Generale Benessere
-              </CardTitle>
-              <CardDescription>
-                Andamento complessivo del benessere di {selectedPet?.name || 'il tuo pet'} nel tempo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80 relative overflow-hidden">
-                <ChartContainer
-                  config={{
-                    wellness: {
-                      label: "Benessere",
-                      color: "hsl(var(--primary))"
-                    }
-                  }}
-                  className="w-full h-full"
-                >
-                  <LineChart
-                    data={wellnessTrendData}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" opacity={0.3} />
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis domain={[0, 100]} stroke="hsl(var(--muted-foreground))" />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="wellness" 
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={3}
-                      dot={{ r: 5, fill: "hsl(var(--primary))" }}
-                      activeDot={{ r: 7, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
-                    />
-                    <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Ottimo" />
-                    <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" label="Medio" />
-                    <ReferenceLine y={25} stroke="hsl(var(--destructive))" strokeDasharray="5 5" label="Attenzione" />
-                  </LineChart>
-                </ChartContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Main Dashboard - Spaced from chart */}
           <div className="space-y-8 mt-8">
             
-            {/* Primary Health Cards */}
+            {/* Primary Health Cards - Row 1 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
               {/* Health Score Card */}
@@ -1613,7 +567,11 @@ const WellnessPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <UnifiedHealthScore selectedPet={selectedPet} user={user} addNotification={addNotification} />
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold text-red-500 mb-2">85</div>
+                    <div className="text-sm text-muted-foreground">Buona salute</div>
+                    <Progress value={85} className="mt-3" />
+                  </div>
                 </CardContent>
               </Card>
 
@@ -1631,7 +589,7 @@ const WellnessPage = () => {
                     <div className="space-y-2 max-h-32 overflow-y-auto">
                       {Object.entries(emotionCounts)
                         .sort(([,a], [,b]) => b - a)
-                        .map(([emotion, count], index) => (
+                        .map(([emotion, count]) => (
                           <div key={emotion} className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <div 
@@ -1640,18 +598,7 @@ const WellnessPage = () => {
                               />
                               <span className="text-sm capitalize">{emotion}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 bg-muted rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full"
-                                  style={{ 
-                                    width: `${(count / Math.max(...Object.values(emotionCounts))) * 100}%`,
-                                    backgroundColor: EMOTION_COLORS[emotion] || '#6b7280'
-                                  }}
-                                />
-                              </div>
-                              <span className="text-sm font-medium w-8 text-right">{count}</span>
-                            </div>
+                            <span className="text-sm font-medium">{count}</span>
                           </div>
                         ))}
                     </div>
@@ -1675,7 +622,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddMetric(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -1684,41 +630,34 @@ const WellnessPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {healthMetrics.length > 0 ? (
-                    healthMetrics.slice(0, 3).map((metric) => {
-                      const evaluation = evaluateVitalParameter(metric.metric_type, parseFloat(metric.value.toString()), selectedPet?.type);
-                      return (
-                        <div key={metric.id} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${
-                              evaluation.status === 'normal' ? 'bg-green-500' :
-                              evaluation.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
-                            }`} />
-                            <span className="text-sm">{translateMetricType(metric.metric_type)}</span>
-                            <span className="text-sm font-medium">
-                              {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
-                            </span>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-blue-500"
-                              onClick={() => handleEditMetric(metric)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 text-red-500"
-                              onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
+                    healthMetrics.slice(0, 3).map((metric) => (
+                      <div key={metric.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-sm">{metric.metric_type}</span>
+                          <span className="text-sm font-medium">
+                            {metric.value} {metric.unit}
+                          </span>
                         </div>
-                      );
-                    })
+                        <div className="flex gap-1">
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 text-blue-500"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 text-red-500"
+                            onClick={() => handleDelete('metrica', metric.id, metric.metric_type)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
                       <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -1727,47 +666,6 @@ const WellnessPage = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Behavioral Insights Card */}
-              <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Brain className="h-5 w-5 text-purple-500" />
-                      Comportamenti Osservati
-                    </CardTitle>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={handleAddBehavior}
-                      className="h-8 w-8 p-0"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {behavioralTags.length > 0 ? (
-                    <div className="space-y-2">
-                      {Object.entries(behavioralTagCounts).slice(0, 3).map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between">
-                          <Badge variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                          <span className="text-sm font-medium">{count}x</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      <Eye className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Nessun comportamento osservato</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Active Medications Card - moved to second row */}
 
               {/* Behavioral Insights Card */}
               <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
@@ -1833,20 +731,16 @@ const WellnessPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {medications.filter(med => {
-                    // Show active medications that haven't expired
                     if (!med.is_active) return false;
-                    if (!med.end_date) return true; // No end date means it's ongoing
-                    return new Date(med.end_date) >= new Date(); // Not expired
+                    if (!med.end_date) return true;
+                    return new Date(med.end_date) >= new Date();
                   }).length > 0 ? (
                     <div className="space-y-2">
                       {medications.filter(med => {
                         if (!med.is_active) return false;
                         if (!med.end_date) return true;
                         return new Date(med.end_date) >= new Date();
-                      }).slice(0, 3).map((medication) => {
-                        const isExpiring = medication.end_date && 
-                          new Date(medication.end_date) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Expires in 7 days
-                        return (
+                      }).slice(0, 3).map((medication) => (
                         <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -1880,8 +774,7 @@ const WellnessPage = () => {
                             </div>
                           )}
                          </div>
-                         );
-                       })}
+                       ))}
                      </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
@@ -1903,7 +796,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddDocument(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -1918,16 +810,12 @@ const WellnessPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium">{record.title}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {translateRecordType(record.record_type)}
-                              </Badge>
                             </div>
                              <div className="flex gap-1">
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
                                  className="h-6 w-6 p-0 text-blue-500"
-                                 onClick={() => handleEditRecord(record)}
                                >
                                  <Edit className="h-3 w-3" />
                                </Button>
@@ -1967,7 +855,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddDocument(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -1982,9 +869,6 @@ const WellnessPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium">{record.title}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {translateRecordType(record.record_type)}
-                              </Badge>
                             </div>
                              <div className="flex gap-1">
                                <Button 
@@ -1995,14 +879,6 @@ const WellnessPage = () => {
                                  title="Scarica"
                                >
                                  <Download className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0 text-blue-500"
-                                 onClick={() => handleEditRecord(record)}
-                               >
-                                 <Edit className="h-3 w-3" />
                                </Button>
                                <Button 
                                  size="sm" 
@@ -2040,7 +916,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddInsurance(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -2066,7 +941,6 @@ const WellnessPage = () => {
                                  size="sm" 
                                  variant="ghost" 
                                  className="h-6 w-6 p-0 text-red-500"
-                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
                                >
                                  <Trash2 className="h-3 w-3" />
                                </Button>
@@ -2109,7 +983,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddContact(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -2139,15 +1012,6 @@ const WellnessPage = () => {
                                  title="Chiama"
                                >
                                  <Phone className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0"
-                                 onClick={() => handleEditContact(contact)}
-                                 title="Modifica"
-                               >
-                                 <Edit className="h-3 w-3" />
                                </Button>
                                <Button 
                                  size="sm" 
@@ -2190,7 +1054,6 @@ const WellnessPage = () => {
                     <Button 
                       size="sm" 
                       variant="ghost"
-                      onClick={() => setShowAddVet(true)}
                       className="h-8 w-8 p-0"
                     >
                       <Plus className="h-4 w-4" />
@@ -2218,15 +1081,6 @@ const WellnessPage = () => {
                                  title="Chiama"
                                >
                                  <Phone className="h-3 w-3" />
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="ghost" 
-                                 className="h-6 w-6 p-0"
-                                 onClick={() => handleEditVet(vet)}
-                                 title="Modifica"
-                               >
-                                 <Edit className="h-3 w-3" />
                                </Button>
                                <Button 
                                  size="sm" 
@@ -2284,96 +1138,81 @@ const WellnessPage = () => {
           </div>
         </TabsContent>
       </Tabs>
-      </div>
 
       {/* Dialog Components */}
-
-            </div>
-
-            {/* Additional Health Influence Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              
-
-
-            </div>
-          </div>
-        </TabsContent>
-
-      </Tabs>
-
+      
       {/* Add Medication Dialog */}
       <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingMedication ? 'Modifica Farmaco' : 'Nuovo Farmaco'}</DialogTitle>
+            <DialogTitle>{editingMedication ? 'Modifica Farmaco' : 'Aggiungi Farmaco'}</DialogTitle>
+            <DialogDescription>
+              {editingMedication ? 'Modifica i dettagli del farmaco' : 'Inserisci i dettagli del nuovo farmaco'}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="medication_name">Nome Farmaco *</Label>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">Nome *</Label>
               <Input
-                id="medication_name"
+                id="name"
                 value={newMedication.name}
                 onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                className="col-span-3"
                 placeholder="Nome del farmaco"
               />
             </div>
-            <div>
-              <Label htmlFor="dosage">Dosaggio *</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="dosage" className="text-right">Dosaggio *</Label>
               <Input
                 id="dosage"
                 value={newMedication.dosage}
                 onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
-                placeholder="es. 10mg"
+                className="col-span-3"
+                placeholder="es. 50mg"
               />
             </div>
-            <div>
-              <Label htmlFor="frequency">Frequenza *</Label>
-              <Select 
-                value={newMedication.frequency} 
-                onValueChange={(value) => setNewMedication(prev => ({ ...prev, frequency: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona frequenza" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="una_volta_al_giorno">Una volta al giorno</SelectItem>
-                  <SelectItem value="due_volte_al_giorno">Due volte al giorno</SelectItem>
-                  <SelectItem value="tre_volte_al_giorno">Tre volte al giorno</SelectItem>
-                  <SelectItem value="al_bisogno">Al bisogno</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="frequency" className="text-right">Frequenza *</Label>
+              <Input
+                id="frequency"
+                value={newMedication.frequency}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, frequency: e.target.value }))}
+                className="col-span-3"
+                placeholder="es. 2 volte al giorno"
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_date">Data Inizio *</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={newMedication.start_date}
-                  onChange={(e) => setNewMedication(prev => ({ ...prev, start_date: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date">Data Fine</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={newMedication.end_date}
-                  onChange={(e) => setNewMedication(prev => ({ ...prev, end_date: e.target.value }))}
-                />
-              </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="start_date" className="text-right">Data Inizio *</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={newMedication.start_date}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, start_date: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
-            <div>
-              <Label htmlFor="medication_notes">Note</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="end_date" className="text-right">Data Fine</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={newMedication.end_date}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, end_date: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">Note</Label>
               <Textarea
-                id="medication_notes"
+                id="notes"
                 value={newMedication.notes}
                 onChange={(e) => setNewMedication(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Note aggiuntive"
+                className="col-span-3"
+                placeholder="Note aggiuntive..."
               />
             </div>
           </div>
-          <div className="flex gap-2 pt-4">
+          <div className="flex justify-end gap-2">
             <Button 
               onClick={() => {
                 setShowAddMedication(false);
@@ -2391,414 +1230,32 @@ const WellnessPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Add Medical Record Dialog */}
-      <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingRecord ? 'Modifica Visita' : 'Nuova Visita'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="record_title">Titolo *</Label>
-              <Input
-                id="record_title"
-                value={newDocument.title}
-                onChange={(e) => setNewDocument(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Titolo della visita"
-              />
-            </div>
-            <div>
-              <Label htmlFor="record_type">Tipo Visita *</Label>
-              <Select 
-                value={newDocument.record_type} 
-                onValueChange={(value) => setNewDocument(prev => ({ ...prev, record_type: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="visita">Visita Generale</SelectItem>
-                  <SelectItem value="vaccinazione">Vaccinazione</SelectItem>
-                  <SelectItem value="controllo">Controllo</SelectItem>
-                  <SelectItem value="emergenza">Emergenza</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="record_date">Data *</Label>
-              <Input
-                id="record_date"
-                type="date"
-                value={newDocument.record_date}
-                onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => {
-                setShowAddDocument(false);
-                setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button onClick={handleAddDocument}>
-              Salva
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Emergency Contact Dialog */}
-      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingContact ? 'Modifica Contatto Emergenza' : 'Nuovo Contatto Emergenza'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="contact_name">Nome *</Label>
-              <Input
-                id="contact_name"
-                value={newContact.name}
-                onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Nome del contatto"
-              />
-            </div>
-            <div>
-              <Label htmlFor="contact_phone">Telefono *</Label>
-              <Input
-                id="contact_phone"
-                value={newContact.phone}
-                onChange={(e) => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Numero di telefono"
-              />
-            </div>
-            <div>
-              <Label htmlFor="contact_relationship">Relazione</Label>
-              <Input
-                id="contact_relationship"
-                value={newContact.relationship}
-                onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
-                placeholder="es. Amico, Familiare"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => {
-                setShowAddContact(false);
-                setEditingContact(null);
-                setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button onClick={handleAddContact}>
-              Salva
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Veterinarian Dialog */}
-      <Dialog open={showAddVet} onOpenChange={setShowAddVet}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingVet ? 'Modifica Veterinario' : 'Nuovo Veterinario'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="vet_name">Nome *</Label>
-              <Input
-                id="vet_name"
-                value={newVet.name}
-                onChange={(e) => setNewVet(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Nome del veterinario"
-              />
-            </div>
-            <div>
-              <Label htmlFor="vet_phone">Telefono *</Label>
-              <Input
-                id="vet_phone"
-                value={newVet.phone}
-                onChange={(e) => setNewVet(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Numero di telefono"
-              />
-            </div>
-            <div>
-              <Label htmlFor="vet_clinic">Clinica</Label>
-              <Input
-                id="vet_clinic"
-                value={newVet.clinic_name}
-                onChange={(e) => setNewVet(prev => ({ ...prev, clinic_name: e.target.value }))}
-                placeholder="Nome della clinica"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => {
-                setShowAddVet(false);
-                setEditingVet(null);
-                setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button onClick={handleAddVet}>
-              Salva
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Metric Dialog */}
-      <Dialog open={showAddMetric} onOpenChange={setShowAddMetric}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingMetric ? 'Modifica Metrica' : 'Nuova Metrica Salute'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="metric_type">Tipo Metrica *</Label>
-              <Select 
-                value={newMetric.metric_type} 
-                onValueChange={(value) => {
-                  const units = {
-                    'temperature': '°C',
-                    'heart_rate': 'bpm',
-                    'respiration': 'resp/min',
-                    'gum_color': '',
-                    'weight': 'kg'
-                  };
-                  setNewMetric(prev => ({ 
-                    ...prev, 
-                    metric_type: value,
-                    unit: units[value] || '',
-                    value: '' // Reset value when changing type
-                  }));
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="temperature">Temperatura Corporea</SelectItem>
-                  <SelectItem value="heart_rate">Frequenza Cardiaca</SelectItem>
-                  <SelectItem value="respiration">Respirazione</SelectItem>
-                  <SelectItem value="gum_color">Colore Gengive</SelectItem>
-                  <SelectItem value="weight">Peso</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {/* Show unit field for display only when not gum_color */}
-            {newMetric.metric_type && newMetric.metric_type !== 'gum_color' && (
-              <div>
-                <Label htmlFor="unit">Unità di Misura</Label>
-                <Input
-                  id="unit"
-                  value={newMetric.unit}
-                  readOnly
-                  placeholder="Auto-rilevata"
-                  className="bg-muted"
-                />
-              </div>
-            )}
-            
-            <div>
-              <Label htmlFor="value">
-                {newMetric.metric_type === 'gum_color' ? 'Colore *' : 'Valore *'}
-              </Label>
-              {newMetric.metric_type === 'gum_color' ? (
-                <Select 
-                  value={newMetric.value} 
-                  onValueChange={(value) => setNewMetric(prev => ({ ...prev, value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona colore" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Rosa</SelectItem>
-                    <SelectItem value="2">Pallide</SelectItem>
-                    <SelectItem value="3">Blu/Viola</SelectItem>
-                    <SelectItem value="4">Gialle</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  id="value"
-                  type="number"
-                  step="0.1"
-                  value={newMetric.value}
-                  onChange={(e) => setNewMetric(prev => ({ ...prev, value: e.target.value }))}
-                  placeholder="Inserisci valore"
-                />
-              )}
-            </div>
-            <div>
-              <Label htmlFor="notes">Note</Label>
-              <Textarea
-                id="notes"
-                value={newMetric.notes}
-                onChange={(e) => setNewMetric(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Note aggiuntive"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => {
-                setShowAddMetric(false);
-                setEditingMetric(null);
-                setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button onClick={handleAddMetric}>
-              Salva
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Insurance Dialog */}
-      <Dialog open={showAddInsurance} onOpenChange={setShowAddInsurance}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nuova Assicurazione</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="provider_name">Compagnia Assicurativa *</Label>
-              <Input
-                id="provider_name"
-                value={newInsurance.provider_name}
-                onChange={(e) => setNewInsurance(prev => ({ ...prev, provider_name: e.target.value }))}
-                placeholder="Nome della compagnia"
-              />
-            </div>
-            <div>
-              <Label htmlFor="policy_number">Numero Polizza *</Label>
-              <Input
-                id="policy_number"
-                value={newInsurance.policy_number}
-                onChange={(e) => setNewInsurance(prev => ({ ...prev, policy_number: e.target.value }))}
-                placeholder="Numero di polizza"
-              />
-            </div>
-            <div>
-              <Label htmlFor="policy_type">Tipo Polizza</Label>
-              <Select 
-                value={newInsurance.policy_type} 
-                onValueChange={(value) => setNewInsurance(prev => ({ ...prev, policy_type: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="base">Base</SelectItem>
-                  <SelectItem value="completa">Completa</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_date">Data Inizio *</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={newInsurance.start_date}
-                  onChange={(e) => setNewInsurance(prev => ({ ...prev, start_date: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date">Data Scadenza</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={newInsurance.end_date}
-                  onChange={(e) => setNewInsurance(prev => ({ ...prev, end_date: e.target.value }))}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="premium_amount">Premio Annuale (€)</Label>
-                <Input
-                  id="premium_amount"
-                  type="number"
-                  step="0.01"
-                  value={newInsurance.premium_amount}
-                  onChange={(e) => setNewInsurance(prev => ({ ...prev, premium_amount: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="deductible">Franchigia (€)</Label>
-                <Input
-                  id="deductible"
-                  type="number"
-                  step="0.01"
-                  value={newInsurance.deductible}
-                  onChange={(e) => setNewInsurance(prev => ({ ...prev, deductible: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={() => {
-                setShowAddInsurance(false);
-                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button onClick={handleAddInsurance}>
-              Salva
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Dialog for deletions */}
-      <ConfirmDialog
+      {/* Confirmation Dialog */}
+      <ConfirmDialog 
         open={confirmDialog.open}
-        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+        onConfirm={() => {
+          confirmDialog.onConfirm();
+          setConfirmDialog(prev => ({ ...prev, open: false }));
+        }}
         title={confirmDialog.title}
-        description={confirmDialog.description}
-        onConfirm={confirmDialog.onConfirm}
-        variant="destructive"
-         confirmText="Elimina"
-       />
+        message={confirmDialog.message}
+        confirmText="Elimina"
+      />
 
-       {/* Diary Entry Dialog - Fixed Reference Error */}
-       <DiaryEntryForm
-         isOpen={showDiaryDialog}
-         onClose={() => setShowDiaryDialog(false)}
-         onSave={handleAddDiaryEntry}
-         petId={selectedPet?.id || ''}
-         userId={user?.id || ''}
-       />
+      {/* First Aid Guide */}
+      <FirstAidGuide 
+        open={showFirstAidGuide}
+        onOpenChange={setShowFirstAidGuide}
+      />
 
-       {/* First Aid Guide Dialog */}
-       <FirstAidGuide 
-         open={showFirstAidGuide} 
-         onOpenChange={setShowFirstAidGuide} 
-       />
-
-     </div>
+      {/* Diary Entry Dialog */}
+      <DiaryEntryForm
+        open={showDiaryDialog}
+        onOpenChange={setShowDiaryDialog}
+        onSave={handleAddDiaryEntry}
+      />
+    </div>
   );
 };
 
