@@ -2172,7 +2172,10 @@ const WellnessPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {medicalRecords.length > 0 ? (
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Debug: {medicalRecords.length} record(s) in state
+                  </div>
+                  {medicalRecords && medicalRecords.length > 0 ? (
                     <div className="space-y-2">
                       {medicalRecords.slice(0, 3).map((record) => (
                         <div key={record.id} className="border-l-2 border-blue-500/30 pl-3">
