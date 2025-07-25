@@ -16,7 +16,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <AppSidebar />
         <main className="flex-1 flex flex-col">
           <Header />
-          <div className="flex-1 p-6 bg-gradient-subtle overflow-auto">
+          <div className="flex-1 p-6 bg-background overflow-auto">
+            {/* DEBUG: Layout main content area */}
+            <div className="mb-2 p-2 bg-blue-500 text-white text-sm rounded">
+              🔵 Layout: Main content area caricata
+            </div>
             {children}
           </div>
         </main>
