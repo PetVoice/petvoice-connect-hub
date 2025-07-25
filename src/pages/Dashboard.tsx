@@ -26,6 +26,7 @@ import { format, isToday, subDays } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
 import { fetchHealthData, calculateUnifiedHealthScore } from '@/utils/healthScoreCalculator';
+import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 
 interface Pet {
   id: string;
@@ -442,6 +443,11 @@ const Dashboard: React.FC = () => {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* Wellness Trend Chart */}
+      {activePet && user && (
+        <WellnessTrendChart petId={activePet.id} userId={user.id} />
       )}
 
       {/* Quick Stats */}
