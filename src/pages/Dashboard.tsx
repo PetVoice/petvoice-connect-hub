@@ -55,9 +55,7 @@ import {
   PieChart as PieChartIcon,
   LineChart as LineChartIcon,
   BarChart2,
-  BookOpen,
-  PawPrint,
-  Home
+  BookOpen
 } from 'lucide-react';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -492,8 +490,8 @@ const Dashboard = () => {
   const { pets } = usePets();
   const { addNotification } = useNotifications();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('dashboard');
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('dashboard');
   
   // Data states
   const [healthMetrics, setHealthMetrics] = useState<HealthMetric[]>([]);
@@ -501,34 +499,61 @@ const Dashboard = () => {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [veterinarians, setVeterinarians] = useState<Veterinarian[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
-  const [insurances, setInsurances] = useState<Insurance[]>([]);
+  const [insurance, setInsurance] = useState<Insurance[]>([]);
+  const [loading, setLoading] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>([]);
+  const [wellnessData, setWellnessData] = useState<any[]>([]);
+
+  // UI states
+  const [showMetricDialog, setShowMetricDialog] = useState(false);
+  const [showRecordDialog, setShowRecordDialog] = useState(false);
+  const [showMedicationDialog, setShowMedicationDialog] = useState(false);
+  const [showVetDialog, setShowVetDialog] = useState(false);
+  const [showEmergencyDialog, setShowEmergencyDialog] = useState(false);
+  const [showInsuranceDialog, setShowInsuranceDialog] = useState(false);
+  const [showDiaryDialog, setShowDiaryDialog] = useState(false);
+  const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmMessage, setConfirmMessage] = useState('');
   
-  // Form states
+  // Form states for editing
+  const [editingMetric, setEditingMetric] = useState<HealthMetric | null>(null);
+  const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+  const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
+  const [editingEmergency, setEditingEmergency] = useState<EmergencyContact | null>(null);
+  const [editingInsurance, setEditingInsurance] = useState<Insurance | null>(null);
+
+  // Form data states
   const [metricForm, setMetricForm] = useState({
     metric_type: '',
     value: '',
     unit: '',
+    recorded_at: '',
     notes: ''
   });
+
   const [recordForm, setRecordForm] = useState({
     title: '',
     description: '',
     record_type: '',
-    record_date: format(new Date(), 'yyyy-MM-dd'),
+    record_date: '',
     cost: '',
     notes: '',
     veterinarian_name: '',
     clinic_name: ''
   });
+
   const [medicationForm, setMedicationForm] = useState({
     name: '',
     dosage: '',
     frequency: '',
-    start_date: format(new Date(), 'yyyy-MM-dd'),
+    start_date: '',
     end_date: '',
     notes: ''
   });
+
   const [vetForm, setVetForm] = useState({
     name: '',
     clinic_name: '',
@@ -538,174 +563,151 @@ const Dashboard = () => {
     specialization: '',
     is_primary: false
   });
+
   const [emergencyForm, setEmergencyForm] = useState({
     name: '',
-    contact_type: 'veterinarian',
+    contact_type: 'family',
     phone: '',
     relationship: '',
     email: '',
-    notes: ''
+    notes: '',
+    is_primary: false
   });
+
   const [insuranceForm, setInsuranceForm] = useState({
     provider_name: '',
     policy_number: '',
     policy_type: '',
-    start_date: format(new Date(), 'yyyy-MM-dd'),
+    start_date: '',
     end_date: '',
     premium_amount: '',
-    deductible: ''
+    deductible: '',
+    is_active: true
   });
-  
-  // Modal states
-  const [showMetricDialog, setShowMetricDialog] = useState(false);
-  const [showRecordDialog, setShowRecordDialog] = useState(false);
-  const [showMedicationDialog, setShowMedicationDialog] = useState(false);
-  const [showVetDialog, setShowVetDialog] = useState(false);
-  const [showEmergencyDialog, setShowEmergencyDialog] = useState(false);
-  const [showInsuranceDialog, setShowInsuranceDialog] = useState(false);
-  const [showDiaryDialog, setShowDiaryDialog] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{type: string, id: string} | null>(null);
-  
-  // Search and filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState<{start?: Date, end?: Date}>({});
-  const [recordTypeFilter, setRecordTypeFilter] = useState('');
-  
-  // UI state
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  
-  // Selected pet from context
-  const selectedPet = pets.find(pet => pet.id === localStorage.getItem('petvoice-selected-pet')) || pets[0] || null;
 
-  // Initial data loading
-  useEffect(() => {
-    if (user && selectedPet) {
-      fetchAllData();
-    }
-  }, [user, selectedPet]);
+  // Filter states
+  const [metricFilter, setMetricFilter] = useState('all');
+  const [dateRange, setDateRange] = useState('30');
+  const [showNearbyVets, setShowNearbyVets] = useState(false);
+  const [nearbyVets, setNearbyVets] = useState<any[]>([]);
 
-  // Set active tab from URL params
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab) {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+  const selectedPet = pets.find(p => p.id === searchParams.get('petId')) || pets[0];
 
-  const fetchAllData = async () => {
+  // Reset form function
+  const resetForms = () => {
+    setMetricForm({
+      metric_type: '',
+      value: '',
+      unit: '',
+      recorded_at: '',
+      notes: ''
+    });
+    setRecordForm({
+      title: '',
+      description: '',
+      record_type: '',
+      record_date: '',
+      cost: '',
+      notes: '',
+      veterinarian_name: '',
+      clinic_name: ''
+    });
+    setMedicationForm({
+      name: '',
+      dosage: '',
+      frequency: '',
+      start_date: '',
+      end_date: '',
+      notes: ''
+    });
+    setVetForm({
+      name: '',
+      clinic_name: '',
+      phone: '',
+      email: '',
+      address: '',
+      specialization: '',
+      is_primary: false
+    });
+    setEmergencyForm({
+      name: '',
+      contact_type: 'family',
+      phone: '',
+      relationship: '',
+      email: '',
+      notes: '',
+      is_primary: false
+    });
+    setInsuranceForm({
+      provider_name: '',
+      policy_number: '',
+      policy_type: '',
+      start_date: '',
+      end_date: '',
+      premium_amount: '',
+      deductible: '',
+      is_active: true
+    });
+    setEditingMetric(null);
+    setEditingRecord(null);
+    setEditingMedication(null);
+    setEditingVet(null);
+    setEditingEmergency(null);
+    setEditingInsurance(null);
+  };
+
+  // Fetch all data
+  const fetchAllData = useCallback(async () => {
     if (!user || !selectedPet) return;
-    
+
     setLoading(true);
     try {
-      await Promise.all([
-        fetchHealthMetrics(),
-        fetchMedicalRecords(), 
-        fetchMedications(),
-        fetchVeterinarians(),
-        fetchEmergencyContacts(),
-        fetchInsurances(),
-        fetchDiaryEntries()
+      const [
+        metricsRes,
+        recordsRes,
+        medicationsRes,
+        vetsRes,
+        emergencyRes,
+        insuranceRes,
+        diaryRes,
+        wellnessRes
+      ] = await Promise.all([
+        supabase.from('health_metrics').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('recorded_at', { ascending: false }),
+        supabase.from('medical_records').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('record_date', { ascending: false }),
+        supabase.from('medications').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('created_at', { ascending: false }),
+        supabase.from('veterinarians').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('emergency_contacts').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+        supabase.from('insurance_policies').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('created_at', { ascending: false }),
+        supabase.from('diary_entries').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('entry_date', { ascending: false }),
+        supabase.from('pet_wellness_scores').select('*').eq('user_id', user.id).eq('pet_id', selectedPet.id).order('recorded_at', { ascending: false })
       ]);
+
+      setHealthMetrics(metricsRes.data || []);
+      setMedicalRecords(recordsRes.data || []);
+      setMedications(medicationsRes.data || []);
+      setVeterinarians(vetsRes.data || []);
+      setEmergencyContacts(emergencyRes.data || []);
+      setInsurance(insuranceRes.data || []);
+      setDiaryEntries(diaryRes.data || []);
+      setWellnessData(wellnessRes.data || []);
     } catch (error) {
-      console.error('Error fetching wellness data:', error);
+      console.error('Error fetching data:', error);
       toast({
-        title: 'Errore nel caricamento',
-        description: 'Si è verificato un errore nel caricamento dei dati.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nel caricamento dei dati.",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, selectedPet]);
 
-  const fetchHealthMetrics = async () => {
-    const { data, error } = await supabase
-      .from('health_metrics')
-      .select('*')
-      .eq('user_id', user!.id)
-      .eq('pet_id', selectedPet!.id)
-      .order('recorded_at', { ascending: false });
-    
-    if (error) throw error;
-    setHealthMetrics(data || []);
-  };
-
-  const fetchMedicalRecords = async () => {
-    const { data, error } = await supabase
-      .from('medical_records')
-      .select('*')
-      .eq('user_id', user!.id)
-      .eq('pet_id', selectedPet!.id)
-      .order('record_date', { ascending: false });
-    
-    if (error) throw error;
-    setMedicalRecords(data || []);
-  };
-
-  const fetchMedications = async () => {
-    const { data, error } = await supabase
-      .from('medications')
-      .select('*')
-      .eq('user_id', user!.id)
-      .eq('pet_id', selectedPet!.id)
-      .order('start_date', { ascending: false });
-    
-    if (error) throw error;
-    setMedications(data || []);
-  };
-
-  const fetchVeterinarians = async () => {
-    const { data, error } = await supabase
-      .from('veterinarians')
-      .select('*')
-      .eq('user_id', user!.id)
-      .order('name');
-    
-    if (error) throw error;
-    setVeterinarians(data || []);
-  };
-
-  const fetchEmergencyContacts = async () => {
-    const { data, error } = await supabase
-      .from('emergency_contacts')
-      .select('*')
-      .eq('user_id', user!.id)
-      .order('name');
-    
-    if (error) throw error;
-    setEmergencyContacts(data || []);
-  };
-
-  const fetchInsurances = async () => {
-    const { data, error } = await supabase
-      .from('insurance_policies')
-      .select('*')
-      .eq('user_id', user!.id)
-      .eq('pet_id', selectedPet!.id)
-      .order('start_date', { ascending: false });
-    
-    if (error) throw error;
-    setInsurances(data || []);
-  };
-
-  const fetchDiaryEntries = async () => {
-    const { data, error } = await supabase
-      .from('diary_entries')
-      .select('*')
-      .eq('user_id', user!.id)
-      .eq('pet_id', selectedPet!.id)
-      .order('entry_date', { ascending: false })
-      .limit(10);
-    
-    if (error) throw error;
-    setDiaryEntries(data || []);
-  };
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
 
   // Health metric functions
-  const handleAddMetric = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddMetric = async () => {
     if (!user || !selectedPet) return;
 
     try {
@@ -714,38 +716,35 @@ const Dashboard = () => {
         pet_id: selectedPet.id,
         metric_type: metricForm.metric_type,
         value: parseFloat(metricForm.value),
-        unit: getMetricUnit(metricForm.metric_type) || metricForm.unit,
-        recorded_at: new Date().toISOString(),
-        notes: metricForm.notes || null
+        unit: metricForm.unit || getMetricUnit(metricForm.metric_type),
+        recorded_at: metricForm.recorded_at,
+        notes: metricForm.notes
       };
 
-      const { error } = await supabase
-        .from('health_metrics')
-        .insert(metricData);
+      const { error } = await supabase.from('health_metrics').insert([metricData]);
 
       if (error) throw error;
 
-      setMetricForm({ metric_type: '', value: '', unit: '', notes: '' });
-      setShowMetricDialog(false);
-      fetchHealthMetrics();
-      
       toast({
-        title: 'Metrica aggiunta',
-        description: 'La metrica di salute è stata registrata con successo.'
+        title: "Successo",
+        description: "Parametro vitale aggiunto con successo."
       });
+
+      setShowMetricDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error adding metric:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta della metrica.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta del parametro vitale.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditMetric = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditMetric = async () => {
+    if (!editingMetric) return;
 
     try {
       const { error } = await supabase
@@ -753,59 +752,54 @@ const Dashboard = () => {
         .update({
           metric_type: metricForm.metric_type,
           value: parseFloat(metricForm.value),
-          unit: getMetricUnit(metricForm.metric_type) || metricForm.unit,
-          notes: metricForm.notes || null
+          unit: metricForm.unit || getMetricUnit(metricForm.metric_type),
+          recorded_at: metricForm.recorded_at,
+          notes: metricForm.notes
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingMetric.id);
 
       if (error) throw error;
 
-      setMetricForm({ metric_type: '', value: '', unit: '', notes: '' });
-      setEditingItem(null);
-      setShowMetricDialog(false);
-      fetchHealthMetrics();
-      
       toast({
-        title: 'Metrica aggiornata',
-        description: 'La metrica di salute è stata aggiornata con successo.'
+        title: "Successo",
+        description: "Parametro vitale aggiornato con successo."
       });
+
+      setShowMetricDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error updating metric:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento della metrica.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento del parametro vitale.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteMetric = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('health_metrics')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('health_metrics').delete().eq('id', id);
       if (error) throw error;
 
-      fetchHealthMetrics();
       toast({
-        title: 'Metrica eliminata',
-        description: 'La metrica di salute è stata eliminata con successo.'
+        title: "Successo",
+        description: "Parametro vitale eliminato con successo."
       });
+      fetchAllData();
     } catch (error) {
       console.error('Error deleting metric:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione della metrica.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione del parametro vitale.",
+        variant: "destructive"
       });
     }
   };
 
   // Medical record functions
-  const handleAddRecord = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddRecord = async () => {
     if (!user || !selectedPet) return;
 
     try {
@@ -813,128 +807,101 @@ const Dashboard = () => {
         user_id: user.id,
         pet_id: selectedPet.id,
         title: recordForm.title,
-        description: recordForm.description || null,
+        description: recordForm.description,
         record_type: recordForm.record_type,
         record_date: recordForm.record_date,
         cost: recordForm.cost ? parseFloat(recordForm.cost) : null,
-        notes: recordForm.notes || null,
+        notes: recordForm.notes,
         veterinarian: recordForm.veterinarian_name ? {
           name: recordForm.veterinarian_name,
-          clinic_name: recordForm.clinic_name || null
+          clinic_name: recordForm.clinic_name
         } : null
       };
 
-      const { error } = await supabase
-        .from('medical_records')
-        .insert(recordData);
+      const { error } = await supabase.from('medical_records').insert([recordData]);
 
       if (error) throw error;
 
-      setRecordForm({
-        title: '',
-        description: '',
-        record_type: '',
-        record_date: format(new Date(), 'yyyy-MM-dd'),
-        cost: '',
-        notes: '',
-        veterinarian_name: '',
-        clinic_name: ''
-      });
-      setShowRecordDialog(false);
-      fetchMedicalRecords();
-      
       toast({
-        title: 'Cartella aggiornata',
-        description: 'Il record medico è stato aggiunto con successo.'
+        title: "Successo",
+        description: "Cartella clinica aggiunta con successo."
       });
+
+      setShowRecordDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error adding record:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta del record.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta della cartella clinica.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditRecord = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditRecord = async () => {
+    if (!editingRecord) return;
 
     try {
       const { error } = await supabase
         .from('medical_records')
         .update({
           title: recordForm.title,
-          description: recordForm.description || null,
+          description: recordForm.description,
           record_type: recordForm.record_type,
           record_date: recordForm.record_date,
           cost: recordForm.cost ? parseFloat(recordForm.cost) : null,
-          notes: recordForm.notes || null,
+          notes: recordForm.notes,
           veterinarian: recordForm.veterinarian_name ? {
             name: recordForm.veterinarian_name,
-            clinic_name: recordForm.clinic_name || null
+            clinic_name: recordForm.clinic_name
           } : null
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingRecord.id);
 
       if (error) throw error;
 
-      setRecordForm({
-        title: '',
-        description: '',
-        record_type: '',
-        record_date: format(new Date(), 'yyyy-MM-dd'),
-        cost: '',
-        notes: '',
-        veterinarian_name: '',
-        clinic_name: ''
-      });
-      setEditingItem(null);
-      setShowRecordDialog(false);
-      fetchMedicalRecords();
-      
       toast({
-        title: 'Record aggiornato',
-        description: 'Il record medico è stato aggiornato con successo.'
+        title: "Successo",
+        description: "Cartella clinica aggiornata con successo."
       });
+
+      setShowRecordDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error updating record:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento del record.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento della cartella clinica.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteRecord = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('medical_records')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('medical_records').delete().eq('id', id);
       if (error) throw error;
 
-      fetchMedicalRecords();
       toast({
-        title: 'Record eliminato',
-        description: 'Il record medico è stato eliminato con successo.'
+        title: "Successo",
+        description: "Cartella clinica eliminata con successo."
       });
+      fetchAllData();
     } catch (error) {
       console.error('Error deleting record:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione del record.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione della cartella clinica.",
+        variant: "destructive"
       });
     }
   };
 
   // Medication functions
-  const handleAddMedication = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddMedication = async () => {
     if (!user || !selectedPet) return;
 
     try {
@@ -946,44 +913,34 @@ const Dashboard = () => {
         frequency: medicationForm.frequency,
         start_date: medicationForm.start_date,
         end_date: medicationForm.end_date || null,
-        is_active: !medicationForm.end_date || isAfter(new Date(medicationForm.end_date), new Date()),
-        notes: medicationForm.notes || null
+        is_active: !medicationForm.end_date || new Date(medicationForm.end_date) > new Date(),
+        notes: medicationForm.notes
       };
 
-      const { error } = await supabase
-        .from('medications')
-        .insert(medicationData);
+      const { error } = await supabase.from('medications').insert([medicationData]);
 
       if (error) throw error;
 
-      setMedicationForm({
-        name: '',
-        dosage: '',
-        frequency: '',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: '',
-        notes: ''
-      });
-      setShowMedicationDialog(false);
-      fetchMedications();
-      
       toast({
-        title: 'Farmaco aggiunto',
-        description: 'Il farmaco è stato aggiunto al piano terapeutico.'
+        title: "Successo",
+        description: "Farmaco aggiunto con successo."
       });
+
+      setShowMedicationDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error adding medication:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta del farmaco.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta del farmaco.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditMedication = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditMedication = async () => {
+    if (!editingMedication) return;
 
     try {
       const { error } = await supabase
@@ -994,186 +951,148 @@ const Dashboard = () => {
           frequency: medicationForm.frequency,
           start_date: medicationForm.start_date,
           end_date: medicationForm.end_date || null,
-          is_active: !medicationForm.end_date || isAfter(new Date(medicationForm.end_date), new Date()),
-          notes: medicationForm.notes || null
+          is_active: !medicationForm.end_date || new Date(medicationForm.end_date) > new Date(),
+          notes: medicationForm.notes
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingMedication.id);
 
       if (error) throw error;
 
-      setMedicationForm({
-        name: '',
-        dosage: '',
-        frequency: '',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: '',
-        notes: ''
-      });
-      setEditingItem(null);
-      setShowMedicationDialog(false);
-      fetchMedications();
-      
       toast({
-        title: 'Farmaco aggiornato',
-        description: 'Il farmaco è stato aggiornato con successo.'
+        title: "Successo",
+        description: "Farmaco aggiornato con successo."
       });
+
+      setShowMedicationDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error updating medication:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento del farmaco.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento del farmaco.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteMedication = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('medications')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('medications').delete().eq('id', id);
       if (error) throw error;
 
-      fetchMedications();
       toast({
-        title: 'Farmaco eliminato',
-        description: 'Il farmaco è stato rimosso dal piano terapeutico.'
+        title: "Successo",
+        description: "Farmaco eliminato con successo."
       });
+      fetchAllData();
     } catch (error) {
       console.error('Error deleting medication:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione del farmaco.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione del farmaco.",
+        variant: "destructive"
       });
     }
   };
 
   // Veterinarian functions
-  const handleAddVet = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddVet = async () => {
     if (!user) return;
 
     try {
       const vetData = {
         user_id: user.id,
         name: vetForm.name,
-        clinic_name: vetForm.clinic_name || null,
-        phone: vetForm.phone || null,
-        email: vetForm.email || null,
-        address: vetForm.address || null,
-        specialization: vetForm.specialization || null,
+        clinic_name: vetForm.clinic_name,
+        phone: vetForm.phone,
+        email: vetForm.email,
+        address: vetForm.address,
+        specialization: vetForm.specialization,
         is_primary: vetForm.is_primary
       };
 
-      const { error } = await supabase
-        .from('veterinarians')
-        .insert(vetData);
+      const { error } = await supabase.from('veterinarians').insert([vetData]);
 
       if (error) throw error;
 
-      setVetForm({
-        name: '',
-        clinic_name: '',
-        phone: '',
-        email: '',
-        address: '',
-        specialization: '',
-        is_primary: false
+      toast({
+        title: "Successo",
+        description: "Veterinario aggiunto con successo."
       });
+
       setShowVetDialog(false);
-      fetchVeterinarians();
-      
-      toast({
-        title: 'Veterinario aggiunto',
-        description: 'Il veterinario è stato aggiunto alla rubrica.'
-      });
+      resetForms();
+      fetchAllData();
     } catch (error) {
-      console.error('Error adding veterinarian:', error);
+      console.error('Error adding vet:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta del veterinario.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta del veterinario.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditVet = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditVet = async () => {
+    if (!editingVet) return;
 
     try {
       const { error } = await supabase
         .from('veterinarians')
         .update({
           name: vetForm.name,
-          clinic_name: vetForm.clinic_name || null,
-          phone: vetForm.phone || null,
-          email: vetForm.email || null,
-          address: vetForm.address || null,
-          specialization: vetForm.specialization || null,
+          clinic_name: vetForm.clinic_name,
+          phone: vetForm.phone,
+          email: vetForm.email,
+          address: vetForm.address,
+          specialization: vetForm.specialization,
           is_primary: vetForm.is_primary
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingVet.id);
 
       if (error) throw error;
 
-      setVetForm({
-        name: '',
-        clinic_name: '',
-        phone: '',
-        email: '',
-        address: '',
-        specialization: '',
-        is_primary: false
+      toast({
+        title: "Successo",
+        description: "Veterinario aggiornato con successo."
       });
-      setEditingItem(null);
+
       setShowVetDialog(false);
-      fetchVeterinarians();
-      
-      toast({
-        title: 'Veterinario aggiornato',
-        description: 'I dati del veterinario sono stati aggiornati.'
-      });
+      resetForms();
+      fetchAllData();
     } catch (error) {
-      console.error('Error updating veterinarian:', error);
+      console.error('Error updating vet:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento del veterinario.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento del veterinario.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteVet = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('veterinarians')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('veterinarians').delete().eq('id', id);
       if (error) throw error;
 
-      fetchVeterinarians();
       toast({
-        title: 'Veterinario eliminato',
-        description: 'Il veterinario è stato rimosso dalla rubrica.'
+        title: "Successo",
+        description: "Veterinario eliminato con successo."
       });
+      fetchAllData();
     } catch (error) {
-      console.error('Error deleting veterinarian:', error);
+      console.error('Error deleting vet:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione del veterinario.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione del veterinario.",
+        variant: "destructive"
       });
     }
   };
 
   // Emergency contact functions
-  const handleAddEmergency = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddEmergency = async () => {
     if (!user) return;
 
     try {
@@ -1182,45 +1101,36 @@ const Dashboard = () => {
         name: emergencyForm.name,
         contact_type: emergencyForm.contact_type,
         phone: emergencyForm.phone,
-        relationship: emergencyForm.relationship || null,
-        email: emergencyForm.email || null,
-        notes: emergencyForm.notes || null
+        relationship: emergencyForm.relationship,
+        email: emergencyForm.email,
+        notes: emergencyForm.notes,
+        is_primary: emergencyForm.is_primary
       };
 
-      const { error } = await supabase
-        .from('emergency_contacts')
-        .insert(emergencyData);
+      const { error } = await supabase.from('emergency_contacts').insert([emergencyData]);
 
       if (error) throw error;
 
-      setEmergencyForm({
-        name: '',
-        contact_type: 'veterinarian',
-        phone: '',
-        relationship: '',
-        email: '',
-        notes: ''
-      });
-      setShowEmergencyDialog(false);
-      fetchEmergencyContacts();
-      
       toast({
-        title: 'Contatto aggiunto',
-        description: 'Il contatto di emergenza è stato aggiunto.'
+        title: "Successo",
+        description: "Contatto di emergenza aggiunto con successo."
       });
+
+      setShowEmergencyDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error adding emergency contact:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta del contatto.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta del contatto di emergenza.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditEmergency = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditEmergency = async () => {
+    if (!editingEmergency) return;
 
     try {
       const { error } = await supabase
@@ -1229,67 +1139,55 @@ const Dashboard = () => {
           name: emergencyForm.name,
           contact_type: emergencyForm.contact_type,
           phone: emergencyForm.phone,
-          relationship: emergencyForm.relationship || null,
-          email: emergencyForm.email || null,
-          notes: emergencyForm.notes || null
+          relationship: emergencyForm.relationship,
+          email: emergencyForm.email,
+          notes: emergencyForm.notes,
+          is_primary: emergencyForm.is_primary
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingEmergency.id);
 
       if (error) throw error;
 
-      setEmergencyForm({
-        name: '',
-        contact_type: 'veterinarian',
-        phone: '',
-        relationship: '',
-        email: '',
-        notes: ''
-      });
-      setEditingItem(null);
-      setShowEmergencyDialog(false);
-      fetchEmergencyContacts();
-      
       toast({
-        title: 'Contatto aggiornato',
-        description: 'Il contatto di emergenza è stato aggiornato.'
+        title: "Successo",
+        description: "Contatto di emergenza aggiornato con successo."
       });
+
+      setShowEmergencyDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error updating emergency contact:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento del contatto.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento del contatto di emergenza.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteEmergency = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('emergency_contacts')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('emergency_contacts').delete().eq('id', id);
       if (error) throw error;
 
-      fetchEmergencyContacts();
       toast({
-        title: 'Contatto eliminato',
-        description: 'Il contatto di emergenza è stato eliminato.'
+        title: "Successo",
+        description: "Contatto di emergenza eliminato con successo."
       });
+      fetchAllData();
     } catch (error) {
       console.error('Error deleting emergency contact:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione del contatto.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione del contatto di emergenza.",
+        variant: "destructive"
       });
     }
   };
 
   // Insurance functions
-  const handleAddInsurance = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddInsurance = async () => {
     if (!user || !selectedPet) return;
 
     try {
@@ -1298,49 +1196,38 @@ const Dashboard = () => {
         pet_id: selectedPet.id,
         provider_name: insuranceForm.provider_name,
         policy_number: insuranceForm.policy_number,
-        policy_type: insuranceForm.policy_type || null,
+        policy_type: insuranceForm.policy_type,
         start_date: insuranceForm.start_date,
         end_date: insuranceForm.end_date || null,
         premium_amount: insuranceForm.premium_amount ? parseFloat(insuranceForm.premium_amount) : null,
-        deductible_amount: insuranceForm.deductible ? parseFloat(insuranceForm.deductible) : null,
-        is_active: !insuranceForm.end_date || isAfter(new Date(insuranceForm.end_date), new Date())
+        deductible: insuranceForm.deductible ? parseFloat(insuranceForm.deductible) : null,
+        is_active: insuranceForm.is_active
       };
 
-      const { error } = await supabase
-        .from('insurance_policies')
-        .insert(insuranceData);
+      const { error } = await supabase.from('insurance_policies').insert([insuranceData]);
 
       if (error) throw error;
 
-      setInsuranceForm({
-        provider_name: '',
-        policy_number: '',
-        policy_type: '',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: '',
-        premium_amount: '',
-        deductible: ''
-      });
-      setShowInsuranceDialog(false);
-      fetchInsurances();
-      
       toast({
-        title: 'Assicurazione aggiunta',
-        description: 'La polizza assicurativa è stata registrata.'
+        title: "Successo",
+        description: "Assicurazione aggiunta con successo."
       });
+
+      setShowInsuranceDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error adding insurance:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiunta dell\'assicurazione.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiunta dell'assicurazione.",
+        variant: "destructive"
       });
     }
   };
 
-  const handleEditInsurance = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
+  const handleEditInsurance = async () => {
+    if (!editingInsurance) return;
 
     try {
       const { error } = await supabase
@@ -1348,241 +1235,121 @@ const Dashboard = () => {
         .update({
           provider_name: insuranceForm.provider_name,
           policy_number: insuranceForm.policy_number,
-          policy_type: insuranceForm.policy_type || null,
+          policy_type: insuranceForm.policy_type,
           start_date: insuranceForm.start_date,
           end_date: insuranceForm.end_date || null,
           premium_amount: insuranceForm.premium_amount ? parseFloat(insuranceForm.premium_amount) : null,
-          deductible_amount: insuranceForm.deductible ? parseFloat(insuranceForm.deductible) : null,
-          is_active: !insuranceForm.end_date || isAfter(new Date(insuranceForm.end_date), new Date())
+          deductible: insuranceForm.deductible ? parseFloat(insuranceForm.deductible) : null,
+          is_active: insuranceForm.is_active
         })
-        .eq('id', editingItem.id);
+        .eq('id', editingInsurance.id);
 
       if (error) throw error;
 
-      setInsuranceForm({
-        provider_name: '',
-        policy_number: '',
-        policy_type: '',
-        start_date: format(new Date(), 'yyyy-MM-dd'),
-        end_date: '',
-        premium_amount: '',
-        deductible: ''
-      });
-      setEditingItem(null);
-      setShowInsuranceDialog(false);
-      fetchInsurances();
-      
       toast({
-        title: 'Assicurazione aggiornata',
-        description: 'La polizza assicurativa è stata aggiornata.'
+        title: "Successo",
+        description: "Assicurazione aggiornata con successo."
       });
+
+      setShowInsuranceDialog(false);
+      resetForms();
+      fetchAllData();
     } catch (error) {
       console.error('Error updating insurance:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'aggiornamento dell\'assicurazione.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'aggiornamento dell'assicurazione.",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteInsurance = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('insurance_policies')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('insurance_policies').delete().eq('id', id);
       if (error) throw error;
 
-      fetchInsurances();
       toast({
-        title: 'Assicurazione eliminata',
-        description: 'La polizza assicurativa è stata eliminata.'
+        title: "Successo",
+        description: "Assicurazione eliminata con successo."
       });
+      fetchAllData();
     } catch (error) {
       console.error('Error deleting insurance:', error);
       toast({
-        title: 'Errore',
-        description: 'Errore durante l\'eliminazione dell\'assicurazione.',
-        variant: 'destructive'
+        title: "Errore",
+        description: "Errore nell'eliminazione dell'assicurazione.",
+        variant: "destructive"
       });
     }
   };
 
-  // File upload handler
-  const handleFileUpload = async (files: File[], category: string, recordId?: string) => {
-    setUploading(true);
-    try {
-      for (const file of files) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user!.id}/${selectedPet!.id}/${category}/${Date.now()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('medical-documents')
-          .upload(fileName, file);
-        
-        if (uploadError) throw uploadError;
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('medical-documents')
-          .getPublicUrl(fileName);
-        
-        // Update record with document URL if recordId provided
-        if (recordId) {
-          await supabase
-            .from('medical_records')
-            .update({ document_url: publicUrl })
-            .eq('id', recordId);
+  // Find nearby vets
+  const handleFindNearbyVets = async () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Errore",
+        description: "Geolocalizzazione non supportata dal browser.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('find-nearby-vets', {
+            body: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              radius: 20000 // 20km radius
+            }
+          });
+
+          if (error) throw error;
+
+          setNearbyVets(data?.results || []);
+          setShowNearbyVets(true);
+        } catch (error) {
+          console.error('Error finding nearby vets:', error);
+          toast({
+            title: "Errore",
+            description: "Errore nella ricerca di veterinari nelle vicinanze.",
+            variant: "destructive"
+          });
         }
-      }
-      
-      toast({
-        title: 'File caricato',
-        description: 'Il documento è stato caricato con successo.'
-      });
-      
-      if (recordId) {
-        fetchMedicalRecords();
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toast({
-        title: 'Errore upload',
-        description: 'Errore durante il caricamento del file.',
-        variant: 'destructive'
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  // Export PDF report
-  const exportPDF = async () => {
-    try {
-      const pdf = new jsPDF();
-      
-      // Header
-      pdf.setFontSize(20);
-      pdf.text(`Report Salute - ${selectedPet?.name}`, 20, 30);
-      
-      pdf.setFontSize(12);
-      pdf.text(`Generato il: ${format(new Date(), 'dd/MM/yyyy HH:mm')}`, 20, 45);
-      
-      let yPosition = 60;
-      
-      // Health Metrics Summary
-      if (healthMetrics.length > 0) {
-        pdf.setFontSize(16);
-        pdf.text('Metriche di Salute', 20, yPosition);
-        yPosition += 20;
-        
-        healthMetrics.slice(0, 10).forEach((metric) => {
-          pdf.setFontSize(10);
-          pdf.text(
-            `${translateMetricType(metric.metric_type)}: ${metric.value} ${metric.unit} - ${format(new Date(metric.recorded_at), 'dd/MM/yyyy')}`,
-            20,
-            yPosition
-          );
-          yPosition += 15;
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        toast({
+          title: "Errore",
+          description: "Impossibile ottenere la posizione.",
+          variant: "destructive"
         });
       }
-      
-      // Medical Records Summary
-      if (medicalRecords.length > 0) {
-        yPosition += 10;
-        pdf.setFontSize(16);
-        pdf.text('Record Medici', 20, yPosition);
-        yPosition += 20;
-        
-        medicalRecords.slice(0, 5).forEach((record) => {
-          pdf.setFontSize(10);
-          pdf.text(
-            `${record.title} - ${translateRecordType(record.record_type)} - ${format(new Date(record.record_date), 'dd/MM/yyyy')}`,
-            20,
-            yPosition
-          );
-          yPosition += 15;
-        });
-      }
-      
-      pdf.save(`wellness-report-${selectedPet?.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-      
-      toast({
-        title: 'Report esportato',
-        description: 'Il report è stato scaricato con successo.'
-      });
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast({
-        title: 'Errore export',
-        description: 'Errore durante l\'esportazione del report.',
-        variant: 'destructive'
-      });
-    }
+    );
   };
 
-  // Filter functions
-  const filteredHealthMetrics = useMemo(() => {
-    return healthMetrics.filter(metric => {
-      const matchesSearch = searchTerm === '' || 
-        translateMetricType(metric.metric_type).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        metric.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const metricDate = new Date(metric.recorded_at);
-      const matchesDateFilter = (!dateFilter.start || metricDate >= dateFilter.start) &&
-                               (!dateFilter.end || metricDate <= dateFilter.end);
-      
-      return matchesSearch && matchesDateFilter;
-    });
-  }, [healthMetrics, searchTerm, dateFilter]);
-
-  const filteredMedicalRecords = useMemo(() => {
-    return medicalRecords.filter(record => {
-      const matchesSearch = searchTerm === '' || 
-        record.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesType = recordTypeFilter === '' || record.record_type === recordTypeFilter;
-      
-      const recordDate = new Date(record.record_date);
-      const matchesDateFilter = (!dateFilter.start || recordDate >= dateFilter.start) &&
-                               (!dateFilter.end || recordDate <= dateFilter.end);
-      
-      return matchesSearch && matchesType && matchesDateFilter;
-    });
-  }, [medicalRecords, searchTerm, recordTypeFilter, dateFilter]);
-
-  const filteredMedications = useMemo(() => {
-    return medications.filter(medication => {
-      const matchesSearch = searchTerm === '' || 
-        medication.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        medication.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      return matchesSearch;
-    });
-  }, [medications, searchTerm]);
-
-  // Edit handlers
-  const startEditMetric = (metric: HealthMetric) => {
-    setEditingItem(metric);
+  // Handle edit button clicks
+  const handleEditMetricClick = (metric: HealthMetric) => {
+    setEditingMetric(metric);
     setMetricForm({
       metric_type: metric.metric_type,
       value: metric.value.toString(),
-      unit: metric.unit,
+      unit: metric.unit || '',
+      recorded_at: format(new Date(metric.recorded_at), 'yyyy-MM-dd'),
       notes: metric.notes || ''
     });
     setShowMetricDialog(true);
   };
 
-  const startEditRecord = (record: MedicalRecord) => {
-    setEditingItem(record);
+  const handleEditRecordClick = (record: MedicalRecord) => {
+    setEditingRecord(record);
     setRecordForm({
       title: record.title,
       description: record.description || '',
       record_type: record.record_type,
-      record_date: record.record_date,
+      record_date: format(new Date(record.record_date), 'yyyy-MM-dd'),
       cost: record.cost?.toString() || '',
       notes: record.notes || '',
       veterinarian_name: record.veterinarian?.name || '',
@@ -1591,21 +1358,21 @@ const Dashboard = () => {
     setShowRecordDialog(true);
   };
 
-  const startEditMedication = (medication: Medication) => {
-    setEditingItem(medication);
+  const handleEditMedicationClick = (medication: Medication) => {
+    setEditingMedication(medication);
     setMedicationForm({
       name: medication.name,
       dosage: medication.dosage,
       frequency: medication.frequency,
-      start_date: medication.start_date,
-      end_date: medication.end_date || '',
+      start_date: format(new Date(medication.start_date), 'yyyy-MM-dd'),
+      end_date: medication.end_date ? format(new Date(medication.end_date), 'yyyy-MM-dd') : '',
       notes: medication.notes || ''
     });
     setShowMedicationDialog(true);
   };
 
-  const startEditVet = (vet: Veterinarian) => {
-    setEditingItem(vet);
+  const handleEditVetClick = (vet: Veterinarian) => {
+    setEditingVet(vet);
     setVetForm({
       name: vet.name,
       clinic_name: vet.clinic_name || '',
@@ -1618,244 +1385,236 @@ const Dashboard = () => {
     setShowVetDialog(true);
   };
 
-  const startEditEmergency = (contact: EmergencyContact) => {
-    setEditingItem(contact);
+  const handleEditEmergencyClick = (emergency: EmergencyContact) => {
+    setEditingEmergency(emergency);
     setEmergencyForm({
-      name: contact.name,
-      contact_type: contact.contact_type,
-      phone: contact.phone,
-      relationship: contact.relationship || '',
-      email: contact.email || '',
-      notes: contact.notes || ''
+      name: emergency.name,
+      contact_type: emergency.contact_type,
+      phone: emergency.phone,
+      relationship: emergency.relationship || '',
+      email: emergency.email || '',
+      notes: emergency.notes || '',
+      is_primary: emergency.is_primary || false
     });
     setShowEmergencyDialog(true);
   };
 
-  const startEditInsurance = (insurance: Insurance) => {
-    setEditingItem(insurance);
+  const handleEditInsuranceClick = (insurance: Insurance) => {
+    setEditingInsurance(insurance);
     setInsuranceForm({
       provider_name: insurance.provider_name,
       policy_number: insurance.policy_number,
       policy_type: insurance.policy_type || '',
-      start_date: insurance.start_date,
-      end_date: insurance.end_date || '',
+      start_date: format(new Date(insurance.start_date), 'yyyy-MM-dd'),
+      end_date: insurance.end_date ? format(new Date(insurance.end_date), 'yyyy-MM-dd') : '',
       premium_amount: insurance.premium_amount?.toString() || '',
-      deductible: insurance.deductible?.toString() || ''
+      deductible: insurance.deductible?.toString() || '',
+      is_active: insurance.is_active
     });
     setShowInsuranceDialog(true);
   };
 
-  // Chart data preparation
-  const healthTrendData = useMemo(() => {
-    if (healthMetrics.length === 0) return [];
+  // Confirm delete function
+  const confirmDelete = (action: () => void, message: string) => {
+    setConfirmAction(() => action);
+    setConfirmMessage(message);
+    setShowConfirmDialog(true);
+  };
+
+  // Export data function
+  const handleExportData = () => {
+    const doc = new jsPDF();
     
-    const last30Days = subDays(new Date(), 30);
-    const recentMetrics = healthMetrics.filter(metric => 
-      new Date(metric.recorded_at) >= last30Days
-    );
+    // Add title
+    doc.setFontSize(20);
+    doc.text(`Report Salute - ${selectedPet?.name}`, 20, 20);
     
-    // Group by date and metric type
-    const groupedData = recentMetrics.reduce((acc, metric) => {
+    // Add pet info
+    doc.setFontSize(12);
+    if (selectedPet) {
+      doc.text(`Tipo: ${selectedPet.type}`, 20, 40);
+      doc.text(`Razza: ${selectedPet.breed || 'Non specificata'}`, 20, 50);
+      doc.text(`Età: ${selectedPet.birth_date ? `${Math.floor((new Date().getTime() - new Date(selectedPet.birth_date).getTime()) / (1000 * 60 * 60 * 24 * 365))} anni` : 'Non specificata'}`, 20, 60);
+    }
+    
+    // Add metrics summary
+    let yPosition = 80;
+    doc.setFontSize(14);
+    doc.text('Parametri Vitali', 20, yPosition);
+    yPosition += 10;
+    
+    healthMetrics.slice(0, 10).forEach((metric, index) => {
+      doc.setFontSize(10);
+      const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+      doc.text(`${translateMetricType(metric.metric_type)}: ${metric.value} ${metric.unit} - ${evaluation.message}`, 20, yPosition + (index * 10));
+    });
+    
+    doc.save(`${selectedPet?.name || 'Pet'}_health_report.pdf`);
+    
+    toast({
+      title: "Successo",
+      description: "Report esportato con successo."
+    });
+  };
+
+  // Processed data for charts
+  const filteredMetrics = useMemo(() => {
+    if (!healthMetrics.length) return [];
+
+    const now = new Date();
+    const daysBack = parseInt(dateRange);
+    const startDate = subDays(now, daysBack);
+
+    return healthMetrics
+      .filter(metric => {
+        const metricDate = new Date(metric.recorded_at);
+        const matchesDate = isAfter(metricDate, startDate);
+        const matchesType = metricFilter === 'all' || metric.metric_type === metricFilter;
+        return matchesDate && matchesType;
+      })
+      .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+  }, [healthMetrics, dateRange, metricFilter]);
+
+  const vitalsChartData = useMemo(() => {
+    const grouped = filteredMetrics.reduce((acc, metric) => {
       const date = format(new Date(metric.recorded_at), 'dd/MM');
-      if (!acc[date]) acc[date] = { date };
+      if (!acc[date]) {
+        acc[date] = { date };
+      }
       acc[date][metric.metric_type] = metric.value;
       return acc;
     }, {} as Record<string, any>);
-    
-    return Object.values(groupedData).sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  }, [healthMetrics]);
 
-  const emotionDistributionData = useMemo(() => {
-    const analysesWithEmotions = diaryEntries.filter(entry => entry.mood_score);
-    if (analysesWithEmotions.length === 0) return [];
-    
+    return Object.values(grouped);
+  }, [filteredMetrics]);
+
+  const emotionData = useMemo(() => {
     const emotionCounts: EmotionCount = {};
-    analysesWithEmotions.forEach(entry => {
-      // Simple mapping based on mood score
-      let emotion = 'neutrale';
-      if (entry.mood_score! >= 8) emotion = 'felice';
-      else if (entry.mood_score! >= 6) emotion = 'calmo';
-      else if (entry.mood_score! >= 4) emotion = 'ansioso';
-      else emotion = 'triste';
-      
-      emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
-    });
     
+    diaryEntries.forEach(entry => {
+      if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
+        entry.behavioral_tags.forEach(tag => {
+          emotionCounts[tag] = (emotionCounts[tag] || 0) + 1;
+        });
+      }
+    });
+
     return Object.entries(emotionCounts).map(([emotion, count]) => ({
-      emotion,
-      count,
-      color: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
+      name: emotion,
+      value: count,
+      fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#8884d8'
     }));
   }, [diaryEntries]);
 
-  // Reset forms when closing dialogs
-  const resetMetricForm = () => {
-    setMetricForm({ metric_type: '', value: '', unit: '', notes: '' });
-    setEditingItem(null);
-  };
-
-  const resetRecordForm = () => {
-    setRecordForm({
-      title: '',
-      description: '',
-      record_type: '',
-      record_date: format(new Date(), 'yyyy-MM-dd'),
-      cost: '',
-      notes: '',
-      veterinarian_name: '',
-      clinic_name: ''
+  const wellnessTrendData = useMemo(() => {
+    const last30Days = Array.from({ length: 30 }, (_, i) => {
+      const date = subDays(new Date(), 29 - i);
+      return {
+        date: format(date, 'dd/MM'),
+        wellness: 0,
+        dataCount: 0
+      };
     });
-    setEditingItem(null);
-  };
 
-  const resetMedicationForm = () => {
-    setMedicationForm({
-      name: '',
-      dosage: '',
-      frequency: '',
-      start_date: format(new Date(), 'yyyy-MM-dd'),
-      end_date: '',
-      notes: ''
+    // Add wellness scores
+    wellnessData.forEach(score => {
+      const scoreDate = format(new Date(score.recorded_at), 'dd/MM');
+      const dayData = last30Days.find(d => d.date === scoreDate);
+      if (dayData) {
+        dayData.wellness = score.overall_score;
+        dayData.dataCount++;
+      }
     });
-    setEditingItem(null);
-  };
 
-  const resetVetForm = () => {
-    setVetForm({
-      name: '',
-      clinic_name: '',
-      phone: '',
-      email: '',
-      address: '',
-      specialization: '',
-      is_primary: false
+    // Calculate trend based on available data
+    last30Days.forEach(day => {
+      if (day.dataCount === 0) {
+        // Simple interpolation based on surrounding days with data
+        const prevDay = last30Days[last30Days.indexOf(day) - 1];
+        const nextDay = last30Days[last30Days.indexOf(day) + 1];
+        
+        if (prevDay?.wellness && nextDay?.wellness) {
+          day.wellness = Math.round((prevDay.wellness + nextDay.wellness) / 2);
+        } else if (prevDay?.wellness) {
+          day.wellness = prevDay.wellness;
+        } else {
+          day.wellness = 75; // Default baseline
+        }
+      }
     });
-    setEditingItem(null);
-  };
 
-  const resetEmergencyForm = () => {
-    setEmergencyForm({
-      name: '',
-      contact_type: 'veterinarian',
-      phone: '',
-      relationship: '',
-      email: '',
-      notes: ''
-    });
-    setEditingItem(null);
-  };
+    return last30Days;
+  }, [wellnessData]);
 
-  const resetInsuranceForm = () => {
-    setInsuranceForm({
-      provider_name: '',
-      policy_number: '',
-      policy_type: '',
-      start_date: format(new Date(), 'yyyy-MM-dd'),
-      end_date: '',
-      premium_amount: '',
-      deductible: ''
-    });
-    setEditingItem(null);
-  };
+  // Aggregate stats
+  const recentMetrics = healthMetrics.filter(m => 
+    isAfter(new Date(m.recorded_at), subDays(new Date(), 7))
+  );
 
-  // Show loading if no user or pets
-  if (!user || pets.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <PawPrint className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            {!user ? 'Caricamento...' : 'Aggiungi un pet per iniziare'}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const activeMedications = medications.filter(m => m.is_active);
+  const recentVisits = medicalRecords.filter(r => 
+    isAfter(new Date(r.record_date), subDays(new Date(), 30))
+  );
+
+  const primaryVet = veterinarians.find(v => v.is_primary);
+  const primaryEmergency = emergencyContacts.find(e => e.is_primary);
+  const activeInsurance = insurance.find(i => i.is_active);
 
   if (!selectedPet) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <PawPrint className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Seleziona un pet per visualizzare i dati di salute</p>
+          <p className="text-lg font-medium text-muted-foreground mb-4">
+            Seleziona un animale per visualizzare la dashboard della salute
+          </p>
+          <Button onClick={() => navigate('/pets')}>
+            Gestisci Animali
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Heart className="h-8 w-8 text-primary" />
-            Salute e Benessere
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard Salute e Benessere</h1>
           <p className="text-muted-foreground">
-            Monitora la salute di {selectedPet.name} in modo completo
+            Monitoraggio completo della salute di {selectedPet.name}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={exportPDF}
-            className="hidden md:flex"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Esporta Report
+          <Button variant="outline" onClick={() => setShowFirstAidGuide(true)}>
+            <Siren className="w-4 h-4 mr-2" />
+            Pronto Soccorso
           </Button>
-          <Button variant="outline" onClick={() => setActiveTab('emergency')}>
-            <Siren className="h-4 w-4 mr-2" />
-            Emergenza
+          <Button variant="outline" onClick={handleExportData}>
+            <Download className="w-4 h-4 mr-2" />
+            Esporta Dati
           </Button>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
-          <TabsTrigger value="dashboard">
-            <Gauge className="h-4 w-4 mr-2" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="metrics">
-            <Activity className="h-4 w-4 mr-2" />
-            Parametri
-          </TabsTrigger>
-          <TabsTrigger value="records">
-            <FileText className="h-4 w-4 mr-2" />
-            Cartella
-          </TabsTrigger>
-          <TabsTrigger value="medications">
-            <Pill className="h-4 w-4 mr-2" />
-            Farmaci
-          </TabsTrigger>
-          <TabsTrigger value="contacts">
-            <Phone className="h-4 w-4 mr-2" />
-            Contatti
-          </TabsTrigger>
-          <TabsTrigger value="emergency">
-            <Siren className="h-4 w-4 mr-2" />
-            Primo Soccorso
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="vitals">Parametri Vitali</TabsTrigger>
+          <TabsTrigger value="medical">Cartella Clinica</TabsTrigger>
+          <TabsTrigger value="medications">Farmaci</TabsTrigger>
+          <TabsTrigger value="contacts">Contatti</TabsTrigger>
+          <TabsTrigger value="insurance">Assicurazione</TabsTrigger>
         </TabsList>
 
-        {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Unified Health Score Card */}
+          {/* Overview Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/* Unified Health Score */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Punteggio Salute Globale
-                </CardTitle>
-                <CardDescription>
-                  Valutazione complessiva basata su tutti i dati disponibili
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Benessere Generale</CardTitle>
+                <Heart className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
                 <UnifiedHealthScore 
@@ -1866,316 +1625,530 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Stats */}
+            {/* Recent Metrics */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart2 className="h-5 w-5" />
-                  Statistiche Rapide
-                </CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Parametri Recenti</CardTitle>
+                <Activity className="h-4 w-4 text-blue-600" />
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Parametri registrati</span>
-                  <Badge variant="secondary">{healthMetrics.length}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Visite mediche</span>
-                  <Badge variant="secondary">{medicalRecords.filter(r => r.record_type === 'visit').length}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Farmaci attivi</span>
-                  <Badge variant="secondary">{medications.filter(m => m.is_active).length}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Ultimo controllo</span>
-                  <span className="text-sm text-muted-foreground">
-                    {medicalRecords.length > 0
-                      ? format(new Date(medicalRecords[0].record_date), 'dd/MM/yyyy')
-                      : 'Nessuno'
-                    }
-                  </span>
-                </div>
+              <CardContent>
+                <div className="text-2xl font-bold">{recentMetrics.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Ultimi 7 giorni
+                </p>
               </CardContent>
             </Card>
 
-            {/* Recent Activity */}
+            {/* Active Medications */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Farmaci Attivi</CardTitle>
+                <Pill className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{activeMedications.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  In corso
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Recent Visits */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Visite Recenti</CardTitle>
+                <Stethoscope className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{recentVisits.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Ultimo mese
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Wellness Trend Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Attività Recenti
+                  <TrendingUp className="w-5 h-5" />
+                  Andamento Benessere (30 giorni)
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {/* Recent health metrics */}
-                  {healthMetrics.slice(0, 3).map((metric) => (
-                    <div key={metric.id} className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 rounded-full bg-primary"></div>
-                      <div className="flex-1">
-                        <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {metric.value} {metric.unit} • {format(new Date(metric.recorded_at), 'dd/MM HH:mm')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Recent medical records */}
-                  {medicalRecords.slice(0, 2).map((record) => (
-                    <div key={record.id} className="flex items-center gap-3 text-sm">
-                      <div className="w-2 h-2 rounded-full bg-secondary"></div>
-                      <div className="flex-1">
-                        <p className="font-medium">{record.title}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {translateRecordType(record.record_type)} • {format(new Date(record.record_date), 'dd/MM/yyyy')}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {healthMetrics.length === 0 && medicalRecords.length === 0 && (
-                    <p className="text-muted-foreground text-sm text-center py-4">
-                      Nessuna attività recente
-                    </p>
-                  )}
-                </div>
+                <ChartContainer
+                  config={{
+                    wellness: {
+                      label: "Benessere",
+                      color: "hsl(var(--primary))",
+                    },
+                  }}
+                  className="h-[300px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={wellnessTrendData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[0, 100]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Area
+                        type="monotone"
+                        dataKey="wellness"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
+                      />
+                      <ReferenceLine y={70} stroke="#f59e0b" strokeDasharray="2 2" />
+                      <ReferenceLine y={50} stroke="#ef4444" strokeDasharray="2 2" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Emotions Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  Distribuzione Emozioni
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {emotionData.length > 0 ? (
+                  <ChartContainer
+                    config={Object.fromEntries(
+                      Object.entries(EMOTION_COLORS).map(([emotion, color]) => [
+                        emotion,
+                        { label: emotion, color }
+                      ])
+                    )}
+                    className="h-[300px]"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={emotionData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={120}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {emotionData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                    Nessun dato sulle emozioni disponibile
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Health Trends Charts */}
-          {healthTrendData.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <LineChartIcon className="h-5 w-5" />
-                    Tendenze Parametri Vitali
-                  </CardTitle>
-                  <CardDescription>
-                    Ultimi 30 giorni
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ChartContainer config={{}} className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={healthTrendData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        {/* Temperature line */}
-                        {healthTrendData.some(d => d.temperature) && (
-                          <Line 
-                            type="monotone" 
-                            dataKey="temperature" 
-                            stroke="#ef4444" 
-                            name="Temperatura (°C)"
-                            connectNulls={false}
-                          />
-                        )}
-                        {/* Heart rate line */}
-                        {healthTrendData.some(d => d.heart_rate) && (
-                          <Line 
-                            type="monotone" 
-                            dataKey="heart_rate" 
-                            stroke="#3b82f6" 
-                            name="Frequenza Cardiaca"
-                            connectNulls={false}
-                          />
-                        )}
-                        {/* Weight line */}
-                        {healthTrendData.some(d => d.weight) && (
-                          <Line 
-                            type="monotone" 
-                            dataKey="weight" 
-                            stroke="#22c55e" 
-                            name="Peso (kg)"
-                            connectNulls={false}
-                          />
-                        )}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </CardContent>
-              </Card>
+          {/* Quick Stats */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {/* Latest Vitals */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Ultimi Parametri Vitali</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {healthMetrics.slice(0, 3).map((metric) => {
+                  const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet.type);
+                  return (
+                    <div key={metric.id} className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(metric.recorded_at), 'dd/MM/yyyy', { locale: it })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{metric.value} {metric.unit}</p>
+                        <Badge variant={
+                          evaluation.status === 'critical' ? 'destructive' :
+                          evaluation.status === 'warning' ? 'secondary' : 'default'
+                        }>
+                          {evaluation.status === 'critical' ? 'Critico' :
+                           evaluation.status === 'warning' ? 'Attenzione' : 'Normale'}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+                {healthMetrics.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Nessun parametro registrato</p>
+                )}
+              </CardContent>
+            </Card>
 
-              {emotionDistributionData.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <PieChartIcon className="h-5 w-5" />
-                      Distribuzione Stato d'Animo
-                    </CardTitle>
-                    <CardDescription>
-                      Basato sui dati del diario
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer config={{}} className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={emotionDistributionData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ emotion, count }) => `${emotion}: ${count}`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="count"
-                          >
-                            {emotionDistributionData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+            {/* Recent Medical Records */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Cartella Clinica Recente</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {medicalRecords.slice(0, 3).map((record) => (
+                  <div key={record.id} className="space-y-1">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">{record.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {translateRecordType(record.record_type)}
+                        </p>
+                      </div>
+                      <Badge variant="outline">
+                        {format(new Date(record.record_date), 'dd/MM', { locale: it })}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+                {medicalRecords.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Nessuna cartella registrata</p>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => setShowMetricDialog(true)}
-            >
-              <Activity className="h-6 w-6" />
-              <span className="text-sm">Aggiungi Parametro</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => setShowRecordDialog(true)}
-            >
-              <FileText className="h-6 w-6" />
-              <span className="text-sm">Nuovo Record</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => setShowMedicationDialog(true)}
-            >
-              <Pill className="h-6 w-6" />
-              <span className="text-sm">Aggiungi Farmaco</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col gap-2"
-              onClick={() => setShowDiaryDialog(true)}
-            >
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm">Diario Giornaliero</span>
-            </Button>
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Azioni Rapide</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowMetricDialog(true)}
+                >
+                  <Thermometer className="w-4 h-4 mr-2" />
+                  Aggiungi Parametro Vitale
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowRecordDialog(true)}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Aggiungi Visita
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowMedicationDialog(true)}
+                >
+                  <Pill className="w-4 h-4 mr-2" />
+                  Aggiungi Farmaco
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setShowDiaryDialog(true)}
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Aggiungi Diario
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Contact Information */}
+          <div className="grid gap-4 md:grid-cols-3">
+            {/* Primary Veterinarian */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Stethoscope className="w-5 h-5" />
+                  Veterinario Principale
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {primaryVet ? (
+                  <div className="space-y-2">
+                    <p className="font-medium">{primaryVet.name}</p>
+                    {primaryVet.clinic_name && (
+                      <p className="text-sm text-muted-foreground">{primaryVet.clinic_name}</p>
+                    )}
+                    {primaryVet.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4" />
+                        <span className="text-sm">{primaryVet.phone}</span>
+                      </div>
+                    )}
+                    {primaryVet.email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        <span className="text-sm">{primaryVet.email}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Nessun veterinario principale impostato
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowVetDialog(true)}
+                    >
+                      Aggiungi Veterinario
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Emergency Contact */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Phone className="w-5 h-5" />
+                  Contatto di Emergenza
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {primaryEmergency ? (
+                  <div className="space-y-2">
+                    <p className="font-medium">{primaryEmergency.name}</p>
+                    {primaryEmergency.relationship && (
+                      <p className="text-sm text-muted-foreground">{primaryEmergency.relationship}</p>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      <span className="text-sm">{primaryEmergency.phone}</span>
+                    </div>
+                    {primaryEmergency.email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        <span className="text-sm">{primaryEmergency.email}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Nessun contatto di emergenza impostato
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowEmergencyDialog(true)}
+                    >
+                      Aggiungi Contatto
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Insurance */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Assicurazione
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {activeInsurance ? (
+                  <div className="space-y-2">
+                    <p className="font-medium">{activeInsurance.provider_name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Polizza: {activeInsurance.policy_number}
+                    </p>
+                    {activeInsurance.policy_type && (
+                      <p className="text-sm">{activeInsurance.policy_type}</p>
+                    )}
+                    {activeInsurance.premium_amount && (
+                      <p className="text-sm">
+                        Premio: €{activeInsurance.premium_amount}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Nessuna assicurazione attiva
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowInsuranceDialog(true)}
+                    >
+                      Aggiungi Assicurazione
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
-        {/* Health Metrics Tab */}
-        <TabsContent value="metrics" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Parametri Vitali</h3>
-              <p className="text-muted-foreground">Monitora i parametri di salute di {selectedPet.name}</p>
+        <TabsContent value="vitals" className="space-y-6">
+          {/* Filters */}
+          <div className="flex gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="metric-filter">Tipo:</Label>
+              <Select value={metricFilter} onValueChange={setMetricFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutti i parametri</SelectItem>
+                  <SelectItem value="temperature">Temperatura</SelectItem>
+                  <SelectItem value="heart_rate">Frequenza Cardiaca</SelectItem>
+                  <SelectItem value="respiration">Respirazione</SelectItem>
+                  <SelectItem value="weight">Peso</SelectItem>
+                  <SelectItem value="gum_color">Colore Gengive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="date-range">Periodo:</Label>
+              <Select value={dateRange} onValueChange={setDateRange}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7 giorni</SelectItem>
+                  <SelectItem value="30">30 giorni</SelectItem>
+                  <SelectItem value="90">90 giorni</SelectItem>
+                  <SelectItem value="365">1 anno</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button onClick={() => setShowMetricDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Aggiungi Parametro
             </Button>
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cerca parametri..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                placeholder="Data inizio"
-                value={dateFilter.start ? format(dateFilter.start, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDateFilter(prev => ({ 
-                  ...prev, 
-                  start: e.target.value ? new Date(e.target.value) : undefined 
-                }))}
-              />
-              <Input
-                type="date"
-                placeholder="Data fine"
-                value={dateFilter.end ? format(dateFilter.end, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDateFilter(prev => ({ 
-                  ...prev, 
-                  end: e.target.value ? new Date(e.target.value) : undefined 
-                }))}
-              />
-            </div>
-          </div>
+          {/* Vitals Chart */}
+          {vitalsChartData.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Andamento Parametri Vitali</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={{
+                    temperature: {
+                      label: "Temperatura (°C)",
+                      color: "#ef4444",
+                    },
+                    heart_rate: {
+                      label: "Battito (bpm)",
+                      color: "#3b82f6",
+                    },
+                    respiration: {
+                      label: "Respirazione (rpm)",
+                      color: "#22c55e",
+                    },
+                    weight: {
+                      label: "Peso (kg)",
+                      color: "#f59e0b",
+                    },
+                  }}
+                  className="h-[400px]"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={vitalsChartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      {metricFilter === 'all' || metricFilter === 'temperature' ? (
+                        <Line
+                          type="monotone"
+                          dataKey="temperature"
+                          stroke="#ef4444"
+                          strokeWidth={2}
+                          dot={{ fill: '#ef4444' }}
+                        />
+                      ) : null}
+                      {metricFilter === 'all' || metricFilter === 'heart_rate' ? (
+                        <Line
+                          type="monotone"
+                          dataKey="heart_rate"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                          dot={{ fill: '#3b82f6' }}
+                        />
+                      ) : null}
+                      {metricFilter === 'all' || metricFilter === 'respiration' ? (
+                        <Line
+                          type="monotone"
+                          dataKey="respiration"
+                          stroke="#22c55e"
+                          strokeWidth={2}
+                          dot={{ fill: '#22c55e' }}
+                        />
+                      ) : null}
+                      {metricFilter === 'all' || metricFilter === 'weight' ? (
+                        <Line
+                          type="monotone"
+                          dataKey="weight"
+                          stroke="#f59e0b"
+                          strokeWidth={2}
+                          dot={{ fill: '#f59e0b' }}
+                        />
+                      ) : null}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Health Metrics List */}
-          <div className="space-y-4">
-            {filteredHealthMetrics.length > 0 ? (
-              filteredHealthMetrics.map((metric) => {
-                const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet.type);
-                return (
-                  <Card key={metric.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-medium">{translateMetricType(metric.metric_type)}</h4>
-                            <Badge 
-                              variant={evaluation.status === 'normal' ? 'default' : 
-                                     evaluation.status === 'warning' ? 'secondary' : 'destructive'}
-                            >
-                              {evaluation.status === 'normal' ? 'Normale' : 
-                               evaluation.status === 'warning' ? 'Attenzione' : 'Critico'}
+          {/* Metrics List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Parametri Vitali Registrati</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredMetrics.map((metric) => {
+                  const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+                  return (
+                    <div key={metric.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="font-medium">{translateMetricType(metric.metric_type)}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm', { locale: it })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-semibold">
+                              {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
+                            </span>
+                            <Badge variant={
+                              evaluation.status === 'critical' ? 'destructive' :
+                              evaluation.status === 'warning' ? 'secondary' : 'default'
+                            }>
+                              {evaluation.status === 'critical' ? 'Critico' :
+                               evaluation.status === 'warning' ? 'Attenzione' : 'Normale'}
                             </Badge>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Valore</p>
-                              <p className="font-medium">
-                                {metric.metric_type === 'gum_color' 
-                                  ? getGumColorText(metric.value)
-                                  : `${metric.value} ${metric.unit}`
-                                }
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Data registrazione</p>
-                              <p className="font-medium">
-                                {format(new Date(metric.recorded_at), 'dd/MM/yyyy HH:mm')}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Valutazione</p>
-                              <p className={`font-medium ${
-                                evaluation.status === 'normal' ? 'text-green-600' :
-                                evaluation.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
-                              }`}>
-                                {evaluation.message}
-                              </p>
-                            </div>
-                          </div>
-                          {metric.notes && (
-                            <div className="mt-2">
-                              <p className="text-sm text-muted-foreground">Note</p>
-                              <p className="text-sm">{metric.notes}</p>
-                            </div>
-                          )}
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {evaluation.message}
+                          </p>
                           {evaluation.recommendation && (
                             <Alert className="mt-2">
                               <AlertTriangle className="h-4 w-4" />
@@ -2184,711 +2157,519 @@ const Dashboard = () => {
                               </AlertDescription>
                             </Alert>
                           )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditMetric(metric)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'metric', id: metric.id })}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                  <Activity className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Nessun parametro registrato</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Inizia a monitorare la salute di {selectedPet.name} aggiungendo i primi parametri vitali.
-                  </p>
-                  <Button onClick={() => setShowMetricDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Aggiungi Primo Parametro
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Medical Records Tab */}
-        <TabsContent value="records" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Cartella Clinica</h3>
-              <p className="text-muted-foreground">Storia medica completa di {selectedPet.name}</p>
-            </div>
-            <Button onClick={() => setShowRecordDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuovo Record
-            </Button>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cerca nei record..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={recordTypeFilter} onValueChange={setRecordTypeFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tipo record" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tutti i tipi</SelectItem>
-                <SelectItem value="visit">Visite</SelectItem>
-                <SelectItem value="exam">Esami</SelectItem>
-                <SelectItem value="vaccination">Vaccini</SelectItem>
-                <SelectItem value="surgery">Operazioni</SelectItem>
-                <SelectItem value="treatment">Trattamenti</SelectItem>
-                <SelectItem value="emergency">Emergenze</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                placeholder="Data inizio"
-                value={dateFilter.start ? format(dateFilter.start, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDateFilter(prev => ({ 
-                  ...prev, 
-                  start: e.target.value ? new Date(e.target.value) : undefined 
-                }))}
-              />
-              <Input
-                type="date"
-                placeholder="Data fine"
-                value={dateFilter.end ? format(dateFilter.end, 'yyyy-MM-dd') : ''}
-                onChange={(e) => setDateFilter(prev => ({ 
-                  ...prev, 
-                  end: e.target.value ? new Date(e.target.value) : undefined 
-                }))}
-              />
-            </div>
-          </div>
-
-          {/* Medical Records List */}
-          <div className="space-y-4">
-            {filteredMedicalRecords.length > 0 ? (
-              filteredMedicalRecords.map((record) => (
-                <Card key={record.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-medium">{record.title}</h4>
-                          <Badge variant="outline">
-                            {translateRecordType(record.record_type)}
-                          </Badge>
-                          {record.cost && (
-                            <Badge variant="secondary">
-                              €{record.cost.toFixed(2)}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Data</p>
-                            <p className="font-medium">
-                              {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                          {metric.notes && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              Note: {metric.notes}
                             </p>
-                          </div>
-                          {record.veterinarian && (
-                            <div>
-                              <p className="text-sm text-muted-foreground">Veterinario</p>
-                              <p className="font-medium">{record.veterinarian.name}</p>
-                              {record.veterinarian.clinic_name && (
-                                <p className="text-sm text-muted-foreground">
-                                  {record.veterinarian.clinic_name}
-                                </p>
-                              )}
-                            </div>
                           )}
                         </div>
-                        {record.description && (
-                          <div className="mt-2">
-                            <p className="text-sm text-muted-foreground">Descrizione</p>
-                            <p className="text-sm">{record.description}</p>
-                          </div>
-                        )}
-                        {record.notes && (
-                          <div className="mt-2">
-                            <p className="text-sm text-muted-foreground">Note</p>
-                            <p className="text-sm">{record.notes}</p>
-                          </div>
-                        )}
-                        {record.document_url && (
-                          <div className="mt-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              asChild
-                            >
-                              <a 
-                                href={record.document_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2"
-                              >
-                                <FileImage className="h-4 w-4" />
-                                Visualizza Documento
-                              </a>
-                            </Button>
-                          </div>
-                        )}
                       </div>
                       <div className="flex gap-2">
-                        {!record.document_url && (
-                          <MultiFileUploader
-                            bucketName="medical-records"
-                            maxFiles={1}
-                            acceptedTypes={['.jpg', '.jpeg', '.png', '.pdf']}
-                            onFilesChanged={(files) => {
-                              if (files.length > 0) {
-                                console.log('Medical record uploaded:', files[0]);
-                              }
-                            }}
-                          />
-                        )}
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => startEditRecord(record)}
+                          onClick={() => handleEditMetricClick(metric)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => setDeleteConfirm({ type: 'record', id: record.id })}
+                          onClick={() => confirmDelete(() => handleDeleteMetric(metric.id), 'Sei sicuro di voler eliminare questo parametro vitale?')}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Nessun record medico</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Inizia a tenere traccia della storia medica di {selectedPet.name}.
-                  </p>
-                  <Button onClick={() => setShowRecordDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Aggiungi Primo Record
-                  </Button>
+                  );
+                })}
+                {filteredMetrics.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Nessun parametro vitale registrato per il periodo selezionato.</p>
+                    <Button className="mt-4" onClick={() => setShowMetricDialog(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Aggiungi il primo parametro
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="medical" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Cartella Clinica</h2>
+            <Button onClick={() => setShowRecordDialog(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Aggiungi Record
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {medicalRecords.map((record) => (
+              <Card key={record.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{record.title}</CardTitle>
+                      <div className="flex items-center gap-4 mt-2">
+                        <Badge variant="outline">
+                          {translateRecordType(record.record_type)}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(record.record_date), 'dd/MM/yyyy', { locale: it })}
+                        </span>
+                        {record.cost && (
+                          <span className="text-sm font-medium">€{record.cost}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditRecordClick(record)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => confirmDelete(() => handleDeleteRecord(record.id), 'Sei sicuro di voler eliminare questo record medico?')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {record.description && (
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {record.description}
+                    </p>
+                  )}
+                  {record.veterinarian && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Stethoscope className="w-4 h-4" />
+                      <span className="text-sm">
+                        {record.veterinarian.name}
+                        {record.veterinarian.clinic_name && ` - ${record.veterinarian.clinic_name}`}
+                      </span>
+                    </div>
+                  )}
+                  {record.notes && (
+                    <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+                      <p className="text-sm">{record.notes}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+            ))}
+            {medicalRecords.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Nessun record medico registrato.</p>
+                <Button className="mt-4" onClick={() => setShowRecordDialog(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Aggiungi il primo record
+                </Button>
+              </div>
             )}
           </div>
         </TabsContent>
 
-        {/* Medications Tab */}
         <TabsContent value="medications" className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Piano Terapeutico</h3>
-              <p className="text-muted-foreground">Gestisci farmaci e trattamenti di {selectedPet.name}</p>
-            </div>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Farmaci</h2>
             <Button onClick={() => setShowMedicationDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Aggiungi Farmaco
             </Button>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Cerca farmaci..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Active Medications */}
-          <div>
-            <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
-              <Pill className="h-5 w-5 text-green-600" />
-              Farmaci Attivi
-            </h4>
-            <div className="space-y-4">
-              {filteredMedications.filter(med => med.is_active).length > 0 ? (
-                filteredMedications.filter(med => med.is_active).map((medication) => (
-                  <Card key={medication.id} className="border-green-200">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-medium">{medication.name}</h4>
-                            <Badge variant="default" className="bg-green-100 text-green-800">
-                              Attivo
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Dosaggio</p>
-                              <p className="font-medium">{medication.dosage}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Frequenza</p>
-                              <p className="font-medium">{medication.frequency}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Periodo</p>
-                              <p className="font-medium">
-                                {format(new Date(medication.start_date), 'dd/MM/yyyy')} - 
-                                {medication.end_date 
-                                  ? format(new Date(medication.end_date), 'dd/MM/yyyy')
-                                  : 'Indefinito'
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          {medication.notes && (
-                            <div className="mt-2">
-                              <p className="text-sm text-muted-foreground">Note</p>
-                              <p className="text-sm">{medication.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditMedication(medication)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'medication', id: medication.id })}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card className="border-dashed">
-                  <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                    <Pill className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-muted-foreground">Nessun farmaco attivo</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Inactive Medications */}
-          {filteredMedications.filter(med => !med.is_active).length > 0 && (
-            <div>
-              <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
-                <Pill className="h-5 w-5 text-gray-600" />
-                Farmaci Sospesi
-              </h4>
-              <div className="space-y-4">
-                {filteredMedications.filter(med => !med.is_active).map((medication) => (
-                  <Card key={medication.id} className="border-gray-200 opacity-75">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-medium">{medication.name}</h4>
-                            <Badge variant="secondary">
-                              Sospeso
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Dosaggio</p>
-                              <p className="font-medium">{medication.dosage}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Frequenza</p>
-                              <p className="font-medium">{medication.frequency}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Periodo</p>
-                              <p className="font-medium">
-                                {format(new Date(medication.start_date), 'dd/MM/yyyy')} - 
-                                {medication.end_date 
-                                  ? format(new Date(medication.end_date), 'dd/MM/yyyy')
-                                  : 'Indefinito'
-                                }
-                              </p>
-                            </div>
-                          </div>
-                          {medication.notes && (
-                            <div className="mt-2">
-                              <p className="text-sm text-muted-foreground">Note</p>
-                              <p className="text-sm">{medication.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => startEditMedication(medication)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'medication', id: medication.id })}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {filteredMedications.length === 0 && (
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Active Medications */}
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <Pill className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">Nessun farmaco registrato</h3>
-                <p className="text-muted-foreground mb-4">
-                  Inizia a tenere traccia dei farmaci e trattamenti di {selectedPet.name}.
-                </p>
-                <Button onClick={() => setShowMedicationDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi Primo Farmaco
-                </Button>
+              <CardHeader>
+                <CardTitle className="text-lg text-green-600">Farmaci Attivi</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {activeMedications.map((medication) => (
+                    <div key={medication.id} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{medication.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {medication.dosage} - {medication.frequency}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Dal {format(new Date(medication.start_date), 'dd/MM/yyyy', { locale: it })}
+                            {medication.end_date && ` al ${format(new Date(medication.end_date), 'dd/MM/yyyy', { locale: it })}`}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditMedicationClick(medication)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => confirmDelete(() => handleDeleteMedication(medication.id), 'Sei sicuro di voler eliminare questo farmaco?')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {medication.notes && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Note: {medication.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  {activeMedications.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Nessun farmaco attivo</p>
+                  )}
+                </div>
               </CardContent>
             </Card>
-          )}
+
+            {/* Inactive Medications */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg text-muted-foreground">Farmaci Terminati</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {medications.filter(m => !m.is_active).map((medication) => (
+                    <div key={medication.id} className="p-3 border rounded-lg opacity-60">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{medication.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {medication.dosage} - {medication.frequency}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Dal {format(new Date(medication.start_date), 'dd/MM/yyyy', { locale: it })}
+                            {medication.end_date && ` al ${format(new Date(medication.end_date), 'dd/MM/yyyy', { locale: it })}`}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditMedicationClick(medication)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => confirmDelete(() => handleDeleteMedication(medication.id), 'Sei sicuro di voler eliminare questo farmaco?')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {medication.notes && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Note: {medication.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                  {medications.filter(m => !m.is_active).length === 0 && (
+                    <p className="text-sm text-muted-foreground">Nessun farmaco terminato</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
-        {/* Contacts Tab */}
         <TabsContent value="contacts" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Veterinarians */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Stethoscope className="h-5 w-5" />
-                  Veterinari
-                </h3>
-                <Button variant="outline" onClick={() => setShowVetDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {veterinarians.length > 0 ? (
-                  veterinarians.map((vet) => (
-                    <Card key={vet.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium">{vet.name}</h4>
-                              {vet.is_primary && (
-                                <Badge variant="default">
-                                  Primario
-                                </Badge>
-                              )}
-                            </div>
-                            {vet.clinic_name && (
-                              <p className="text-sm text-muted-foreground mb-2">{vet.clinic_name}</p>
-                            )}
-                            {vet.specialization && (
-                              <p className="text-sm text-muted-foreground mb-2">
-                                Specializzazione: {vet.specialization}
-                              </p>
-                            )}
-                            <div className="space-y-1">
-                              {vet.phone && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Phone className="h-3 w-3" />
-                                  <a href={`tel:${vet.phone}`} className="text-primary hover:underline">
-                                    {vet.phone}
-                                  </a>
-                                </div>
-                              )}
-                              {vet.email && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Mail className="h-3 w-3" />
-                                  <a href={`mailto:${vet.email}`} className="text-primary hover:underline">
-                                    {vet.email}
-                                  </a>
-                                </div>
-                              )}
-                              {vet.address && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <MapPin className="h-3 w-3" />
-                                  <span className="text-muted-foreground">{vet.address}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => startEditVet(vet)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeleteConfirm({ type: 'vet', id: vet.id })}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Card className="border-dashed">
-                    <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                      <Stethoscope className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-muted-foreground">Nessun veterinario aggiunto</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-
-            {/* Emergency Contacts */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Siren className="h-5 w-5" />
-                  Contatti di Emergenza
-                </h3>
-                <Button variant="outline" onClick={() => setShowEmergencyDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {emergencyContacts.length > 0 ? (
-                  emergencyContacts.map((contact) => (
-                    <Card key={contact.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium">{contact.name}</h4>
-                              <Badge variant="outline">
-                                {contact.contact_type}
-                              </Badge>
-                            </div>
-                            {contact.relationship && (
-                              <p className="text-sm text-muted-foreground mb-2">{contact.relationship}</p>
-                            )}
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2 text-sm">
-                                <Phone className="h-3 w-3" />
-                                <a href={`tel:${contact.phone}`} className="text-primary hover:underline">
-                                  {contact.phone}
-                                </a>
-                              </div>
-                              {contact.email && (
-                                <div className="flex items-center gap-2 text-sm">
-                                  <Mail className="h-3 w-3" />
-                                  <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
-                                    {contact.email}
-                                  </a>
-                                </div>
-                              )}
-                            </div>
-                            {contact.notes && (
-                              <p className="text-sm text-muted-foreground mt-2">{contact.notes}</p>
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2">
+                    <Stethoscope className="w-5 h-5" />
+                    Veterinari
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleFindNearbyVets}>
+                      <MapPin className="w-4 h-4 mr-2" />
+                      Trova Vicini
+                    </Button>
+                    <Button size="sm" onClick={() => setShowVetDialog(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Aggiungi
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {veterinarians.map((vet) => (
+                    <div key={vet.id} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{vet.name}</p>
+                            {vet.is_primary && (
+                              <Badge variant="default">Principale</Badge>
                             )}
                           </div>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => startEditEmergency(contact)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeleteConfirm({ type: 'emergency', id: contact.id })}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Card className="border-dashed">
-                    <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                      <Siren className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-muted-foreground">Nessun contatto di emergenza</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Insurance Policies */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Assicurazioni
-              </h3>
-              <Button variant="outline" onClick={() => setShowInsuranceDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Aggiungi Polizza
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {insurances.length > 0 ? (
-                insurances.map((insurance) => (
-                  <Card key={insurance.id}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-medium">{insurance.provider_name}</h4>
-                            <Badge variant={insurance.is_active ? 'default' : 'secondary'}>
-                              {insurance.is_active ? 'Attiva' : 'Scaduta'}
-                            </Badge>
-                          </div>
-                          <div className="space-y-2">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Numero Polizza</p>
-                              <p className="font-medium">{insurance.policy_number}</p>
-                            </div>
-                            {insurance.policy_type && (
-                              <div>
-                                <p className="text-sm text-muted-foreground">Tipo</p>
-                                <p className="font-medium">{insurance.policy_type}</p>
+                          {vet.clinic_name && (
+                            <p className="text-sm text-muted-foreground">{vet.clinic_name}</p>
+                          )}
+                          {vet.specialization && (
+                            <p className="text-sm text-muted-foreground">{vet.specialization}</p>
+                          )}
+                          <div className="flex flex-col gap-1 mt-2">
+                            {vet.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="w-3 h-3" />
+                                <span className="text-sm">{vet.phone}</span>
                               </div>
                             )}
-                            <div>
-                              <p className="text-sm text-muted-foreground">Periodo</p>
-                              <p className="font-medium">
-                                {format(new Date(insurance.start_date), 'dd/MM/yyyy')} - 
-                                {insurance.end_date 
-                                  ? format(new Date(insurance.end_date), 'dd/MM/yyyy')
-                                  : 'Indefinito'
-                                }
-                              </p>
-                            </div>
-                            {insurance.premium_amount && (
-                              <div>
-                                <p className="text-sm text-muted-foreground">Premio Annuale</p>
-                                <p className="font-medium">€{insurance.premium_amount.toFixed(2)}</p>
+                            {vet.email && (
+                              <div className="flex items-center gap-2">
+                                <Mail className="w-3 h-3" />
+                                <span className="text-sm">{vet.email}</span>
                               </div>
                             )}
-                            {insurance.deductible && (
-                              <div>
-                                <p className="text-sm text-muted-foreground">Franchigia</p>
-                                <p className="font-medium">€{insurance.deductible.toFixed(2)}</p>
+                            {vet.address && (
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-3 h-3" />
+                                <span className="text-sm">{vet.address}</span>
                               </div>
                             )}
                           </div>
                         </div>
                         <div className="flex gap-1">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={() => startEditInsurance(insurance)}
+                            onClick={() => handleEditVetClick(vet)}
                           >
-                            <Edit className="h-3 w-3" />
+                            <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'insurance', id: insurance.id })}
+                            onClick={() => confirmDelete(() => handleDeleteVet(vet.id), 'Sei sicuro di voler eliminare questo veterinario?')}
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card className="border-dashed lg:col-span-2">
-                  <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                    <Shield className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-muted-foreground">Nessuna assicurazione registrata</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+                    </div>
+                  ))}
+                  {veterinarians.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Nessun veterinario registrato</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Emergency Contacts */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    Contatti di Emergenza
+                  </CardTitle>
+                  <Button size="sm" onClick={() => setShowEmergencyDialog(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {emergencyContacts.map((contact) => (
+                    <div key={contact.id} className="p-3 border rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{contact.name}</p>
+                            {contact.is_primary && (
+                              <Badge variant="default">Principale</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground capitalize">
+                            {contact.contact_type}
+                            {contact.relationship && ` - ${contact.relationship}`}
+                          </p>
+                          <div className="flex flex-col gap-1 mt-2">
+                            <div className="flex items-center gap-2">
+                              <Phone className="w-3 h-3" />
+                              <span className="text-sm">{contact.phone}</span>
+                            </div>
+                            {contact.email && (
+                              <div className="flex items-center gap-2">
+                                <Mail className="w-3 h-3" />
+                                <span className="text-sm">{contact.email}</span>
+                              </div>
+                            )}
+                          </div>
+                          {contact.notes && (
+                            <p className="text-sm text-muted-foreground mt-2">
+                              Note: {contact.notes}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditEmergencyClick(contact)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => confirmDelete(() => handleDeleteEmergency(contact.id), 'Sei sicuro di voler eliminare questo contatto di emergenza?')}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {emergencyContacts.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Nessun contatto di emergenza registrato</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
-        {/* Emergency Tab */}
-        <TabsContent value="emergency" className="space-y-6">
-          <FirstAidGuide open={true} onOpenChange={() => {}} />
+        <TabsContent value="insurance" className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold">Assicurazioni</h2>
+            <Button onClick={() => setShowInsuranceDialog(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Aggiungi Assicurazione
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {insurance.map((policy) => (
+              <Card key={policy.id}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{policy.provider_name}</CardTitle>
+                        <Badge variant={policy.is_active ? "default" : "secondary"}>
+                          {policy.is_active ? "Attiva" : "Scaduta"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Polizza: {policy.policy_number}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditInsuranceClick(policy)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => confirmDelete(() => handleDeleteInsurance(policy.id), 'Sei sicuro di voler eliminare questa assicurazione?')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      {policy.policy_type && (
+                        <div className="mb-2">
+                          <span className="text-sm font-medium">Tipo: </span>
+                          <span className="text-sm">{policy.policy_type}</span>
+                        </div>
+                      )}
+                      <div className="mb-2">
+                        <span className="text-sm font-medium">Inizio: </span>
+                        <span className="text-sm">
+                          {format(new Date(policy.start_date), 'dd/MM/yyyy', { locale: it })}
+                        </span>
+                      </div>
+                      {policy.end_date && (
+                        <div className="mb-2">
+                          <span className="text-sm font-medium">Fine: </span>
+                          <span className="text-sm">
+                            {format(new Date(policy.end_date), 'dd/MM/yyyy', { locale: it })}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      {policy.premium_amount && (
+                        <div className="mb-2">
+                          <span className="text-sm font-medium">Premio: </span>
+                          <span className="text-sm">€{policy.premium_amount}</span>
+                        </div>
+                      )}
+                      {policy.deductible && (
+                        <div className="mb-2">
+                          <span className="text-sm font-medium">Franchigia: </span>
+                          <span className="text-sm">€{policy.deductible}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            {insurance.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Nessuna assicurazione registrata.</p>
+                <Button className="mt-4" onClick={() => setShowInsuranceDialog(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Aggiungi la prima assicurazione
+                </Button>
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 
-      {/* Add Health Metric Dialog */}
-      <Dialog open={showMetricDialog} onOpenChange={(open) => {
-        setShowMetricDialog(open);
-        if (!open) resetMetricForm();
-      }}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* Health Metric Dialog */}
+      <Dialog open={showMetricDialog} onOpenChange={setShowMetricDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Parametro' : 'Aggiungi Parametro Vitale'}
+              {editingMetric ? 'Modifica Parametro Vitale' : 'Aggiungi Parametro Vitale'}
             </DialogTitle>
             <DialogDescription>
-              Registra un nuovo parametro di salute per {selectedPet?.name}
+              Registra i parametri vitali del tuo animale per monitorarne la salute.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditMetric : handleAddMetric} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="metric_type">Tipo di Parametro</Label>
-              <Select value={metricForm.metric_type} onValueChange={(value) => 
-                setMetricForm(prev => ({ ...prev, metric_type: value, unit: getMetricUnit(value) }))
-              }>
+              <Select value={metricForm.metric_type} onValueChange={(value) => setMetricForm({...metricForm, metric_type: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo parametro" />
+                  <SelectValue placeholder="Seleziona tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="temperature">Temperatura Corporea</SelectItem>
@@ -2900,13 +2681,10 @@ const Dashboard = () => {
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Label htmlFor="value">Valore</Label>
               {isDropdownMetric(metricForm.metric_type) ? (
-                <Select value={metricForm.value} onValueChange={(value) => 
-                  setMetricForm(prev => ({ ...prev, value }))
-                }>
+                <Select value={metricForm.value} onValueChange={(value) => setMetricForm({...metricForm, value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona colore" />
                   </SelectTrigger>
@@ -2924,635 +2702,646 @@ const Dashboard = () => {
                   type="number"
                   step="0.1"
                   value={metricForm.value}
-                  onChange={(e) => setMetricForm(prev => ({ ...prev, value: e.target.value }))}
+                  onChange={(e) => setMetricForm({...metricForm, value: e.target.value})}
                   placeholder="Inserisci valore"
-                  required
                 />
               )}
             </div>
-
             {!isDropdownMetric(metricForm.metric_type) && (
               <div>
                 <Label htmlFor="unit">Unità di Misura</Label>
                 <Input
                   id="unit"
-                  value={metricForm.unit}
-                  onChange={(e) => setMetricForm(prev => ({ ...prev, unit: e.target.value }))}
-                  placeholder="Es: °C, bpm, kg"
-                  readOnly={getMetricUnit(metricForm.metric_type) !== ''}
+                  value={metricForm.unit || getMetricUnit(metricForm.metric_type)}
+                  onChange={(e) => setMetricForm({...metricForm, unit: e.target.value})}
+                  placeholder="es. °C, bpm, kg"
                 />
               </div>
             )}
-
+            <div>
+              <Label htmlFor="recorded_at">Data e Ora</Label>
+              <Input
+                id="recorded_at"
+                type="datetime-local"
+                value={metricForm.recorded_at}
+                onChange={(e) => setMetricForm({...metricForm, recorded_at: e.target.value})}
+              />
+            </div>
             <div>
               <Label htmlFor="notes">Note (opzionale)</Label>
               <Textarea
                 id="notes"
                 value={metricForm.notes}
-                onChange={(e) => setMetricForm(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) => setMetricForm({...metricForm, notes: e.target.value})}
                 placeholder="Note aggiuntive..."
-                rows={3}
               />
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowMetricDialog(false)}>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingMetric ? handleEditMetric : handleAddMetric}
+                disabled={!metricForm.metric_type || !metricForm.value || !metricForm.recorded_at}
+              >
+                {editingMetric ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowMetricDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!metricForm.metric_type || !metricForm.value}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Medical Record Dialog */}
-      <Dialog open={showRecordDialog} onOpenChange={(open) => {
-        setShowRecordDialog(open);
-        if (!open) resetRecordForm();
-      }}>
-        <DialogContent className="sm:max-w-[600px]">
+      {/* Medical Record Dialog */}
+      <Dialog open={showRecordDialog} onOpenChange={setShowRecordDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Record' : 'Nuovo Record Medico'}
+              {editingRecord ? 'Modifica Record Medico' : 'Aggiungi Record Medico'}
             </DialogTitle>
             <DialogDescription>
-              Aggiungi un record alla cartella clinica di {selectedPet?.name}
+              Registra visite, esami e trattamenti veterinari.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditRecord : handleAddRecord} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="title">Titolo</Label>
-                <Input
-                  id="title"
-                  value={recordForm.title}
-                  onChange={(e) => setRecordForm(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Es: Controllo annuale"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="record_type">Tipo</Label>
-                <Select value={recordForm.record_type} onValueChange={(value) => 
-                  setRecordForm(prev => ({ ...prev, record_type: value }))
-                }>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="visit">Visita</SelectItem>
-                    <SelectItem value="exam">Esame</SelectItem>
-                    <SelectItem value="vaccination">Vaccino</SelectItem>
-                    <SelectItem value="surgery">Operazione</SelectItem>
-                    <SelectItem value="treatment">Trattamento</SelectItem>
-                    <SelectItem value="lab_work">Analisi</SelectItem>
-                    <SelectItem value="emergency">Emergenza</SelectItem>
-                    <SelectItem value="other">Altro</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="title">Titolo</Label>
+              <Input
+                id="title"
+                value={recordForm.title}
+                onChange={(e) => setRecordForm({...recordForm, title: e.target.value})}
+                placeholder="es. Visita di controllo"
+              />
             </div>
-
+            <div>
+              <Label htmlFor="record_type">Tipo</Label>
+              <Select value={recordForm.record_type} onValueChange={(value) => setRecordForm({...recordForm, record_type: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="visit">Visita</SelectItem>
+                  <SelectItem value="exam">Esame</SelectItem>
+                  <SelectItem value="vaccination">Vaccino</SelectItem>
+                  <SelectItem value="surgery">Operazione</SelectItem>
+                  <SelectItem value="treatment">Trattamento</SelectItem>
+                  <SelectItem value="lab_work">Analisi</SelectItem>
+                  <SelectItem value="emergency">Emergenza</SelectItem>
+                  <SelectItem value="other">Altro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="record_date">Data</Label>
+              <Input
+                id="record_date"
+                type="date"
+                value={recordForm.record_date}
+                onChange={(e) => setRecordForm({...recordForm, record_date: e.target.value})}
+              />
+            </div>
             <div>
               <Label htmlFor="description">Descrizione</Label>
               <Textarea
                 id="description"
                 value={recordForm.description}
-                onChange={(e) => setRecordForm(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Descrizione dettagliata..."
-                rows={3}
+                onChange={(e) => setRecordForm({...recordForm, description: e.target.value})}
+                placeholder="Descrizione del trattamento o visita..."
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="record_date">Data</Label>
-                <Input
-                  id="record_date"
-                  type="date"
-                  value={recordForm.record_date}
-                  onChange={(e) => setRecordForm(prev => ({ ...prev, record_date: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="cost">Costo (€)</Label>
-                <Input
-                  id="cost"
-                  type="number"
-                  step="0.01"
-                  value={recordForm.cost}
-                  onChange={(e) => setRecordForm(prev => ({ ...prev, cost: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="veterinarian_name">Veterinario</Label>
-                <Input
-                  id="veterinarian_name"
-                  value={recordForm.veterinarian_name}
-                  onChange={(e) => setRecordForm(prev => ({ ...prev, veterinarian_name: e.target.value }))}
-                  placeholder="Nome veterinario"
-                />
-              </div>
-              <div>
-                <Label htmlFor="clinic_name">Clinica</Label>
-                <Input
-                  id="clinic_name"
-                  value={recordForm.clinic_name}
-                  onChange={(e) => setRecordForm(prev => ({ ...prev, clinic_name: e.target.value }))}
-                  placeholder="Nome clinica"
-                />
-              </div>
-            </div>
-
             <div>
-              <Label htmlFor="record_notes">Note</Label>
+              <Label htmlFor="veterinarian_name">Veterinario</Label>
+              <Input
+                id="veterinarian_name"
+                value={recordForm.veterinarian_name}
+                onChange={(e) => setRecordForm({...recordForm, veterinarian_name: e.target.value})}
+                placeholder="Nome del veterinario"
+              />
+            </div>
+            <div>
+              <Label htmlFor="clinic_name">Clinica</Label>
+              <Input
+                id="clinic_name"
+                value={recordForm.clinic_name}
+                onChange={(e) => setRecordForm({...recordForm, clinic_name: e.target.value})}
+                placeholder="Nome della clinica"
+              />
+            </div>
+            <div>
+              <Label htmlFor="cost">Costo (€)</Label>
+              <Input
+                id="cost"
+                type="number"
+                step="0.01"
+                value={recordForm.cost}
+                onChange={(e) => setRecordForm({...recordForm, cost: e.target.value})}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Note</Label>
               <Textarea
-                id="record_notes"
+                id="notes"
                 value={recordForm.notes}
-                onChange={(e) => setRecordForm(prev => ({ ...prev, notes: e.target.value }))}
+                onChange={(e) => setRecordForm({...recordForm, notes: e.target.value})}
                 placeholder="Note aggiuntive..."
-                rows={2}
               />
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowRecordDialog(false)}>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingRecord ? handleEditRecord : handleAddRecord}
+                disabled={!recordForm.title || !recordForm.record_type || !recordForm.record_date}
+              >
+                {editingRecord ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowRecordDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!recordForm.title || !recordForm.record_type}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Medication Dialog */}
-      <Dialog open={showMedicationDialog} onOpenChange={(open) => {
-        setShowMedicationDialog(open);
-        if (!open) resetMedicationForm();
-      }}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* Medication Dialog */}
+      <Dialog open={showMedicationDialog} onOpenChange={setShowMedicationDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Farmaco' : 'Aggiungi Farmaco'}
+              {editingMedication ? 'Modifica Farmaco' : 'Aggiungi Farmaco'}
             </DialogTitle>
             <DialogDescription>
-              Aggiungi un farmaco al piano terapeutico di {selectedPet?.name}
+              Tieni traccia dei farmaci e trattamenti del tuo animale.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditMedication : handleAddMedication} className="space-y-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="med_name">Nome Farmaco</Label>
+              <Label htmlFor="name">Nome Farmaco</Label>
               <Input
-                id="med_name"
+                id="name"
                 value={medicationForm.name}
-                onChange={(e) => setMedicationForm(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Es: Antibiotico XY"
-                required
+                onChange={(e) => setMedicationForm({...medicationForm, name: e.target.value})}
+                placeholder="es. Antibiotico XYZ"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="dosage">Dosaggio</Label>
-                <Input
-                  id="dosage"
-                  value={medicationForm.dosage}
-                  onChange={(e) => setMedicationForm(prev => ({ ...prev, dosage: e.target.value }))}
-                  placeholder="Es: 5mg"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="frequency">Frequenza</Label>
-                <Input
-                  id="frequency"
-                  value={medicationForm.frequency}
-                  onChange={(e) => setMedicationForm(prev => ({ ...prev, frequency: e.target.value }))}
-                  placeholder="Es: 2 volte al giorno"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_date">Data Inizio</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={medicationForm.start_date}
-                  onChange={(e) => setMedicationForm(prev => ({ ...prev, start_date: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="end_date">Data Fine (opzionale)</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={medicationForm.end_date}
-                  onChange={(e) => setMedicationForm(prev => ({ ...prev, end_date: e.target.value }))}
-                />
-              </div>
-            </div>
-
             <div>
-              <Label htmlFor="med_notes">Note</Label>
-              <Textarea
-                id="med_notes"
-                value={medicationForm.notes}
-                onChange={(e) => setMedicationForm(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Istruzioni speciali..."
-                rows={3}
+              <Label htmlFor="dosage">Dosaggio</Label>
+              <Input
+                id="dosage"
+                value={medicationForm.dosage}
+                onChange={(e) => setMedicationForm({...medicationForm, dosage: e.target.value})}
+                placeholder="es. 10mg"
               />
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowMedicationDialog(false)}>
+            <div>
+              <Label htmlFor="frequency">Frequenza</Label>
+              <Input
+                id="frequency"
+                value={medicationForm.frequency}
+                onChange={(e) => setMedicationForm({...medicationForm, frequency: e.target.value})}
+                placeholder="es. 2 volte al giorno"
+              />
+            </div>
+            <div>
+              <Label htmlFor="start_date">Data Inizio</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={medicationForm.start_date}
+                onChange={(e) => setMedicationForm({...medicationForm, start_date: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="end_date">Data Fine (opzionale)</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={medicationForm.end_date}
+                onChange={(e) => setMedicationForm({...medicationForm, end_date: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Note</Label>
+              <Textarea
+                id="notes"
+                value={medicationForm.notes}
+                onChange={(e) => setMedicationForm({...medicationForm, notes: e.target.value})}
+                placeholder="Istruzioni speciali, effetti collaterali..."
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingMedication ? handleEditMedication : handleAddMedication}
+                disabled={!medicationForm.name || !medicationForm.dosage || !medicationForm.frequency || !medicationForm.start_date}
+              >
+                {editingMedication ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowMedicationDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!medicationForm.name || !medicationForm.dosage || !medicationForm.frequency}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Veterinarian Dialog */}
-      <Dialog open={showVetDialog} onOpenChange={(open) => {
-        setShowVetDialog(open);
-        if (!open) resetVetForm();
-      }}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* Veterinarian Dialog */}
+      <Dialog open={showVetDialog} onOpenChange={setShowVetDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Veterinario' : 'Aggiungi Veterinario'}
+              {editingVet ? 'Modifica Veterinario' : 'Aggiungi Veterinario'}
             </DialogTitle>
             <DialogDescription>
-              Aggiungi un veterinario alla tua rubrica
+              Aggiungi i contatti dei veterinari di fiducia.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditVet : handleAddVet} className="space-y-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="vet_name">Nome</Label>
+              <Label htmlFor="name">Nome</Label>
               <Input
-                id="vet_name"
+                id="name"
                 value={vetForm.name}
-                onChange={(e) => setVetForm(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Dr. Nome Cognome"
-                required
+                onChange={(e) => setVetForm({...vetForm, name: e.target.value})}
+                placeholder="Dr. Mario Rossi"
               />
             </div>
-
             <div>
               <Label htmlFor="clinic_name">Nome Clinica</Label>
               <Input
                 id="clinic_name"
                 value={vetForm.clinic_name}
-                onChange={(e) => setVetForm(prev => ({ ...prev, clinic_name: e.target.value }))}
+                onChange={(e) => setVetForm({...vetForm, clinic_name: e.target.value})}
                 placeholder="Clinica Veterinaria ABC"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="vet_phone">Telefono</Label>
-                <Input
-                  id="vet_phone"
-                  value={vetForm.phone}
-                  onChange={(e) => setVetForm(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="+39 123 456 7890"
-                />
-              </div>
-              <div>
-                <Label htmlFor="vet_email">Email</Label>
-                <Input
-                  id="vet_email"
-                  type="email"
-                  value={vetForm.email}
-                  onChange={(e) => setVetForm(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="vet@clinica.it"
-                />
-              </div>
+            <div>
+              <Label htmlFor="phone">Telefono</Label>
+              <Input
+                id="phone"
+                value={vetForm.phone}
+                onChange={(e) => setVetForm({...vetForm, phone: e.target.value})}
+                placeholder="+39 123 456 7890"
+              />
             </div>
-
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={vetForm.email}
+                onChange={(e) => setVetForm({...vetForm, email: e.target.value})}
+                placeholder="vet@clinica.it"
+              />
+            </div>
             <div>
               <Label htmlFor="address">Indirizzo</Label>
               <Input
                 id="address"
                 value={vetForm.address}
-                onChange={(e) => setVetForm(prev => ({ ...prev, address: e.target.value }))}
-                placeholder="Via Roma 123, 00100 Roma"
+                onChange={(e) => setVetForm({...vetForm, address: e.target.value})}
+                placeholder="Via Roma 123, Milano"
               />
             </div>
-
             <div>
               <Label htmlFor="specialization">Specializzazione</Label>
               <Input
                 id="specialization"
                 value={vetForm.specialization}
-                onChange={(e) => setVetForm(prev => ({ ...prev, specialization: e.target.value }))}
-                placeholder="Es: Cardiologia, Oncologia"
+                onChange={(e) => setVetForm({...vetForm, specialization: e.target.value})}
+                placeholder="es. Cardiologia, Chirurgia"
               />
             </div>
-
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="is_primary"
                 checked={vetForm.is_primary}
-                onCheckedChange={(checked) => setVetForm(prev => ({ ...prev, is_primary: checked as boolean }))}
+                onCheckedChange={(checked) => setVetForm({...vetForm, is_primary: checked as boolean})}
               />
               <Label htmlFor="is_primary">Veterinario principale</Label>
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowVetDialog(false)}>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingVet ? handleEditVet : handleAddVet}
+                disabled={!vetForm.name}
+              >
+                {editingVet ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowVetDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!vetForm.name}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Emergency Contact Dialog */}
-      <Dialog open={showEmergencyDialog} onOpenChange={(open) => {
-        setShowEmergencyDialog(open);
-        if (!open) resetEmergencyForm();
-      }}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* Emergency Contact Dialog */}
+      <Dialog open={showEmergencyDialog} onOpenChange={setShowEmergencyDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Contatto' : 'Aggiungi Contatto di Emergenza'}
+              {editingEmergency ? 'Modifica Contatto di Emergenza' : 'Aggiungi Contatto di Emergenza'}
             </DialogTitle>
             <DialogDescription>
-              Aggiungi un contatto per le emergenze
+              Aggiungi contatti da chiamare in caso di emergenza.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditEmergency : handleAddEmergency} className="space-y-4">
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="emergency_name">Nome</Label>
+              <Label htmlFor="name">Nome</Label>
               <Input
-                id="emergency_name"
+                id="name"
                 value={emergencyForm.name}
-                onChange={(e) => setEmergencyForm(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Nome del contatto"
-                required
+                onChange={(e) => setEmergencyForm({...emergencyForm, name: e.target.value})}
+                placeholder="Mario Rossi"
               />
             </div>
-
             <div>
               <Label htmlFor="contact_type">Tipo Contatto</Label>
-              <Select value={emergencyForm.contact_type} onValueChange={(value) => 
-                setEmergencyForm(prev => ({ ...prev, contact_type: value }))
-              }>
+              <Select value={emergencyForm.contact_type} onValueChange={(value) => setEmergencyForm({...emergencyForm, contact_type: value})}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="veterinarian">Veterinario</SelectItem>
-                  <SelectItem value="clinic">Clinica</SelectItem>
-                  <SelectItem value="family">Familiare</SelectItem>
+                  <SelectItem value="family">Famiglia</SelectItem>
                   <SelectItem value="friend">Amico</SelectItem>
-                  <SelectItem value="pet_sitter">Pet Sitter</SelectItem>
+                  <SelectItem value="neighbor">Vicino</SelectItem>
+                  <SelectItem value="veterinary">Veterinario</SelectItem>
                   <SelectItem value="other">Altro</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
             <div>
-              <Label htmlFor="emergency_phone">Telefono</Label>
+              <Label htmlFor="phone">Telefono</Label>
               <Input
-                id="emergency_phone"
+                id="phone"
                 value={emergencyForm.phone}
-                onChange={(e) => setEmergencyForm(prev => ({ ...prev, phone: e.target.value }))}
+                onChange={(e) => setEmergencyForm({...emergencyForm, phone: e.target.value})}
                 placeholder="+39 123 456 7890"
-                required
               />
             </div>
-
             <div>
               <Label htmlFor="relationship">Relazione</Label>
               <Input
                 id="relationship"
                 value={emergencyForm.relationship}
-                onChange={(e) => setEmergencyForm(prev => ({ ...prev, relationship: e.target.value }))}
-                placeholder="Es: Sorella, Veterinario di fiducia"
+                onChange={(e) => setEmergencyForm({...emergencyForm, relationship: e.target.value})}
+                placeholder="es. Fratello, Migliore amico"
               />
             </div>
-
             <div>
-              <Label htmlFor="emergency_email">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="emergency_email"
+                id="email"
                 type="email"
                 value={emergencyForm.email}
-                onChange={(e) => setEmergencyForm(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="email@example.com"
+                onChange={(e) => setEmergencyForm({...emergencyForm, email: e.target.value})}
+                placeholder="mario@email.com"
               />
             </div>
-
             <div>
-              <Label htmlFor="emergency_notes">Note</Label>
+              <Label htmlFor="notes">Note</Label>
               <Textarea
-                id="emergency_notes"
+                id="notes"
                 value={emergencyForm.notes}
-                onChange={(e) => setEmergencyForm(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Note aggiuntive..."
-                rows={2}
+                onChange={(e) => setEmergencyForm({...emergencyForm, notes: e.target.value})}
+                placeholder="Informazioni aggiuntive..."
               />
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowEmergencyDialog(false)}>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_primary"
+                checked={emergencyForm.is_primary}
+                onCheckedChange={(checked) => setEmergencyForm({...emergencyForm, is_primary: checked as boolean})}
+              />
+              <Label htmlFor="is_primary">Contatto principale</Label>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingEmergency ? handleEditEmergency : handleAddEmergency}
+                disabled={!emergencyForm.name || !emergencyForm.phone}
+              >
+                {editingEmergency ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowEmergencyDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!emergencyForm.name || !emergencyForm.phone}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Add Insurance Dialog */}
-      <Dialog open={showInsuranceDialog} onOpenChange={(open) => {
-        setShowInsuranceDialog(open);
-        if (!open) resetInsuranceForm();
-      }}>
-        <DialogContent className="sm:max-w-[500px]">
+      {/* Insurance Dialog */}
+      <Dialog open={showInsuranceDialog} onOpenChange={setShowInsuranceDialog}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingItem ? 'Modifica Assicurazione' : 'Aggiungi Assicurazione'}
+              {editingInsurance ? 'Modifica Assicurazione' : 'Aggiungi Assicurazione'}
             </DialogTitle>
             <DialogDescription>
-              Aggiungi una polizza assicurativa per {selectedPet?.name}
+              Gestisci le polizze assicurative del tuo animale.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={editingItem ? handleEditInsurance : handleAddInsurance} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="provider_name">Compagnia Assicurativa</Label>
               <Input
                 id="provider_name"
                 value={insuranceForm.provider_name}
-                onChange={(e) => setInsuranceForm(prev => ({ ...prev, provider_name: e.target.value }))}
-                placeholder="Es: Allianz Pet"
-                required
+                onChange={(e) => setInsuranceForm({...insuranceForm, provider_name: e.target.value})}
+                placeholder="es. Assicurazioni ABC"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="policy_number">Numero Polizza</Label>
-                <Input
-                  id="policy_number"
-                  value={insuranceForm.policy_number}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, policy_number: e.target.value }))}
-                  placeholder="POL123456789"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="policy_type">Tipo Polizza</Label>
-                <Input
-                  id="policy_type"
-                  value={insuranceForm.policy_type}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, policy_type: e.target.value }))}
-                  placeholder="Es: Completa, Base"
-                />
-              </div>
+            <div>
+              <Label htmlFor="policy_number">Numero Polizza</Label>
+              <Input
+                id="policy_number"
+                value={insuranceForm.policy_number}
+                onChange={(e) => setInsuranceForm({...insuranceForm, policy_number: e.target.value})}
+                placeholder="POL123456789"
+              />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="insurance_start_date">Data Inizio</Label>
-                <Input
-                  id="insurance_start_date"
-                  type="date"
-                  value={insuranceForm.start_date}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, start_date: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="insurance_end_date">Data Scadenza</Label>
-                <Input
-                  id="insurance_end_date"
-                  type="date"
-                  value={insuranceForm.end_date}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, end_date: e.target.value }))}
-                />
-              </div>
+            <div>
+              <Label htmlFor="policy_type">Tipo Polizza</Label>
+              <Input
+                id="policy_type"
+                value={insuranceForm.policy_type}
+                onChange={(e) => setInsuranceForm({...insuranceForm, policy_type: e.target.value})}
+                placeholder="es. Completa, Base, Malattie"
+              />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="premium_amount">Premio Annuale (€)</Label>
-                <Input
-                  id="premium_amount"
-                  type="number"
-                  step="0.01"
-                  value={insuranceForm.premium_amount}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, premium_amount: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="deductible">Franchigia (€)</Label>
-                <Input
-                  id="deductible"
-                  type="number"
-                  step="0.01"
-                  value={insuranceForm.deductible}
-                  onChange={(e) => setInsuranceForm(prev => ({ ...prev, deductible: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
+            <div>
+              <Label htmlFor="start_date">Data Inizio</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={insuranceForm.start_date}
+                onChange={(e) => setInsuranceForm({...insuranceForm, start_date: e.target.value})}
+              />
             </div>
-
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowInsuranceDialog(false)}>
+            <div>
+              <Label htmlFor="end_date">Data Fine</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={insuranceForm.end_date}
+                onChange={(e) => setInsuranceForm({...insuranceForm, end_date: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="premium_amount">Premio Annuale (€)</Label>
+              <Input
+                id="premium_amount"
+                type="number"
+                step="0.01"
+                value={insuranceForm.premium_amount}
+                onChange={(e) => setInsuranceForm({...insuranceForm, premium_amount: e.target.value})}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="deductible">Franchigia (€)</Label>
+              <Input
+                id="deductible"
+                type="number"
+                step="0.01"
+                value={insuranceForm.deductible}
+                onChange={(e) => setInsuranceForm({...insuranceForm, deductible: e.target.value})}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is_active"
+                checked={insuranceForm.is_active}
+                onCheckedChange={(checked) => setInsuranceForm({...insuranceForm, is_active: checked as boolean})}
+              />
+              <Label htmlFor="is_active">Polizza attiva</Label>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={editingInsurance ? handleEditInsurance : handleAddInsurance}
+                disabled={!insuranceForm.provider_name || !insuranceForm.policy_number || !insuranceForm.start_date}
+              >
+                {editingInsurance ? 'Aggiorna' : 'Aggiungi'}
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setShowInsuranceDialog(false);
+                resetForms();
+              }}>
                 Annulla
               </Button>
-              <Button type="submit" disabled={!insuranceForm.provider_name || !insuranceForm.policy_number}>
-                {editingItem ? 'Aggiorna' : 'Aggiungi'}
-              </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Diary Entry Dialog */}
+      {/* Diary Dialog */}
       <Dialog open={showDiaryDialog} onOpenChange={setShowDiaryDialog}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Diario Giornaliero</DialogTitle>
+            <DialogTitle>Aggiungi Voce Diario</DialogTitle>
             <DialogDescription>
-              Aggiungi una voce al diario di {selectedPet?.name}
+              Registra comportamenti, emozioni e note quotidiane sul tuo animale.
             </DialogDescription>
           </DialogHeader>
-          {selectedPet && (
-            <DiaryEntryForm
-              isOpen={showDiaryDialog}
-              petId={selectedPet.id}
-              userId={user?.id}
-              onClose={() => setShowDiaryDialog(false)}
-              onSave={(data) => {
-                console.log('Diary entry saved:', data);
-                setShowDiaryDialog(false);
-              }}
-            />
-          )}
+          <DiaryEntryForm
+            petId={selectedPet?.id}
+            onSuccess={() => {
+              setShowDiaryDialog(false);
+              fetchAllData();
+            }}
+            onCancel={() => setShowDiaryDialog(false)}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* First Aid Guide Dialog */}
+      <Dialog open={showFirstAidGuide} onOpenChange={setShowFirstAidGuide}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Siren className="w-5 h-5 text-red-500" />
+              Guida Pronto Soccorso Veterinario
+            </DialogTitle>
+            <DialogDescription>
+              Informazioni essenziali per le emergenze veterinarie
+            </DialogDescription>
+          </DialogHeader>
+          <FirstAidGuide />
+        </DialogContent>
+      </Dialog>
+
+      {/* Nearby Vets Dialog */}
+      <Dialog open={showNearbyVets} onOpenChange={setShowNearbyVets}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Veterinari nelle Vicinanze</DialogTitle>
+            <DialogDescription>
+              Veterinari trovati nella tua zona
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {nearbyVets.map((vet, index) => (
+              <div key={index} className="p-4 border rounded-lg">
+                <h3 className="font-medium">{vet.name}</h3>
+                <p className="text-sm text-muted-foreground">{vet.vicinity}</p>
+                {vet.rating && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="text-sm">{vet.rating}</span>
+                  </div>
+                )}
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setVetForm({
+                        ...vetForm,
+                        name: vet.name,
+                        address: vet.vicinity
+                      });
+                      setShowNearbyVets(false);
+                      setShowVetDialog(true);
+                    }}
+                  >
+                    Aggiungi ai Contatti
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {nearbyVets.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                Nessun veterinario trovato nelle vicinanze
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Dialog */}
       <ConfirmDialog
-        open={!!deleteConfirm}
-        onOpenChange={() => setDeleteConfirm(null)}
-        onConfirm={async () => {
-          if (!deleteConfirm) return;
-          
-          const { type, id } = deleteConfirm;
-          try {
-            switch (type) {
-              case 'metric':
-                await handleDeleteMetric(id);
-                break;
-              case 'record':
-                await handleDeleteRecord(id);
-                break;
-              case 'medication':
-                await handleDeleteMedication(id);
-                break;
-              case 'vet':
-                await handleDeleteVet(id);
-                break;
-              case 'emergency':
-                await handleDeleteEmergency(id);
-                break;
-              case 'insurance':
-                await handleDeleteInsurance(id);
-                break;
-            }
-          } finally {
-            setDeleteConfirm(null);
-          }
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        onConfirm={() => {
+          confirmAction();
+          setShowConfirmDialog(false);
         }}
         title="Conferma Eliminazione"
-        description="Sei sicuro di voler eliminare questo elemento? Questa azione non può essere annullata."
+        description={confirmMessage}
       />
     </div>
   );
