@@ -1269,7 +1269,7 @@ const WellnessPage = () => {
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
             notes: newDocument.notes || null,
-            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : null
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : 'placeholder'
           })
           .eq('id', editingRecord.id);
 
@@ -1292,7 +1292,7 @@ const WellnessPage = () => {
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
             notes: newDocument.notes || null,
-            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : null
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : 'placeholder'
           })
           .select()
           .single();
