@@ -1297,13 +1297,20 @@ const WellnessPage = () => {
         if (error) throw error;
 
         // Add the new record to the beginning of the list
-        // Add the new record to state and force re-render
+        // Force immediate state update with the actual returned data
+        const newRecord = data;
+        console.log('Adding new record:', newRecord);
+        
         setMedicalRecords(prev => {
-          console.log('Previous records:', prev.length);
-          const newRecords = [data, ...prev];
-          console.log('New records after adding:', newRecords.length);
-          return newRecords;
+          const updated = [newRecord, ...prev];
+          console.log('Updated records:', updated.length);
+          return updated;
         });
+
+        // Force component re-render
+        setLoading(false);
+        setLoading(true);
+        setTimeout(() => setLoading(false), 100);
 
         toast({
           title: "Successo", 
