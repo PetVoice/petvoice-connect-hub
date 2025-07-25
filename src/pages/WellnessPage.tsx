@@ -67,6 +67,7 @@ import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
+import { MultiFileUploader } from '@/components/MultiFileUploader';
 import jsPDF from 'jspdf';
 import { useNotifications } from '@/hooks/useNotifications';
 import { 
@@ -2706,19 +2707,36 @@ const WellnessPage = () => {
                 value={newDocument.record_date}
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              type="button"
-              onClick={() => {
-                setShowAddDocument(false);
-                setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
+             </div>
+
+             {/* File Upload Section */}
+             <div className="space-y-2">
+               <Label>Documenti Medici</Label>
+               <MultiFileUploader
+                 bucketName="medical"
+                 maxFiles={10}
+                 maxSizePerFile={15}
+                 acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx', '.txt']}
+                 onFilesChanged={(files) => {
+                   setNewDocument(prev => ({ 
+                     ...prev, 
+                     document_urls: files.filter(f => f.uploaded).map(f => f.url)
+                   }));
+                 }}
+               />
+             </div>
+           </div>
+           <div className="flex gap-2 pt-4">
+             <Button 
+               type="button"
+               onClick={() => {
+                 setShowAddDocument(false);
+                 setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
+               }} 
+               variant="outline"
+             >
+               Annulla
+             </Button>
             <Button type="button" onClick={handleAddDocument}>
               Salva
             </Button>
@@ -3034,23 +3052,40 @@ const WellnessPage = () => {
                   placeholder="0.00"
                 />
               </div>
-            </div>
-          </div>
-          <div className="flex gap-2 pt-4">
-            <Button 
-              type="button"
-              onClick={() => {
-                setShowAddInsurance(false);
-                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
-              }} 
-              variant="outline"
-            >
-              Annulla
-            </Button>
-            <Button type="button" onClick={handleAddInsurance}>
-              Salva
-            </Button>
-          </div>
+             </div>
+
+             {/* File Upload Section */}
+             <div className="space-y-2">
+               <Label>Documenti Assicurazione</Label>
+               <MultiFileUploader
+                 bucketName="insurance"
+                 maxFiles={5}
+                 maxSizePerFile={10}
+                 acceptedTypes={['image/*', 'application/pdf', '.doc', '.docx']}
+                 onFilesChanged={(files) => {
+                   setNewInsurance(prev => ({ 
+                     ...prev, 
+                     document_urls: files.filter(f => f.uploaded).map(f => f.url)
+                   }));
+                 }}
+               />
+             </div>
+           </div>
+           <div className="flex gap-2 pt-4">
+             <Button 
+               type="button"
+               onClick={() => {
+                 setShowAddInsurance(false);
+                 setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
+               }} 
+               variant="outline"
+             >
+               Annulla
+             </Button>
+             <Button type="button" onClick={handleAddInsurance}>
+               Salva
+             </Button>
+           </div>
         </DialogContent>
       </Dialog>
 
