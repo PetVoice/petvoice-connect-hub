@@ -740,10 +740,12 @@ const WellnessPage = () => {
               {/* Behavioral Insights Card */}
               <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-purple-500" />
-                    Comportamenti Osservati
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-purple-500" />
+                      Comportamenti Osservati
+                    </CardTitle>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {behavioralTags.length > 0 ? (
@@ -769,10 +771,20 @@ const WellnessPage = () => {
               {/* Active Medications Card */}
               <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Pill className="h-5 w-5 text-green-500" />
-                    Farmaci Attivi
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Pill className="h-5 w-5 text-green-500" />
+                      Farmaci Attivi
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddMedication(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {medications.filter(med => med.is_active).length > 0 ? (
@@ -780,10 +792,20 @@ const WellnessPage = () => {
                       {medications.filter(med => med.is_active).slice(0, 3).map((medication) => (
                         <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{medication.name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {medication.frequency}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{medication.name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {medication.frequency}
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {medication.dosage}
@@ -821,10 +843,20 @@ const WellnessPage = () => {
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    Visite Recenti
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-blue-500" />
+                      Visite Recenti
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddDocument(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {medicalRecords.length > 0 ? (
@@ -832,10 +864,20 @@ const WellnessPage = () => {
                       {medicalRecords.slice(0, 3).map((record) => (
                         <div key={record.id} className="border-l-2 border-blue-500/30 pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{record.title}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {translateRecordType(record.record_type)}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{record.title}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {translateRecordType(record.record_type)}
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {format(new Date(record.record_date), 'dd/MM/yyyy')}
@@ -855,10 +897,20 @@ const WellnessPage = () => {
               {/* Emergency Contacts Card */}
               <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Phone className="h-5 w-5 text-orange-500" />
-                    Contatti Emergenza
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-orange-500" />
+                      Contatti Emergenza
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddContact(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {emergencyContacts.length > 0 ? (
@@ -866,12 +918,22 @@ const WellnessPage = () => {
                       {emergencyContacts.slice(0, 3).map((contact) => (
                         <div key={contact.id} className="border-l-2 border-orange-500/30 pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{contact.name}</span>
-                            {contact.is_primary && (
-                              <Badge variant="outline" className="text-xs">
-                                Primario
-                              </Badge>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{contact.name}</span>
+                              {contact.is_primary && (
+                                <Badge variant="outline" className="text-xs">
+                                  Primario
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {contact.phone}
@@ -896,10 +958,20 @@ const WellnessPage = () => {
               {/* Veterinarian Card */}
               <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Stethoscope className="h-5 w-5 text-purple-500" />
-                    Veterinario
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Stethoscope className="h-5 w-5 text-purple-500" />
+                      Veterinario
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddVet(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {veterinarians.filter(vet => vet.is_primary).length > 0 ? (
@@ -907,10 +979,20 @@ const WellnessPage = () => {
                       {veterinarians.filter(vet => vet.is_primary).map((vet) => (
                         <div key={vet.id} className="border-l-2 border-purple-500/30 pl-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{vet.name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              Primario
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{vet.name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                Primario
+                              </Badge>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {vet.phone}
@@ -927,6 +1009,14 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessun veterinario registrato</p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowAddVet(true)}
+                        className="h-8 mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Aggiungi Veterinario
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1084,6 +1174,174 @@ const WellnessPage = () => {
         </TabsContent>
       </Tabs>
 
+      {/* Add Medication Dialog */}
+      <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuovo Farmaco</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="medication_name">Nome Farmaco *</Label>
+              <Input
+                id="medication_name"
+                value={newMedication.name}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Nome del farmaco"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dosage">Dosaggio *</Label>
+              <Input
+                id="dosage"
+                value={newMedication.dosage}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                placeholder="es. 10mg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="frequency">Frequenza *</Label>
+              <Select 
+                value={newMedication.frequency} 
+                onValueChange={(value) => setNewMedication(prev => ({ ...prev, frequency: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona frequenza" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="una_volta_al_giorno">Una volta al giorno</SelectItem>
+                  <SelectItem value="due_volte_al_giorno">Due volte al giorno</SelectItem>
+                  <SelectItem value="tre_volte_al_giorno">Tre volte al giorno</SelectItem>
+                  <SelectItem value="al_bisogno">Al bisogno</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Medical Record Dialog */}
+      <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuova Visita</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="record_title">Titolo *</Label>
+              <Input
+                id="record_title"
+                value={newDocument.title}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Titolo della visita"
+              />
+            </div>
+            <div>
+              <Label htmlFor="record_type">Tipo Visita *</Label>
+              <Select 
+                value={newDocument.record_type} 
+                onValueChange={(value) => setNewDocument(prev => ({ ...prev, record_type: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="visita">Visita Generale</SelectItem>
+                  <SelectItem value="vaccinazione">Vaccinazione</SelectItem>
+                  <SelectItem value="controllo">Controllo</SelectItem>
+                  <SelectItem value="emergenza">Emergenza</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="record_date">Data *</Label>
+              <Input
+                id="record_date"
+                type="date"
+                value={newDocument.record_date}
+                onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Emergency Contact Dialog */}
+      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuovo Contatto Emergenza</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="contact_name">Nome *</Label>
+              <Input
+                id="contact_name"
+                value={newContact.name}
+                onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Nome del contatto"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact_phone">Telefono *</Label>
+              <Input
+                id="contact_phone"
+                value={newContact.phone}
+                onChange={(e) => setNewContact(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Numero di telefono"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact_relationship">Relazione</Label>
+              <Input
+                id="contact_relationship"
+                value={newContact.relationship}
+                onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
+                placeholder="es. Amico, Familiare"
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Veterinarian Dialog */}
+      <Dialog open={showAddVet} onOpenChange={setShowAddVet}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuovo Veterinario</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="vet_name">Nome *</Label>
+              <Input
+                id="vet_name"
+                value={newVet.name}
+                onChange={(e) => setNewVet(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Nome del veterinario"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vet_phone">Telefono *</Label>
+              <Input
+                id="vet_phone"
+                value={newVet.phone}
+                onChange={(e) => setNewVet(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Numero di telefono"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vet_clinic">Clinica</Label>
+              <Input
+                id="vet_clinic"
+                value={newVet.clinic_name}
+                onChange={(e) => setNewVet(prev => ({ ...prev, clinic_name: e.target.value }))}
+                placeholder="Nome della clinica"
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Add Metric Dialog */}
       <Dialog open={showAddMetric} onOpenChange={setShowAddMetric}>
         <DialogContent>
@@ -1159,6 +1417,7 @@ const WellnessPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 };
