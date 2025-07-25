@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { SimpleFileUpload } from '@/components/SimpleFileUpload';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -499,8 +498,6 @@ const WellnessPage = () => {
   const [newVet, setNewVet] = useState({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
   const [newContact, setNewContact] = useState({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
   const [newInsurance, setNewInsurance] = useState({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] as string[] });
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [insuranceUploadedFiles, setInsuranceUploadedFiles] = useState<File[]>([]);
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
   const [loading, setLoading] = useState(true);
@@ -894,38 +891,6 @@ const WellnessPage = () => {
     }
   }, [user?.id, selectedPet?.id, toast]);
 
-  // File upload function
-  const uploadFiles = async (files: File[], folder: string = 'documents') => {
-    if (!user) return [];
-    
-    const urls: string[] = [];
-    
-    for (const file of files) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('medical-documents')
-          .upload(fileName, file);
-          
-        if (uploadError) throw uploadError;
-        
-        // For private buckets, store the file path, not the public URL
-        urls.push(fileName);
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        toast({
-          title: "Errore",
-          description: `Impossibile caricare il file ${file.name}`,
-          variant: "destructive"
-        });
-      }
-    }
-    
-    return urls;
-  };
-
   useEffect(() => {
     fetchHealthData();
   }, [user?.id, selectedPet?.id]);
@@ -1127,11 +1092,6 @@ const WellnessPage = () => {
     }
 
     try {
-      // Upload files first if any
-      let documentUrls: string[] = [];
-      if (insuranceUploadedFiles.length > 0) {
-        documentUrls = await uploadFiles(insuranceUploadedFiles, 'insurance');
-      }
       const { error } = await supabase
         .from('pet_insurance')
         .insert({
@@ -1145,7 +1105,7 @@ const WellnessPage = () => {
           premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
           deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
           is_active: true,
-          document_urls: documentUrls
+          document_urls: newInsurance.document_urls
         });
 
       if (error) throw error;
@@ -1156,7 +1116,6 @@ const WellnessPage = () => {
       });
 
       setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
-      setInsuranceUploadedFiles([]);
       setShowAddInsurance(false);
       // Add new insurance to local state
       const newInsuranceData = {
@@ -1301,11 +1260,6 @@ const WellnessPage = () => {
     try {
       if (editingRecord && editingRecord.id && !editingRecord.id.startsWith('temp_')) {
         // Update existing record
-        // Upload new files if any
-        let documentUrls: string[] = [];
-        if (uploadedFiles.length > 0) {
-          documentUrls = await uploadFiles(uploadedFiles, 'medical-records');
-        }
         const { error } = await supabase
           .from('medical_records')
           .update({
@@ -1315,7 +1269,7 @@ const WellnessPage = () => {
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
             notes: newDocument.notes || null,
-            document_url: documentUrls.length > 0 ? documentUrls[0] : editingRecord.document_url
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : 'placeholder'
           })
           .eq('id', editingRecord.id);
 
@@ -1326,11 +1280,6 @@ const WellnessPage = () => {
           description: "Visita aggiornata con successo"
         });
       } else {
-        // Upload files first if any
-        let documentUrls: string[] = [];
-        if (uploadedFiles.length > 0) {
-          documentUrls = await uploadFiles(uploadedFiles, 'medical-records');
-        }
         // Create new record and get the returned data
         const { data, error } = await supabase
           .from('medical_records')
@@ -1343,7 +1292,7 @@ const WellnessPage = () => {
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
             notes: newDocument.notes || null,
-            document_url: documentUrls.length > 0 ? documentUrls[0] : 'placeholder'
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : 'placeholder'
           })
           .select()
           .single();
@@ -1360,7 +1309,6 @@ const WellnessPage = () => {
         
         setShowAddDocument(false);
         setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
-        setUploadedFiles([]);
         setEditingRecord(null);
       }
     } catch (error) {
@@ -2235,14 +2183,14 @@ const WellnessPage = () => {
                               </Badge>
                             </div>
                              <div className="flex gap-1">
-                                <Button
-                                  size="sm" 
-                                  variant="ghost" 
-                                  className="h-6 w-6 p-0 text-blue-500"
-                                  onClick={() => handleEditRecord(record)}
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-blue-500"
+                                 onClick={() => handleEditRecord(record)}
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
@@ -2299,32 +2247,15 @@ const WellnessPage = () => {
                               </Badge>
                             </div>
                              <div className="flex gap-1">
-                               {record.document_url && record.document_url !== 'placeholder' && (
-                                 <Button 
-                                   size="sm" 
-                                   variant="ghost" 
-                                   className="h-6 w-6 p-0"
-                                   onClick={async () => {
-                                     try {
-                                       const { data, error } = await supabase.storage
-                                         .from('medical-documents')
-                                         .createSignedUrl(record.document_url, 3600); // 1 hour expiry
-                                       
-                                       if (error) throw error;
-                                       window.open(data.signedUrl, '_blank');
-                                     } catch (error) {
-                                       toast({
-                                         title: "Errore",
-                                         description: "Impossibile aprire il documento",
-                                         variant: "destructive"
-                                       });
-                                     }
-                                   }}
-                                   title="Visualizza documento"
-                                 >
-                                   <Download className="h-3 w-3" />
-                                 </Button>
-                               )}
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => window.open(record.document_url, '_blank')}
+                                 title="Scarica"
+                               >
+                                 <Download className="h-3 w-3" />
+                               </Button>
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
@@ -2776,45 +2707,6 @@ const WellnessPage = () => {
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
             </div>
-            <div>
-              <Label htmlFor="document_description">Descrizione</Label>
-              <Textarea
-                id="document_description"
-                value={newDocument.description}
-                onChange={(e) => setNewDocument(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Descrizione della visita"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="document_cost">Costo (€)</Label>
-                <Input
-                  id="document_cost"
-                  type="number"
-                  step="0.01"
-                  value={newDocument.cost}
-                  onChange={(e) => setNewDocument(prev => ({ ...prev, cost: e.target.value }))}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="document_notes">Note</Label>
-                <Input
-                  id="document_notes"
-                  value={newDocument.notes}
-                  onChange={(e) => setNewDocument(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Note aggiuntive"
-                />
-              </div>
-            </div>
-            <SimpleFileUpload
-              id="document_files"
-              label="Documenti/Immagini"
-              accept="image/*,application/pdf,.txt"
-              multiple={true}
-              value={uploadedFiles}
-              onChange={setUploadedFiles}
-            />
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
@@ -2822,7 +2714,6 @@ const WellnessPage = () => {
               onClick={() => {
                 setShowAddDocument(false);
                 setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
-                setUploadedFiles([]);
               }} 
               variant="outline"
             >
@@ -3144,14 +3035,6 @@ const WellnessPage = () => {
                 />
               </div>
             </div>
-            <SimpleFileUpload
-              id="insurance_files"
-              label="Documenti Polizza"
-              accept="image/*,application/pdf,.txt"
-              multiple={true}
-              value={insuranceUploadedFiles}
-              onChange={setInsuranceUploadedFiles}
-            />
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
@@ -3159,7 +3042,6 @@ const WellnessPage = () => {
               onClick={() => {
                 setShowAddInsurance(false);
                 setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
-                setInsuranceUploadedFiles([]);
               }} 
               variant="outline"
             >
@@ -3182,9 +3064,6 @@ const WellnessPage = () => {
         variant="destructive"
          confirmText="Elimina"
        />
-
-       {/* File upload components working correctly */}
-
 
        {/* Diary Entry Dialog - Fixed Reference Error */}
        <DiaryEntryForm
