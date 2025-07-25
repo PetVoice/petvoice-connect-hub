@@ -704,64 +704,70 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      {/* Visite Recenti e Assicurazione - Side by side */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Visite Recenti Card */}
+          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <FileText className="h-6 w-6 text-white" />
+                </div>
+                Visite Recenti
+              </CardTitle>
+              <CardDescription className="text-lg">Storico delle visite veterinarie e controlli</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
+                  <FileText className="h-10 w-10 text-blue-500/60" />
+                </div>
+                <p className="text-lg text-muted-foreground mb-6">Nessuna visita registrata</p>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <FileText className="h-5 w-5 mr-2" />
+                  Registra Visite
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Assicurazione Card */}
+          <Card className="bg-gradient-to-r from-teal-500/10 to-cyan-500/5 border border-teal-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-white" />
+                </div>
+                Assicurazione
+              </CardTitle>
+              <CardDescription className="text-lg">Gestione polizze e coperture assicurative</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-teal-500/20 to-cyan-500/10 flex items-center justify-center">
+                  <CreditCard className="h-10 w-10 text-teal-500/60" />
+                </div>
+                <p className="text-lg text-muted-foreground mb-6">Nessuna polizza registrata</p>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  Aggiungi Polizza
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Wellness Cards - Tutte le card rimanenti in griglia */}
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-
-          {/* Recent Visits Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-blue-500" />
-                  Visite Recenti
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 overflow-hidden">
-              <div className="text-center py-4 text-muted-foreground">
-                <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Registra visite veterinarie</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Insurance Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-teal-500" />
-                  Assicurazione
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3 overflow-hidden">
-              <div className="text-center py-4 text-muted-foreground">
-                <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Gestisci polizze assicurative</p>
-              </div>
-            </CardContent>
-          </Card>
-
-
-          {/* Emergency Contacts Card */}
           <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
