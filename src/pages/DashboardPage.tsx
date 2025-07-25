@@ -765,59 +765,70 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Wellness Cards - Tutte le card rimanenti in griglia */}
+      {/* Veterinario e Contatti Emergenza - Side by side */}
       {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-orange-500" />
-                  Contatti Emergenza
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Veterinario Card - Left */}
+          <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/5 border border-purple-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  <Stethoscope className="h-6 w-6 text-white" />
+                </div>
+                Veterinario
+              </CardTitle>
+              <CardDescription className="text-lg">Informazioni del veterinario di fiducia</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 overflow-hidden">
-              <div className="text-center py-4 text-muted-foreground">
-                <Phone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Aggiungi contatti di emergenza</p>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/10 flex items-center justify-center">
+                  <Stethoscope className="h-10 w-10 text-purple-500/60" />
+                </div>
+                <p className="text-lg text-muted-foreground mb-6">Nessun veterinario registrato</p>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Stethoscope className="h-5 w-5 mr-2" />
+                  Aggiungi Veterinario
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Veterinarian Card */}
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Stethoscope className="h-5 w-5 text-purple-500" />
-                  Veterinario
-                </CardTitle>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => navigate('/diary')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+          {/* Contatti Emergenza Card - Right */}
+          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/5 border border-orange-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                  <Phone className="h-6 w-6 text-white" />
+                </div>
+                Contatti Emergenza
+              </CardTitle>
+              <CardDescription className="text-lg">Numeri di emergenza e pronto soccorso</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 overflow-hidden">
-              <div className="text-center py-4 text-muted-foreground">
-                <Stethoscope className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Registra veterinario di fiducia</p>
+            <CardContent>
+              <div className="text-center py-12">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/10 flex items-center justify-center">
+                  <Phone className="h-10 w-10 text-orange-500/60" />
+                </div>
+                <p className="text-lg text-muted-foreground mb-6">Nessun contatto di emergenza</p>
+                <Button 
+                  onClick={() => navigate('/diary')} 
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Phone className="h-5 w-5 mr-2" />
+                  Aggiungi Contatti
+                </Button>
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
+
+      {/* Wellness Cards - Tutte le card rimanenti in griglia */}
+      {selectedPet && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
         </div>
       )}
