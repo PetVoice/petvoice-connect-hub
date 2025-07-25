@@ -2872,6 +2872,9 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+                                // Reset dell'input file
+                                const fileInput = document.getElementById('document_files') as HTMLInputElement;
+                                if (fileInput) fileInput.value = '';
                               }
                             });
                           }}
@@ -3280,6 +3283,9 @@ const WellnessPage = () => {
                               description: `Sei sicuro di voler rimuovere "${file.name}"?`,
                               onConfirm: () => {
                                 setInsuranceUploadedFiles(prev => prev.filter((_, i) => i !== index));
+                                // Reset dell'input file
+                                const fileInput = document.getElementById('insurance_files') as HTMLInputElement;
+                                if (fileInput) fileInput.value = '';
                               }
                             });
                           }}
