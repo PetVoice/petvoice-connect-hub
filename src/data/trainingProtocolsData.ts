@@ -51,45 +51,45 @@ export const ansietyManagementProtocol: CompleteProtocol = {
       phase: "Costruzione delle Basi",
       exercises: [
         {
-          name: "Creazione Zona Sicura",
+          name: "Mappatura Comportamentale Iniziale",
+          duration: "25-30 minuti",
+          level: "Intermedio",
+          description: "Osserva e documenta tutti i comportamenti ansiosi del tuo pet per 30 minuti usando una griglia comportamentale. Annota frequenza, intensità (scala 1-10), durata e trigger specifici. Non intervenire, solo osserva. Crea una mappa termica dei luoghi dove l'ansia è più frequente. Registra orari di picco e momenti di calma relativa.",
+          materials: ["Griglia comportamentale prestampata", "Cronometro silenzioso", "Matita morbida", "Cartina casa/giardino", "Termometro stress"],
+          objectives: ["Creare baseline comportamentale accurata", "Identificare pattern ansiosi nascosti", "Stabilire metriche di progresso obiettive"],
+          successCriteria: ["Completata griglia per 30 minuti", "Identificati almeno 3 trigger specifici", "Documentate 5+ manifestazioni ansiose"],
+          tips: [
+            "Usa un linguaggio neutro nelle annotazioni, evita interpretazioni emotive",
+            "Registra anche micro-comportamenti: movimenti delle orecchie, respirazione, postura della coda",
+            "Se l'animale nota la tua osservazione, fingi di leggere o fare altro"
+          ]
+        },
+        {
+          name: "Installazione Zona Rifugio Sensoriale",
+          duration: "20-25 minuti",
+          level: "Intermedio", 
+          description: "Costruisci una zona rifugio multisensoriale usando principi di design terapeutico. Posiziona tessuti con texture diverse, installa illuminazione soffusa regolabile, crea barriere acustiche con materiali assorbenti. Aggiungi elementi olfattivi calmanti e una superficie termoregolata. Testa l'accettazione graduale senza forzare l'ingresso.",
+          materials: ["Tessuti texture multiple", "Lampada dimmerabile LED", "Pannelli fonoassorbenti", "Diffusore aromi naturali", "Tappeto termico programmabile", "Barriere visive mobili"],
+          objectives: ["Creare ambiente neuroriabilitativo", "Stimolare risposte parasimpatiche", "Offrire controllo ambientale all'animale"],
+          successCriteria: ["Zona completamente allestita", "Animale esplora per 2+ minuti", "Nessun segno di stress durante installazione"],
+          tips: [
+            "Costruisci la zona gradualmente in 3 sessioni per non sovraccaricare",
+            "Testa ogni elemento sensoriale separatamente prima di combinare",
+            "Posiziona entrate multiple per evitare sensazione di intrappolamento"
+          ]
+        },
+        {
+          name: "Protocollo Sincronizzazione Respiratoria Avanzata",
           duration: "15-20 minuti",
           level: "Intermedio",
-          description: "Allestisci uno spazio dedicato dove l'animale può rifugiarsi quando si sente ansioso. Posiziona il suo tappetino preferito in un angolo tranquillo, lontano dal traffico della casa. Aggiungi i suoi giocattoli preferiti e una coperta con il tuo odore. Lascia che esplori spontaneamente questo spazio senza forzarlo.",
-          materials: ["Tappetino antiscivolo", "Coperta familiare", "Giocattoli preferiti", "Ciotola dell'acqua"],
-          objectives: ["Creare associazione positiva", "Stabilire rifugio sicuro", "Ridurre stress ambientale"],
-          successCriteria: ["Si avvicina volontariamente", "Rimane nello spazio per 5+ minuti", "Mostra postura rilassata"],
+          description: "Applica tecniche di respirazione coscienti modificate per animali. Siediti a 1.5 metri dall'animale, inizia con ritmo respiratorio 4-4-6 (inspirazione-pausa-espirazione). Gradualmente rallenta a 6-4-8 monitorando la sincronizzazione. Usa visualizzazioni colorate mentali durante l'esercizio. Registra variazioni nella frequenza respiratoria dell'animale con stethoscopio.",
+          materials: ["Stetoscopio veterinario", "Metronomo silenzioso", "Cronometro con vibrazione", "Diario respiratorio", "Cuscino meditazione"],
+          objectives: ["Indurre coregolazione neurovegetativa", "Attivare riflesso di rilassamento condizionato", "Creare anchoring respiratorio"],
+          successCriteria: ["Sincronizzazione per 5+ minuti", "Riduzione 20% freq. respiratoria", "Animale rimane in zona per tutto l'esercizio"],
           tips: [
-            "Non forzare mai l'ingresso nella zona sicura, deve essere una scelta libera",
-            "Posiziona la zona lontana da fonti di rumore come TV o elettrodomestici",
-            "Rispetta sempre questo spazio quando l'animale lo occupa, non disturbarlo mai"
-          ]
-        },
-        {
-          name: "Respirazione Guidata",
-          duration: "5-10 minuti",
-          level: "Intermedio",
-          description: "Siediti accanto al tuo animale e inizia a respirare lentamente e profondamente. Gli animali spesso sincronizzano il loro ritmo respiratorio con quello del proprietario. Conta mentalmente: 4 secondi di inspirazione, 4 di pausa, 4 di espirazione. Mantieni una postura rilassata e parla con voce calma e monotona.",
-          materials: ["Ambiente silenzioso", "Posizione comoda", "Timer silenzioso"],
-          objectives: ["Sincronizzare ritmi respiratori", "Calmare sistema nervoso", "Creare routine rilassante"],
-          successCriteria: ["Respirazione più lenta", "Postura meno tesa", "Rimane vicino durante l'esercizio"],
-          tips: [
-            "Pratica prima tu la tecnica per essere naturale nell'esecuzione",
-            "Se l'animale si allontana, continua l'esercizio senza seguirlo",
-            "Usa sempre lo stesso orario per creare una routine prevedibile"
-          ]
-        },
-        {
-          name: "Tocco Calmante",
-          duration: "10-15 minuti",
-          level: "Intermedio",
-          description: "Inizia con carezze molto leggere e lente dietro le orecchie, una zona generalmente rilassante. Procedi verso il collo e le spalle con movimenti circolari dolci. Osserva i segnali di gradimento: se si appoggia al tocco continua, se si irrigidisce fermati. Alterna tocco e pause di 30 secondi.",
-          materials: ["Spazio tranquillo", "Olio essenziale lavanda (facoltativo)", "Musica rilassante"],
-          objectives: ["Ridurre tensione muscolare", "Aumentare fiducia", "Stimolare rilascio endorfine"],
-          successCriteria: ["Accetta tocco senza irrigidirsi", "Mostra segni di rilassamento", "Non cerca di allontanarsi"],
-          tips: [
-            "Osserva sempre il linguaggio del corpo prima di iniziare il tocco",
-            "Evita zone sensibili come zampe o pancia se l'animale è ansioso",
-            "Se usa artigli o denti per comunicare disagio, interrompi immediatamente"
+            "Pratica la tecnica da solo prima per renderla naturale e fluida",
+            "Se l'animale iperventila, interrompi e riprendi con ritmi più lenti",
+            "Evita contatto visivo diretto durante i primi 5 minuti"
           ]
         }
       ]
@@ -99,45 +99,45 @@ export const ansietyManagementProtocol: CompleteProtocol = {
       phase: "Costruzione delle Basi",
       exercises: [
         {
-          name: "Comando 'Calma'",
-          duration: "10-15 minuti",
+          name: "Sviluppo Comando 'Reset Mentale'",
+          duration: "12-18 minuti",
           level: "Intermedio",
-          description: "Insegna un comando specifico per indurre calma. Quando l'animale è naturalmente rilassato, pronuncia 'Calma' con voce dolce e premialo immediatamente con uno snack speciale. Ripeti ogni volta che lo vedi tranquillo. L'obiettivo è creare un'associazione tra la parola e lo stato di rilassamento.",
-          materials: ["Snack ad alto valore", "Voce calma", "Ambiente tranquillo"],
-          objectives: ["Creare comando di rilassamento", "Associare parola a calma", "Stabilire controllo verbale"],
-          successCriteria: ["Risponde al comando entro 10 secondi", "Assume postura rilassata", "Mantiene calma per 30+ secondi"],
+          description: "Insegna un comando specifico per interrompere spirali ansiose. Quando l'animale è naturalmente calmo dopo un episodio ansioso, pronuncia 'Reset' con tono specifico (grave, lungo) e premia con snack ad alto valore + carezza specifica. Ripeti ogni transizione naturale ansia→calma. Crea associazione neurologica tra parola e stato di pace.",
+          materials: ["Snack premium freeze-dried", "Clicker a tono grave", "Diario stati mentali", "Orologio con timer vibrazione"],
+          objectives: ["Creare interruttore neurochimico", "Stabilire controllo verbale su stati emotivi", "Accelerare recupero post-stress"],
+          successCriteria: ["Risposta al comando entro 8 secondi", "Mantiene calma per 45+ secondi", "Ricerca il comando quando ansioso"],
           tips: [
-            "Usa sempre lo stesso tono di voce, basso e rassicurante",
-            "Non usare il comando quando l'animale è agitato, solo quando è già calmo",
-            "Premia sempre immediatamente per rinforzare l'associazione positiva"
+            "Non usare mai il comando durante picchi ansiosi, solo nelle transizioni naturali",
+            "Varia la tonalità fino a trovare quella più efficace per il tuo animale",
+            "Abbina sempre il comando a uno snack speciale che usi solo per questo"
           ]
         },
         {
-          name: "Massaggio Anti-Stress",
-          duration: "15-20 minuti",
+          name: "Massaggio Neuroterapeutico Mirato",
+          duration: "18-25 minuti",
           level: "Intermedio",
-          description: "Inizia con movimenti circolari molto leggeri sulla testa, evitando gli occhi. Procedi verso il collo con piccoli movimenti a spirale. Massaggia delicatamente le spalle e, se gradito, lungo la schiena. Ogni movimento deve durare almeno 3-5 secondi. Fermati se noti tensione.",
-          materials: ["Spazio comodo", "Mani pulite", "Ambiente caldo"],
-          objectives: ["Ridurre tensione fisica", "Migliorare circolazione", "Aumentare legame affettivo"],
-          successCriteria: ["Muscoli si rilassano", "Respirazione rallenta", "Cerca attivamente il contatto"],
+          description: "Applica sequenze di massaggio basate sui punti di agopressione veterinaria. Inizia dal punto 'Calming Heaven' dietro le orecchie con pressione rotatoria lenta. Procedi ai punti cervicali C3-C5 con micro-movimenti. Continua sui meridiani principali seguendo mappa specifica. Registra risposte fisiologiche durante ogni sessione.",
+          materials: ["Mappa agopressione veterinaria", "Olio di sesamo riscaldato", "Cronometro progressivo", "Termometro infrarossi", "Quaderno risposte"],
+          objectives: ["Attivare punti neuroregolatori specifici", "Rilasciare endorfine endogene", "Creare memoria corporea di rilassamento"],
+          successCriteria: ["Tollera pressioni per 3+ minuti", "Temperatura corporea diminuisce", "Cerca attivamente il contatto"],
           tips: [
-            "Scalda le mani prima di iniziare per evitare sobbalzi da freddo",
-            "Mantieni pressione molto leggera, è un massaggio di rilassamento non terapeutico",
-            "Se l'animale si addormenta durante il massaggio, è un ottimo segno di successo"
+            "Riscalda l'olio a temperatura corporea per evitare shock termici",
+            "Applica pressione graduale: inizia leggero e aumenta solo se accettato",
+            "Interrompi se noti tremori o tensione eccessiva, riprendi il giorno dopo"
           ]
         },
         {
-          name: "Musicoterapia",
-          duration: "20-30 minuti",
+          name: "Musicoterapia Frequenziale Personalizzata",
+          duration: "25-35 minuti",
           level: "Intermedio",
-          description: "Riproduci musica classica a volume basso (preferibilmente Mozart o Debussy) mentre l'animale è nella sua zona sicura. Osserva le reazioni: orecchie rilassate, respirazione regolare, posizione sdraiata sono segnali positivi. Evita musica con bassi forti o cambi di ritmo improvvisi.",
-          materials: ["Sistema audio", "Musica classica", "Volume controllabile"],
-          objectives: ["Ridurre stress acustico", "Creare ambiente rilassante", "Mascherare rumori esterni"],
-          successCriteria: ["Non mostra segni di agitazione", "Rimane rilassato durante la musica", "Frequenza cardiaca rallenta"],
+          description: "Crea playlist personalizzata testando diverse frequenze neuroacustiche. Inizia con 432Hz (frequenza della terra), procedi con 528Hz (riparazione DNA), testa 741Hz (pulizia emotiva). Registra reazioni comportamentali per ogni frequenza. Costruisci profilo sonoro individuale. Utilizza cuffie bone-conduction per evitare stress uditivo.",
+          materials: ["Generator frequenze app", "Speaker bone-conduction", "Decibel meter", "Scheda reazioni comportamentali", "Cuffie noise-cancelling per te"],
+          objectives: ["Identificare frequenze neurologicamente ottimali", "Creare biblioteca sonora personalizzata", "Stabilire protocollo audio-neurologico"],
+          successCriteria: ["Identificate 2+ frequenze rilassanti", "Sessione completa senza stress", "Frequenza cardiaca rallenta del 15%"],
           tips: [
-            "Testa diversi compositori per trovare quello che preferisce il tuo animale",
-            "Non usare mai auricolari o cuffie sull'animale",
-            "Inizia con volumi molto bassi e aumenta gradualmente se ben tollerato"
+            "Mantieni sempre volume sotto 40dB per proteggere udito sensibile",
+            "Testa frequenze in giorni diversi per evitare adattamento neurologico",
+            "Registra anche orario e condizioni ambientali per pattern completi"
           ]
         }
       ]
@@ -185,45 +185,45 @@ export const basicObedienceProtocol: CompleteProtocol = {
       phase: "Comandi Base",
       exercises: [
         {
-          name: "Comando 'Seduto' Base",
-          duration: "5-10 minuti",
+          name: "Fondamenta Comando 'Seduto' - Metodo Luring",
+          duration: "8-12 minuti",
           level: "Principiante",
-          description: "Tieni uno snack sopra la testa dell'animale e muovilo lentamente all'indietro. Naturalmente l'animale alzerà la testa e abbasserà il posteriore. Nel momento in cui si siede, di' 'Seduto' e premia immediatamente. Ripeti 5-8 volte per sessione con pause tra una ripetizione e l'altra.",
-          materials: ["Snack piccoli", "Spazio libero", "Pazienza"],
-          objectives: ["Insegnare posizione seduta", "Associare comando a movimento", "Stabilire base per altri comandi"],
-          successCriteria: ["Si siede entro 3 secondi dal comando", "Mantiene posizione per 5 secondi", "Risponde senza aiuto dello snack"],
+          description: "Utilizza la tecnica del luring per insegnare il comando seduto. Posiziona uno snack 2cm sopra il naso dell'animale, muovi lentamente verso la parte posteriore della testa creando un arco. Questo movimento naturale porterà l'animale a sedersi. Pronuncia 'Seduto' esattamente quando il posteriore tocca terra, poi premia immediatamente. Ripeti 6 volte con pause di 30 secondi.",
+          materials: ["Snack morbidi 5mm", "Clicker preciso", "Superficie antiscivolo", "Cronometro vibrazione"],
+          objectives: ["Stabilire associazione movimento-comando-ricompensa", "Creare muscle memory per posizione seduta", "Introdurre timing perfetto del rinforzo"],
+          successCriteria: ["Esecuzione corretta 5/6 volte", "Risposta entro 2 secondi dal gesto", "Mantiene posizione per 3+ secondi"],
           tips: [
-            "Non premere mai fisicamente l'animale verso il basso, deve essere un movimento naturale",
-            "Usa snack molto piccoli per evitare di saziarlo troppo presto",
-            "Termina sempre l'esercizio con successo, anche se devi semplificare il comando"
+            "Mantieni lo snack sempre alla stessa altezza per consistency neuromotoria",
+            "Se l'animale salta per afferrare lo snack, abbassa la velocità del movimento",
+            "Premia sempre dal basso verso l'alto per rinforzare la posizione seduta"
           ]
         },
         {
-          name: "Attenzione e Nome",
-          duration: "5-8 minuti",
+          name: "Protocollo Attivazione Nome - Focus Magnetico",
+          duration: "6-10 minuti",
           level: "Principiante",
-          description: "Pronuncia il nome dell'animale con voce allegra e chiara. Quando ti guarda, anche solo per un istante, premia immediatamente con snack e lodi. L'obiettivo è che associ il suo nome al guardare verso di te. Pratica in ambiente silenzioso inizialmente.",
-          materials: ["Snack motivanti", "Voce chiara", "Ambiente controllato"],
-          objectives: ["Risposta al nome", "Contatto visivo", "Attenzione focalizzata"],
-          successCriteria: ["Guarda quando chiamato", "Mantiene contatto visivo per 2+ secondi", "Risponde da distanze crescenti"],
+          description: "Sviluppa risposta condizionata al nome attraverso training focus magnetico. Pronuncia il nome con intonazione crescente (da basso a acuto) quando l'animale NON ti sta guardando. Nel momento esatto del contatto visivo, usa clicker + snack premium. Crea pattern neurochimico nome = guardare = ricompensa superiore.",
+          materials: ["Clicker professionale", "Snack freeze-dried premium", "Ambiente acusticamente controllato", "Goniometro per angoli visuali"],
+          objectives: ["Creare riflesso condizionato nome-sguardo", "Stabilire valore supremo del contatto visivo", "Costruire base per tutti i comandi futuri"],
+          successCriteria: ["Orientamento entro 1.5 secondi", "Contatto visivo mantenuto 3+ secondi", "Risposta da angoli 180° di distanza"],
           tips: [
-            "Non ripetere il nome più di due volte di seguito per evitare che lo ignori",
-            "Usa sempre tono positivo, mai per sgridare o richiamare quando è in errore",
-            "Pratica quando l'animale è già interessato a te per aumentare le probabilità di successo"
+            "Non chiamare mai il nome quando l'animale è già attento a te",
+            "Varia l'intonazione ma mantieni sempre crescente per creare aspettativa positiva", 
+            "Se non risponde dopo 2 chiamate, cambia posizione e riprova dopo 2 minuti"
           ]
         },
         {
-          name: "Rinforzo Positivo Base",
-          duration: "10-15 minuti",
+          name: "Sistema Rinforzo Differenziale - Escalation Premi",
+          duration: "12-18 minuti",
           level: "Principiante",
-          description: "Osserva l'animale e ogni volta che fa qualcosa di positivo spontaneamente (si siede, ti guarda, sta calmo), premialo immediatamente. Questo insegna che i comportamenti buoni portano conseguenze piacevoli. Varia i premi: snack, carezze, giochi.",
-          materials: ["Snack vari", "Giocattoli", "Attenzione costante"],
-          objectives: ["Rinforzare comportamenti positivi", "Aumentare frequenza azioni desiderate", "Creare motivazione intrinseca"],
-          successCriteria: ["Aumenta comportamenti premiati", "Cerca attivamente l'attenzione", "Mostra eccitazione per i premi"],
+          description: "Implementa sistema di rinforzo a gradualità crescente. Identifica 5 comportamenti target spontanei dell'animale (sedersi, guardarti, stare calmo, avvicinarsi, toccarti). Assegna valore progressivo: comportamento base = snack normale, eccellente = snack premium + lodi entusiastiche + carezza speciale. Crea gerarchia motivazionale chiara.",
+          materials: ["5 tipologie snack valore crescente", "Tabella comportamenti target", "Timer intervalli variabili", "Registro rinforzi"],
+          objectives: ["Stabilire sistema motivazionale stratificato", "Aumentare qualità comportamenti spontanei", "Creare anticipazione e ricerca attiva di premi"],
+          successCriteria: ["Riconosce differenze valore premi", "Intensifica comportamenti più premiati", "Cerca attivamente comportamenti target"],
           tips: [
-            "Il timing è cruciale: premia entro 2 secondi dal comportamento desiderato",
-            "Varia i premi per mantenere alta la motivazione e prevenire noia",
-            "Ignora completamente i comportamenti indesiderati, non dar loro attenzione"
+            "Non premiare mai comportamento mediocre con premio alto o creerai confusione",
+            "Mantieni ratio 70% premi bassi, 25% medi, 5% premium per creare aspettativa",
+            "Registra quale snack genera più entusiasmo per personalizzare la gerarchia"
           ]
         }
       ]
@@ -233,17 +233,17 @@ export const basicObedienceProtocol: CompleteProtocol = {
       phase: "Comandi Base",
       exercises: [
         {
-          name: "Comando 'Resta' Introduzione",
-          duration: "8-12 minuti",
+          name: "Comando 'Resta' - Protocollo Distanza Progressiva",
+          duration: "10-15 minuti",
           level: "Principiante",
-          description: "Con l'animale in posizione seduta, alza la mano con il palmo verso di lui e fai un passo indietro. Di' 'Resta' con voce ferma ma calma. Conta fino a 3, poi torna e premia. Aumenta gradualmente la distanza e il tempo. Se si muove, ricomincia senza punizione.",
-          materials: ["Spazio aperto", "Snack premio", "Pazienza"],
-          objectives: ["Insegnare autocontrollo", "Stabilire comando di attesa", "Rafforzare fiducia"],
-          successCriteria: ["Rimane fermo per 5 secondi", "Non si muove quando ti allontani", "Aspetta il comando di rilascio"],
+          description: "Sviluppa autocontrollo attraverso distanze progressive e cronometrate. Con animale in posizione seduta solida, alza palmo in posizione STOP a 30cm dal muso. Pronuncia 'Resta' con voce ferma (tono grave costante). Fai MEZZO passo indietro, conta 2 secondi, torna, premia. Incrementa: 1 passo (3 sec), 1.5 passi (5 sec), 2 passi (7 sec).",
+          materials: ["Cronometro silenzioso", "Nastro metrico", "Snack valore alto", "Superficie demarcata"],
+          objectives: ["Costruire controllo impulsi graduali", "Estendere durata concentrazione", "Creare fiducia in comando di attesa"],
+          successCriteria: ["Resta fermo durante allontanamento", "Mantiene posizione tempo richiesto", "Non anticipa rilascio comando"],
           tips: [
-            "Inizia sempre con distanze e tempi molto brevi per garantire successo",
-            "Non usare mai il comando 'Resta' se non sei sicuro che l'animale obbedirà",
-            "Torna sempre dall'animale, non chiamarlo verso di te quando è in 'Resta'"
+            "Non accelerare progressione se non padroneggia step precedente",
+            "Usa sempre stessa gestualità: palmo STOP + voce + movimento backward identico",
+            "Se rompe il 'resta', torna immediatamente a distanza precedente di successo"
           ]
         }
       ]
