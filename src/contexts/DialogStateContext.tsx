@@ -23,10 +23,13 @@ export const DialogStateProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Carica lo stato dai sessionStorage al mount
   useEffect(() => {
+    console.log('DialogStateProvider: Caricamento stato iniziale...');
     const savedState = sessionStorage.getItem(STORAGE_KEY);
+    console.log('DialogStateProvider: Stato salvato trovato:', savedState);
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
+        console.log('DialogStateProvider: Stato parsato:', parsed);
         setOpenDialogs(parsed);
       } catch (error) {
         console.error('Errore nel caricamento dello stato delle dialog:', error);
@@ -36,14 +39,18 @@ export const DialogStateProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Salva lo stato nei sessionStorage quando cambia
   useEffect(() => {
+    console.log('DialogStateProvider: Cambiamento stato dialog:', openDialogs);
     if (openDialogs.length > 0) {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(openDialogs));
+      console.log('DialogStateProvider: Stato salvato in sessionStorage');
     } else {
       sessionStorage.removeItem(STORAGE_KEY);
+      console.log('DialogStateProvider: Stato rimosso da sessionStorage');
     }
   }, [openDialogs]);
 
   const openDialog = (id: string, data?: any) => {
+    console.log('DialogStateProvider: Apertura dialog:', id, data);
     setOpenDialogs(prev => {
       const existing = prev.find(dialog => dialog.id === id);
       if (existing) {
@@ -53,7 +60,9 @@ export const DialogStateProvider: React.FC<{ children: React.ReactNode }> = ({ c
             : dialog
         );
       }
-      return [...prev, { id, isOpen: true, data }];
+      const newState = [...prev, { id, isOpen: true, data }];
+      console.log('DialogStateProvider: Nuovo stato dopo apertura:', newState);
+      return newState;
     });
   };
 

@@ -98,6 +98,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const isOpen = persistOnRefresh && dialogId ? persistentDialog.isOpen : open;
   const handleOpenChange = persistOnRefresh && dialogId ? persistentDialog.onOpenChange : onOpenChange;
 
+  console.log(`ConfirmDialog [${dialogId}]: persistOnRefresh=${persistOnRefresh}, isOpen=${isOpen}, open=${open}`);
+
   const handleConfirm = () => {
     onConfirm();
     handleOpenChange(false);

@@ -15,9 +15,13 @@ export const usePersistentDialog = (
   const isOpen = isDialogOpen(dialogId);
   const dialogData = getDialogData(dialogId);
 
+  console.log(`usePersistentDialog [${dialogId}]: isOpen=${isOpen}, initialOpen=${initialOpen}`);
+
   // Apri la dialog se è stata passata come aperta inizialmente
   useEffect(() => {
+    console.log(`usePersistentDialog [${dialogId}]: Effect - initialOpen=${initialOpen}, isOpen=${isOpen}`);
     if (initialOpen && !isOpen) {
+      console.log(`usePersistentDialog [${dialogId}]: Apertura dialog iniziale`);
       openDialog(dialogId, initialData);
     }
   }, [initialOpen, dialogId, initialData, isOpen, openDialog]);
