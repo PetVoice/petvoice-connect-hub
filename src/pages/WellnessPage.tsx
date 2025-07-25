@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DatePickerWithRange } from '@/components/ui/date-picker';
 import { 
   Heart, 
   Activity, 
@@ -60,9 +59,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfMonth, endOfMonth, subMonths, subDays, subYears, isAfter, isBefore, differenceInDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, subDays, isAfter, isBefore, differenceInDays, startOfDay, endOfDay } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { DateRange } from 'react-day-picker';
 import { toast } from '@/hooks/use-toast';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -1043,35 +1041,6 @@ const WellnessPage = () => {
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
   const [editingInsurance, setEditingInsurance] = useState<Insurance | null>(null);
 
-  // Period filter state
-  const [periodFilter, setPeriodFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('month');
-  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>(undefined);
-
-  // Calculate date range based on period filter
-  const getDateRange = () => {
-    const now = new Date();
-    
-    switch (periodFilter) {
-      case 'day':
-        return { start: startOfDay(now), end: endOfDay(now) };
-      case 'week':
-        return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
-      case 'month':
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      case 'year':
-        return { start: startOfYear(now), end: endOfYear(now) };
-      case 'all':
-        return { start: new Date(2020, 0, 1), end: now };
-      case 'custom':
-        if (customDateRange?.from && customDateRange?.to) {
-          return { start: customDateRange.from, end: customDateRange.to };
-        }
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      default:
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-    }
-  };
-
   // Helper functions
   const getMedicationStatus = (medication: Medication) => {
     if (!medication.is_active) return 'inactive';
@@ -1174,28 +1143,19 @@ const WellnessPage = () => {
   const analytics = useMemo(() => {
     if (!analysisData.length && !diaryData.length) return null;
 
-    // Calculate date range based on period filter
-    const { start: startDate, end: endDate } = getDateRange();
-    const timeSpan = differenceInDays(endDate, startDate) + 1;
-
-    // Overview metrics - using filtered data
-    const totalAnalyses = filteredAnalysisData.length;
+    // Overview metrics
+    const totalAnalyses = analysisData.length;
     
     // Calculate real health score based on multiple factors
     const calculateHealthScore = () => {
-      if (filteredHealthMetrics.length === 0 && filteredDiaryData.length === 0) return 0;
+      if (healthMetrics.length === 0 && diaryData.length === 0) return 0;
       
       let score = 0;
       let factors = 0;
 
-      // Base score from wellness data (filtered by date)
-      const filteredWellnessData = wellnessData.filter(w => {
-        const wellnessDate = new Date(w.created_at);
-        return wellnessDate >= startDate && wellnessDate <= endDate;
-      });
-      
-      if (filteredWellnessData.length > 0) {
-        score += filteredWellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / filteredWellnessData.length;
+      // Base score from wellness data
+      if (wellnessData.length > 0) {
+        score += wellnessData.reduce((sum, w) => sum + (w.wellness_score || 0), 0) / wellnessData.length;
         factors++;
       }
 
@@ -1261,8 +1221,8 @@ const WellnessPage = () => {
       fill: EMOTION_COLORS[emotion as keyof typeof EMOTION_COLORS] || '#6b7280'
     }));
 
-    // Mood trends - using filtered data
-    const diaryMoodData = filteredDiaryData
+    // Mood trends - combina dati da diario e analisi emotive
+    const diaryMoodData = diaryData
       .filter(d => d.mood_score)
       .map(d => ({
         date: d.entry_date,
@@ -1271,7 +1231,7 @@ const WellnessPage = () => {
         dateFormatted: format(new Date(d.entry_date), 'd MMM', { locale: it })
       }));
 
-    // Convert emotional analyses to mood scores - using filtered data  
+    // Converti analisi emotive in punteggi umore (1-10)
     const emotionToMoodScore = {
       'felice': 9,
       'giocoso': 8,
@@ -1285,7 +1245,7 @@ const WellnessPage = () => {
       'spaventato': 1
     };
 
-    const analysisMoodData = filteredAnalysisData.map(a => ({
+    const analysisMoodData = analysisData.map(a => ({
       date: format(new Date(a.created_at), 'yyyy-MM-dd'),
       mood: emotionToMoodScore[a.primary_emotion as keyof typeof emotionToMoodScore] || 5,
       source: 'analysis',
@@ -1467,9 +1427,9 @@ const WellnessPage = () => {
       healthMetricsSummary,
       healthTrends: healthTrendsData,
       wellnessTrend,
-      timeSpan
+      timeSpan: differenceInDays(dateRange.to, dateRange.from)
     };
-  }, [analysisData, diaryData, healthMetrics, wellnessData, selectedPet, periodFilter, customDateRange]);
+  }, [analysisData, diaryData, healthMetrics, wellnessData, dateRange, selectedPet]);
 
   // Create display analytics with fallback values
   const displayAnalytics = analytics || {
@@ -2378,11 +2338,10 @@ const WellnessPage = () => {
   }
 
   return (
-    <>
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Heart className="h-8 w-8 text-primary" />
             Salute e Benessere
@@ -2423,76 +2382,8 @@ const WellnessPage = () => {
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6 animate-fade-in">
-          {/* Period Filters */}
-          <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-md transition-all duration-300">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Calendar className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Periodo di Analisi</CardTitle>
-                    <CardDescription className="text-sm">
-                      Seleziona il periodo per visualizzare i dati
-                    </CardDescription>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-wrap gap-3 items-center">
-                <div className="flex gap-2">
-                  {[
-                    { value: 'day', label: 'Giorno' },
-                    { value: 'week', label: 'Settimana' },
-                    { value: 'month', label: 'Mese' },
-                    { value: 'year', label: 'Anno' },
-                    { value: 'all', label: 'Tutto' }
-                  ].map((period) => (
-                    <Button
-                      key={period.value}
-                      variant={periodFilter === period.value ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setPeriodFilter(period.value as any);
-                        if (period.value !== 'custom') {
-                          setCustomDateRange(undefined);
-                        }
-                      }}
-                      className="text-xs px-3 py-1.5"
-                    >
-                      {period.label}
-                    </Button>
-                  ))}
-                  <Button
-                    variant={periodFilter === 'custom' ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setPeriodFilter('custom')}
-                    className="text-xs px-3 py-1.5"
-                  >
-                    Seleziona Periodo
-                  </Button>
-                </div>
-                
-                {periodFilter === 'custom' && (
-                  <div className="ml-4">
-                    <DatePickerWithRange
-                      className="w-auto"
-                      date={customDateRange}
-                      setDate={setCustomDateRange}
-                    />
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          {/* Two Column Layout */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Overview Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Overview Analytics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             <Card className="hover-scale bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-primary">Analisi Totali</CardTitle>
@@ -2565,8 +2456,10 @@ const WellnessPage = () => {
                 </p>
               </CardContent>
             </Card>
-            
-            {/* Health Score Section */}
+          </div>
+
+          {/* Health Score Section */}
+          <div className="space-y-4">
             <Card className="bg-gradient-to-br from-card to-muted/20 border-2 hover:shadow-xl transition-all duration-500">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -2629,10 +2522,8 @@ const WellnessPage = () => {
               </CardContent>
             </Card>
           </div>
-          
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
+
+          {/* Quick Actions */}
           <Card className="bg-gradient-to-br from-card to-muted/10 border hover:shadow-lg transition-all duration-300">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
@@ -2934,15 +2825,12 @@ const WellnessPage = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
-        
-        {/* Analytics Section - 3 Column Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+
           {/* Trend Salute */}
-          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Activity className="h-5 w-5 text-primary" />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
                 Trend Salute
               </CardTitle>
               <CardDescription>
@@ -2957,12 +2845,12 @@ const WellnessPage = () => {
                   weight: { label: "Peso (kg)", color: "hsl(var(--secondary))" },
                   respiration: { label: "Respirazione (atti/min)", color: "hsl(var(--accent))" },
                   gum_color: { label: "Colore Gengive", color: "hsl(var(--muted-foreground))" }
-                }} className="h-[280px]">
+                }} className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={displayAnalytics.healthTrends}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" fontSize={12} />
-                      <YAxis fontSize={12} />
+                      <XAxis dataKey="dateFormatted" />
+                      <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <ChartLegend content={<ChartLegendContent />} />
                       {displayAnalytics.healthTrends.some(d => d.temperature) && (
@@ -3028,175 +2916,81 @@ const WellnessPage = () => {
             </CardContent>
           </Card>
 
-          {/* Trend Umore */}
-          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Brain className="h-5 w-5 text-purple-600" />
-                Trend Umore
-              </CardTitle>
-              <CardDescription>
-                Andamento dell'umore nel tempo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {displayAnalytics.moodTrends.length > 0 ? (
-                <ChartContainer config={{
-                  mood: { label: "Umore (1-10)", color: "hsl(var(--primary))" }
-                }} className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={displayAnalytics.moodTrends}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                      <XAxis dataKey="dateFormatted" fontSize={12} />
-                      <YAxis domain={[1, 10]} fontSize={12} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Area
-                        type="monotone"
-                        dataKey="mood"
-                        stroke="hsl(var(--primary))"
-                        fill="hsl(var(--primary))"
-                        fillOpacity={0.3}
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Brain className="h-12 w-12 mx-auto mb-2" />
-                  <p>Nessun dato umore disponibile</p>
-                  <p className="text-sm">Aggiungi voci del diario per vedere i trend</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Dettaglio Emozioni */}
-          <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <PieChartIcon className="h-5 w-5 text-orange-600" />
-                Distribuzione Emozioni
-              </CardTitle>
-              <CardDescription>
-                Analisi delle emozioni rilevate
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {displayAnalytics.emotionDistribution.length > 0 ? (
-                <ChartContainer config={{}} className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={displayAnalytics.emotionDistribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        dataKey="count"
-                        nameKey="emotion"
-                      >
-                        {displayAnalytics.emotionDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip 
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            return (
-                              <div className="bg-background border rounded-lg shadow-lg p-3">
-                                <p className="font-medium capitalize">{payload[0].payload.emotion}</p>
-                                <p className="text-sm">Conteggio: {payload[0].value}</p>
-                                <p className="text-sm">Percentuale: {payload[0].payload.percentage}%</p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <ChartLegend 
-                        content={({ payload }) => (
-                          <div className="flex flex-wrap justify-center gap-2 mt-4">
-                            {payload?.map((entry, index) => (
-                              <div key={index} className="flex items-center gap-1 text-xs">
-                                <div 
-                                  className="w-3 h-3 rounded-full" 
-                                  style={{ backgroundColor: entry.color }}
-                                />
-                                <span className="capitalize">{entry.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <PieChartIcon className="h-12 w-12 mx-auto mb-2" />
-                  <p>Nessuna emozione rilevata</p>
-                  <p className="text-sm">Effettua analisi per vedere le emozioni</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Comportamenti Osservati - Full Width */}
-        <Card className="bg-gradient-to-br from-card to-muted/20 border hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Eye className="h-5 w-5 text-blue-600" />
-              Comportamenti Osservati
-            </CardTitle>
-            <CardDescription>
-              Tag comportamentali più frequenti dalle osservazioni
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-                {(() => {
-                  // Filter diary data by date range for behavioral tags
-                  const { start: startDate, end: endDate } = getDateRange();
-                  const filteredDiaryForTags = diaryData.filter(entry => {
-                    const entryDate = new Date(entry.entry_date);
-                    return entryDate >= startDate && entryDate <= endDate;
-                  });
-                  
-                  const tagCounts = filteredDiaryForTags
-                    .flatMap(d => d.behavioral_tags || [])
-                    .reduce((acc, tag) => {
-                      acc[tag] = (acc[tag] || 0) + 1;
-                      return acc;
-                    }, {} as Record<string, number>);
-                  
-                  const sortedTags = Object.entries(tagCounts)
-                    .sort(([,a], [,b]) => (Number(b) || 0) - (Number(a) || 0))
-                    .slice(0, 12);
-                  
-                  return sortedTags.map(([tag, count]) => (
-                    <div key={tag} className="flex items-center justify-between p-3 bg-gradient-to-br from-muted/30 to-muted/20 rounded-lg border hover:shadow-md transition-all duration-200">
-                      <span className="capitalize font-medium text-sm flex-1 mr-2">{tag}</span>
-                      <Badge variant="secondary" className="text-xs">{Number(count) || 0}</Badge>
+          {/* Additional Analytics Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Dettaglio Emozioni */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Dettaglio Emozioni</CardTitle>
+                <CardDescription>
+                  Analisi approfondita delle emozioni rilevate
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {displayAnalytics.emotionDistribution.map((emotion, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium capitalize">{emotion.emotion}</span>
+                        <Badge variant="secondary">{emotion.count}</Badge>
+                      </div>
+                      <Progress value={emotion.percentage} className="h-2 mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        {emotion.percentage}% del totale
+                      </p>
                     </div>
-                  ));
-                })()}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Eye className="h-12 w-12 mx-auto mb-2" />
-                <p>Nessun comportamento registrato</p>
-                <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </TabsContent>
-    
-    {/* Medical Profile Tab */}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Comportamenti Osservati */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Comportamenti Osservati
+                </CardTitle>
+                <CardDescription>
+                  Tag comportamentali più frequenti dalle osservazioni
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {diaryData.some(d => d.behavioral_tags?.length > 0) ? (
+                  <div className="space-y-3">
+                    {(() => {
+                      const tagCounts = diaryData
+                        .flatMap(d => d.behavioral_tags || [])
+                        .reduce((acc, tag) => {
+                          acc[tag] = (acc[tag] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>);
+                      
+                      const sortedTags = Object.entries(tagCounts)
+                        .sort(([,a], [,b]) => (Number(b) || 0) - (Number(a) || 0))
+                        .slice(0, 10);
+                      
+                      return sortedTags.map(([tag, count]) => (
+                        <div key={tag} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                          <span className="capitalize font-medium">{tag}</span>
+                          <Badge variant="secondary">{Number(count) || 0}</Badge>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Eye className="h-12 w-12 mx-auto mb-2" />
+                    <p>Nessun comportamento registrato</p>
+                    <p className="text-sm">Aggiungi tag comportamentali nelle voci del diario</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Medical Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Veterinarians */}
@@ -4072,11 +3866,11 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
             </Card>
           </div>
         </TabsContent>
-      </Tabs>
-    </div>
 
-    {/* Add Document Dialog */}
-    <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
+      </Tabs>
+
+      {/* Add Document Dialog */}
+      <Dialog open={showAddDocument} onOpenChange={setShowAddDocument}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -4713,7 +4507,7 @@ ${emergencyContacts.map(c => `${c.name}: ${c.phone}`).join('\n')}`;
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
       />
-    </>
+    </div>
   );
 };
 
