@@ -669,6 +669,215 @@ const WellnessPage = () => {
     }
   };
 
+  // Handle adding new veterinarian
+  const handleAddVet = async () => {
+    if (!user || !newVet.name || !newVet.phone) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('veterinarians')
+        .insert({
+          user_id: user.id,
+          name: newVet.name,
+          clinic_name: newVet.clinic_name || null,
+          phone: newVet.phone,
+          email: newVet.email || null,
+          address: newVet.address || null,
+          specialization: newVet.specialization || null,
+          is_primary: newVet.is_primary
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Veterinario aggiunto con successo"
+      });
+
+      setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
+      setShowAddVet(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding veterinarian:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il veterinario",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle adding new medical record
+  const handleAddDocument = async () => {
+    if (!user || !selectedPet || !newDocument.title || !newDocument.record_type || !newDocument.record_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medical_records')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          title: newDocument.title,
+          description: newDocument.description || null,
+          record_type: newDocument.record_type,
+          record_date: newDocument.record_date,
+          cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
+          notes: newDocument.notes || null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Visita aggiunta con successo"
+      });
+
+      setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+      setShowAddDocument(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding medical record:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere la visita",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle adding new medication
+  const handleAddMedication = async () => {
+    if (!user || !selectedPet || !newMedication.name || !newMedication.dosage || !newMedication.frequency || !newMedication.start_date) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medications')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          name: newMedication.name,
+          dosage: newMedication.dosage,
+          frequency: newMedication.frequency,
+          start_date: newMedication.start_date,
+          end_date: newMedication.end_date || null,
+          is_active: true,
+          notes: newMedication.notes || null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Farmaco aggiunto con successo"
+      });
+
+      setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+      setShowAddMedication(false);
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error adding medication:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere il farmaco",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle phone call
+  const handlePhoneCall = (phoneNumber: string) => {
+    window.location.href = `tel:${phoneNumber}`;
+  };
+
+  // Handle delete with confirmation
+  const handleDelete = (type: string, id: string, name: string) => {
+    setConfirmDialog({
+      open: true,
+      title: `Elimina ${type}`,
+      description: `Sei sicuro di voler eliminare "${name}"? Questa azione non può essere annullata.`,
+      onConfirm: () => performDelete(type, id)
+    });
+  };
+
+  // Perform actual deletion
+  const performDelete = async (type: string, id: string) => {
+    try {
+      let tableName: 'health_metrics' | 'medications' | 'medical_records' | 'emergency_contacts' | 'veterinarians' | 'pet_insurance' = 'health_metrics';
+      
+      switch (type) {
+        case 'metrica':
+          tableName = 'health_metrics';
+          break;
+        case 'farmaco':
+          tableName = 'medications';
+          break;
+        case 'visita':
+          tableName = 'medical_records';
+          break;
+        case 'contatto':
+          tableName = 'emergency_contacts';
+          break;
+        case 'veterinario':
+          tableName = 'veterinarians';
+          break;
+        case 'assicurazione':
+          tableName = 'pet_insurance';
+          break;
+        default:
+          throw new Error('Tipo non supportato');
+      }
+
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: `${type.charAt(0).toUpperCase() + type.slice(1)} eliminato con successo`
+      });
+
+      fetchHealthData();
+    } catch (error) {
+      console.error('Error deleting:', error);
+      toast({
+        title: "Errore",
+        description: `Impossibile eliminare ${type}`,
+        variant: "destructive"
+      });
+    } finally {
+      setConfirmDialog({ open: false, title: '', description: '', onConfirm: () => {} });
+    }
+  };
+
+  // Navigate to diary for new behavior entry
+  const handleAddBehavior = () => {
+    window.location.href = `/diary?pet=${selectedPet?.id}&action=new`;
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -804,10 +1013,20 @@ const WellnessPage = () => {
               {/* Vital Parameters Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-blue-500" />
-                    Parametri Vitali
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-blue-500" />
+                      Parametri Vitali
+                    </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => setShowAddMetric(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {healthMetrics.length > 0 ? (
@@ -821,10 +1040,18 @@ const WellnessPage = () => {
                               evaluation.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
                             }`} />
                             <span className="text-sm">{translateMetricType(metric.metric_type)}</span>
+                            <span className="text-sm font-medium">
+                              {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
+                            </span>
                           </div>
-                          <span className="text-sm font-medium">
-                            {metric.metric_type === 'gum_color' ? getGumColorText(metric.value) : `${metric.value} ${metric.unit}`}
-                          </span>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 text-red-500"
+                            onClick={() => handleDelete('metrica', metric.id, translateMetricType(metric.metric_type))}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         </div>
                       );
                     })
@@ -845,6 +1072,14 @@ const WellnessPage = () => {
                       <Brain className="h-5 w-5 text-purple-500" />
                       Comportamenti Osservati
                     </CardTitle>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={handleAddBehavior}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -898,14 +1133,16 @@ const WellnessPage = () => {
                                 {medication.frequency}
                               </Badge>
                             </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('farmaco', medication.id, medication.name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {medication.dosage}
@@ -938,7 +1175,7 @@ const WellnessPage = () => {
             </div>
 
             {/* Secondary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
               {/* Recent Visits Card */}
               <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
@@ -970,14 +1207,16 @@ const WellnessPage = () => {
                                 {translateRecordType(record.record_type)}
                               </Badge>
                             </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('visita', record.id, record.title)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {format(new Date(record.record_date), 'dd/MM/yyyy')}
@@ -1026,14 +1265,25 @@ const WellnessPage = () => {
                                 </Badge>
                               )}
                             </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
+                                 onClick={() => handlePhoneCall(contact.phone)}
+                                 title="Chiama"
+                               >
+                                 <Phone className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('contatto', contact.id, contact.name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {contact.phone}
@@ -1078,22 +1328,33 @@ const WellnessPage = () => {
                     <div className="space-y-2">
                       {veterinarians.filter(vet => vet.is_primary).map((vet) => (
                         <div key={vet.id} className="border-l-2 border-purple-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{vet.name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                Primario
-                              </Badge>
-                            </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-2">
+                               <span className="text-sm font-medium">{vet.name}</span>
+                               <Badge variant="outline" className="text-xs">
+                                 Primario
+                               </Badge>
+                             </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-green-600 hover:text-green-700" 
+                                 onClick={() => handlePhoneCall(vet.phone)}
+                                 title="Chiama"
+                               >
+                                 <Phone className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => handleDelete('veterinario', vet.id, vet.name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
+                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {vet.phone}
                           </div>
@@ -1187,14 +1448,16 @@ const WellnessPage = () => {
                                 Attiva
                               </Badge>
                             </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('assicurazione', insurance.id, insurance.provider_name)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             Polizza: {insurance.policy_number}
@@ -1254,17 +1517,25 @@ const WellnessPage = () => {
                                 {translateRecordType(record.record_type)}
                               </Badge>
                             </div>
-                            <div className="flex gap-1">
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Download className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 text-red-500">
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            </div>
+                             <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0"
+                                 onClick={() => window.open(record.document_url, '_blank')}
+                                 title="Scarica"
+                               >
+                                 <Download className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-red-500"
+                                 onClick={() => handleDelete('visita', record.id, record.title)}
+                               >
+                                 <Trash2 className="h-3 w-3" />
+                               </Button>
+                             </div>
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {format(new Date(record.record_date), 'dd/MM/yyyy')}
@@ -1449,6 +1720,20 @@ const WellnessPage = () => {
               </Select>
             </div>
           </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddVet(false);
+                setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddVet}>
+              Salva
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1494,6 +1779,20 @@ const WellnessPage = () => {
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
             </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddDocument(false);
+                setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddDocument}>
+              Salva
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1584,6 +1883,20 @@ const WellnessPage = () => {
                 placeholder="Nome della clinica"
               />
             </div>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              onClick={() => {
+                setShowAddMedication(false);
+                setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
+              }} 
+              variant="outline"
+            >
+              Annulla
+            </Button>
+            <Button onClick={handleAddMedication}>
+              Salva
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1766,6 +2079,15 @@ const WellnessPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Dialog for deletions */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog({ ...confirmDialog, open })}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+      />
 
     </div>
   );
