@@ -2030,6 +2030,7 @@ export type Database = {
           coverage_details: Json | null
           created_at: string
           deductible: number | null
+          document_urls: string[] | null
           end_date: string | null
           id: string
           is_active: boolean | null
@@ -2047,6 +2048,7 @@ export type Database = {
           coverage_details?: Json | null
           created_at?: string
           deductible?: number | null
+          document_urls?: string[] | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null
@@ -2064,6 +2066,7 @@ export type Database = {
           coverage_details?: Json | null
           created_at?: string
           deductible?: number | null
+          document_urls?: string[] | null
           end_date?: string | null
           id?: string
           is_active?: boolean | null

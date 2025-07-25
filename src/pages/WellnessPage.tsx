@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import { DocumentUploader } from '@/components/DocumentUploader';
+import {
   Heart, 
   Activity, 
   TrendingUp, 
@@ -491,11 +492,11 @@ const WellnessPage = () => {
   
   // Form data states
   const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
-  const [newDocument, setNewDocument] = useState({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+  const [newDocument, setNewDocument] = useState({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] as string[] });
   const [newMedication, setNewMedication] = useState({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
   const [newVet, setNewVet] = useState({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
   const [newContact, setNewContact] = useState({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
-  const [newInsurance, setNewInsurance] = useState({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+  const [newInsurance, setNewInsurance] = useState({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] as string[] });
   
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', description: '', onConfirm: () => {} });
   const [loading, setLoading] = useState(true);
@@ -1035,7 +1036,8 @@ const WellnessPage = () => {
           end_date: newInsurance.end_date || null,
           premium_amount: newInsurance.premium_amount ? parseFloat(newInsurance.premium_amount) : null,
           deductible: newInsurance.deductible ? parseFloat(newInsurance.deductible) : null,
-          is_active: true
+          is_active: true,
+          document_urls: newInsurance.document_urls
         });
 
       if (error) throw error;
@@ -1045,7 +1047,7 @@ const WellnessPage = () => {
         description: "Assicurazione aggiunta con successo"
       });
 
-      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+      setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
       setShowAddInsurance(false);
       // Add new insurance to local state
       const newInsuranceData = {
@@ -1198,7 +1200,8 @@ const WellnessPage = () => {
             record_type: newDocument.record_type,
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-            notes: newDocument.notes || null
+            notes: newDocument.notes || null,
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : null
           })
           .eq('id', editingRecord.id);
 
@@ -1220,7 +1223,8 @@ const WellnessPage = () => {
             record_type: newDocument.record_type,
             record_date: newDocument.record_date,
             cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-            notes: newDocument.notes || null
+            notes: newDocument.notes || null,
+            document_url: newDocument.document_urls.length > 0 ? newDocument.document_urls[0] : null
           });
 
         if (error) throw error;
@@ -1231,7 +1235,7 @@ const WellnessPage = () => {
         });
       }
 
-      setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+      setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
       setShowAddDocument(false);
       setEditingRecord(null);
       // Update local state instead of refetching
@@ -1681,7 +1685,8 @@ const WellnessPage = () => {
       record_type: record.record_type,
       record_date: record.record_date,
       cost: record.cost?.toString() || '',
-      notes: record.notes || ''
+      notes: record.notes || '',
+      document_urls: record.document_url ? [record.document_url] : []
     });
     setShowAddDocument(true);
   };
@@ -2655,12 +2660,21 @@ const WellnessPage = () => {
                 onChange={(e) => setNewDocument(prev => ({ ...prev, record_date: e.target.value }))}
               />
             </div>
+            <div>
+              <Label>Documenti e Foto</Label>
+              <DocumentUploader
+                onUpload={(urls) => setNewDocument(prev => ({ ...prev, document_urls: urls }))}
+                existingFiles={newDocument.document_urls}
+                maxFiles={5}
+                acceptedTypes="image/*,application/pdf,.doc,.docx"
+              />
+            </div>
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
               onClick={() => {
                 setShowAddDocument(false);
-                setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
+                setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
               }} 
               variant="outline"
             >
@@ -2976,12 +2990,21 @@ const WellnessPage = () => {
                 />
               </div>
             </div>
+            <div>
+              <Label>Documenti e Foto</Label>
+              <DocumentUploader
+                onUpload={(urls) => setNewInsurance(prev => ({ ...prev, document_urls: urls }))}
+                existingFiles={newInsurance.document_urls}
+                maxFiles={5}
+                acceptedTypes="image/*,application/pdf,.doc,.docx"
+              />
+            </div>
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
               onClick={() => {
                 setShowAddInsurance(false);
-                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '' });
+                setNewInsurance({ provider_name: '', policy_number: '', policy_type: '', start_date: '', end_date: '', premium_amount: '', deductible: '', document_urls: [] });
               }} 
               variant="outline"
             >
