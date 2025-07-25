@@ -1297,20 +1297,22 @@ const WellnessPage = () => {
         if (error) throw error;
 
         // Add the new record to the beginning of the list
-        setMedicalRecords(prev => [data, ...prev]);
+        // Add the new record to state and force re-render
+        setMedicalRecords(prev => {
+          console.log('Previous records:', prev.length);
+          const newRecords = [data, ...prev];
+          console.log('New records after adding:', newRecords.length);
+          return newRecords;
+        });
 
         toast({
-          title: "Successo",
+          title: "Successo", 
           description: "Visita aggiunta con successo"
         });
         
-        // Force component refresh
         setShowAddDocument(false);
         setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '', document_urls: [] });
         setEditingRecord(null);
-        
-        // Force page reload to ensure data is visible
-        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (error) {
       console.error('Error saving medical record:', error);
