@@ -2175,9 +2175,9 @@ const WellnessPage = () => {
                   <div className="text-xs text-muted-foreground mb-2">
                     Debug: {medicalRecords.length} record(s) in state
                   </div>
-                  {medicalRecords && medicalRecords.length > 0 ? (
+                  {medicalRecords && medicalRecords.filter(record => !record.document_url).length > 0 ? (
                     <div className="space-y-2">
-                      {medicalRecords.slice(0, 3).map((record) => (
+                      {medicalRecords.filter(record => !record.document_url).slice(0, 3).map((record) => (
                         <div key={record.id} className="border-l-2 border-blue-500/30 pl-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
