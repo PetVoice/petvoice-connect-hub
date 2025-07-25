@@ -341,34 +341,77 @@ const DashboardPage: React.FC = () => {
       {/* Emotion Analysis Card - Full width under the chart */}
       {selectedPet && (
         <div className="w-full mb-6">
-          <Card className="bg-primary/10 border border-primary/20 shadow-soft">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl flex items-center gap-2">
-                <PieChartIcon className="h-6 w-6 text-pink-500" />
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                  <PieChartIcon className="h-6 w-6 text-white" />
+                </div>
                 Analisi Emozioni Rilevate
               </CardTitle>
-              <CardDescription>Cronologia dettagliata di tutte le emozioni rilevate</CardDescription>
+              <CardDescription className="text-lg">Cronologia dettagliata di tutte le emozioni del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
               {Object.keys(emotionStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                   {Object.entries(emotionStats)
-                    .sort(([,a], [,b]) => b - a) // Ordina per frequenza decrescente
-                    .map(([emotion, count]) => (
-                      <div key={emotion} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-primary/10">
-                        <div className="w-3 h-3 rounded-full bg-primary"></div>
-                        <div>
-                          <div className="font-semibold capitalize">{emotion}</div>
-                          <div className="text-2xl font-bold text-primary">{count}</div>
+                    .sort(([,a], [,b]) => b - a)
+                    .map(([emotion, count]) => {
+                      const emotionColors = {
+                        'felice': 'from-green-400 to-emerald-500',
+                        'giocoso': 'from-yellow-400 to-orange-500', 
+                        'calmo': 'from-blue-400 to-cyan-500',
+                        'eccitato': 'from-purple-400 to-violet-500',
+                        'ansioso': 'from-orange-400 to-red-500',
+                        'triste': 'from-gray-400 to-slate-500',
+                        'aggressivo': 'from-red-500 to-red-600'
+                      };
+                      const emotionIcons = {
+                        'felice': '😊',
+                        'giocoso': '🎾', 
+                        'calmo': '😌',
+                        'eccitato': '⚡',
+                        'ansioso': '😰',
+                        'triste': '😢',
+                        'aggressivo': '😠'
+                      };
+                      const gradientClass = emotionColors[emotion as keyof typeof emotionColors] || 'from-primary to-primary/80';
+                      const icon = emotionIcons[emotion as keyof typeof emotionIcons] || '🐾';
+                      
+                      return (
+                        <div 
+                          key={emotion} 
+                          className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
+                        >
+                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                          <div className="relative p-4 text-center">
+                            <div className="text-2xl mb-2">{icon}</div>
+                            <div className="font-semibold text-gray-700 capitalize mb-1">{emotion}</div>
+                            <div className={`text-3xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                              {count}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {count === 1 ? 'rilevamento' : 'rilevamenti'}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <PieChartIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nessuna analisi emotiva disponibile</p>
-                  <p className="text-sm mt-1">Inizia ad analizzare il comportamento del tuo pet per vedere le statistiche</p>
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 flex items-center justify-center">
+                    <PieChartIcon className="h-10 w-10 text-primary/60" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Nessuna analisi disponibile</h3>
+                  <p className="text-gray-500 mb-4">Inizia ad analizzare il comportamento del tuo pet per vedere le statistiche emozionali</p>
+                  <Button 
+                    onClick={() => navigate('/analysis')}
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  >
+                    <Microscope className="h-4 w-4 mr-2" />
+                    Inizia Analisi
+                  </Button>
                 </div>
               )}
             </CardContent>
