@@ -47,10 +47,16 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     const uploadedUrls: string[] = [];
 
     try {
+      // Get the current user ID first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       for (const file of files) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${supabase.auth.getUser().then(u => u.data.user?.id)}/${fileName}`;
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('medical-documents')
