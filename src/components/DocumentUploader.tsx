@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -34,12 +34,24 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   // Initialize preview files with existing files
   React.useEffect(() => {
     if (existingFiles.length > 0) {
-      const initialPreviews = existingFiles.map((url, index) => ({
-        url,
-        name: `Documento ${index + 1}`,
-        type: url.toLowerCase().includes('.pdf') ? 'application/pdf' : 'image/jpeg',
-        size: 0
-      }));
+      const initialPreviews = existingFiles.map((url, index) => {
+        // Extract filename from URL or generate one
+        const urlParts = url.split('/');
+        const fileName = urlParts[urlParts.length - 1] || `Documento ${index + 1}`;
+        const fileExtension = fileName.split('.').pop()?.toLowerCase();
+        
+        let fileType = 'application/pdf'; // default
+        if (fileExtension && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+          fileType = 'image/jpeg';
+        }
+        
+        return {
+          url,
+          name: fileName,
+          type: fileType,
+          size: 0
+        };
+      });
       setPreviewFiles(initialPreviews);
     } else {
       setPreviewFiles([]);
@@ -203,24 +215,33 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    {isImage(preview.type) && (
+                    <div className="flex items-center space-x-2">
+                      {isImage(preview.type) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedImage(preview.url)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {preview.type === 'application/pdf' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => window.open(preview.url, '_blank')}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedImage(preview.url)}
+                        onClick={() => removeFile(preview.url)}
                       >
-                        <Eye className="h-4 w-4" />
+                        <X className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(preview.url)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                    </div>
                 </div>
               </Card>
             ))}
@@ -233,6 +254,9 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Anteprima immagine</DialogTitle>
+            <DialogDescription>
+              Visualizza l'anteprima dell'immagine caricata
+            </DialogDescription>
           </DialogHeader>
           {selectedImage && (
             <div className="flex justify-center">
@@ -240,6 +264,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 src={selectedImage} 
                 alt="Anteprima documento" 
                 className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                onError={(e) => {
+                  console.error('Errore caricamento immagine:', selectedImage);
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltbWFnaW5lIG5vbiBkaXNwb25pYmlsZTwvdGV4dD48L3N2Zz4=';
+                }}
               />
             </div>
           )}

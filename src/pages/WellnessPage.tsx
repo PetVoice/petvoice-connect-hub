@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DocumentUploader } from '@/components/DocumentUploader';
 import {
@@ -2688,6 +2688,9 @@ const WellnessPage = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingRecord ? 'Modifica Visita' : 'Nuova Visita'}</DialogTitle>
+            <DialogDescription>
+              Aggiungi i dettagli della visita veterinaria e carica i relativi documenti
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -2975,6 +2978,9 @@ const WellnessPage = () => {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nuova Assicurazione</DialogTitle>
+            <DialogDescription>
+              Inserisci i dettagli della polizza assicurativa e carica i documenti relativi
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
