@@ -943,7 +943,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             <span className="font-medium">{emotion}</span>
                           </div>
                           <Badge className={getEmotionClass(emotion)}>
-                            {(Number(confidence) * 100).toFixed(0)}%
+                            {Number(confidence).toFixed(0)}%
                           </Badge>
                         </div>
                       ))}
