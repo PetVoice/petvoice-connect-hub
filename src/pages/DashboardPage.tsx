@@ -251,6 +251,43 @@ const DashboardPage: React.FC = () => {
         </Card>
       )}
 
+      {/* Health Score Progress Bar */}
+      {selectedPet && (
+        <div className="mb-6">
+          <div className="space-y-4 p-6 bg-card border border-border rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Heart className="h-6 w-6 text-red-500" />
+                <h3 className="text-xl font-semibold">Punteggio Salute</h3>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-red-500">
+                  {petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : '--'}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {petStats.healthStatus}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Critico</span>
+                <span>Ottimo</span>
+              </div>
+              <Progress 
+                value={petStats.wellnessScore > 0 ? petStats.wellnessScore : 0} 
+                className="h-3"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>0%</span>
+                <span>50%</span>
+                <span>100%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <div className="mb-16 w-full">
@@ -262,41 +299,6 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           
-          {/* Health Score Progress Bar */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-4 xl:col-span-5">
-            <div className="space-y-4 p-6 bg-card border border-border rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Heart className="h-6 w-6 text-red-500" />
-                  <h3 className="text-xl font-semibold">Punteggio Salute</h3>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-red-500">
-                    {petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : '--'}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {petStats.healthStatus}
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>Critico</span>
-                  <span>Ottimo</span>
-                </div>
-                <Progress 
-                  value={petStats.wellnessScore > 0 ? petStats.wellnessScore : 0} 
-                  className="h-3"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>0%</span>
-                  <span>50%</span>
-                  <span>100%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Detailed Emotions Analysis Card */}
           <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
