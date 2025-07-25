@@ -2760,8 +2760,164 @@ const WellnessPage = () => {
             </Card>
           </div>
 
-          {/* Detailed Analytics Section - Factors that influence the health trend */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Cards that influence the wellness trend - All with uniform style */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            {/* Parametri Vitali */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-500/10 rounded-lg">
+                      <Activity className="h-4 w-4 text-red-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Parametri Vitali</CardTitle>
+                      <CardDescription className="text-sm">Misurazioni fisiche recenti</CardDescription>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => setActiveTab('profile')}>
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {healthMetrics.slice(0, 3).map((metric) => {
+                  const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, selectedPet?.type);
+                  return (
+                    <div key={metric.id} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium">{translateMetricType(metric.metric_type)}</div>
+                        <div className="text-xs text-muted-foreground">{format(new Date(metric.recorded_at), 'dd/MM HH:mm', { locale: it })}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">{metric.value} {metric.unit}</div>
+                        <Badge variant={evaluation.status === 'critical' ? 'destructive' : evaluation.status === 'warning' ? 'secondary' : 'default'} className="text-xs">
+                          {evaluation.status === 'critical' ? 'Critico' : evaluation.status === 'warning' ? 'Attenzione' : 'Normale'}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+
+            {/* Comportamenti dal Diario */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                      <FileText className="h-4 w-4 text-blue-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Comportamenti</CardTitle>
+                      <CardDescription className="text-sm">Dal diario comportamentale</CardDescription>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => window.location.href = '/diary'}>
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {diaryData.filter(entry => (entry.behavioral_tags && entry.behavioral_tags.length > 0) || entry.mood_score).slice(0, 3).map(entry => (
+                  <div key={entry.id} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                    <div>
+                      <div className="text-sm font-medium">{entry.title || 'Voce del diario'}</div>
+                      <div className="text-xs text-muted-foreground">{format(new Date(entry.entry_date), 'dd/MM/yyyy', { locale: it })}</div>
+                    </div>
+                    <div className="text-right">
+                      {entry.mood_score && <div className="text-sm font-medium">Umore: {entry.mood_score}/10</div>}
+                      <Badge variant="outline" className="text-xs">{entry.behavioral_tags?.length || 0} comportamenti</Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Emozioni Rilevate */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <Brain className="h-4 w-4 text-purple-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Emozioni</CardTitle>
+                      <CardDescription className="text-sm">Dalle analisi comportamentali</CardDescription>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => window.location.href = '/analysis'}>
+                    <Upload className="h-3 w-3 mr-1" />
+                    Analizza
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {displayAnalytics.emotionDistribution.slice(0, 3).map((emotion, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: EMOTION_COLORS[emotion.emotion as keyof typeof EMOTION_COLORS] || '#6b7280' }} />
+                      <div>
+                        <div className="text-sm font-medium capitalize">{emotion.emotion}</div>
+                        <div className="text-xs text-muted-foreground">{emotion.percentage.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{emotion.count}x</div>
+                      <Badge variant="outline" className="text-xs">Frequente</Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Farmaci Attivi */}
+            <Card className="hover:shadow-lg transition-all duration-300">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                      <Pill className="h-4 w-4 text-green-500" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">Farmaci Attivi</CardTitle>
+                      <CardDescription className="text-sm">Terapie in corso</CardDescription>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => setActiveTab('profile')}>
+                    <Plus className="h-3 w-3 mr-1" />
+                    Aggiungi
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {medications.filter(m => m.is_active).slice(0, 3).map(medication => {
+                  const daysSince = differenceInDays(new Date(), new Date(medication.start_date));
+                  return (
+                    <div key={medication.id} className="flex items-center justify-between p-2 border rounded hover:bg-muted/30 transition-colors">
+                      <div>
+                        <div className="text-sm font-medium">{medication.name}</div>
+                        <div className="text-xs text-muted-foreground">{medication.dosage} - {medication.frequency}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">{daysSince} giorni</div>
+                        <Badge variant="default" className="text-xs">Attivo</Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Medical Profile Tab */}
+        <TabsContent value="profile" className="space-y-6">
             {/* Comportamenti dal Diario che Influenzano la Salute */}
             <Card className="hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-3">
