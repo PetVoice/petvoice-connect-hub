@@ -480,6 +480,11 @@ const WellnessPage = () => {
   // Edit states
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
   const [editingVet, setEditingVet] = useState<Veterinarian | null>(null);
+  const [editingMetric, setEditingMetric] = useState<HealthMetric | null>(null);
+  const [editingRecord, setEditingRecord] = useState<MedicalRecord | null>(null);
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+  const [showDiaryDialog, setShowDiaryDialog] = useState(false);
+  const [newDiaryEntry, setNewDiaryEntry] = useState({ title: '', content: '', mood_score: '', behavioral_tags: '' });
   
   // Form data states
   const [newMetric, setNewMetric] = useState({ metric_type: '', value: '', unit: '', notes: '' });
@@ -641,13 +646,30 @@ const WellnessPage = () => {
         .eq('pet_id', selectedPet.id)
         .order('record_date', { ascending: false });
       
-      // Fetch medications
+  // Fetch medications and check for expired ones
       const { data: meds } = await supabase
         .from('medications')
         .select('*')
         .eq('user_id', user.id)
         .eq('pet_id', selectedPet.id)
         .order('created_at', { ascending: false });
+
+      // Auto-deactivate expired medications
+      if (meds) {
+        const today = new Date();
+        const expiredMeds = meds.filter(med => 
+          med.is_active && 
+          med.end_date && 
+          new Date(med.end_date) < today
+        );
+
+        if (expiredMeds.length > 0) {
+          await supabase
+            .from('medications')
+            .update({ is_active: false })
+            .in('id', expiredMeds.map(med => med.id));
+        }
+      }
       
       // Fetch veterinarians
       const { data: vets } = await supabase
@@ -720,7 +742,7 @@ const WellnessPage = () => {
     fetchHealthData();
   }, [user, selectedPet]);
 
-  // Handle adding new metric
+  // Handle adding/editing metric
   const handleAddMetric = async () => {
     if (!user || !selectedPet || !newMetric.metric_type || !newMetric.value) {
       toast({
@@ -732,33 +754,55 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('health_metrics')
-        .insert({
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          metric_type: newMetric.metric_type,
-          value: parseFloat(newMetric.value),
-          unit: newMetric.unit,
-          notes: newMetric.notes || null,
-          recorded_at: new Date().toISOString()
+      if (editingMetric) {
+        // Update existing metric
+        const { error } = await supabase
+          .from('health_metrics')
+          .update({
+            metric_type: newMetric.metric_type,
+            value: parseFloat(newMetric.value),
+            unit: newMetric.unit,
+            notes: newMetric.notes || null
+          })
+          .eq('id', editingMetric.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Metrica aggiornata con successo"
         });
+      } else {
+        // Create new metric
+        const { error } = await supabase
+          .from('health_metrics')
+          .insert({
+            user_id: user.id,
+            pet_id: selectedPet.id,
+            metric_type: newMetric.metric_type,
+            value: parseFloat(newMetric.value),
+            unit: newMetric.unit,
+            notes: newMetric.notes || null,
+            recorded_at: new Date().toISOString()
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Metrica aggiunta con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Metrica aggiunta con successo"
+        });
+      }
 
       setNewMetric({ metric_type: '', value: '', unit: '', notes: '' });
       setShowAddMetric(false);
-      fetchHealthData();
+      setEditingMetric(null);
+      await fetchHealthData();
     } catch (error) {
-      console.error('Error adding metric:', error);
+      console.error('Error saving metric:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere la metrica",
+        description: "Impossibile salvare la metrica",
         variant: "destructive"
       });
     }
@@ -821,7 +865,7 @@ const WellnessPage = () => {
       setNewContact({ name: '', contact_type: '', phone: '', relationship: '', email: '', notes: '' });
       setShowAddContact(false);
       setEditingContact(null);
-      fetchHealthData();
+      await fetchHealthData();
     } catch (error) {
       console.error('Error saving emergency contact:', error);
       toast({
@@ -938,7 +982,7 @@ const WellnessPage = () => {
       setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
       setShowAddVet(false);
       setEditingVet(null);
-      fetchHealthData();
+      await fetchHealthData();
     } catch (error) {
       console.error('Error saving veterinarian:', error);
       toast({
@@ -949,7 +993,7 @@ const WellnessPage = () => {
     }
   };
 
-  // Handle adding new medical record
+  // Handle adding/editing medical record
   const handleAddDocument = async () => {
     if (!user || !selectedPet || !newDocument.title || !newDocument.record_type || !newDocument.record_date) {
       toast({
@@ -961,40 +1005,64 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('medical_records')
-        .insert({
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          title: newDocument.title,
-          description: newDocument.description || null,
-          record_type: newDocument.record_type,
-          record_date: newDocument.record_date,
-          cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
-          notes: newDocument.notes || null
+      if (editingRecord) {
+        // Update existing record
+        const { error } = await supabase
+          .from('medical_records')
+          .update({
+            title: newDocument.title,
+            description: newDocument.description || null,
+            record_type: newDocument.record_type,
+            record_date: newDocument.record_date,
+            cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
+            notes: newDocument.notes || null
+          })
+          .eq('id', editingRecord.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Visita aggiornata con successo"
         });
+      } else {
+        // Create new record
+        const { error } = await supabase
+          .from('medical_records')
+          .insert({
+            user_id: user.id,
+            pet_id: selectedPet.id,
+            title: newDocument.title,
+            description: newDocument.description || null,
+            record_type: newDocument.record_type,
+            record_date: newDocument.record_date,
+            cost: newDocument.cost ? parseFloat(newDocument.cost) : null,
+            notes: newDocument.notes || null
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Visita aggiunta con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Visita aggiunta con successo"
+        });
+      }
 
       setNewDocument({ title: '', description: '', record_type: '', record_date: '', cost: '', notes: '' });
       setShowAddDocument(false);
-      fetchHealthData();
+      setEditingRecord(null);
+      await fetchHealthData();
     } catch (error) {
-      console.error('Error adding medical record:', error);
+      console.error('Error saving medical record:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere la visita",
+        description: "Impossibile salvare la visita",
         variant: "destructive"
       });
     }
   };
 
-  // Handle adding new medication
+  // Handle adding/editing medication
   const handleAddMedication = async () => {
     if (!user || !selectedPet || !newMedication.name || !newMedication.dosage || !newMedication.frequency || !newMedication.start_date) {
       toast({
@@ -1006,35 +1074,59 @@ const WellnessPage = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('medications')
-        .insert({
-          user_id: user.id,
-          pet_id: selectedPet.id,
-          name: newMedication.name,
-          dosage: newMedication.dosage,
-          frequency: newMedication.frequency,
-          start_date: newMedication.start_date,
-          end_date: newMedication.end_date || null,
-          is_active: true,
-          notes: newMedication.notes || null
+      if (editingMedication) {
+        // Update existing medication
+        const { error } = await supabase
+          .from('medications')
+          .update({
+            name: newMedication.name,
+            dosage: newMedication.dosage,
+            frequency: newMedication.frequency,
+            start_date: newMedication.start_date,
+            end_date: newMedication.end_date || null,
+            notes: newMedication.notes || null
+          })
+          .eq('id', editingMedication.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Successo",
+          description: "Farmaco aggiornato con successo"
         });
+      } else {
+        // Create new medication
+        const { error } = await supabase
+          .from('medications')
+          .insert({
+            user_id: user.id,
+            pet_id: selectedPet.id,
+            name: newMedication.name,
+            dosage: newMedication.dosage,
+            frequency: newMedication.frequency,
+            start_date: newMedication.start_date,
+            end_date: newMedication.end_date || null,
+            is_active: true,
+            notes: newMedication.notes || null
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Successo",
-        description: "Farmaco aggiunto con successo"
-      });
+        toast({
+          title: "Successo",
+          description: "Farmaco aggiunto con successo"
+        });
+      }
 
       setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
       setShowAddMedication(false);
-      fetchHealthData();
+      setEditingMedication(null);
+      await fetchHealthData();
     } catch (error) {
-      console.error('Error adding medication:', error);
+      console.error('Error saving medication:', error);
       toast({
         title: "Errore",
-        description: "Impossibile aggiungere il farmaco",
+        description: "Impossibile salvare il farmaco",
         variant: "destructive"
       });
     }
@@ -1108,9 +1200,58 @@ const WellnessPage = () => {
     }
   };
 
-  // Navigate to diary for new behavior entry
+  // Open diary dialog for new behavior entry
   const handleAddBehavior = () => {
-    window.location.href = `/diary?pet=${selectedPet?.id}&action=new`;
+    setShowDiaryDialog(true);
+    setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
+  };
+
+  // Handle adding new diary entry
+  const handleAddDiaryEntry = async () => {
+    if (!user || !selectedPet || !newDiaryEntry.title) {
+      toast({
+        title: "Errore",
+        description: "Inserisci almeno un titolo",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const behavioralTagsArray = newDiaryEntry.behavioral_tags 
+        ? newDiaryEntry.behavioral_tags.split(',').map(tag => tag.trim()).filter(Boolean)
+        : [];
+
+      const { error } = await supabase
+        .from('diary_entries')
+        .insert({
+          user_id: user.id,
+          pet_id: selectedPet.id,
+          title: newDiaryEntry.title,
+          content: newDiaryEntry.content || null,
+          mood_score: newDiaryEntry.mood_score ? parseInt(newDiaryEntry.mood_score) : null,
+          behavioral_tags: behavioralTagsArray.length > 0 ? behavioralTagsArray : null,
+          entry_date: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Successo",
+        description: "Voce del diario aggiunta con successo"
+      });
+
+      setNewDiaryEntry({ title: '', content: '', mood_score: '', behavioral_tags: '' });
+      setShowDiaryDialog(false);
+      await fetchHealthData();
+    } catch (error) {
+      console.error('Error adding diary entry:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere la voce del diario",
+        variant: "destructive"
+      });
+    }
   };
 
   // Handle edit contact
@@ -1140,6 +1281,46 @@ const WellnessPage = () => {
       is_primary: vet.is_primary
     });
     setShowAddVet(true);
+  };
+
+  // Handle edit metric
+  const handleEditMetric = (metric: HealthMetric) => {
+    setEditingMetric(metric);
+    setNewMetric({
+      metric_type: metric.metric_type,
+      value: metric.value.toString(),
+      unit: metric.unit,
+      notes: metric.notes || ''
+    });
+    setShowAddMetric(true);
+  };
+
+  // Handle edit medical record
+  const handleEditRecord = (record: MedicalRecord) => {
+    setEditingRecord(record);
+    setNewDocument({
+      title: record.title,
+      description: record.description || '',
+      record_type: record.record_type,
+      record_date: record.record_date,
+      cost: record.cost?.toString() || '',
+      notes: record.notes || ''
+    });
+    setShowAddDocument(true);
+  };
+
+  // Handle edit medication
+  const handleEditMedication = (medication: Medication) => {
+    setEditingMedication(medication);
+    setNewMedication({
+      name: medication.name,
+      dosage: medication.dosage,
+      frequency: medication.frequency,
+      start_date: medication.start_date,
+      end_date: medication.end_date || '',
+      notes: medication.notes || ''
+    });
+    setShowAddMedication(true);
   };
 
   if (loading) {
@@ -1265,6 +1446,39 @@ const WellnessPage = () => {
                 </CardHeader>
                 <CardContent>
                   <UnifiedHealthScore selectedPet={selectedPet} user={user} addNotification={addNotification} />
+                </CardContent>
+              </Card>
+
+              {/* Emotion Analysis Card */}
+              <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-pink-500" />
+                    Analisi Emozioni
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {Object.keys(emotionCounts).length > 0 ? (
+                    <div className="space-y-2">
+                      {Object.entries(emotionCounts).slice(0, 3).map(([emotion, count]) => (
+                        <div key={emotion} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: EMOTION_COLORS[emotion] || '#64748b' }}
+                            />
+                            <span className="text-sm capitalize">{emotion}</span>
+                          </div>
+                          <span className="text-sm font-medium">{count}x</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessuna analisi emotiva</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -1395,6 +1609,14 @@ const WellnessPage = () => {
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
+                                 className="h-6 w-6 p-0 text-blue-500"
+                                 onClick={() => handleEditMedication(medication)}
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
                                  className="h-6 w-6 p-0 text-red-500"
                                  onClick={() => handleDelete('farmaco', medication.id, medication.name)}
                                >
@@ -1458,6 +1680,14 @@ const WellnessPage = () => {
                               </Badge>
                             </div>
                              <div className="flex gap-1">
+                               <Button 
+                                 size="sm" 
+                                 variant="ghost" 
+                                 className="h-6 w-6 p-0 text-blue-500"
+                                 onClick={() => handleEditRecord(record)}
+                               >
+                                 <Edit className="h-3 w-3" />
+                               </Button>
                                <Button 
                                  size="sm" 
                                  variant="ghost" 
@@ -1686,15 +1916,17 @@ const WellnessPage = () => {
                 <CardContent className="space-y-3">
                   {insurances.filter(ins => ins.is_active).length > 0 ? (
                     <div className="space-y-2">
-                      {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => (
-                        <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{insurance.provider_name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                Attiva
-                              </Badge>
-                            </div>
+                       {insurances.filter(ins => ins.is_active).slice(0, 2).map((insurance) => {
+                         const isExpired = insurance.end_date && new Date(insurance.end_date) < new Date();
+                         return (
+                           <div key={insurance.id} className="border-l-2 border-teal-500/30 pl-3">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-2">
+                                 <span className="text-sm font-medium">{insurance.provider_name}</span>
+                                 <Badge variant={isExpired ? "destructive" : "outline"} className="text-xs">
+                                   {isExpired ? "Disattiva" : "Attiva"}
+                                 </Badge>
+                               </div>
                              <div className="flex gap-1">
                                <Button 
                                  size="sm" 
@@ -1706,16 +1938,17 @@ const WellnessPage = () => {
                                </Button>
                              </div>
                           </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Polizza: {insurance.policy_number}
+                           <div className="text-xs text-muted-foreground mt-1">
+                             Polizza: {insurance.policy_number}
+                           </div>
+                           {insurance.premium_amount && (
+                             <div className="text-xs text-muted-foreground">
+                               Premio: €{insurance.premium_amount}
+                             </div>
+                           )}
                           </div>
-                          {insurance.premium_amount && (
-                            <div className="text-xs text-muted-foreground">
-                              Premio: €{insurance.premium_amount}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
@@ -1778,9 +2011,9 @@ const WellnessPage = () => {
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
                             {format(new Date(record.record_date), 'dd/MM/yyyy')}
-                          </div>
-                        </div>
-                      ))}
+                             </div>
+                           </div>
+                        })}
                     </div>
                   ) : (
                     <div className="text-center py-4 text-muted-foreground">
@@ -1950,20 +2183,49 @@ const WellnessPage = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="start_date">Data Inizio *</Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={newMedication.start_date}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, start_date: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="end_date">Data Fine</Label>
+                <Input
+                  id="end_date"
+                  type="date"
+                  value={newMedication.end_date}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, end_date: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="medication_notes">Note</Label>
+              <Textarea
+                id="medication_notes"
+                value={newMedication.notes}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Note aggiuntive"
+              />
+            </div>
           </div>
           <div className="flex gap-2 pt-4">
             <Button 
               onClick={() => {
-                setShowAddVet(false);
-                setEditingVet(null);
-                setNewVet({ name: '', clinic_name: '', phone: '', email: '', address: '', specialization: '', is_primary: false });
+                setShowAddMedication(false);
+                setEditingMedication(null);
+                setNewMedication({ name: '', dosage: '', frequency: '', start_date: '', end_date: '', notes: '' });
               }} 
               variant="outline"
             >
               Annulla
             </Button>
-            <Button onClick={handleAddVet}>
-              Salva
+            <Button onClick={handleAddMedication}>
+              {editingMedication ? 'Aggiorna' : 'Salva'}
             </Button>
           </div>
         </DialogContent>
