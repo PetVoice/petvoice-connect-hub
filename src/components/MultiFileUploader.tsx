@@ -182,7 +182,8 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
   };
 
   const viewFile = (file: UploadedFile) => {
-    window.open(file.url, '_blank');
+    // Invece di aprire in nuova tab, usa download per evitare problemi di focus
+    downloadFile(file);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
