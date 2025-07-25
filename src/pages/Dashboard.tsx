@@ -2357,15 +2357,14 @@ const Dashboard = () => {
                       <div className="flex gap-2">
                         {!record.document_url && (
                           <MultiFileUploader
-                            onUpload={(files) => handleFileUpload(files, 'medical-records', record.id)}
-                            uploading={uploading}
+                            bucketName="medical-records"
                             maxFiles={1}
                             acceptedTypes={['.jpg', '.jpeg', '.png', '.pdf']}
-                            trigger={
-                              <Button variant="ghost" size="sm">
-                                <Upload className="h-4 w-4" />
-                              </Button>
-                            }
+                            onFilesChanged={(files) => {
+                              if (files.length > 0) {
+                                console.log('Medical record uploaded:', files[0]);
+                              }
+                            }}
                           />
                         )}
                         <Button
@@ -3506,8 +3505,14 @@ const Dashboard = () => {
           </DialogHeader>
           {selectedPet && (
             <DiaryEntryForm
+              isOpen={showDiaryDialog}
               petId={selectedPet.id}
+              userId={user?.id}
               onClose={() => setShowDiaryDialog(false)}
+              onSave={(data) => {
+                console.log('Diary entry saved:', data);
+                setShowDiaryDialog(false);
+              }}
             />
           )}
         </DialogContent>
