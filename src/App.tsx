@@ -36,16 +36,7 @@ import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      staleTime: 5 * 60 * 1000, // 5 minuti
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function AppContent() {
   return (
@@ -170,16 +161,16 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <ThemeProvider>
-        {/* <AppearanceProvider> */}
-          {/* <NotificationEventsProvider> */}
+        <AppearanceProvider>
+          <NotificationEventsProvider>
             <TooltipProvider>
-              {/* <NotificationManager /> */}
+              <NotificationManager />
               <AppContent />
               <Toaster />
               <Sonner />
             </TooltipProvider>
-          {/* </NotificationEventsProvider> */}
-        {/* </AppearanceProvider> */}
+          </NotificationEventsProvider>
+        </AppearanceProvider>
       </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>

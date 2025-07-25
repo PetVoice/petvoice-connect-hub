@@ -890,7 +890,7 @@ const WellnessPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, selectedPet?.id]);
+  }, [user?.id, selectedPet?.id, toast]);
 
   useEffect(() => {
     fetchHealthData();

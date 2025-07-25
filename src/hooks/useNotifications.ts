@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -18,7 +18,7 @@ export function useNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const loadNotifications = useCallback(async () => {
+  const loadNotifications = async () => {
     if (!user) return;
     
     setLoading(true);
@@ -39,7 +39,7 @@ export function useNotifications() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  };
 
   const markAsRead = (notificationId: string) => {
     if (!user) return;
@@ -96,15 +96,12 @@ export function useNotifications() {
   };
 
   useEffect(() => {
-    // Solo carica se è la prima volta per questo utente
-    if (user) {
-      loadNotifications();
-      
-      // Ricarica notifiche ogni 30 secondi (ridotto da 10) per ridurre il carico
-      const interval = setInterval(loadNotifications, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [loadNotifications]);
+    loadNotifications();
+    
+    // Ricarica notifiche ogni 10 secondi per aggiornamenti più frequenti
+    const interval = setInterval(loadNotifications, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   return {
     notifications,
