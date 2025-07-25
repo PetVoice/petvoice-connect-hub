@@ -212,7 +212,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     {isImage(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={() => window.open(preview.url, '_blank')}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                        }}
                       >
                         <img 
                           src={preview.url} 
@@ -232,7 +236,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : isPDF(preview.type) ? (
                       <div 
                         className="relative cursor-pointer group" 
-                        onClick={() => window.open(preview.url, '_blank')}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                        }}
                       >
                         <div className="w-24 h-24 border-2 rounded-lg flex flex-col items-center justify-center bg-red-50 hover:bg-red-100 hover:border-red-300 transition-all group-hover:shadow-lg">
                           <FileText className="h-12 w-12 text-red-600 mb-1" />
@@ -242,7 +250,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     ) : (
                       <div 
                         className="w-24 h-24 flex items-center justify-center bg-muted rounded-lg border-2 cursor-pointer hover:border-primary transition-all group relative"
-                        onClick={() => window.open(preview.url, '_blank')}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(preview.url, '_blank', 'noopener,noreferrer');
+                        }}
                       >
                         {getFileIcon(preview.type)}
                       </div>
