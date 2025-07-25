@@ -5,15 +5,6 @@ import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
-
-// Configurazione PDF.js - usa worker locale
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url,
-).toString();
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -219,27 +210,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         className="relative cursor-pointer" 
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
                       >
-                        <div className="w-12 h-12 border rounded overflow-hidden hover:opacity-80 transition-opacity">
-                          <Document
-                            file={preview.url}
-                            loading={
-                              <div className="w-full h-full flex items-center justify-center bg-muted">
-                                <FileText className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                            }
-                            error={
-                              <div className="w-full h-full flex items-center justify-center bg-muted">
-                                <FileText className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                            }
-                          >
-                            <Page 
-                              pageNumber={1} 
-                              width={48}
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                            />
-                          </Document>
+                        <div className="w-12 h-12 border rounded flex items-center justify-center bg-red-50 hover:opacity-80 transition-opacity">
+                          <FileText className="h-6 w-6 text-red-600" />
                         </div>
                       </div>
                     ) : (
@@ -305,40 +277,12 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                   }}
                 />
               ) : isPDF(selectedDocument.type) ? (
-                <div className="w-full max-h-[70vh] overflow-auto">
-                  <Document
-                    file={selectedDocument.url}
-                    loading={
-                      <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                          <p>Caricamento PDF...</p>
-                        </div>
-                      </div>
-                    }
-                    error={
-                      <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <FileText className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-                          <p>Errore nel caricamento del PDF</p>
-                          <Button 
-                            variant="outline" 
-                            className="mt-2"
-                            onClick={() => window.open(selectedDocument.url, '_blank')}
-                          >
-                            Apri in nuova scheda
-                          </Button>
-                        </div>
-                      </div>
-                    }
-                  >
-                    <Page 
-                      pageNumber={1}
-                      width={Math.min(600, window.innerWidth - 100)}
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                    />
-                  </Document>
+                <div className="w-full h-[70vh]">
+                  <iframe
+                    src={selectedDocument.url}
+                    className="w-full h-full border rounded-lg"
+                    title="Anteprima PDF"
+                  />
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-64">
