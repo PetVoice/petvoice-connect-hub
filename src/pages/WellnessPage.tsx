@@ -1629,6 +1629,88 @@ const WellnessPage = () => {
     setShowDiaryDialog(true);
   };
 
+  // Handle editing behavior tag
+  const handleEditBehaviorTag = async (oldTag: string) => {
+    const newTag = prompt('Modifica comportamento:', oldTag);
+    if (!newTag || newTag === oldTag) return;
+
+    try {
+      // Find all diary entries with this tag and update them
+      const entriesToUpdate = diaryEntries.filter(entry => 
+        entry.behavioral_tags?.includes(oldTag)
+      );
+
+      for (const entry of entriesToUpdate) {
+        const updatedTags = entry.behavioral_tags?.map(tag => 
+          tag === oldTag ? newTag : tag
+        ) || [];
+
+        await supabase
+          .from('diary_entries')
+          .update({ behavioral_tags: updatedTags })
+          .eq('id', entry.id);
+      }
+
+      // Refresh data
+      await fetchHealthData();
+      
+      toast({
+        title: "Comportamento aggiornato",
+        description: `"${oldTag}" è stato rinominato in "${newTag}"`,
+      });
+    } catch (error) {
+      console.error('Error updating behavior tag:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il comportamento",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle deleting behavior tag
+  const handleDeleteBehaviorTag = async (tagToDelete: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Elimina comportamento',
+      description: `Sei sicuro di voler eliminare il comportamento "${tagToDelete}" da tutte le voci del diario?`,
+      onConfirm: async () => {
+        try {
+          // Find all diary entries with this tag and remove it
+          const entriesToUpdate = diaryEntries.filter(entry => 
+            entry.behavioral_tags?.includes(tagToDelete)
+          );
+
+          for (const entry of entriesToUpdate) {
+            const updatedTags = entry.behavioral_tags?.filter(tag => 
+              tag !== tagToDelete
+            ) || [];
+
+            await supabase
+              .from('diary_entries')
+              .update({ behavioral_tags: updatedTags })
+              .eq('id', entry.id);
+          }
+
+          // Refresh data
+          await fetchHealthData();
+          
+          toast({
+            title: "Comportamento eliminato",
+            description: `"${tagToDelete}" è stato rimosso da tutte le voci del diario`,
+          });
+        } catch (error) {
+          console.error('Error deleting behavior tag:', error);
+          toast({
+            title: "Errore",
+            description: "Impossibile eliminare il comportamento",
+            variant: "destructive"
+          });
+        }
+      }
+    });
+  };
+
   // Handle adding new diary entry
   const handleAddDiaryEntry = async (data: any) => {
     if (!user || !selectedPet) {
@@ -2093,11 +2175,31 @@ const WellnessPage = () => {
                   {behavioralTags.length > 0 ? (
                     <div className="space-y-2">
                       {Object.entries(behavioralTagCounts).slice(0, 3).map(([tag, count]) => (
-                        <div key={tag} className="flex items-center justify-between">
-                          <Badge variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                          <span className="text-sm font-medium">{count}x</span>
+                        <div key={tag} className="flex items-center justify-between group">
+                          <div className="flex items-center gap-2 flex-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                            <span className="text-sm font-medium">{count}x</span>
+                          </div>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 text-blue-500"
+                              onClick={() => handleEditBehaviorTag(tag)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 text-red-500"
+                              onClick={() => handleDeleteBehaviorTag(tag)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
