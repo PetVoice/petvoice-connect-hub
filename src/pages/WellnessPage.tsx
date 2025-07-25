@@ -2401,18 +2401,18 @@ const WellnessPage = () => {
 
             <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-green-700">Score Benessere</CardTitle>
-                <div className="p-1.5 bg-green-500/10 rounded-lg">
-                  <Heart className="h-4 w-4 text-green-600" />
+                <CardTitle className="text-sm font-medium text-success-foreground">Score Benessere</CardTitle>
+                <div className="p-1.5 bg-success/10 rounded-lg">
+                  <Heart className="h-4 w-4 text-success" />
                 </div>
               </CardHeader>
               <CardContent className="pb-3">
-                <div className="text-2xl font-bold flex items-center gap-2 text-green-700 mb-1">
+                <div className="text-2xl font-bold flex items-center gap-2 text-success-foreground mb-1">
                   {displayAnalytics.averageWellnessScore}%
                   {displayAnalytics.wellnessTrend > 0 ? (
-                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <TrendingUp className="h-4 w-4 text-success" />
                   ) : displayAnalytics.wellnessTrend < 0 ? (
-                    <TrendingDown className="h-4 w-4 text-red-600" />
+                    <TrendingDown className="h-4 w-4 text-destructive" />
                   ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -2423,13 +2423,13 @@ const WellnessPage = () => {
 
             <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-blue-700">Giorni Attivi</CardTitle>
-                <div className="p-1.5 bg-blue-500/10 rounded-lg">
-                  <Calendar className="h-4 w-4 text-blue-600" />
+                <CardTitle className="text-sm font-medium text-primary-foreground">Giorni Attivi</CardTitle>
+                <div className="p-1.5 bg-primary/10 rounded-lg">
+                  <Calendar className="h-4 w-4 text-primary" />
                 </div>
               </CardHeader>
               <CardContent className="pb-3">
-                <div className="text-2xl font-bold text-blue-700 mb-2">{displayAnalytics.activeDays}</div>
+                <div className="text-2xl font-bold text-primary-foreground mb-2">{displayAnalytics.activeDays}</div>
                 <Progress 
                   value={(displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100} 
                   className="h-1.5 mb-1"
@@ -2492,11 +2492,11 @@ const WellnessPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <Card className="p-3 bg-gradient-to-br from-blue-50/50 to-blue-100/50 border-blue-200/50">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Ultimo Controllo</p>
-                      <p className="font-bold text-base text-blue-900">{getLastCheckup()}</p>
+                      <p className="font-bold text-base text-primary">{getLastCheckup()}</p>
                     </Card>
                     <Card className="p-3 bg-gradient-to-br from-green-50/50 to-green-100/50 border-green-200/50">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Prossimo Appuntamento</p>
-                      <p className="font-bold text-base text-green-900">{getNextAppointment()}</p>
+                      <p className="font-bold text-base text-success">{getNextAppointment()}</p>
                     </Card>
                     <Card className="p-3 bg-gradient-to-br from-purple-50/50 to-purple-100/50 border-purple-200/50">
                       <p className="text-muted-foreground text-xs uppercase font-medium tracking-wide mb-1">Farmaci Attivi</p>
@@ -2548,8 +2548,8 @@ const WellnessPage = () => {
                         <FileText className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-blue-900 text-sm">Nuovo Documento</p>
-                        <p className="text-xs text-blue-700/80">Carica documento medico</p>
+                        <p className="font-semibold text-primary text-sm">Nuovo Documento</p>
+                        <p className="text-xs text-primary/80">Carica documento medico</p>
                       </div>
                       <Button 
                         size="sm" 
@@ -2558,7 +2558,7 @@ const WellnessPage = () => {
                           setShowAddDocument(true);
                         }}
                         disabled={isUploading}
-                        className="bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
+                        className="bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
                       >
                         {isUploading ? 'Caricamento...' : 'Aggiungi'}
                       </Button>
@@ -2585,8 +2585,8 @@ const WellnessPage = () => {
                         <Pill className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-semibold text-green-900 text-sm">Nuovo Farmaco</p>
-                        <p className="text-xs text-green-700/80">Aggiungi farmaco attivo</p>
+                        <p className="font-semibold text-success text-sm">Nuovo Farmaco</p>
+                        <p className="text-xs text-success/80">Aggiungi farmaco attivo</p>
                       </div>
                        <Button 
                         size="sm" 
@@ -2603,7 +2603,7 @@ const WellnessPage = () => {
                           });
                           setShowAddMedication(true);
                         }}
-                        className="bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
+                        className="bg-success hover:bg-success/90 shadow-md hover:shadow-lg transition-all text-xs h-7 px-2"
                       >
                         Aggiungi
                       </Button>
@@ -2848,7 +2848,7 @@ const WellnessPage = () => {
                     <div className="text-sm text-muted-foreground">Ultima Settimana</div>
                   </div>
                   <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{displayAnalytics.healthMetricsSummary.criticalValues}</div>
+                    <div className="text-2xl font-bold text-destructive">{displayAnalytics.healthMetricsSummary.criticalValues}</div>
                     <div className="text-sm text-muted-foreground">Valori Critici</div>
                   </div>
                 </div>
@@ -2874,9 +2874,9 @@ const WellnessPage = () => {
                       return Object.values(latestMetrics).map((metric: any) => {
                         const evaluation = evaluateVitalParameter(metric.metric_type, metric.value, petType);
                         const statusColors = {
-                          normal: 'bg-green-50 border-green-200 text-green-800',
-                          warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-                          critical: 'bg-red-50 border-red-200 text-red-800'
+                          normal: 'bg-success/10 border-success/20 text-success-foreground',
+                          warning: 'bg-warning/10 border-warning/20 text-warning-foreground', 
+                          critical: 'bg-destructive/10 border-destructive/20 text-destructive-foreground'
                         };
 
                         return (
