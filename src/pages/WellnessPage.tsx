@@ -684,7 +684,7 @@ const WellnessPage = () => {
           <div className="space-y-8 mt-8">
             
             {/* Primary Health Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
               {/* Health Score Card */}
               <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
@@ -759,6 +759,53 @@ const WellnessPage = () => {
                     <div className="text-center py-4 text-muted-foreground">
                       <Eye className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">Nessun comportamento osservato</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Active Medications Card */}
+              <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Pill className="h-5 w-5 text-green-500" />
+                    Farmaci Attivi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {medications.filter(med => med.is_active).length > 0 ? (
+                    <div className="space-y-2">
+                      {medications.filter(med => med.is_active).slice(0, 3).map((medication) => (
+                        <div key={medication.id} className="border-l-2 border-green-500/30 pl-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">{medication.name}</span>
+                            <Badge variant="outline" className="text-xs">
+                              {medication.frequency}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {medication.dosage}
+                          </div>
+                          {medication.end_date && (
+                            <div className="text-xs text-muted-foreground">
+                              Fino al: {format(new Date(medication.end_date), 'dd/MM/yyyy')}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Pill className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Nessun farmaco attivo</p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowAddMedication(true)}
+                        className="h-8 mt-2"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Aggiungi Farmaco
+                      </Button>
                     </div>
                   )}
                 </CardContent>
