@@ -2381,49 +2381,49 @@ const WellnessPage = () => {
         </TabsList>
 
         {/* Dashboard Tab */}
-        <TabsContent value="dashboard" className="space-y-6">
+        <TabsContent value="dashboard" className="space-y-8">
           {/* Overview Analytics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Analisi Totali</CardTitle>
-                <BarChart2 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-primary">Analisi Totali</CardTitle>
+                <BarChart2 className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{displayAnalytics.totalAnalyses}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-3xl font-bold text-primary">{displayAnalytics.totalAnalyses}</div>
+                <p className="text-xs text-muted-foreground mt-1">
                   negli ultimi {displayAnalytics.timeSpan} giorni
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Score Benessere</CardTitle>
-                <Heart className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-green-700">Score Benessere</CardTitle>
+                <Heart className="h-5 w-5 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold flex items-center gap-2">
+                <div className="text-3xl font-bold flex items-center gap-2 text-green-700">
                   {displayAnalytics.averageWellnessScore}%
                   {displayAnalytics.wellnessTrend > 0 ? (
-                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <TrendingUp className="h-5 w-5 text-green-600" />
                   ) : displayAnalytics.wellnessTrend < 0 ? (
-                    <TrendingDown className="h-4 w-4 text-red-600" />
+                    <TrendingDown className="h-5 w-5 text-red-600" />
                   ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   {displayAnalytics.wellnessTrend > 0 ? '+' : ''}{Math.round(displayAnalytics.wellnessTrend)}% vs periodo precedente
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Giorni Attivi</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-blue-700">Giorni Attivi</CardTitle>
+                <Calendar className="h-5 w-5 text-blue-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{displayAnalytics.activeDays}</div>
+                <div className="text-3xl font-bold text-blue-700">{displayAnalytics.activeDays}</div>
                 <Progress 
                   value={(displayAnalytics.activeDays / displayAnalytics.timeSpan) * 100} 
                   className="h-2 mt-2"
@@ -2434,162 +2434,179 @@ const WellnessPage = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-purple-500/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Emozione Principale</CardTitle>
-                <Brain className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium text-purple-700">Emozione Principale</CardTitle>
+                <Brain className="h-5 w-5 text-purple-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold capitalize">
+                <div className="text-3xl font-bold capitalize text-purple-700">
                   {displayAnalytics.emotionDistribution[0]?.emotion || 'N/A'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   {displayAnalytics.emotionDistribution[0]?.percentage || 0}% delle analisi
                 </p>
               </CardContent>
             </Card>
           </div>
-          {/* Health Score Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gauge className="h-5 w-5" />
-                Health Score
-              </CardTitle>
-              <CardDescription>
-                Punteggio generale sulla salute di {selectedPet.name}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                <HealthScoreDisplay 
-                  healthMetrics={healthMetrics}
-                  medicalRecords={medicalRecords}
-                  medications={medications}
-                  selectedPet={selectedPet}
-                  user={user}
-                  addNotification={addNotification}
-                />
+          {/* Health Score Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="h-6 w-6 text-primary" />
+                  Health Score - {selectedPet.name}
+                </CardTitle>
+                <CardDescription>
+                  Punteggio generale sulla salute e monitoraggio parametri vitali
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="space-y-4">
+                    <HealthScoreDisplay 
+                      healthMetrics={healthMetrics}
+                      medicalRecords={medicalRecords}
+                      medications={medications}
+                      selectedPet={selectedPet}
+                      user={user}
+                      addNotification={addNotification}
+                    />
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Ultimo Controllo</p>
-                      <p className="font-medium">{getLastCheckup()}</p>
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-muted-foreground text-xs uppercase font-medium">Ultimo Controllo</p>
+                      <p className="font-semibold text-lg">{getLastCheckup()}</p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Prossimo Appuntamento</p>
-                      <p className="font-medium">{getNextAppointment()}</p>
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-muted-foreground text-xs uppercase font-medium">Prossimo Appuntamento</p>
+                      <p className="font-semibold text-lg">{getNextAppointment()}</p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Farmaci Attivi</p>
-                      <p className="font-medium">{getActiveMedicationsCount()}</p>
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-muted-foreground text-xs uppercase font-medium">Farmaci Attivi</p>
+                      <p className="font-semibold text-lg">{getActiveMedicationsCount()}</p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Documenti Medici</p>
-                      <p className="font-medium">{getDocumentsCount()}</p>
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <p className="text-muted-foreground text-xs uppercase font-medium">Documenti Medici</p>
+                      <p className="font-semibold text-lg">{getDocumentsCount()}</p>
                     </div>
                   </div>
-                </div>
-                
-              <HealthScoreCircle 
-                healthMetrics={healthMetrics}
-                medicalRecords={medicalRecords}
-                medications={medications}
-                selectedPet={selectedPet}
-                user={user}
-                addNotification={addNotification}
-              />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <FileText className="h-5 w-5 text-primary" />
+                  
+                  <div className="flex justify-center">
+                    <HealthScoreCircle 
+                      healthMetrics={healthMetrics}
+                      medicalRecords={medicalRecords}
+                      medications={medications}
+                      selectedPet={selectedPet}
+                      user={user}
+                      addNotification={addNotification}
+                    />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Nuovo Documento</p>
-                    <p className="text-sm text-muted-foreground">Carica un nuovo documento medico</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => setShowAddDocument(true)}
-                    disabled={isUploading}
-                    variant="outline"
-                  >
-                    {isUploading ? 'Caricamento...' : 'Aggiungi'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Pill className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Nuovo Farmaco</p>
-                    <p className="text-sm text-muted-foreground">Aggiungi un farmaco attivo</p>
-                  </div>
-                   <Button 
-                    size="sm" 
-                    onClick={() => {
-                      setEditingMedication(null);
-                      setNewMedication({
-                        name: '',
-                        dosage: '',
-                        frequency: '',
-                        start_date: '',
-                        end_date: '',
-                        notes: ''
-                      });
-                      setShowAddMedication(true);
-                    }}
-                    variant="outline"
-                  >
-                    Aggiungi
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Activity className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Nuova Metrica</p>
-                    <p className="text-sm text-muted-foreground">Registra un valore di salute</p>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => {
-                      setEditingMetric(null);
-                      setNewMetric({
-                        metric_type: '',
-                        value: '',
-                        unit: '',
-                        notes: ''
-                      });
-                      setShowAddMetric(true);
-                    }}
-                    variant="outline"
-                  >
-                    Aggiungi
-                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                Azioni Rapide
+              </CardTitle>
+              <CardDescription>
+                Gestisci rapidamente la salute di {selectedPet.name}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-4">
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-blue-500 rounded-lg">
+                        <FileText className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-blue-900">Nuovo Documento</p>
+                        <p className="text-sm text-blue-700">Carica documento medico</p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => setShowAddDocument(true)}
+                        disabled={isUploading}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {isUploading ? 'Caricamento...' : 'Aggiungi'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-green-500 rounded-lg">
+                        <Pill className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-green-900">Nuovo Farmaco</p>
+                        <p className="text-sm text-green-700">Aggiungi farmaco attivo</p>
+                      </div>
+                       <Button 
+                        size="sm" 
+                        onClick={() => {
+                          setEditingMedication(null);
+                          setNewMedication({
+                            name: '',
+                            dosage: '',
+                            frequency: '',
+                            start_date: '',
+                            end_date: '',
+                            notes: ''
+                          });
+                          setShowAddMedication(true);
+                        }}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Aggiungi
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-purple-500 rounded-lg">
+                        <Activity className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-purple-900">Nuova Metrica</p>
+                        <p className="text-sm text-purple-700">Registra valore di salute</p>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        onClick={() => {
+                          setEditingMetric(null);
+                          setNewMetric({
+                            metric_type: '',
+                            value: '',
+                            unit: '',
+                            notes: ''
+                          });
+                          setShowAddMetric(true);
+                        }}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        Aggiungi
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Analytics Charts Section - Moved from StatsPage */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2666,60 +2683,8 @@ const WellnessPage = () => {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Distribuzione Emozioni */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <PieChartIcon className="h-5 w-5" />
-                  Distribuzione Emozioni
-                </CardTitle>
-                <CardDescription>
-                  Percentuale delle diverse emozioni rilevate
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                 <div className="space-y-4">
-                   <div className="flex justify-center">
-                     <ChartContainer config={{}} className="h-[400px] w-[400px]">
-                       <ResponsiveContainer width="100%" height="100%">
-                         <PieChart>
-                           <Pie
-                             data={displayAnalytics.emotionDistribution}
-                             cx="50%"
-                             cy="50%"
-                             outerRadius={140}
-                             fill="#8884d8"
-                             dataKey="count"
-                           >
-                             {displayAnalytics.emotionDistribution.map((entry, index) => (
-                               <Cell key={`cell-${index}`} fill={entry.fill} />
-                             ))}
-                           </Pie>
-                           <Tooltip />
-                         </PieChart>
-                       </ResponsiveContainer>
-                     </ChartContainer>
-                   </div>
-                   
-                   {/* Legend sotto il grafico */}
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                     {displayAnalytics.emotionDistribution.map((entry, index) => (
-                       <div key={index} className="flex items-center gap-2">
-                         <div 
-                           className="w-3 h-3 rounded-full" 
-                           style={{ backgroundColor: entry.fill }}
-                         />
-                         <span className="capitalize">
-                           {entry.emotion}: {entry.percentage}%
-                         </span>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-              </CardContent>
-            </Card>
-
+          {/* Parametri Vitali */}
+          <div className="grid grid-cols-1 gap-6">
             {/* Parametri Vitali */}
             <Card>
               <CardHeader>

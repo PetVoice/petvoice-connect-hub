@@ -23,7 +23,6 @@ const navigationItems = [
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Salute e Benessere', url: '/wellness', icon: Heart },
-  { title: 'Statistiche', url: '/stats', icon: BarChart3 },
 ];
 
 const communityItems = [
