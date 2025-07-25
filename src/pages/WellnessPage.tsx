@@ -1047,6 +1047,31 @@ const WellnessPage = () => {
   const [periodFilter, setPeriodFilter] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'custom'>('month');
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>(undefined);
 
+  // Calculate date range based on period filter
+  const getDateRange = () => {
+    const now = new Date();
+    
+    switch (periodFilter) {
+      case 'day':
+        return { start: startOfDay(now), end: endOfDay(now) };
+      case 'week':
+        return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
+      case 'month':
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case 'year':
+        return { start: startOfYear(now), end: endOfYear(now) };
+      case 'all':
+        return { start: new Date(2020, 0, 1), end: now };
+      case 'custom':
+        if (customDateRange?.from && customDateRange?.to) {
+          return { start: customDateRange.from, end: customDateRange.to };
+        }
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      default:
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+    }
+  };
+
   // Helper functions
   const getMedicationStatus = (medication: Medication) => {
     if (!medication.is_active) return 'inactive';
@@ -1148,6 +1173,10 @@ const WellnessPage = () => {
   // Computed analytics (copied from StatsPage)
   const analytics = useMemo(() => {
     if (!analysisData.length && !diaryData.length) return null;
+
+    // Calculate date range based on period filter
+    const { start: startDate, end: endDate } = getDateRange();
+    const timeSpan = differenceInDays(endDate, startDate) + 1;
 
     // Overview metrics
     const totalAnalyses = analysisData.length;
@@ -1433,9 +1462,9 @@ const WellnessPage = () => {
       healthMetricsSummary,
       healthTrends: healthTrendsData,
       wellnessTrend,
-      timeSpan: differenceInDays(dateRange.to, dateRange.from)
+      timeSpan
     };
-  }, [analysisData, diaryData, healthMetrics, wellnessData, dateRange, selectedPet]);
+  }, [analysisData, diaryData, healthMetrics, wellnessData, selectedPet, periodFilter, customDateRange]);
 
   // Create display analytics with fallback values
   const displayAnalytics = analytics || {
