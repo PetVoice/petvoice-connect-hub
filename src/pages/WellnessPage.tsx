@@ -1297,20 +1297,8 @@ const WellnessPage = () => {
         if (error) throw error;
 
         // Add the new record to the beginning of the list
-        // Force immediate state update with the actual returned data
-        const newRecord = data;
-        console.log('Adding new record:', newRecord);
-        
-        setMedicalRecords(prev => {
-          const updated = [newRecord, ...prev];
-          console.log('Updated records:', updated.length);
-          return updated;
-        });
-
-        // Force component re-render
-        setLoading(false);
-        setLoading(true);
-        setTimeout(() => setLoading(false), 100);
+        // Force a complete data refresh instead of state manipulation
+        await fetchHealthData();
 
         toast({
           title: "Successo", 
