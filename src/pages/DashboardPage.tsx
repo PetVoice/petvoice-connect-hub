@@ -255,12 +255,12 @@ const DashboardPage: React.FC = () => {
         <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
       )}
 
-      {/* Primary Health Cards from Wellness */}
+      {/* Wellness Cards - Tutte le 10 card di wellness sotto il grafico */}
       {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           
           {/* Health Score Card */}
-          <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Heart className="h-5 w-5 text-red-500" />
@@ -280,7 +280,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Detailed Emotions Analysis Card */}
-          <Card className="hover-scale bg-gradient-to-br from-pink-500/10 via-pink-500/5 to-background border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <PieChartIcon className="h-5 w-5 text-pink-500" />
@@ -297,7 +297,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Vital Parameters Card */}
-          <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -323,7 +323,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Behavioral Insights Card */}
-          <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -349,7 +349,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Active Medications Card */}
-          <Card className="hover-scale bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -375,7 +375,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Recent Visits Card */}
-          <Card className="hover-scale bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-background border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -401,7 +401,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Insurance Card */}
-          <Card className="hover-scale bg-gradient-to-br from-teal-500/10 via-teal-500/5 to-background border-teal-500/20 hover:border-teal-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -427,7 +427,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* First Aid Guide Card */}
-          <Card className="hover-scale bg-gradient-to-br from-red-500/10 via-red-500/5 to-background border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -451,15 +451,8 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-        </div>
-      )}
-
-      {/* Secondary Health Cards from Wellness */}
-      {selectedPet && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
           {/* Emergency Contacts Card */}
-          <Card className="hover-scale bg-gradient-to-br from-orange-500/10 via-orange-500/5 to-background border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -485,7 +478,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Veterinarian Card */}
-          <Card className="hover-scale bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-background border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg">
+          <Card className="border border-border bg-card hover:shadow-md transition-all duration-300">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
