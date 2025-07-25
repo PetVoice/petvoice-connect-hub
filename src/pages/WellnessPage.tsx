@@ -377,42 +377,7 @@ const UnifiedHealthScore = ({ selectedPet, user, addNotification }: {
   const [healthScore, setHealthScore] = React.useState<number | null>(null);
   const [loading, setLoading] = React.useState(false);
   
-  React.useEffect(() => {
-    const fetchHealthScore = async () => {
-      if (!user || !selectedPet) return;
-      
-      setLoading(true);
-      try {
-        const result = await calculateUnifiedHealthScore(selectedPet.id, user.id, {
-          healthMetrics: [],
-          medicalRecords: [],
-          medications: [],
-          analyses: [],
-          diaryEntries: [],
-          wellnessScores: []
-        });
-        setHealthScore(result.overallScore);
-        
-        // Add notification if score is low
-        if (result.overallScore < 50) {
-          addNotification({
-            title: 'Punteggio wellness basso',
-            message: `Il punteggio di benessere di ${selectedPet.name} è di ${result.overallScore}/100.`,
-            type: 'warning',
-            read: false,
-            action_url: '/wellness'
-          });
-        }
-      } catch (error) {
-        console.error('Error calculating health score:', error);
-        setHealthScore(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchHealthScore();
-  }, [selectedPet, user]);
+  // RIMOSSO useEffect automatico per evitare reload pagina
   
   if (loading) {
     return (
@@ -892,9 +857,8 @@ const WellnessPage = () => {
     }
   }, [user?.id, selectedPet?.id]); // Rimuovo toast dalle dipendenze per evitare loop infinito
 
-  useEffect(() => {
-    fetchHealthData();
-  }, [fetchHealthData]); // Ora usa fetchHealthData invece delle singole dipendenze
+  // RIMOSSO useEffect automatico per evitare reload pagina
+  // fetchHealthData ora viene chiamata solo manualmente
 
   // Handle adding/editing metric
   const handleAddMetric = async () => {
