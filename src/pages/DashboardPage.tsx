@@ -252,7 +252,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
-        <div className="mb-8">
+        <div className="mb-16 w-full">
           <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
         </div>
       )}
