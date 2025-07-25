@@ -712,7 +712,7 @@ const PetsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Dialog di conferma eliminazione */}
+      {/* Dialog di conferma eliminazione con persistenza */}
       <ConfirmDialog
         open={deletingPet !== null}
         onOpenChange={(open) => !open && setDeletingPet(null)}
@@ -722,6 +722,8 @@ const PetsPage: React.FC = () => {
         cancelText="Annulla"
         variant="destructive"
         onConfirm={() => deletingPet && handleDelete(deletingPet.id)}
+        dialogId={`delete-pet-${deletingPet?.id}`}
+        persistOnRefresh={true}
       />
 
     </div>
