@@ -181,7 +181,10 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
     link.click();
   };
 
-  // Eliminata visualizzazione PDF - solo download per evitare problemi di reload
+  const viewFile = (file: UploadedFile) => {
+    // Invece di aprire in nuova tab, usa download per evitare problemi di focus
+    downloadFile(file);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -278,7 +281,13 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({
               <div className="flex gap-1">
                 {file.uploaded && (
                   <>
-                    {/* Rimosso bottone visualizza - solo download per evitare reload */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => viewFile(file)}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
