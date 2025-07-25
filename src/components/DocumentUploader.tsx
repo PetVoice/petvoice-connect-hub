@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Upload, X, FileText, Image, Eye } from 'lucide-react';
+import { Upload, X, FileText, Image, Eye, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface DocumentUploaderProps {
   onUpload: (urls: string[]) => void;
@@ -29,6 +30,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [uploading, setUploading] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<FilePreview[]>([]);
   const [selectedDocument, setSelectedDocument] = useState<{ url: string; type: string } | null>(null);
+  const [fileToDelete, setFileToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Initialize preview files with existing files
@@ -124,10 +126,23 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     }
   };
 
-  const removeFile = (urlToRemove: string) => {
-    const updatedFiles = existingFiles.filter(url => url !== urlToRemove);
-    setPreviewFiles(prev => prev.filter(file => file.url !== urlToRemove));
-    onUpload(updatedFiles);
+  const confirmRemoveFile = () => {
+    if (fileToDelete) {
+      const updatedFiles = existingFiles.filter(url => url !== fileToDelete);
+      setPreviewFiles(prev => prev.filter(file => file.url !== fileToDelete));
+      onUpload(updatedFiles);
+      setFileToDelete(null);
+    }
+  };
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const getFileIcon = (type: string) => {
@@ -236,13 +251,23 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => setSelectedDocument({ url: preview.url, type: preview.type })}
+                        title="Visualizza anteprima"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFile(preview.url)}
+                        onClick={() => downloadFile(preview.url, preview.name)}
+                        title="Scarica file"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFileToDelete(preview.url)}
+                        title="Elimina file"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -312,6 +337,26 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare questo documento? Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFileToDelete(null)}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveFile}>
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
