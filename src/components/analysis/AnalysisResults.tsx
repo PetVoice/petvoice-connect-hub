@@ -272,11 +272,22 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
 };
 
 // Helper function to clean file name by removing timestamp and extension
-const cleanFileName = (fileName: string) => {
+const cleanFileName = (fileName: string, fileType: string) => {
   // Remove timestamp pattern like "_2025-07-26_03-03-11" and file extension
   let cleanName = fileName.replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/, '').replace(/\.[^/.]+$/, '');
   
-  // Translate specific file names
+  // Auto-detect file type and assign appropriate name
+  if (fileType === 'text') {
+    return 'Descrizione';
+  } else if (fileType.startsWith('image/')) {
+    return 'Foto';
+  } else if (fileType.startsWith('video/')) {
+    return 'Video';
+  } else if (fileType.startsWith('audio/')) {
+    return 'Audio';
+  }
+  
+  // Fallback for manual translations
   if (cleanName === 'Registrazione') {
     return 'Audio';
   }
@@ -825,7 +836,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{getText('fileLabel')}</span>
-                  <span>{cleanFileName(selectedAnalysis.file_name)}</span>
+                  <span>{cleanFileName(selectedAnalysis.file_name, selectedAnalysis.file_type)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{getText('sizeLabel')}</span>
