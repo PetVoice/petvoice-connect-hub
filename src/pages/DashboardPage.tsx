@@ -865,7 +865,20 @@ const DashboardPage: React.FC = () => {
          return { isNormal: false, message: "Fuori dal range normale" };
         
       case 'colore_gengive':
-        const gumColor = typeof value === 'string' ? value.toLowerCase() : '';
+        // Handle both string and numeric values
+        let gumColor = '';
+        if (typeof value === 'number') {
+          const numericMapping: Record<number, string> = {
+            1: 'rosa',
+            2: 'pallide', 
+            3: 'blu/viola',
+            4: 'gialle'
+          };
+          gumColor = numericMapping[value] || '';
+        } else {
+          gumColor = typeof value === 'string' ? value.toLowerCase() : '';
+        }
+        
         if (gumColor === 'rosa') return { isNormal: true, message: "Normale" };
         if (gumColor === 'pallide') return { isNormal: false, message: "Possibile shock o anemia" };
         if (gumColor === 'blu' || gumColor === 'viola' || gumColor === 'blu/viola') return { isNormal: false, message: "Mancanza di ossigeno - EMERGENZA" };
@@ -1100,14 +1113,27 @@ const DashboardPage: React.FC = () => {
                     };
                     
                     // Translate gum color values to Italian
-                    const translateGumColor = (color: string) => {
-                      const translations: Record<string, string> = {
+                    const translateGumColor = (color: string | number) => {
+                      // Handle numeric values (legacy data)
+                      const numericTranslations: Record<string, string> = {
+                        '1': 'Rosa',
+                        '2': 'Pallide', 
+                        '3': 'Blu/Viola',
+                        '4': 'Gialle'
+                      };
+                      
+                      // Handle string values
+                      const stringTranslations: Record<string, string> = {
                         'rosa': 'Rosa',
                         'pallide': 'Pallide',
                         'blu/viola': 'Blu/Viola',
                         'gialle': 'Gialle'
                       };
-                      return translations[color.toLowerCase()] || color;
+                      
+                      const colorStr = color.toString();
+                      return numericTranslations[colorStr] || 
+                             stringTranslations[colorStr.toLowerCase()] || 
+                             `Colore non riconosciuto (${colorStr})`;
                     };
                     
                     // Check if vital is in normal range
