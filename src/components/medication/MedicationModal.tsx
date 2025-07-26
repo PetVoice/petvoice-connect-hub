@@ -43,6 +43,8 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
   const [formData, setFormData] = useState({
     medication_name: '',
     dosage: '',
@@ -181,7 +183,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data Inizio *</Label>
-              <Popover>
+              <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -198,7 +200,10 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={startDate}
-                    onSelect={setStartDate}
+                    onSelect={(date) => {
+                      setStartDate(date);
+                      setStartDateOpen(false);
+                    }}
                     initialFocus
                     className="pointer-events-auto"
                   />
@@ -208,7 +213,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
 
             <div className="space-y-2">
               <Label>Data Fine (opzionale)</Label>
-              <Popover>
+              <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -225,7 +230,10 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={endDate}
-                    onSelect={setEndDate}
+                    onSelect={(date) => {
+                      setEndDate(date);
+                      setEndDateOpen(false);
+                    }}
                     initialFocus
                     className="pointer-events-auto"
                     disabled={(date) => startDate ? date < startDate : false}
