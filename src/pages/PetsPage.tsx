@@ -698,7 +698,7 @@ const PetsPage: React.FC = () => {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{pet.name}</CardTitle>
                      <CardDescription>
-                       {pet.type.toLowerCase() === 'cane' ? 'Cane' : pet.type.toLowerCase() === 'gatto' ? 'Gatto' : pet.type} {pet.breed && `• ${pet.breed}`}
+                       {pet.type.toLowerCase() === 'cane' ? 'Cane' : pet.type.toLowerCase() === 'gatto' ? 'Gatto' : pet.type} {pet.breed && `${pet.breed}`}
                      </CardDescription>
                     {pet.age && (
                       <Badge variant="secondary" className="mt-1">

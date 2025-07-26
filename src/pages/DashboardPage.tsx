@@ -404,7 +404,7 @@ const DashboardPage: React.FC = () => {
               <div>
                 <h2 className="text-2xl">{selectedPet.name}</h2>
                 <p className="text-muted-foreground">
-                  {selectedPet.type?.toLowerCase() === 'cane' ? 'Cane' : selectedPet.type} • {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
+                  {selectedPet.type?.toLowerCase() === 'cane' ? 'Cane' : selectedPet.type} {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
                 </p>
               </div>
             </CardTitle>
