@@ -10,7 +10,8 @@ import {
   Trash2, 
   Download,
   Camera,
-  AlertCircle
+  AlertCircle,
+  RotateCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,6 +47,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   });
   const [permission, setPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [currentTime, setCurrentTime] = useState(0);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -119,7 +121,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: {
-          facingMode: 'environment' // Camera posteriore
+          facingMode: facingMode
         },
         audio: true
       });
@@ -288,6 +290,40 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     }
   };
 
+  const switchCamera = async () => {
+    if (!recordingState.isRecording) return;
+    
+    try {
+      // Stop current stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
+      // Switch facing mode
+      const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
+      setFacingMode(newFacingMode);
+      
+      // Get new stream with switched camera
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: newFacingMode
+        },
+        audio: true
+      });
+      
+      streamRef.current = newStream;
+      
+      // Update preview
+      if (previewRef.current) {
+        previewRef.current.srcObject = newStream;
+        previewRef.current.play();
+      }
+      
+    } catch (error) {
+      console.error('Error switching camera:', error);
+    }
+  };
+
   return (
     <Card className="h-fit">
       <CardHeader>
@@ -323,6 +359,17 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               />
               <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
                 REC
+              </div>
+              {/* Switch Camera Button */}
+              <div className="absolute bottom-2 right-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={switchCamera}
+                  className="w-8 h-8 p-0 bg-black/50 hover:bg-black/70 text-white border-none"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           )}
