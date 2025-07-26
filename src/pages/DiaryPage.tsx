@@ -133,7 +133,7 @@ const DiaryPage: React.FC = () => {
 
   // Handlers
   const handleNewEntry = (date?: Date) => {
-    if (date) setSelectedDate(date);
+    if (date && !isNaN(date.getTime())) setSelectedDate(date);
     setEditingEntry(null);
     setIsFormOpen(true);
   };
@@ -191,12 +191,14 @@ const DiaryPage: React.FC = () => {
   };
 
   const handleDayClick = (day: Date) => {
-    setSelectedDate(day);
-    const dayEntries = entries.filter(entry => 
-      isSameDay(parseISO(entry.entry_date), day)
-    );
-    
-    setDayEntriesModal({ open: true, date: day, entries: dayEntries });
+    if (day && !isNaN(day.getTime())) {
+      setSelectedDate(day);
+      const dayEntries = entries.filter(entry => 
+        isSameDay(parseISO(entry.entry_date), day)
+      );
+      
+      setDayEntriesModal({ open: true, date: day, entries: dayEntries });
+    }
   };
 
   const handleTagToggle = (tag: string) => {
@@ -431,7 +433,7 @@ const DiaryPage: React.FC = () => {
         onSave={handleSaveEntry}
         petId={selectedPet.id}
         userId={selectedPet.user_id}
-        initialDate={format(selectedDate, 'yyyy-MM-dd')}
+        initialDate={selectedDate && !isNaN(selectedDate.getTime()) ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')}
       />
 
       {/* Day Entries Modal */}
@@ -439,7 +441,7 @@ const DiaryPage: React.FC = () => {
         modalState={dayEntriesModal}
         onClose={() => setDayEntriesModal(prev => ({ ...prev, open: false }))}
         onNewEntry={(date) => {
-          setSelectedDate(date);
+          if (date && !isNaN(date.getTime())) setSelectedDate(date);
           handleNewEntry(date);
         }}
         onEditEntry={handleEditEntry}
