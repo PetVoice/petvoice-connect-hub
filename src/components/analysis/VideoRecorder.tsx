@@ -118,34 +118,30 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       setPermission('granted');
       
       // Setup preview
-      if (previewRef.current) {
+      if (previewRef.current && stream) {
         const video = previewRef.current;
+        const videoTracks = stream.getVideoTracks();
         
-        // Debug stream
-        console.log('Stream tracks:', stream.getTracks());
-        console.log('Video tracks:', stream.getVideoTracks());
-        console.log('Stream active:', stream.active);
+        console.log('Setting up preview...');
+        console.log('Video tracks found:', videoTracks.length);
+        console.log('Video track enabled:', videoTracks[0]?.enabled);
+        console.log('Video track readyState:', videoTracks[0]?.readyState);
+        
+        if (videoTracks.length === 0) {
+          console.error('No video tracks available!');
+          return;
+        }
         
         video.srcObject = stream;
-        video.muted = true;
-        video.autoplay = true;
-        video.playsInline = true;
         
-        // Event listeners for debugging
-        video.onloadstart = () => console.log('Video load start');
-        video.onloadedmetadata = () => console.log('Video metadata loaded');
-        video.oncanplay = () => console.log('Video can play');
-        video.onplay = () => console.log('Video started playing');
-        video.onerror = (e) => console.error('Video error:', e);
-        
-        setTimeout(async () => {
-          try {
-            await video.play();
-            console.log('Preview started successfully, video dimensions:', video.videoWidth, 'x', video.videoHeight);
-          } catch (error) {
-            console.error('Error starting preview:', error);
-          }
-        }, 100);
+        video.addEventListener('loadedmetadata', () => {
+          console.log('Video metadata loaded, playing...');
+          video.play().then(() => {
+            console.log('Video playing successfully');
+          }).catch((err) => {
+            console.error('Play failed:', err);
+          });
+        });
       }
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
