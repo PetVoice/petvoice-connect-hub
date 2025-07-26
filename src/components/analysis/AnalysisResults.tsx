@@ -16,6 +16,8 @@ import {
   Clock,
   FileAudio,
   FileVideo,
+  FileText,
+  Image,
   Download,
   Share2,
   BookOpen,
@@ -283,6 +285,40 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
     return text;
   };
 
+  // Helper function to get media tab info based on file type
+  const getMediaTabInfo = (analysis: AnalysisData) => {
+    if (analysis.file_type === 'text') {
+      return {
+        tabKey: 'text',
+        tabLabel: getText('textTab'),
+        icon: FileText,
+        title: 'Testo Analizzato'
+      };
+    } else if (analysis.file_type.startsWith('image/')) {
+      return {
+        tabKey: 'image',
+        tabLabel: getText('imageTab'),
+        icon: Image,
+        title: 'Immagine Analizzata'
+      };
+    } else if (analysis.file_type.includes('audio')) {
+      return {
+        tabKey: 'audio',
+        tabLabel: getText('audioTab'),
+        icon: FileAudio,
+        title: getText('originalRecording')
+      };
+    } else {
+      // Default to audio for other media types
+      return {
+        tabKey: 'audio',
+        tabLabel: getText('audioTab'),
+        icon: FileAudio,
+        title: 'File Multimediale'
+      };
+    }
+  };
+
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
@@ -330,6 +366,8 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         adviceTab: 'Consigli',
         triggersTab: 'Trigger',
         audioTab: 'Audio',
+        textTab: 'Testo',
+        imageTab: 'Immagine',
         secondaryEmotions: 'Emozioni Secondarie',
         behavioralAnalysis: 'Analisi Comportamentale',
         environmentalContext: 'Contesto Ambientale',
@@ -797,7 +835,9 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   <TabsTrigger value="insights">{getText('insightsTab')}</TabsTrigger>
                   <TabsTrigger value="advice">{getText('adviceTab')}</TabsTrigger>
                   <TabsTrigger value="triggers">{getText('triggersTab')}</TabsTrigger>
-                  <TabsTrigger value="audio">{getText('audioTab')}</TabsTrigger>
+                  <TabsTrigger value={getMediaTabInfo(selectedAnalysis).tabKey}>
+                    {getMediaTabInfo(selectedAnalysis).tabLabel}
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="emotions" className="space-y-4">
@@ -1164,21 +1204,64 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                   </div>
                 </TabsContent>
 
-                <TabsContent value="audio" className="space-y-4">
+                {/* Dynamic Media Tab Content */}
+                <TabsContent value={getMediaTabInfo(selectedAnalysis).tabKey} className="space-y-4">
                   <div>
                     <h4 className="font-medium mb-3 flex items-center gap-2">
-                      <FileAudio className="h-4 w-4" />
-                      {getText('originalRecording')}
+                      {React.createElement(getMediaTabInfo(selectedAnalysis).icon, { className: "h-4 w-4" })}
+                      {getMediaTabInfo(selectedAnalysis).title}
                     </h4>
-                    {selectedAnalysis.file_type.includes('audio') ? (
+                    
+                    {selectedAnalysis.file_type === 'text' ? (
+                      // Show text content for text analyses
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p className="text-blue-800 dark:text-blue-200 whitespace-pre-wrap">
+                          {/* Show the original text description - we should store this in the database */}
+                          Il testo inserito per l'analisi non è disponibile. Per future analisi, il testo verrà salvato e mostrato qui.
+                        </p>
+                      </div>
+                    ) : selectedAnalysis.file_type.startsWith('image/') ? (
+                      // Show image for image analyses
+                      <div className="space-y-3">
+                        {selectedAnalysis.storage_path ? (
+                          <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-950/30">
+                            <div className="flex justify-center">
+                              <img 
+                                src={`${supabase.storage.from('pet-media').getPublicUrl(selectedAnalysis.storage_path).data.publicUrl}`}
+                                alt="Immagine analizzata"
+                                className="max-w-full max-h-96 rounded-lg object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (nextElement) {
+                                    nextElement.style.display = 'block';
+                                  }
+                                }}
+                              />
+                              <div className="hidden text-center text-muted-foreground">
+                                <p>Impossibile caricare l'immagine</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 bg-muted/50 border rounded-lg text-center">
+                            <p className="text-muted-foreground">
+                              Immagine non disponibile
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : selectedAnalysis.file_type.includes('audio') ? (
+                      // Show audio player for audio files
                       <AudioPlayer 
                         storagePath={selectedAnalysis.storage_path}
                         fileName={getReadableAnalysisName(selectedAnalysis, language)}
                       />
                     ) : (
+                      // Default message for other file types
                       <div className="p-4 bg-muted/50 border rounded-lg text-center">
                         <p className="text-muted-foreground">
-                          {getText('notAudioFile')}
+                          File multimediale non disponibile per la visualizzazione
                         </p>
                       </div>
                     )}
