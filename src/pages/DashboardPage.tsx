@@ -145,6 +145,15 @@ const DashboardPage: React.FC = () => {
     medication: null
   });
 
+  // Medication evaluation modal state
+  const [medicationEvaluationModal, setMedicationEvaluationModal] = useState<{
+    open: boolean;
+    medication: any | null;
+  }>({
+    open: false,
+    medication: null
+  });
+
   // Map behaviors to diary entries for easy access
   const [behaviorEntryMap, setBehaviorEntryMap] = useState<{[behavior: string]: DiaryEntry}>({});
   
@@ -519,6 +528,22 @@ const DashboardPage: React.FC = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
+
+        // Check for expired medications that need evaluation
+        const now = new Date();
+        const expiredMedications = (data || []).filter(medication => 
+          medication.end_date && 
+          new Date(medication.end_date) < now && 
+          !medication.has_been_evaluated
+        );
+
+        // Show evaluation modal for the first expired medication
+        if (expiredMedications.length > 0) {
+          setMedicationEvaluationModal({
+            open: true,
+            medication: expiredMedications[0]
+          });
+        }
 
         setMedications(data || []);
       } catch (error) {
@@ -1157,6 +1182,66 @@ const DashboardPage: React.FC = () => {
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante il salvataggio della voce del diario.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle medication evaluation response
+  const handleMedicationEvaluation = async (wasEffective: boolean) => {
+    if (!medicationEvaluationModal.medication || !selectedPet || !user) return;
+
+    try {
+      // Mark medication as evaluated
+      const { error: updateError } = await supabase
+        .from('pet_medications')
+        .update({ 
+          has_been_evaluated: true,
+          effectiveness_rating: wasEffective ? 'effective' : 'ineffective'
+        })
+        .eq('id', medicationEvaluationModal.medication.id);
+
+      if (updateError) throw updateError;
+
+      // Update wellness score based on response
+      const currentWellness = petStats.wellnessScore;
+      let newWellnessScore: number;
+      
+      if (wasEffective) {
+        // Medication worked - increase wellness score by 5-10 points
+        newWellnessScore = Math.min(100, currentWellness + 8);
+        toast({
+          title: "Valutazione registrata",
+          description: "Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
+        });
+      } else {
+        // Medication didn't work - decrease wellness score by 3-7 points
+        newWellnessScore = Math.max(0, currentWellness - 5);
+        toast({
+          title: "Valutazione registrata", 
+          description: "Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
+          variant: "destructive"
+        });
+      }
+
+      // Update pet stats
+      setPetStats(prev => ({
+        ...prev,
+        wellnessScore: newWellnessScore,
+        healthStatus: newWellnessScore >= 80 ? 'Eccellente' : 
+                     newWellnessScore >= 60 ? 'Buono' :
+                     newWellnessScore >= 40 ? 'Discreto' : 'Preoccupante'
+      }));
+
+      // Close modal and reload medications
+      setMedicationEvaluationModal({ open: false, medication: null });
+      loadMedications();
+
+    } catch (error) {
+      console.error('Error evaluating medication:', error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante la registrazione della valutazione.",
         variant: "destructive"
       });
     }
@@ -2139,6 +2224,50 @@ const DashboardPage: React.FC = () => {
           }
         }}
       />
+
+      {/* Medication Evaluation Modal - Non-closable */}
+      <Dialog open={medicationEvaluationModal.open} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" hideCloseButton>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-center">
+              Valutazione Farmaco
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Il farmaco <strong>{medicationEvaluationModal.medication?.medication_name}</strong> è terminato.
+              <br />
+              Per continuare ad utilizzare la piattaforma, rispondi alla seguente domanda:
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="text-center py-6">
+            <div className="mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                <Pill className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Il farmaco ha funzionato?</h3>
+              <p className="text-sm text-muted-foreground">
+                La tua risposta ci aiuterà a monitorare meglio la salute del tuo pet
+              </p>
+            </div>
+            
+            <div className="flex gap-3 justify-center">
+              <Button
+                onClick={() => handleMedicationEvaluation(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
+              >
+                ✓ Sì, ha funzionato
+              </Button>
+              <Button
+                onClick={() => handleMedicationEvaluation(false)}
+                variant="destructive"
+                className="px-8 py-3"
+              >
+                ✗ No, non ha funzionato
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Dialog */}
       <ConfirmDialog
