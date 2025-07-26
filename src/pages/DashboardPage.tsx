@@ -934,7 +934,10 @@ const DashboardPage: React.FC = () => {
                 <h3 className="text-xl font-semibold">Punteggio Salute</h3>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-red-500">
+                <div className={`text-2xl font-bold ${
+                  petStats.wellnessScore >= 70 ? 'text-green-500' :
+                  petStats.wellnessScore >= 30 ? 'text-orange-500' : 'text-red-500'
+                }`}>
                   {petStats.wellnessScore > 0 ? `${petStats.wellnessScore}%` : '--'}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -949,7 +952,10 @@ const DashboardPage: React.FC = () => {
               </div>
               <Progress 
                 value={petStats.wellnessScore > 0 ? petStats.wellnessScore : 0} 
-                className="h-3"
+                className={`h-3 ${
+                  petStats.wellnessScore >= 70 ? '[&>div]:bg-green-500' :
+                  petStats.wellnessScore >= 30 ? '[&>div]:bg-orange-500' : '[&>div]:bg-red-500'
+                }`}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>0%</span>

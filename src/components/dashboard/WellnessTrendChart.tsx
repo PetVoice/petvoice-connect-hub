@@ -173,7 +173,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
 
       return { date: period.label, wellness: Math.round(Math.max(0, Math.min(100, comprehensiveScore))) };
     });
-  }, [petAnalyses, diaryEntries, healthMetrics]);
+  }, [petAnalyses, diaryEntries, healthMetrics, selectedPeriod]);
 
   return (
     <Card className="w-full bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
@@ -213,9 +213,22 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
               <XAxis dataKey="date" />
               <YAxis domain={[0, 100]} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Line type="monotone" dataKey="wellness" stroke="hsl(var(--primary))" strokeWidth={3} />
-              <ReferenceLine y={75} stroke="hsl(var(--success))" strokeDasharray="5 5" label="Ottimo" />
-              <ReferenceLine y={50} stroke="hsl(var(--warning))" strokeDasharray="5 5" label="Medio" />
+              <Line 
+                type="monotone" 
+                dataKey="wellness" 
+                stroke="#10b981"
+                strokeWidth={3}
+                connectNulls={false}
+                dot={(props) => {
+                  const { cx, cy, payload } = props;
+                  const wellness = payload?.wellness || 0;
+                  const color = wellness >= 70 ? '#10b981' : wellness >= 30 ? '#f59e0b' : '#ef4444';
+                  return <circle cx={cx} cy={cy} r={4} fill={color} stroke={color} strokeWidth={2} />;
+                }}
+              />
+              <ReferenceLine y={75} stroke="#10b981" strokeDasharray="5 5" label="Ottimo" />
+              <ReferenceLine y={50} stroke="#f59e0b" strokeDasharray="5 5" label="Medio" />
+              <ReferenceLine y={30} stroke="#ef4444" strokeDasharray="5 5" label="Critico" />
             </LineChart>
           </ChartContainer>
         </div>
