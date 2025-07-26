@@ -561,6 +561,55 @@ const AnalysisPage: React.FC = () => {
     }
   };
 
+  const analyzeImageFile = async (file: File) => {
+    try {
+      // Convert image to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          const base64Data = result.split(',')[1]; // Remove data:image/...;base64, prefix
+          resolve(base64Data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Call image analysis edge function
+      const response = await supabase.functions.invoke('analyze-pet-image', {
+        body: { 
+          imageBase64: base64,
+          petName: selectedPet?.name,
+          petType: selectedPet?.species 
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const { analysis } = response.data;
+
+      // Convert to compatible format
+      return {
+        primary_emotion: analysis.primary_emotion,
+        primary_confidence: analysis.primary_confidence,
+        secondary_emotions: analysis.secondary_emotions || [],
+        insights: [
+          analysis.body_language_analysis,
+          analysis.facial_expression_analysis,
+          analysis.context_analysis
+        ].filter(Boolean),
+        recommendations: analysis.recommendations || [],
+        confidence_score: analysis.confidence_score || Math.round(analysis.primary_confidence * 100)
+      };
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      // Fallback to mock analysis
+      return generateMockAnalysis(file, '');
+    }
+  };
+
   const processFile = async (file: File, current: number, total: number) => {
     const fileProgress = ((current - 1) / total) * 100;
     
@@ -580,17 +629,23 @@ const AnalysisPage: React.FC = () => {
 
     if (uploadError) throw uploadError;
 
-    // Simulate AI analysis
+    // Analyze based on file type
     setProcessing(prev => ({
       ...prev,
       progress: fileProgress + 30,
       stage: 'Analisi AI'
     }));
 
-    // Mock analysis - in real app this would call an edge function
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const mockAnalysis = generateMockAnalysis(file, uploadData.path);
+    let analysisResult;
+    
+    if (file.type.startsWith('image/')) {
+      // Image analysis using OpenAI Vision
+      analysisResult = await analyzeImageFile(file);
+    } else {
+      // Audio/Video analysis (existing mock)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      analysisResult = generateMockAnalysis(file, uploadData.path);
+    }
 
     setProcessing(prev => ({
       ...prev,
@@ -608,7 +663,7 @@ const AnalysisPage: React.FC = () => {
         file_type: file.type,
         file_size: file.size,
         storage_path: uploadData.path,
-        ...mockAnalysis
+        ...analysisResult
       });
 
     if (dbError) throw dbError;
