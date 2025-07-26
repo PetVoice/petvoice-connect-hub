@@ -653,8 +653,9 @@ const DashboardPage: React.FC = () => {
           });
         } else {
           toast({
-            title: "Errore",
+            title: "❌ Errore",
             description: "Impossibile trovare la voce del diario corrispondente.",
+            className: "border-red-200 bg-red-50 text-red-800",
           });
         }
         break;
@@ -740,9 +741,9 @@ const DashboardPage: React.FC = () => {
               if (error) {
                 console.error('Error deleting diary entry:', error);
                 toast({
-                  title: "Errore",
+                  title: "❌ Errore",
                   description: "Si è verificato un errore durante l'eliminazione della voce del diario.",
-                  variant: "destructive"
+                  className: "border-red-200 bg-red-50 text-red-800",
                 });
                 return;
               }
@@ -757,14 +758,15 @@ const DashboardPage: React.FC = () => {
               setBehaviorEntryMap(newBehaviorEntryMap);
               
               toast({
-                title: "Voce del diario eliminata",
+                title: "🗑️ Comportamento eliminato",
                 description: `La voce del diario contenente "${itemName}" è stata eliminata con successo.`,
+                className: "border-red-200 bg-red-50 text-red-800",
               });
             } else {
               toast({
-                title: "Errore",
+                title: "❌ Errore",
                 description: "Impossibile trovare la voce del diario corrispondente.",
-                variant: "destructive"
+                className: "border-red-200 bg-red-50 text-red-800",
               });
             }
           } else if (type === 'medications') {
@@ -1137,8 +1139,9 @@ const DashboardPage: React.FC = () => {
         if (error) throw error;
 
         toast({
-          title: "Voce del diario aggiornata",
+          title: "✅ Comportamenti aggiornati",
           description: "La voce del diario è stata modificata con successo.",
+          className: "border-green-200 bg-green-50 text-green-800",
         });
       } else {
         // Create new entry
@@ -1149,8 +1152,9 @@ const DashboardPage: React.FC = () => {
         if (error) throw error;
 
         toast({
-          title: "Voce del diario salvata",
+          title: "🐾 Comportamenti registrati",
           description: "La voce del diario è stata creata con successo.",
+          className: "border-green-200 bg-green-50 text-green-800",
         });
       }
 
@@ -1200,9 +1204,9 @@ const DashboardPage: React.FC = () => {
     } catch (error) {
       console.error('Error saving diary entry:', error);
       toast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Si è verificato un errore durante il salvataggio della voce del diario.",
-        variant: "destructive"
+        className: "border-red-200 bg-red-50 text-red-800",
       });
     }
   };
