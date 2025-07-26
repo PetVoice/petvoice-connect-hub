@@ -62,7 +62,9 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     fears: '',
     favorite_activities: '',
     health_conditions: '',
-    personality_traits: ''
+    personality_traits: '',
+    gender: 'unknown' as 'male' | 'female' | 'unknown',
+    microchip_number: ''
   });
   
   const [birthDate, setBirthDate] = useState({
@@ -100,7 +102,9 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
       fears: '',
       favorite_activities: '',
       health_conditions: '',
-      personality_traits: ''
+      personality_traits: '',
+      gender: 'unknown' as 'male' | 'female' | 'unknown',
+      microchip_number: ''
     });
     setBirthDate({
       day: '',
@@ -146,6 +150,8 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
         favorite_activities: formData.favorite_activities || null,
         health_conditions: formData.health_conditions || null,
         personality_traits: formData.personality_traits || null,
+        gender: formData.gender,
+        microchip_number: formData.microchip_number || null,
         avatar_url: null
       };
 
@@ -202,6 +208,23 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 </Select>
               </div>
 
+              <div>
+                <Label htmlFor="gender">Sesso</Label>
+                <Select 
+                  value={formData.gender} 
+                  onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona il sesso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Maschio</SelectItem>
+                    <SelectItem value="female">Femmina</SelectItem>
+                    <SelectItem value="unknown">Non specificato</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {formData.type && (
                 <div>
                   <Label htmlFor="breed">Razza</Label>
@@ -232,6 +255,16 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                   onChange={(e) => setFormData({...formData, weight: e.target.value})}
                   placeholder="Es. 5.2"
                   onWheel={(e) => e.currentTarget.blur()}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="microchip_number">Numero microchip</Label>
+                <Input
+                  id="microchip_number"
+                  value={formData.microchip_number}
+                  onChange={(e) => setFormData({...formData, microchip_number: e.target.value})}
+                  placeholder="Es. 123456789012345"
                 />
               </div>
 

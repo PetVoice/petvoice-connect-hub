@@ -417,7 +417,10 @@ const PetsPage: React.FC = () => {
         <Dialog open={showForm} onOpenChange={setShowForm}>
               <DialogTrigger asChild>
                 <Button 
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    resetForm();
+                    setShowForm(true);
+                  }}
                   data-guide="add-pet-button"
                 >
                   <Plus className="h-4 w-4 mr-2" />
@@ -467,6 +470,23 @@ const PetsPage: React.FC = () => {
                   </Select>
                 </div>
 
+                <div>
+                  <Label htmlFor="gender">Sesso</Label>
+                  <Select 
+                    value={formData.gender} 
+                    onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona il sesso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Maschio</SelectItem>
+                      <SelectItem value="female">Femmina</SelectItem>
+                      <SelectItem value="unknown">Non specificato</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {formData.type && (
                   <div>
                     <Label htmlFor="breed">Razza</Label>
@@ -497,6 +517,16 @@ const PetsPage: React.FC = () => {
                     onChange={(e) => setFormData({...formData, weight: e.target.value})}
                     placeholder="es. 5.2"
                     onWheel={(e) => e.currentTarget.blur()}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="microchip_number">Numero microchip</Label>
+                  <Input
+                    id="microchip_number"
+                    value={formData.microchip_number}
+                    onChange={(e) => setFormData({...formData, microchip_number: e.target.value})}
+                    placeholder="Es. 123456789012345"
                   />
                 </div>
 
@@ -600,33 +630,6 @@ const PetsPage: React.FC = () => {
                      value={formData.personality_traits}
                      onChange={(e) => setFormData({...formData, personality_traits: e.target.value})}
                      placeholder="es. giocoso, timido"
-                   />
-                 </div>
-
-                 <div>
-                   <Label htmlFor="gender">Sesso</Label>
-                   <Select 
-                     value={formData.gender} 
-                     onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
-                   >
-                     <SelectTrigger>
-                       <SelectValue placeholder="Seleziona il sesso" />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="male">Maschio</SelectItem>
-                       <SelectItem value="female">Femmina</SelectItem>
-                       <SelectItem value="unknown">Non specificato</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-
-                 <div>
-                   <Label htmlFor="microchip_number">Numero microchip</Label>
-                   <Input
-                     id="microchip_number"
-                     value={formData.microchip_number}
-                     onChange={(e) => setFormData({...formData, microchip_number: e.target.value})}
-                     placeholder="es. 380123456789012"
                    />
                  </div>
 
