@@ -2261,7 +2261,7 @@ const DashboardPage: React.FC = () => {
           
           <div className="text-center py-6">
             <div className="mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
                 <Pill className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold mb-2">Il farmaco ha funzionato?</h3>
