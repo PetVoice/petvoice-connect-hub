@@ -455,7 +455,7 @@ const DashboardPage: React.FC = () => {
           {quickActions.map((action, index) => (
             <Card
               key={index}
-              className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+              className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20"
               onClick={action.onClick}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
