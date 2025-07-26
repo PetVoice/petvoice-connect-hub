@@ -58,6 +58,7 @@ import { useAuth } from '@/contexts/AuthContext';
 // Components
 import FileUploader from '@/components/analysis/FileUploader';
 import AudioRecorder from '@/components/analysis/AudioRecorder';
+import VideoRecorder from '@/components/analysis/VideoRecorder';
 import TextAnalyzer from '@/components/analysis/TextAnalyzer';
 import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
@@ -846,6 +847,13 @@ const AnalysisPage: React.FC = () => {
     await handleFileUpload(fileList.files);
   };
 
+  const handleVideoRecordingComplete = async (videoBlob: Blob) => {
+    const file = new File([videoBlob], `Video_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.webm`, { type: 'video/webm' });
+    const fileList = new DataTransfer();
+    fileList.items.add(file);
+    await handleFileUpload(fileList.files);
+  };
+
   const handleTextAnalysis = async (description: string) => {
     if (!selectedPet) {
       showToast({
@@ -1558,10 +1566,15 @@ const AnalysisPage: React.FC = () => {
               autoAnalyze={true}
             />
           </div>
-          <div className="w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <TextAnalyzer 
               onTextSubmitted={handleTextAnalysis}
               isProcessing={processing.isProcessing}
+            />
+            <VideoRecorder 
+              onRecordingComplete={handleVideoRecordingComplete} 
+              onStartRecording={handleStartRecording}
+              autoAnalyze={true}
             />
           </div>
         </TabsContent>
