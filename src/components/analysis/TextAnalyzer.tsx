@@ -166,6 +166,9 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           </div>
 
           <div className="space-y-2">
+            <p className="text-lg font-mono">
+              {characterCount}/2000
+            </p>
             <p className="text-sm text-muted-foreground">
               {isProcessing ? 'Analisi in corso...' : 
                isWriting ? 'Clicca per inviare l\'analisi' : 
