@@ -2141,6 +2141,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pet_medications: {
+        Row: {
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          medication_name: string
+          notes: string | null
+          pet_id: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          medication_name: string
+          notes?: string | null
+          pet_id: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          medication_name?: string
+          notes?: string | null
+          pet_id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pet_wellness_scores: {
         Row: {
           created_at: string

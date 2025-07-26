@@ -44,6 +44,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MedicationModal } from '@/components/medication/MedicationModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { DiaryEntry } from '@/types/diary';
 // Translation system removed - Italian only
@@ -129,6 +130,17 @@ const DashboardPage: React.FC = () => {
     open: false,
     mode: 'add',
     entry: null
+  });
+
+  // Medication modal state
+  const [medicationModal, setMedicationModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    medication: any | null;
+  }>({
+    open: false,
+    mode: 'add',
+    medication: null
   });
 
   // Map behaviors to diary entries for easy access
@@ -217,6 +229,15 @@ const DashboardPage: React.FC = () => {
           .select('*')
           .eq('pet_id', selectedPet.id)
           .eq('user_id', user.id);
+
+        // Get medications
+        const { data: medicationsData } = await supabase
+          .from('pet_medications')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
         const totalAnalyses = analyses?.length || 0;
         const recentAnalyses = analyses?.filter(a => 
@@ -482,7 +503,45 @@ const DashboardPage: React.FC = () => {
       }
     };
 
+    // Load medications data
+    const loadMedications = async () => {
+      if (!selectedPet || !user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('pet_medications')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Filtra farmaci scaduti e li rimuove dalla lista attiva
+        const now = new Date();
+        const activeMedications = [];
+
+        for (const medication of data || []) {
+          if (medication.end_date && new Date(medication.end_date) < now) {
+            // Disattiva farmaci scaduti
+            await supabase
+              .from('pet_medications')
+              .update({ is_active: false })
+              .eq('id', medication.id);
+          } else {
+            activeMedications.push(medication);
+          }
+        }
+
+        setMedications(activeMedications);
+      } catch (error) {
+        console.error('Error loading medications:', error);
+      }
+    };
+
     loadPetStats();
+    loadMedications();
   }, [selectedPet, user]);
 
   // Helper functions for CRUD operations
@@ -515,7 +574,11 @@ const DashboardPage: React.FC = () => {
         }, 1000);
         break;
       case 'medications':
-        navigate('/diary');
+        setMedicationModal({
+          open: true,
+          mode: 'add',
+          medication: null
+        });
         break;
       case 'visits':
         navigate('/calendar');
@@ -565,7 +628,16 @@ const DashboardPage: React.FC = () => {
         }
         break;
       case 'medications':
-        navigate('/diary');
+        if (itemId) {
+          const medication = medications.find(m => m.id === itemId);
+          if (medication) {
+            setMedicationModal({
+              open: true,
+              mode: 'edit',
+              medication: medication
+            });
+          }
+        }
         break;
       case 'visits':
         navigate('/calendar');
@@ -1598,19 +1670,89 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Gestione farmaci e terapie in corso</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/10 flex items-center justify-center">
-                  <Pill className="h-10 w-10 text-green-500/60" />
+              {medications.length > 0 ? (
+                <div className="space-y-3">
+                  {medications.map((medication) => (
+                    <div key={medication.id} className="group">
+                      <div className="bg-white/60 border border-green-200/50 hover:bg-white/80 hover:border-green-300 transition-all duration-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                                <h4 className="font-semibold text-lg text-green-800">
+                                  {medication.medication_name}
+                                </h4>
+                              </div>
+                              <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
+                                Attivo
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-2">
+                              <div>
+                                <div className="text-sm text-muted-foreground">Dosaggio</div>
+                                <div className="font-medium text-green-700">{medication.dosage}</div>
+                              </div>
+                              <div>
+                                <div className="text-sm text-muted-foreground">Frequenza</div>
+                                <div className="font-medium text-green-700">{medication.frequency}</div>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <div className="text-sm text-muted-foreground">
+                                Dal {format(new Date(medication.start_date), 'dd/MM/yyyy')}
+                                {medication.end_date && ` - Al ${format(new Date(medication.end_date), 'dd/MM/yyyy')}`}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Action buttons */}
+                          <div className="flex gap-1">
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditItem('medications', medication.id);
+                              }}
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteItem('medications', medication.id, medication.medication_name);
+                              }}
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessun farmaco registrato</p>
-                <Button 
-                  onClick={() => navigate('/diary')} 
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Pill className="h-5 w-5 mr-2" />
-                  Registra Farmaci
-                </Button>
-              </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/10 flex items-center justify-center">
+                    <Pill className="h-10 w-10 text-green-500/60" />
+                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessun farmaco registrato</p>
+                  <Button 
+                    onClick={() => handleAddItem('medications')}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Pill className="h-5 w-5 mr-2" />
+                    Registra Farmaci
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -1891,7 +2033,17 @@ const DashboardPage: React.FC = () => {
                     value={vitalForm.value}
                     onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
                     placeholder="Inserisci valore"
-                  />
+      />
+
+      {/* Medication Modal */}
+      <MedicationModal
+        isOpen={medicationModal.open}
+        onClose={() => setMedicationModal(prev => ({ ...prev, open: false }))}
+        medication={medicationModal.medication}
+        petId={selectedPet?.id || ''}
+        userId={user?.id || ''}
+        onSave={loadMedications}
+      />
                 )}
                 {vitalForm.value && vitalModal.vitalType && (() => {
                   const checkValue = vitalModal.vitalType === 'colore_gengive' ? vitalForm.value : parseFloat(vitalForm.value);
