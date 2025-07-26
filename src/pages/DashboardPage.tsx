@@ -410,22 +410,23 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Emotion Analysis Card - Full width under the chart */}
+      {/* Emozioni Rilevate e Parametri Vitali - Side by side */}
       {selectedPet && (
-        <div className="w-full mb-6">
-          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Emozioni Rilevate Card */}
+          <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/5 border border-pink-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
                   <PieChartIcon className="h-6 w-6 text-white" />
                 </div>
-                Analisi Emozioni Rilevate
+                Emozioni Rilevate
               </CardTitle>
               <CardDescription className="text-lg">Cronologia dettagliata di tutte le emozioni del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
               {Object.keys(emotionStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(emotionStats)
                     .sort(([,a], [,b]) => b - a)
                     .map(([emotion, count]) => {
@@ -472,54 +473,36 @@ const DashboardPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-primary/20 to-primary/10 flex items-center justify-center">
-                    <PieChartIcon className="h-10 w-10 text-primary/60" />
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/10 flex items-center justify-center">
+                    <PieChartIcon className="h-10 w-10 text-pink-500/60" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Nessuna analisi disponibile</h3>
-                  <p className="text-gray-500 mb-4">Inizia ad analizzare il comportamento del tuo pet per vedere le statistiche emozionali</p>
-                   <Button 
-                     onClick={() => navigate('/analysis')}
-                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                   >
-                     <Microscope className="h-4 w-4 mr-2" />
-                     Inizia Analisi
-                   </Button>
-                 </div>
-               )}
-             </CardContent>
-           </Card>
-         </div>
-       )}
-
-      {/* Vital Parameters Card - Full width under emotion analysis */}
-      {selectedPet && (
-        <div className="w-full mb-6">
-          <Card className="bg-gradient-to-r from-blue-50/80 to-cyan-50/80 border border-blue-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <Activity className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">Parametri Vitali</CardTitle>
-                    <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
-                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessuna analisi disponibile</p>
+                  <Button 
+                    onClick={() => navigate('/analysis')}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Microscope className="h-5 w-5 mr-2" />
+                    Inizia Analisi
+                  </Button>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => navigate('/diary')}
-                  className="hover:bg-blue-50"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Aggiungi
-                </Button>
-              </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Parametri Vitali Card */}
+          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Activity className="h-6 w-6 text-white" />
+                </div>
+                Parametri Vitali
+              </CardTitle>
+              <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
               {Object.keys(vitalStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(vitalStats).map(([vital, data]) => {
                     const vitalColors = {
                       'temperatura': 'from-red-400 to-orange-500',
@@ -567,16 +550,15 @@ const DashboardPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-400/20 to-cyan-400/10 flex items-center justify-center">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
                     <Activity className="h-10 w-10 text-blue-500/60" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">Nessun parametro vitale registrato</h3>
-                  <p className="text-gray-500 mb-4">Inizia a monitorare i parametri vitali del tuo pet per tracciarne la salute</p>
+                  <p className="text-lg text-muted-foreground mb-6">Nessun parametro vitale registrato</p>
                   <Button 
                     onClick={() => navigate('/diary')}
-                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <Activity className="h-4 w-4 mr-2" />
+                    <Activity className="h-5 w-5 mr-2" />
                     Registra Parametri
                   </Button>
                 </div>
@@ -586,7 +568,6 @@ const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Comportamenti Osservati Card - Full width */}
       {/* Comportamenti Osservati e Farmaci Attivi - Side by side */}
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
