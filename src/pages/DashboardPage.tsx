@@ -555,6 +555,49 @@ const DashboardPage: React.FC = () => {
     loadMeds();
   }, [selectedPet, user]);
 
+  // Check for expired medications periodically (every 5 minutes)
+  useEffect(() => {
+    if (!selectedPet || !user) return;
+
+    const checkExpiredMedications = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('pet_medications')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+
+        if (error) throw error;
+
+        const now = new Date();
+        const expiredMedications = (data || []).filter(medication => 
+          medication.end_date && 
+          new Date(medication.end_date) < now && 
+          !medication.has_been_evaluated
+        );
+
+        // Show evaluation modal for the first expired medication (only if modal not already open)
+        if (expiredMedications.length > 0 && !medicationEvaluationModal.open) {
+          setMedicationEvaluationModal({
+            open: true,
+            medication: expiredMedications[0]
+          });
+        }
+      } catch (error) {
+        console.error('Error checking expired medications:', error);
+      }
+    };
+
+    // Check immediately
+    checkExpiredMedications();
+
+    // Set up interval to check every 5 minutes
+    const interval = setInterval(checkExpiredMedications, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [selectedPet, user, medicationEvaluationModal.open]);
+
   // Load medications function accessible by other functions
   const loadMedications = async () => {
     if (!selectedPet || !user) return;
@@ -1223,32 +1266,57 @@ const DashboardPage: React.FC = () => {
 
       if (updateError) throw updateError;
 
-      // Update wellness score based on response
-      const currentWellness = petStats.wellnessScore;
-      let newWellnessScore: number;
+      // Calculate impact based on medication type and effectiveness
+      const medicationName = medicationEvaluationModal.medication.medication_name;
+      const medicationType = medicationName.split(' - ')[0]?.toLowerCase() || '';
       
+      // Define medication impact based on type
+      const medicationImpacts = {
+        'antibiotico': wasEffective ? 12 : -8,
+        'antinfiammatorio': wasEffective ? 8 : -5,
+        'antidolorifico': wasEffective ? 10 : -7,
+        'antiparassitario': wasEffective ? 15 : -10,
+        'ansiolitico': wasEffective ? 15 : -12,
+        'cardiaco': wasEffective ? 20 : -15,
+        'digestivo': wasEffective ? 8 : -6,
+        'insulina': wasEffective ? 18 : -15,
+        'ormone': wasEffective ? 12 : -10,
+        'antistaminico': wasEffective ? 6 : -4,
+        'corticosteroide': wasEffective ? 10 : -8,
+        'integratore': wasEffective ? 5 : -2,
+        'chemioterapico': wasEffective ? 25 : -20,
+        'altro': wasEffective ? 8 : -5
+      };
+
+      const impact = medicationImpacts[medicationType] || (wasEffective ? 8 : -5);
+      
+      // Update wellness score based on medication type and effectiveness
+      const currentWellness = petStats.wellnessScore;
+      const newWellnessScore = Math.max(0, Math.min(100, currentWellness + impact));
+      
+      // Calculate mood trend impact (medications affect recent mood positively/negatively)
+      const trendImpact = wasEffective ? Math.abs(impact) : -Math.abs(impact);
+      const newMoodTrend = Math.max(-50, Math.min(50, petStats.moodTrend + trendImpact));
+
       if (wasEffective) {
-        // Medication worked - increase wellness score by 5-10 points
-        newWellnessScore = Math.min(100, currentWellness + 8);
         toast({
           title: "✅ Valutazione registrata",
-          description: "Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
+          description: `Ottimo! Il farmaco ${medicationType} ha funzionato. Il benessere del tuo pet è migliorato.`,
           className: "border-green-200 bg-green-50 text-green-800",
         });
       } else {
-        // Medication didn't work - decrease wellness score by 3-7 points
-        newWellnessScore = Math.max(0, currentWellness - 5);
         toast({
           title: "❌ Valutazione registrata", 
-          description: "Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
+          description: `Il farmaco ${medicationType} non ha funzionato come sperato. Considera di consultare il veterinario.`,
           className: "border-red-200 bg-red-50 text-red-800",
         });
       }
 
-      // Update pet stats
+      // Update pet stats with calculated values
       setPetStats(prev => ({
         ...prev,
         wellnessScore: newWellnessScore,
+        moodTrend: newMoodTrend,
         healthStatus: newWellnessScore >= 80 ? 'Eccellente' : 
                      newWellnessScore >= 60 ? 'Buono' :
                      newWellnessScore >= 40 ? 'Discreto' : 'Preoccupante'
@@ -1261,9 +1329,9 @@ const DashboardPage: React.FC = () => {
     } catch (error) {
       console.error('Error evaluating medication:', error);
       toast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Si è verificato un errore durante la registrazione della valutazione.",
-        variant: "destructive"
+        className: "border-red-200 bg-red-50 text-red-800",
       });
     }
   };
