@@ -271,6 +271,12 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
   }
 };
 
+// Helper function to clean file name by removing timestamp
+const cleanFileName = (fileName: string) => {
+  // Remove timestamp pattern like "_2025-07-26_03-03-11" from the end
+  return fileName.replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$/, '');
+};
+
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const language = 'it';
   const { showToast } = useTranslatedToast();
@@ -812,7 +818,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{getText('fileLabel')}</span>
-                  <span>{selectedAnalysis.file_name}</span>
+                  <span>{cleanFileName(selectedAnalysis.file_name)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{getText('sizeLabel')}</span>
