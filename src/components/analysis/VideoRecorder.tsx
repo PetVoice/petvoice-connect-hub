@@ -357,7 +357,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               {formatTime(recordingState.duration)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare'}
+              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare a registrare'}
             </p>
           </div>
 
@@ -480,7 +480,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <span>🎭 Analisi espressioni facciali</span>
+                  <span>🎭 Espressioni facciali</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>🏃 Movimento e postura</span>
@@ -489,7 +489,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
                   <span>🎵 Audio sincronizzato</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>🧠 Riconoscimento patterns comportamentali</span>
+                  <span>🧠 Patterns Comportamentali</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
