@@ -68,7 +68,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <MessageSquare className="h-5 w-5 text-indigo-600" />
-          Analisi Testuale Comportamento
+          Scrivi Testo
         </CardTitle>
         <CardDescription>
           Descrivi il comportamento del tuo pet per un'analisi comportamentale

@@ -293,7 +293,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Video className="h-5 w-5 text-purple-600" />
-          Registrazione Video
+          Registra Video
         </CardTitle>
         <CardDescription>
           Registra direttamente dalla camera (max {Math.floor(maxDuration / 60)} minuti)
