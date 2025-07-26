@@ -290,7 +290,10 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     }
   };
 
-  const switchCamera = async () => {
+  const switchCamera = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!recordingState.isRecording) return;
     
     try {
