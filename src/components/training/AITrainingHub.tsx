@@ -1536,7 +1536,7 @@ export const AITrainingHub: React.FC = () => {
       <AlertDialog open={!!protocolToDelete} onOpenChange={() => setProtocolToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sei sicuro di voler eliminare questo protocollo?</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               Questa azione non può essere annullata. Il protocollo verrà eliminato permanentemente 
               insieme a tutti i suoi dati associati.

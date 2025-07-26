@@ -1186,7 +1186,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               {(() => {
                 const messageType = getSelectedMessagesType();
@@ -1229,7 +1229,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
       <AlertDialog open={showSingleDeleteDialog} onOpenChange={setShowSingleDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Messaggio</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               {(() => {
                 const messageToDeleteObj = messageToDelete ? messages.find(m => m.id === messageToDelete) : null;
@@ -1276,7 +1276,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
       <AlertDialog open={showChatDeleteDialog} onOpenChange={setShowChatDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Chat</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               Come vuoi eliminare questa conversazione?
             </AlertDialogDescription>

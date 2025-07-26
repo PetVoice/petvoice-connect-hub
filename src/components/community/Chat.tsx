@@ -761,7 +761,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Messaggi</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               {(() => {
                 const messageType = getSelectedMessagesType();
@@ -804,7 +804,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
       <AlertDialog open={showSingleDeleteDialog} onOpenChange={setShowSingleDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Elimina Messaggio</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               {(() => {
                 const message = messages.find(msg => msg.id === messageToDelete);
