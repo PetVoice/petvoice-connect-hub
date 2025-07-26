@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Heart, 
   PawPrint, 
@@ -1697,10 +1698,11 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {Object.keys(behaviorStats).length > 0 ? (
-                <div className="space-y-3">
-                  {Object.entries(behaviorStats)
-                    .sort(([,a], [,b]) => b.count - a.count)
-                    .map(([behavior, data]) => {
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3 pr-4">
+                    {Object.entries(behaviorStats)
+                      .sort(([,a], [,b]) => b.count - a.count)
+                      .map(([behavior, data]) => {
                       const behaviorColors = {
                         'felice': 'from-green-400 to-emerald-500',
                         'giocoso': 'from-yellow-400 to-orange-500',
@@ -1784,7 +1786,8 @@ const DashboardPage: React.FC = () => {
                         </div>
                       );
                     })}
-                </div>
+                  </div>
+                </ScrollArea>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500/20 to-violet-500/10 flex items-center justify-center">
@@ -1826,8 +1829,9 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {medications.length > 0 ? (
-                <div className="space-y-3">
-                   {medications.map((medication) => {
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3 pr-4">
+                     {medications.map((medication) => {
                      const isExpired = medication.end_date && new Date(medication.end_date) < new Date();
                      
                      return (
@@ -1894,9 +1898,10 @@ const DashboardPage: React.FC = () => {
                            </div>
                          </div>
                        </div>
-                     );
+                      );
                    })}
-                </div>
+                  </div>
+                </ScrollArea>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/10 flex items-center justify-center">
