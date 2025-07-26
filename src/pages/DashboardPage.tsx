@@ -167,7 +167,7 @@ const DashboardPage: React.FC = () => {
           new Date(a.created_at) >= lastWeek
         ).length || 0;
 
-        // Calculate wellness score based on recent analyses
+        // Calculate comprehensive wellness score based on multiple factors
         let wellnessScore = 0;
         let healthStatus = 'N/A';
 
@@ -182,14 +182,81 @@ const DashboardPage: React.FC = () => {
             'aggressivo': 25
           };
 
+          // 1. Emotion Analysis Score (40% weight)
           const recentAnalysesForScore = analyses.slice(0, 10);
-          const avgScore = recentAnalysesForScore.reduce((sum, analysis) => {
-            const emotionScore = emotionScores[analysis.primary_emotion] || 50;
+          const emotionScore = recentAnalysesForScore.reduce((sum, analysis) => {
+            const emotionValue = emotionScores[analysis.primary_emotion] || 50;
             const confidenceBonus = (analysis.primary_confidence - 50) / 100 * 20;
-            return sum + emotionScore + confidenceBonus;
+            return sum + emotionValue + confidenceBonus;
           }, 0) / recentAnalysesForScore.length;
 
-          wellnessScore = Math.round(Math.max(0, Math.min(100, avgScore)));
+          // 2. Diary Mood Score (25% weight)
+          let diaryScore = 50; // default neutral
+          if (diaryEntries && diaryEntries.length > 0) {
+            const recentDiaryEntries = diaryEntries
+              .filter(entry => entry.mood_score !== null)
+              .slice(0, 10);
+            if (recentDiaryEntries.length > 0) {
+              diaryScore = recentDiaryEntries.reduce((sum, entry) => sum + (entry.mood_score * 20), 0) / recentDiaryEntries.length;
+            }
+          }
+
+          // 3. Vital Parameters Score (20% weight)
+          let vitalScore = 50; // default neutral
+          if (Object.keys(vitalStats).length > 0) {
+            const vitalScores = Object.entries(vitalStats).map(([vital, data]) => {
+              // Score based on vital type and value range
+              const vitalValue = data.value;
+              switch(vital) {
+                case 'temperatura':
+                  return (vitalValue >= 37.5 && vitalValue <= 39.5) ? 85 : 40;
+                case 'peso':
+                  return 75; // Weight stability bonus
+                case 'frequenza_cardiaca':
+                  return (vitalValue >= 60 && vitalValue <= 120) ? 85 : 50;
+                case 'energia':
+                case 'appetito':
+                  return vitalValue * 20; // Scale from 1-5 to 20-100
+                default:
+                  return 60;
+              }
+            });
+            vitalScore = vitalScores.length > 0 ? vitalScores.reduce((sum, score) => sum + score, 0) / vitalScores.length : 50;
+          }
+
+          // 4. Behavior Score (10% weight)
+          let behaviorScore = 65; // default good
+          if (Object.keys(behaviorStats).length > 0) {
+            const behaviorScores = Object.entries(behaviorStats).map(([behavior, data]) => {
+              const behaviorValues: Record<string, number> = {
+                'felice': 90, 'giocoso': 85, 'calmo': 80, 'energico': 75, 'socievole': 80,
+                'ansioso': 40, 'aggressivo': 25, 'timido': 50
+              };
+              return behaviorValues[behavior] || 60;
+            });
+            behaviorScore = behaviorScores.reduce((sum, score) => sum + score, 0) / behaviorScores.length;
+          }
+
+          // 5. Medical Care Bonus (5% weight)
+          let medicalBonus = 0;
+          const recentVisits = medicalRecords.filter(record => {
+            const visitDate = new Date(record.created_at);
+            const sixMonthsAgo = subDays(new Date(), 180);
+            return visitDate >= sixMonthsAgo;
+          });
+          if (recentVisits.length > 0) medicalBonus = 10; // Recent vet visit bonus
+
+          // Calculate weighted average
+          wellnessScore = Math.round(
+            (emotionScore * 0.4) + 
+            (diaryScore * 0.25) + 
+            (vitalScore * 0.2) + 
+            (behaviorScore * 0.1) + 
+            (50 * 0.05) + // base score for medical factor
+            medicalBonus
+          );
+
+          wellnessScore = Math.max(0, Math.min(100, wellnessScore));
           
           if (wellnessScore >= 80) healthStatus = 'Eccellente';
           else if (wellnessScore >= 60) healthStatus = 'Buono';

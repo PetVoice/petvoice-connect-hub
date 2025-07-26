@@ -21,6 +21,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   const [selectedPeriod, setSelectedPeriod] = useState('mese');
   const [petAnalyses, setPetAnalyses] = React.useState([]);
   const [diaryEntries, setDiaryEntries] = React.useState([]);
+  const [healthMetrics, setHealthMetrics] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -33,11 +34,17 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         
         const { data: diaryData } = await supabase
           .from('diary_entries')
-          .select('id, mood_score, created_at')
+          .select('id, mood_score, weight, temperature, heart_rate, created_at')
+          .eq('pet_id', petId);
+
+        const { data: healthData } = await supabase
+          .from('health_metrics')
+          .select('id, metric_type, value, created_at')
           .eq('pet_id', petId);
 
         setPetAnalyses(analysesData || []);
         setDiaryEntries(diaryData || []);
+        setHealthMetrics(healthData || []);
       } catch (error) {
         console.error('Error fetching trend data:', error);
       }
@@ -107,24 +114,66 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
     };
 
     return periods.map(period => {
+      // Filter data for this period
       const periodAnalyses = petAnalyses.filter(analysis => {
         const date = new Date(analysis.created_at);
         return date >= period.start && date <= period.end;
       });
 
-      let score = 65;
+      const periodDiaryEntries = diaryEntries.filter(entry => {
+        const date = new Date(entry.created_at);
+        return date >= period.start && date <= period.end;
+      });
+
+      const periodHealthMetrics = healthMetrics.filter(metric => {
+        const date = new Date(metric.created_at);
+        return date >= period.start && date <= period.end;
+      });
+
+      // 1. Emotion Analysis Score (50% weight)
+      let emotionScore = 60; // default neutral
       if (periodAnalyses.length > 0) {
         const weightedSum = periodAnalyses.reduce((sum, analysis) => {
-          const emotionScore = emotionScores[analysis.primary_emotion?.toLowerCase()] || 65;
-          return sum + (emotionScore * analysis.primary_confidence);
+          const emotionValue = emotionScores[analysis.primary_emotion?.toLowerCase()] || 60;
+          return sum + (emotionValue * analysis.primary_confidence);
         }, 0);
         const totalConfidence = periodAnalyses.reduce((sum, analysis) => sum + analysis.primary_confidence, 0);
-        score = totalConfidence > 0 ? weightedSum / totalConfidence : 65;
+        emotionScore = totalConfidence > 0 ? weightedSum / totalConfidence : 60;
       }
 
-      return { date: period.label, wellness: Math.round(score) };
+      // 2. Diary Mood Score (30% weight)
+      let diaryScore = 50; // default neutral
+      if (periodDiaryEntries.length > 0) {
+        const moodEntries = periodDiaryEntries.filter(entry => entry.mood_score !== null);
+        if (moodEntries.length > 0) {
+          diaryScore = moodEntries.reduce((sum, entry) => sum + (entry.mood_score * 20), 0) / moodEntries.length;
+        }
+      }
+
+      // 3. Health Metrics Score (20% weight)
+      let healthScore = 60; // default neutral
+      if (periodHealthMetrics.length > 0) {
+        const healthScores = periodHealthMetrics.map(metric => {
+          switch(metric.metric_type) {
+            case 'temperature':
+              return (metric.value >= 37.5 && metric.value <= 39.5) ? 85 : 40;
+            case 'weight':
+              return 75; // Weight stability bonus
+            case 'heart_rate':
+              return (metric.value >= 60 && metric.value <= 120) ? 85 : 50;
+            default:
+              return 60;
+          }
+        });
+        healthScore = healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length;
+      }
+
+      // Calculate comprehensive wellness score
+      const comprehensiveScore = (emotionScore * 0.5) + (diaryScore * 0.3) + (healthScore * 0.2);
+
+      return { date: period.label, wellness: Math.round(Math.max(0, Math.min(100, comprehensiveScore))) };
     });
-  }, [petAnalyses, diaryEntries]);
+  }, [petAnalyses, diaryEntries, healthMetrics]);
 
   return (
     <Card className="w-full bg-primary/10 border border-primary/20 shadow-soft">
