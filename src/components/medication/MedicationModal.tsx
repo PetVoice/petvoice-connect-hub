@@ -16,9 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface Medication {
   id?: string;
   medication_name: string;
-  medication_type: string;
   dosage: string;
-  dosage_unit: string;
   frequency: string;
   start_date: string;
   end_date?: string;
@@ -52,7 +50,6 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
     medication_name: '',
     medication_type: '',
     dosage: '',
-    dosage_unit: '',
     frequency: '',
     notes: ''
   });
@@ -105,9 +102,8 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
       if (medication) {
         setFormData({
           medication_name: medication.medication_name,
-          medication_type: medication.medication_type || '',
+          medication_type: '',
           dosage: medication.dosage,
-          dosage_unit: medication.dosage_unit || '',
           frequency: medication.frequency,
           notes: medication.notes || ''
         });
@@ -118,7 +114,6 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
           medication_name: '',
           medication_type: '',
           dosage: '',
-          dosage_unit: '',
           frequency: '',
           notes: ''
         });
@@ -130,12 +125,15 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!startDate) return;
+    if (!startDate || !formData.medication_type) return;
 
     setLoading(true);
     try {
       const medicationData = {
-        ...formData,
+        medication_name: `${formData.medication_type} - ${formData.medication_name}`,
+        dosage: formData.dosage,
+        frequency: formData.frequency,
+        notes: formData.notes,
         pet_id: petId,
         user_id: userId,
         start_date: format(startDate, 'yyyy-MM-dd'),
@@ -209,10 +207,11 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="medication_type">Tipologia Farmaco</Label>
+            <Label htmlFor="medication_type">Tipologia Farmaco *</Label>
             <Select
               value={formData.medication_type}
               onValueChange={(value) => setFormData(prev => ({ ...prev, medication_type: value }))}
+              required
             >
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona tipologia" />
@@ -230,31 +229,13 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="dosage">Dosaggio *</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="dosage"
-                  value={formData.dosage}
-                  onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
-                  placeholder="Es. 50, 1, 2.5..."
-                  required
-                  className="flex-1"
-                />
-                <Select
-                  value={formData.dosage_unit}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, dosage_unit: value }))}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Unità" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dosageUnits.map((unit) => (
-                      <SelectItem key={unit} value={unit}>
-                        {unit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Input
+                id="dosage"
+                value={formData.dosage}
+                onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                placeholder="Es. 50mg, 1 compressa, 2.5ml..."
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -262,6 +243,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
               <Select
                 value={formData.frequency}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, frequency: value }))}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleziona frequenza" />
