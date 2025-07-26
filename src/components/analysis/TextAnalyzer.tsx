@@ -84,11 +84,66 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           Scrivi Testo
         </CardTitle>
         <CardDescription>
-          Descrivi il comportamento del tuo pet per un'analisi comportamentale approfondita
+          Scrivi direttamente il comportamento (max 2000 caratteri)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 flex-1 flex flex-col">
-        {/* Text Input Area */}
+        {/* Text Input Field - Show at top when writing */}
+        {isWriting && (
+          <div className="relative mx-auto w-full max-w-md bg-gray-200 rounded-lg overflow-hidden">
+            <div className="p-4 space-y-3">
+              <div className="relative">
+                <Textarea
+                  placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
+                  value={description}
+                  onChange={(e) => handleTextChange(e.target.value)}
+                  disabled={isProcessing}
+                  className={cn(
+                    "min-h-[120px] resize-none bg-white",
+                    error && "border-destructive focus:border-destructive"
+                  )}
+                  maxLength={maxLength}
+                  autoFocus
+                />
+                <Type className="absolute top-3 right-3 h-4 w-4 text-muted-foreground" />
+              </div>
+              
+              {/* Character Counter */}
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  {isValid ? (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  ) : characterCount > 0 ? (
+                    <AlertCircle className="h-3 w-3 text-orange-500" />
+                  ) : null}
+                  <span className={cn(
+                    "text-muted-foreground",
+                    characterCount < minLength && "text-orange-600",
+                    characterCount > maxLength && "text-destructive"
+                  )}>
+                    {characterCount}/{maxLength} caratteri
+                    {characterCount < minLength && ` (minimo ${minLength})`}
+                  </span>
+                </div>
+                <Badge 
+                  variant={isValid ? "default" : "secondary"} 
+                  className="text-xs"
+                >
+                  {isValid ? 'Pronto' : 'Troppo corto'}
+                </Badge>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-2 bg-destructive/10 text-destructive rounded text-sm">
+                  <AlertCircle className="h-4 w-4" />
+                  {error}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Text Input Area - Icon always at bottom */}
         <div className="text-center space-y-4">
           <div className="relative w-32 h-32 mx-auto">
             {/* Text Button */}
@@ -113,64 +168,11 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
               {isProcessing ? 'Analisi in corso...' : 
-               isWriting ? 'Scrivi il testo e clicca per inviare' : 
+               isWriting ? 'Clicca per inviare l\'analisi' : 
                'Clicca per iniziare a scrivere'}
             </p>
           </div>
         </div>
-
-        {/* Text Input Field - Show only when writing */}
-        {isWriting && (
-          <div className="space-y-2">
-            <div className="relative">
-              <Textarea
-                placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
-                value={description}
-                onChange={(e) => handleTextChange(e.target.value)}
-                disabled={isProcessing}
-                className={cn(
-                  "min-h-[120px] resize-none",
-                  error && "border-destructive focus:border-destructive"
-                )}
-                maxLength={maxLength}
-                autoFocus
-              />
-              <Type className="absolute top-3 right-3 h-4 w-4 text-muted-foreground" />
-            </div>
-            
-            {/* Character Counter */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                {isValid ? (
-                  <CheckCircle2 className="h-3 w-3 text-green-500" />
-                ) : characterCount > 0 ? (
-                  <AlertCircle className="h-3 w-3 text-orange-500" />
-                ) : null}
-                <span className={cn(
-                  "text-muted-foreground",
-                  characterCount < minLength && "text-orange-600",
-                  characterCount > maxLength && "text-destructive"
-                )}>
-                  {characterCount}/{maxLength} caratteri
-                  {characterCount < minLength && ` (minimo ${minLength})`}
-                </span>
-              </div>
-              <Badge 
-                variant={isValid ? "default" : "secondary"} 
-                className="text-xs"
-              >
-                {isValid ? 'Pronto' : 'Troppo corto'}
-              </Badge>
-            </div>
-
-            {error && (
-              <div className="flex items-center gap-2 p-2 bg-destructive/10 text-destructive rounded text-sm">
-                <AlertCircle className="h-4 w-4" />
-                {error}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Auto-analyze message */}
         {isProcessing && (
