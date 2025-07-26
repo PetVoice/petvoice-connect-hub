@@ -510,8 +510,8 @@ const DashboardPage: React.FC = () => {
 
       {/* Health Score Progress Bar */}
       {selectedPet && (
-        <div className="mb-6">
-          <div className="space-y-4 p-6 bg-primary/10 border border-primary/20 rounded-lg shadow-soft">
+        <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
+          <CardContent className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Heart className="h-6 w-6 text-red-500" />
@@ -541,8 +541,8 @@ const DashboardPage: React.FC = () => {
                 <span>100%</span>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Quick Action Cards - Individual cards between health score and chart */}

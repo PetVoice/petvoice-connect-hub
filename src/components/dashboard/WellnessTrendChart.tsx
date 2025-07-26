@@ -176,7 +176,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   }, [petAnalyses, diaryEntries, healthMetrics]);
 
   return (
-    <Card className="w-full bg-primary/10 border border-primary/20 shadow-soft">
+    <Card className="w-full bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
