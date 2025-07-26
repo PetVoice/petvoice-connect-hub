@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -15,7 +16,9 @@ import { supabase } from '@/integrations/supabase/client';
 interface Medication {
   id?: string;
   medication_name: string;
+  medication_type: string;
   dosage: string;
+  dosage_unit: string;
   frequency: string;
   start_date: string;
   end_date?: string;
@@ -47,17 +50,64 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
   const [endDateOpen, setEndDateOpen] = useState(false);
   const [formData, setFormData] = useState({
     medication_name: '',
+    medication_type: '',
     dosage: '',
+    dosage_unit: '',
     frequency: '',
     notes: ''
   });
+
+  const medicationTypes = [
+    'Antibiotico',
+    'Antinfiammatorio',
+    'Antidolorifico',
+    'Antiparassitario',
+    'Ansiolitico',
+    'Cardiaco',
+    'Digestivo',
+    'Insulina',
+    'Ormone',
+    'Antistaminico',
+    'Corticosteroide',
+    'Integratore',
+    'Chemioterapico',
+    'Altro'
+  ];
+
+  const dosageUnits = [
+    'mg',
+    'g',
+    'ml',
+    'Pastiglie',
+    'Gocce',
+    'Cucchiaini',
+    'Spray',
+    'Iniezioni',
+    'Cerotti',
+    'Capsule'
+  ];
+
+  const frequencies = [
+    'Una sola volta',
+    '1 volta al giorno',
+    '2 volte al giorno',
+    '3 volte al giorno',
+    '4 volte al giorno',
+    'Ogni 8 ore',
+    'Ogni 12 ore',
+    'Una volta a settimana',
+    'Due volte a settimana',
+    'Al bisogno'
+  ];
 
   useEffect(() => {
     if (isOpen) {
       if (medication) {
         setFormData({
           medication_name: medication.medication_name,
+          medication_type: medication.medication_type || '',
           dosage: medication.dosage,
+          dosage_unit: medication.dosage_unit || '',
           frequency: medication.frequency,
           notes: medication.notes || ''
         });
@@ -66,7 +116,9 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
       } else {
         setFormData({
           medication_name: '',
+          medication_type: '',
           dosage: '',
+          dosage_unit: '',
           frequency: '',
           notes: ''
         });
@@ -151,32 +203,77 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
               id="medication_name"
               value={formData.medication_name}
               onChange={(e) => setFormData(prev => ({ ...prev, medication_name: e.target.value }))}
-              placeholder="Es. Antibiotico, Antinfiammatorio..."
+              placeholder="Es. Metacam, Amoxicillina..."
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="medication_type">Tipologia Farmaco</Label>
+            <Select
+              value={formData.medication_type}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, medication_type: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona tipologia" />
+              </SelectTrigger>
+              <SelectContent>
+                {medicationTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="dosage">Dosaggio *</Label>
-              <Input
-                id="dosage"
-                value={formData.dosage}
-                onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
-                placeholder="Es. 50mg, 1 compressa..."
-                required
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="dosage"
+                  value={formData.dosage}
+                  onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
+                  placeholder="Es. 50, 1, 2.5..."
+                  required
+                  className="flex-1"
+                />
+                <Select
+                  value={formData.dosage_unit}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, dosage_unit: value }))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Unità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dosageUnits.map((unit) => (
+                      <SelectItem key={unit} value={unit}>
+                        {unit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="frequency">Frequenza *</Label>
-              <Input
-                id="frequency"
+              <Select
                 value={formData.frequency}
-                onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
-                placeholder="Es. 2 volte al giorno, ogni 8h..."
-                required
-              />
+                onValueChange={(value) => setFormData(prev => ({ ...prev, frequency: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona frequenza" />
+                </SelectTrigger>
+                <SelectContent>
+                  {frequencies.map((freq) => (
+                    <SelectItem key={freq} value={freq}>
+                      {freq}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
