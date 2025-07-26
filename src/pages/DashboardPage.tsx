@@ -535,7 +535,7 @@ const DashboardPage: React.FC = () => {
   const handleDeleteItem = async (type: string, itemId: string, itemName: string) => {
     setConfirmDialog({
       open: true,
-      title: `Elimina ${itemName}`,
+      title: "Conferma Eliminazione",
       description: `Sei sicuro di voler eliminare "${itemName}"? Questa azione non può essere annullata.`,
       onConfirm: async () => {
         try {
@@ -1144,10 +1144,10 @@ const DashboardPage: React.FC = () => {
                       ? 'from-red-500 to-red-600' 
                       : (vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500');
                     
-                    // Use red background for the card if value is abnormal
+                    // Use red background for the card if value is abnormal, green if normal
                     const cardBackgroundClass = !rangeCheck.isNormal 
                       ? 'bg-red-50 border-red-200 hover:bg-red-100' 
-                      : 'bg-white/60 border-white/30 hover:bg-white/80';
+                      : 'bg-green-50 border-green-200 hover:bg-green-100';
                     
                     const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
                     const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
@@ -1160,7 +1160,7 @@ const DashboardPage: React.FC = () => {
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
                         
                         {/* Main content */}
-                        <div className="relative p-4">
+                        <div className="relative p-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                               <div className="text-2xl">{icon}</div>
