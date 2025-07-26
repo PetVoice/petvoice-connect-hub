@@ -489,7 +489,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
                   <span>🎵 Audio sincronizzato</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>🧠 Patterns Comportamentali</span>
+                  <span>🧠 Comportamenti</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
