@@ -481,7 +481,7 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Emozioni Rilevate Card */}
-          <Card className="bg-gradient-to-r from-pink-500/10 to-purple-500/5 border border-pink-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
@@ -557,7 +557,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Parametri Vitali Card */}
-          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -639,7 +639,7 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Comportamenti Osservati Card */}
-          <Card className="bg-gradient-to-r from-purple-500/10 to-violet-500/5 border border-purple-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center">
@@ -723,7 +723,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Farmaci Attivi Card */}
-          <Card className="bg-gradient-to-r from-green-500/10 to-emerald-500/5 border border-green-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
@@ -756,7 +756,7 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Visite Recenti Card */}
-          <Card className="bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -784,7 +784,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Assicurazione Card */}
-          <Card className="bg-gradient-to-r from-teal-500/10 to-cyan-500/5 border border-teal-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
@@ -817,7 +817,7 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Veterinario Card - Left */}
-          <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/5 border border-purple-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
@@ -845,7 +845,7 @@ const DashboardPage: React.FC = () => {
           </Card>
 
           {/* Contatti Emergenza Card - Right */}
-          <Card className="bg-gradient-to-r from-orange-500/10 to-red-500/5 border border-orange-500/20 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
