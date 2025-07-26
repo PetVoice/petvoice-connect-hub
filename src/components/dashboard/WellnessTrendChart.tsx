@@ -34,7 +34,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         
         const { data: diaryData } = await supabase
           .from('diary_entries')
-          .select('id, mood_score, weight, temperature, heart_rate, created_at')
+          .select('id, mood_score, temperature, created_at')
           .eq('pet_id', petId);
 
         const { data: healthData } = await supabase
