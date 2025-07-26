@@ -25,7 +25,9 @@ import {
   Siren,
   Stethoscope,
   Trash2,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  Save,
+  X
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
@@ -38,6 +40,10 @@ import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -91,6 +97,25 @@ const DashboardPage: React.FC = () => {
     title: '',
     description: '',
     onConfirm: () => {}
+  });
+
+  // Vital signs modal state
+  const [vitalModal, setVitalModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    vitalType: string;
+    currentValue: { value: number; unit: string; date: string } | null;
+  }>({
+    open: false,
+    mode: 'add',
+    vitalType: '',
+    currentValue: null
+  });
+
+  const [vitalForm, setVitalForm] = useState({
+    value: '',
+    unit: '',
+    date: format(new Date(), 'yyyy-MM-dd')
   });
 
   const { toast } = useToast();
@@ -399,7 +424,17 @@ const DashboardPage: React.FC = () => {
   const handleAddItem = (type: string) => {
     switch(type) {
       case 'vitals':
-        navigate('/diary');
+        setVitalModal({
+          open: true,
+          mode: 'add',
+          vitalType: '',
+          currentValue: null
+        });
+        setVitalForm({
+          value: '',
+          unit: '',
+          date: format(new Date(), 'yyyy-MM-dd')
+        });
         break;
       case 'behaviors':
         navigate('/diary');
@@ -425,7 +460,20 @@ const DashboardPage: React.FC = () => {
   const handleEditItem = (type: string, itemId?: string) => {
     switch(type) {
       case 'vitals':
-        navigate('/diary');
+        if (itemId && vitalStats[itemId]) {
+          const vital = vitalStats[itemId];
+          setVitalModal({
+            open: true,
+            mode: 'edit',
+            vitalType: itemId,
+            currentValue: vital
+          });
+          setVitalForm({
+            value: vital.value.toString(),
+            unit: vital.unit,
+            date: format(new Date(), 'yyyy-MM-dd')
+          });
+        }
         break;
       case 'behaviors':
         navigate('/diary');
@@ -455,13 +503,23 @@ const DashboardPage: React.FC = () => {
       description: `Sei sicuro di voler eliminare "${itemName}"? Questa azione non può essere annullata.`,
       onConfirm: async () => {
         try {
-          // Implementation would depend on the specific table
-          // For now, just show a toast
-          toast({
-            title: "Elemento eliminato",
-            description: `${itemName} è stato eliminato con successo.`,
-            variant: "destructive"
-          });
+          if (type === 'vitals') {
+            // Rimuovi dai vitalStats locali
+            const newVitalStats = { ...vitalStats };
+            delete newVitalStats[itemId];
+            setVitalStats(newVitalStats);
+            
+            toast({
+              title: "Parametro vitale eliminato",
+              description: `${itemName} è stato eliminato con successo.`,
+            });
+          } else {
+            toast({
+              title: "Elemento eliminato",
+              description: `${itemName} è stato eliminato con successo.`,
+              variant: "destructive"
+            });
+          }
           setConfirmDialog(prev => ({ ...prev, open: false }));
         } catch (error) {
           toast({
@@ -472,6 +530,41 @@ const DashboardPage: React.FC = () => {
         }
       }
     });
+  };
+
+  // Handle vital signs form submission
+  const handleVitalSubmit = async () => {
+    if (!selectedPet || !vitalForm.value || !vitalModal.vitalType) {
+      toast({
+        title: "Errore",
+        description: "Compila tutti i campi richiesti.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const newVitalStats = { ...vitalStats };
+      newVitalStats[vitalModal.vitalType] = {
+        value: parseFloat(vitalForm.value),
+        unit: vitalForm.unit,
+        date: format(new Date(vitalForm.date), 'dd/MM')
+      };
+      
+      setVitalStats(newVitalStats);
+      setVitalModal({ open: false, mode: 'add', vitalType: '', currentValue: null });
+      
+      toast({
+        title: vitalModal.mode === 'add' ? "Parametro vitale aggiunto" : "Parametro vitale modificato",
+        description: `${vitalModal.vitalType.replace('_', ' ')} è stato ${vitalModal.mode === 'add' ? 'aggiunto' : 'modificato'} con successo.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -1129,6 +1222,101 @@ const DashboardPage: React.FC = () => {
         open={showFirstAidGuide} 
         onOpenChange={setShowFirstAidGuide} 
       />
+
+      {/* Vital Signs Modal */}
+      <Dialog open={vitalModal.open} onOpenChange={(open) => setVitalModal(prev => ({ ...prev, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {vitalModal.mode === 'add' ? 'Aggiungi Parametro Vitale' : 'Modifica Parametro Vitale'}
+            </DialogTitle>
+            <DialogDescription>
+              Inserisci i dati del parametro vitale per il tuo pet.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="vitalType">Tipo di Parametro</Label>
+              <Select 
+                value={vitalModal.vitalType} 
+                onValueChange={(value) => {
+                  setVitalModal(prev => ({ ...prev, vitalType: value }));
+                  // Set default unit based on vital type
+                  const defaultUnits = {
+                    'temperatura': '°C',
+                    'peso': 'kg',
+                    'frequenza_cardiaca': 'bpm',
+                    'pressione': 'mmHg',
+                    'umore': '/10',
+                    'energia': '/5',
+                    'appetito': '/5'
+                  };
+                  setVitalForm(prev => ({ 
+                    ...prev, 
+                    unit: defaultUnits[value as keyof typeof defaultUnits] || '' 
+                  }));
+                }}
+                disabled={vitalModal.mode === 'edit'}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona tipo parametro" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="temperatura">Temperatura</SelectItem>
+                  <SelectItem value="peso">Peso</SelectItem>
+                  <SelectItem value="frequenza_cardiaca">Frequenza Cardiaca</SelectItem>
+                  <SelectItem value="pressione">Pressione</SelectItem>
+                  <SelectItem value="umore">Umore</SelectItem>
+                  <SelectItem value="energia">Energia</SelectItem>
+                  <SelectItem value="appetito">Appetito</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="value">Valore</Label>
+              <Input
+                id="value"
+                type="number"
+                step="0.1"
+                value={vitalForm.value}
+                onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
+                placeholder="Inserisci valore"
+              />
+            </div>
+            <div>
+              <Label htmlFor="unit">Unità di Misura</Label>
+              <Input
+                id="unit"
+                value={vitalForm.unit}
+                onChange={(e) => setVitalForm(prev => ({ ...prev, unit: e.target.value }))}
+                placeholder="es. °C, kg, bpm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="date">Data</Label>
+              <Input
+                id="date"
+                type="date"
+                value={vitalForm.date}
+                onChange={(e) => setVitalForm(prev => ({ ...prev, date: e.target.value }))}
+              />
+            </div>
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleVitalSubmit} className="flex-1">
+                <Save className="h-4 w-4 mr-2" />
+                {vitalModal.mode === 'add' ? 'Aggiungi' : 'Salva'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Annulla
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirm Dialog */}
       <ConfirmDialog
