@@ -501,7 +501,11 @@ const DashboardPage: React.FC = () => {
         });
         break;
       case 'behaviors':
-        navigate('/diary');
+        setDiaryModal({
+          open: true,
+          mode: 'add',
+          entry: null
+        });
         break;
       case 'medications':
         navigate('/diary');
