@@ -600,7 +600,7 @@ const DashboardPage: React.FC = () => {
       const vitalTypeMapping = {
         'temperatura': 'temperature',
         'frequenza_cardiaca': 'heart_rate',
-        'respirazione': 'breathing_rate', 
+        'respirazione': 'respiration',  // Fixed: use 'respiration' not 'breathing_rate'
         'colore_gengive': 'gum_color'
       };
 
@@ -690,7 +690,7 @@ const DashboardPage: React.FC = () => {
               const italianKeyMapping = {
                 'temperature': 'temperatura',
                 'heart_rate': 'frequenza_cardiaca',
-                'breathing_rate': 'respirazione',
+                'respiration': 'respirazione',  // Fixed: use 'respiration' not 'breathing_rate'
                 'gum_color': 'colore_gengive'
               };
 
@@ -764,7 +764,7 @@ const DashboardPage: React.FC = () => {
         const metricTypeMap: Record<string, string> = {
           'battiti_cardiaci': 'heart_rate',
           'frequenza_cardiaca': 'heart_rate',
-          'respirazione': 'respiratory_rate', 
+          'respirazione': 'respiration',  // Fixed: use 'respiration' not 'respiratory_rate'
           'colore_gengive': 'gum_color'
         };
         
