@@ -1287,7 +1287,7 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {Object.keys(behaviorStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-3">
                   {Object.entries(behaviorStats)
                     .sort(([,a], [,b]) => b.count - a.count)
                     .map(([behavior, data]) => {
@@ -1318,50 +1318,61 @@ const DashboardPage: React.FC = () => {
                       const gradientClass = behaviorColors[behavior as keyof typeof behaviorColors] || 'from-purple-400 to-violet-500';
                       const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || '🐾';
                       
-                       return (
-                         <div 
-                           key={behavior} 
-                           className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-                         >
-                           <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                             <Button
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleEditItem('behaviors', behavior);
-                               }}
-                               size="sm"
-                               variant="ghost"
-                               className="h-6 w-6 p-0 text-purple-500 hover:text-purple-600 hover:bg-purple-50"
-                             >
-                               <Edit className="h-3 w-3" />
-                             </Button>
-                             <Button
-                               onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleDeleteItem('behaviors', behavior, `${behavior.replace('_', ' ')} (${data.count})`);
-                               }}
-                               size="sm"
-                               variant="ghost"
-                               className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                             >
-                               <Trash2 className="h-3 w-3" />
-                             </Button>
-                           </div>
-                           <div className="relative p-4 text-center">
-                             <div className="text-2xl mb-2">{icon}</div>
-                             <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
-                               {behavior.replace('_', ' ')}
-                             </div>
-                             <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
-                               {data.count}
-                             </div>
-                             <div className="text-xs text-gray-500 mt-1">
-                               {data.lastSeen}
-                             </div>
-                           </div>
-                         </div>
-                       );
+                      return (
+                        <div 
+                          key={behavior} 
+                          className="group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg bg-purple-50 border-purple-200 hover:bg-purple-100"
+                        >
+                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                          
+                          {/* Main content */}
+                          <div className="relative p-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="text-2xl">{icon}</div>
+                                <div>
+                                  <div className="font-semibold text-gray-700 text-sm capitalize">
+                                    {behavior.replace('_', ' ')}
+                                  </div>
+                                  <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
+                                    {data.count}
+                                    <span className="text-sm text-gray-500">osservazioni</span>
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {data.lastSeen}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {/* Action buttons */}
+                              <div className="flex gap-1">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditItem('behaviors', behavior);
+                                  }}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteItem('behaviors', behavior, `${behavior.replace('_', ' ')} (${data.count})`);
+                                  }}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
                     })}
                 </div>
               ) : (
