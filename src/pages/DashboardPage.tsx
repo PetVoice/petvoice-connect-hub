@@ -379,7 +379,7 @@ const DashboardPage: React.FC = () => {
         // Calculate vital stats from health metrics and diary entries
         const vitals: {[key: string]: {value: number, unit: string, date: string}} = {};
         
-        // From health metrics
+        // From health metrics - take only the LATEST value for each metric type
         if (healthMetrics && healthMetrics.length > 0) {
           // Mapping from database metric types to Italian keys
           const metricTypeMapping = {
@@ -391,7 +391,15 @@ const DashboardPage: React.FC = () => {
             'gum_color': 'colore_gengive'
           };
           
-          const latestMetrics = healthMetrics.slice(0, 10);
+          // Group by metric_type and take only the latest (first in DESC order)
+          const latestMetrics = new Map();
+          healthMetrics.forEach(metric => {
+            if (!latestMetrics.has(metric.metric_type)) {
+              latestMetrics.set(metric.metric_type, metric);
+            }
+          });
+          
+          // Convert to vitals object
           latestMetrics.forEach(metric => {
             const italianKey = metricTypeMapping[metric.metric_type as keyof typeof metricTypeMapping] || metric.metric_type;
             vitals[italianKey] = {
