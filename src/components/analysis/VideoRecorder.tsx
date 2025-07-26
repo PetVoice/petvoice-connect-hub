@@ -476,7 +476,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
             <div className="flex-1">
               <h4 className="font-semibold text-purple-700 mb-2">🎬 Analisi Video Avanzata con IA</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                La nostra IA analizza i video per rilevare comportamenti e stati emotivi attraverso:
+                La nostra IA analizza i video per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
