@@ -217,7 +217,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           Scatta Foto
         </CardTitle>
         <CardDescription>
-          Scatta una foto per analizzare il comportamento e le emozioni del tuo pet
+          Scatta direttamente dalla camera (max 10 MB)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

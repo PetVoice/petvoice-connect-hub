@@ -1562,23 +1562,11 @@ const AnalysisPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-6">
-          {/* Upload Section - Cards singole senza raggruppamento */}
+          {/* Upload Section - Cards riorganizzate secondo il nuovo layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-guide="upload-button">
-            <FileUploader 
-              onFilesSelected={handleFileUpload} 
-              autoAnalyzeAudio={true}
-            />
-            <AudioRecorder 
-              onRecordingComplete={handleRecordingComplete} 
-              onStartRecording={handleStartRecording}
-              autoAnalyze={true}
-            />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <VideoRecorder 
-              onRecordingComplete={handleVideoRecordingComplete} 
-              onStartRecording={handleStartRecording}
-              autoAnalyze={true}
+            <TextAnalyzer 
+              onTextSubmitted={handleTextAnalysis}
+              isProcessing={processing.isProcessing}
             />
             <PhotoCapture 
               onPhotoComplete={handlePhotoComplete} 
@@ -1587,9 +1575,21 @@ const AnalysisPage: React.FC = () => {
             />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TextAnalyzer 
-              onTextSubmitted={handleTextAnalysis}
-              isProcessing={processing.isProcessing}
+            <AudioRecorder 
+              onRecordingComplete={handleRecordingComplete} 
+              onStartRecording={handleStartRecording}
+              autoAnalyze={true}
+            />
+            <VideoRecorder 
+              onRecordingComplete={handleVideoRecordingComplete} 
+              onStartRecording={handleStartRecording}
+              autoAnalyze={true}
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-6">
+            <FileUploader 
+              onFilesSelected={handleFileUpload} 
+              autoAnalyzeAudio={true}
             />
           </div>
         </TabsContent>
