@@ -381,10 +381,21 @@ const DashboardPage: React.FC = () => {
         
         // From health metrics
         if (healthMetrics && healthMetrics.length > 0) {
+          // Mapping from database metric types to Italian keys
+          const metricTypeMapping = {
+            'temperature': 'temperatura',
+            'heart_rate': 'frequenza_cardiaca',
+            'respiration': 'respirazione',
+            'breathing_rate': 'respirazione',
+            'respiratory_rate': 'respirazione',
+            'gum_color': 'colore_gengive'
+          };
+          
           const latestMetrics = healthMetrics.slice(0, 10);
           latestMetrics.forEach(metric => {
-            vitals[metric.metric_type] = {
-              value: Number(metric.value),
+            const italianKey = metricTypeMapping[metric.metric_type as keyof typeof metricTypeMapping] || metric.metric_type;
+            vitals[italianKey] = {
+              value: metric.metric_type === 'gum_color' ? metric.value : Number(metric.value),
               unit: metric.unit || '',
               date: format(new Date(metric.recorded_at), 'dd/MM')
             };
@@ -1107,13 +1118,18 @@ const DashboardPage: React.FC = () => {
                       ? 'from-red-500 to-red-600' 
                       : (vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500');
                     
+                    // Use red background for the card if value is abnormal
+                    const cardBackgroundClass = !rangeCheck.isNormal 
+                      ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                      : 'bg-white/60 border-white/30 hover:bg-white/80';
+                    
                     const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
                     const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
                     
                     return (
                       <div 
                         key={vital} 
-                        className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:shadow-lg"
+                        className={`group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg ${cardBackgroundClass}`}
                       >
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
                         
