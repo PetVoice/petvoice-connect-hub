@@ -288,10 +288,13 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           </div>
 
           <div className="space-y-2">
+            <p className="text-lg font-mono">
+              {captureState.hasPhoto ? '1' : '0'}/1
+            </p>
             <p className="text-sm text-muted-foreground">
               {isCapturing ? 'Clicca per scattare la foto' : 
                captureState.hasPhoto ? 'Foto catturata!' : 
-               'Clicca per avviare la camera'}
+               'Clicca per iniziare a scattare'}
             </p>
           </div>
         </div>
