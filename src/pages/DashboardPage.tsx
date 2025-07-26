@@ -455,14 +455,21 @@ const DashboardPage: React.FC = () => {
           {quickActions.map((action, index) => (
             <Card
               key={index}
-              className="bg-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+              className="h-full bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 shadow-soft hover:shadow-glow transition-all duration-200 cursor-pointer hover:scale-[1.02] flex flex-col"
               onClick={action.onClick}
             >
-              <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <action.icon className={`h-12 w-12 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
-                  <p className="text-sm text-muted-foreground">{action.description}</p>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <action.icon className={`h-5 w-5 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
+                  {action.title}
+                </CardTitle>
+                <CardDescription>
+                  {action.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col justify-end">
+                <div className="text-center">
+                  <action.icon className={`h-12 w-12 mx-auto mb-3 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
                 </div>
               </CardContent>
             </Card>
