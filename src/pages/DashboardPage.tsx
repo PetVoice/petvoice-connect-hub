@@ -852,8 +852,27 @@ const DashboardPage: React.FC = () => {
                       'respirazione': '🫁',
                       'colore_gengive': '👄'
                     };
+                    const vitalLabels = {
+                      'temperatura': 'Temperatura',
+                      'frequenza_cardiaca': 'Frequenza Cardiaca', 
+                      'respirazione': 'Respirazione',
+                      'colore_gengive': 'Colore Gengive'
+                    };
+                    
+                    // Translate gum color values to Italian
+                    const translateGumColor = (color: string) => {
+                      const translations: Record<string, string> = {
+                        'rosa': 'Rosa',
+                        'pallide': 'Pallide',
+                        'blu/viola': 'Blu/Viola',
+                        'gialle': 'Gialle'
+                      };
+                      return translations[color.toLowerCase()] || color;
+                    };
+                    
                     const gradientClass = vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500';
                     const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
+                    const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
                     
                     // Check if vital is in normal range
                     const rangeCheck = isVitalInNormalRange(vital, data.value, selectedPet?.type);
@@ -871,12 +890,15 @@ const DashboardPage: React.FC = () => {
                             <div className="flex items-center gap-3">
                               <div className="text-2xl">{icon}</div>
                               <div>
-                                <div className="font-semibold text-gray-700 capitalize text-sm">
-                                  {vital.replace('_', ' ')}
+                                <div className="font-semibold text-gray-700 text-sm">
+                                  {label}
                                 </div>
                                 <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
-                                  {typeof data.value === 'string' ? data.value : data.value}
-                                  <span className="text-sm text-gray-500">{data.unit}</span>
+                                  {vital === 'colore_gengive' 
+                                    ? translateGumColor(data.value.toString())
+                                    : data.value
+                                  }
+                                  {data.unit && <span className="text-sm text-gray-500">{data.unit}</span>}
                                 </div>
                                 <div className="text-xs text-gray-500">
                                   {data.date}
@@ -900,7 +922,10 @@ const DashboardPage: React.FC = () => {
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteItem('vitals', vital, `${vital.replace('_', ' ')}: ${data.value}${data.unit}`);
+                                  const displayValue = vital === 'colore_gengive' 
+                                    ? translateGumColor(data.value.toString())
+                                    : `${data.value}${data.unit}`;
+                                  handleDeleteItem('vitals', vital, `${label}: ${displayValue}`);
                                 }}
                                 size="sm"
                                 variant="ghost"
