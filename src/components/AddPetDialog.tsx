@@ -208,23 +208,6 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="gender">Sesso</Label>
-                <Select 
-                  value={formData.gender} 
-                  onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona il sesso" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Maschio</SelectItem>
-                    <SelectItem value="female">Femmina</SelectItem>
-                    <SelectItem value="unknown">Non specificato</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               {formData.type && (
                 <div>
                   <Label htmlFor="breed">Razza</Label>
@@ -243,6 +226,23 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                   </Select>
                 </div>
               )}
+
+              <div>
+                <Label htmlFor="gender">Sesso</Label>
+                <Select 
+                  value={formData.gender} 
+                  onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona il sesso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Maschio</SelectItem>
+                    <SelectItem value="female">Femmina</SelectItem>
+                    <SelectItem value="unknown">Non specificato</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div>
                 <Label htmlFor="weight">Peso (kg)</Label>
