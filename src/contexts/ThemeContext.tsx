@@ -1,13 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { usePets } from './PetContext';
 
 type Theme = 'dark' | 'light';
-type GenderTheme = 'male' | 'female' | 'default';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  genderTheme: GenderTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -38,50 +35,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     return defaultTheme;
   });
 
-  const { selectedPet } = usePets();
-  
-  // Attendiamo che il PetContext sia pronto
-  const genderTheme: GenderTheme = selectedPet?.gender === 'male' ? 'male' : 
-                                   selectedPet?.gender === 'female' ? 'female' : 'default';
-  
-  console.log('🔍 Pet e Gender Debug:', {
-    selectedPetExists: !!selectedPet,
-    selectedPetName: selectedPet?.name,
-    selectedPetGender: selectedPet?.gender,
-    genderThemeCalculated: genderTheme,
-    timestamp: new Date().toISOString()
-  });
-
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark', 'male-theme', 'female-theme');
+    root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    
-    console.log('🐾 Theme Debug:', {
-      selectedPet: selectedPet?.name,
-      gender: selectedPet?.gender,
-      genderTheme,
-      themeClass: theme,
-      appliedClasses: Array.from(root.classList)
-    });
-    
-    // Applica il tema basato sul genere
-    if (genderTheme === 'male') {
-      root.classList.add('male-theme');
-      console.log('🔵 Applicato tema maschio (azzurro)');
-    } else if (genderTheme === 'female') {
-      root.classList.add('female-theme');
-      console.log('🌸 Applicato tema femmina (rosa)');
-    } else {
-      console.log('⚪ Tema neutro (default)');
-    }
-    
-    console.log('🎨 Classi finali applicate:', Array.from(root.classList));
-  }, [theme, genderTheme, selectedPet]);
+  }, [theme]);
 
   const value = {
     theme,
-    genderTheme,
     setTheme: (newTheme: Theme) => {
       localStorage.setItem(storageKey, newTheme);
       setTheme(newTheme);
