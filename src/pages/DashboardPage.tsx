@@ -1139,10 +1139,10 @@ const DashboardPage: React.FC = () => {
                     // Check if vital is in normal range
                     const rangeCheck = isVitalInNormalRange(vital, data.value, selectedPet?.type);
                     
-                    // Use red gradient if value is abnormal, otherwise use normal color
+                    // Use red gradient if value is abnormal, green gradient if normal
                     const gradientClass = !rangeCheck.isNormal 
                       ? 'from-red-500 to-red-600' 
-                      : (vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500');
+                      : 'from-green-400 to-emerald-500';
                     
                     // Use red background for the card if value is abnormal, green if normal
                     const cardBackgroundClass = !rangeCheck.isNormal 
