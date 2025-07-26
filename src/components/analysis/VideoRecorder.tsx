@@ -350,18 +350,33 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         <div className="text-center space-y-4">
           {/* Video Preview */}
           {recordingState.isRecording && (
-            <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
-              <video
-                ref={previewRef}
-                className="w-full h-full object-cover bg-gray-400"
-                muted
-                autoPlay
-                playsInline
-                controls={false}
-                style={{ backgroundColor: '#f0f0f0' }}
-              />
-              <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
-                REC
+            <div className="space-y-3">
+              {/* Switch Camera Button - Above video */}
+              <div className="flex justify-center">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={switchCamera}
+                  className="flex items-center gap-2 bg-background hover:bg-muted"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Gira Camera
+                </Button>
+              </div>
+              
+              <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
+                <video
+                  ref={previewRef}
+                  className="w-full h-full object-cover bg-gray-400"
+                  muted
+                  autoPlay
+                  playsInline
+                  controls={false}
+                  style={{ backgroundColor: '#f0f0f0' }}
+                />
+                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
+                  REC
+                </div>
               </div>
             </div>
           )}
