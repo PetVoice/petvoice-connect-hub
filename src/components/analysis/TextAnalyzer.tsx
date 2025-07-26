@@ -26,6 +26,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
   
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isWriting, setIsWriting] = useState(false);
 
   const handleSubmit = () => {
     const text = description.trim();
@@ -43,6 +44,18 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
     setError(null);
     onTextSubmitted(text);
     setDescription(''); // Clear after submission
+    setIsWriting(false); // Reset to initial state
+  };
+
+  const handleIconClick = () => {
+    if (isWriting && description.trim().length >= 10) {
+      // Se siamo in modalità scrittura e il testo è valido, invia l'analisi
+      handleSubmit();
+    } else {
+      // Altrimenti, apri/chiudi la modalità scrittura
+      setIsWriting(!isWriting);
+      if (error) setError(null);
+    }
   };
 
   const handleTextChange = (value: string) => {
@@ -80,8 +93,8 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           <div className="relative w-32 h-32 mx-auto">
             {/* Text Button */}
             <Button
-              onClick={handleSubmit}
-              disabled={!isValid || isProcessing}
+              onClick={handleIconClick}
+              disabled={isProcessing}
               className={cn(
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 isProcessing
@@ -99,59 +112,65 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
 
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              {isProcessing ? 'Analisi in corso...' : 'Descrivi il comportamento'}
+              {isProcessing ? 'Analisi in corso...' : 
+               isWriting ? 'Scrivi il testo e clicca per inviare' : 
+               'Clicca per iniziare a scrivere'}
             </p>
           </div>
         </div>
 
-        <div className="space-y-2">
-          <div className="relative">
-            <Textarea
-              placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
-              value={description}
-              onChange={(e) => handleTextChange(e.target.value)}
-              disabled={isProcessing}
-              className={cn(
-                "min-h-[120px] resize-none",
-                error && "border-destructive focus:border-destructive"
-              )}
-              maxLength={maxLength}
-            />
-            <Type className="absolute top-3 right-3 h-4 w-4 text-muted-foreground" />
-          </div>
-          
-          {/* Character Counter */}
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              {isValid ? (
-                <CheckCircle2 className="h-3 w-3 text-green-500" />
-              ) : characterCount > 0 ? (
-                <AlertCircle className="h-3 w-3 text-orange-500" />
-              ) : null}
-              <span className={cn(
-                "text-muted-foreground",
-                characterCount < minLength && "text-orange-600",
-                characterCount > maxLength && "text-destructive"
-              )}>
-                {characterCount}/{maxLength} caratteri
-                {characterCount < minLength && ` (minimo ${minLength})`}
-              </span>
+        {/* Text Input Field - Show only when writing */}
+        {isWriting && (
+          <div className="space-y-2">
+            <div className="relative">
+              <Textarea
+                placeholder="Descrivi dettagliatamente il comportamento del tuo pet: come si sta comportando, che suoni emette, come si muove, dove si trova..."
+                value={description}
+                onChange={(e) => handleTextChange(e.target.value)}
+                disabled={isProcessing}
+                className={cn(
+                  "min-h-[120px] resize-none",
+                  error && "border-destructive focus:border-destructive"
+                )}
+                maxLength={maxLength}
+                autoFocus
+              />
+              <Type className="absolute top-3 right-3 h-4 w-4 text-muted-foreground" />
             </div>
-            <Badge 
-              variant={isValid ? "default" : "secondary"} 
-              className="text-xs"
-            >
-              {isValid ? 'Pronto' : 'Troppo corto'}
-            </Badge>
-          </div>
+            
+            {/* Character Counter */}
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                {isValid ? (
+                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                ) : characterCount > 0 ? (
+                  <AlertCircle className="h-3 w-3 text-orange-500" />
+                ) : null}
+                <span className={cn(
+                  "text-muted-foreground",
+                  characterCount < minLength && "text-orange-600",
+                  characterCount > maxLength && "text-destructive"
+                )}>
+                  {characterCount}/{maxLength} caratteri
+                  {characterCount < minLength && ` (minimo ${minLength})`}
+                </span>
+              </div>
+              <Badge 
+                variant={isValid ? "default" : "secondary"} 
+                className="text-xs"
+              >
+                {isValid ? 'Pronto' : 'Troppo corto'}
+              </Badge>
+            </div>
 
-          {error && (
-            <div className="flex items-center gap-2 p-2 bg-destructive/10 text-destructive rounded text-sm">
-              <AlertCircle className="h-4 w-4" />
-              {error}
-            </div>
-          )}
-        </div>
+            {error && (
+              <div className="flex items-center gap-2 p-2 bg-destructive/10 text-destructive rounded text-sm">
+                <AlertCircle className="h-4 w-4" />
+                {error}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Auto-analyze message */}
         {isProcessing && (
