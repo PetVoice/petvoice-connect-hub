@@ -1010,61 +1010,8 @@ const DashboardPage: React.FC = () => {
         });
       }
 
-      // Reload dashboard data
-      const loadPetStats = async () => {
-        if (!selectedPet || !user) return;
-
-        setLoading(true);
-        try {
-          // Reload diary entries and behavior stats
-          const { data: diaryEntries } = await supabase
-            .from('diary_entries')
-            .select('*')
-            .eq('pet_id', selectedPet.id)
-            .eq('user_id', user.id)
-            .order('entry_date', { ascending: false });
-
-          // Recalculate behavior statistics and mapping
-          const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
-          const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
-          
-          if (diaryEntries && diaryEntries.length > 0) {
-            diaryEntries.forEach(entry => {
-              if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
-                entry.behavioral_tags.forEach((tag: string) => {
-                  if (tag && tag.trim()) {
-                    const behaviorKey = tag.toLowerCase().trim();
-                    if (!behaviors[behaviorKey]) {
-                      behaviors[behaviorKey] = { count: 0, lastSeen: '' };
-                    }
-                    behaviors[behaviorKey].count++;
-                    const entryDate = format(new Date(entry.entry_date), 'dd/MM');
-                    
-                    // Keep track of the most recent entry for each behavior
-                    if (!behaviorToEntryMap[behaviorKey] || 
-                        new Date(entry.entry_date) > new Date(behaviorToEntryMap[behaviorKey].entry_date)) {
-                      behaviorToEntryMap[behaviorKey] = entry;
-                    }
-                    
-                    if (!behaviors[behaviorKey].lastSeen || entryDate > behaviors[behaviorKey].lastSeen) {
-                      behaviors[behaviorKey].lastSeen = entryDate;
-                    }
-                  }
-                });
-              }
-            });
-          }
-          setBehaviorStats(behaviors);
-          setBehaviorEntryMap(behaviorToEntryMap);
-
-        } catch (error) {
-          console.error('Error reloading pet stats:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      await loadPetStats();
+      // Trigger a reload by updating loading state
+      window.location.reload();
       setDiaryModal({ open: false, mode: 'add', entry: null });
 
     } catch (error) {
@@ -1572,7 +1519,7 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <p className="text-lg text-muted-foreground mb-6">Nessun comportamento registrato</p>
                   <Button 
-                    onClick={() => navigate('/diary')} 
+                    onClick={() => setDiaryModal({ open: true, mode: 'add', entry: null })}
                     className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     <Brain className="h-5 w-5 mr-2" />
