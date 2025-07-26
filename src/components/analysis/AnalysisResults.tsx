@@ -66,6 +66,7 @@ interface AnalysisData {
   analysis_duration: unknown;
   created_at: string;
   updated_at: string;
+  user_description?: string; // Aggiunto per le analisi testuali
 }
 
 interface AnalysisResultsProps {
@@ -1225,8 +1226,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       // Show text content for text analyses
                       <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                         <p className="text-blue-800 dark:text-blue-200 whitespace-pre-wrap">
-                          {/* Show the original text description - we should store this in the database */}
-                          Il testo inserito per l'analisi non è disponibile. Per future analisi, il testo verrà salvato e mostrato qui.
+                          {selectedAnalysis.user_description || 'Il testo inserito per l\'analisi non è disponibile.'}
                         </p>
                       </div>
                     ) : selectedAnalysis.file_type.startsWith('image/') ? (

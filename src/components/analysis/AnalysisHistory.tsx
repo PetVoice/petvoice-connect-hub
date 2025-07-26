@@ -40,6 +40,7 @@ interface AnalysisData {
   analysis_duration: unknown;
   created_at: string;
   updated_at: string;
+  user_description?: string; // Aggiunto per le analisi testuali
 }
 
 interface AnalysisHistoryProps {

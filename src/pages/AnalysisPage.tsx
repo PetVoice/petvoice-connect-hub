@@ -948,7 +948,8 @@ const AnalysisPage: React.FC = () => {
             behavioral_insights: analysisData.behavioral_insights,
             recommendations: analysisData.recommendations,
             triggers: analysisData.triggers,
-            analysis_duration: analysisData.analysis_duration
+            analysis_duration: analysisData.analysis_duration,
+            user_description: description // Salva il testo originale
           });
           
         if (dbError) throw dbError;
@@ -1022,7 +1023,8 @@ const AnalysisPage: React.FC = () => {
           behavioral_insights: analysisData.behavioral_insights,
           recommendations: analysisData.recommendations,
           triggers: analysisData.triggers,
-          analysis_duration: analysisData.analysis_duration
+          analysis_duration: analysisData.analysis_duration,
+          user_description: description // Salva il testo originale
         });
 
       if (dbError) throw dbError;
