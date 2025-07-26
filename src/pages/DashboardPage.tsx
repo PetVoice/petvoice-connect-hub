@@ -426,7 +426,7 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {Object.keys(emotionStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                   {Object.entries(emotionStats)
                     .sort(([,a], [,b]) => b - a)
                     .map(([emotion, count]) => {
@@ -457,10 +457,10 @@ const DashboardPage: React.FC = () => {
                           className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
                         >
                           <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                          <div className="relative p-4 text-center">
-                            <div className="text-2xl mb-2">{icon}</div>
-                            <div className="font-semibold text-gray-700 capitalize mb-1">{emotion}</div>
-                            <div className={`text-3xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                          <div className="relative p-3 text-center">
+                            <div className="text-xl mb-1">{icon}</div>
+                            <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">{emotion}</div>
+                            <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
                               {count}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
@@ -502,7 +502,7 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {Object.keys(vitalStats).length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                   {Object.entries(vitalStats).map(([vital, data]) => {
                     const vitalColors = {
                       'temperatura': 'from-red-400 to-orange-500',
@@ -531,8 +531,8 @@ const DashboardPage: React.FC = () => {
                         className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
                       >
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                        <div className="relative p-4 text-center">
-                          <div className="text-2xl mb-2">{icon}</div>
+                         <div className="relative p-3 text-center">
+                           <div className="text-xl mb-1">{icon}</div>
                           <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
                             {vital.replace('_', ' ')}
                           </div>
