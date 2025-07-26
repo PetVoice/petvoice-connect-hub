@@ -278,9 +278,9 @@ const cleanFileName = (fileName: string, fileType: string) => {
   
   // Auto-detect file type and assign appropriate name
   if (fileType === 'text') {
-    return 'Descrizione';
+    return 'Testo';
   } else if (fileType.startsWith('image/')) {
-    return 'Foto';
+    return 'Immagini';
   } else if (fileType.startsWith('video/')) {
     return 'Video';
   } else if (fileType.startsWith('audio/')) {
