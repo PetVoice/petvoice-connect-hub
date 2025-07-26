@@ -1568,16 +1568,16 @@ const AnalysisPage: React.FC = () => {
               onTextSubmitted={handleTextAnalysis}
               isProcessing={processing.isProcessing}
             />
-            <PhotoCapture 
-              onPhotoComplete={handlePhotoComplete} 
-              onStartCapture={handleStartRecording}
+            <AudioRecorder 
+              onRecordingComplete={handleRecordingComplete} 
+              onStartRecording={handleStartRecording}
               autoAnalyze={true}
             />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <AudioRecorder 
-              onRecordingComplete={handleRecordingComplete} 
-              onStartRecording={handleStartRecording}
+            <PhotoCapture 
+              onPhotoComplete={handlePhotoComplete} 
+              onStartCapture={handleStartRecording}
               autoAnalyze={true}
             />
             <VideoRecorder 
