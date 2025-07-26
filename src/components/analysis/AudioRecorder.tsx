@@ -337,7 +337,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Volume2 className="h-5 w-5 text-orange-600" />
-          Registrazione Audio
+          Registra Audio
         </CardTitle>
         <CardDescription>
           Registra direttamente dal microfono (max {Math.floor(maxDuration / 60)} minuti)
