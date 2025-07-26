@@ -1535,23 +1535,41 @@ const AnalysisPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-guide="upload-button">
-            <FileUploader 
-              onFilesSelected={handleFileUpload} 
-              autoAnalyzeAudio={true}
-            />
-            <AudioRecorder 
-              onRecordingComplete={handleRecordingComplete} 
-              onStartRecording={handleStartRecording}
-              autoAnalyze={true}
-            />
-          </div>
-          <div className="w-full">
-            <TextAnalyzer 
-              onTextSubmitted={handleTextAnalysis}
-              isProcessing={processing.isProcessing}
-            />
-          </div>
+          {/* Upload Section */}
+          <Card className="group hover:border-primary/20 transition-colors duration-300">
+            <CardHeader className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                  <Upload className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">📊 Analisi Multimediale Avanzata</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground mt-1">
+                    Carica file audio, video, immagini o descrivi il comportamento del tuo pet per ottenere un'analisi emotiva dettagliata con IA
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-guide="upload-button">
+                <FileUploader 
+                  onFilesSelected={handleFileUpload} 
+                  autoAnalyzeAudio={true}
+                />
+                <AudioRecorder 
+                  onRecordingComplete={handleRecordingComplete} 
+                  onStartRecording={handleStartRecording}
+                  autoAnalyze={true}
+                />
+              </div>
+              <div className="w-full mt-6">
+                <TextAnalyzer 
+                  onTextSubmitted={handleTextAnalysis}
+                  isProcessing={processing.isProcessing}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
 

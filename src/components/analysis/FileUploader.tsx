@@ -166,14 +166,19 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, [selectedFiles, onFilesSelected]);
 
-  // Auto-analyze audio files when autoAnalyzeAudio is true
+  // Auto-analyze audio files when autoAnalyzeAudio is true, and auto-analyze images always
   useEffect(() => {
-    if (autoAnalyzeAudio && selectedFiles.length > 0 && !isProcessing) {
+    if (selectedFiles.length > 0 && !isProcessing) {
       const audioFiles = selectedFiles.filter(f => 
         f.file.type.startsWith('audio/') && !f.error
       );
+      const imageFiles = selectedFiles.filter(f => 
+        f.file.type.startsWith('image/') && !f.error
+      );
       
-      if (audioFiles.length > 0) {
+      // Auto-analyze audio files if autoAnalyzeAudio is true
+      // Auto-analyze image files always
+      if ((autoAnalyzeAudio && audioFiles.length > 0) || imageFiles.length > 0) {
         // Delay per permettere il rendering
         const timer = setTimeout(() => {
           handleStartAnalysis();
@@ -206,7 +211,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const validFiles = selectedFiles.filter(f => !f.error);
   const hasErrors = selectedFiles.some(f => f.error);
   const hasAudioFiles = selectedFiles.some(f => f.file.type.startsWith('audio/') && !f.error);
-  const shouldHideAnalysisButton = autoAnalyzeAudio && hasAudioFiles;
+  const hasImageFiles = selectedFiles.some(f => f.file.type.startsWith('image/') && !f.error);
+  const shouldHideAnalysisButton = (autoAnalyzeAudio && hasAudioFiles) || hasImageFiles;
 
   return (
     <Card className="h-fit">
@@ -344,7 +350,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   <span className="font-medium text-green-800 dark:text-green-200">
-                    ✨ File audio caricato
+                    ✨ File {hasImageFiles ? 'multimediale' : 'audio'} caricato
                   </span>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-1">
@@ -367,7 +373,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         <div className="bg-gradient-to-r from-coral/5 to-coral/10 p-4 rounded-lg border border-coral/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">📊 Analisi Audio/Video Avanzata</h4>
+              <h4 className="font-semibold text-foreground mb-2">📊 Analisi Multimediale Avanzata con IA</h4>
               <p className="text-sm text-muted-foreground mb-3">
                 La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:
               </p>
@@ -378,15 +384,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>📹 Riconoscimento espressioni facciali</span>
+                  <span>📸 Analisi postura e espressioni</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>🏃 Analisi dei movimenti corporei</span>
+                  <span>🏃 Analisi del linguaggio corporeo</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-coral rounded-full"></div>
-                  <span>💓 Rilevamento frequenza respiratoria</span>
+                  <span>🧠 Riconoscimento emozioni con Vision AI</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
