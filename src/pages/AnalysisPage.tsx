@@ -1562,11 +1562,16 @@ const AnalysisPage: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-6">
-          {/* Upload Section - Cards singole senza raggruppamento */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-guide="upload-button">
-            <FileUploader 
-              onFilesSelected={handleFileUpload} 
-              autoAnalyzeAudio={true}
+          {/* Upload Section - Cards organizzate secondo le nuove specifiche */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" data-guide="upload-button">
+            <TextAnalyzer 
+              onTextSubmitted={handleTextAnalysis}
+              isProcessing={processing.isProcessing}
+            />
+            <PhotoCapture 
+              onPhotoComplete={handlePhotoComplete} 
+              onStartCapture={handleStartRecording}
+              autoAnalyze={true}
             />
             <AudioRecorder 
               onRecordingComplete={handleRecordingComplete} 
@@ -1580,16 +1585,9 @@ const AnalysisPage: React.FC = () => {
               onStartRecording={handleStartRecording}
               autoAnalyze={true}
             />
-            <PhotoCapture 
-              onPhotoComplete={handlePhotoComplete} 
-              onStartCapture={handleStartRecording}
-              autoAnalyze={true}
-            />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TextAnalyzer 
-              onTextSubmitted={handleTextAnalysis}
-              isProcessing={processing.isProcessing}
+            <FileUploader 
+              onFilesSelected={handleFileUpload} 
+              autoAnalyzeAudio={true}
             />
           </div>
         </TabsContent>
