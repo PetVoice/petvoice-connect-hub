@@ -117,7 +117,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
           frequency: '',
           notes: ''
         });
-        setStartDate(new Date());
+        setStartDate(undefined);
         setEndDate(undefined);
       }
     }
