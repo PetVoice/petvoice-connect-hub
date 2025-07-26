@@ -314,6 +314,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
                 ref={previewRef}
                 className="w-full h-full object-cover"
                 muted
+                autoPlay
                 playsInline
               />
               <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">

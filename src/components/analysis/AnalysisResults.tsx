@@ -18,6 +18,7 @@ import {
   FileVideo,
   FileText,
   Image,
+  Video,
   Download,
   Share2,
   BookOpen,
@@ -301,6 +302,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         icon: Image,
         title: 'Immagine Analizzata'
       };
+    } else if (analysis.file_type.includes('video')) {
+      return {
+        tabKey: 'video',
+        tabLabel: getText('videoTab'),
+        icon: Video,
+        title: 'Video Registrato'
+      };
     } else if (analysis.file_type.includes('audio')) {
       return {
         tabKey: 'audio',
@@ -366,6 +374,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
         adviceTab: 'Consigli',
         triggersTab: 'Trigger',
         audioTab: 'Audio',
+        videoTab: 'Video',
         textTab: 'Testo',
         imageTab: 'Immagine',
         secondaryEmotions: 'Emozioni Secondarie',
@@ -1247,6 +1256,37 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           <div className="p-4 bg-muted/50 border rounded-lg text-center">
                             <p className="text-muted-foreground">
                               Immagine non disponibile
+                            </p>
+                          </div>
+                      )}
+                      </div>
+                    ) : selectedAnalysis.file_type.includes('video') ? (
+                      // Show video player for video files
+                      <div className="space-y-3">
+                        {selectedAnalysis.storage_path ? (
+                          <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-950/30">
+                            <div className="flex justify-center">
+                              <video 
+                                src={`${supabase.storage.from('pet-media').getPublicUrl(selectedAnalysis.storage_path).data.publicUrl}`}
+                                controls
+                                className="max-w-full max-h-96 rounded-lg"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (nextElement) {
+                                    nextElement.style.display = 'block';
+                                  }
+                                }}
+                              />
+                              <div className="hidden text-center text-muted-foreground">
+                                <p>Impossibile caricare il video</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 bg-muted/50 border rounded-lg text-center">
+                            <p className="text-muted-foreground">
+                              Video non disponibile
                             </p>
                           </div>
                         )}
