@@ -290,7 +290,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
               Sei sicuro di voler eliminare questo documento? Questa azione non può essere annullata.
             </AlertDialogDescription>

@@ -2578,7 +2578,7 @@ const AnalysisPage: React.FC = () => {
       <ConfirmDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, open })}
-        title={deleteConfirm.isMultiple ? "Conferma eliminazione" : "Conferma eliminazione"}
+        title={deleteConfirm.isMultiple ? "Conferma Eliminazione" : "Conferma Eliminazione"}
         description={
           deleteConfirm.isMultiple 
             ? `Sei sicuro di voler eliminare ${selectedAnalyses.length} analisi?`
