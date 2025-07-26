@@ -375,19 +375,15 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
                   <span>😊 Espressioni facciali</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
                   <span>🐕 Postura corporea</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
                   <span>👁️ Direzione dello sguardo</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
                   <span>🌟 Stato d'animo generale</span>
                 </div>
               </div>

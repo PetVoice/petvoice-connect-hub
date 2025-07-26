@@ -516,19 +516,15 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <span>🎤 Analisi delle vocalizzazioni</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <span>📊 Frequenza e tono</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <span>🎯 Pattern comportamentali</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                   <span>💡 Riconoscimento emozioni</span>
                 </div>
               </div>

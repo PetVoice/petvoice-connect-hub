@@ -84,7 +84,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           Scrivi Testo
         </CardTitle>
         <CardDescription>
-          Scrivi direttamente il comportamento (max 2000 caratteri)
+          Scrivi direttamente dalla tastiera (max 2K caratteri)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 flex-1 flex flex-col">
@@ -201,19 +201,15 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>🔍 Estrazione keywords emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>📝 Analisi contestuale avanzata</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>📊 Calcolo probabilità emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>💡 Suggerimenti personalizzati</span>
                 </div>
               </div>

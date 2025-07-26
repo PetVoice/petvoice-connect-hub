@@ -383,19 +383,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>🎵 Analisi delle vocalizzazioni e tono</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>📸 Analisi postura e espressioni</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>🏃 Analisi del linguaggio corporeo</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-coral rounded-full"></div>
                   <span>🧠 Riconoscimento emozioni con Vision AI</span>
                 </div>
               </div>

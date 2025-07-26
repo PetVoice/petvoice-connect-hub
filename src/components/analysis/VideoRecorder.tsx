@@ -480,19 +480,15 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>🎭 Analisi espressioni facciali</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>🏃 Movimento e postura</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>🎵 Audio sincronizzato</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span>🧠 Riconoscimento patterns comportamentali</span>
                 </div>
               </div>
