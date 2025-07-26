@@ -294,40 +294,72 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!recordingState.isRecording || !streamRef.current) return;
+    if (!recordingState.isRecording || !mediaRecorderRef.current) return;
     
     try {
       // Switch facing mode
       const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
       setFacingMode(newFacingMode);
       
-      // Get new video stream with switched camera (only video, keep same audio)
-      const newVideoStream = await navigator.mediaDevices.getUserMedia({
+      // Get new stream with switched camera
+      const newStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: newFacingMode
         },
-        audio: false  // Don't get new audio to avoid interruption
+        audio: true
       });
       
-      const newVideoTrack = newVideoStream.getVideoTracks()[0];
-      const currentVideoTrack = streamRef.current.getVideoTracks()[0];
-      
-      if (newVideoTrack && currentVideoTrack) {
-        // Replace the video track in the existing stream
-        streamRef.current.removeTrack(currentVideoTrack);
-        streamRef.current.addTrack(newVideoTrack);
-        
-        // Stop the old video track
-        currentVideoTrack.stop();
-        
-        // Update preview with new video track
-        if (previewRef.current) {
-          previewRef.current.srcObject = streamRef.current;
-          previewRef.current.play();
-        }
-        
-        console.log('Camera switched successfully');
+      // Update preview immediately
+      if (previewRef.current) {
+        previewRef.current.srcObject = newStream;
+        previewRef.current.play();
       }
+      
+      // Stop old stream
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
+      // Update stream reference
+      streamRef.current = newStream;
+      
+      // Request data from current recorder before stopping
+      if (mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.requestData();
+      }
+      
+      // Create new MediaRecorder with new stream but keep same chunks array
+      // This way all chunks will be combined into one video
+      const newRecorder = new MediaRecorder(newStream);
+      
+      newRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);  // Same chunks array = continuous video
+        }
+      };
+      
+      newRecorder.onstop = () => {
+        const videoBlob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        
+        setRecordingState(prev => ({
+          ...prev,
+          videoBlob,
+          videoUrl,
+          isRecording: false,
+          isPaused: false
+        }));
+
+        if (previewRef.current) {
+          previewRef.current.srcObject = null;
+        }
+      };
+      
+      // Replace the recorder and start immediately
+      mediaRecorderRef.current = newRecorder;
+      mediaRecorderRef.current.start(1000);
+      
+      console.log('Camera switched, recording continues...');
       
     } catch (error) {
       console.error('Error switching camera:', error);
