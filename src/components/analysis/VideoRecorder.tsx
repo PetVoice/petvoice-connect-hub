@@ -118,7 +118,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     try {
       console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true,
+        video: {
+          facingMode: 'environment' // Camera posteriore
+        },
         audio: true
       });
       
