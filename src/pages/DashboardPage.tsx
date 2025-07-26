@@ -82,7 +82,7 @@ const DashboardPage: React.FC = () => {
   const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
-  const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number, unit: string, date: string}}>({});
+  const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number | string, unit: string, date: string}}>({});
   const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string}}>({});
   const [medicationStats, setMedicationStats] = useState<{[key: string]: {dosage: string, frequency: string, lastTaken: string}}>({});
   
@@ -104,7 +104,7 @@ const DashboardPage: React.FC = () => {
     open: boolean;
     mode: 'add' | 'edit';
     vitalType: string;
-    currentValue: { value: number; unit: string; date: string } | null;
+    currentValue: { value: number | string; unit: string; date: string } | null;
   }>({
     open: false,
     mode: 'add',
@@ -529,45 +529,36 @@ const DashboardPage: React.FC = () => {
       onConfirm: async () => {
         try {
           if (type === 'vitals') {
-            // Remove from local state immediately for UI responsiveness
+            // Map Italian vital types to database metric types  
+            const vitalTypeMapping = {
+              'temperatura': 'temperature',
+              'frequenza_cardiaca': 'heart_rate',
+              'respirazione': 'breathing_rate',
+              'colore_gengive': 'gum_color'
+            };
+
+            const dbMetricType = vitalTypeMapping[itemId as keyof typeof vitalTypeMapping];
+            
+            if (dbMetricType && selectedPet && user) {
+              // Delete from database
+              const { error } = await supabase
+                .from('health_metrics')
+                .delete()
+                .eq('pet_id', selectedPet.id)
+                .eq('user_id', user.id)
+                .eq('metric_type', dbMetricType)
+                .order('recorded_at', { ascending: false })
+                .limit(1);
+
+              if (error) {
+                console.error('Error deleting from database:', error);
+              }
+            }
+
+            // Remove from local state
             const newVitalStats = { ...vitalStats };
             delete newVitalStats[itemId];
             setVitalStats(newVitalStats);
-            
-            // Try to remove from database if possible
-            if (selectedPet && user) {
-              try {
-                // For temperature from diary_entries
-                if (itemId === 'temperatura') {
-                  const { error } = await supabase
-                    .from('diary_entries')
-                    .update({ temperature: null })
-                    .eq('pet_id', selectedPet.id)
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
-                  
-                  if (error) console.warn('Could not remove temperature from diary:', error);
-                }
-                
-                // For other vitals from health_metrics
-                if (['frequenza_cardiaca', 'respirazione', 'colore_gengive'].includes(itemId)) {
-                  const { error } = await supabase
-                    .from('health_metrics')
-                    .delete()
-                    .eq('pet_id', selectedPet.id)
-                    .eq('user_id', user.id)
-                    .eq('metric_type', itemId)
-                    .order('recorded_at', { ascending: false })
-                    .limit(1);
-                  
-                  if (error) console.warn('Could not remove health metric:', error);
-                }
-              } catch (dbError) {
-                console.warn('Database cleanup failed:', dbError);
-                // Continue with local removal even if DB fails
-              }
-            }
             
             toast({
               title: "Parametro vitale eliminato",
@@ -582,6 +573,7 @@ const DashboardPage: React.FC = () => {
           }
           setConfirmDialog(prev => ({ ...prev, open: false }));
         } catch (error) {
+          console.error('Error deleting item:', error);
           toast({
             title: "Errore",
             description: "Si è verificato un errore durante l'eliminazione.",
@@ -604,14 +596,137 @@ const DashboardPage: React.FC = () => {
     }
 
     try {
-      const newVitalStats = { ...vitalStats };
-      newVitalStats[vitalModal.vitalType] = {
-        value: parseFloat(vitalForm.value),
-        unit: vitalForm.unit,
-        date: format(new Date(), 'dd/MM')
+      // Map Italian vital types to database metric types
+      const vitalTypeMapping = {
+        'temperatura': 'temperature',
+        'frequenza_cardiaca': 'heart_rate',
+        'respirazione': 'breathing_rate', 
+        'colore_gengive': 'gum_color'
       };
+
+      const dbMetricType = vitalTypeMapping[vitalModal.vitalType as keyof typeof vitalTypeMapping];
       
-      setVitalStats(newVitalStats);
+      if (!dbMetricType) {
+        throw new Error('Tipo di parametro vitale non riconosciuto');
+      }
+
+      let valueToSave: number;
+      
+      // Handle different value types
+      if (vitalModal.vitalType === 'colore_gengive') {
+        // Map color values to numbers for database
+        const colorMapping = {
+          'rosa': 1,
+          'pallide': 2, 
+          'blu/viola': 3,
+          'gialle': 4
+        };
+        valueToSave = colorMapping[vitalForm.value as keyof typeof colorMapping] || 1;
+      } else {
+        valueToSave = parseFloat(vitalForm.value);
+      }
+
+      if (vitalModal.mode === 'edit') {
+        // Update existing record
+        const { error } = await supabase
+          .from('health_metrics')
+          .update({
+            value: valueToSave,
+            unit: vitalForm.unit,
+            recorded_at: new Date().toISOString()
+          })
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('metric_type', dbMetricType)
+          .order('recorded_at', { ascending: false })
+          .limit(1);
+
+        if (error) throw error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from('health_metrics')
+          .insert({
+            user_id: user.id,
+            pet_id: selectedPet.id,
+            metric_type: dbMetricType,
+            value: valueToSave,
+            unit: vitalForm.unit,
+            recorded_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+      }
+
+      // Reload the dashboard data to reflect changes
+      const loadPetStats = async () => {
+        if (!selectedPet || !user) return;
+
+        setLoading(true);
+        try {
+          // Reload all the data (simplified version focusing on health metrics)
+          const { data: healthMetrics } = await supabase
+            .from('health_metrics')
+            .select('*')
+            .eq('pet_id', selectedPet.id)
+            .eq('user_id', user.id)
+            .order('recorded_at', { ascending: false });
+
+          // Update vitalStats from fresh database data
+          const vitals: {[key: string]: {value: number | string, unit: string, date: string}} = {};
+          
+          if (healthMetrics && healthMetrics.length > 0) {
+            // Group by metric_type and get the latest for each
+            const latestMetrics: {[key: string]: any} = {};
+            healthMetrics.forEach(metric => {
+              if (!latestMetrics[metric.metric_type] || 
+                  new Date(metric.recorded_at) > new Date(latestMetrics[metric.metric_type].recorded_at)) {
+                latestMetrics[metric.metric_type] = metric;
+              }
+            });
+
+            // Map back to Italian keys and handle special cases
+            Object.entries(latestMetrics).forEach(([metricType, metric]) => {
+              const italianKeyMapping = {
+                'temperature': 'temperatura',
+                'heart_rate': 'frequenza_cardiaca',
+                'breathing_rate': 'respirazione',
+                'gum_color': 'colore_gengive'
+              };
+
+              const italianKey = italianKeyMapping[metricType as keyof typeof italianKeyMapping];
+              if (italianKey) {
+                let displayValue: number | string = metric.value;
+                
+                // Handle gum color mapping back to Italian
+                if (metricType === 'gum_color') {
+                  const colorValueMapping = {
+                    1: 'rosa',
+                    2: 'pallide',
+                    3: 'blu/viola', 
+                    4: 'gialle'
+                  };
+                  displayValue = colorValueMapping[metric.value as keyof typeof colorValueMapping] || 'rosa';
+                }
+
+                vitals[italianKey] = {
+                  value: displayValue,
+                  unit: metric.unit || '',
+                  date: format(new Date(metric.recorded_at), 'dd/MM')
+                };
+              }
+            });
+          }
+          
+          setVitalStats(vitals);
+        } catch (error) {
+          console.error('Error reloading pet stats:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      await loadPetStats();
       setVitalModal({ open: false, mode: 'add', vitalType: '', currentValue: null });
       
       toast({
@@ -619,6 +734,7 @@ const DashboardPage: React.FC = () => {
         description: `${vitalModal.vitalType.replace('_', ' ')} è stato ${vitalModal.mode === 'add' ? 'aggiunto' : 'modificato'} con successo.`,
       });
     } catch (error) {
+      console.error('Error saving vital:', error);
       toast({
         title: "Errore",
         description: "Si è verificato un errore durante il salvataggio.",
