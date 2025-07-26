@@ -842,6 +842,7 @@ const DashboardPage: React.FC = () => {
             value: valueToSave,
             unit: vitalForm.unit,
             recorded_at: new Date().toISOString()
+          })
           .eq('pet_id', selectedPet.id)
           .eq('user_id', user.id)
           .eq('metric_type', dbMetricType)
@@ -1792,13 +1793,14 @@ const DashboardPage: React.FC = () => {
                     <Pill className="h-5 w-5 mr-2" />
                     Registra Farmaci
                   </Button>
-                </div>
+                    );
                   })}
             </CardContent>
           </Card>
         </div>
-                    );
-                  })}
+                  });
+                  console.log('Medications rendered successfully');
+                  return null; // Temporary fix
 
       {/* Visite Recenti e Assicurazione - Side by side */}
       {selectedPet && (
