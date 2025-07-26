@@ -83,13 +83,33 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={handleConfirm}
-            className={variant === 'destructive' ? '!bg-red-600 !text-white !hover:bg-red-700 !focus:ring-red-500 !border-red-600' : 'petvoice-button'}
-            style={variant === 'destructive' ? { backgroundColor: '#dc2626 !important', color: 'white !important' } : undefined}
-          >
-            {confirmText}
-          </AlertDialogAction>
+          {variant === 'destructive' ? (
+            <button
+              onClick={handleConfirm}
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#b91c1c';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc2626';
+              }}
+            >
+              {confirmText}
+            </button>
+          ) : (
+            <AlertDialogAction onClick={handleConfirm} className="petvoice-button">
+              {confirmText}
+            </AlertDialogAction>
+          )}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
