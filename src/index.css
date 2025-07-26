@@ -21,6 +21,13 @@
     --azure-dark: 200 80% 55%;       /* Same as sky-dark */
     --azure-glow: 210 75% 75%;       /* Same as sky-accent */
     
+    /* Pink System for Female Pets */
+    --pink-main: 320 75% 75%;        /* Rosa principale */
+    --pink-light: 320 85% 90%;       /* Rosa molto chiaro */
+    --pink-soft: 320 60% 85%;        /* Rosa tenue */
+    --pink-dark: 320 70% 60%;        /* Rosa scuro */
+    --pink-accent: 310 70% 80%;      /* Rosa accent */
+    
     /* Light Theme - Azzurrino Chiaro */
     --background: 0 0% 100%;         /* Pure white for better contrast */
     --foreground: 220 20% 20%;       /* Darker for better readability */
@@ -694,4 +701,85 @@ button:focus-visible,
 /* Migliora la visibilità del focus su elementi custom */
 .custom-interactive:focus {
   @apply ring-2 ring-primary ring-offset-2 outline-none;
+}
+
+/* ================================================================
+   TEMI BASATI SUL GENERE DEL PET
+   ================================================================ */
+
+/* Tema per pet maschi - Azzurrino */
+.male-theme {
+  --primary: 200 85% 70%;          /* Azzurrino principale */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 200 25% 95%;        
+  --accent: 200 30% 94%;           
+  --ring: 200 85% 70%;             
+  --sidebar-primary: 200 85% 70%;
+  --sidebar-ring: 200 85% 70%;
+  
+  /* Gradients azzurrini */
+  --gradient-primary: linear-gradient(135deg, hsl(200 85% 70%), hsl(200 85% 70% / 0.7));
+  --gradient-azure: linear-gradient(135deg, hsl(200 85% 70%), hsl(200 25% 95%));
+  --gradient-hero: linear-gradient(135deg, hsl(200 85% 70%), hsl(var(--background)));
+  
+  /* Shadows azzurrini */
+  --shadow-soft: 0 4px 6px -1px hsl(200 85% 70% / 0.1), 0 2px 4px -1px hsl(200 85% 70% / 0.05);
+  --shadow-medium: 0 10px 15px -3px hsl(200 85% 70% / 0.15), 0 4px 6px -4px hsl(200 85% 70% / 0.1);
+  --shadow-glow: 0 0 0 1px hsl(200 85% 70% / 0.1), 0 0 25px hsl(200 85% 70% / 0.2);
+  --shadow-elegant: 0 8px 25px -5px hsl(200 85% 70% / 0.1), 0 4px 12px -2px hsl(200 85% 70% / 0.05);
+  --shadow-floating: 0 20px 40px -12px hsl(200 85% 70% / 0.25);
+}
+
+/* Tema per pet femmine - Rosa */
+.female-theme {
+  --primary: 320 75% 75%;          /* Rosa principale */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 320 25% 95%;        
+  --accent: 320 30% 94%;           
+  --ring: 320 75% 75%;             
+  --sidebar-primary: 320 75% 75%;
+  --sidebar-ring: 320 75% 75%;
+  
+  /* Gradients rosa */
+  --gradient-primary: linear-gradient(135deg, hsl(320 75% 75%), hsl(320 75% 75% / 0.7));
+  --gradient-azure: linear-gradient(135deg, hsl(320 75% 75%), hsl(320 25% 95%));
+  --gradient-hero: linear-gradient(135deg, hsl(320 75% 75%), hsl(var(--background)));
+  
+  /* Shadows rosa */
+  --shadow-soft: 0 4px 6px -1px hsl(320 75% 75% / 0.1), 0 2px 4px -1px hsl(320 75% 75% / 0.05);
+  --shadow-medium: 0 10px 15px -3px hsl(320 75% 75% / 0.15), 0 4px 6px -4px hsl(320 75% 75% / 0.1);
+  --shadow-glow: 0 0 0 1px hsl(320 75% 75% / 0.1), 0 0 25px hsl(320 75% 75% / 0.2);
+  --shadow-elegant: 0 8px 25px -5px hsl(320 75% 75% / 0.1), 0 4px 12px -2px hsl(320 75% 75% / 0.05);
+  --shadow-floating: 0 20px 40px -12px hsl(320 75% 75% / 0.25);
+}
+
+/* Dark theme overrides per temi di genere */
+.dark.male-theme {
+  --primary: 200 85% 75%;          /* Azzurrino più chiaro in dark mode */
+  --primary-foreground: 220 25% 5%;
+  --ring: 200 85% 75%;
+  --sidebar-primary: 200 85% 75%;
+  --sidebar-ring: 200 85% 75%;
+  
+  /* Shadows azzurrini dark */
+  --shadow-soft: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(200 85% 75% / 0.1);
+  --shadow-medium: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(200 85% 75% / 0.15);
+  --shadow-glow: 0 0 0 1px hsl(200 85% 75% / 0.15), 0 0 30px hsl(200 85% 75% / 0.25);
+  --shadow-elegant: 0 8px 25px -5px hsl(0 0% 0% / 0.3), 0 4px 12px -2px hsl(200 85% 75% / 0.1);
+  --shadow-floating: 0 20px 40px -12px hsl(200 85% 75% / 0.3);
+}
+
+.dark.female-theme {
+  --primary: 320 75% 80%;          /* Rosa più chiaro in dark mode */
+  --primary-foreground: 220 25% 5%;
+  --ring: 320 75% 80%;
+  --sidebar-primary: 320 75% 80%;
+  --sidebar-ring: 320 75% 80%;
+  
+  /* Shadows rosa dark */
+  --shadow-soft: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -1px hsl(320 75% 80% / 0.1);
+  --shadow-medium: 0 10px 15px -3px hsl(0 0% 0% / 0.4), 0 4px 6px -4px hsl(320 75% 80% / 0.15);
+  --shadow-glow: 0 0 0 1px hsl(320 75% 80% / 0.15), 0 0 30px hsl(320 75% 80% / 0.25);
+  --shadow-elegant: 0 8px 25px -5px hsl(0 0% 0% / 0.3), 0 4px 12px -2px hsl(320 75% 80% / 0.1);
+  --shadow-floating: 0 20px 40px -12px hsl(320 75% 80% / 0.3);
 }

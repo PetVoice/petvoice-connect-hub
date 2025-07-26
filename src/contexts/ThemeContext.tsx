@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { usePets } from './PetContext';
 
 type Theme = 'dark' | 'light';
+type GenderTheme = 'male' | 'female' | 'default';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  genderTheme: GenderTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -35,14 +38,27 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     return defaultTheme;
   });
 
+  const { selectedPet } = usePets();
+  
+  const genderTheme: GenderTheme = selectedPet?.gender === 'male' ? 'male' : 
+                                   selectedPet?.gender === 'female' ? 'female' : 'default';
+
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+    root.classList.remove('light', 'dark', 'male-theme', 'female-theme');
     root.classList.add(theme);
-  }, [theme]);
+    
+    // Applica il tema basato sul genere
+    if (genderTheme === 'male') {
+      root.classList.add('male-theme');
+    } else if (genderTheme === 'female') {
+      root.classList.add('female-theme');
+    }
+  }, [theme, genderTheme]);
 
   const value = {
     theme,
+    genderTheme,
     setTheme: (newTheme: Theme) => {
       localStorage.setItem(storageKey, newTheme);
       setTheme(newTheme);
