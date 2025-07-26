@@ -555,49 +555,6 @@ const DashboardPage: React.FC = () => {
     loadMeds();
   }, [selectedPet, user]);
 
-  // Check for expired medications periodically (every 5 minutes)
-  useEffect(() => {
-    if (!selectedPet || !user) return;
-
-    const checkExpiredMedications = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('pet_medications')
-          .select('*')
-          .eq('pet_id', selectedPet.id)
-          .eq('user_id', user.id)
-          .eq('is_active', true);
-
-        if (error) throw error;
-
-        const now = new Date();
-        const expiredMedications = (data || []).filter(medication => 
-          medication.end_date && 
-          new Date(medication.end_date) < now && 
-          !medication.has_been_evaluated
-        );
-
-        // Show evaluation modal for the first expired medication (only if modal not already open)
-        if (expiredMedications.length > 0 && !medicationEvaluationModal.open) {
-          setMedicationEvaluationModal({
-            open: true,
-            medication: expiredMedications[0]
-          });
-        }
-      } catch (error) {
-        console.error('Error checking expired medications:', error);
-      }
-    };
-
-    // Check immediately
-    checkExpiredMedications();
-
-    // Set up interval to check every 5 minutes
-    const interval = setInterval(checkExpiredMedications, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [selectedPet, user, medicationEvaluationModal.open]);
-
   // Load medications function accessible by other functions
   const loadMedications = async () => {
     if (!selectedPet || !user) return;
