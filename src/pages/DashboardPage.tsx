@@ -1231,16 +1231,17 @@ const DashboardPage: React.FC = () => {
         // Medication worked - increase wellness score by 5-10 points
         newWellnessScore = Math.min(100, currentWellness + 8);
         toast({
-          title: "Valutazione registrata",
-          description: "Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
+          title: "✅ Valutazione registrata",
+          description: "🎉 Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
+          className: "border-green-200 bg-green-50 text-green-800",
         });
       } else {
         // Medication didn't work - decrease wellness score by 3-7 points
         newWellnessScore = Math.max(0, currentWellness - 5);
         toast({
-          title: "Valutazione registrata", 
-          description: "Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
-          variant: "destructive"
+          title: "❌ Valutazione registrata", 
+          description: "⚠️ Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
+          className: "border-red-200 bg-red-50 text-red-800",
         });
       }
 
