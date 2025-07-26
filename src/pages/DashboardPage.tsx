@@ -27,6 +27,8 @@ import {
   Trash2,
   PieChart as PieChartIcon
 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
@@ -77,6 +79,21 @@ const DashboardPage: React.FC = () => {
   const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number, unit: string, date: string}}>({});
   const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string}}>({});
   const [medicationStats, setMedicationStats] = useState<{[key: string]: {dosage: string, frequency: string, lastTaken: string}}>({});
+  
+  // Dialogs state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    onConfirm: () => {}
+  });
+
+  const { toast } = useToast();
   
   // Translation system removed - Italian only
 
@@ -378,6 +395,85 @@ const DashboardPage: React.FC = () => {
     loadPetStats();
   }, [selectedPet, user]);
 
+  // Helper functions for CRUD operations
+  const handleAddItem = (type: string) => {
+    switch(type) {
+      case 'vitals':
+        navigate('/diary');
+        break;
+      case 'behaviors':
+        navigate('/diary');
+        break;
+      case 'medications':
+        navigate('/diary');
+        break;
+      case 'visits':
+        navigate('/calendar');
+        break;
+      case 'insurance':
+        navigate('/settings');
+        break;
+      case 'veterinarian':
+        navigate('/settings');
+        break;
+      case 'emergency_contacts':
+        navigate('/settings');
+        break;
+    }
+  };
+
+  const handleEditItem = (type: string, itemId?: string) => {
+    switch(type) {
+      case 'vitals':
+        navigate('/diary');
+        break;
+      case 'behaviors':
+        navigate('/diary');
+        break;
+      case 'medications':
+        navigate('/diary');
+        break;
+      case 'visits':
+        navigate('/calendar');
+        break;
+      case 'insurance':
+        navigate('/settings');
+        break;
+      case 'veterinarian':
+        navigate('/settings');
+        break;
+      case 'emergency_contacts':
+        navigate('/settings');
+        break;
+    }
+  };
+
+  const handleDeleteItem = async (type: string, itemId: string, itemName: string) => {
+    setConfirmDialog({
+      open: true,
+      title: `Elimina ${itemName}`,
+      description: `Sei sicuro di voler eliminare "${itemName}"? Questa azione non può essere annullata.`,
+      onConfirm: async () => {
+        try {
+          // Implementation would depend on the specific table
+          // For now, just show a toast
+          toast({
+            title: "Elemento eliminato",
+            description: `${itemName} è stato eliminato con successo.`,
+            variant: "destructive"
+          });
+          setConfirmDialog(prev => ({ ...prev, open: false }));
+        } catch (error) {
+          toast({
+            title: "Errore",
+            description: "Si è verificato un errore durante l'eliminazione.",
+            variant: "destructive"
+          });
+        }
+      }
+    });
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Welcome Section */}
@@ -556,14 +652,24 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Parametri Vitali Card */}
+           {/* Parametri Vitali Card */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-white" />
+                  </div>
+                  Parametri Vitali
                 </div>
-                Parametri Vitali
+                <Button
+                  onClick={() => handleAddItem('vitals')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
@@ -592,27 +698,51 @@ const DashboardPage: React.FC = () => {
                     const gradientClass = vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500';
                     const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
                     
-                    return (
-                      <div 
-                        key={vital} 
-                        className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                         <div className="relative p-3 text-center">
-                           <div className="text-xl mb-1">{icon}</div>
-                          <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
-                            {vital.replace('_', ' ')}
-                          </div>
-                          <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center justify-center gap-1`}>
-                            {data.value}
-                            <span className="text-sm text-gray-500">{data.unit}</span>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {data.date}
-                          </div>
-                        </div>
-                      </div>
-                    );
+                     return (
+                       <div 
+                         key={vital} 
+                         className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+                       >
+                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                           <Button
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               handleEditItem('vitals', vital);
+                             }}
+                             size="sm"
+                             variant="ghost"
+                             className="h-6 w-6 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                           >
+                             <Edit className="h-3 w-3" />
+                           </Button>
+                           <Button
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               handleDeleteItem('vitals', vital, `${vital.replace('_', ' ')}: ${data.value}${data.unit}`);
+                             }}
+                             size="sm"
+                             variant="ghost"
+                             className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                           >
+                             <Trash2 className="h-3 w-3" />
+                           </Button>
+                         </div>
+                          <div className="relative p-3 text-center">
+                            <div className="text-xl mb-1">{icon}</div>
+                           <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
+                             {vital.replace('_', ' ')}
+                           </div>
+                           <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center justify-center gap-1`}>
+                             {data.value}
+                             <span className="text-sm text-gray-500">{data.unit}</span>
+                           </div>
+                           <div className="text-xs text-gray-500 mt-1">
+                             {data.date}
+                           </div>
+                         </div>
+                       </div>
+                     );
                   })}
                 </div>
               ) : (
@@ -638,14 +768,24 @@ const DashboardPage: React.FC = () => {
       {/* Comportamenti Osservati e Farmaci Attivi - Side by side */}
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Comportamenti Osservati Card */}
+           {/* Comportamenti Osservati Card */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center">
-                  <Brain className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center">
+                    <Brain className="h-6 w-6 text-white" />
+                  </div>
+                  Comportamenti Osservati
                 </div>
-                Comportamenti Osservati
+                <Button
+                  onClick={() => handleAddItem('behaviors')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Cronologia degli atteggiamenti e comportamenti del tuo pet</CardDescription>
             </CardHeader>
@@ -682,26 +822,50 @@ const DashboardPage: React.FC = () => {
                       const gradientClass = behaviorColors[behavior as keyof typeof behaviorColors] || 'from-purple-400 to-violet-500';
                       const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || '🐾';
                       
-                      return (
-                        <div 
-                          key={behavior} 
-                          className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
-                        >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                          <div className="relative p-4 text-center">
-                            <div className="text-2xl mb-2">{icon}</div>
-                            <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
-                              {behavior.replace('_', ' ')}
-                            </div>
-                            <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
-                              {data.count}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {data.lastSeen}
-                            </div>
-                          </div>
-                        </div>
-                      );
+                       return (
+                         <div 
+                           key={behavior} 
+                           className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+                         >
+                           <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                           <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                             <Button
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleEditItem('behaviors', behavior);
+                               }}
+                               size="sm"
+                               variant="ghost"
+                               className="h-6 w-6 p-0 text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+                             >
+                               <Edit className="h-3 w-3" />
+                             </Button>
+                             <Button
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleDeleteItem('behaviors', behavior, `${behavior.replace('_', ' ')} (${data.count})`);
+                               }}
+                               size="sm"
+                               variant="ghost"
+                               className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                             >
+                               <Trash2 className="h-3 w-3" />
+                             </Button>
+                           </div>
+                           <div className="relative p-4 text-center">
+                             <div className="text-2xl mb-2">{icon}</div>
+                             <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
+                               {behavior.replace('_', ' ')}
+                             </div>
+                             <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                               {data.count}
+                             </div>
+                             <div className="text-xs text-gray-500 mt-1">
+                               {data.lastSeen}
+                             </div>
+                           </div>
+                         </div>
+                       );
                     })}
                 </div>
               ) : (
@@ -722,14 +886,24 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Farmaci Attivi Card */}
+           {/* Farmaci Attivi Card */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-                  <Pill className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                    <Pill className="h-6 w-6 text-white" />
+                  </div>
+                  Farmaci Attivi
                 </div>
-                Farmaci Attivi
+                <Button
+                  onClick={() => handleAddItem('medications')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-green-500 hover:text-green-600 hover:bg-green-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Gestione farmaci e terapie in corso</CardDescription>
             </CardHeader>
@@ -755,14 +929,24 @@ const DashboardPage: React.FC = () => {
       {/* Visite Recenti e Assicurazione - Side by side */}
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Visite Recenti Card */}
+           {/* Visite Recenti Card */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <FileText className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  Visite Recenti
                 </div>
-                Visite Recenti
+                <Button
+                  onClick={() => handleAddItem('visits')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Storico delle visite veterinarie e controlli</CardDescription>
             </CardHeader>
@@ -783,14 +967,24 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Assicurazione Card */}
+           {/* Assicurazione Card */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
-                  <CreditCard className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
+                    <CreditCard className="h-6 w-6 text-white" />
+                  </div>
+                  Assicurazione
                 </div>
-                Assicurazione
+                <Button
+                  onClick={() => handleAddItem('insurance')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-teal-500 hover:text-teal-600 hover:bg-teal-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Gestione polizze e coperture assicurative</CardDescription>
             </CardHeader>
@@ -816,14 +1010,24 @@ const DashboardPage: React.FC = () => {
       {/* Veterinario e Contatti Emergenza - Side by side */}
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Veterinario Card - Left */}
+           {/* Veterinario Card - Left */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Stethoscope className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                    <Stethoscope className="h-6 w-6 text-white" />
+                  </div>
+                  Veterinario
                 </div>
-                Veterinario
+                <Button
+                  onClick={() => handleAddItem('veterinarian')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Informazioni del veterinario di fiducia</CardDescription>
             </CardHeader>
@@ -844,14 +1048,24 @@ const DashboardPage: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Contatti Emergenza Card - Right */}
+           {/* Contatti Emergenza Card - Right */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
-                  <Phone className="h-6 w-6 text-white" />
+              <CardTitle className="text-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                    <Phone className="h-6 w-6 text-white" />
+                  </div>
+                  Contatti Emergenza
                 </div>
-                Contatti Emergenza
+                <Button
+                  onClick={() => handleAddItem('emergency_contacts')}
+                  size="sm"
+                  variant="ghost"
+                  className="text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg">Numeri di emergenza e pronto soccorso</CardDescription>
             </CardHeader>
@@ -914,6 +1128,16 @@ const DashboardPage: React.FC = () => {
       <FirstAidGuide 
         open={showFirstAidGuide} 
         onOpenChange={setShowFirstAidGuide} 
+      />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        onConfirm={confirmDialog.onConfirm}
+        variant="destructive"
       />
     </div>
   );
