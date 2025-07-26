@@ -538,9 +538,10 @@ const DashboardPage: React.FC = () => {
       } catch (error) {
         console.error('Error loading medications:', error);
       }
-    };
+  };
 
     loadPetStats();
+    loadMedications();
     loadMedications();
   }, [selectedPet, user]);
 
@@ -2035,15 +2036,6 @@ const DashboardPage: React.FC = () => {
                     placeholder="Inserisci valore"
       />
 
-      {/* Medication Modal */}
-      <MedicationModal
-        isOpen={medicationModal.open}
-        onClose={() => setMedicationModal(prev => ({ ...prev, open: false }))}
-        medication={medicationModal.medication}
-        petId={selectedPet?.id || ''}
-        userId={user?.id || ''}
-        onSave={loadMedications}
-      />
                 )}
                 {vitalForm.value && vitalModal.vitalType && (() => {
                   const checkValue = vitalModal.vitalType === 'colore_gengive' ? vitalForm.value : parseFloat(vitalForm.value);
@@ -2098,6 +2090,31 @@ const DashboardPage: React.FC = () => {
         onSave={handleDiarySave}
         petId={selectedPet?.id || ''}
         userId={user?.id || ''}
+      />
+
+      {/* Medication Modal */}
+      <MedicationModal
+        isOpen={medicationModal.open}
+        onClose={() => setMedicationModal(prev => ({ ...prev, open: false }))}
+        medication={medicationModal.medication}
+        petId={selectedPet?.id || ''}
+        userId={user?.id || ''}
+        onSave={() => {
+          // Reload medications when saved
+          if (selectedPet && user) {
+            const loadMeds = async () => {
+              const { data } = await supabase
+                .from('pet_medications')
+                .select('*')
+                .eq('pet_id', selectedPet.id)
+                .eq('user_id', user.id)
+                .eq('is_active', true);
+              
+              setMedications(data || []);
+            };
+            loadMeds();
+          }
+        }}
       />
 
       {/* Confirm Dialog */}
