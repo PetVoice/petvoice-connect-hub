@@ -1171,20 +1171,20 @@ const DashboardPage: React.FC = () => {
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
                         
                         {/* Main content */}
-                        <div className="relative p-2">
+                        <div className="relative p-3">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="text-xl">{icon}</div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-2xl">{icon}</div>
                               <div>
-                                <div className="font-semibold text-gray-700 text-xs">
+                                <div className="font-semibold text-gray-700 text-sm">
                                   {label}
                                 </div>
-                                <div className={`text-sm font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
+                                <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
                                   {vital === 'colore_gengive' 
                                     ? translateGumColor(data.value.toString())
                                     : data.value
                                   }
-                                  {data.unit && <span className="text-xs text-gray-500">{data.unit}</span>}
+                                  {data.unit && <span className="text-sm text-gray-500">{data.unit}</span>}
                                 </div>
                                 <div className="text-xs text-gray-500">
                                   {data.date}
@@ -1222,17 +1222,17 @@ const DashboardPage: React.FC = () => {
                             </div>
                           </div>
                           
-                          {/* Range indicator - Compact version */}
-                          <div className="mt-1">
+                          {/* Range indicator */}
+                          <div className="mt-2 px-2 py-1 rounded-md">
                             {rangeCheck.isNormal ? (
-                              <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-1 py-0.5 rounded text-xs">
-                                <div className="h-2 w-2 rounded-full bg-green-600"></div>
-                                <span className="text-green-700">Normale</span>
+                              <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-2 py-1 rounded-md">
+                                <div className="h-3 w-3 rounded-full bg-green-600"></div>
+                                <span className="text-xs text-green-700">Valori nella norma - Il pet sta bene</span>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-1 py-0.5 rounded text-xs">
-                                <AlertTriangle className="h-2 w-2 text-red-600" />
-                                <span className="text-red-700">Attenzione</span>
+                              <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-2 py-1 rounded-md">
+                                <AlertTriangle className="h-3 w-3 text-red-600" />
+                                <span className="text-xs text-red-700">{rangeCheck.message}</span>
                               </div>
                             )}
                           </div>
