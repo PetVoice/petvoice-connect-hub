@@ -45,6 +45,8 @@ interface Pet {
   avatar_url: string | null;
   is_active: boolean;
   created_at: string;
+  gender: 'male' | 'female' | 'unknown';
+  microchip_number?: string;
 }
 
 const dogBreeds = {
@@ -149,6 +151,18 @@ const getPetEmoji = (type: string) => {
   return '🐾'; // Default
 };
 
+// Funzione per ottenere le classi di colore in base al gender
+const getGenderClasses = (gender: string) => {
+  switch (gender) {
+    case 'female':
+      return 'bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200/50 shadow-pink-100/20';
+    case 'male':
+      return 'bg-gradient-to-br from-blue-50 to-sky-50 border-blue-200/50 shadow-sky-100/20';
+    default:
+      return '';
+  }
+};
+
 const PetsPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, loading, updatePet, deletePet, addPet } = usePets();
@@ -171,7 +185,9 @@ const PetsPage: React.FC = () => {
     fears: '',
     favorite_activities: '',
     health_conditions: '',
-    personality_traits: ''
+    personality_traits: '',
+    gender: 'unknown' as 'male' | 'female' | 'unknown',
+    microchip_number: ''
   });
   const [birthDate, setBirthDate] = useState({
     day: '',
@@ -236,6 +252,8 @@ const PetsPage: React.FC = () => {
         favorite_activities: formData.favorite_activities || null,
         health_conditions: formData.health_conditions || null,
         personality_traits: formData.personality_traits || null,
+        gender: formData.gender,
+        microchip_number: formData.microchip_number || null,
       };
 
       if (editingPet) {
@@ -288,7 +306,9 @@ const PetsPage: React.FC = () => {
       fears: pet.fears || '',
       favorite_activities: pet.favorite_activities || '',
       health_conditions: pet.health_conditions || '',
-      personality_traits: pet.personality_traits || ''
+      personality_traits: pet.personality_traits || '',
+      gender: pet.gender || 'unknown',
+      microchip_number: pet.microchip_number || ''
     });
 
     // Set birth date if available
@@ -347,7 +367,9 @@ const PetsPage: React.FC = () => {
       fears: '',
       favorite_activities: '',
       health_conditions: '',
-      personality_traits: ''
+      personality_traits: '',
+      gender: 'unknown' as 'male' | 'female' | 'unknown',
+      microchip_number: ''
     });
     setBirthDate({
       day: '',
@@ -571,17 +593,44 @@ const PetsPage: React.FC = () => {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="personality_traits">Tratti caratteriali</Label>
-                  <Input
-                    id="personality_traits"
-                    value={formData.personality_traits}
-                    onChange={(e) => setFormData({...formData, personality_traits: e.target.value})}
-                    placeholder="es. giocoso, timido"
-                  />
-                </div>
+                 <div>
+                   <Label htmlFor="personality_traits">Tratti caratteriali</Label>
+                   <Input
+                     id="personality_traits"
+                     value={formData.personality_traits}
+                     onChange={(e) => setFormData({...formData, personality_traits: e.target.value})}
+                     placeholder="es. giocoso, timido"
+                   />
+                 </div>
 
-                <div className="md:col-span-2">
+                 <div>
+                   <Label htmlFor="gender">Sesso</Label>
+                   <Select 
+                     value={formData.gender} 
+                     onValueChange={(value) => setFormData({...formData, gender: value as 'male' | 'female' | 'unknown'})}
+                   >
+                     <SelectTrigger>
+                       <SelectValue placeholder="Seleziona il sesso" />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="male">Maschio</SelectItem>
+                       <SelectItem value="female">Femmina</SelectItem>
+                       <SelectItem value="unknown">Non specificato</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
+
+                 <div>
+                   <Label htmlFor="microchip_number">Numero microchip</Label>
+                   <Input
+                     id="microchip_number"
+                     value={formData.microchip_number}
+                     onChange={(e) => setFormData({...formData, microchip_number: e.target.value})}
+                     placeholder="es. 380123456789012"
+                   />
+                 </div>
+
+                 <div className="md:col-span-2">
                   <Label htmlFor="description">Descrizione generale</Label>
                   <Textarea
                     id="description"
@@ -634,7 +683,7 @@ const PetsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pets.map((pet) => (
-            <Card key={pet.id} className="petvoice-card">
+            <Card key={pet.id} className={`petvoice-card ${getGenderClasses(pet.gender || 'unknown')}`}>
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
@@ -672,18 +721,32 @@ const PetsPage: React.FC = () => {
                     </div>
                   )}
 
-                  {pet.favorite_activities && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Ama</span>
-                      <span className="text-right">{pet.favorite_activities}</span>
-                    </div>
-                  )}
+                   {pet.favorite_activities && (
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">Ama</span>
+                       <span className="text-right">{pet.favorite_activities}</span>
+                     </div>
+                   )}
 
-                  {pet.description && (
-                    <p className="text-sm text-muted-foreground mt-3 line-clamp-3">
-                      {pet.description}
-                    </p>
-                  )}
+                   {pet.gender && pet.gender !== 'unknown' && (
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">Sesso</span>
+                       <span className="text-right">{pet.gender === 'male' ? 'Maschio' : 'Femmina'}</span>
+                     </div>
+                   )}
+
+                   {pet.microchip_number && (
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">Microchip</span>
+                       <span className="text-right font-mono text-xs">{pet.microchip_number}</span>
+                     </div>
+                   )}
+
+                   {pet.description && (
+                     <p className="text-sm text-muted-foreground mt-3 line-clamp-3">
+                       {pet.description}
+                     </p>
+                   )}
                   
                   <div className="flex gap-2 pt-3">
                     <Button

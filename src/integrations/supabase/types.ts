@@ -2185,9 +2185,11 @@ export type Database = {
           description: string | null
           favorite_activities: string | null
           fears: string | null
+          gender: string | null
           health_conditions: string | null
           id: string
           is_active: boolean | null
+          microchip_number: string | null
           name: string
           personality_traits: string | null
           type: string
@@ -2205,9 +2207,11 @@ export type Database = {
           description?: string | null
           favorite_activities?: string | null
           fears?: string | null
+          gender?: string | null
           health_conditions?: string | null
           id?: string
           is_active?: boolean | null
+          microchip_number?: string | null
           name: string
           personality_traits?: string | null
           type: string
@@ -2225,9 +2229,11 @@ export type Database = {
           description?: string | null
           favorite_activities?: string | null
           fears?: string | null
+          gender?: string | null
           health_conditions?: string | null
           id?: string
           is_active?: boolean | null
+          microchip_number?: string | null
           name?: string
           personality_traits?: string | null
           type?: string
