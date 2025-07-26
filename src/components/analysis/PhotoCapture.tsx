@@ -210,7 +210,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
   };
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-pink/5 to-pink/10 border border-pink/20 shadow-soft hover:shadow-glow transition-all duration-200">
+    <Card className="h-full bg-gradient-to-br from-pink/5 to-pink/10 border border-pink/20 shadow-soft hover:shadow-glow transition-all duration-200 flex flex-col">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Image className="h-5 w-5 text-pink-600" />
@@ -220,7 +220,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
           Scatta direttamente dalla camera (max 10 MB)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 flex-1 flex flex-col">
         {permission === 'denied' && (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
             <AlertCircle className="h-4 w-4" />

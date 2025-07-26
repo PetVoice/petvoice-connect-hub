@@ -220,7 +220,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const shouldHideAnalysisButton = (autoAnalyzeAudio && hasAudioFiles) || hasImageFiles || hasVideoFiles;
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-coral/5 to-coral/10 border border-coral/20 shadow-soft hover:shadow-glow transition-all duration-200">
+    <Card className="h-full bg-gradient-to-br from-coral/5 to-coral/10 border border-coral/20 shadow-soft hover:shadow-glow transition-all duration-200 flex flex-col">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Upload className="h-5 w-5 text-coral" />
@@ -230,7 +230,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           Carica direttamente dalla memoria (max {maxSizePerFile}MB)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1 flex flex-col">
         {/* Drop Zone */}
         <div
           className={cn(

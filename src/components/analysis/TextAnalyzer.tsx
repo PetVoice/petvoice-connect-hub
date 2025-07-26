@@ -64,7 +64,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
   ];
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-indigo/5 to-indigo/10 border border-indigo/20 shadow-soft hover:shadow-glow transition-all duration-200">
+    <Card className="h-full bg-gradient-to-br from-indigo/5 to-indigo/10 border border-indigo/20 shadow-soft hover:shadow-glow transition-all duration-200 flex flex-col">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <MessageSquare className="h-5 w-5 text-indigo-600" />
@@ -74,7 +74,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           Descrivi il comportamento del tuo pet per un'analisi comportamentale approfondita
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 flex-1 flex flex-col">
         {/* Text Input Area */}
         <div className="text-center space-y-4">
           <div className="relative w-32 h-32 mx-auto">

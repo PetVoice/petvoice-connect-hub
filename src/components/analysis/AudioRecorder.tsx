@@ -333,7 +333,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-orange/5 to-orange/10 border border-orange/20 shadow-soft hover:shadow-glow transition-all duration-200">
+    <Card className="h-full bg-gradient-to-br from-orange/5 to-orange/10 border border-orange/20 shadow-soft hover:shadow-glow transition-all duration-200 flex flex-col">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Volume2 className="h-5 w-5 text-orange-600" />
@@ -343,7 +343,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           Registra direttamente dal microfono (max {Math.floor(maxDuration / 60)} minuti)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 flex-1 flex flex-col">
         {permission === 'denied' && (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
             <AlertCircle className="h-4 w-4" />
