@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
-import { toast } from '@/hooks/use-toast';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { usePets } from '@/contexts/PetContext';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
@@ -21,7 +20,7 @@ import { DiaryEntry, DayEntriesModalState } from '@/types/diary';
 const DiaryPage: React.FC = () => {
   const { pets, selectedPet } = usePets();
   const { triggerDiaryAdded } = useNotificationEventsContext();
-  const { showToast } = useTranslatedToast();
+  const { showErrorToast, showDiaryToast, showDeleteToast, showSuccessToast } = useUnifiedToast();
   
   // State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -64,10 +63,9 @@ const DiaryPage: React.FC = () => {
       setEntries(data || []);
     } catch (error) {
       console.error('Error loading entries:', error);
-      showToast({
+      showErrorToast({
         title: 'error.title',
-        description: 'diary.error.cannotLoad',
-        variant: 'destructive'
+        description: 'diary.error.cannotLoad'
       });
     } finally {
       setLoading(false);
@@ -154,10 +152,9 @@ const DiaryPage: React.FC = () => {
           .eq('id', editingEntry.id);
 
         if (error) throw error;
-        showToast({
+        showDiaryToast({
           title: 'diary.entryUpdated.title',
-          description: 'diary.entryUpdated.description',
-          variant: 'success'
+          description: 'diary.entryUpdated.description'
         });
       } else {
         const { error } = await supabase
@@ -165,10 +162,9 @@ const DiaryPage: React.FC = () => {
           .insert(data);
 
         if (error) throw error;
-        showToast({
+        showDiaryToast({
           title: 'diary.entryCreated.title',
-          description: 'diary.entryCreated.description',
-          variant: 'success'
+          description: 'diary.entryCreated.description'
         });
         
         // Trigger notification for new diary entry
@@ -182,10 +178,9 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error saving entry:', error);
-      showToast({
+      showErrorToast({
         title: 'error.title',
-        description: 'diary.error.cannotSave',
-        variant: 'destructive'
+        description: 'diary.error.cannotSave'
       });
     }
   };
@@ -292,18 +287,16 @@ const DiaryPage: React.FC = () => {
       // Save PDF
       doc.save(`diario-${selectedPet.name}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
       
-      showToast({
+      showSuccessToast({
         title: 'diary.pdfExported.title',
         description: 'diary.pdfExported.description',
-        variant: 'success',
         variables: { petName: selectedPet.name }
       });
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      showToast({
+      showErrorToast({
         title: 'error.title',
-        description: 'diary.error.cannotExport',
-        variant: 'destructive'
+        description: 'diary.error.cannotExport'
       });
     }
   };
@@ -317,10 +310,9 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      showToast({
+      showDeleteToast({
         title: 'diary.entryDeleted.title',
-        description: 'diary.entryDeleted.description',
-        variant: 'success'
+        description: 'diary.entryDeleted.description'
       });
       
       // Update modal state
@@ -332,10 +324,9 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error deleting entry:', error);
-      showToast({
+      showErrorToast({
         title: 'error.title',
-        description: 'diary.error.cannotDelete',
-        variant: 'destructive'
+        description: 'diary.error.cannotDelete'
       });
     }
   };
@@ -349,10 +340,9 @@ const DiaryPage: React.FC = () => {
 
       if (error) throw error;
       
-      showToast({
+      showDeleteToast({
         title: 'diary.entriesDeleted.title',
         description: 'diary.entriesDeleted.description',
-        variant: 'success',
         variables: { count: entryIds.length.toString() }
       });
       
@@ -365,10 +355,9 @@ const DiaryPage: React.FC = () => {
       loadEntries();
     } catch (error) {
       console.error('Error deleting entries:', error);
-      showToast({
+      showErrorToast({
         title: 'error.title',
-        description: 'diary.error.cannotDeleteMultiple',
-        variant: 'destructive'
+        description: 'diary.error.cannotDeleteMultiple'
       });
     }
   };
