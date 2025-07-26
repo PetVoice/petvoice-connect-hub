@@ -506,6 +506,13 @@ const DashboardPage: React.FC = () => {
           mode: 'add',
           entry: null
         });
+        // Aggiungo un piccolo suggerimento per l'utente
+        setTimeout(() => {
+          toast({
+            title: "💡 Suggerimento",
+            description: "Ricordati di selezionare dei tag comportamentali per vederli nella dashboard!",
+          });
+        }, 1000);
         break;
       case 'medications':
         navigate('/diary');
