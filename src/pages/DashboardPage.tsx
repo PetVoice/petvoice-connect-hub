@@ -538,10 +538,9 @@ const DashboardPage: React.FC = () => {
       } catch (error) {
         console.error('Error loading medications:', error);
       }
-  };
+    };
 
     loadPetStats();
-    loadMedications();
     loadMedications();
   }, [selectedPet, user]);
 
