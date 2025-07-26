@@ -100,9 +100,25 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (medication) {
+        // Extract medication type and name from stored format "Type - Name"
+        const fullName = medication.medication_name;
+        let medicationType = '';
+        let medicationName = fullName;
+        
+        // Check if the name contains a type prefix
+        const typeSeparatorIndex = fullName.indexOf(' - ');
+        if (typeSeparatorIndex > 0) {
+          const extractedType = fullName.substring(0, typeSeparatorIndex);
+          // Check if the extracted type is in our valid types list
+          if (medicationTypes.includes(extractedType)) {
+            medicationType = extractedType;
+            medicationName = fullName.substring(typeSeparatorIndex + 3);
+          }
+        }
+        
         setFormData({
-          medication_name: medication.medication_name,
-          medication_type: '',
+          medication_name: medicationName,
+          medication_type: medicationType,
           dosage: medication.dosage,
           frequency: medication.frequency,
           notes: medication.notes || ''
