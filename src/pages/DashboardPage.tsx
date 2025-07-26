@@ -1010,8 +1010,47 @@ const DashboardPage: React.FC = () => {
         });
       }
 
-      // Trigger a reload by updating loading state
-      window.location.reload();
+      // Ricarica manualmente i dati del comportamento
+      if (selectedPet && user) {
+        const { data: diaryEntries } = await supabase
+          .from('diary_entries')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .order('entry_date', { ascending: false });
+
+        // Ricalcola le statistiche dei comportamenti
+        const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
+        const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
+        
+        if (diaryEntries && diaryEntries.length > 0) {
+          diaryEntries.forEach(entry => {
+            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
+              entry.behavioral_tags.forEach((tag: string) => {
+                if (tag && tag.trim()) {
+                  const behaviorKey = tag.toLowerCase().trim();
+                  if (!behaviors[behaviorKey]) {
+                    behaviors[behaviorKey] = { count: 0, lastSeen: '' };
+                  }
+                  behaviors[behaviorKey].count++;
+                  const entryDate = format(new Date(entry.entry_date), 'dd/MM');
+                  
+                  if (!behaviorToEntryMap[behaviorKey] || 
+                      new Date(entry.entry_date) > new Date(behaviorToEntryMap[behaviorKey].entry_date)) {
+                    behaviorToEntryMap[behaviorKey] = entry;
+                  }
+                  
+                  if (!behaviors[behaviorKey].lastSeen || entryDate > behaviors[behaviorKey].lastSeen) {
+                    behaviors[behaviorKey].lastSeen = entryDate;
+                  }
+                }
+              });
+            }
+          });
+        }
+        setBehaviorStats(behaviors);
+        setBehaviorEntryMap(behaviorToEntryMap);
+      }
       setDiaryModal({ open: false, mode: 'add', entry: null });
 
     } catch (error) {
