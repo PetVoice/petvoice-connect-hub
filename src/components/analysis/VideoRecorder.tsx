@@ -119,13 +119,25 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       
       // Setup preview
       if (previewRef.current) {
-        previewRef.current.srcObject = stream;
-        // Force immediate play
-        try {
-          await previewRef.current.play();
-        } catch (error) {
-          console.error('Error playing preview:', error);
-        }
+        const video = previewRef.current;
+        video.srcObject = stream;
+        video.muted = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        
+        // Force dimensions and start playing
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.style.objectFit = 'cover';
+        
+        setTimeout(async () => {
+          try {
+            await video.play();
+            console.log('Preview started successfully');
+          } catch (error) {
+            console.error('Error starting preview:', error);
+          }
+        }, 100);
       }
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
