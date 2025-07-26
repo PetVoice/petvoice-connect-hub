@@ -289,10 +289,10 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   };
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Video className="h-5 w-5" />
+    <Card className="h-fit bg-gradient-to-br from-purple/5 to-purple/10 border border-purple/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Video className="h-5 w-5 text-purple-600" />
           Registrazione Video
         </CardTitle>
         <CardDescription>
@@ -341,7 +341,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "gradient-coral hover:scale-105 shadow-lg"
+                  : "bg-purple-500 hover:bg-purple-600 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -444,7 +444,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="gradient-coral text-white flex items-center gap-2"
+                className="bg-purple-500 hover:bg-purple-600 text-white flex items-center gap-2"
               >
                 <Video className="h-4 w-4" />
                 Analizza
@@ -471,11 +471,11 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         )}
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+        <div className="bg-purple/5 p-4 rounded-lg border border-purple/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">🎬 Analisi Video Avanzata con IA</h4>
-              <p className="text-sm text-purple-700 dark:text-purple-300 mb-3">
+              <h4 className="font-semibold text-purple-700 mb-2">🎬 Analisi Video Avanzata con IA</h4>
+              <p className="text-sm text-muted-foreground mb-3">
                 La nostra IA analizza i video per rilevare comportamenti e stati emotivi attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

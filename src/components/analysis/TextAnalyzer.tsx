@@ -64,10 +64,10 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
   ];
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="h-5 w-5" />
+    <Card className="h-fit bg-gradient-to-br from-indigo/5 to-indigo/10 border border-indigo/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <MessageSquare className="h-5 w-5 text-indigo-600" />
           Analisi Testuale Comportamento
         </CardTitle>
         <CardDescription>
@@ -86,7 +86,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 isProcessing
                   ? "bg-blue-500 hover:bg-blue-600 shadow-lg animate-pulse"
-                  : "gradient-coral hover:scale-105 shadow-lg"
+                  : "bg-indigo-500 hover:bg-indigo-600 hover:scale-105 shadow-lg"
               )}
             >
               {isProcessing ? (
@@ -171,11 +171,11 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
         )}
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
+        <div className="bg-indigo/5 p-4 rounded-lg border border-indigo/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-indigo-800 dark:text-indigo-200 mb-2">🧠 Analisi Testuale Intelligente</h4>
-              <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-3">
+              <h4 className="font-semibold text-indigo-700 mb-2">🧠 Analisi Avanzata con IA</h4>
+              <p className="text-sm text-muted-foreground mb-3">
                 Il nostro sistema AI analizza la tua descrizione per rilevare emozioni, comportamenti e contesto:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

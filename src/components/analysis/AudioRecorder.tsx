@@ -333,10 +333,10 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
   };
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Volume2 className="h-5 w-5" />
+    <Card className="h-fit bg-gradient-to-br from-orange/5 to-orange/10 border border-orange/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Volume2 className="h-5 w-5 text-orange-600" />
           Registrazione Audio
         </CardTitle>
         <CardDescription>
@@ -367,7 +367,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "gradient-coral hover:scale-105 shadow-lg"
+                  : "bg-orange-500 hover:bg-orange-600 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -404,7 +404,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {audioLevels.map((level, index) => (
                 <div
                   key={index}
-                  className="bg-coral rounded-sm transition-all duration-100"
+                  className="bg-orange-500 rounded-sm transition-all duration-100"
                   style={{
                     width: '8px',
                     height: `${Math.max(4, (level / 100) * 60)}px`,
@@ -480,7 +480,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="gradient-coral text-white flex items-center gap-2"
+                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
                 Analizza
@@ -507,11 +507,11 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
         )}
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+        <div className="bg-orange/5 p-4 rounded-lg border border-orange/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">🎵 Analisi Audio Avanzata con IA</h4>
-              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
+              <h4 className="font-semibold text-orange-700 mb-2">🎙️ Analisi Audio Avanzata con IA</h4>
+              <p className="text-sm text-muted-foreground mb-3">
                 La nostra IA analizza i file audio per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

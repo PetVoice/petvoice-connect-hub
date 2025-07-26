@@ -210,10 +210,10 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
   };
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Image className="h-5 w-5" />
+    <Card className="h-fit bg-gradient-to-br from-pink/5 to-pink/10 border border-pink/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Image className="h-5 w-5 text-pink-600" />
           Scatta Foto
         </CardTitle>
         <CardDescription>
@@ -280,7 +280,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 isCapturing
                   ? "bg-blue-500 hover:bg-blue-600 shadow-lg"
-                  : "gradient-coral hover:scale-105 shadow-lg"
+                  : "bg-pink-500 hover:bg-pink-600 hover:scale-105 shadow-lg"
               )}
             >
               <Camera className="h-8 w-8" />
@@ -339,7 +339,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="gradient-coral text-white flex items-center gap-2"
+                className="bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-2"
               >
                 <Image className="h-4 w-4" />
                 Analizza
@@ -366,11 +366,11 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
         )}
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 p-4 rounded-lg border border-pink-200 dark:border-pink-800">
+        <div className="bg-pink/5 p-4 rounded-lg border border-pink/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-pink-800 dark:text-pink-200 mb-2">📸 Analisi Fotografica con IA</h4>
-              <p className="text-sm text-pink-700 dark:text-pink-300 mb-3">
+              <h4 className="font-semibold text-pink-700 mb-2">📸 Analisi Foto Avanzata con IA</h4>
+              <p className="text-sm text-muted-foreground mb-3">
                 La nostra IA analizza le foto per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

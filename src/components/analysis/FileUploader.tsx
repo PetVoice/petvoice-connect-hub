@@ -220,10 +220,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const shouldHideAnalysisButton = (autoAnalyzeAudio && hasAudioFiles) || hasImageFiles || hasVideoFiles;
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5" />
+    <Card className="h-fit bg-gradient-to-br from-coral/5 to-coral/10 border border-coral/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Upload className="h-5 w-5 text-coral" />
           File Multimediali
         </CardTitle>
         <CardDescription>
@@ -335,7 +335,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
               <Button 
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
-                className="w-full gradient-coral text-white"
+                className="w-full bg-coral hover:bg-coral/90 text-white"
               >
                 {isProcessing ? (
                   <>
@@ -373,12 +373,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           </div>
         )}
 
-
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-coral/5 to-coral/10 p-4 rounded-lg border border-coral/20">
+        <div className="bg-coral/5 p-4 rounded-lg border border-coral/20">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">📊 Analisi Multimediale Avanzata con IA</h4>
+              <h4 className="font-semibold text-coral mb-2">📊 Analisi Multimediale Avanzata con IA</h4>
               <p className="text-sm text-muted-foreground mb-3">
                 La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:
               </p>
