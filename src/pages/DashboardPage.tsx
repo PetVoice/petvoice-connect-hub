@@ -529,10 +529,45 @@ const DashboardPage: React.FC = () => {
       onConfirm: async () => {
         try {
           if (type === 'vitals') {
-            // Rimuovi dai vitalStats locali
+            // Remove from local state immediately for UI responsiveness
             const newVitalStats = { ...vitalStats };
             delete newVitalStats[itemId];
             setVitalStats(newVitalStats);
+            
+            // Try to remove from database if possible
+            if (selectedPet && user) {
+              try {
+                // For temperature from diary_entries
+                if (itemId === 'temperatura') {
+                  const { error } = await supabase
+                    .from('diary_entries')
+                    .update({ temperature: null })
+                    .eq('pet_id', selectedPet.id)
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                  
+                  if (error) console.warn('Could not remove temperature from diary:', error);
+                }
+                
+                // For other vitals from health_metrics
+                if (['frequenza_cardiaca', 'respirazione', 'colore_gengive'].includes(itemId)) {
+                  const { error } = await supabase
+                    .from('health_metrics')
+                    .delete()
+                    .eq('pet_id', selectedPet.id)
+                    .eq('user_id', user.id)
+                    .eq('metric_type', itemId)
+                    .order('recorded_at', { ascending: false })
+                    .limit(1);
+                  
+                  if (error) console.warn('Could not remove health metric:', error);
+                }
+              } catch (dbError) {
+                console.warn('Database cleanup failed:', dbError);
+                // Continue with local removal even if DB fails
+              }
+            }
             
             toast({
               title: "Parametro vitale eliminato",
@@ -540,7 +575,7 @@ const DashboardPage: React.FC = () => {
             });
           } else {
             toast({
-              title: "Elemento eliminato",
+              title: "Elemento eliminato", 
               description: `${itemName} è stato eliminato con successo.`,
               variant: "destructive"
             });
@@ -597,6 +632,9 @@ const DashboardPage: React.FC = () => {
     const isDog = petType?.toLowerCase().includes('cane');
     const isCat = petType?.toLowerCase().includes('gatto');
     
+    // Debug log to check what we're receiving
+    console.log('Checking vital:', vitalType, 'value:', value, 'type:', typeof value, 'petType:', petType);
+    
     switch(vitalType) {
       case 'temperatura':
         const tempValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -616,13 +654,22 @@ const DashboardPage: React.FC = () => {
         if (heartValue > 250) return { isNormal: false, message: "Troppo alta - Tachicardia" };
         return { isNormal: false, message: "Fuori dal range normale" };
         
-      case 'respirazione':
-        const respValue = typeof value === 'string' ? parseFloat(value) : value;
-        if (isDog && (respValue >= 10 && respValue <= 30)) return { isNormal: true, message: "Normale" };
-        if (isCat && (respValue >= 20 && respValue <= 30)) return { isNormal: true, message: "Normale" };
-        if (respValue < 8) return { isNormal: false, message: "Troppo bassa - Bradipnea" };
-        if (respValue > 40) return { isNormal: false, message: "Troppo alta - Tachipnea" };
-        return { isNormal: false, message: "Fuori dal range normale" };
+       case 'respirazione':
+         const respValue = typeof value === 'string' ? parseFloat(value) : value;
+         // Make sure we have a valid number
+         if (isNaN(respValue)) return { isNormal: false, message: "Valore non valido" };
+         
+         if (isDog && (respValue >= 10 && respValue <= 30)) return { isNormal: true, message: "Normale" };
+         if (isCat && (respValue >= 20 && respValue <= 30)) return { isNormal: true, message: "Normale" };
+         if (respValue < 8) return { isNormal: false, message: "Troppo bassa - Bradipnea" };
+         if (respValue > 40) return { isNormal: false, message: "Troppo alta - Tachipnea" };
+         
+         // If no pet type specified, use general range
+         if (!isDog && !isCat) {
+           if (respValue >= 10 && respValue <= 30) return { isNormal: true, message: "Normale" };
+         }
+         
+         return { isNormal: false, message: "Fuori dal range normale" };
         
       case 'colore_gengive':
         const gumColor = typeof value === 'string' ? value.toLowerCase() : '';
