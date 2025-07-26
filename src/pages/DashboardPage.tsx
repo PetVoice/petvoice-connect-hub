@@ -44,6 +44,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
+import { DiaryEntry } from '@/types/diary';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -60,6 +62,7 @@ const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [petStats, setPetStats] = useState<PetStats>({
     totalAnalyses: 0,
     recentAnalyses: 0,
@@ -117,7 +120,19 @@ const DashboardPage: React.FC = () => {
     unit: ''
   });
 
-  const { toast } = useToast();
+  // Diary modal state
+  const [diaryModal, setDiaryModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    entry: DiaryEntry | null;
+  }>({
+    open: false,
+    mode: 'add',
+    entry: null
+  });
+
+  // Map behaviors to diary entries for easy access
+  const [behaviorEntryMap, setBehaviorEntryMap] = useState<{[behavior: string]: DiaryEntry}>({});
   
   // Translation system removed - Italian only
 
@@ -429,6 +444,8 @@ const DashboardPage: React.FC = () => {
 
         // Calculate behavior statistics from diary entries
         const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
+        const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
+        
         if (diaryEntries && diaryEntries.length > 0) {
           diaryEntries.forEach(entry => {
             if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
@@ -440,6 +457,13 @@ const DashboardPage: React.FC = () => {
                   }
                   behaviors[behaviorKey].count++;
                   const entryDate = format(new Date(entry.entry_date), 'dd/MM');
+                  
+                  // Keep track of the most recent entry for each behavior
+                  if (!behaviorToEntryMap[behaviorKey] || 
+                      new Date(entry.entry_date) > new Date(behaviorToEntryMap[behaviorKey].entry_date)) {
+                    behaviorToEntryMap[behaviorKey] = entry;
+                  }
+                  
                   if (!behaviors[behaviorKey].lastSeen || entryDate > behaviors[behaviorKey].lastSeen) {
                     behaviors[behaviorKey].lastSeen = entryDate;
                   }
@@ -449,6 +473,7 @@ const DashboardPage: React.FC = () => {
           });
         }
         setBehaviorStats(behaviors);
+        setBehaviorEntryMap(behaviorToEntryMap);
 
       } catch (error) {
         console.error('Error loading pet stats:', error);
@@ -514,12 +539,19 @@ const DashboardPage: React.FC = () => {
         }
         break;
       case 'behaviors':
-        // Per ora porta al diario dove si possono modificare i comportamenti
-        toast({
-          title: "Modifica Comportamento",
-          description: "Vai al Diario per modificare i comportamenti registrati.",
-        });
-        navigate('/diary');
+        // Apri il modal di modifica della voce del diario corrispondente
+        if (itemId && behaviorEntryMap[itemId]) {
+          setDiaryModal({
+            open: true,
+            mode: 'edit',
+            entry: behaviorEntryMap[itemId]
+          });
+        } else {
+          toast({
+            title: "Errore",
+            description: "Impossibile trovare la voce del diario corrispondente.",
+          });
+        }
         break;
       case 'medications':
         navigate('/diary');
@@ -583,16 +615,44 @@ const DashboardPage: React.FC = () => {
               description: `${itemName} è stato eliminato con successo.`,
             });
           } else if (type === 'behaviors') {
-            // I comportamenti vengono dai diary_entries, quindi non possiamo eliminarli direttamente
-            // Rimuoviamo solo dalla visualizzazione locale
-            const newBehaviorStats = { ...behaviorStats };
-            delete newBehaviorStats[itemId];
-            setBehaviorStats(newBehaviorStats);
-            
-            toast({
-              title: "Comportamento rimosso",
-              description: `${itemName} è stato rimosso dalla vista. Per eliminarlo definitivamente, modifica le voci del diario corrispondenti.`,
-            });
+            // Elimina la voce del diario corrispondente
+            if (behaviorEntryMap[itemId]) {
+              const entryToDelete = behaviorEntryMap[itemId];
+              const { error } = await supabase
+                .from('diary_entries')
+                .delete()
+                .eq('id', entryToDelete.id);
+
+              if (error) {
+                console.error('Error deleting diary entry:', error);
+                toast({
+                  title: "Errore",
+                  description: "Si è verificato un errore durante l'eliminazione della voce del diario.",
+                  variant: "destructive"
+                });
+                return;
+              }
+
+              // Remove from local state
+              const newBehaviorStats = { ...behaviorStats };
+              delete newBehaviorStats[itemId];
+              setBehaviorStats(newBehaviorStats);
+              
+              const newBehaviorEntryMap = { ...behaviorEntryMap };
+              delete newBehaviorEntryMap[itemId];
+              setBehaviorEntryMap(newBehaviorEntryMap);
+              
+              toast({
+                title: "Voce del diario eliminata",
+                description: `La voce del diario contenente "${itemName}" è stata eliminata con successo.`,
+              });
+            } else {
+              toast({
+                title: "Errore",
+                description: "Impossibile trovare la voce del diario corrispondente.",
+                variant: "destructive"
+              });
+            }
           } else {
             toast({
               title: "Elemento eliminato", 
@@ -906,6 +966,116 @@ const DashboardPage: React.FC = () => {
       default:
         return { isNormal: true, message: "Range non definito" };
     }
+  };
+
+  // Handle diary form submission
+  const handleDiarySave = async (formData: any) => {
+    try {
+      if (!selectedPet || !user) return;
+
+      const entryData = {
+        ...formData,
+        pet_id: selectedPet.id,
+        user_id: user.id,
+      };
+
+      if (diaryModal.mode === 'edit' && diaryModal.entry) {
+        // Update existing entry
+        const { error } = await supabase
+          .from('diary_entries')
+          .update(entryData)
+          .eq('id', diaryModal.entry.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Voce del diario aggiornata",
+          description: "La voce del diario è stata modificata con successo.",
+        });
+      } else {
+        // Create new entry
+        const { error } = await supabase
+          .from('diary_entries')
+          .insert(entryData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Voce del diario salvata",
+          description: "La voce del diario è stata creata con successo.",
+        });
+      }
+
+      // Reload dashboard data
+      const loadPetStats = async () => {
+        if (!selectedPet || !user) return;
+
+        setLoading(true);
+        try {
+          // Reload diary entries and behavior stats
+          const { data: diaryEntries } = await supabase
+            .from('diary_entries')
+            .select('*')
+            .eq('pet_id', selectedPet.id)
+            .eq('user_id', user.id)
+            .order('entry_date', { ascending: false });
+
+          // Recalculate behavior statistics and mapping
+          const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
+          const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
+          
+          if (diaryEntries && diaryEntries.length > 0) {
+            diaryEntries.forEach(entry => {
+              if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
+                entry.behavioral_tags.forEach((tag: string) => {
+                  if (tag && tag.trim()) {
+                    const behaviorKey = tag.toLowerCase().trim();
+                    if (!behaviors[behaviorKey]) {
+                      behaviors[behaviorKey] = { count: 0, lastSeen: '' };
+                    }
+                    behaviors[behaviorKey].count++;
+                    const entryDate = format(new Date(entry.entry_date), 'dd/MM');
+                    
+                    // Keep track of the most recent entry for each behavior
+                    if (!behaviorToEntryMap[behaviorKey] || 
+                        new Date(entry.entry_date) > new Date(behaviorToEntryMap[behaviorKey].entry_date)) {
+                      behaviorToEntryMap[behaviorKey] = entry;
+                    }
+                    
+                    if (!behaviors[behaviorKey].lastSeen || entryDate > behaviors[behaviorKey].lastSeen) {
+                      behaviors[behaviorKey].lastSeen = entryDate;
+                    }
+                  }
+                });
+              }
+            });
+          }
+          setBehaviorStats(behaviors);
+          setBehaviorEntryMap(behaviorToEntryMap);
+
+        } catch (error) {
+          console.error('Error reloading pet stats:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      await loadPetStats();
+      setDiaryModal({ open: false, mode: 'add', entry: null });
+
+    } catch (error) {
+      console.error('Error saving diary entry:', error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio della voce del diario.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle diary modal close
+  const handleDiaryClose = () => {
+    setDiaryModal({ open: false, mode: 'add', entry: null });
   };
 
   return (
@@ -1770,6 +1940,16 @@ const DashboardPage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Diary Entry Form Modal */}
+      <DiaryEntryForm
+        isOpen={diaryModal.open}
+        onClose={handleDiaryClose}
+        entry={diaryModal.entry}
+        onSave={handleDiarySave}
+        petId={selectedPet?.id || ''}
+        userId={user?.id || ''}
+      />
 
       {/* Confirm Dialog */}
       <ConfirmDialog
