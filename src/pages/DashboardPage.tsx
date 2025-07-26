@@ -520,23 +520,7 @@ const DashboardPage: React.FC = () => {
 
         if (error) throw error;
 
-        // Filtra farmaci scaduti e li rimuove dalla lista attiva
-        const now = new Date();
-        const activeMedications = [];
-
-        for (const medication of data || []) {
-          if (medication.end_date && new Date(medication.end_date) < now) {
-            // Disattiva farmaci scaduti
-            await supabase
-              .from('pet_medications')
-              .update({ is_active: false })
-              .eq('id', medication.id);
-          } else {
-            activeMedications.push(medication);
-          }
-        }
-
-        setMedications(activeMedications);
+        setMedications(data || []);
       } catch (error) {
         console.error('Error loading medications:', error);
       }
@@ -1708,71 +1692,75 @@ const DashboardPage: React.FC = () => {
             <CardContent>
               {medications.length > 0 ? (
                 <div className="space-y-3">
-                  {medications.map((medication) => (
-                    <div key={medication.id} className="group">
-                      <div className="bg-white/60 border border-green-200/50 hover:bg-white/80 hover:border-green-300 transition-all duration-200 rounded-xl p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                                <h4 className="font-semibold text-lg text-green-800">
-                                  {medication.medication_name}
-                                </h4>
-                              </div>
-                              <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
-                                Attivo
-                              </Badge>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4 mb-2">
-                              <div>
-                                <div className="text-sm text-muted-foreground">Dosaggio</div>
-                                <div className="font-medium text-green-700">{medication.dosage}</div>
-                              </div>
-                              <div>
-                                <div className="text-sm text-muted-foreground">Frequenza</div>
-                                <div className="font-medium text-green-700">{medication.frequency}</div>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Dal {format(new Date(medication.start_date), 'dd/MM/yyyy')}
-                                {medication.end_date && ` - Al ${format(new Date(medication.end_date), 'dd/MM/yyyy')}`}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Action buttons */}
-                          <div className="flex gap-1">
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditItem('medications', medication.id);
-                              }}
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteItem('medications', medication.id, medication.medication_name);
-                              }}
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                   {medications.map((medication) => {
+                     const isExpired = medication.end_date && new Date(medication.end_date) < new Date();
+                     
+                     return (
+                       <div key={medication.id} className="group">
+                         <div className={`bg-white/60 border ${isExpired ? 'border-red-200/50 hover:border-red-300' : 'border-green-200/50 hover:border-green-300'} hover:bg-white/80 transition-all duration-200 rounded-xl p-4`}>
+                           <div className="flex items-center justify-between">
+                             <div className="flex-1">
+                               <div className="flex items-center gap-3 mb-2">
+                                 <div className="flex items-center gap-2">
+                                   <div className={`h-3 w-3 rounded-full ${isExpired ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                                   <h4 className={`font-semibold text-lg ${isExpired ? 'text-red-800' : 'text-green-800'}`}>
+                                     {medication.medication_name}
+                                   </h4>
+                                 </div>
+                                 <Badge variant="outline" className={`text-xs ${isExpired ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                                   {isExpired ? 'Inattivo' : 'Attivo'}
+                                 </Badge>
+                               </div>
+                               
+                               <div className="grid grid-cols-2 gap-4 mb-2">
+                                 <div>
+                                   <div className="text-sm text-muted-foreground">Dosaggio</div>
+                                   <div className={`font-medium ${isExpired ? 'text-red-700' : 'text-green-700'}`}>{medication.dosage}</div>
+                                 </div>
+                                 <div>
+                                   <div className="text-sm text-muted-foreground">Frequenza</div>
+                                   <div className={`font-medium ${isExpired ? 'text-red-700' : 'text-green-700'}`}>{medication.frequency}</div>
+                                 </div>
+                               </div>
+                               
+                               <div>
+                                 <div className="text-sm text-muted-foreground">
+                                   Dal {format(new Date(medication.start_date), 'dd/MM/yyyy')}
+                                   {medication.end_date && ` - Al ${format(new Date(medication.end_date), 'dd/MM/yyyy')}${isExpired ? ' (Scaduto)' : ''}`}
+                                 </div>
+                               </div>
+                             </div>
+                             
+                             {/* Action buttons */}
+                             <div className="flex gap-1">
+                               <Button
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleEditItem('medications', medication.id);
+                                 }}
+                                 size="sm"
+                                 variant="ghost"
+                                 className={`h-8 w-8 p-0 ${isExpired ? 'text-red-500 hover:text-red-600 hover:bg-red-50' : 'text-green-500 hover:text-green-600 hover:bg-green-50'}`}
+                               >
+                                 <Edit className="h-4 w-4" />
+                               </Button>
+                               <Button
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleDeleteItem('medications', medication.id, medication.medication_name);
+                                 }}
+                                 size="sm"
+                                 variant="ghost"
+                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                               >
+                                 <Trash2 className="h-4 w-4" />
+                               </Button>
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                     );
+                   })}
                 </div>
               ) : (
                 <div className="text-center py-12">
