@@ -204,16 +204,16 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <span>🔍 Estrazione keywords emotive</span>
+                  <span>🔍 Keywords emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>📝 Analisi contestuale avanzata</span>
+                  <span>📝 Approfondimento contestuale</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>📊 Calcolo probabilità emotive</span>
+                  <span>📊 Probabilità emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>💡 Suggerimenti personalizzati</span>
+                  <span>💡 Suggerimenti</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
