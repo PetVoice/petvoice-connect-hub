@@ -271,10 +271,10 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
   }
 };
 
-// Helper function to clean file name by removing timestamp
+// Helper function to clean file name by removing timestamp and extension
 const cleanFileName = (fileName: string) => {
-  // Remove timestamp pattern like "_2025-07-26_03-03-11" from the end
-  return fileName.replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$/, '');
+  // Remove timestamp pattern like "_2025-07-26_03-03-11" and file extension
+  return fileName.replace(/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/, '').replace(/\.[^/.]+$/, '');
 };
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
