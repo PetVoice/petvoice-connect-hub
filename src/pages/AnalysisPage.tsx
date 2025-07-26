@@ -59,6 +59,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import FileUploader from '@/components/analysis/FileUploader';
 import AudioRecorder from '@/components/analysis/AudioRecorder';
 import VideoRecorder from '@/components/analysis/VideoRecorder';
+import PhotoCapture from '@/components/analysis/PhotoCapture';
 import TextAnalyzer from '@/components/analysis/TextAnalyzer';
 import AnalysisResults from '@/components/analysis/AnalysisResults';
 import AnalysisHistory from '@/components/analysis/AnalysisHistory';
@@ -854,6 +855,13 @@ const AnalysisPage: React.FC = () => {
     await handleFileUpload(fileList.files);
   };
 
+  const handlePhotoComplete = async (photoBlob: Blob) => {
+    const file = new File([photoBlob], `Foto_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.jpg`, { type: 'image/jpeg' });
+    const fileList = new DataTransfer();
+    fileList.items.add(file);
+    await handleFileUpload(fileList.files);
+  };
+
   const handleTextAnalysis = async (description: string) => {
     if (!selectedPet) {
       showToast({
@@ -1567,14 +1575,21 @@ const AnalysisPage: React.FC = () => {
             />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TextAnalyzer 
-              onTextSubmitted={handleTextAnalysis}
-              isProcessing={processing.isProcessing}
-            />
             <VideoRecorder 
               onRecordingComplete={handleVideoRecordingComplete} 
               onStartRecording={handleStartRecording}
               autoAnalyze={true}
+            />
+            <PhotoCapture 
+              onPhotoComplete={handlePhotoComplete} 
+              onStartCapture={handleStartRecording}
+              autoAnalyze={true}
+            />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TextAnalyzer 
+              onTextSubmitted={handleTextAnalysis}
+              isProcessing={processing.isProcessing}
             />
           </div>
         </TabsContent>
