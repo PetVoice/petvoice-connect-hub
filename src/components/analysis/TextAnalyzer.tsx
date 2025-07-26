@@ -71,7 +71,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           Scrivi Testo
         </CardTitle>
         <CardDescription>
-          Descrivi il comportamento del tuo pet per un'analisi comportamentale
+          Descrivi il comportamento del tuo pet per un'analisi comportamentale approfondita
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

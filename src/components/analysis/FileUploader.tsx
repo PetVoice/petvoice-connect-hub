@@ -227,7 +227,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           Carica File Multimediali
         </CardTitle>
         <CardDescription>
-          Trascina i file qui o clicca per selezionare. Supportati: Audio (MP3, WAV), Video (MP4, MOV), Immagini (JPG, PNG) (max {maxSizePerFile}MB)
+          Carica file multimediali per analisi avanzata: Audio (MP3, WAV), Video (MP4, MOV), Immagini (JPG, PNG) - max {maxSizePerFile}MB
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
