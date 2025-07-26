@@ -264,12 +264,22 @@ export const DayEventsModal: React.FC<DayEventsModalProps> = ({
             <AlertDialogCancel onClick={() => setShowDeleteConfirm(false)}>
               Annulla
             </AlertDialogCancel>
-            <AlertDialogAction
+            <button
               onClick={executeDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2"
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#b91c1c';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc2626';
+              }}
             >
               Elimina
-            </AlertDialogAction>
+            </button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
