@@ -736,6 +736,39 @@ const DashboardPage: React.FC = () => {
                 variant: "destructive"
               });
             }
+          } else if (type === 'medications') {
+            // Elimina il farmaco dal database
+            const { error } = await supabase
+              .from('pet_medications')
+              .delete()
+              .eq('id', itemId);
+
+            if (error) {
+              console.error('Error deleting medication:', error);
+              toast({
+                title: "Errore",
+                description: "Si è verificato un errore durante l'eliminazione del farmaco.",
+                variant: "destructive"
+              });
+              return;
+            }
+
+            // Ricarica i farmaci per aggiornare la UI
+            if (selectedPet && user) {
+              const { data } = await supabase
+                .from('pet_medications')
+                .select('*')
+                .eq('pet_id', selectedPet.id)
+                .eq('user_id', user.id)
+                .eq('is_active', true);
+              
+              setMedications(data || []);
+            }
+            
+            toast({
+              title: "Farmaco eliminato",
+              description: `${itemName} è stato eliminato con successo.`,
+            });
           } else {
             const title = type === 'medications' ? "Farmaco eliminato" : "Elemento eliminato";
             toast({
