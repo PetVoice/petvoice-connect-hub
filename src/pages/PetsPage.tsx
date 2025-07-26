@@ -780,8 +780,8 @@ const PetsPage: React.FC = () => {
       <ConfirmDialog
         open={deletingPet !== null}
         onOpenChange={(open) => !open && setDeletingPet(null)}
-        title="Conferma eliminazione"
-        description={`Sei sicuro di voler eliminare ${deletingPet?.name || ''}?`}
+        title="Conferma Eliminazione"
+        description={`Sei sicuro di voler eliminare ${deletingPet?.name || "questo pet"}?`}
         confirmText="Elimina"
         cancelText="Annulla"
         variant="destructive"
