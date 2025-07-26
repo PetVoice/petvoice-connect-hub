@@ -402,7 +402,7 @@ const DashboardPage: React.FC = () => {
           });
         }
         
-        // From diary entries (temperature and mood)
+        // From diary entries (temperature only - mood is NOT a vital parameter)
         if (diaryEntries && diaryEntries.length > 0) {
           const recentEntries = diaryEntries.slice(0, 5);
           recentEntries.forEach(entry => {
@@ -413,13 +413,7 @@ const DashboardPage: React.FC = () => {
                 date: format(new Date(entry.entry_date), 'dd/MM')
               };
             }
-            if (entry.mood_score) {
-              vitals['umore'] = {
-                value: entry.mood_score,
-                unit: '/10',
-                date: format(new Date(entry.entry_date), 'dd/MM')
-              };
-            }
+            // REMOVED: mood_score is NOT a vital parameter and should NOT appear in vital stats
           });
         }
         
