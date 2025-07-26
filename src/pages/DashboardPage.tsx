@@ -514,6 +514,11 @@ const DashboardPage: React.FC = () => {
         }
         break;
       case 'behaviors':
+        // Per ora porta al diario dove si possono modificare i comportamenti
+        toast({
+          title: "Modifica Comportamento",
+          description: "Vai al Diario per modificare i comportamenti registrati.",
+        });
         navigate('/diary');
         break;
       case 'medications':
@@ -576,6 +581,17 @@ const DashboardPage: React.FC = () => {
             toast({
               title: "Parametro vitale eliminato",
               description: `${itemName} è stato eliminato con successo.`,
+            });
+          } else if (type === 'behaviors') {
+            // I comportamenti vengono dai diary_entries, quindi non possiamo eliminarli direttamente
+            // Rimuoviamo solo dalla visualizzazione locale
+            const newBehaviorStats = { ...behaviorStats };
+            delete newBehaviorStats[itemId];
+            setBehaviorStats(newBehaviorStats);
+            
+            toast({
+              title: "Comportamento rimosso",
+              description: `${itemName} è stato rimosso dalla vista. Per eliminarlo definitivamente, modifica le voci del diario corrispondenti.`,
             });
           } else {
             toast({
