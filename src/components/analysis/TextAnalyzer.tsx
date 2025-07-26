@@ -200,7 +200,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
             <div className="flex-1">
               <h4 className="font-semibold text-indigo-700 mb-2">🧠 Analisi Avanzata con IA</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Il nostro sistema AI analizza la tua descrizione per rilevare emozioni, comportamenti e contesto:
+                La nostra IA analizza i testi per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
