@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
@@ -64,6 +65,7 @@ const DashboardPage: React.FC = () => {
   const { pets, selectedPet } = usePets();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { showDeleteToast } = useUnifiedToast();
   const [petStats, setPetStats] = useState<PetStats>({
     totalAnalyses: 0,
     recentAnalyses: 0,
@@ -765,9 +767,9 @@ const DashboardPage: React.FC = () => {
               setMedications(data || []);
             }
             
-            toast({
+            showDeleteToast({
               title: "Farmaco eliminato",
-              description: `${itemName} è stato eliminato con successo.`,
+              description: `${itemName} è stato eliminato con successo.`
             });
           } else {
             const title = type === 'medications' ? "Farmaco eliminato" : "Elemento eliminato";
