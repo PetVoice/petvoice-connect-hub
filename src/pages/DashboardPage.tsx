@@ -1692,7 +1692,7 @@ const DashboardPage: React.FC = () => {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
                     <Pill className="h-6 w-6 text-white" />
                   </div>
-                  Farmaci Attivi
+                  Farmaci
                 </div>
                 <Button
                   onClick={() => handleAddItem('medications')}
