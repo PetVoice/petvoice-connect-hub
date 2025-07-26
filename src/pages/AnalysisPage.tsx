@@ -45,6 +45,7 @@ import { it, enUS, es } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToast } from '@/hooks/use-toast';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
@@ -263,6 +264,7 @@ const AnalysisPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
   const { showToast } = useTranslatedToast();
+  const { toast } = useToast();
   const { subscription } = useSubscription();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const notificationEvents = (() => {
@@ -2585,6 +2587,15 @@ const AnalysisPage: React.FC = () => {
           setDeleteConfirm({ open: false, analysisId: null, isMultiple: false });
         }}
       />
+
+      {/* Test Toast Button */}
+      <Button 
+        onClick={() => toast({ title: "Errore", description: "qualcosa è andato storto", variant: "destructive" })}
+        variant="outline"
+        className="fixed bottom-4 right-4 z-50"
+      >
+        Test Toast
+      </Button>
 
     </div>
   );
