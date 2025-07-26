@@ -294,14 +294,9 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!recordingState.isRecording) return;
+    if (!recordingState.isRecording || !mediaRecorderRef.current) return;
     
     try {
-      // Stop current stream
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      
       // Switch facing mode
       const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
       setFacingMode(newFacingMode);
@@ -314,13 +309,53 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         audio: true
       });
       
-      streamRef.current = newStream;
-      
-      // Update preview
+      // Update preview immediately with new stream
       if (previewRef.current) {
         previewRef.current.srcObject = newStream;
         previewRef.current.play();
       }
+      
+      // Stop old MediaRecorder and create new one
+      if (mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      
+      // Stop old stream AFTER creating new MediaRecorder
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      
+      streamRef.current = newStream;
+      
+      // Create new MediaRecorder with new stream
+      mediaRecorderRef.current = new MediaRecorder(newStream);
+      
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorderRef.current.onstop = () => {
+        const videoBlob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        
+        setRecordingState(prev => ({
+          ...prev,
+          videoBlob,
+          videoUrl,
+          isRecording: false,
+          isPaused: false
+        }));
+
+        // Stop preview
+        if (previewRef.current) {
+          previewRef.current.srcObject = null;
+        }
+      };
+      
+      // Start recording again with new stream
+      mediaRecorderRef.current.start(1000);
       
     } catch (error) {
       console.error('Error switching camera:', error);
