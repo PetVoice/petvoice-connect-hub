@@ -23,15 +23,15 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-xl border p-6 pr-8 shadow-elegant transition-all duration-300 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full hover:scale-[1.02] backdrop-blur-sm",
   {
     variants: {
       variant: {
-        default: "border-border bg-white text-gray-900 shadow-md",
-        destructive: "border-red-200 bg-white text-red-900 shadow-md",
-        success: "border-green-200 bg-white text-green-900 shadow-md",
-        warning: "border-yellow-200 bg-white text-yellow-900 shadow-md",
-        info: "border-blue-200 bg-white text-blue-900 shadow-md",
+        default: "border-primary/30 bg-gradient-to-r from-card to-card/95 text-card-foreground shadow-glow",
+        destructive: "border-destructive/30 bg-gradient-to-r from-destructive/10 to-destructive/5 text-destructive shadow-glow",
+        success: "border-success/30 bg-gradient-to-r from-success/10 to-success/5 text-success shadow-glow",
+        warning: "border-warning/30 bg-gradient-to-r from-warning/10 to-warning/5 text-warning shadow-glow",
+        info: "border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 text-primary shadow-glow",
       },
     },
     defaultVariants: {
