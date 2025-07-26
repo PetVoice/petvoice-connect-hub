@@ -86,7 +86,7 @@ const DashboardPage: React.FC = () => {
   const [showFirstAidGuide, setShowFirstAidGuide] = useState(false);
   const [emotionStats, setEmotionStats] = useState<{[key: string]: number}>({});
   const [vitalStats, setVitalStats] = useState<{[key: string]: {value: number | string, unit: string, date: string}}>({});
-  const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string, isGeneralNote?: boolean, displayTitle?: string}}>({});
+  const [behaviorStats, setBehaviorStats] = useState<{[key: string]: {count: number, lastSeen: string}}>({});
   const [medicationStats, setMedicationStats] = useState<{[key: string]: {dosage: string, frequency: string, lastTaken: string}}>({});
   
   // Dialogs state
@@ -443,15 +443,12 @@ const DashboardPage: React.FC = () => {
         setVitalStats(vitals);
 
         // Calculate behavior statistics from diary entries
-        const behaviors: {[key: string]: {count: number, lastSeen: string, isGeneralNote?: boolean, displayTitle?: string}} = {};
+        const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
         const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
         
         if (diaryEntries && diaryEntries.length > 0) {
           diaryEntries.forEach(entry => {
-            const entryDate = format(new Date(entry.entry_date), 'dd/MM');
-            
-            // Se ha behavioral_tags, processali
-            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags) && entry.behavioral_tags.length > 0) {
+            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
               entry.behavioral_tags.forEach((tag: string) => {
                 if (tag && tag.trim()) {
                   const behaviorKey = tag.toLowerCase().trim();
@@ -459,6 +456,7 @@ const DashboardPage: React.FC = () => {
                     behaviors[behaviorKey] = { count: 0, lastSeen: '' };
                   }
                   behaviors[behaviorKey].count++;
+                  const entryDate = format(new Date(entry.entry_date), 'dd/MM');
                   
                   // Keep track of the most recent entry for each behavior
                   if (!behaviorToEntryMap[behaviorKey] || 
@@ -471,20 +469,6 @@ const DashboardPage: React.FC = () => {
                   }
                 }
               });
-            } else {
-              // Se non ha tag comportamentali ma ha contenuto, aggiungila come "nota generale"
-              if ((entry.title && entry.title.trim()) || (entry.content && entry.content.trim())) {
-                const generalKey = `nota_${entry.id}`;
-                const displayTitle = entry.title || 'Nota del diario';
-                
-                behaviors[generalKey] = { 
-                  count: 1, 
-                  lastSeen: entryDate,
-                  isGeneralNote: true,
-                  displayTitle: displayTitle
-                };
-                behaviorToEntryMap[generalKey] = entry;
-              }
             }
           });
         }
@@ -1043,15 +1027,12 @@ const DashboardPage: React.FC = () => {
           .order('entry_date', { ascending: false });
 
         // Ricalcola le statistiche dei comportamenti
-        const behaviors: {[key: string]: {count: number, lastSeen: string, isGeneralNote?: boolean, displayTitle?: string}} = {};
+        const behaviors: {[key: string]: {count: number, lastSeen: string}} = {};
         const behaviorToEntryMap: {[behavior: string]: DiaryEntry} = {};
         
         if (diaryEntries && diaryEntries.length > 0) {
           diaryEntries.forEach(entry => {
-            const entryDate = format(new Date(entry.entry_date), 'dd/MM');
-            
-            // Se ha behavioral_tags, processali
-            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags) && entry.behavioral_tags.length > 0) {
+            if (entry.behavioral_tags && Array.isArray(entry.behavioral_tags)) {
               entry.behavioral_tags.forEach((tag: string) => {
                 if (tag && tag.trim()) {
                   const behaviorKey = tag.toLowerCase().trim();
@@ -1059,6 +1040,7 @@ const DashboardPage: React.FC = () => {
                     behaviors[behaviorKey] = { count: 0, lastSeen: '' };
                   }
                   behaviors[behaviorKey].count++;
+                  const entryDate = format(new Date(entry.entry_date), 'dd/MM');
                   
                   if (!behaviorToEntryMap[behaviorKey] || 
                       new Date(entry.entry_date) > new Date(behaviorToEntryMap[behaviorKey].entry_date)) {
@@ -1070,20 +1052,6 @@ const DashboardPage: React.FC = () => {
                   }
                 }
               });
-            } else {
-              // Se non ha tag comportamentali ma ha contenuto, aggiungila come "nota generale"
-              if ((entry.title && entry.title.trim()) || (entry.content && entry.content.trim())) {
-                const generalKey = `nota_${entry.id}`;
-                const displayTitle = entry.title || 'Nota del diario';
-                
-                behaviors[generalKey] = { 
-                  count: 1, 
-                  lastSeen: entryDate,
-                  isGeneralNote: true,
-                  displayTitle: displayTitle
-                };
-                behaviorToEntryMap[generalKey] = entry;
-              }
             }
           });
         }
@@ -1531,11 +1499,7 @@ const DashboardPage: React.FC = () => {
                         'rilassato': '😎'
                       };
                       const gradientClass = behaviorColors[behavior as keyof typeof behaviorColors] || 'from-purple-400 to-violet-500';
-                      const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || (data.isGeneralNote ? '📝' : '🐾');
-                      
-                      // Se è una nota generale, usa il displayTitle, altrimenti il nome del comportamento
-                      const displayName = data.isGeneralNote && data.displayTitle ? data.displayTitle : behavior.replace('_', ' ');
-                      const countLabel = data.isGeneralNote ? 'nota' : 'osservazioni';
+                      const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || '🐾';
                       
                       return (
                         <div 
@@ -1551,11 +1515,11 @@ const DashboardPage: React.FC = () => {
                                 <div className="text-2xl">{icon}</div>
                                 <div>
                                   <div className="font-semibold text-gray-700 text-sm capitalize">
-                                    {displayName}
+                                    {behavior.replace('_', ' ')}
                                   </div>
                                   <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
                                     {data.count}
-                                    <span className="text-sm text-gray-500">{countLabel}</span>
+                                    <span className="text-sm text-gray-500">osservazioni</span>
                                   </div>
                                   <div className="text-xs text-gray-500">
                                     {data.lastSeen}
