@@ -102,51 +102,25 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     }
 
     try {
+      console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
+        video: true,
+        audio: true
       });
       
+      console.log('Camera access granted, stream:', stream);
       streamRef.current = stream;
       setPermission('granted');
       
-      // Setup preview
-      if (previewRef.current && stream) {
-        const video = previewRef.current;
-        const videoTracks = stream.getVideoTracks();
-        
-        console.log('Setting up preview...');
-        console.log('Video tracks found:', videoTracks.length);
-        console.log('Video track enabled:', videoTracks[0]?.enabled);
-        console.log('Video track readyState:', videoTracks[0]?.readyState);
-        
-        if (videoTracks.length === 0) {
-          console.error('No video tracks available!');
-          return;
-        }
-        
-        video.srcObject = stream;
-        
-        video.addEventListener('loadedmetadata', () => {
-          console.log('Video metadata loaded, playing...');
-          video.play().then(() => {
-            console.log('Video playing successfully');
-          }).catch((err) => {
-            console.error('Play failed:', err);
-          });
-        });
+      // Setup preview - simplified approach
+      if (previewRef.current) {
+        console.log('Setting up preview video element...');
+        previewRef.current.srcObject = stream;
+        previewRef.current.play();
+        console.log('Preview should be playing now');
       }
       
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9,opus'
-      });
+      mediaRecorderRef.current = new MediaRecorder(stream);
       
       chunksRef.current = [];
       
