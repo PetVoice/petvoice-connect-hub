@@ -10,8 +10,7 @@ import {
   Trash2, 
   Download,
   Camera,
-  AlertCircle,
-  RotateCcw
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,7 +46,6 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   });
   const [permission, setPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [currentTime, setCurrentTime] = useState(0);
-  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -121,7 +119,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: {
-          facingMode: facingMode
+          facingMode: 'environment' // Camera posteriore
         },
         audio: true
       });
@@ -290,82 +288,6 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
     }
   };
 
-  const switchCamera = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!recordingState.isRecording || !mediaRecorderRef.current) return;
-    
-    try {
-      // Switch facing mode
-      const newFacingMode = facingMode === 'environment' ? 'user' : 'environment';
-      setFacingMode(newFacingMode);
-      
-      // Get new stream with switched camera
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: newFacingMode
-        },
-        audio: true
-      });
-      
-      // Update preview immediately
-      if (previewRef.current) {
-        previewRef.current.srcObject = newStream;
-        previewRef.current.play();
-      }
-      
-      // Stop old stream
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      
-      // Update stream reference
-      streamRef.current = newStream;
-      
-      // Request data from current recorder before stopping
-      if (mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.requestData();
-      }
-      
-      // Create new MediaRecorder with new stream but keep same chunks array
-      // This way all chunks will be combined into one video
-      const newRecorder = new MediaRecorder(newStream);
-      
-      newRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunksRef.current.push(event.data);  // Same chunks array = continuous video
-        }
-      };
-      
-      newRecorder.onstop = () => {
-        const videoBlob = new Blob(chunksRef.current, { type: 'video/webm' });
-        const videoUrl = URL.createObjectURL(videoBlob);
-        
-        setRecordingState(prev => ({
-          ...prev,
-          videoBlob,
-          videoUrl,
-          isRecording: false,
-          isPaused: false
-        }));
-
-        if (previewRef.current) {
-          previewRef.current.srcObject = null;
-        }
-      };
-      
-      // Replace the recorder and start immediately
-      mediaRecorderRef.current = newRecorder;
-      mediaRecorderRef.current.start(1000);
-      
-      console.log('Camera switched, recording continues...');
-      
-    } catch (error) {
-      console.error('Error switching camera:', error);
-    }
-  };
-
   return (
     <Card className="h-fit">
       <CardHeader>
@@ -389,33 +311,18 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         <div className="text-center space-y-4">
           {/* Video Preview */}
           {recordingState.isRecording && (
-            <div className="space-y-3">
-              {/* Switch Camera Button - Above video */}
-              <div className="flex justify-center">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={switchCamera}
-                  className="flex items-center gap-2 bg-background hover:bg-muted"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Gira Camera
-                </Button>
-              </div>
-              
-              <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
-                <video
-                  ref={previewRef}
-                  className="w-full h-full object-cover bg-gray-400"
-                  muted
-                  autoPlay
-                  playsInline
-                  controls={false}
-                  style={{ backgroundColor: '#f0f0f0' }}
-                />
-                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
-                  REC
-                </div>
+            <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
+              <video
+                ref={previewRef}
+                className="w-full h-full object-cover bg-gray-400"
+                muted
+                autoPlay
+                playsInline
+                controls={false}
+                style={{ backgroundColor: '#f0f0f0' }}
+              />
+              <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
+                REC
               </div>
             </div>
           )}
