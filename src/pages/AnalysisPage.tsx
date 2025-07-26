@@ -1749,168 +1749,143 @@ const AnalysisPage: React.FC = () => {
         <TabsContent value="predictions" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Wellness Trend Prediction */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
+            <Card className="h-full bg-gradient-to-br from-emerald/5 to-emerald/10 border border-emerald/20 shadow-soft hover:shadow-glow transition-all duration-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="h-5 w-5 text-emerald-600" />
                   Trend Benessere Futuro
                 </CardTitle>
                 <CardDescription>
                   Previsione basata sui dati storici
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {selectedPet ? (
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        {(() => {
-                          // Calcola trend basato sulle analisi reali degli ultimi 30 giorni
-                          const last30Days = analyses.filter(a => 
-                            new Date(a.created_at) >= subDays(new Date(), 30)
-                          );
-                          const last7Days = analyses.filter(a => 
-                            new Date(a.created_at) >= subDays(new Date(), 7)
-                          );
-                          
-                          // Calcola score di benessere basato su emozioni positive vs negative
-                          const calculateWellnessScore = (analysisArray: any[]) => {
-                            if (analysisArray.length === 0) return 0;
-                            const positiveEmotions = ['felice', 'giocoso', 'calmo', 'rilassato', 'happy', 'playful', 'calm', 'relaxed'];
-                            const positiveCount = analysisArray.filter(a => 
-                              positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                            ).length;
-                            return (positiveCount / analysisArray.length) * 100;
-                          };
-                          
-                          const currentScore = calculateWellnessScore(last7Days);
-                          const previousScore = calculateWellnessScore(
-                            analyses.filter(a => {
-                              const date = new Date(a.created_at);
-                              return date >= subDays(new Date(), 14) && date < subDays(new Date(), 7);
-                            })
-                          );
-                          
-                          const trend = currentScore - previousScore;
-                          
-                          return trend > 5 ? (
-                            <TrendingUp className="h-5 w-5 text-success" />
-                          ) : trend < -5 ? (
-                            <TrendingDown className="h-5 w-5 text-destructive" />
-                          ) : (
-                            <div className="h-5 w-5 bg-warning rounded-full" />
-                          );
-                        })()}
-                        <span className="font-medium">
-                          {(() => {
-                            // Stesso calcolo del trend per il testo
-                            const last7Days = analyses.filter(a => 
-                              new Date(a.created_at) >= subDays(new Date(), 7)
-                            );
-                            const previousWeek = analyses.filter(a => {
-                              const date = new Date(a.created_at);
-                              return date >= subDays(new Date(), 14) && date < subDays(new Date(), 7);
-                            });
-                            
-                            const calculateWellnessScore = (analysisArray: any[]) => {
-                              if (analysisArray.length === 0) return 0;
-                              const positiveEmotions = ['felice', 'giocoso', 'calmo', 'rilassato', 'happy', 'playful', 'calm', 'relaxed'];
-                              const positiveCount = analysisArray.filter(a => 
-                                positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                              ).length;
-                              return (positiveCount / analysisArray.length) * 100;
-                            };
-                            
-                            const currentScore = calculateWellnessScore(last7Days);
-                            const previousScore = calculateWellnessScore(previousWeek);
-                            const trend = currentScore - previousScore;
-                            
-                            return trend > 5 ? "Miglioramento Significativo" : 
-                                   trend < -5 ? "Peggioramento Rilevato" : 
-                                   "Andamento Stabile";
-                          })()}
-                        </span>
+              <CardContent className="space-y-6">
+                {selectedPet ? (() => {
+                  // Calcola trend basato sulle analisi reali degli ultimi 30 giorni
+                  const last30Days = analyses.filter(a => 
+                    new Date(a.created_at) >= subDays(new Date(), 30)
+                  );
+                  const last7Days = analyses.filter(a => 
+                    new Date(a.created_at) >= subDays(new Date(), 7)
+                  );
+                  
+                  // Calcola score di benessere basato su emozioni positive vs negative
+                  const calculateWellnessScore = (analysisArray: any[]) => {
+                    if (analysisArray.length === 0) return 0;
+                    const positiveEmotions = ['felice', 'giocoso', 'calmo', 'rilassato', 'happy', 'playful', 'calm', 'relaxed'];
+                    const positiveCount = analysisArray.filter(a => 
+                      positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
+                    ).length;
+                    return (positiveCount / analysisArray.length) * 100;
+                  };
+                  
+                  const currentScore = calculateWellnessScore(last7Days);
+                  const previousScore = calculateWellnessScore(
+                    analyses.filter(a => {
+                      const date = new Date(a.created_at);
+                      return date >= subDays(new Date(), 14) && date < subDays(new Date(), 7);
+                    })
+                  );
+                  
+                  const trend = currentScore - previousScore;
+                  const avgConfidence = last7Days.length > 0 ? 
+                    last7Days.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / last7Days.length : 0;
+                  
+                  // Previsione realistica basata sui dati
+                  const prediction = Math.max(0, Math.min(100, 
+                    currentScore + (avgConfidence > 80 ? 5 : avgConfidence > 60 ? 0 : -5)
+                  ));
+                  const monthlyScore = calculateWellnessScore(last30Days);
+
+                  return last7Days.length > 0 ? (
+                    <div className="space-y-6">
+                      {/* Status Overview */}
+                      <div className="p-4 bg-white/50 rounded-lg border border-emerald/10">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            {trend > 5 ? (
+                              <div className="h-8 w-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <TrendingUp className="h-4 w-4 text-emerald-600" />
+                              </div>
+                            ) : trend < -5 ? (
+                              <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                <TrendingDown className="h-4 w-4 text-orange-600" />
+                              </div>
+                            ) : (
+                              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                <div className="h-3 w-3 bg-blue-600 rounded-full" />
+                              </div>
+                            )}
+                            <div>
+                              <span className="font-semibold text-emerald-800">
+                                {trend > 5 ? "🌟 Miglioramento" : 
+                                 trend < -5 ? "⚠️ Attenzione" : 
+                                 "📊 Stabile"}
+                              </span>
+                              <p className="text-xs text-emerald-600">
+                                Analisi di {last7Days.length} comportamenti recenti
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-emerald-100 text-emerald-800 font-medium">
+                            {Math.round(currentScore)}%
+                          </Badge>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {(() => {
-                          const last7Days = analyses.filter(a => 
-                            new Date(a.created_at) >= subDays(new Date(), 7)
-                          );
-                          const positiveEmotions = ['felice', 'giocoso', 'calmo', 'rilassato'];
-                          const positiveCount = last7Days.filter(a => 
-                            positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                          ).length;
-                          
-                          const positivePercentage = last7Days.length > 0 ? 
-                            Math.round((positiveCount / last7Days.length) * 100) : 0;
-                          
-                          return `Basato su ${last7Days.length} analisi recenti: ${positivePercentage}% emozioni positive`;
-                        })()}
-                      </p>
+
+                      {/* Progress Indicators */}
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium text-gray-700">Benessere attuale (7 giorni)</span>
+                            <span className="text-sm font-bold text-emerald-700">{Math.round(currentScore)}%</span>
+                          </div>
+                          <Progress value={currentScore} className="h-3 bg-emerald-100" />
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium text-gray-700">Previsione 30 giorni</span>
+                            <span className="text-sm font-bold text-blue-700">{Math.round(prediction)}%</span>
+                          </div>
+                          <Progress value={prediction} className="h-3 bg-blue-100" />
+                        </div>
+                      </div>
+
+                      {/* Statistics */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-emerald-50 rounded-lg text-center">
+                          <div className="text-xl font-bold text-emerald-700">{Math.round(avgConfidence)}%</div>
+                          <div className="text-xs text-emerald-600">Affidabilità dati</div>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-lg text-center">
+                          <div className="text-xl font-bold text-blue-700">{Math.round(monthlyScore)}%</div>
+                          <div className="text-xs text-blue-600">Trend mensile</div>
+                        </div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="p-4 bg-muted/50 rounded-lg text-center">
-                      <p className="text-sm text-muted-foreground">
-                        Dati insufficienti per previsioni - Effettua più analisi
-                      </p>
-                    </div>
-                  )}
-                  
-                  {analyses.length > 0 && (() => {
-                    const last7Days = analyses.filter(a => 
-                      new Date(a.created_at) >= subDays(new Date(), 7)
-                    );
-                    const last30Days = analyses.filter(a => 
-                      new Date(a.created_at) >= subDays(new Date(), 30)
-                    );
-                    
-                    const calculateWellnessScore = (analysisArray: any[]) => {
-                      if (analysisArray.length === 0) return 0;
-                      const positiveEmotions = ['felice', 'giocoso', 'calmo', 'rilassato', 'happy', 'playful', 'calm', 'relaxed'];
-                      const positiveCount = analysisArray.filter(a => 
-                        positiveEmotions.some(emotion => a.primary_emotion.toLowerCase().includes(emotion))
-                      ).length;
-                      return (positiveCount / analysisArray.length) * 100;
-                    };
-                    
-                    const currentScore = calculateWellnessScore(last7Days);
-                    const monthlyScore = calculateWellnessScore(last30Days);
-                    const avgConfidence = last7Days.length > 0 ? 
-                      last7Days.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / last7Days.length : 0;
-                    
-                    // Previsione realistica basata sui dati
-                    const prediction = Math.max(0, Math.min(100, 
-                      currentScore + (avgConfidence > 80 ? 5 : avgConfidence > 60 ? 0 : -5)
-                    ));
-                    
-                    return (
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span>Benessere attuale (7 giorni)</span>
-                          <span className="font-medium">{Math.round(currentScore)}%</span>
-                        </div>
-                        <Progress value={currentScore} className="h-2" />
-                        <div className="flex justify-between text-sm">
-                          <span>Previsione 30 giorni</span>
-                          <span className="font-medium text-primary">{Math.round(prediction)}%</span>
-                        </div>
-                        <Progress value={prediction} className="h-2 opacity-70" />
-                        <div className="text-xs text-muted-foreground">
-                          <div>📊 Affidabilità dati: {Math.round(avgConfidence)}%</div>
-                          <div>📈 Trend mensile: {Math.round(monthlyScore)}%</div>
-                        </div>
+                    <div className="p-6 bg-gray-50 rounded-lg text-center">
+                      <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <TrendingUp className="h-6 w-6 text-gray-500" />
                       </div>
-                    );
-                  })()}
-                </div>
+                      <p className="text-sm text-gray-600 font-medium">Dati insufficienti per previsioni</p>
+                      <p className="text-xs text-gray-500 mt-1">Effettua più analisi per visualizzare i trend</p>
+                    </div>
+                  );
+                })() : (
+                  <div className="p-6 bg-gray-50 rounded-lg text-center">
+                    <p className="text-sm text-gray-600">Seleziona un pet per visualizzare le previsioni</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Health Recommendations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5" />
+            <Card className="h-full bg-gradient-to-br from-amber/5 to-amber/10 border border-amber/20 shadow-soft hover:shadow-glow transition-all duration-200">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Lightbulb className="h-5 w-5 text-amber-600" />
                   Raccomandazioni AI
                 </CardTitle>
                 <CardDescription>
@@ -1918,7 +1893,7 @@ const AnalysisPage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {(() => {
                     // RACCOMANDAZIONI AI COMPLETE - Analisi integrata di tutti i dati
                     const generateComprehensiveAIRecommendations = () => {
@@ -1931,8 +1906,6 @@ const AnalysisPage: React.FC = () => {
                       const last30Days = analyses.filter(a => 
                         new Date(a.created_at) >= subDays(new Date(), 30)
                       );
-                      
-                      // DATI DIARIO (ultimi 7 e 14 giorni)
                       const recentDiary = diaryData.filter(d => 
                         new Date(d.entry_date) >= subDays(new Date(), 7)
                       );
