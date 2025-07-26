@@ -2132,10 +2132,10 @@ const AnalysisPage: React.FC = () => {
           </div>
 
           {/* Seasonal Predictions REALI */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5" />
+          <Card className="bg-gradient-to-br from-violet/5 to-violet/10 border border-violet/20 shadow-soft hover:shadow-glow transition-all duration-200">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <CalendarIcon className="h-5 w-5 text-violet-600" />
                 Pattern Stagionali
               </CardTitle>
               <CardDescription>
@@ -2177,12 +2177,19 @@ const AnalysisPage: React.FC = () => {
                   seasonalData[season].total++;
                   seasonalData[season].analyses.push(analysis);
                   
-                  if (isHappyEmotion(analysis.primary_emotion)) {
+                  if (['felice', 'giocoso', 'calmo', 'rilassato'].includes(analysis.primary_emotion.toLowerCase())) {
                     seasonalData[season].positive++;
-                  } else if (isAnxiousEmotion(analysis.primary_emotion) || isSadEmotion(analysis.primary_emotion) || isAggressiveEmotion(analysis.primary_emotion)) {
+                  } else if (['ansioso', 'stressato', 'triste', 'aggressivo'].includes(analysis.primary_emotion.toLowerCase())) {
                     seasonalData[season].negative++;
                   }
                 });
+                
+                const seasonColors = {
+                  "Primavera": "from-green/5 to-green/10 border-green/20",
+                  "Estate": "from-yellow/5 to-yellow/10 border-yellow/20", 
+                  "Autunno": "from-orange/5 to-orange/10 border-orange/20",
+                  "Inverno": "from-blue/5 to-blue/10 border-blue/20"
+                };
                 
                 return (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2199,41 +2206,48 @@ const AnalysisPage: React.FC = () => {
                         Object.entries(mostCommonEmotion).sort(([,a], [,b]) => (b as number) - (a as number))[0] : ['N/A', 0];
                       
                       return (
-                        <div key={season} className="p-4 border rounded-lg bg-card">
-                          <h4 className="font-medium mb-3 flex items-center gap-2">
-                            {season}
-                            <Badge variant="outline" className="text-xs">
-                              {data.total} analisi
-                            </Badge>
-                          </h4>
-                          
-                          {data.total > 0 ? (
-                            <div className="space-y-2 text-sm">
-                              <div className="flex justify-between">
-                                <span>Emozioni positive</span>
-                                <span className="font-medium text-success">{positiveRate}%</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Problemi rilevati</span>
-                                <span className="font-medium text-destructive">{negativeRate}%</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Emozione predominante</span>
-                                <span className="font-medium capitalize">{getEmotionTranslationLocal(topEmotion[0] as string, language)}</span>
-                              </div>
-                              <div className="pt-2 border-t">
-                                <span className="text-xs text-muted-foreground">
-                                  Dati da {data.analyses.length} analisi
-                                </span>
-                              </div>
+                        <Card key={season} className={cn(
+                          "bg-gradient-to-br border shadow-soft hover:shadow-glow transition-all duration-200",
+                          seasonColors[season]
+                        )}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="font-semibold text-gray-800">{season}</h4>
+                              <Badge className="bg-white/80 text-gray-700 text-xs">
+                                {data.total} analisi
+                              </Badge>
                             </div>
-                          ) : (
-                            <div className="text-center text-muted-foreground text-sm">
-                              <p>Nessun dato disponibile</p>
-                              <p className="text-xs">Continua ad analizzare per vedere i pattern</p>
-                            </div>
-                          )}
-                        </div>
+                            
+                            {data.total > 0 ? (
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div className="p-2 bg-white/50 rounded text-center">
+                                    <div className="font-bold text-emerald-600">{positiveRate}%</div>
+                                    <div className="text-emerald-700">Positive</div>
+                                  </div>
+                                  <div className="p-2 bg-white/50 rounded text-center">
+                                    <div className="font-bold text-red-600">{negativeRate}%</div>
+                                    <div className="text-red-700">Problemi</div>
+                                  </div>
+                                </div>
+                                <div className="p-2 bg-white/50 rounded-lg text-center">
+                                  <div className="text-xs text-gray-600 mb-1">Emozione predominante</div>
+                                  <div className="font-semibold text-gray-800 capitalize">
+                                    {getEmotionTranslationLocal(topEmotion[0] as string, language)}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center text-gray-500 text-xs py-4">
+                                <div className="h-8 w-8 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center">
+                                  📊
+                                </div>
+                                <p>Nessun dato</p>
+                                <p className="text-xs">disponibile</p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
                       );
                     })}
                   </div>
