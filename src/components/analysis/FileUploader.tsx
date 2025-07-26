@@ -379,20 +379,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             <div className="flex-1">
               <h4 className="font-semibold text-coral mb-2">📊 Analisi Multimediale Avanzata con IA</h4>
               <p className="text-sm text-muted-foreground mb-3">
-                La nostra IA analizza in profondità i file multimediali per rilevare lo stato emotivo del tuo pet attraverso:
+                La nostra IA analizza i file per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <span>🎵 Analisi delle vocalizzazioni e tono</span>
+                  <span>🎵 Vocalizzazioni e tono</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>📸 Analisi postura e espressioni</span>
+                  <span>📸 Postura e espressioni</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>🏃 Analisi del linguaggio corporeo</span>
+                  <span>🏃 Linguaggio corporeo</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>🧠 Riconoscimento emozioni con Vision AI</span>
+                  <span>🧠 Emozioni</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
