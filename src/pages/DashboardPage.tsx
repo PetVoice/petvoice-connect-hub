@@ -1232,7 +1232,7 @@ const DashboardPage: React.FC = () => {
         newWellnessScore = Math.min(100, currentWellness + 8);
         toast({
           title: "✅ Valutazione registrata",
-          description: "🎉 Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
+          description: "Ottimo! Il farmaco ha funzionato. Il benessere del tuo pet è migliorato.",
           className: "border-green-200 bg-green-50 text-green-800",
         });
       } else {
@@ -1240,7 +1240,7 @@ const DashboardPage: React.FC = () => {
         newWellnessScore = Math.max(0, currentWellness - 5);
         toast({
           title: "❌ Valutazione registrata", 
-          description: "⚠️ Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
+          description: "Il farmaco non ha funzionato come sperato. Considera di consultare il veterinario.",
           className: "border-red-200 bg-red-50 text-red-800",
         });
       }
