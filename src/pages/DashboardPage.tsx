@@ -743,6 +743,72 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  // Delete vital sign
+  const deleteVitalSign = async (type: string) => {
+    try {
+      console.log('Deleting vital sign:', type);
+      
+      if (type === 'temperatura') {
+        // Temperature is stored in diary_entries
+        const { data, error } = await supabase
+          .from('diary_entries')
+          .delete()
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .not('temperature', 'is', null);
+        
+        console.log('Delete temperature result:', { data, error });
+        if (error) throw error;
+      } else {
+        // Other vitals are stored in health_metrics
+        const metricTypeMap: Record<string, string> = {
+          'battiti_cardiaci': 'heart_rate',
+          'frequenza_cardiaca': 'heart_rate',
+          'respirazione': 'respiratory_rate', 
+          'colore_gengive': 'gum_color'
+        };
+        
+        const dbType = metricTypeMap[type];
+        console.log('Mapping vital type:', type, 'to DB type:', dbType);
+        
+        if (!dbType) {
+          console.error('Unknown vital type:', type);
+          return;
+        }
+        
+        const { data, error } = await supabase
+          .from('health_metrics')
+          .delete()
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('metric_type', dbType);
+        
+        console.log('Delete health_metrics result:', { data, error });
+        if (error) throw error;
+      }
+      
+      // Remove from local state
+      setVitalStats(prev => {
+        const newStats = { ...prev };
+        delete newStats[type];
+        return newStats;
+      });
+      
+      toast({
+        title: "Parametro eliminato",
+        description: "Valore eliminato con successo",
+      });
+      
+    } catch (error) {
+      console.error('Error deleting vital sign:', error);
+      toast({
+        title: "Errore",
+        description: "Errore durante l'eliminazione",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Check if vital parameter is within normal range
   const isVitalInNormalRange = (vitalType: string, value: number | string, petType?: string): { isNormal: boolean; message: string } => {
     const isDog = petType?.toLowerCase().includes('cane');
