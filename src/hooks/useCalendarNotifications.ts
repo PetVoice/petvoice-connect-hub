@@ -13,6 +13,12 @@ export function useCalendarNotifications() {
   useEffect(() => {
     if (!user) return;
 
+    // Evita di creare multipli interval se l'hook viene chiamato più volte
+    const checkKey = `calendar-check-${user.id}`;
+    if (window[checkKey]) {
+      clearInterval(window[checkKey]);
+    }
+
     const checkUpcomingEvents = async () => {
       try {
         const now = new Date();
@@ -61,10 +67,21 @@ export function useCalendarNotifications() {
 
     // Controlla ogni ora per eventi imminenti
     const interval = setInterval(checkUpcomingEvents, 60 * 60 * 1000);
+    window[checkKey] = interval;
     
-    // Controllo iniziale
-    checkUpcomingEvents();
+    // Controllo iniziale solo se non è già stato fatto nell'ultima ora
+    const lastCheckKey = `last-calendar-check-${user.id}`;
+    const lastCheck = localStorage.getItem(lastCheckKey);
+    const now = Date.now();
+    
+    if (!lastCheck || (now - parseInt(lastCheck)) > 60 * 60 * 1000) {
+      checkUpcomingEvents();
+      localStorage.setItem(lastCheckKey, now.toString());
+    }
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      delete window[checkKey];
+    };
   }, [user, addNotification]);
 }

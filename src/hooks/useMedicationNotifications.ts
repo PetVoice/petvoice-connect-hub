@@ -13,6 +13,12 @@ export function useMedicationNotifications() {
   useEffect(() => {
     if (!user) return;
 
+    // Evita di creare multipli interval se l'hook viene chiamato più volte
+    const checkKey = `medication-check-${user.id}`;
+    if (window[checkKey]) {
+      clearInterval(window[checkKey]);
+    }
+
     const checkMedicationReminders = async () => {
       try {
         const { data: medications } = await supabase
@@ -55,10 +61,21 @@ export function useMedicationNotifications() {
 
     // Controlla ogni 4 ore per promemoria farmaci
     const interval = setInterval(checkMedicationReminders, 4 * 60 * 60 * 1000);
+    window[checkKey] = interval;
     
-    // Controllo iniziale
-    checkMedicationReminders();
+    // Controllo iniziale solo se non è già stato fatto nelle ultime 4 ore
+    const lastCheckKey = `last-medication-check-${user.id}`;
+    const lastCheck = localStorage.getItem(lastCheckKey);
+    const now = Date.now();
+    
+    if (!lastCheck || (now - parseInt(lastCheck)) > 4 * 60 * 60 * 1000) {
+      checkMedicationReminders();
+      localStorage.setItem(lastCheckKey, now.toString());
+    }
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      delete window[checkKey];
+    };
   }, [user, addNotification]);
 }
