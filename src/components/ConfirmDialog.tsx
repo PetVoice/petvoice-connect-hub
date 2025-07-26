@@ -85,7 +85,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <AlertDialogCancel>{cancelText}</AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleConfirm}
-            className={variant === 'destructive' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : 'petvoice-button'}
+            className={variant === 'destructive' ? 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500' : 'petvoice-button'}
           >
             {confirmText}
           </AlertDialogAction>
