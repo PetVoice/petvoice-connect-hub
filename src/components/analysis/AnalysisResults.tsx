@@ -265,9 +265,9 @@ const getReadableAnalysisName = (analysis: AnalysisData, language: string = 'it'
   
   // Generate readable name based on file type
   if (analysis.file_type === 'text') {
-    return `${getTypeTranslation('analysis')} ${emotionName} - ${day} ${month}`;
+    return `${emotionName} - ${day} ${month}`;
   } else {
-    return `${getTypeTranslation('recording')} ${emotionName} - ${day} ${month} ${time}`;
+    return `${emotionName} - ${day} ${month} ${time}`;
   }
 };
 
