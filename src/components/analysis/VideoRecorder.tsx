@@ -120,20 +120,28 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       // Setup preview
       if (previewRef.current) {
         const video = previewRef.current;
+        
+        // Debug stream
+        console.log('Stream tracks:', stream.getTracks());
+        console.log('Video tracks:', stream.getVideoTracks());
+        console.log('Stream active:', stream.active);
+        
         video.srcObject = stream;
         video.muted = true;
         video.autoplay = true;
         video.playsInline = true;
         
-        // Force dimensions and start playing
-        video.style.width = '100%';
-        video.style.height = '100%';
-        video.style.objectFit = 'cover';
+        // Event listeners for debugging
+        video.onloadstart = () => console.log('Video load start');
+        video.onloadedmetadata = () => console.log('Video metadata loaded');
+        video.oncanplay = () => console.log('Video can play');
+        video.onplay = () => console.log('Video started playing');
+        video.onerror = (e) => console.error('Video error:', e);
         
         setTimeout(async () => {
           try {
             await video.play();
-            console.log('Preview started successfully');
+            console.log('Preview started successfully, video dimensions:', video.videoWidth, 'x', video.videoHeight);
           } catch (error) {
             console.error('Error starting preview:', error);
           }
@@ -325,7 +333,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         <div className="text-center space-y-4">
           {/* Video Preview */}
           {recordingState.isRecording && (
-            <div className="relative mx-auto w-64 h-48 bg-black rounded-lg overflow-hidden">
+            <div className="relative mx-auto w-64 h-48 border border-gray-300 rounded-lg overflow-hidden">
               <video
                 ref={previewRef}
                 className="w-full h-full object-cover"
