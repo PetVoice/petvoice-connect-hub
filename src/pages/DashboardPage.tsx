@@ -1212,14 +1212,19 @@ const DashboardPage: React.FC = () => {
                           </div>
                           
                           {/* Range indicator */}
-                          {!rangeCheck.isNormal && (
-                            <div className="mt-2 px-2 py-1 bg-red-100 border border-red-200 rounded-md">
-                              <div className="flex items-center gap-1">
+                          <div className="mt-2 px-2 py-1 rounded-md">
+                            {rangeCheck.isNormal ? (
+                              <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-2 py-1 rounded-md">
+                                <div className="h-3 w-3 rounded-full bg-green-600"></div>
+                                <span className="text-xs text-green-700">Valori nella norma - Il pet sta bene</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-2 py-1 rounded-md">
                                 <AlertTriangle className="h-3 w-3 text-red-600" />
                                 <span className="text-xs text-red-700">{rangeCheck.message}</span>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
