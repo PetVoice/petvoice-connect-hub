@@ -737,8 +737,9 @@ const DashboardPage: React.FC = () => {
               });
             }
           } else {
+            const title = type === 'medications' ? "Farmaco eliminato" : "Elemento eliminato";
             toast({
-              title: "Elemento eliminato", 
+              title: title, 
               description: `${itemName} è stato eliminato con successo.`,
               variant: "destructive"
             });
