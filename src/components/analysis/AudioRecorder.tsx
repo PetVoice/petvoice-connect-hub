@@ -383,7 +383,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               {formatTime(recordingState.duration)}
             </p>
             <p className="text-sm text-muted-foreground">
-              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare'}
+              {recordingState.isRecording ? 'Registrazione in corso...' : 'Clicca per iniziare a registrare'}
             </p>
           </div>
 
