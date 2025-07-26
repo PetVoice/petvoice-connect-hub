@@ -695,9 +695,6 @@ const PetsPage: React.FC = () => {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{pet.name}</CardTitle>
                      <CardDescription>
-                       {pet.gender && pet.gender !== 'unknown' && (
-                         <span>{pet.gender === 'male' ? 'Maschio' : 'Femmina'} • </span>
-                       )}
                        {pet.type.toLowerCase() === 'cane' ? 'Cane' : pet.type.toLowerCase() === 'gatto' ? 'Gatto' : pet.type} {pet.breed && `• ${pet.breed}`}
                      </CardDescription>
                     {pet.age && (
@@ -708,12 +705,33 @@ const PetsPage: React.FC = () => {
                   </div>
                 </div>
               </CardHeader>
-               <CardContent>
-                 <div className="space-y-3">
-                   {pet.weight && (
+              <CardContent>
+                <div className="space-y-3">
+                  {pet.weight && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Peso</span>
+                      <span>{pet.weight} kg</span>
+                    </div>
+                  )}
+                  
+                  {pet.personality_traits && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Personalità</span>
+                      <span className="text-right">{pet.personality_traits}</span>
+                    </div>
+                  )}
+
+                   {pet.favorite_activities && (
                      <div className="flex justify-between text-sm">
-                       <span className="text-muted-foreground">Peso</span>
-                       <span>{pet.weight} kg</span>
+                       <span className="text-muted-foreground">Ama</span>
+                       <span className="text-right">{pet.favorite_activities}</span>
+                     </div>
+                   )}
+
+                   {pet.gender && pet.gender !== 'unknown' && (
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">Sesso</span>
+                       <span className="text-right">{pet.gender === 'male' ? 'Maschio' : 'Femmina'}</span>
                      </div>
                    )}
 
@@ -723,26 +741,12 @@ const PetsPage: React.FC = () => {
                        <span className="text-right font-mono text-xs">{pet.microchip_number}</span>
                      </div>
                    )}
-                   
-                   {pet.personality_traits && (
-                     <div className="flex justify-between text-sm">
-                       <span className="text-muted-foreground">Personalità</span>
-                       <span className="text-right">{pet.personality_traits}</span>
-                     </div>
+
+                   {pet.description && (
+                     <p className="text-sm text-muted-foreground mt-3 line-clamp-3">
+                       {pet.description}
+                     </p>
                    )}
-
-                    {pet.favorite_activities && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Ama</span>
-                        <span className="text-right">{pet.favorite_activities}</span>
-                      </div>
-                    )}
-
-                    {pet.description && (
-                      <p className="text-sm text-muted-foreground mt-3 line-clamp-3">
-                        {pet.description}
-                      </p>
-                    )}
                   
                   <div className="flex gap-2 pt-3">
                     <Button
