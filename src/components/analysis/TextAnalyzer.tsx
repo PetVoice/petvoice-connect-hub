@@ -207,7 +207,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
                   <span>🔍 Keywords emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span>📝 Approfondimento contestuale</span>
+                  <span>📝 Contesto</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>📊 Probabilità emotive</span>
