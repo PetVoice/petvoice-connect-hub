@@ -121,7 +121,11 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       // Setup preview
       if (previewRef.current) {
         previewRef.current.srcObject = stream;
-        previewRef.current.play();
+        previewRef.current.onloadedmetadata = () => {
+          if (previewRef.current) {
+            previewRef.current.play().catch(console.error);
+          }
+        };
       }
       
       mediaRecorderRef.current = new MediaRecorder(stream, {
