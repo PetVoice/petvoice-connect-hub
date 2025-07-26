@@ -242,28 +242,56 @@ const DashboardPage: React.FC = () => {
             }
           }
 
-          // 3. Vital Parameters Score (20% weight)
-          let vitalScore = 50; // default neutral
-          if (Object.keys(vitalStats).length > 0) {
-            const vitalScores = Object.entries(vitalStats).map(([vital, data]) => {
-              // Score based on vital type and value range
-              const vitalValue = data.value;
-              switch(vital) {
-                case 'temperatura':
-                  return (vitalValue >= 37.5 && vitalValue <= 39.5) ? 85 : 40;
-                case 'peso':
-                  return 75; // Weight stability bonus
-                case 'frequenza_cardiaca':
-                  return (vitalValue >= 60 && vitalValue <= 120) ? 85 : 50;
-                case 'energia':
-                case 'appetito':
-                  return vitalValue * 20; // Scale from 1-5 to 20-100
-                default:
-                  return 60;
-              }
-            });
-            vitalScore = vitalScores.length > 0 ? vitalScores.reduce((sum, score) => sum + score, 0) / vitalScores.length : 50;
-          }
+           // 3. Vital Parameters Score (20% weight)
+           let vitalScore = 50; // default neutral
+           if (Object.keys(vitalStats).length > 0) {
+             const vitalScores = Object.entries(vitalStats).map(([vital, data]) => {
+               // Score based on vital type and value range using first aid guide ranges
+               const vitalValue = typeof data.value === 'string' ? data.value : Number(data.value);
+               const petType = selectedPet?.type;
+               
+               switch(vital) {
+                 case 'temperatura':
+                   const tempValue = Number(vitalValue);
+                   if (petType?.toLowerCase().includes('cane')) {
+                     return (tempValue >= 38.0 && tempValue <= 39.2) ? 90 : 30;
+                   } else if (petType?.toLowerCase().includes('gatto')) {
+                     return (tempValue >= 38.1 && tempValue <= 39.2) ? 90 : 30;
+                   }
+                   return (tempValue >= 38.0 && tempValue <= 39.2) ? 90 : 30;
+                   
+                 case 'frequenza_cardiaca':
+                   const heartValue = Number(vitalValue);
+                   if (petType?.toLowerCase().includes('cane')) {
+                     return (heartValue >= 60 && heartValue <= 140) ? 90 : 35;
+                   } else if (petType?.toLowerCase().includes('gatto')) {
+                     return (heartValue >= 140 && heartValue <= 220) ? 90 : 35;
+                   }
+                   return (heartValue >= 60 && heartValue <= 140) ? 90 : 35;
+                   
+                 case 'respirazione':
+                   const respValue = Number(vitalValue);
+                   if (petType?.toLowerCase().includes('cane')) {
+                     return (respValue >= 10 && respValue <= 30) ? 90 : 35;
+                   } else if (petType?.toLowerCase().includes('gatto')) {
+                     return (respValue >= 20 && respValue <= 30) ? 90 : 35;
+                   }
+                   return (respValue >= 10 && respValue <= 30) ? 90 : 35;
+                   
+                 case 'colore_gengive':
+                   const gumColor = String(vitalValue).toLowerCase();
+                   if (gumColor === 'rosa') return 95; // Excellent
+                   if (gumColor === 'pallide') return 25; // Poor - possible shock/anemia
+                   if (gumColor === 'blu/viola' || gumColor === 'blu' || gumColor === 'viola') return 10; // Critical - oxygen deficit
+                   if (gumColor === 'gialle') return 20; // Poor - liver issues
+                   return 50; // Unknown color
+                   
+                 default:
+                   return 60; // Default score for unknown vitals
+               }
+             });
+             vitalScore = vitalScores.length > 0 ? vitalScores.reduce((sum, score) => sum + score, 0) / vitalScores.length : 50;
+           }
 
           // 4. Behavior Score (10% weight)
           let behaviorScore = 65; // default good
@@ -565,34 +593,44 @@ const DashboardPage: React.FC = () => {
   };
 
   // Check if vital parameter is within normal range
-  const isVitalInNormalRange = (vitalType: string, value: number, petType?: string): { isNormal: boolean; message: string } => {
+  const isVitalInNormalRange = (vitalType: string, value: number | string, petType?: string): { isNormal: boolean; message: string } => {
     const isDog = petType?.toLowerCase().includes('cane');
     const isCat = petType?.toLowerCase().includes('gatto');
     
     switch(vitalType) {
       case 'temperatura':
-        if (isDog && (value >= 38.0 && value <= 39.2)) return { isNormal: true, message: "Normale" };
-        if (isCat && (value >= 38.1 && value <= 39.2)) return { isNormal: true, message: "Normale" };
-        if (value < 37.0) return { isNormal: false, message: "Troppo bassa - Ipotermia" };
-        if (value > 40.0) return { isNormal: false, message: "Troppo alta - Ipertermia/Febbre" };
+        const tempValue = typeof value === 'string' ? parseFloat(value) : value;
+        if (isDog && (tempValue >= 38.0 && tempValue <= 39.2)) return { isNormal: true, message: "Normale" };
+        if (isCat && (tempValue >= 38.1 && tempValue <= 39.2)) return { isNormal: true, message: "Normale" };
+        if (tempValue < 37.0) return { isNormal: false, message: "Troppo bassa - Ipotermia" };
+        if (tempValue > 40.0) return { isNormal: false, message: "Troppo alta - Ipertermia/Febbre" };
         return { isNormal: false, message: "Fuori dal range normale" };
         
       case 'frequenza_cardiaca':
+        const heartValue = typeof value === 'string' ? parseFloat(value) : value;
         if (isDog) {
-          // Assumiamo cane grande se non specificato
-          if (value >= 60 && value <= 140) return { isNormal: true, message: "Normale" };
+          if (heartValue >= 60 && heartValue <= 140) return { isNormal: true, message: "Normale" };
         }
-        if (isCat && (value >= 140 && value <= 220)) return { isNormal: true, message: "Normale" };
-        if (value < 50) return { isNormal: false, message: "Troppo bassa - Bradicardia" };
-        if (value > 250) return { isNormal: false, message: "Troppo alta - Tachicardia" };
+        if (isCat && (heartValue >= 140 && heartValue <= 220)) return { isNormal: true, message: "Normale" };
+        if (heartValue < 50) return { isNormal: false, message: "Troppo bassa - Bradicardia" };
+        if (heartValue > 250) return { isNormal: false, message: "Troppo alta - Tachicardia" };
         return { isNormal: false, message: "Fuori dal range normale" };
         
       case 'respirazione':
-        if (isDog && (value >= 10 && value <= 30)) return { isNormal: true, message: "Normale" };
-        if (isCat && (value >= 20 && value <= 30)) return { isNormal: true, message: "Normale" };
-        if (value < 8) return { isNormal: false, message: "Troppo bassa - Bradipnea" };
-        if (value > 40) return { isNormal: false, message: "Troppo alta - Tachipnea" };
+        const respValue = typeof value === 'string' ? parseFloat(value) : value;
+        if (isDog && (respValue >= 10 && respValue <= 30)) return { isNormal: true, message: "Normale" };
+        if (isCat && (respValue >= 20 && respValue <= 30)) return { isNormal: true, message: "Normale" };
+        if (respValue < 8) return { isNormal: false, message: "Troppo bassa - Bradipnea" };
+        if (respValue > 40) return { isNormal: false, message: "Troppo alta - Tachipnea" };
         return { isNormal: false, message: "Fuori dal range normale" };
+        
+      case 'colore_gengive':
+        const gumColor = typeof value === 'string' ? value.toLowerCase() : '';
+        if (gumColor === 'rosa') return { isNormal: true, message: "Normale" };
+        if (gumColor === 'pallide') return { isNormal: false, message: "Possibile shock o anemia" };
+        if (gumColor === 'blu' || gumColor === 'viola' || gumColor === 'blu/viola') return { isNormal: false, message: "Mancanza di ossigeno - EMERGENZA" };
+        if (gumColor === 'gialle') return { isNormal: false, message: "Possibili problemi al fegato" };
+        return { isNormal: false, message: "Colore non riconosciuto" };
         
       default:
         return { isNormal: true, message: "Range non definito" };
@@ -799,75 +837,92 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
-              {Object.keys(vitalStats).length > 0 ? (
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+               {Object.keys(vitalStats).length > 0 ? (
+                <div className="space-y-3">
                   {Object.entries(vitalStats).map(([vital, data]) => {
                     const vitalColors = {
                       'temperatura': 'from-red-400 to-orange-500',
-                      'peso': 'from-purple-400 to-pink-500',
                       'frequenza_cardiaca': 'from-red-500 to-red-600',
-                      'pressione': 'from-indigo-400 to-blue-500',
-                      'umore': 'from-yellow-400 to-orange-400',
-                      'energia': 'from-green-400 to-emerald-500',
-                      'appetito': 'from-orange-400 to-red-400'
+                      'respirazione': 'from-blue-400 to-cyan-500',
+                      'colore_gengive': 'from-pink-400 to-rose-500'
                     };
                     const vitalIcons = {
                       'temperatura': '🌡️',
-                      'peso': '⚖️',
                       'frequenza_cardiaca': '❤️',
-                      'pressione': '📊',
-                      'umore': '😊',
-                      'energia': '⚡',
-                      'appetito': '🍽️'
+                      'respirazione': '🫁',
+                      'colore_gengive': '👄'
                     };
                     const gradientClass = vitalColors[vital as keyof typeof vitalColors] || 'from-blue-400 to-cyan-500';
                     const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
                     
-                     return (
-                       <div 
-                         key={vital} 
-                         className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-                       >
-                         <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                           <Button
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               handleEditItem('vitals', vital);
-                             }}
-                             size="sm"
-                             variant="ghost"
-                             className="h-6 w-6 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                           >
-                             <Edit className="h-3 w-3" />
-                           </Button>
-                           <Button
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               handleDeleteItem('vitals', vital, `${vital.replace('_', ' ')}: ${data.value}${data.unit}`);
-                             }}
-                             size="sm"
-                             variant="ghost"
-                             className="h-6 w-6 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                           >
-                             <Trash2 className="h-3 w-3" />
-                           </Button>
-                         </div>
-                          <div className="relative p-3 text-center">
-                            <div className="text-xl mb-1">{icon}</div>
-                           <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">
-                             {vital.replace('_', ' ')}
-                           </div>
-                           <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center justify-center gap-1`}>
-                             {data.value}
-                             <span className="text-sm text-gray-500">{data.unit}</span>
-                           </div>
-                           <div className="text-xs text-gray-500 mt-1">
-                             {data.date}
-                           </div>
-                         </div>
-                       </div>
-                     );
+                    // Check if vital is in normal range
+                    const rangeCheck = isVitalInNormalRange(vital, data.value, selectedPet?.type);
+                    
+                    return (
+                      <div 
+                        key={vital} 
+                        className="group relative overflow-hidden rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-300 hover:shadow-lg"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                        
+                        {/* Main content */}
+                        <div className="relative p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="text-2xl">{icon}</div>
+                              <div>
+                                <div className="font-semibold text-gray-700 capitalize text-sm">
+                                  {vital.replace('_', ' ')}
+                                </div>
+                                <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
+                                  {typeof data.value === 'string' ? data.value : data.value}
+                                  <span className="text-sm text-gray-500">{data.unit}</span>
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {data.date}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Action buttons */}
+                            <div className="flex gap-1">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditItem('vitals', vital);
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteItem('vitals', vital, `${vital.replace('_', ' ')}: ${data.value}${data.unit}`);
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Range indicator */}
+                          {!rangeCheck.isNormal && (
+                            <div className="mt-2 px-2 py-1 bg-red-100 border border-red-200 rounded-md">
+                              <div className="flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3 text-red-600" />
+                                <span className="text-xs text-red-700">{rangeCheck.message}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
               ) : (
@@ -1277,7 +1332,8 @@ const DashboardPage: React.FC = () => {
                   const defaultUnits = {
                     'temperatura': '°C',
                     'frequenza_cardiaca': 'bpm',
-                    'respirazione': 'atti/min'
+                    'respirazione': 'atti/min',
+                    'colore_gengive': ''
                   };
                   setVitalForm(prev => ({ 
                     ...prev, 
@@ -1293,24 +1349,44 @@ const DashboardPage: React.FC = () => {
                   <SelectItem value="temperatura">🌡️ Temperatura Corporea</SelectItem>
                   <SelectItem value="frequenza_cardiaca">❤️ Frequenza Cardiaca</SelectItem>
                   <SelectItem value="respirazione">🫁 Respirazione</SelectItem>
+                  <SelectItem value="colore_gengive">👄 Colore Gengive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="value">Valore</Label>
+              <Label htmlFor="value">
+                {vitalModal.vitalType === 'colore_gengive' ? 'Colore' : 'Valore'}
+              </Label>
               <div className="space-y-2">
-                <Input
-                  id="value"
-                  type="number"
-                  step="0.1"
-                  value={vitalForm.value}
-                  onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
-                  placeholder="Inserisci valore"
-                />
+                {vitalModal.vitalType === 'colore_gengive' ? (
+                  <Select
+                    value={vitalForm.value}
+                    onValueChange={(value) => setVitalForm(prev => ({ ...prev, value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleziona colore gengive" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="rosa">🟢 Rosa (Normale)</SelectItem>
+                      <SelectItem value="pallide">⚪ Pallide</SelectItem>
+                      <SelectItem value="blu/viola">🔵 Blu/Viola</SelectItem>
+                      <SelectItem value="gialle">🟡 Gialle</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id="value"
+                    type="number"
+                    step="0.1"
+                    value={vitalForm.value}
+                    onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
+                    placeholder="Inserisci valore"
+                  />
+                )}
                 {vitalForm.value && vitalModal.vitalType && (() => {
-                  const numValue = parseFloat(vitalForm.value);
-                  if (!isNaN(numValue)) {
-                    const rangeCheck = isVitalInNormalRange(vitalModal.vitalType, numValue, selectedPet?.type);
+                  const checkValue = vitalModal.vitalType === 'colore_gengive' ? vitalForm.value : parseFloat(vitalForm.value);
+                  if ((typeof checkValue === 'number' && !isNaN(checkValue)) || typeof checkValue === 'string') {
+                    const rangeCheck = isVitalInNormalRange(vitalModal.vitalType, checkValue, selectedPet?.type);
                     if (!rangeCheck.isNormal) {
                       return (
                         <Alert className="border-red-200 bg-red-50">
@@ -1332,7 +1408,7 @@ const DashboardPage: React.FC = () => {
                 value={vitalForm.unit}
                 readOnly
                 className="bg-muted"
-                placeholder="Unità automatica"
+                placeholder={vitalModal.vitalType === 'colore_gengive' ? 'Nessuna unità' : 'Unità automatica'}
               />
             </div>
             <div className="flex gap-2 pt-4">
