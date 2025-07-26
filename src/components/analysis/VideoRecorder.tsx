@@ -350,28 +350,31 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
         <div className="text-center space-y-4">
           {/* Video Preview */}
           {recordingState.isRecording && (
-            <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
-              <video
-                ref={previewRef}
-                className="w-full h-full object-cover bg-gray-400"
-                muted
-                autoPlay
-                playsInline
-                controls={false}
-                style={{ backgroundColor: '#f0f0f0' }}
-              />
-              <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
-                REC
+            <div className="space-y-2">
+              <div className="relative mx-auto w-64 h-48 bg-gray-200 rounded-lg overflow-hidden">
+                <video
+                  ref={previewRef}
+                  className="w-full h-full object-cover bg-gray-400"
+                  muted
+                  autoPlay
+                  playsInline
+                  controls={false}
+                  style={{ backgroundColor: '#f0f0f0' }}
+                />
+                <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium animate-pulse">
+                  REC
+                </div>
               </div>
-              {/* Switch Camera Button */}
-              <div className="absolute bottom-2 right-2">
+              {/* Switch Camera Button - Outside video container */}
+              <div className="flex justify-center">
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="outline"
                   onClick={switchCamera}
-                  className="w-8 h-8 p-0 bg-black/50 hover:bg-black/70 text-white border-none"
+                  className="flex items-center gap-2"
                 >
                   <RotateCcw className="h-4 w-4" />
+                  Gira Camera
                 </Button>
               </div>
             </div>
