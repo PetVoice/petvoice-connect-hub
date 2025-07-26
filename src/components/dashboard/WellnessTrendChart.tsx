@@ -22,7 +22,6 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   const [petAnalyses, setPetAnalyses] = React.useState([]);
   const [diaryEntries, setDiaryEntries] = React.useState([]);
   const [healthMetrics, setHealthMetrics] = React.useState([]);
-  const [medications, setMedications] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -43,15 +42,9 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
           .select('id, metric_type, value, created_at')
           .eq('pet_id', petId);
 
-        const { data: medicationsData } = await supabase
-          .from('pet_medications')
-          .select('id, medication_name, start_date, end_date, is_active, created_at')
-          .eq('pet_id', petId);
-
         setPetAnalyses(analysesData || []);
         setDiaryEntries(diaryData || []);
         setHealthMetrics(healthData || []);
-        setMedications(medicationsData || []);
       } catch (error) {
         console.error('Error fetching trend data:', error);
       }
@@ -137,13 +130,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         return date >= period.start && date <= period.end;
       });
 
-      const periodMedications = medications.filter(med => {
-        const startDate = new Date(med.start_date);
-        const endDate = med.end_date ? new Date(med.end_date) : new Date();
-        return startDate <= period.end && endDate >= period.start && med.is_active;
-      });
-
-      // 1. Emotion Analysis Score (40% weight)
+      // 1. Emotion Analysis Score (50% weight)
       let emotionScore = 60; // default neutral
       if (periodAnalyses.length > 0) {
         const weightedSum = periodAnalyses.reduce((sum, analysis) => {
@@ -154,7 +141,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         emotionScore = totalConfidence > 0 ? weightedSum / totalConfidence : 60;
       }
 
-      // 2. Diary Mood Score (25% weight)
+      // 2. Diary Mood Score (30% weight)
       let diaryScore = 50; // default neutral
       if (periodDiaryEntries.length > 0) {
         const moodEntries = periodDiaryEntries.filter(entry => entry.mood_score !== null);
@@ -163,7 +150,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         }
       }
 
-      // 3. Health Metrics Score (15% weight)
+      // 3. Health Metrics Score (20% weight)
       let healthScore = 60; // default neutral
       if (periodHealthMetrics.length > 0) {
         const healthScores = periodHealthMetrics.map(metric => {
@@ -181,63 +168,12 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         healthScore = healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length;
       }
 
-      // 4. Medication Impact Score (20% weight)
-      let medicationScore = 60; // neutral baseline
-      if (periodMedications.length > 0) {
-        // Classify medications by therapeutic effect
-        const medicationEffects = periodMedications.map(med => {
-          const name = med.medication_name.toLowerCase();
-          
-          // Pain/inflammation medications (positive impact)
-          if (name.includes('antinfiammatorio') || name.includes('antidolorifico') || 
-              name.includes('analgesico') || name.includes('carprofen') || 
-              name.includes('rimadyl') || name.includes('metacam')) {
-            return 85;
-          }
-          
-          // Anxiety/behavioral medications (positive impact on emotional wellness)
-          if (name.includes('ansiolitico') || name.includes('calmante') || 
-              name.includes('sileo') || name.includes('zylkene')) {
-            return 90;
-          }
-          
-          // Antibiotics (neutral to positive when needed)
-          if (name.includes('antibiotico') || name.includes('amoxicillina') || 
-              name.includes('enrofloxacina') || name.includes('doxiciclina')) {
-            return 75;
-          }
-          
-          // Heart medications (positive for cardiac health)
-          if (name.includes('cardiaco') || name.includes('enalapril') || 
-              name.includes('pimobendan') || name.includes('vetmedin')) {
-            return 80;
-          }
-          
-          // Chemotherapy/heavy treatments (negative short-term impact)
-          if (name.includes('chemioterapia') || name.includes('cortisone') || 
-              name.includes('prednisone') || name.includes('prednisolone')) {
-            return 45;
-          }
-          
-          // Supplements (slight positive impact)
-          if (name.includes('integratore') || name.includes('vitamina') || 
-              name.includes('omega') || name.includes('glucosamina')) {
-            return 70;
-          }
-          
-          // Default for unknown medications
-          return 65;
-        });
-        
-        medicationScore = medicationEffects.reduce((sum, score) => sum + score, 0) / medicationEffects.length;
-      }
-
-      // Calculate comprehensive wellness score with medication impact
-      const comprehensiveScore = (emotionScore * 0.4) + (diaryScore * 0.25) + (healthScore * 0.15) + (medicationScore * 0.2);
+      // Calculate comprehensive wellness score
+      const comprehensiveScore = (emotionScore * 0.5) + (diaryScore * 0.3) + (healthScore * 0.2);
 
       return { date: period.label, wellness: Math.round(Math.max(0, Math.min(100, comprehensiveScore))) };
     });
-  }, [petAnalyses, diaryEntries, healthMetrics, medications, selectedPeriod]);
+  }, [petAnalyses, diaryEntries, healthMetrics, selectedPeriod]);
 
   return (
     <Card className="w-full bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">

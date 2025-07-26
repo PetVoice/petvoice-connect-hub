@@ -34,7 +34,7 @@ export interface MedicalRecord {
 
 export interface Medication {
   id: string;
-  medication_name: string;
+  name: string;
   dosage: string;
   frequency: string;
   start_date: string;
@@ -131,7 +131,6 @@ export const calculateUnifiedHealthScore = async (
     medicalCare: number;
     behavioralHealth: number;
     activity: number;
-    medicationEffect: number;
   };
   factors: {
     dataCompleteness: number;
@@ -147,17 +146,16 @@ export const calculateUnifiedHealthScore = async (
   
   // Componenti del punteggio (peso percentuale)
   const components = {
-    vitalParameters: 0,    // 20%
-    emotionalWellness: 0,  // 25%
-    medicalCare: 0,        // 15%
+    vitalParameters: 0,    // 25%
+    emotionalWellness: 0,  // 30%
+    medicalCare: 0,        // 20%
     behavioralHealth: 0,   // 15%
-    activity: 0,           // 10%
-    medicationEffect: 0    // 15%
+    activity: 0            // 10%
   };
   
   const recommendations: string[] = [];
   
-  // 1. PARAMETRI VITALI (20 punti max)
+  // 1. PARAMETRI VITALI (25 punti max)
   let vitalScore = 0;
   const recentVitals = healthMetrics.filter(m => 
     new Date(m.recorded_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -209,9 +207,9 @@ export const calculateUnifiedHealthScore = async (
     }
   }
   
-  components.vitalParameters = Math.min(20, vitalScore);
+  components.vitalParameters = Math.min(25, vitalScore);
   
-  // 2. BENESSERE EMOTIVO (25 punti max)
+  // 2. BENESSERE EMOTIVO (30 punti max)
   let emotionalScore = 0;
   const recentAnalyses = analyses.filter(a => 
     new Date(a.created_at) >= new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)
@@ -227,7 +225,7 @@ export const calculateUnifiedHealthScore = async (
     }, 0);
     
     const avgEmotionScore = emotionScoreSum / recentAnalyses.length;
-    emotionalScore = (avgEmotionScore / 100) * 25; // Scala a 25 punti
+    emotionalScore = (avgEmotionScore / 100) * 30; // Scala a 30 punti
     
     if (avgEmotionScore < 40) {
       recommendations.push("Stato emotivo preoccupante - considera interventi comportamentali");
@@ -236,9 +234,9 @@ export const calculateUnifiedHealthScore = async (
     }
   }
   
-  components.emotionalWellness = Math.min(25, Math.max(0, emotionalScore));
+  components.emotionalWellness = Math.min(30, Math.max(0, emotionalScore));
   
-  // 3. CURE MEDICHE (15 punti max)
+  // 3. CURE MEDICHE (20 punti max)
   let medicalScore = 0;
   const now = new Date();
   const sixMonthsAgo = new Date(now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000);
@@ -250,13 +248,13 @@ export const calculateUnifiedHealthScore = async (
   );
   
   if (recentCheckups.length > 0) {
-    medicalScore += 6;
+    medicalScore += 8;
   } else {
     const oldCheckups = medicalRecords.filter(r => 
       r.record_type === 'checkup' && new Date(r.record_date) >= oneYearAgo
     );
     if (oldCheckups.length > 0) {
-      medicalScore += 3;
+      medicalScore += 4;
       recommendations.push("Programma un controllo veterinario - ultimo controllo oltre 6 mesi fa");
     } else {
       recommendations.push("Prenota urgentemente un controllo veterinario");
@@ -269,15 +267,15 @@ export const calculateUnifiedHealthScore = async (
   );
   
   if (recentVaccinations.length > 0) {
-    medicalScore += 5;
+    medicalScore += 6;
   } else {
     recommendations.push("Verifica lo stato delle vaccinazioni");
   }
   
-  // Basic medical care scoring (without detailed medication analysis here)
+  // Farmaci attivi
   const activeMedications = medications.filter(m => m.is_active);
   if (activeMedications.length > 0) {
-    medicalScore += 4;
+    medicalScore += 6;
     
     // Controlla farmaci scaduti
     const expiredMeds = activeMedications.filter(m => 
@@ -288,90 +286,7 @@ export const calculateUnifiedHealthScore = async (
     }
   }
   
-  components.medicalCare = Math.min(15, medicalScore);
-  
-  // 6. EFFETTO FARMACI (15 punti max)
-  let medicationEffectScore = 0;
-  const now_timestamp = Date.now();
-  const activeMedications_detailed = medications.filter(m => {
-    if (!m.is_active) return false;
-    const startDate = new Date(m.start_date).getTime();
-    const endDate = m.end_date ? new Date(m.end_date).getTime() : now_timestamp + 365 * 24 * 60 * 60 * 1000;
-    return startDate <= now_timestamp && endDate >= now_timestamp;
-  });
-  
-  if (activeMedications_detailed.length === 0) {
-    medicationEffectScore = 7.5; // Neutral score quando non ci sono farmaci
-  } else {
-    // Analisi dettagliata dell'effetto dei farmaci
-    const medicationEffects = activeMedications_detailed.map(med => {
-      const name = med.medication_name.toLowerCase();
-      
-      // Farmaci per dolore/infiammazione (effetto molto positivo)
-      if (name.includes('antinfiammatorio') || name.includes('antidolorifico') || 
-          name.includes('analgesico') || name.includes('carprofen') || 
-          name.includes('rimadyl') || name.includes('metacam') || name.includes('meloxicam')) {
-        return { score: 13, reason: 'Controllo del dolore migliora significativamente il benessere' };
-      }
-      
-      // Farmaci per ansia/comportamento (effetto positivo su benessere emotivo)
-      if (name.includes('ansiolitico') || name.includes('calmante') || 
-          name.includes('sileo') || name.includes('zylkene') || name.includes('alprazolam')) {
-        return { score: 14, reason: 'Riduzione ansia migliora qualità della vita' };
-      }
-      
-      // Antibiotici (necessari ma neutrali a breve termine)
-      if (name.includes('antibiotico') || name.includes('amoxicillina') || 
-          name.includes('enrofloxacina') || name.includes('doxiciclina') || name.includes('cefalexina')) {
-        return { score: 10, reason: 'Trattamento infezioni necessario' };
-      }
-      
-      // Farmaci cardiaci (effetto positivo per problemi cardiaci)
-      if (name.includes('cardiaco') || name.includes('enalapril') || 
-          name.includes('pimobendan') || name.includes('vetmedin') || name.includes('furosemide')) {
-        return { score: 12, reason: 'Supporto cardiovascolare migliora funzione cardiaca' };
-      }
-      
-      // Chemioterapici/cortisonici (effetti collaterali negativi)
-      if (name.includes('chemioterapia') || name.includes('cortisone') || 
-          name.includes('prednisone') || name.includes('prednisolone') || name.includes('desametasone')) {
-        return { score: 4, reason: 'Effetti collaterali temporanei ma trattamento necessario' };
-      }
-      
-      // Integratori (leggero effetto positivo)
-      if (name.includes('integratore') || name.includes('vitamina') || 
-          name.includes('omega') || name.includes('glucosamina') || name.includes('condroitina')) {
-        return { score: 9, reason: 'Supporto nutrizionale benefico' };
-      }
-      
-      // Antiparassitari (preventivi, effetto neutro-positivo)
-      if (name.includes('antiparassitario') || name.includes('frontline') || 
-          name.includes('advantix') || name.includes('bravecto') || name.includes('scalibor')) {
-        return { score: 8, reason: 'Prevenzione parassiti importante per salute' };
-      }
-      
-      // Default per farmaci non riconosciuti
-      return { score: 7.5, reason: 'Effetto farmaco non specificato' };
-    });
-    
-    // Calcola score medio con possibile bonus per combinazioni terapeutiche appropriate
-    const avgMedicationScore = medicationEffects.reduce((sum, effect) => sum + effect.score, 0) / medicationEffects.length;
-    
-    // Bonus per combinazioni terapeutiche ben bilanciate
-    const hasMultipleCategories = medicationEffects.some(e => e.score >= 12) && medicationEffects.some(e => e.score <= 10);
-    const balanceBonus = hasMultipleCategories ? 1 : 0;
-    
-    medicationEffectScore = Math.min(15, avgMedicationScore + balanceBonus);
-    
-    // Aggiungi raccomandazioni specifiche
-    if (avgMedicationScore < 6) {
-      recommendations.push("I farmaci attuali potrebbero causare effetti collaterali - discuti con il veterinario");
-    } else if (avgMedicationScore > 12) {
-      recommendations.push("Terapia farmacologica ben bilanciata - continua monitoraggio");
-    }
-  }
-  
-  components.medicationEffect = medicationEffectScore;
+  components.medicalCare = Math.min(20, medicalScore);
   
   // 4. SALUTE COMPORTAMENTALE (15 punti max)
   let behavioralScore = 0;
@@ -426,16 +341,15 @@ export const calculateUnifiedHealthScore = async (
   
   // Calcolo punteggio finale
   totalScore = components.vitalParameters + components.emotionalWellness + 
-               components.medicalCare + components.behavioralHealth + components.activity + components.medicationEffect;
+               components.medicalCare + components.behavioralHealth + components.activity;
   
   // Fattori di qualità dei dati
   const dataCompleteness = Math.min(100, (
-    (recentVitals.length > 0 ? 20 : 0) +
-    (recentAnalyses.length > 0 ? 25 : 0) +
-    (medicalRecords.length > 0 ? 15 : 0) +
+    (recentVitals.length > 0 ? 25 : 0) +
+    (recentAnalyses.length > 0 ? 30 : 0) +
+    (medicalRecords.length > 0 ? 20 : 0) +
     (recentDiary.length > 0 ? 15 : 0) +
-    (activityEntries.length > 0 ? 10 : 0) +
-    (activeMedications_detailed.length > 0 ? 15 : 0)
+    (activityEntries.length > 0 ? 10 : 0)
   ));
   
   const recentDataAvailability = Math.min(100, (
@@ -512,7 +426,7 @@ export const fetchHealthData = async (petId: string, userId: string): Promise<He
         .limit(20),
         
       supabase
-        .from('pet_medications')
+        .from('medications')
         .select('*')
         .eq('pet_id', petId)
         .eq('user_id', userId)
