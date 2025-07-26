@@ -347,7 +347,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               {recordingState.isRecording ? (
                 <Square className="h-8 w-8" />
               ) : (
-                <Camera className="h-8 w-8" />
+                <Video className="h-8 w-8" />
               )}
             </Button>
           </div>

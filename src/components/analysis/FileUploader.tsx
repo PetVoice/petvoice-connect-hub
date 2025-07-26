@@ -166,7 +166,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     }
   }, [selectedFiles, onFilesSelected]);
 
-  // Auto-analyze audio files when autoAnalyzeAudio is true, and auto-analyze images always
+  // Auto-analyze audio files when autoAnalyzeAudio is true, and auto-analyze images and videos always
   useEffect(() => {
     if (selectedFiles.length > 0 && !isProcessing) {
       const audioFiles = selectedFiles.filter(f => 
@@ -175,10 +175,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       const imageFiles = selectedFiles.filter(f => 
         f.file.type.startsWith('image/') && !f.error
       );
+      const videoFiles = selectedFiles.filter(f => 
+        f.file.type.startsWith('video/') && !f.error
+      );
       
       // Auto-analyze audio files if autoAnalyzeAudio is true
       // Auto-analyze image files always
-      if ((autoAnalyzeAudio && audioFiles.length > 0) || imageFiles.length > 0) {
+      // Auto-analyze video files always
+      if ((autoAnalyzeAudio && audioFiles.length > 0) || imageFiles.length > 0 || videoFiles.length > 0) {
         // Delay per permettere il rendering
         const timer = setTimeout(() => {
           handleStartAnalysis();
@@ -212,7 +216,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   const hasErrors = selectedFiles.some(f => f.error);
   const hasAudioFiles = selectedFiles.some(f => f.file.type.startsWith('audio/') && !f.error);
   const hasImageFiles = selectedFiles.some(f => f.file.type.startsWith('image/') && !f.error);
-  const shouldHideAnalysisButton = (autoAnalyzeAudio && hasAudioFiles) || hasImageFiles;
+  const hasVideoFiles = selectedFiles.some(f => f.file.type.startsWith('video/') && !f.error);
+  const shouldHideAnalysisButton = (autoAnalyzeAudio && hasAudioFiles) || hasImageFiles || hasVideoFiles;
 
   return (
     <Card className="h-fit">
@@ -350,7 +355,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   <span className="font-medium text-green-800 dark:text-green-200">
-                    ✨ File {hasImageFiles ? 'multimediale' : 'audio'} caricato
+                    ✨ File {hasVideoFiles ? 'video' : hasImageFiles ? 'multimediale' : 'audio'} caricato
                   </span>
                 </div>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-1">

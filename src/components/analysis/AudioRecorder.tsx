@@ -336,7 +336,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
     <Card className="h-fit">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Mic className="h-5 w-5" />
+          <Volume2 className="h-5 w-5" />
           Registrazione Audio
         </CardTitle>
         <CardDescription>
@@ -506,35 +506,34 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
           </div>
         )}
 
-
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-teal/5 to-teal/10 p-4 rounded-lg border border-teal/20">
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">🎙️ Analisi Audio in Tempo Reale</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Registra direttamente dal microfono per un'analisi immediata delle vocalizzazioni del tuo pet:
+              <h4 className="font-semibold text-orange-800 dark:text-orange-200 mb-2">🎵 Analisi Audio Avanzata con IA</h4>
+              <p className="text-sm text-orange-700 dark:text-orange-300 mb-3">
+                La nostra IA analizza i file audio per rilevare emozioni e comportamenti attraverso:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>🔊 Analisi tono e intensità vocale</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>🎤 Analisi delle vocalizzazioni</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>📊 Rilevamento pattern sonori</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>📊 Frequenza e tono</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>⚡ Processing istantaneo</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>🎯 Pattern comportamentali</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-teal rounded-full"></div>
-                  <span>🎯 Feedback emotivo immediato</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span>💡 Riconoscimento emozioni</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                🚀 Tempo medio: 10-15 secondi • 🎯 Accuratezza: 80-92% • ⏺️ Ideale per: Vocalizzazioni fresche, comportamenti in corso, analisi immediate
+                ⏱️ Tempo analisi: 15-30 secondi • 🎯 Accuratezza: 88-94% • 📊 Riconoscimento pitch e intensità
               </div>
             </div>
           </div>

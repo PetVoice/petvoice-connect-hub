@@ -74,8 +74,36 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           Descrivi il comportamento del tuo pet per un'analisi comportamentale
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Text Input Area */}
+        <div className="text-center space-y-4">
+          <div className="relative w-32 h-32 mx-auto">
+            {/* Text Button */}
+            <Button
+              onClick={handleSubmit}
+              disabled={!isValid || isProcessing}
+              className={cn(
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
+                isProcessing
+                  ? "bg-blue-500 hover:bg-blue-600 shadow-lg animate-pulse"
+                  : "gradient-coral hover:scale-105 shadow-lg"
+              )}
+            >
+              {isProcessing ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <MessageSquare className="h-8 w-8" />
+              )}
+            </Button>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              {isProcessing ? 'Analisi in corso...' : 'Descrivi il comportamento'}
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <div className="relative">
             <Textarea
@@ -125,56 +153,51 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
           )}
         </div>
 
-        {/* Submit Button */}
-        <Button 
-          onClick={handleSubmit}
-          disabled={!isValid || isProcessing}
-          className="w-full gradient-coral text-white"
-        >
-          {isProcessing ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-              Analisi in corso...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4 mr-2" />
-              Analizza Comportamento
-            </>
-          )}
-        </Button>
-
+        {/* Auto-analyze message */}
+        {isProcessing && (
+          <div className="space-y-4 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                ✨ Descrizione inviata
+              </span>
+              <span className="text-sm text-green-700 dark:text-green-300">
+                {characterCount} caratteri
+              </span>
+            </div>
+            <p className="text-sm text-green-700 dark:text-green-300">
+              🚀 Avvio analisi automatica in corso...
+            </p>
+          </div>
+        )}
 
         {/* Analysis Description */}
-        <div className="bg-gradient-to-r from-purple/5 to-purple/10 p-4 rounded-lg border border-purple/20">
+        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 p-4 rounded-lg border border-indigo-200 dark:border-indigo-800">
           <div className="flex items-start gap-3">
             <div className="flex-1">
-              <h4 className="font-semibold text-foreground mb-2">🧠 Analisi Testuale Intelligente</h4>
-              <p className="text-sm text-muted-foreground mb-3">
+              <h4 className="font-semibold text-indigo-800 dark:text-indigo-200 mb-2">🧠 Analisi Testuale Intelligente</h4>
+              <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-3">
                 Il nostro sistema AI analizza la tua descrizione per rilevare emozioni, comportamenti e contesto:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>🔍 Estrazione keywords emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>📝 Analisi contestuale avanzata</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>📊 Calcolo probabilità emotive</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
                   <span>💡 Suggerimenti personalizzati</span>
                 </div>
               </div>
               <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
-                ⚡ <strong>Tempo medio:</strong> Istantaneo • 
-                🎯 <strong>Accuratezza:</strong> 92-97% • 
-                📋 <strong>Vantaggi:</strong> Gratuito, veloce, sempre disponibile
+                ⏱️ Tempo analisi: Istantaneo • 🎯 Accuratezza: 92-97% • 📊 NLP avanzato con modelli linguistici
               </div>
             </div>
           </div>
