@@ -54,6 +54,20 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Setup preview when recording starts
+  useEffect(() => {
+    if (recordingState.isRecording && streamRef.current && previewRef.current) {
+      console.log('Setting up preview video element...');
+      const video = previewRef.current;
+      video.srcObject = streamRef.current;
+      video.play().then(() => {
+        console.log('Preview should be playing now');
+      }).catch((err) => {
+        console.error('Preview play failed:', err);
+      });
+    }
+  }, [recordingState.isRecording]);
+
   // Check camera permission on mount
   useEffect(() => {
     checkCameraPermission();
@@ -111,14 +125,6 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
       console.log('Camera access granted, stream:', stream);
       streamRef.current = stream;
       setPermission('granted');
-      
-      // Setup preview - simplified approach
-      if (previewRef.current) {
-        console.log('Setting up preview video element...');
-        previewRef.current.srcObject = stream;
-        previewRef.current.play();
-        console.log('Preview should be playing now');
-      }
       
       mediaRecorderRef.current = new MediaRecorder(stream);
       
