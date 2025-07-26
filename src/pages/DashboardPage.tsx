@@ -514,8 +514,8 @@ const DashboardPage: React.FC = () => {
       }
     };
 
-    // Load medications data
-    const loadMedications = async () => {
+    // Load medications data - moved outside useEffect to be accessible
+    const loadMeds = async () => {
       if (!selectedPet || !user) return;
       
       try {
@@ -552,8 +552,28 @@ const DashboardPage: React.FC = () => {
     };
 
     loadPetStats();
-    loadMedications();
+    loadMeds();
   }, [selectedPet, user]);
+
+  // Load medications function accessible by other functions
+  const loadMedications = async () => {
+    if (!selectedPet || !user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('pet_medications')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMedications(data || []);
+    } catch (error) {
+      console.error('Error loading medications:', error);
+    }
+  };
 
   // Helper functions for CRUD operations
   const handleAddItem = (type: string) => {
@@ -2227,7 +2247,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Medication Evaluation Modal - Non-closable */}
       <Dialog open={medicationEvaluationModal.open} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md" hideCloseButton>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-center">
               Valutazione Farmaco

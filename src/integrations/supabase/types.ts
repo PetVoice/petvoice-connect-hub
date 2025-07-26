@@ -2145,8 +2145,10 @@ export type Database = {
         Row: {
           created_at: string
           dosage: string
+          effectiveness_rating: string | null
           end_date: string | null
           frequency: string
+          has_been_evaluated: boolean | null
           id: string
           is_active: boolean
           medication_name: string
@@ -2159,8 +2161,10 @@ export type Database = {
         Insert: {
           created_at?: string
           dosage: string
+          effectiveness_rating?: string | null
           end_date?: string | null
           frequency: string
+          has_been_evaluated?: boolean | null
           id?: string
           is_active?: boolean
           medication_name: string
@@ -2173,8 +2177,10 @@ export type Database = {
         Update: {
           created_at?: string
           dosage?: string
+          effectiveness_rating?: string | null
           end_date?: string | null
           frequency?: string
+          has_been_evaluated?: boolean | null
           id?: string
           is_active?: boolean
           medication_name?: string
