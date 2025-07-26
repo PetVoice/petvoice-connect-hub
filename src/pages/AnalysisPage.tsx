@@ -1791,38 +1791,10 @@ const AnalysisPage: React.FC = () => {
                   const avgConfidence = last7Days.length > 0 ? 
                     last7Days.reduce((sum, a) => sum + (a.primary_confidence * 100), 0) / last7Days.length : 0;
                   
-                  // INTEGRAZIONE METEO - Calcola fattore di correzione basato su condizioni meteorologiche
-                  const getWeatherImpact = () => {
-                    if (!weatherData) return 0;
-                    
-                    let impact = 0;
-                    
-                    // Temperatura
-                    if (weatherData.temperature > 25) impact -= 5; // Caldo eccessivo = stress
-                    if (weatherData.temperature < 10) impact -= 3; // Freddo = meno attività
-                    if (weatherData.temperature >= 15 && weatherData.temperature <= 25) impact += 2; // Temperatura ideale
-                    
-                    // Condizioni meteo
-                    const condition = weatherData.condition?.toLowerCase() || '';
-                    if (condition.includes('sunny') || condition.includes('clear')) impact += 3;
-                    if (condition.includes('rain') || condition.includes('storm')) impact -= 8;
-                    if (condition.includes('cloud')) impact -= 2;
-                    
-                    // Pressione atmosferica
-                    if (weatherData.pressure < 1000) impact -= 5; // Bassa pressione = irrequietezza
-                    if (weatherData.pressure > 1020) impact += 2; // Alta pressione = stabilità
-                    
-                    // Umidità
-                    if (weatherData.humidity > 80) impact -= 3; // Umidità alta = disagio
-                    
-                    return Math.max(-15, Math.min(15, impact)); // Limita l'impatto tra -15 e +15
-                  };
-                  
-                  const weatherImpact = getWeatherImpact();
-                  
-                  // Previsione realistica basata sui dati + fattore meteo
-                  const baselinePredicton = currentScore + (avgConfidence > 80 ? 5 : avgConfidence > 60 ? 0 : -5);
-                  const prediction = Math.max(0, Math.min(100, baselinePredicton + weatherImpact));
+                  // Previsione realistica basata sui dati
+                  const prediction = Math.max(0, Math.min(100, 
+                    currentScore + (avgConfidence > 80 ? 5 : avgConfidence > 60 ? 0 : -5)
+                  ));
                   const monthlyScore = calculateWellnessScore(last30Days);
 
                   return last7Days.length > 0 ? (
@@ -1891,27 +1863,6 @@ const AnalysisPage: React.FC = () => {
                           <div className="text-xs text-blue-600">Trend mensile</div>
                         </div>
                       </div>
-
-                      {/* Weather Integration */}
-                      {weatherData && (
-                        <div className="p-3 bg-sky-50 rounded-lg border border-sky/20">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium text-sky-700">🌤️ Fattore Meteorologico</span>
-                            <span className={cn(
-                              "text-xs font-bold",
-                              weatherImpact > 0 ? "text-emerald-600" : weatherImpact < 0 ? "text-orange-600" : "text-gray-600"
-                            )}>
-                              {weatherImpact > 0 ? `+${weatherImpact}` : weatherImpact}%
-                            </span>
-                          </div>
-                          <div className="text-xs text-sky-600">
-                            {weatherData.temperature}°C, {weatherData.condition} - 
-                            {weatherImpact > 5 ? " Condizioni ottimali" : 
-                             weatherImpact < -5 ? " Condizioni sfavorevoli" : 
-                             " Condizioni neutre"}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="p-6 bg-gray-50 rounded-lg text-center">
@@ -2310,7 +2261,7 @@ const AnalysisPage: React.FC = () => {
             <WeatherMoodPredictor 
               user={user}
               onWeatherUpdate={(data) => {
-                setWeatherData(data);
+                console.log('Weather data updated:', data);
               }}
             />
           )}

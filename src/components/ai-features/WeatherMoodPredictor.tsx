@@ -397,7 +397,7 @@ export const WeatherMoodPredictor = ({ user, onWeatherUpdate }: WeatherMoodPredi
   return (
     <div className="space-y-6">
       {/* Weather Overview */}
-      <Card className="bg-gradient-to-br from-sky/5 to-sky/10 border border-sky/20 shadow-soft hover:shadow-glow transition-all duration-200">
+      <Card className="bg-white border border-gray-200 shadow-soft hover:shadow-glow transition-all duration-200">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Cloud className="h-5 w-5 text-sky-600" />
