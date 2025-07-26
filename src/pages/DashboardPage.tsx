@@ -1726,7 +1726,7 @@ const DashboardPage: React.FC = () => {
                                <div>
                                  <div className="text-sm text-muted-foreground">
                                    Dal {format(new Date(medication.start_date), 'dd/MM/yyyy')}
-                                   {medication.end_date && ` - Al ${format(new Date(medication.end_date), 'dd/MM/yyyy')}${isExpired ? ' (Scaduto)' : ''}`}
+                                   {medication.end_date && ` - Al ${format(new Date(medication.end_date), 'dd/MM/yyyy')}`}
                                  </div>
                                </div>
                              </div>
