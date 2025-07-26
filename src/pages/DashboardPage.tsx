@@ -950,13 +950,16 @@ const DashboardPage: React.FC = () => {
                 <span>Critico</span>
                 <span>Ottimo</span>
               </div>
-              <Progress 
-                value={petStats.wellnessScore > 0 ? petStats.wellnessScore : 0} 
-                className={`h-3 ${
-                  petStats.wellnessScore >= 70 ? '[&>div]:bg-green-500' :
-                  petStats.wellnessScore >= 30 ? '[&>div]:bg-orange-500' : '[&>div]:bg-red-500'
-                }`}
-              />
+              <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
+                <div 
+                  className="h-full transition-all rounded-full"
+                  style={{
+                    width: `${petStats.wellnessScore > 0 ? petStats.wellnessScore : 0}%`,
+                    backgroundColor: petStats.wellnessScore >= 70 ? '#10b981' :
+                                   petStats.wellnessScore >= 30 ? '#f59e0b' : '#ef4444'
+                  }}
+                />
+              </div>
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>0%</span>
                 <span>50%</span>
