@@ -751,26 +751,24 @@ const PetsPage: React.FC = () => {
                      </p>
                    )}
                   
-                  <div className="flex gap-2 pt-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(pet)}
-                      className="flex-1"
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Modifica
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setDeletingPet(pet)}
-                      className="flex-1 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Elimina
-                    </Button>
-                  </div>
+                   <div className="flex gap-2 pt-3">
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={() => handleEdit(pet)}
+                       className="flex-1"
+                     >
+                       <Edit className="h-4 w-4" />
+                     </Button>
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={() => setDeletingPet(pet)}
+                       className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                     >
+                       <Trash2 className="h-4 w-4" />
+                     </Button>
+                   </div>
                 </div>
               </CardContent>
             </Card>
