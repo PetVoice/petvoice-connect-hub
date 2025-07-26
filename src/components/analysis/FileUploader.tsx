@@ -10,7 +10,8 @@ import {
   X, 
   AlertCircle,
   CheckCircle2,
-  File
+  File,
+  Image
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +39,11 @@ const ACCEPTED_VIDEO_TYPES = [
   'video/mp4', 'video/mov', 'video/avi', 'video/quicktime', 'video/webm'
 ];
 
-const DEFAULT_ACCEPTED_TYPES = [...ACCEPTED_AUDIO_TYPES, ...ACCEPTED_VIDEO_TYPES];
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'
+];
+
+const DEFAULT_ACCEPTED_TYPES = [...ACCEPTED_AUDIO_TYPES, ...ACCEPTED_VIDEO_TYPES, ...ACCEPTED_IMAGE_TYPES];
 
 const FileUploader: React.FC<FileUploaderProps> = ({
   onFilesSelected,
@@ -83,6 +88,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       if (file.type.startsWith('audio/')) {
         preview = URL.createObjectURL(file);
       } else if (file.type.startsWith('video/')) {
+        preview = URL.createObjectURL(file);
+      } else if (file.type.startsWith('image/')) {
         preview = URL.createObjectURL(file);
       }
 
@@ -182,6 +189,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       return <FileAudio className="h-8 w-8 text-coral" />;
     } else if (fileType.startsWith('video/')) {
       return <FileVideo className="h-8 w-8 text-teal" />;
+    } else if (fileType.startsWith('image/')) {
+      return <Image className="h-8 w-8 text-primary" />;
     }
     return <File className="h-8 w-8 text-muted-foreground" />;
   };
@@ -204,10 +213,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          File Audio/Video
+          File Multimediali
         </CardTitle>
         <CardDescription>
-          Trascina i file qui o clicca per selezionare. Supportati: MP3, WAV, MP4, MOV (max {maxSizePerFile}MB)
+          Trascina i file qui o clicca per selezionare. Supportati: Audio (MP3, WAV), Video (MP4, MOV), Immagini (JPG, PNG) (max {maxSizePerFile}MB)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
