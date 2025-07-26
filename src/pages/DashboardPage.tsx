@@ -114,8 +114,7 @@ const DashboardPage: React.FC = () => {
 
   const [vitalForm, setVitalForm] = useState({
     value: '',
-    unit: '',
-    date: format(new Date(), 'yyyy-MM-dd')
+    unit: ''
   });
 
   const { toast } = useToast();
@@ -432,8 +431,7 @@ const DashboardPage: React.FC = () => {
         });
         setVitalForm({
           value: '',
-          unit: '',
-          date: format(new Date(), 'yyyy-MM-dd')
+          unit: ''
         });
         break;
       case 'behaviors':
@@ -470,8 +468,7 @@ const DashboardPage: React.FC = () => {
           });
           setVitalForm({
             value: vital.value.toString(),
-            unit: vital.unit,
-            date: format(new Date(), 'yyyy-MM-dd')
+            unit: vital.unit
           });
         }
         break;
@@ -548,7 +545,7 @@ const DashboardPage: React.FC = () => {
       newVitalStats[vitalModal.vitalType] = {
         value: parseFloat(vitalForm.value),
         unit: vitalForm.unit,
-        date: format(new Date(vitalForm.date), 'dd/MM')
+        date: format(new Date(), 'dd/MM')
       };
       
       setVitalStats(newVitalStats);
@@ -564,6 +561,41 @@ const DashboardPage: React.FC = () => {
         description: "Si è verificato un errore durante il salvataggio.",
         variant: "destructive"
       });
+    }
+  };
+
+  // Check if vital parameter is within normal range
+  const isVitalInNormalRange = (vitalType: string, value: number, petType?: string): { isNormal: boolean; message: string } => {
+    const isDog = petType?.toLowerCase().includes('cane');
+    const isCat = petType?.toLowerCase().includes('gatto');
+    
+    switch(vitalType) {
+      case 'temperatura':
+        if (isDog && (value >= 38.0 && value <= 39.2)) return { isNormal: true, message: "Normale" };
+        if (isCat && (value >= 38.1 && value <= 39.2)) return { isNormal: true, message: "Normale" };
+        if (value < 37.0) return { isNormal: false, message: "Troppo bassa - Ipotermia" };
+        if (value > 40.0) return { isNormal: false, message: "Troppo alta - Ipertermia/Febbre" };
+        return { isNormal: false, message: "Fuori dal range normale" };
+        
+      case 'frequenza_cardiaca':
+        if (isDog) {
+          // Assumiamo cane grande se non specificato
+          if (value >= 60 && value <= 140) return { isNormal: true, message: "Normale" };
+        }
+        if (isCat && (value >= 140 && value <= 220)) return { isNormal: true, message: "Normale" };
+        if (value < 50) return { isNormal: false, message: "Troppo bassa - Bradicardia" };
+        if (value > 250) return { isNormal: false, message: "Troppo alta - Tachicardia" };
+        return { isNormal: false, message: "Fuori dal range normale" };
+        
+      case 'respirazione':
+        if (isDog && (value >= 10 && value <= 30)) return { isNormal: true, message: "Normale" };
+        if (isCat && (value >= 20 && value <= 30)) return { isNormal: true, message: "Normale" };
+        if (value < 8) return { isNormal: false, message: "Troppo bassa - Bradipnea" };
+        if (value > 40) return { isNormal: false, message: "Troppo alta - Tachipnea" };
+        return { isNormal: false, message: "Fuori dal range normale" };
+        
+      default:
+        return { isNormal: true, message: "Range non definito" };
     }
   };
 
@@ -1236,20 +1268,16 @@ const DashboardPage: React.FC = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="vitalType">Tipo di Parametro</Label>
+              <Label htmlFor="vitalType">Tipo di Parametro Vitale</Label>
               <Select 
                 value={vitalModal.vitalType} 
                 onValueChange={(value) => {
                   setVitalModal(prev => ({ ...prev, vitalType: value }));
-                  // Set default unit based on vital type
+                  // Set automatic unit based on vital type
                   const defaultUnits = {
                     'temperatura': '°C',
-                    'peso': 'kg',
                     'frequenza_cardiaca': 'bpm',
-                    'pressione': 'mmHg',
-                    'umore': '/10',
-                    'energia': '/5',
-                    'appetito': '/5'
+                    'respirazione': 'atti/min'
                   };
                   setVitalForm(prev => ({ 
                     ...prev, 
@@ -1259,46 +1287,52 @@ const DashboardPage: React.FC = () => {
                 disabled={vitalModal.mode === 'edit'}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleziona tipo parametro" />
+                  <SelectValue placeholder="Seleziona parametro vitale" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="temperatura">Temperatura</SelectItem>
-                  <SelectItem value="peso">Peso</SelectItem>
-                  <SelectItem value="frequenza_cardiaca">Frequenza Cardiaca</SelectItem>
-                  <SelectItem value="pressione">Pressione</SelectItem>
-                  <SelectItem value="umore">Umore</SelectItem>
-                  <SelectItem value="energia">Energia</SelectItem>
-                  <SelectItem value="appetito">Appetito</SelectItem>
+                  <SelectItem value="temperatura">🌡️ Temperatura Corporea</SelectItem>
+                  <SelectItem value="frequenza_cardiaca">❤️ Frequenza Cardiaca</SelectItem>
+                  <SelectItem value="respirazione">🫁 Respirazione</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="value">Valore</Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.1"
-                value={vitalForm.value}
-                onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
-                placeholder="Inserisci valore"
-              />
+              <div className="space-y-2">
+                <Input
+                  id="value"
+                  type="number"
+                  step="0.1"
+                  value={vitalForm.value}
+                  onChange={(e) => setVitalForm(prev => ({ ...prev, value: e.target.value }))}
+                  placeholder="Inserisci valore"
+                />
+                {vitalForm.value && vitalModal.vitalType && (() => {
+                  const numValue = parseFloat(vitalForm.value);
+                  if (!isNaN(numValue)) {
+                    const rangeCheck = isVitalInNormalRange(vitalModal.vitalType, numValue, selectedPet?.type);
+                    if (!rangeCheck.isNormal) {
+                      return (
+                        <Alert className="border-red-200 bg-red-50">
+                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                          <AlertDescription className="text-red-700">
+                            <strong>Attenzione:</strong> {rangeCheck.message}
+                          </AlertDescription>
+                        </Alert>
+                      );
+                    }
+                  }
+                })()}
+              </div>
             </div>
             <div>
               <Label htmlFor="unit">Unità di Misura</Label>
               <Input
                 id="unit"
                 value={vitalForm.unit}
-                onChange={(e) => setVitalForm(prev => ({ ...prev, unit: e.target.value }))}
-                placeholder="es. °C, kg, bpm"
-              />
-            </div>
-            <div>
-              <Label htmlFor="date">Data</Label>
-              <Input
-                id="date"
-                type="date"
-                value={vitalForm.date}
-                onChange={(e) => setVitalForm(prev => ({ ...prev, date: e.target.value }))}
+                readOnly
+                className="bg-muted"
+                placeholder="Unità automatica"
               />
             </div>
             <div className="flex gap-2 pt-4">
