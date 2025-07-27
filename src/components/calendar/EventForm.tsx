@@ -20,6 +20,7 @@ interface EventFormProps {
   petId: string;
   userId: string;
   initialDate?: string;
+  preselectedCategory?: string;
 }
 
 export const EventForm: React.FC<EventFormProps> = ({
@@ -29,7 +30,8 @@ export const EventForm: React.FC<EventFormProps> = ({
   onSave,
   petId,
   userId,
-  initialDate
+  initialDate,
+  preselectedCategory
 }) => {
   const { toast } = useToast();
   const [categoryError, setCategoryError] = useState('');
@@ -58,7 +60,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         title: event?.title || '',
         description: event?.description || '',
         location: event?.location || '',
-        category: event?.category || '', // Rimosso valore di default
+        category: event?.category || preselectedCategory || '', // Usa categoria preselezionata se disponibile
         start_time: '', // Gestito separatamente con startDate
         end_time: '',   // Gestito separatamente con endDate
         is_all_day: event?.is_all_day || false,
@@ -84,7 +86,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         setEndDate(undefined);
       }
     }
-  }, [event, initialDate, isOpen]);
+  }, [event, initialDate, isOpen, preselectedCategory]);
 
   const handleSave = () => {
     // Validazione categoria obbligatoria

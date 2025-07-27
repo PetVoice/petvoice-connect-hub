@@ -85,6 +85,7 @@ const DashboardPage: React.FC = () => {
   const [medications, setMedications] = useState<any[]>([]);
   const [veterinarians, setVeterinarians] = useState<any[]>([]);
   const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
+  const [medicalEvents, setMedicalEvents] = useState<any[]>([]);
   const [insurances, setInsurances] = useState<any[]>([]);
   const [diaryEntriesData, setDiaryEntriesData] = useState<any[]>([]);
   const [petAnalyses, setPetAnalyses] = useState<any[]>([]);
@@ -152,10 +153,12 @@ const DashboardPage: React.FC = () => {
     open: boolean;
     mode: 'add' | 'edit';
     event: any | null;
+    preselectedCategory?: string;
   }>({
     open: false,
     mode: 'add',
-    event: null
+    event: null,
+    preselectedCategory: undefined
   });
 
   // Medication evaluation modal state
@@ -253,6 +256,16 @@ const DashboardPage: React.FC = () => {
           .select('*')
           .eq('pet_id', selectedPet.id)
           .eq('user_id', user.id);
+
+        // Get medical events (for Recent Visits card)
+        const { data: medicalEvents } = await supabase
+          .from('calendar_events')
+          .select('*')
+          .eq('pet_id', selectedPet.id)
+          .eq('user_id', user.id)
+          .eq('category', 'medical')
+          .order('start_time', { ascending: false })
+          .limit(5);
 
         // Get medications
         const { data: medicationsData } = await supabase
@@ -435,6 +448,11 @@ const DashboardPage: React.FC = () => {
           });
         }
         setEmotionStats(emotionCounts);
+
+        // Save data to states
+        setMedicalEvents(medicalEvents || []);
+        setDiaryEntriesData(diaryEntries || []);
+        setHealthMetrics(healthMetrics || []);
 
         // Calculate vital stats from health metrics and diary entries
         const vitals: {[key: string]: {value: number, unit: string, date: string}} = {};
@@ -628,7 +646,8 @@ const DashboardPage: React.FC = () => {
         setEventModal({
           open: true,
           mode: 'add',
-          event: null
+          event: null,
+          preselectedCategory: 'medical'
         });
         break;
       case 'insurance':
@@ -1326,7 +1345,21 @@ const DashboardPage: React.FC = () => {
 
       if (error) throw error;
 
-      setEventModal({ open: false, mode: 'add', event: null });
+      setEventModal({ open: false, mode: 'add', event: null, preselectedCategory: undefined });
+      
+      // Reload medical events if it was a medical event
+      if (eventData.category === 'medical') {
+        const { data: medicalEvents } = await supabase
+          .from('calendar_events')
+          .select('*')
+          .eq('pet_id', selectedPet?.id)
+          .eq('user_id', user?.id)
+          .eq('category', 'medical')
+          .order('start_time', { ascending: false })
+          .limit(5);
+        
+        setMedicalEvents(medicalEvents || []);
+      }
       
       toast({
         title: "✅ Evento creato",
@@ -1994,20 +2027,53 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Storico delle visite veterinarie e controlli</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Qui andrà la logica per mostrare le visite quando saranno implementate */}
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
-                  <FileText className="h-10 w-10 text-blue-500/60" />
+              {medicalEvents.length > 0 ? (
+                <div className="space-y-4">
+                  {medicalEvents.map((visit) => (
+                    <div key={visit.id} className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-blue-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">{visit.title}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(visit.start_time), 'dd/MM/yyyy')}
+                            {visit.location && ` • ${visit.location}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {visit.status === 'completed' && '✓ Completata'}
+                        {visit.status === 'scheduled' && '📅 Programmata'}
+                        {visit.status === 'cancelled' && '❌ Annullata'}
+                      </div>
+                    </div>
+                  ))}
+                  <Button 
+                    onClick={() => handleAddItem('visits')}
+                    variant="outline"
+                    className="w-full mt-4"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Aggiungi Visita
+                  </Button>
                 </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessuna visita registrata</p>
-                <Button 
-                  onClick={() => handleAddItem('visits')}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <FileText className="h-5 w-5 mr-2" />
-                  Registra Visite
-                </Button>
-              </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
+                    <FileText className="h-10 w-10 text-blue-500/60" />
+                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessuna visita registrata</p>
+                  <Button 
+                    onClick={() => handleAddItem('visits')}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <FileText className="h-5 w-5 mr-2" />
+                    Registra Visite
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -2385,11 +2451,12 @@ const DashboardPage: React.FC = () => {
       {/* Event Form Modal */}
       <EventForm
         isOpen={eventModal.open}
-        onClose={() => setEventModal({ open: false, mode: 'add', event: null })}
+        onClose={() => setEventModal({ open: false, mode: 'add', event: null, preselectedCategory: undefined })}
         event={eventModal.event}
         onSave={handleEventSave}
         petId={selectedPet?.id || ''}
         userId={user?.id || ''}
+        preselectedCategory={eventModal.preselectedCategory}
       />
     </div>
   );
