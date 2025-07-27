@@ -10,6 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useToast } from '@/hooks/use-toast';
+import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
+import { format } from 'date-fns';
 
 interface AddPetDialogProps {
   open: boolean;
@@ -51,6 +53,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
   const { addPet } = usePets();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [birthDate, setBirthDate] = useState<Date>();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -66,22 +69,13 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     gender: 'unknown' as 'male' | 'female' | 'unknown',
     microchip_number: ''
   });
-  
-  const [birthDate, setBirthDate] = useState({
-    day: '',
-    month: '',
-    year: ''
-  });
 
-  const calculateAge = (birthDate: { day: string; month: string; year: string }) => {
-    if (!birthDate.day || !birthDate.month || !birthDate.year) return null;
-    
-    const birth = new Date(parseInt(birthDate.year), parseInt(birthDate.month) - 1, parseInt(birthDate.day));
+  const calculateAge = (birthDate: Date) => {
     const today = new Date();
-    const age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
     
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       return age - 1;
     }
     return age;
@@ -106,11 +100,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
       gender: 'unknown' as 'male' | 'female' | 'unknown',
       microchip_number: ''
     });
-    setBirthDate({
-      day: '',
-      month: '',
-      year: ''
-    });
+    setBirthDate(undefined);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,10 +122,8 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
     setLoading(true);
     
     try {
-      const age = calculateAge(birthDate);
-      const birth_date = (birthDate.year && birthDate.month && birthDate.day) 
-        ? `${birthDate.year}-${birthDate.month.padStart(2, '0')}-${birthDate.day.padStart(2, '0')}` 
-        : null;
+      const age = birthDate ? calculateAge(birthDate) : null;
+      const birth_date = birthDate ? format(birthDate, 'yyyy-MM-dd') : null;
 
       const petData = {
         name: formData.name,
@@ -268,45 +256,13 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <Label>Data di nascita</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Select value={birthDate.day} onValueChange={(value) => setBirthDate({...birthDate, day: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Giorno" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({length: 31}, (_, i) => i + 1).map((day) => (
-                        <SelectItem key={day} value={day.toString()}>{day}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={birthDate.month} onValueChange={(value) => setBirthDate({...birthDate, month: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Mese" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
-                        <SelectItem key={month} value={month.toString()}>
-                          {new Date(2000, month - 1).toLocaleDateString('it-IT', { month: 'long' })}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={birthDate.year} onValueChange={(value) => setBirthDate({...birthDate, year: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Anno" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({length: 25}, (_, i) => new Date().getFullYear() - i).map((year) => (
-                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <UnifiedDatePicker
+                label="Data di nascita (opzionale)"
+                value={birthDate}
+                onChange={setBirthDate}
+                placeholder="Seleziona data di nascita"
+                disabled={(date) => date > new Date()}
+              />
 
               <div className="md:col-span-2">
                 <Label htmlFor="description">Descrizione</Label>

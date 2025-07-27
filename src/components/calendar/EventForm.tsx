@@ -10,6 +10,7 @@ import { Save, MapPin, Users, DollarSign } from 'lucide-react';
 import { CalendarEvent, EVENT_CATEGORIES, RECURRING_PATTERNS, EVENT_STATUS } from '@/types/calendar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -32,13 +33,16 @@ export const EventForm: React.FC<EventFormProps> = ({
 }) => {
   const { toast } = useToast();
   const [categoryError, setCategoryError] = useState('');
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     location: '',
     category: '', // Rimosso valore di default
-    start_time: '', // Rimosso valore di default
-    end_time: '',
+    start_time: '', // Mantenuto per compatibilità
+    end_time: '',   // Mantenuto per compatibilità
     is_all_day: false,
     recurring_pattern: 'none',
     attendees: [],
@@ -55,8 +59,8 @@ export const EventForm: React.FC<EventFormProps> = ({
         description: event?.description || '',
         location: event?.location || '',
         category: event?.category || '', // Rimosso valore di default
-        start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : ''), // Rimosso valore di default per oggi
-        end_time: event?.end_time || '',
+        start_time: '', // Gestito separatamente con startDate
+        end_time: '',   // Gestito separatamente con endDate
         is_all_day: event?.is_all_day || false,
         recurring_pattern: event?.recurring_pattern || 'none',
         attendees: event?.attendees || [],
@@ -64,6 +68,21 @@ export const EventForm: React.FC<EventFormProps> = ({
         status: event?.status || 'scheduled',
         notes: event?.notes || ''
       });
+      
+      // Gestione delle date
+      if (event?.start_time) {
+        setStartDate(new Date(event.start_time));
+      } else if (initialDate) {
+        setStartDate(new Date(`${initialDate}T09:00`));
+      } else {
+        setStartDate(undefined);
+      }
+      
+      if (event?.end_time) {
+        setEndDate(new Date(event.end_time));
+      } else {
+        setEndDate(undefined);
+      }
     }
   }, [event, initialDate, isOpen]);
 
@@ -79,13 +98,26 @@ export const EventForm: React.FC<EventFormProps> = ({
       return;
     }
 
+    // Validazione data di inizio obbligatoria
+    if (!startDate) {
+      toast({
+        title: "❌ Campo obbligatorio",
+        description: "Seleziona una data di inizio per l'evento.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setCategoryError(''); // Reset errore
 
     const data = {
       ...formData,
       pet_id: petId,
       user_id: userId,
-      end_time: formData.is_all_day ? null : formData.end_time || null,
+      start_time: formData.is_all_day 
+        ? format(startDate, 'yyyy-MM-dd\'T\'00:00:ss')
+        : format(startDate, 'yyyy-MM-dd\'T\'HH:mm:ss'),
+      end_time: formData.is_all_day ? null : (endDate ? format(endDate, 'yyyy-MM-dd\'T\'HH:mm:ss') : null),
       cost: formData.cost ? Number(formData.cost) : null
     };
     onSave(data);
@@ -165,31 +197,22 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="start_time">
-                  {formData.is_all_day ? 'Data' : 'Data e ora inizio'}
-                </Label>
-                <Input
-                  id="start_time"
-                  type={formData.is_all_day ? 'date' : 'datetime-local'}
-                  value={formData.is_all_day ? formData.start_time.split('T')[0] : formData.start_time}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    start_time: formData.is_all_day ? `${e.target.value}T00:00` : e.target.value 
-                  }))}
-                />
-              </div>
+              <UnifiedDatePicker
+                label={formData.is_all_day ? 'Data' : 'Data inizio'}
+                value={startDate}
+                onChange={setStartDate}
+                placeholder="Seleziona data inizio"
+                required
+              />
 
               {!formData.is_all_day && (
-                <div>
-                  <Label htmlFor="end_time">Data e ora fine</Label>
-                  <Input
-                    id="end_time"
-                    type="datetime-local"
-                    value={formData.end_time}
-                    onChange={(e) => setFormData(prev => ({ ...prev, end_time: e.target.value }))}
-                  />
-                </div>
+                <UnifiedDatePicker
+                  label="Data fine (opzionale)"
+                  value={endDate}
+                  onChange={setEndDate}
+                  placeholder="Seleziona data fine"
+                  disabled={(date) => startDate ? date < startDate : false}
+                />
               )}
             </div>
           </div>

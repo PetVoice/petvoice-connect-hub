@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Camera, Mic, MicOff, Save, Upload, X, Tag } from 'lucide-react';
 import { DiaryEntry, PREDEFINED_TAGS, TAG_COLORS, MOOD_LABELS } from '@/types/diary';
 import { format } from 'date-fns';
+import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
 
 interface DiaryEntryFormProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   userId,
   initialDate
 }) => {
+  const [entryDate, setEntryDate] = useState<Date>();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -56,6 +58,15 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
         temperature: entry?.temperature || null,
         entry_date: entry?.entry_date || initialDate || format(new Date(), 'yyyy-MM-dd')
       });
+      
+      // Gestione della data
+      if (entry?.entry_date) {
+        setEntryDate(new Date(entry.entry_date));
+      } else if (initialDate) {
+        setEntryDate(new Date(initialDate));
+      } else {
+        setEntryDate(new Date());
+      }
     }
   }, [entry, initialDate, isOpen]);
 
@@ -64,8 +75,13 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
+    if (!entryDate) {
+      return;
+    }
+    
     const data = {
       ...formData,
+      entry_date: format(entryDate, 'yyyy-MM-dd'),
       pet_id: petId,
       user_id: userId,
       // Convert 'nessuna' back to empty string for database
@@ -119,15 +135,13 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
           <div className="space-y-6 mt-6">
             {/* Date and Mood */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="entry_date">Data</Label>
-                <Input
-                  id="entry_date"
-                  type="date"
-                  value={formData.entry_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, entry_date: e.target.value }))}
-                />
-              </div>
+              <UnifiedDatePicker
+                label="Data"
+                value={entryDate}
+                onChange={setEntryDate}
+                placeholder="Seleziona data"
+                required
+              />
               
               <div>
                 <Label htmlFor="mood_score">
