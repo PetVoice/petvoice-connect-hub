@@ -1338,12 +1338,33 @@ const DashboardPage: React.FC = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('calendar_events')
-        .insert([eventData])
-        .select();
+      if (eventModal.mode === 'edit' && eventModal.event) {
+        // Update existing event
+        const { error } = await supabase
+          .from('calendar_events')
+          .update(eventData)
+          .eq('id', eventModal.event.id);
 
-      if (error) throw error;
+        if (error) throw error;
+
+        toast({
+          title: "✅ Evento aggiornato",
+          description: "L'evento è stato aggiornato con successo.",
+        });
+      } else {
+        // Create new event
+        const { data, error } = await supabase
+          .from('calendar_events')
+          .insert([eventData])
+          .select();
+
+        if (error) throw error;
+
+        toast({
+          title: "✅ Evento creato",
+          description: "L'evento è stato aggiunto al calendario con successo.",
+        });
+      }
 
       setEventModal({ open: false, mode: 'add', event: null, preselectedCategory: undefined });
       
@@ -1360,11 +1381,6 @@ const DashboardPage: React.FC = () => {
         
         setMedicalEvents(medicalEvents || []);
       }
-      
-      toast({
-        title: "✅ Evento creato",
-        description: "L'evento è stato aggiunto al calendario con successo.",
-      });
 
     } catch (error) {
       console.error('Error saving event:', error);
@@ -1376,6 +1392,66 @@ const DashboardPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle medical event edit
+  const handleEditMedicalEvent = (event: any) => {
+    setEventModal({
+      open: true,
+      mode: 'edit',
+      event: event,
+      preselectedCategory: 'medical'
+    });
+  };
+
+  // Handle medical event delete
+  const handleDeleteMedicalEvent = (eventId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: "Elimina Visita",
+      description: "Sei sicuro di voler eliminare questa visita? Questa azione non può essere annullata.",
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          
+          const { error } = await supabase
+            .from('calendar_events')
+            .delete()
+            .eq('id', eventId);
+
+          if (error) throw error;
+
+          // Reload medical events
+          const { data: medicalEvents } = await supabase
+            .from('calendar_events')
+            .select('*')
+            .eq('pet_id', selectedPet?.id)
+            .eq('user_id', user?.id)
+            .eq('category', 'medical')
+            .order('start_time', { ascending: false })
+            .limit(5);
+          
+          setMedicalEvents(medicalEvents || []);
+
+          toast({
+            title: "🗑️ Visita eliminata",
+            description: "La visita è stata eliminata con successo.",
+            variant: "destructive"
+          });
+
+          setConfirmDialog({ open: false, title: "", description: "", onConfirm: () => {} });
+        } catch (error) {
+          console.error('Error deleting medical event:', error);
+          toast({
+            title: "❌ Errore",
+            description: "Errore nell'eliminazione della visita. Riprova.",
+            variant: "destructive"
+          });
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
   };
 
   // Handle diary modal close
@@ -2029,27 +2105,45 @@ const DashboardPage: React.FC = () => {
             <CardContent>
               {medicalEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {medicalEvents.map((visit) => (
-                    <div key={visit.id} className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                          <FileText className="h-4 w-4 text-blue-500" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">{visit.title}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(visit.start_time), 'dd/MM/yyyy')}
-                            {visit.location && ` • ${visit.location}`}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {visit.status === 'completed' && '✓ Completata'}
-                        {visit.status === 'scheduled' && '📅 Programmata'}
-                        {visit.status === 'cancelled' && '❌ Annullata'}
-                      </div>
-                    </div>
-                  ))}
+                   {medicalEvents.map((visit) => (
+                     <div key={visit.id} className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                       <div className="flex items-center gap-3 flex-1">
+                         <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                           <FileText className="h-4 w-4 text-blue-500" />
+                         </div>
+                         <div className="flex-1">
+                           <h4 className="font-medium text-sm">{visit.title}</h4>
+                           <p className="text-xs text-muted-foreground">
+                             {format(new Date(visit.start_time), 'dd/MM/yyyy')}
+                             {visit.location && ` • ${visit.location}`}
+                           </p>
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         <div className="text-xs text-muted-foreground mr-2">
+                           {visit.status === 'completed' && '✓ Completata'}
+                           {visit.status === 'scheduled' && '📅 Programmata'}
+                           {visit.status === 'cancelled' && '❌ Annullata'}
+                         </div>
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           onClick={() => handleEditMedicalEvent(visit)}
+                           className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                         >
+                           <Edit className="h-4 w-4" />
+                         </Button>
+                         <Button
+                           size="sm"
+                           variant="ghost"
+                           onClick={() => handleDeleteMedicalEvent(visit.id)}
+                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                         >
+                           <Trash2 className="h-4 w-4" />
+                         </Button>
+                       </div>
+                     </div>
+                   ))}
                   <Button 
                     onClick={() => handleAddItem('visits')}
                     variant="outline"
