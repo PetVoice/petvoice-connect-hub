@@ -145,6 +145,14 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
 
     setLoading(true);
     try {
+      // Se il farmaco è "Una sola volta", imposta automaticamente la data di fine il giorno dopo
+      let finalEndDate = endDate;
+      if (formData.frequency === 'Una sola volta') {
+        const nextDay = new Date(startDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        finalEndDate = nextDay;
+      }
+
       const medicationData = {
         medication_name: `${formData.medication_type} - ${formData.medication_name}`,
         dosage: formData.dosage,
@@ -153,7 +161,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
         pet_id: petId,
         user_id: userId,
         start_date: format(startDate, 'yyyy-MM-dd'),
-        end_date: endDate ? format(endDate, 'yyyy-MM-dd') : null,
+        end_date: finalEndDate ? format(finalEndDate, 'yyyy-MM-dd') : null,
         is_active: true
       };
 
