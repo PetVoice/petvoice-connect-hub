@@ -114,6 +114,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
     const data = {
       ...formData,
+      ...(event && event.id ? { id: event.id } : {}), // Aggiungi ID se si tratta di modifica
       pet_id: petId,
       user_id: userId,
       start_time: formData.is_all_day 

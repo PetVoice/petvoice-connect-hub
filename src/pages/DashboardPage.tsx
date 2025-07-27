@@ -1338,12 +1338,13 @@ const DashboardPage: React.FC = () => {
     try {
       setLoading(true);
       
-      if (eventModal.mode === 'edit' && eventModal.event) {
-        // Update existing event
+      if (eventData.id) {
+        // Update existing event - presenza di ID indica modifica
+        const { id, ...updateData } = eventData; // Rimuovi ID dai dati da aggiornare
         const { error } = await supabase
           .from('calendar_events')
-          .update(eventData)
-          .eq('id', eventModal.event.id);
+          .update(updateData)
+          .eq('id', id);
 
         if (error) throw error;
 
