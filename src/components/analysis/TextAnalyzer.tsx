@@ -153,7 +153,7 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
               className={cn(
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 isProcessing
-                  ? "bg-blue-500 hover:bg-blue-600 shadow-lg animate-pulse"
+                  ? "bg-indigo-500 hover:bg-indigo-600 shadow-lg animate-pulse"
                   : "bg-indigo-500 hover:bg-indigo-600 hover:scale-105 shadow-lg"
               )}
             >
