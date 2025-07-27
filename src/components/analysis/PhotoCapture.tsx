@@ -279,8 +279,8 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
               className={cn(
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 isCapturing
-                  ? "bg-pink-500 hover:bg-pink-600 shadow-lg"
-                  : "bg-pink-500 hover:bg-pink-600 hover:scale-105 shadow-lg"
+                  ? "bg-pink-600 hover:bg-pink-700 shadow-lg"
+                  : "bg-pink-600 hover:bg-pink-700 hover:scale-105 shadow-lg"
               )}
             >
               <Camera className="h-8 w-8" />
