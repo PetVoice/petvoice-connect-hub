@@ -128,7 +128,7 @@ export const EventForm: React.FC<EventFormProps> = ({
             <div>
               <Label htmlFor="category" className="flex items-center gap-1">
                 Categoria
-                <span className="text-red-500">*</span>
+                <span className="text-foreground">*</span>
               </Label>
               <Select
                 value={formData.category}
