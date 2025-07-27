@@ -222,7 +222,7 @@ const CalendarPage: React.FC = () => {
       showToast({
         title: 'calendar.eventDeleted.title',
         description: 'calendar.eventDeleted.description',
-        variant: 'success'
+        variant: 'destructive'
       });
       loadEvents();
       
@@ -253,7 +253,7 @@ const CalendarPage: React.FC = () => {
       showToast({
         title: 'calendar.eventsDeleted.title',
         description: 'calendar.eventsDeleted.description',
-        variant: 'success',
+        variant: 'destructive',
         variables: { count: eventIds.length.toString() }
       });
       loadEvents();
