@@ -48,6 +48,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MedicationModal } from '@/components/medication/MedicationModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
+import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
 // Translation system removed - Italian only
 
@@ -144,6 +145,17 @@ const DashboardPage: React.FC = () => {
     open: false,
     mode: 'add',
     medication: null
+  });
+
+  // Event modal state
+  const [eventModal, setEventModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    event: any | null;
+  }>({
+    open: false,
+    mode: 'add',
+    event: null
   });
 
   // Medication evaluation modal state
@@ -613,10 +625,10 @@ const DashboardPage: React.FC = () => {
         });
         break;
       case 'visits':
-        setDiaryModal({
+        setEventModal({
           open: true,
           mode: 'add',
-          entry: null
+          event: null
         });
         break;
       case 'insurance':
@@ -1299,6 +1311,37 @@ const DashboardPage: React.FC = () => {
         description: "Si è verificato un errore durante la registrazione della valutazione.",
         className: "border-red-200 bg-red-50 text-red-800",
       });
+    }
+  };
+
+  // Handle event save
+  const handleEventSave = async (eventData: any) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('calendar_events')
+        .insert([eventData])
+        .select();
+
+      if (error) throw error;
+
+      setEventModal({ open: false, mode: 'add', event: null });
+      
+      toast({
+        title: "✅ Evento creato",
+        description: "L'evento è stato aggiunto al calendario con successo.",
+      });
+
+    } catch (error) {
+      console.error('Error saving event:', error);
+      toast({
+        title: "❌ Errore",
+        description: "Errore nel salvare l'evento. Riprova.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -2337,6 +2380,16 @@ const DashboardPage: React.FC = () => {
         description={confirmDialog.description}
         onConfirm={confirmDialog.onConfirm}
         variant="destructive"
+      />
+
+      {/* Event Form Modal */}
+      <EventForm
+        isOpen={eventModal.open}
+        onClose={() => setEventModal({ open: false, mode: 'add', event: null })}
+        event={eventModal.event}
+        onSave={handleEventSave}
+        petId={selectedPet?.id || ''}
+        userId={user?.id || ''}
       />
     </div>
   );

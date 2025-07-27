@@ -33,8 +33,8 @@ export const EventForm: React.FC<EventFormProps> = ({
     title: '',
     description: '',
     location: '',
-    category: 'other',
-    start_time: '',
+    category: '', // Rimosso valore di default
+    start_time: '', // Rimosso valore di default
     end_time: '',
     is_all_day: false,
     recurring_pattern: 'none',
@@ -51,8 +51,8 @@ export const EventForm: React.FC<EventFormProps> = ({
         title: event?.title || '',
         description: event?.description || '',
         location: event?.location || '',
-        category: event?.category || 'other',
-        start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : format(new Date(), 'yyyy-MM-dd\'T\'HH:mm')),
+        category: event?.category || '', // Rimosso valore di default
+        start_time: event?.start_time || (initialDate ? `${initialDate}T09:00` : ''), // Rimosso valore di default per oggi
         end_time: event?.end_time || '',
         is_all_day: event?.is_all_day || false,
         recurring_pattern: event?.recurring_pattern || 'none',
@@ -65,6 +65,12 @@ export const EventForm: React.FC<EventFormProps> = ({
   }, [event, initialDate, isOpen]);
 
   const handleSave = () => {
+    // Validazione categoria obbligatoria
+    if (!formData.category || formData.category.trim() === '') {
+      alert('La categoria è obbligatoria');
+      return;
+    }
+
     const data = {
       ...formData,
       pet_id: petId,
