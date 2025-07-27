@@ -613,7 +613,11 @@ const DashboardPage: React.FC = () => {
         });
         break;
       case 'visits':
-        navigate('/calendar');
+        setDiaryModal({
+          open: true,
+          mode: 'add',
+          entry: null
+        });
         break;
       case 'insurance':
         navigate('/settings');
@@ -1947,13 +1951,14 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Storico delle visite veterinarie e controlli</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Qui andrà la logica per mostrare le visite quando saranno implementate */}
               <div className="text-center py-12">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
                   <FileText className="h-10 w-10 text-blue-500/60" />
                 </div>
                 <p className="text-lg text-muted-foreground mb-6">Nessuna visita registrata</p>
                 <Button 
-                  onClick={() => navigate('/diary')} 
+                  onClick={() => handleAddItem('visits')}
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <FileText className="h-5 w-5 mr-2" />
