@@ -31,7 +31,10 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   userId,
   initialDate
 }) => {
+  console.log('DiaryEntryForm component rendered', { isOpen, petId, userId });
+  
   const [entryDate, setEntryDate] = useState<Date>();
+  console.log('DiaryEntryForm: entryDate state defined', entryDate);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -138,7 +141,10 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
               <UnifiedDatePicker
                 label="Data"
                 value={entryDate}
-                onChange={setEntryDate}
+                onChange={(date) => {
+                  console.log('DiaryEntryForm: onChange entryDate', date);
+                  setEntryDate(date);
+                }}
                 placeholder="Seleziona data"
                 required
               />
