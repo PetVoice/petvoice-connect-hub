@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Save, MapPin, Users, DollarSign } from 'lucide-react';
 import { CalendarEvent, EVENT_CATEGORIES, RECURRING_PATTERNS, EVENT_STATUS } from '@/types/calendar';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -29,6 +30,8 @@ export const EventForm: React.FC<EventFormProps> = ({
   userId,
   initialDate
 }) => {
+  const { toast } = useToast();
+  const [categoryError, setCategoryError] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -67,9 +70,16 @@ export const EventForm: React.FC<EventFormProps> = ({
   const handleSave = () => {
     // Validazione categoria obbligatoria
     if (!formData.category || formData.category.trim() === '') {
-      alert('La categoria è obbligatoria');
+      setCategoryError('La categoria è obbligatoria');
+      toast({
+        title: "❌ Campo obbligatorio",
+        description: "Seleziona una categoria per l'evento.",
+        variant: "destructive"
+      });
       return;
     }
+
+    setCategoryError(''); // Reset errore
 
     const data = {
       ...formData,
@@ -116,13 +126,19 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="category">Categoria</Label>
+              <Label htmlFor="category" className="flex items-center gap-1">
+                Categoria
+                <span className="text-red-500">*</span>
+              </Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                onValueChange={(value) => {
+                  setFormData(prev => ({ ...prev, category: value }));
+                  setCategoryError(''); // Reset errore quando l'utente seleziona
+                }}
               >
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger className={categoryError ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Seleziona una categoria..." />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(EVENT_CATEGORIES).map(([key, category]) => (
@@ -132,6 +148,9 @@ export const EventForm: React.FC<EventFormProps> = ({
                   ))}
                 </SelectContent>
               </Select>
+              {categoryError && (
+                <p className="text-red-500 text-sm mt-1">{categoryError}</p>
+              )}
             </div>
           </div>
 
