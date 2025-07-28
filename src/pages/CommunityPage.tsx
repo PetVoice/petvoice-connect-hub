@@ -126,9 +126,9 @@ const CommunityPage = () => {
   // Load community stats
   const loadCommunityStats = async () => {
     try {
-      // Get total count of users who have subscriptions to any channel
+      // Get total count of all registered users on the platform
       const { count: totalUsersCount } = await supabase
-        .from('user_channel_subscriptions')
+        .from('profiles')
         .select('user_id', { count: 'exact', head: true });
       
       setTotalUsers(totalUsersCount || 0);
