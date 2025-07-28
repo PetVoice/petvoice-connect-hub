@@ -269,14 +269,14 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                             <Edit className="h-4 w-4 mr-2" />
                             Modifica
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />
+                          <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-red-600 focus:text-red-700">
+                            <Trash2 className="h-4 w-4 mr-2 text-red-600" />
                             Elimina
                           </DropdownMenuItem>
                         </>
                       ) : (
-                        <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-destructive">
-                          <Trash2 className="h-4 w-4 mr-2" />
+                        <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-red-600 focus:text-red-700">
+                          <Trash2 className="h-4 w-4 mr-2 text-red-600" />
                           Elimina
                         </DropdownMenuItem>
                       )}
