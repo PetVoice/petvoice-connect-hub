@@ -366,8 +366,8 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
               className={cn(
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
-                  ? "bg-red-600 hover:bg-red-700 shadow-lg animate-pulse"
-                  : "bg-orange-600 hover:bg-orange-700 hover:scale-105 shadow-lg"
+                  ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
+                  : "bg-orange-500 hover:bg-orange-600 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -480,7 +480,7 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2"
+                className="bg-orange-500 hover:bg-orange-600 text-white flex items-center gap-2"
               >
                 <Volume2 className="h-4 w-4" />
                 Analizza
