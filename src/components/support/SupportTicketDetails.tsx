@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, Send, X, Clock, User, Reply, Quote } from 'lucide-react';
+import { MessageCircle, Send, X, Clock, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
@@ -33,8 +33,6 @@ interface TicketReply {
   is_staff_reply: boolean;
   created_at: string;
   updated_at: string;
-  reply_to_id?: string;
-  quoted_content?: string;
 }
 
 interface SupportTicketDetailsProps {
@@ -57,8 +55,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasScrolledToUnread, setHasScrolledToUnread] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<TicketReply | null>(null);
-  const [quotedMessage, setQuotedMessage] = useState<TicketReply | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
@@ -227,25 +223,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     };
   };
 
-  const handleReplyToMessage = (reply: TicketReply) => {
-    setReplyingTo(reply);
-    setQuotedMessage(null);
-    const authorName = reply.user_id === user?.id ? 'Tu' : (userProfiles[reply.user_id]?.display_name || 'Supporto');
-    setNewReply(`@${authorName} `);
-  };
-
-  const handleQuoteMessage = (reply: TicketReply) => {
-    setQuotedMessage(reply);
-    setReplyingTo(null);
-    const authorName = reply.user_id === user?.id ? 'Tu' : (userProfiles[reply.user_id]?.display_name || 'Supporto');
-    setNewReply(`> ${authorName}: ${reply.content}\n\n`);
-  };
-
-  const clearReplyContext = () => {
-    setReplyingTo(null);
-    setQuotedMessage(null);
-  };
-
   const addReply = async () => {
     if (!newReply.trim() || !user) return;
 
@@ -277,7 +254,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       // Reset unread count quando l'utente scrive
       setUnreadCount(0);
       setNewReply('');
-      clearReplyContext();
     } catch (error) {
       console.error('Error adding reply:', error);
       showToast({
@@ -395,7 +371,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                   <div 
                     key={reply.id}
                     data-message-index={absoluteIndex}
-                    className={`group relative flex gap-3 p-3 rounded-lg transition-colors ${
+                    className={`flex gap-3 p-3 rounded-lg transition-colors ${
                       isOwn ? 'bg-primary/10 ml-12' : 'bg-green-50 mr-12'
                     } ${isFirstUnread ? 'border-l-4 border-l-blue-500' : ''}`}
                   >
@@ -408,45 +384,21 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-foreground">
-                            {displayName}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(reply.created_at), { 
-                              addSuffix: true, 
-                              locale: it 
-                            })}
-                          </span>
-                          {isFirstUnread && (
-                            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                              Primo non letto
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {/* Pulsanti Reply e Quote */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleReplyToMessage(reply)}
-                            className="h-6 px-2 py-1 text-xs"
-                          >
-                            <Reply className="h-3 w-3 mr-1" />
-                            Rispondi
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleQuoteMessage(reply)}
-                            className="h-6 px-2 py-1 text-xs"
-                          >
-                            <Quote className="h-3 w-3 mr-1" />
-                            Cita
-                          </Button>
-                        </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-foreground">
+                          {displayName}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(reply.created_at), { 
+                            addSuffix: true, 
+                            locale: it 
+                          })}
+                        </span>
+                        {isFirstUnread && (
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                            Primo non letto
+                          </Badge>
+                        )}
                       </div>
                       
                       <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -466,36 +418,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         {/* Reply Input */}
         {ticket.status !== 'closed' && (
           <div className="space-y-3">
-            {/* Contesto di risposta */}
-            {(replyingTo || quotedMessage) && (
-              <div className="p-3 bg-muted/30 rounded-lg border-l-4 border-l-primary">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {replyingTo && <Reply className="h-4 w-4 text-primary" />}
-                    {quotedMessage && <Quote className="h-4 w-4 text-primary" />}
-                    <span className="text-sm font-medium">
-                      {replyingTo ? 'Rispondendo a' : 'Citando'} {
-                        ((replyingTo || quotedMessage)?.user_id === user?.id) 
-                          ? 'te stesso' 
-                          : userProfiles[(replyingTo || quotedMessage)?.user_id || '']?.display_name || 'Supporto'
-                      }
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearReplyContext}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {(replyingTo || quotedMessage)?.content}
-                </p>
-              </div>
-            )}
-            
             <Textarea
               placeholder="Scrivi la tua risposta..."
               value={newReply}
