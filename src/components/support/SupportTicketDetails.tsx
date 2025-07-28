@@ -504,25 +504,24 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     );
                   }
 
-                  // RISOLUZIONE DEFINITIVA delle quote basata sul formato reale
+                  // RISOLUZIONE FINALE - gestisce MULTIPLE > per linea
                   const messageText = reply.content;
                   
-                  // Controlla se ci sono quote (linee che iniziano con >)
+                  // Se contiene quote (simboli >)
                   if (messageText.includes('>')) {
-                    // Separa per doppio newline se presente
+                    // Separa per doppio newline
                     const parts = messageText.split('\n\n');
                     
                     if (parts.length > 1) {
-                      // C'è separazione tra quote e contenuto nuovo
+                      // Quote + contenuto nuovo
                       const quotePart = parts[0];
                       const contentPart = parts.slice(1).join('\n\n').trim();
                       
-                      // Pulisci la parte quote da tutti i simboli >
+                      // RIMUOVI TUTTI I > dalla parte quote (anche multipli)
                       const cleanQuote = quotePart
-                        .split('\n')
-                        .map(line => line.replace(/^>\s*/g, '').trim())
-                        .filter(line => line.length > 0)
-                        .join(' ');
+                        .replace(/>/g, '') // Rimuove TUTTI i >
+                        .replace(/\s+/g, ' ') // Sostituisce spazi multipli con singolo
+                        .trim();
                       
                       return (
                         <div>
@@ -544,12 +543,11 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                         </div>
                       );
                     } else {
-                      // Tutto il messaggio contiene quote - rimuovi tutti i >
+                      // Solo quote - rimuovi TUTTI i >
                       const cleanText = messageText
-                        .split('\n')
-                        .map(line => line.replace(/^>\s*/g, '').trim())
-                        .filter(line => line.length > 0)
-                        .join(' ');
+                        .replace(/>/g, '') // Rimuove TUTTI i >
+                        .replace(/\s+/g, ' ') // Sostituisce spazi multipli
+                        .trim();
                       
                       return (
                         <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -559,7 +557,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     }
                   }
                   
-                  // Messaggio normale senza quote
+                  // Messaggio normale
                   return (
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {messageText}
