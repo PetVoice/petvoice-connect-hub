@@ -98,21 +98,21 @@ serve(async (req) => {
       // Force immediate cancellation at database level if no Stripe subscription found
       logStep("No Stripe subscription found - forcing database cancellation");
       
-      const effectiveDate = cancellationType === 'immediate' ? new Date() : 
+      const effectiveDate = cancellation_type === 'immediate' ? new Date() : 
         new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
         
       await supabaseClient.from("subscribers").update({
         is_cancelled: true,
-        cancellation_type: cancellationType,
+        cancellation_type: cancellation_type,
         cancellation_date: new Date().toISOString(),
         cancellation_effective_date: effectiveDate.toISOString(),
-        subscription_status: cancellationType === 'immediate' ? 'cancelled' : 'active',
+        subscription_status: cancellation_type === 'immediate' ? 'cancelled' : 'active',
         updated_at: new Date().toISOString(),
       }).eq("user_id", user.id);
 
       return new Response(JSON.stringify({
         success: true,
-        cancellation_type: cancellationType,
+        cancellation_type: cancellation_type,
         cancellation_effective_date: effectiveDate.toISOString(),
         message: "Subscription cancelled at database level"
       }), {
@@ -122,6 +122,19 @@ serve(async (req) => {
     }
 
     const stripeSubscription = subscriptions.data[0];
+    logStep("Found Stripe subscription", { subscriptionId: stripeSubscription.id, status: stripeSubscription.status });
+
+    // FORZA cancellazione immediata su Stripe indipendentemente dallo status
+    if (cancellation_type === 'immediate') {
+      // Cancella immediatamente qualsiasi abbonamento trovato
+      try {
+        await stripe.subscriptions.cancel(stripeSubscription.id);
+        logStep("Cancelled subscription immediately on Stripe");
+      } catch (cancelError) {
+        logStep("Error cancelling on Stripe", { error: cancelError });
+        // Continua comunque con l'aggiornamento del database
+      }
+    }
     logStep("Found Stripe subscription", { subscriptionId: stripeSubscription.id });
 
     const now = new Date().toISOString();
