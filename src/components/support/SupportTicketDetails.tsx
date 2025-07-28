@@ -419,11 +419,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                               locale: it 
                             })}
                           </span>
-                          {isFirstUnread && (
-                            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                              Primo non letto
-                            </Badge>
-                          )}
                         </div>
                         
                         {/* Pulsanti Reply e Quote */}
