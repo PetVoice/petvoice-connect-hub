@@ -367,7 +367,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
               className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
             >
               <Save className="h-4 w-4 mr-2" />
-              {loading ? 'Salvando...' : medication ? 'Aggiorna' : 'Aggiungi'}
+              {loading ? 'Salvando...' : medication ? 'Aggiorna Farmaco' : 'Aggiungi Farmaco'}
             </Button>
           </div>
         </form>

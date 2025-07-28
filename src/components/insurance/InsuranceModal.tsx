@@ -408,7 +408,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
           >
             <Save className="h-4 w-4 mr-2" />
-            {loading ? 'Salvataggio...' : (policy ? 'Aggiorna' : 'Aggiungi')}
+            {loading ? 'Salvataggio...' : (policy ? 'Aggiorna Polizza' : 'Aggiungi Polizza')}
           </Button>
         </div>
       </DialogContent>

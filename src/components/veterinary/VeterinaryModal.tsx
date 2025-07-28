@@ -332,7 +332,7 @@ export function VeterinaryModal({
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
               >
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                {veterinary ? 'Aggiorna' : 'Aggiungi'}
+                {veterinary ? 'Aggiorna Veterinario' : 'Aggiungi Veterinario'}
               </Button>
             </div>
           </form>
