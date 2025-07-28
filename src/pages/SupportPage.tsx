@@ -712,9 +712,8 @@ const SupportPage: React.FC = () => {
             <TabsTrigger value="contact">Contatti</TabsTrigger>
           </TabsList>
 
-          {/* FAQ Tab */}
           <TabsContent value="faq" className="space-y-6">
-        <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu relative z-0 hover:z-0">
+            <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <HelpCircle className="h-5 w-5" />
@@ -751,7 +750,10 @@ const SupportPage: React.FC = () => {
                   {/* FAQ List */}
                   <div className="space-y-4">
                     {filteredFAQs.map((faq) => (
-                      <Card key={faq.id} className="!border-indigo-200/50 !bg-gradient-to-br !from-indigo-50/80 !to-blue-50/60 !shadow-elegant hover:!shadow-glow hover:!scale-[1.02] !transition-all !duration-300 hover:!border-primary/20 !transform-gpu">
+                      <Card 
+                        key={faq.id} 
+                        className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300"
+                      >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-medium text-lg">{faq.question}</h3>
