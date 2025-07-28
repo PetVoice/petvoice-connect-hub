@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, Phone, Mail, Users, Save, AlertTriangle } from 'lucide-react';
+import { GooglePlacesInput } from '@/components/settings/GooglePlacesInput';
 
 interface EmergencyContact {
   id?: string;
@@ -262,11 +263,13 @@ export function EmergencyContactModal({
             {/* Indirizzo */}
             <div className="space-y-2">
               <Label htmlFor="address">Indirizzo</Label>
-              <Input
-                id="address"
+              <GooglePlacesInput
                 value={formData.address || ''}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                placeholder="Via Roma 123, Milano (MI)"
+                onChange={(value) => setFormData({...formData, address: value})}
+                placeholder="Inizia a digitare l'indirizzo..."
+                onAddressSelect={(details) => {
+                  setFormData({...formData, address: details.full_address});
+                }}
               />
             </div>
 
