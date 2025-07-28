@@ -13,8 +13,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-// All navigation items in a single group for uniform spacing
-const allNavigationItems = [
+// Complete navigation items array with uniform spacing
+const menuItems = [
   { title: 'Dashboard', url: '/', icon: Home },
   { title: 'I Miei Pet', url: '/pets', icon: PawPrint },
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
@@ -47,46 +47,6 @@ const AppSidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const renderNavItems = (items: typeof allNavigationItems, label?: string) => (
-    <SidebarGroup>
-      {label && (
-        <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
-          {label}
-        </SidebarGroupLabel>
-      )}
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                <NavLink 
-                  to={item.url} 
-                  className={`flex items-center px-3 py-2 rounded-lg group relative ${
-                    isActive(item.url)
-                      ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] transition-all duration-200'
-                  }`}
-                  style={isActive(item.url) ? {
-                    backgroundColor: 'hsl(var(--primary) / 0.1)',
-                    color: 'hsl(var(--primary))',
-                    boxShadow: 'var(--shadow-glow)',
-                    transform: 'scale(1.02)',
-                    borderLeft: '2px solid hsl(var(--primary))'
-                  } : {}}
-                >
-                  <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
-                  {(!isCollapsed || isMobile) && (
-                    <span className="font-medium transition-colors">{item.title}</span>
-                  )}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
-
   return (
     <Sidebar className={isCollapsed ? "w-16" : "w-64"} collapsible="icon" data-guide="sidebar">
       <SidebarContent className="gap-0">
@@ -104,9 +64,40 @@ const AppSidebar: React.FC = () => {
           )}
         </div>
 
-        {/* Navigation Sections */}
+        {/* Navigation Menu */}
         <div className="flex-1 overflow-y-auto py-4">
-          {renderNavItems(allNavigationItems)}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink 
+                        to={item.url} 
+                        className={`flex items-center px-3 py-2 rounded-lg group relative ${
+                          isActive(item.url)
+                            ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] transition-all duration-200'
+                        }`}
+                        style={isActive(item.url) ? {
+                          backgroundColor: 'hsl(var(--primary) / 0.1)',
+                          color: 'hsl(var(--primary))',
+                          boxShadow: 'var(--shadow-glow)',
+                          transform: 'scale(1.02)',
+                          borderLeft: '2px solid hsl(var(--primary))'
+                        } : {}}
+                      >
+                        <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
+                        {(!isCollapsed || isMobile) && (
+                          <span className="font-medium transition-colors">{item.title}</span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </div>
       </SidebarContent>
     </Sidebar>
