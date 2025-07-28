@@ -2250,7 +2250,7 @@ const DashboardPage: React.FC = () => {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
                     <CreditCard className="h-6 w-6 text-white" />
                   </div>
-                  Assicurazione
+                   Assicurazioni
                 </div>
                 <Button
                   onClick={() => handleAddItem('insurance')}
@@ -2265,60 +2265,79 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {insurances.length > 0 ? (
-                <ScrollArea className="h-[300px]">
-                  <div className="space-y-3 pr-4">
-                    {insurances.map((policy) => (
-                      <div 
-                        key={policy.id} 
-                        className="group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg bg-teal-50 border-teal-200 hover:bg-teal-100"
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-500 opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                        
-                        <div className="relative p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="text-2xl">🛡️</div>
-                              <div>
-                                <div className="font-semibold text-gray-700 text-sm">
-                                  {policy.policy_number}
-                                </div>
-                                <div className={`text-lg font-bold bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent flex items-center gap-1`}>
-                                  {policy.provider_name}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  {policy.policy_type} • {policy.is_active ? 'Attiva' : 'Inattiva'}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex gap-1">
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditItem('insurance', policy.id);
-                                }}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-teal-500 hover:text-teal-600 hover:bg-teal-50"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteItem('insurance', policy.id, `${policy.provider_name} - ${policy.policy_number}`);
-                                }}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                 <ScrollArea className="h-[300px]">
+                   <div className="space-y-3 pr-4">
+                     {insurances.map((policy) => {
+                       const isExpired = policy.end_date && new Date(policy.end_date) < new Date();
+                       const isActive = !isExpired;
+                       
+                       return (
+                         <div 
+                           key={policy.id} 
+                           className={`group bg-white/60 border ${isActive ? 'border-teal-200/50 hover:border-teal-300' : 'border-red-200/50 hover:border-red-300'} hover:bg-white/80 transition-all duration-200 rounded-xl p-4`}
+                         >
+                           <div className="flex items-center justify-between">
+                             <div className="flex-1">
+                               <div className="flex items-center gap-3 mb-2">
+                                 <div className="flex items-center gap-2">
+                                   <div className={`h-3 w-3 rounded-full ${isActive ? 'bg-teal-500' : 'bg-red-500'}`}></div>
+                                   <h4 className={`font-semibold text-lg ${isActive ? 'text-teal-800' : 'text-red-800'}`}>
+                                     {policy.provider_name}
+                                   </h4>
+                                 </div>
+                                 <Badge variant="outline" className={`text-xs ${isActive ? 'bg-teal-50 border-teal-200 text-teal-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                                   {isActive ? 'Attiva' : 'Disattiva'}
+                                 </Badge>
+                               </div>
+                               
+                               <div className="grid grid-cols-2 gap-4 mb-2">
+                                 <div>
+                                   <div className="text-sm text-muted-foreground">Numero Polizza</div>
+                                   <div className={`font-medium ${isActive ? 'text-teal-700' : 'text-red-700'}`}>{policy.policy_number}</div>
+                                 </div>
+                                 <div>
+                                   <div className="text-sm text-muted-foreground">Tipo</div>
+                                   <div className={`font-medium ${isActive ? 'text-teal-700' : 'text-red-700'}`}>{policy.policy_type}</div>
+                                 </div>
+                               </div>
+                               
+                               <div>
+                                 <div className="text-sm text-muted-foreground">
+                                   Dal {format(new Date(policy.start_date), 'dd/MM/yyyy')}
+                                   {policy.end_date && ` - Al ${format(new Date(policy.end_date), 'dd/MM/yyyy')}`}
+                                 </div>
+                               </div>
+                             </div>
+                             
+                             {/* Action buttons */}
+                             <div className="flex gap-1">
+                               <Button
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleEditItem('insurance', policy.id);
+                                 }}
+                                 size="sm"
+                                 variant="ghost"
+                                 className={`h-8 w-8 p-0 ${isActive ? 'text-teal-500 hover:text-teal-600 hover:bg-teal-50' : 'text-red-500 hover:text-red-600 hover:bg-red-50'}`}
+                               >
+                                 <Edit className="h-4 w-4" />
+                               </Button>
+                               <Button
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleDeleteItem('insurance', policy.id, `${policy.provider_name} - ${policy.policy_number}`);
+                                 }}
+                                 size="sm"
+                                 variant="ghost"
+                                 className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                               >
+                                 <Trash2 className="h-4 w-4" />
+                               </Button>
+                             </div>
+                           </div>
+                         </div>
+                       );
+                     })}
                   </div>
                 </ScrollArea>
               ) : (
