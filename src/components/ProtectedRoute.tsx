@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -14,10 +14,26 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
-  const { subscription, loading: subLoading } = useSubscription();
+  const { subscription, loading: subLoading, checkSubscription } = useSubscription();
   const location = useLocation();
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [subscribeLoading, setSubscribeLoading] = useState(false);
+
+  // Listen for payment success messages
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'PAYMENT_SUCCESS') {
+        console.log('🎉 Payment success detected in ProtectedRoute');
+        // Force refresh subscription status
+        setTimeout(() => {
+          checkSubscription();
+        }, 1000);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [checkSubscription]);
 
   if (authLoading || subLoading) {
     return (
