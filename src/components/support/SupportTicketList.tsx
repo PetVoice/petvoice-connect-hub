@@ -19,6 +19,10 @@ interface SupportTicket {
   created_at: string;
   updated_at: string;
   unread_count?: number; // Aggiungiamo il conteggio dei messaggi non letti
+  profiles?: {
+    display_name: string;
+    email: string;
+  } | null;
 }
 
 interface SupportTicketListProps {
@@ -125,6 +129,11 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
                 <p className="text-xs text-muted-foreground mt-1">
                   #{ticket.ticket_number} • {ticket.category}
                 </p>
+                {ticket.profiles && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {ticket.profiles.display_name} • {ticket.profiles.email}
+                  </p>
+                )}
               </div>
               
               <div className="flex items-center gap-2 ml-3">

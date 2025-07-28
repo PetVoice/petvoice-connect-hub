@@ -44,6 +44,10 @@ interface SupportTicket {
   created_at: string;
   updated_at: string;
   unread_count?: number; // Aggiungiamo il conteggio dei messaggi non letti
+  profiles?: {
+    display_name: string;
+    email: string;
+  } | null;
 }
 
 interface FAQ {
@@ -229,10 +233,13 @@ const SupportPage: React.FC = () => {
       
       console.log('🔍 Loading tickets for user:', user?.id);
       
-      // Carica tickets con unread counts per l'utente corrente
+      // Carica tickets con informazioni utente e unread counts
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
-        .select('*')
+        .select(`
+          *,
+          profiles!support_tickets_user_id_fkey(display_name, email)
+        `)
         .order('created_at', { ascending: false });
 
       // Carica separatamente gli unread counts per l'utente corrente
@@ -261,8 +268,18 @@ const SupportPage: React.FC = () => {
         
         // Trasforma i dati per includere unread_count solo se > 0
         const ticketsWithUnreadCount = (ticketsData || []).map(ticket => ({
-          ...ticket,
-          unread_count: unreadMap[ticket.id] // undefined se non presente, che è falsy
+          id: ticket.id,
+          ticket_number: ticket.ticket_number,
+          category: ticket.category,
+          priority: ticket.priority,
+          subject: ticket.subject,
+          description: ticket.description,
+          status: ticket.status,
+          user_id: ticket.user_id,
+          created_at: ticket.created_at,
+          updated_at: ticket.updated_at,
+          unread_count: unreadMap[ticket.id], // undefined se non presente, che è falsy
+          profiles: ticket.profiles && typeof ticket.profiles === 'object' && !Array.isArray(ticket.profiles) && 'display_name' in ticket.profiles ? ticket.profiles : null
         }));
         
         setTickets(ticketsWithUnreadCount);
