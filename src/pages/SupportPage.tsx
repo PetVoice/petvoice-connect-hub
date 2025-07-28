@@ -83,7 +83,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
 interface SupportTicket {
@@ -199,7 +199,8 @@ const SupportPage: React.FC = () => {
   useEffect(() => {
     if (user?.id) {
       loadSupportData();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [user?.id]);
 
