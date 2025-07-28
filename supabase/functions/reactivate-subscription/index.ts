@@ -53,8 +53,9 @@ serve(async (req) => {
       throw new Error("Subscriber not found");
     }
 
-    if (!subscriber.is_cancelled || subscriber.cancellation_type !== 'end_of_period') {
-      throw new Error("Subscription is not in cancellation state or was cancelled immediately");
+    // Allow reactivation if there's a cancellation_type set (even if not cancelled yet)
+    if (!subscriber.cancellation_type || subscriber.cancellation_type !== 'end_of_period') {
+      throw new Error("Subscription is not scheduled for cancellation or was cancelled immediately");
     }
 
     logStep("Found cancelled subscriber", { subscription_tier: subscriber.subscription_tier });
