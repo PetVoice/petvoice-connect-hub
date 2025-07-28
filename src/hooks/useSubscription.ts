@@ -64,13 +64,14 @@ export const useSubscription = () => {
 
       // Converti i dati dalla tabella al formato SubscriptionData
       const subscriptionData: SubscriptionData = {
-        subscribed: subscriberData?.subscription_status === 'active' && !subscriberData?.is_cancelled,
+        subscribed: subscriberData?.subscription_status === 'active',
         subscription_tier: 'premium',
-        subscription_end: subscriberData?.subscription_end_date || null,
+        subscription_end: subscriberData?.subscription_end_date || subscriberData?.cancellation_effective_date || null,
         is_cancelled: subscriberData?.is_cancelled || false,
         cancellation_type: (subscriberData?.cancellation_type as 'immediate' | 'end_of_period') || null,
         cancellation_date: subscriberData?.cancellation_date || null,
         cancellation_effective_date: subscriberData?.cancellation_effective_date || null,
+        can_reactivate: subscriberData?.can_reactivate !== false,
       };
       
       setSubscription(subscriptionData);
