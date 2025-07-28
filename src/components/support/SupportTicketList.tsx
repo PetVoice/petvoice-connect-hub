@@ -18,6 +18,7 @@ interface SupportTicket {
   user_id: string;
   created_at: string;
   updated_at: string;
+  unread_count?: number; // Aggiungiamo il conteggio dei messaggi non letti
 }
 
 interface SupportTicketListProps {
@@ -110,9 +111,17 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-sm truncate">
-                  {ticket.subject}
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium text-sm truncate">
+                    {ticket.subject}
+                  </h4>
+                  {/* Badge per messaggi non letti */}
+                  {ticket.unread_count && ticket.unread_count > 0 && (
+                    <div className="flex-shrink-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                      {ticket.unread_count > 99 ? '99+' : ticket.unread_count}
+                    </div>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   #{ticket.ticket_number} • {ticket.category}
                 </p>

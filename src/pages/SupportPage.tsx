@@ -43,6 +43,7 @@ interface SupportTicket {
   user_id: string;
   created_at: string;
   updated_at: string;
+  unread_count?: number; // Aggiungiamo il conteggio dei messaggi non letti
 }
 
 interface FAQ {
@@ -166,13 +167,13 @@ const SupportPage: React.FC = () => {
           // Aggiorna la lista dei ticket
           setTickets(prev => 
             prev.map(ticket => 
-              ticket.id === updatedTicket.id ? updatedTicket : ticket
+              ticket.id === updatedTicket.id ? { ...ticket, ...updatedTicket } : ticket
             )
           );
           
           // Se il ticket aggiornato è quello attualmente selezionato, aggiornalo anche
           if (selectedTicket && selectedTicket.id === updatedTicket.id) {
-            setSelectedTicket(updatedTicket);
+            setSelectedTicket({ ...selectedTicket, ...updatedTicket });
           }
         }
       )
@@ -186,7 +187,29 @@ const SupportPage: React.FC = () => {
         (payload) => {
           console.log('➕ New ticket created in realtime:', payload.new);
           const newTicket = payload.new as SupportTicket;
-          setTickets(prev => [newTicket, ...prev]);
+          // Per i nuovi ticket, unread_count è 0 inizialmente
+          setTickets(prev => [{ ...newTicket, unread_count: 0 }, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_ticket_unread_counts'
+        },
+        (payload) => {
+          console.log('🔔 Unread count updated in realtime:', payload);
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            const unreadData = payload.new;
+            setTickets(prev => 
+              prev.map(ticket => 
+                ticket.id === unreadData.ticket_id 
+                  ? { ...ticket, unread_count: unreadData.unread_count }
+                  : ticket
+              )
+            );
+          }
         }
       )
       .subscribe();
@@ -203,10 +226,13 @@ const SupportPage: React.FC = () => {
       
       console.log('🔍 Loading tickets for user:', user?.id);
       
-      // Carica tickets dell'utente
+      // Carica tickets dell'utente con unread counts
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
-        .select('*')
+        .select(`
+          *,
+          support_ticket_unread_counts(unread_count)
+        `)
         .order('created_at', { ascending: false });
 
       console.log('📊 Tickets query result:', { ticketsData, ticketsError });
@@ -215,7 +241,14 @@ const SupportPage: React.FC = () => {
         console.error('Error loading tickets:', ticketsError);
       } else {
         console.log('✅ Tickets loaded:', ticketsData?.length, 'tickets');
-        setTickets(ticketsData || []);
+        
+        // Trasforma i dati per includere unread_count direttamente
+        const ticketsWithUnreadCount = ticketsData?.map(ticket => ({
+          ...ticket,
+          unread_count: ticket.support_ticket_unread_counts?.[0]?.unread_count || 0
+        })) || [];
+        
+        setTickets(ticketsWithUnreadCount);
       }
 
       // Carica FAQ
@@ -351,9 +384,27 @@ const SupportPage: React.FC = () => {
     }
   };
 
-  const handleTicketSelect = (ticket: SupportTicket) => {
+  const handleTicketSelect = async (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
-    setIsTicketModalOpen(true);
+    
+    // Marca il ticket come letto quando viene selezionato
+    if (user?.id) {
+      try {
+        await supabase.rpc('mark_ticket_as_read', {
+          p_ticket_id: ticket.id,
+          p_user_id: user.id
+        });
+        
+        // Aggiorna immediatamente la lista locale azzerando l'unread count
+        setTickets(prev => 
+          prev.map(t => 
+            t.id === ticket.id ? { ...t, unread_count: 0 } : t
+          )
+        );
+      } catch (error) {
+        console.error('Error marking ticket as read:', error);
+      }
+    }
   };
 
   const handleTicketClose = (ticket: SupportTicket) => {
