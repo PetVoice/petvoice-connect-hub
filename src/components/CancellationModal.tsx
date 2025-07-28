@@ -45,7 +45,8 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
     ],
     question: "Sei sicuro di voler cancellare immediatamente?",
     confirmText: "CANCELLA ORA",
-    variant: "destructive" as const
+    variant: "destructive" as const,
+    className: ""
   };
 
   const endOfPeriodContent = {
@@ -62,7 +63,8 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
     ],
     question: "Confermi la cancellazione a fine periodo?",
     confirmText: "CONFERMA CANCELLAZIONE",
-    variant: "destructive" as const
+    variant: "outline" as const,
+    className: "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
   };
 
   const content = cancellationType === 'immediate' ? immediateContent : endOfPeriodContent;
@@ -108,6 +110,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
             variant={content.variant}
             onClick={onConfirm}
             disabled={isLoading}
+            className={cancellationType === 'end_of_period' ? content.className : undefined}
           >
             {isLoading ? 'Elaborazione...' : content.confirmText}
           </Button>
