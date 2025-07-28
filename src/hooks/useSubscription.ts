@@ -208,11 +208,25 @@ export const useSubscription = () => {
       
       if (error) throw error;
       
-      // Aspetta un momento e poi forza un refresh dei dati
-      setTimeout(async () => {
-        console.log('🔄 Refreshing subscription data after reactivation...');
-        await checkSubscription(false);
-      }, 1000);
+      // FORZA IMMEDIATAMENTE una sincronizzazione con Stripe chiamando check-subscription
+      console.log('🔄 Force syncing with Stripe after reactivation...');
+      const { data: checkData, error: checkError } = await supabase.functions.invoke('check-subscription');
+      
+      if (!checkError && checkData) {
+        console.log('📋 STRIPE SYNC RESPONSE:', checkData);
+        // Aggiorna immediatamente lo stato con i dati freschi da Stripe
+        setSubscription({
+          subscribed: checkData.subscribed || false,
+          subscription_tier: 'premium',
+          subscription_end: checkData.subscription_end || null,
+          is_cancelled: checkData.is_cancelled || false,
+          cancellation_type: checkData.cancellation_type || null,
+          cancellation_date: checkData.cancellation_date || null,
+          cancellation_effective_date: checkData.cancellation_effective_date || null,
+          can_reactivate: checkData.can_reactivate !== false,
+          usage: checkData.usage
+        });
+      }
       
       toast({
         title: "Abbonamento riattivato",
