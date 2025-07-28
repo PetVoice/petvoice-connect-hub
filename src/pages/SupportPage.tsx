@@ -693,13 +693,14 @@ const SupportPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">{/* Removed Layout wrapper */}
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Centro di Supporto PetVoice
-          </h1>
-          <p className="text-muted-foreground">
-            Ottieni aiuto, trova risposte e resta aggiornato sulle novità
-          </p>
+        <div className="flex items-center gap-4 mb-8">
+          <Headphones className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold gradient-text">Supporto</h1>
+            <p className="text-muted-foreground mt-1">
+              Ottieni aiuto, trova risposte e resta aggiornato sulle novità
+            </p>
+          </div>
         </div>
 
 
