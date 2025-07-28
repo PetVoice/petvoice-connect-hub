@@ -582,11 +582,9 @@ const SupportPage: React.FC = () => {
         if (error) throw error;
 
         // Decrementa il conteggio voti
-        await supabase.rpc('increment', {
-          table_name: 'support_feature_requests',
-          row_id: requestId,
-          column_name: 'votes',
-          x: -1
+        await supabase.rpc('increment_feature_votes', {
+          request_id: requestId,
+          increment_value: -1
         });
 
         setUserVotes(prev => prev.filter(id => id !== requestId));
@@ -602,11 +600,9 @@ const SupportPage: React.FC = () => {
         if (error) throw error;
 
         // Incrementa il conteggio voti
-        await supabase.rpc('increment', {
-          table_name: 'support_feature_requests',
-          row_id: requestId,
-          column_name: 'votes',
-          x: 1
+        await supabase.rpc('increment_feature_votes', {
+          request_id: requestId,
+          increment_value: 1
         });
 
         setUserVotes(prev => [...prev, requestId]);
@@ -1083,15 +1079,25 @@ const SupportPage: React.FC = () => {
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-medium">{request.title}</h3>
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Star className="h-4 w-4 mr-1" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => toggleVote(request.id)}
+                        className={userVotes.includes(request.id) ? 'text-yellow-500' : ''}
+                      >
+                        <Star className={`h-4 w-4 mr-1 ${userVotes.includes(request.id) ? 'fill-current' : ''}`} />
                         {request.votes}
                       </Button>
                       {/* Pulsanti modifica/elimina per il proprietario o admin */}
                       {(user?.id === request.user_id || isAdmin) && (
                         <div className="flex gap-1 ml-2">
                           {user?.id === request.user_id && (
-                            <Button variant="ghost" size="sm" className="p-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="p-2"
+                              onClick={() => handleEditFeatureRequest(request)}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                           )}
@@ -1099,7 +1105,7 @@ const SupportPage: React.FC = () => {
                             variant="ghost" 
                             size="sm" 
                             className="p-2 text-destructive hover:text-destructive"
-                            onClick={() => deleteFeatureRequest(request.id)}
+                            onClick={() => handleDeleteFeatureRequest(request)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1131,6 +1137,74 @@ const SupportPage: React.FC = () => {
         onConfirm={confirmCloseTicket}
         loading={isClosingTicket}
       />
+
+      {/* Modal di modifica feature request */}
+      <Dialog open={isEditFeatureDialogOpen} onOpenChange={setIsEditFeatureDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifica Richiesta di Funzionalità</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Titolo *</label>
+              <Input
+                placeholder="Nome della funzionalità"
+                value={editingFeatureRequest?.title || ''}
+                onChange={(e) => setEditingFeatureRequest(prev => 
+                  prev ? {...prev, title: e.target.value} : null
+                )}
+                required
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Descrizione *</label>
+              <Textarea
+                placeholder="Descrivi la funzionalità che vorresti vedere..."
+                value={editingFeatureRequest?.description || ''}
+                onChange={(e) => setEditingFeatureRequest(prev => 
+                  prev ? {...prev, description: e.target.value} : null
+                )}
+                rows={4}
+                required
+              />
+            </div>
+            <Button 
+              onClick={editFeatureRequest} 
+              disabled={isSubmitting}
+              className="w-full"
+            >
+              {isSubmitting ? 'Aggiornamento...' : 'Aggiorna Richiesta'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AlertDialog di conferma eliminazione feature request */}
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Elimina Richiesta
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              Sei sicuro di voler eliminare la richiesta "{featureToDelete?.title}"? 
+              <br />
+              <strong className="text-destructive">Questa azione non può essere annullata.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteFeatureRequest}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Conferma
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
