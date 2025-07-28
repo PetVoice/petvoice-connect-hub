@@ -93,6 +93,9 @@ const SubscriptionTab = () => {
     isEndOfPeriodCancellation,
     canReactivate,
     daysToRenewal,
+    subscription_end: subscription.subscription_end,
+    cancellation_effective_date: subscription.cancellation_effective_date,
+    shouldShowCard: !!(subscription.subscription_end || subscription.cancellation_effective_date),
     shouldShowReactivationSection: isEndOfPeriodCancellation
   });
 
