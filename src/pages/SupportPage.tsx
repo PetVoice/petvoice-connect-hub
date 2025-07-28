@@ -72,7 +72,9 @@ import {
   Mic,
   Music,
   PlayCircle,
-  Pause
+  Pause,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { AILiveChatButton } from '@/components/AILiveChat';
 import { supabase } from '@/integrations/supabase/client';
@@ -175,6 +177,7 @@ const SupportPage: React.FC = () => {
   const [isNewTicketDialogOpen, setIsNewTicketDialogOpen] = useState(false);
   const [isNewFeatureDialogOpen, setIsNewFeatureDialogOpen] = useState(false);
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
   const [newFeatureRequest, setNewFeatureRequest] = useState({
     title: '',
     description: '',
@@ -348,6 +351,96 @@ const SupportPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const updateTicket = async () => {
+    if (!editingTicket || !newTicket.subject || !newTicket.description || !newTicket.category) {
+      showToast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({
+          category: newTicket.category,
+          priority: newTicket.priority,
+          subject: newTicket.subject,
+          description: newTicket.description
+        })
+        .eq('id', editingTicket.id);
+
+      if (error) throw error;
+
+      showToast({
+        title: "Ticket aggiornato",
+        description: "Il ticket è stato aggiornato con successo."
+      });
+
+      // Reset form e stato
+      setNewTicket({
+        category: '',
+        priority: 'medium',
+        subject: '',
+        description: ''
+      });
+      setEditingTicket(null);
+      setIsNewTicketDialogOpen(false);
+      
+      // Ricarica i tickets
+      loadSupportData();
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile aggiornare il ticket. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteTicket = async (ticketId: string, ticketSubject: string) => {
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .delete()
+        .eq('id', ticketId);
+
+      if (error) throw error;
+
+      showToast({
+        title: "Ticket eliminato",
+        description: `Il ticket "${ticketSubject}" è stato eliminato.`
+      });
+      
+      // Ricarica i tickets
+      loadSupportData();
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile eliminare il ticket. Riprova più tardi.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditTicket = (ticket: SupportTicket) => {
+    setEditingTicket(ticket);
+    setNewTicket({
+      category: ticket.category,
+      priority: ticket.priority,
+      subject: ticket.subject,
+      description: ticket.description
+    });
+    setIsNewTicketDialogOpen(true);
   };
 
   const createFeatureRequest = async () => {
@@ -900,12 +993,12 @@ const SupportPage: React.FC = () => {
                        </Button>
                      </DialogTrigger>
                      <DialogContent className="max-w-2xl">
-                       <DialogHeader>
-                         <DialogTitle className="flex items-center space-x-2">
-                           <Ticket className="h-5 w-5" />
-                           <span>Crea un Nuovo Ticket di Supporto</span>
-                         </DialogTitle>
-                       </DialogHeader>
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center space-x-2">
+                            <Ticket className="h-5 w-5" />
+                            <span>{editingTicket ? 'Modifica Ticket' : 'Crea un Nuovo Ticket di Supporto'}</span>
+                          </DialogTitle>
+                        </DialogHeader>
                        <div className="space-y-4 pt-4">
                          <div className="grid grid-cols-2 gap-4">
                            <div>
@@ -954,19 +1047,28 @@ const SupportPage: React.FC = () => {
                              rows={4}
                            />
                          </div>
-                         <div className="flex space-x-2">
-                           <Button 
-                             onClick={createTicket} 
-                             disabled={isSubmitting}
-                             className="flex-1"
-                           >
-                             {isSubmitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
-                             Crea Ticket
-                           </Button>
-                           <Button variant="outline" onClick={() => setIsNewTicketDialogOpen(false)}>
-                             Annulla
-                           </Button>
-                         </div>
+                          <div className="flex space-x-2">
+                            <Button 
+                              onClick={editingTicket ? updateTicket : createTicket} 
+                              disabled={isSubmitting}
+                              className="flex-1"
+                            >
+                              {isSubmitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
+                              {editingTicket ? 'Aggiorna Ticket' : 'Crea Ticket'}
+                            </Button>
+                            <Button variant="outline" onClick={() => {
+                              setIsNewTicketDialogOpen(false);
+                              setEditingTicket(null);
+                              setNewTicket({
+                                category: '',
+                                priority: 'medium',
+                                subject: '',
+                                description: ''
+                              });
+                            }}>
+                              Annulla
+                            </Button>
+                          </div>
                        </div>
                      </DialogContent>
                    </Dialog>
@@ -1019,17 +1121,41 @@ const SupportPage: React.FC = () => {
                                    </Badge>
                                  </div>
                                  <p className="text-sm text-muted-foreground mb-2">{ticket.description}</p>
-                                 <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                                   <span className="flex items-center space-x-1">
-                                     <Clock className="h-3 w-3" />
-                                     <span>Creato {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true, locale: it })}</span>
-                                   </span>
-                                   <span className="flex items-center space-x-1">
-                                     <span>#{ticket.ticket_number}</span>
-                                   </span>
-                                 </div>
-                               </div>
-                             </div>
+                                  <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                    <span className="flex items-center space-x-1">
+                                      <Clock className="h-3 w-3" />
+                                      <span>Creato {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true, locale: it })}</span>
+                                    </span>
+                                    <span className="flex items-center space-x-1">
+                                      <span>#{ticket.ticket_number}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2 ml-4">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleEditTicket(ticket)}
+                                    className="h-8 px-2"
+                                  >
+                                    <Edit className="h-3 w-3 mr-1" />
+                                    Modifica
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      if (window.confirm(`Sei sicuro di voler eliminare il ticket "${ticket.subject}"?`)) {
+                                        deleteTicket(ticket.id, ticket.subject);
+                                      }
+                                    }}
+                                    className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Elimina
+                                  </Button>
+                                </div>
+                              </div>
                            </CardContent>
                          </Card>
                        ))}
