@@ -52,6 +52,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MedicationModal } from '@/components/medication/MedicationModal';
 import { InsurancePolicyModal } from '@/components/insurance/InsuranceModal';
 import { VeterinaryModal } from '@/components/veterinary/VeterinaryModal';
+import { VetsFinderModal } from '@/components/VetsFinderModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
@@ -182,6 +183,9 @@ const DashboardPage: React.FC = () => {
   const [editingVeterinary, setEditingVeterinary] = useState<any>(null);
   const [veterinaryContacts, setVeterinaryContacts] = useState<any[]>([]);
   const [veterinaryToDelete, setVeterinaryToDelete] = useState<any>(null);
+  
+  // Vets finder modal state
+  const [showVetsFinderModal, setShowVetsFinderModal] = useState(false);
 
   // Medication evaluation modal state
   const [medicationEvaluationModal, setMedicationEvaluationModal] = useState<{
@@ -2343,22 +2347,34 @@ const DashboardPage: React.FC = () => {
        {/* Veterinario Card */}
         <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <UserCheck className="h-6 w-6 text-white" />
-                </div>
-                Veterinario
-              </CardTitle>
-              <Button
-                onClick={() => handleAddItem('veterinarian')}
-                size="sm"
-                variant="ghost"
-                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+             <div className="flex items-center justify-between">
+               <CardTitle className="text-2xl flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                   <UserCheck className="h-6 w-6 text-white" />
+                 </div>
+                 Veterinario
+               </CardTitle>
+               <div className="flex gap-2">
+                 <Button
+                   onClick={() => setShowVetsFinderModal(true)}
+                   size="sm"
+                   variant="ghost"
+                   className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                   title="Trova veterinari vicini"
+                 >
+                   <MapPin className="h-4 w-4" />
+                 </Button>
+                 <Button
+                   onClick={() => handleAddItem('veterinarian')}
+                   size="sm"
+                   variant="ghost"
+                   className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                   title="Aggiungi veterinario"
+                 >
+                   <Plus className="h-4 w-4" />
+                 </Button>
+               </div>
+             </div>
           </CardHeader>
           <CardDescription className="text-lg px-6 pb-6">Gestione contatti veterinari per il tuo pet</CardDescription>
           <CardContent>
@@ -2841,6 +2857,17 @@ const DashboardPage: React.FC = () => {
         userId={user?.id}
         onSave={loadInsurances}
       />
+
+      {/* Vets Finder Modal */}
+      {selectedPet && user && (
+        <VetsFinderModal
+          isOpen={showVetsFinderModal}
+          onClose={() => setShowVetsFinderModal(false)}
+          onVetAdded={fetchVeterinaryContacts}
+          petId={selectedPet.id}
+          userId={user.id}
+        />
+      )}
     </div>
   );
 };
