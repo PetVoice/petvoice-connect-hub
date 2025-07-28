@@ -171,7 +171,7 @@ const SupportPage: React.FC = () => {
   }>>([]);
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [activeTab, setActiveTab] = useState('features');
+  const [activeTab, setActiveTab] = useState('faq');
   const [isNewTicketDialogOpen, setIsNewTicketDialogOpen] = useState(false);
   const [isNewFeatureDialogOpen, setIsNewFeatureDialogOpen] = useState(false);
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
@@ -705,7 +705,8 @@ const SupportPage: React.FC = () => {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="faq">FAQ</TabsTrigger>
             <TabsTrigger value="features">Richieste</TabsTrigger>
             <TabsTrigger value="guide">Guida</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
