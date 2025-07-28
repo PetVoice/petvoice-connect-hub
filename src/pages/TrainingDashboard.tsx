@@ -667,7 +667,7 @@ const TrainingDashboard: React.FC = () => {
             <Button
               variant="destructive"
               onClick={confirmInterruptProtocol}
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white border-0"
             >
               Interrompi
             </Button>
