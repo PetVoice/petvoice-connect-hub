@@ -67,7 +67,7 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
             onClick={onConfirm}
             disabled={isLoading}
           >
-            {isLoading ? 'Elaborazione...' : 'RIATTIVA'}
+            {isLoading ? 'Elaborazione...' : 'Conferma Riattivazione'}
           </Button>
         </DialogFooter>
       </DialogContent>
