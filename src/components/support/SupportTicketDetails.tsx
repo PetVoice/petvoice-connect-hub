@@ -84,7 +84,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         
         if (profiles) {
           const profilesMap = profiles.reduce((acc, profile) => {
-            acc[profile.user_id] = { display_name: profile.display_name || 'Utente' };
+            acc[profile.user_id] = { display_name: profile.display_name || 'Supporto' };
             return acc;
           }, {} as { [key: string]: { display_name: string } });
           setUserProfiles(profilesMap);
@@ -126,7 +126,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                 if (profile) {
                   setUserProfiles(prev => ({
                     ...prev,
-                    [profile.user_id]: { display_name: profile.display_name || 'Utente' }
+                    [profile.user_id]: { display_name: profile.display_name || 'Supporto' }
                   }));
                 }
               } catch (error) {
@@ -267,14 +267,14 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
               const isStaff = reply.is_staff_reply;
               
               // Logica per il nome: se è il proprio messaggio mostra "Tu", altrimenti mostra il nome dell'utente o "Supporto"
-              let displayName = 'Utente';
+              let displayName = 'Supporto';
               if (isOwn) {
                 displayName = 'Tu';
               } else if (isStaff) {
                 displayName = 'Supporto';
               } else {
                 // Per i messaggi di altri utenti, mostra il nome dal profilo
-                displayName = userProfiles[reply.user_id]?.display_name || 'Utente';
+                displayName = userProfiles[reply.user_id]?.display_name || 'Supporto';
               }
 
               return (
