@@ -53,6 +53,7 @@ import { MedicationModal } from '@/components/medication/MedicationModal';
 import { InsurancePolicyModal } from '@/components/insurance/InsuranceModal';
 import { VeterinaryModal } from '@/components/veterinary/VeterinaryModal';
 import { VetsFinderModal } from '@/components/VetsFinderModal';
+import { EmergencyContactModal } from '@/components/emergency/EmergencyContactModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
@@ -186,6 +187,18 @@ const DashboardPage: React.FC = () => {
   
   // Vets finder modal state
   const [showVetsFinderModal, setShowVetsFinderModal] = useState(false);
+
+  // Emergency contacts modal state
+  const [emergencyContactModal, setEmergencyContactModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    contact: any | null;
+  }>({
+    open: false,
+    mode: 'add',
+    contact: null
+  });
+  const [emergencyContactToDelete, setEmergencyContactToDelete] = useState<any>(null);
 
   // Medication evaluation modal state
   const [medicationEvaluationModal, setMedicationEvaluationModal] = useState<{
@@ -519,6 +532,7 @@ const DashboardPage: React.FC = () => {
     loadMeds();
     loadInsurances();
     fetchVeterinaryContacts();
+    fetchEmergencyContacts();
   }, [selectedPet, user]);
 
   // Load medications function accessible by other functions
@@ -577,6 +591,56 @@ const DashboardPage: React.FC = () => {
       setVeterinaryContacts(data || []);
     } catch (error) {
       console.error('Error loading veterinary contacts:', error);
+    }
+  };
+
+  // Load emergency contacts function
+  const fetchEmergencyContacts = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('emergency_contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setEmergencyContacts(data || []);
+    } catch (error) {
+      console.error('Error loading emergency contacts:', error);
+    }
+  };
+
+  // Delete emergency contact function
+  const handleDeleteEmergencyContact = async (contact: any) => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('emergency_contacts')
+        .delete()
+        .eq('id', contact.id);
+
+      if (error) throw error;
+
+      showDeleteToast({
+        title: "Contatto eliminato",
+        description: "Il contatto di emergenza è stato rimosso con successo."
+      });
+      
+      fetchEmergencyContacts();
+      setEmergencyContactToDelete(null);
+    } catch (error) {
+      console.error('Error deleting emergency contact:', error);
+      toast({
+        title: "❌ Errore",
+        description: "Errore nell'eliminazione del contatto.",
+        className: "border-red-200 bg-red-50 text-red-800",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -674,7 +738,7 @@ const DashboardPage: React.FC = () => {
         setEditingVeterinary(null);
         break;
       case 'emergency_contacts':
-        navigate('/settings');
+        setEmergencyContactModal({ open: true, mode: 'add', contact: null });
         break;
     }
   };
@@ -2539,19 +2603,89 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Numeri di emergenza e pronto soccorso</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/10 flex items-center justify-center">
-                  <Phone className="h-10 w-10 text-orange-500/60" />
+              {emergencyContacts && emergencyContacts.length > 0 ? (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3 pr-4">
+                    {emergencyContacts.map((contact) => (
+                      <div key={contact.id} className="bg-white/60 border border-orange-200/50 hover:border-orange-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                              <h4 className="font-semibold text-lg text-orange-800">{contact.name}</h4>
+                              {contact.is_primary && (
+                                <Badge variant="destructive" className="text-xs">Primario</Badge>
+                              )}
+                            </div>
+                            <div className="space-y-1 text-sm">
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`tel:${contact.phone}`, '_self');
+                                  }}
+                                  size="sm" variant="ghost"
+                                  className="h-auto p-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  title="Chiama"
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                                <span className="text-muted-foreground">{contact.phone}</span>
+                              </div>
+                              {contact.email && (
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(`mailto:${contact.email}`, '_self');
+                                    }}
+                                    size="sm" variant="ghost"
+                                    className="h-auto p-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    title="Invia Email"
+                                  >
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                  <span className="text-muted-foreground">{contact.email}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              onClick={() => setEmergencyContactModal({ open: true, mode: 'edit', contact })}
+                              size="sm" variant="ghost"
+                              className="h-8 w-8 p-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => setEmergencyContactToDelete(contact)}
+                              size="sm" variant="ghost"
+                              className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-orange-500/20 to-red-500/10 flex items-center justify-center">
+                    <Phone className="h-10 w-10 text-orange-500/60" />
+                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessun contatto di emergenza</p>
+                  <Button 
+                    onClick={() => setEmergencyContactModal({ open: true, mode: 'add', contact: null })}
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <Phone className="h-5 w-5 mr-2" />
+                    Aggiungi Contatti
+                  </Button>
                 </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessun contatto di emergenza</p>
-                <Button 
-                  onClick={() => navigate('/diary')} 
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <Phone className="h-5 w-5 mr-2" />
-                  Aggiungi Contatti
-                </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -2867,6 +3001,28 @@ const DashboardPage: React.FC = () => {
           onVetAdded={fetchVeterinaryContacts}
           petId={selectedPet.id}
           userId={user.id}
+        />
+      )}
+
+      {/* Emergency Contact Modal */}
+      <EmergencyContactModal
+        isOpen={emergencyContactModal.open}
+        onClose={() => setEmergencyContactModal({ open: false, mode: 'add', contact: null })}
+        onSave={fetchEmergencyContacts}
+        contact={emergencyContactModal.contact}
+      />
+
+      {/* Emergency Contact Delete Confirmation */}
+      {emergencyContactToDelete && (
+        <ConfirmDialog
+          open={!!emergencyContactToDelete}
+          onOpenChange={(open) => !open && setEmergencyContactToDelete(null)}
+          onConfirm={() => handleDeleteEmergencyContact(emergencyContactToDelete)}
+          title="Elimina Contatto Emergenza"
+          description={`Sei sicuro di voler eliminare il contatto "${emergencyContactToDelete.name}"?`}
+          confirmText="Elimina"
+          cancelText="Annulla"
+          variant="destructive"
         />
       )}
     </div>
