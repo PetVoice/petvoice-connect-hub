@@ -187,8 +187,8 @@ const SupportPage: React.FC = () => {
         (payload) => {
           console.log('➕ New ticket created in realtime:', payload.new);
           const newTicket = payload.new as SupportTicket;
-          // Per i nuovi ticket, unread_count è 0 inizialmente
-          setTickets(prev => [{ ...newTicket, unread_count: 0 }, ...prev]);
+          // Per i nuovi ticket, non impostare unread_count (sarà undefined = non mostrato)
+          setTickets(prev => [newTicket, ...prev]);
         }
       )
       .on(
@@ -207,7 +207,7 @@ const SupportPage: React.FC = () => {
                setTickets(prev => 
                  prev.map(ticket => 
                    ticket.id === unreadData.ticket_id 
-                     ? { ...ticket, unread_count: unreadData.unread_count }
+                     ? { ...ticket, unread_count: unreadData.unread_count > 0 ? unreadData.unread_count : undefined }
                      : ticket
                  )
                );
@@ -251,16 +251,18 @@ const SupportPage: React.FC = () => {
       } else {
         console.log('✅ Tickets loaded:', ticketsData?.length, 'tickets');
         
-        // Crea una mappa degli unread counts per ticket_id
+        // Crea una mappa degli unread counts per ticket_id (solo per count > 0)
         const unreadMap = (unreadCounts || []).reduce((acc, count) => {
-          acc[count.ticket_id] = count.unread_count;
+          if (count.unread_count > 0) {
+            acc[count.ticket_id] = count.unread_count;
+          }
           return acc;
         }, {} as { [key: string]: number });
         
-        // Trasforma i dati per includere unread_count
+        // Trasforma i dati per includere unread_count solo se > 0
         const ticketsWithUnreadCount = (ticketsData || []).map(ticket => ({
           ...ticket,
-          unread_count: unreadMap[ticket.id] || 0
+          unread_count: unreadMap[ticket.id] // undefined se non presente, che è falsy
         }));
         
         setTickets(ticketsWithUnreadCount);
@@ -410,10 +412,10 @@ const SupportPage: React.FC = () => {
           p_user_id: user.id
         });
         
-        // Aggiorna immediatamente la lista locale azzerando l'unread count
+        // Aggiorna immediatamente la lista locale rimuovendo l'unread count
         setTickets(prev => 
           prev.map(t => 
-            t.id === ticket.id ? { ...t, unread_count: 0 } : t
+            t.id === ticket.id ? { ...t, unread_count: undefined } : t
           )
         );
       } catch (error) {
