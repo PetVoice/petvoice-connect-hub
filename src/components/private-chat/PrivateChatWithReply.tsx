@@ -1214,12 +1214,12 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
               Elimina solo per me
             </Button>
             {getSelectedMessagesType() !== 'received' && (
-              <AlertDialogAction
+              <Button
                 onClick={deleteSelectedMessagesForBoth}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
               >
                 {getSelectedMessagesType() === 'sent' ? 'Elimina per entrambi' : 'Elimina (misto)'}
-              </AlertDialogAction>
+              </Button>
             )}
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1258,12 +1258,12 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
               
               if (isOwnMessage) {
                 return (
-                  <AlertDialogAction
+                  <Button
                     onClick={deleteSingleMessageForBoth}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
                   >
                     Elimina per entrambi
-                  </AlertDialogAction>
+                  </Button>
                 );
               }
               return null;
@@ -1290,12 +1290,12 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             >
               Elimina solo per me
             </Button>
-            <AlertDialogAction
+            <Button
               onClick={deleteChatForBoth}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
             >
               Elimina per entrambi
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
