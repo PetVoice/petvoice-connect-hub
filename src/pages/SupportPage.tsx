@@ -582,12 +582,20 @@ const SupportPage: React.FC = () => {
         if (error) throw error;
 
         // Decrementa il conteggio voti
-        await supabase.rpc('increment_feature_votes', {
+        const { error: rpcError } = await supabase.rpc('increment_feature_votes', {
           request_id: requestId,
           increment_value: -1
         });
 
+        if (rpcError) throw rpcError;
+
+        // Aggiorna immediatamente lo stato locale
         setUserVotes(prev => prev.filter(id => id !== requestId));
+        setFeatureRequests(prev => prev.map(req => 
+          req.id === requestId 
+            ? { ...req, votes: Math.max(0, req.votes - 1) }
+            : req
+        ));
       } else {
         // Aggiungi voto
         const { error } = await supabase
@@ -600,16 +608,23 @@ const SupportPage: React.FC = () => {
         if (error) throw error;
 
         // Incrementa il conteggio voti
-        await supabase.rpc('increment_feature_votes', {
+        const { error: rpcError } = await supabase.rpc('increment_feature_votes', {
           request_id: requestId,
           increment_value: 1
         });
 
+        if (rpcError) throw rpcError;
+
+        // Aggiorna immediatamente lo stato locale
         setUserVotes(prev => [...prev, requestId]);
+        setFeatureRequests(prev => prev.map(req => 
+          req.id === requestId 
+            ? { ...req, votes: req.votes + 1 }
+            : req
+        ));
       }
 
-      // Ricarica i dati per vedere il conteggio aggiornato
-      loadSupportData();
+      // Non serve più ricaricare tutti i dati
     } catch (error) {
       console.error('Error toggling vote:', error);
       showToast({
