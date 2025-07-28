@@ -198,38 +198,22 @@ const SupportPage: React.FC = () => {
           schema: 'public',
           table: 'support_ticket_unread_counts'
         },
-        (payload) => {
-          console.log('🔔 Unread count updated in realtime:', payload);
-          console.log('📊 Payload details:', {
-            eventType: payload.eventType,
-            new: payload.new,
-            old: payload.old,
-            user_id: user?.id
-          });
-          
-          if ((payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') && payload.new) {
-            const unreadData = payload.new;
-            console.log('💾 Unread data received:', unreadData);
-            
-            // Solo aggiorna se l'unread count è per l'utente corrente
-            if (unreadData.user_id === user?.id) {
-              console.log('✅ Updating unread count for user:', user?.id, 'ticket:', unreadData.ticket_id, 'count:', unreadData.unread_count);
-              setTickets(prev => {
-                const updated = prev.map(ticket => 
-                  ticket.id === unreadData.ticket_id 
-                    ? { ...ticket, unread_count: unreadData.unread_count > 0 ? unreadData.unread_count : undefined }
-                    : ticket
-                );
-                console.log('📝 Updated tickets list:', updated.map(t => ({ id: t.id, subject: t.subject, unread_count: t.unread_count })));
-                return updated;
-              });
-            } else {
-              console.log('❌ Unread count not for current user:', unreadData.user_id, 'vs', user?.id);
-            }
-          } else {
-            console.log('⚠️ Invalid payload or event type');
-          }
-        }
+         (payload) => {
+           console.log('🔔 Unread count updated in realtime:', payload);
+           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+             const unreadData = payload.new;
+             // Solo aggiorna se l'unread count è per l'utente corrente
+             if (unreadData.user_id === user?.id) {
+               setTickets(prev => 
+                 prev.map(ticket => 
+                   ticket.id === unreadData.ticket_id 
+                     ? { ...ticket, unread_count: unreadData.unread_count > 0 ? unreadData.unread_count : undefined }
+                     : ticket
+                 )
+               );
+             }
+           }
+         }
       )
       .subscribe();
 

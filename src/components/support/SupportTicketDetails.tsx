@@ -52,16 +52,14 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [newReply, setNewReply] = useState('');
   const [loading, setLoading] = useState(false);
   const [userProfiles, setUserProfiles] = useState<{ [key: string]: { display_name: string } }>({});
-  const [isAdmin, setIsAdmin] = useState(false);
   const { user } = useAuth();
   const { showToast } = useTranslatedToast();
 
-  // Carica le risposte del ticket e controlla se l'utente è admin
+  // Carica le risposte del ticket
   useEffect(() => {
     if (ticket.id) {
       loadTicketReplies();
       setupRealtimeSubscription();
-      checkUserRole();
     }
   }, [ticket.id]);
 
@@ -94,22 +92,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       }
     } catch (error) {
       console.error('Error loading ticket replies:', error);
-    }
-  };
-
-  const checkUserRole = async () => {
-    if (!user?.id) return;
-    
-    try {
-      const { data: userRoles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id);
-        
-      const hasAdminRole = userRoles?.some(r => r.role === 'admin');
-      setIsAdmin(hasAdminRole || false);
-    } catch (error) {
-      console.error('Error checking user role:', error);
     }
   };
 
@@ -183,7 +165,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         ticket_id: ticket.id,
         user_id: user.id,
         content: newReply.trim(),
-        is_staff_reply: isAdmin // Imposta is_staff_reply basato sul ruolo dell'utente
+        is_staff_reply: false
       };
 
       const { data, error } = await supabase
