@@ -1738,147 +1738,149 @@ const DashboardPage: React.FC = () => {
               </CardTitle>
               <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
-            <CardContent>
+             <CardContent>
                {Object.keys(vitalStats).length > 0 ? (
-                <div className="space-y-3">
-                  {Object.entries(vitalStats).map(([vital, data]) => {
-                    const vitalColors = {
-                      'temperatura': 'from-red-400 to-orange-500',
-                      'frequenza_cardiaca': 'from-red-500 to-red-600',
-                      'respirazione': 'from-blue-400 to-cyan-500',
-                      'colore_gengive': 'from-pink-400 to-rose-500'
-                    };
-                    const vitalIcons = {
-                      'temperatura': '🌡️',
-                      'frequenza_cardiaca': '❤️',
-                      'respirazione': '🫁',
-                      'colore_gengive': '👄'
-                    };
-                    const vitalLabels = {
-                      'temperatura': 'Temperatura',
-                      'frequenza_cardiaca': 'Frequenza Cardiaca', 
-                      'respirazione': 'Respirazione',
-                      'colore_gengive': 'Colore Gengive'
-                    };
-                    
-                    // Translate gum color values to Italian
-                    const translateGumColor = (color: string | number) => {
-                      // Handle numeric values (legacy data)
-                      const numericTranslations: Record<string, string> = {
-                        '1': 'Rosa',
-                        '2': 'Pallide', 
-                        '3': 'Blu/Viola',
-                        '4': 'Gialle'
-                      };
-                      
-                      // Handle string values
-                      const stringTranslations: Record<string, string> = {
-                        'rosa': 'Rosa',
-                        'pallide': 'Pallide',
-                        'blu/viola': 'Blu/Viola',
-                        'gialle': 'Gialle'
-                      };
-                      
-                      const colorStr = color.toString();
-                      return numericTranslations[colorStr] || 
-                             stringTranslations[colorStr.toLowerCase()] || 
-                             `Colore non riconosciuto (${colorStr})`;
-                    };
-                    
-                    // Check if vital is in normal range
-                    const rangeCheck = isVitalInNormalRange(vital, data.value, selectedPet?.type);
-                    
-                    // Use red gradient if value is abnormal, green gradient if normal
-                    const gradientClass = !rangeCheck.isNormal 
-                      ? 'from-red-500 to-red-600' 
-                      : 'from-green-400 to-emerald-500';
-                    
-                    // Use red background for the card if value is abnormal, green if normal
-                    const cardBackgroundClass = !rangeCheck.isNormal 
-                      ? 'bg-red-50 border-red-200 hover:bg-red-100' 
-                      : 'bg-green-50 border-green-200 hover:bg-green-100';
-                    
-                    const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
-                    const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
-                    
-                    return (
-                      <div 
-                        key={vital} 
-                        className={`group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg ${cardBackgroundClass}`}
-                      >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                        
-                        {/* Main content */}
-                        <div className="relative p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="text-2xl">{icon}</div>
-                              <div>
-                                <div className="font-semibold text-gray-700 text-sm">
-                                  {label}
-                                </div>
-                                <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
-                                  {vital === 'colore_gengive' 
-                                    ? translateGumColor(data.value.toString())
-                                    : data.value
-                                  }
-                                  {data.unit && <span className="text-sm text-gray-500">{data.unit}</span>}
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                  {data.date}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Action buttons */}
-                            <div className="flex gap-1">
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditItem('vitals', vital);
-                                }}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const displayValue = vital === 'colore_gengive' 
-                                    ? translateGumColor(data.value.toString())
-                                    : `${data.value}${data.unit}`;
-                                  handleDeleteItem('vitals', vital, `${label}: ${displayValue}`);
-                                }}
-                                size="sm"
-                                variant="ghost"
-                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          {/* Range indicator */}
-                          <div className="mt-2 px-2 py-1 rounded-md">
-                            {rangeCheck.isNormal ? (
-                              <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-2 py-1 rounded-md">
-                                <div className="h-3 w-3 rounded-full bg-green-600"></div>
-                                <span className="text-xs text-green-700">Valori nella norma - Il pet sta bene</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-2 py-1 rounded-md">
-                                <AlertTriangle className="h-3 w-3 text-red-600" />
-                                <span className="text-xs text-red-700">{rangeCheck.message}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                 <ScrollArea className="h-[300px]">
+                   <div className="space-y-3 pr-4">
+                     {Object.entries(vitalStats).map(([vital, data]) => {
+                       const vitalColors = {
+                         'temperatura': 'from-red-400 to-orange-500',
+                         'frequenza_cardiaca': 'from-red-500 to-red-600',
+                         'respirazione': 'from-blue-400 to-cyan-500',
+                         'colore_gengive': 'from-pink-400 to-rose-500'
+                       };
+                       const vitalIcons = {
+                         'temperatura': '🌡️',
+                         'frequenza_cardiaca': '❤️',
+                         'respirazione': '🫁',
+                         'colore_gengive': '👄'
+                       };
+                       const vitalLabels = {
+                         'temperatura': 'Temperatura',
+                         'frequenza_cardiaca': 'Frequenza Cardiaca', 
+                         'respirazione': 'Respirazione',
+                         'colore_gengive': 'Colore Gengive'
+                       };
+                       
+                       // Translate gum color values to Italian
+                       const translateGumColor = (color: string | number) => {
+                         // Handle numeric values (legacy data)
+                         const numericTranslations: Record<string, string> = {
+                           '1': 'Rosa',
+                           '2': 'Pallide', 
+                           '3': 'Blu/Viola',
+                           '4': 'Gialle'
+                         };
+                         
+                         // Handle string values
+                         const stringTranslations: Record<string, string> = {
+                           'rosa': 'Rosa',
+                           'pallide': 'Pallide',
+                           'blu/viola': 'Blu/Viola',
+                           'gialle': 'Gialle'
+                         };
+                         
+                         const colorStr = color.toString();
+                         return numericTranslations[colorStr] || 
+                                stringTranslations[colorStr.toLowerCase()] || 
+                                `Colore non riconosciuto (${colorStr})`;
+                       };
+                       
+                       // Check if vital is in normal range
+                       const rangeCheck = isVitalInNormalRange(vital, data.value, selectedPet?.type);
+                       
+                       // Use red gradient if value is abnormal, green gradient if normal
+                       const gradientClass = !rangeCheck.isNormal 
+                         ? 'from-red-500 to-red-600' 
+                         : 'from-green-400 to-emerald-500';
+                       
+                       // Use red background for the card if value is abnormal, green if normal
+                       const cardBackgroundClass = !rangeCheck.isNormal 
+                         ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                         : 'bg-green-50 border-green-200 hover:bg-green-100';
+                       
+                       const icon = vitalIcons[vital as keyof typeof vitalIcons] || '📋';
+                       const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
+                       
+                       return (
+                         <div 
+                           key={vital} 
+                           className={`group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg ${cardBackgroundClass}`}
+                         >
+                           <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                           
+                           {/* Main content */}
+                           <div className="relative p-3">
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center gap-3">
+                                 <div className="text-2xl">{icon}</div>
+                                 <div>
+                                   <div className="font-semibold text-gray-700 text-sm">
+                                     {label}
+                                   </div>
+                                   <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
+                                     {vital === 'colore_gengive' 
+                                       ? translateGumColor(data.value.toString())
+                                       : data.value
+                                     }
+                                     {data.unit && <span className="text-sm text-gray-500">{data.unit}</span>}
+                                   </div>
+                                   <div className="text-xs text-gray-500">
+                                     {data.date}
+                                   </div>
+                                 </div>
+                               </div>
+                               
+                               {/* Action buttons */}
+                               <div className="flex gap-1">
+                                 <Button
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleEditItem('vitals', vital);
+                                   }}
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                 >
+                                   <Edit className="h-4 w-4" />
+                                 </Button>
+                                 <Button
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     const displayValue = vital === 'colore_gengive' 
+                                       ? translateGumColor(data.value.toString())
+                                       : `${data.value}${data.unit}`;
+                                     handleDeleteItem('vitals', vital, `${label}: ${displayValue}`);
+                                   }}
+                                   size="sm"
+                                   variant="ghost"
+                                   className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                 >
+                                   <Trash2 className="h-4 w-4" />
+                                 </Button>
+                               </div>
+                             </div>
+                             
+                             {/* Range indicator */}
+                             <div className="mt-2 px-2 py-1 rounded-md">
+                               {rangeCheck.isNormal ? (
+                                 <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-2 py-1 rounded-md">
+                                   <div className="h-3 w-3 rounded-full bg-green-600"></div>
+                                   <span className="text-xs text-green-700">Valori nella norma - Il pet sta bene</span>
+                                 </div>
+                               ) : (
+                                 <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-2 py-1 rounded-md">
+                                   <AlertTriangle className="h-3 w-3 text-red-600" />
+                                   <span className="text-xs text-red-700">{rangeCheck.message}</span>
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </ScrollArea>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
