@@ -142,12 +142,22 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
       if (error) throw error;
       
-      // DEBUG: Temporaneamente mostra tutti i messaggi senza filtro
-      console.log('🔍 Raw data from database:', data);
-      console.log('🔍 User ID:', user.id);
+      // Filtra i messaggi eliminati lato client
+      const filteredData = (data || []).filter(reply => {
+        // Se è il nostro messaggio, mostralo se non è stato eliminato da noi
+        if (reply.user_id === user.id) {
+          return !reply.deleted_by_sender; // null o false = mostra, true = nascondi
+        }
+        // Se è un messaggio di altri, mostralo se non l'abbiamo eliminato come recipient  
+        else {
+          return !reply.deleted_by_recipient; // null o false = mostra, true = nascondi
+        }
+      });
       
-      const filteredData = (data || []);
-      console.log('🔍 Filtered data (showing all for debug):', filteredData);
+      console.log('🔍 Raw data from database:', data?.length, 'messages');
+      console.log('🔍 User ID:', user.id);
+      console.log('🔍 Filtered data:', filteredData.length, 'messages');
+      console.log('🔍 Sample filtered message:', filteredData[0]);
       
       setReplies(filteredData);
 
