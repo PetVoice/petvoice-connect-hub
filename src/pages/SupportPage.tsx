@@ -2380,7 +2380,7 @@ const SupportPage: React.FC = () => {
                           </div>
                           <div className="flex-1">
                             <p className={`font-medium text-sm ${reply.is_staff_reply ? 'text-green-900' : 'text-blue-900'}`}>
-                              {reply.is_staff_reply ? 'Supporto' : 'La tua risposta'}
+                              {reply.is_staff_reply ? 'Supporto' : 'Tu'}
                             </p>
                             <p className={`text-sm mt-1 whitespace-pre-wrap ${reply.is_staff_reply ? 'text-green-700' : 'text-blue-700'}`}>
                               {reply.content}
@@ -2400,7 +2400,7 @@ const SupportPage: React.FC = () => {
                           Tu
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-sm text-blue-900">La tua richiesta</p>
+                          <p className="font-medium text-sm text-blue-900">Tu</p>
                           <p className="text-sm text-blue-700 mt-1">{selectedTicket.description}</p>
                           <p className="text-xs text-blue-600 mt-2">
                             {formatDistanceToNow(new Date(selectedTicket.created_at), { addSuffix: true, locale: it })}
