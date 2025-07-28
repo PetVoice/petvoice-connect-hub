@@ -31,7 +31,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { SupportTicketList } from '@/components/support/SupportTicketList';
 import { SupportTicketDetails } from '@/components/support/SupportTicketDetails';
 import { TicketCloseConfirmModal } from '@/components/support/TicketCloseConfirmModal';
-import { useSupportTicketNotifications } from '@/hooks/useSupportTicketNotifications';
 
 interface SupportTicket {
   id: string;
@@ -133,9 +132,6 @@ const SupportPage: React.FC = () => {
   const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
-  
-  // Attiva le notifiche di supporto
-  useSupportTicketNotifications();
 
   // Carica i dati iniziali e setup realtime
   useEffect(() => {
@@ -213,40 +209,6 @@ const SupportPage: React.FC = () => {
                 prev.map(ticket => 
                   ticket.id === unreadData.ticket_id 
                     ? { ...ticket, unread_count: unreadData.unread_count > 0 ? unreadData.unread_count : undefined }
-                    : ticket
-                )
-              );
-            }
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'support_ticket_replies'
-        },
-        async (payload) => {
-          console.log('📨 New reply received:', payload.new);
-          const newReply = payload.new;
-          
-          // Se la risposta non è dell'utente corrente, aggiorna il conteggio unread
-          if (newReply.user_id !== user?.id) {
-            // Ottieni il ticket per verificare chi è il proprietario
-            const { data: ticketData } = await supabase
-              .from('support_tickets')
-              .select('user_id')
-              .eq('id', newReply.ticket_id)
-              .single();
-              
-            // Se l'utente corrente è il proprietario del ticket, incrementa unread count
-            if (ticketData?.user_id === user?.id) {
-              console.log('🔔 Incrementing unread count for ticket:', newReply.ticket_id);
-              setTickets(prev => 
-                prev.map(ticket => 
-                  ticket.id === newReply.ticket_id 
-                    ? { ...ticket, unread_count: (ticket.unread_count || 0) + 1 }
                     : ticket
                 )
               );
