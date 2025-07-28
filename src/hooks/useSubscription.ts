@@ -67,7 +67,8 @@ export const useSubscription = () => {
 
       // Converti i dati dalla tabella al formato SubscriptionData
       const subscriptionData: SubscriptionData = {
-        subscribed: subscriberData?.subscription_status === 'active',
+        // Se cancellato immediatamente O non attivo, non è subscribed
+        subscribed: subscriberData?.subscription_status === 'active' && !subscriberData?.is_cancelled,
         subscription_tier: 'premium',
         subscription_end: subscriberData?.subscription_end_date || subscriberData?.cancellation_effective_date || null,
         is_cancelled: subscriberData?.is_cancelled || false,
