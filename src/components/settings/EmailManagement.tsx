@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Send, CheckCircle, AlertCircle, X } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export const EmailManagement: React.FC<EmailManagementProps> = ({ user }) => {
   const [newEmail, setNewEmail] = useState('');
   const [updating, setUpdating] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const { showToast } = useTranslatedToast();
+  const toast = useToastWithIcon();
   
   // Controlla se c'è un cambio email in corso
   useEffect(() => {
@@ -36,36 +36,25 @@ export const EmailManagement: React.FC<EmailManagementProps> = ({ user }) => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('email_change') === 'confirmed') {
-      showToast({
-        title: "Successo",
-        description: "Email cambiata con successo!"
-      });
+      toast.success("Email modificata con successo!");
       // Pulisci URL
       window.history.replaceState({}, document.title, window.location.pathname);
       
       // Refresh user data
       supabase.auth.refreshSession();
     }
-  }, [showToast]);
+  }, [toast]);
   
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newEmail || !newEmail.includes('@')) {
-      showToast({
-        title: "Errore",
-        description: "Inserisci un email valida",
-        variant: "destructive"
-      });
+      toast.error("Inserisci un indirizzo email valido");
       return;
     }
     
     if (newEmail === user.email) {
-      showToast({
-        title: "Errore",
-        description: "La nuova email deve essere diversa da quella attuale",
-        variant: "destructive"
-      });
+      toast.error("La nuova email è uguale a quella attuale");
       return;
     }
     
@@ -88,20 +77,12 @@ export const EmailManagement: React.FC<EmailManagementProps> = ({ user }) => {
       }
       
       setPendingEmail(newEmail);
-      showToast({
-        title: "Email di verifica inviata",
-        description: "Controlla la tua casella email",
-        variables: { email: newEmail }
-      });
+      toast.success("Email di verifica inviata! Controlla la tua casella di posta.");
       setNewEmail('');
       
     } catch (error: any) {
       console.error('Errore cambio email:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile inviare l'email di verifica",
-        variant: "destructive"
-      });
+      toast.error(`Errore durante il cambio email: ${error.message}`);
     } finally {
       setUpdating(false);
     }
@@ -112,10 +93,7 @@ export const EmailManagement: React.FC<EmailManagementProps> = ({ user }) => {
       // Non c'è un modo diretto per cancellare un cambio email in Supabase
       // Ma possiamo rimuovere la visualizzazione locale
       setPendingEmail(null);
-      showToast({
-        title: "Operazione completata",
-        description: "Cambio email cancellato localmente"
-      });
+      toast.success("Richiesta di cambio email annullata");
     } catch (error) {
       console.error('Errore cancellazione cambio email:', error);
     }

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Key, Eye, EyeOff } from 'lucide-react';
 
@@ -18,7 +18,7 @@ export const ChangePasswordForm: React.FC = () => {
     confirm: false
   });
   const [updating, setUpdating] = useState(false);
-  const { showToast } = useTranslatedToast();
+  const toast = useToastWithIcon();
   
   // Traduzioni errori Supabase
   const translateError = (error: any) => {
@@ -68,31 +68,18 @@ export const ChangePasswordForm: React.FC = () => {
     
     // Validazioni lato client
     if (passwords.new !== passwords.confirm) {
-      showToast({
-        title: "Errore",
-        description: "Le nuove password non corrispondono",
-        variant: "destructive"
-      });
+      toast.error("Le password non corrispondono");
       return;
     }
     
     const validationErrors = validatePassword(passwords.new);
     if (validationErrors.length > 0) {
-      showToast({
-        title: "Errore",
-        description: "Password troppo debole: {errors}",
-        variant: "destructive",
-        variables: { errors: validationErrors.join(', ') }
-      });
+      toast.error(`Password non valida: ${validationErrors.join(', ')}`);
       return;
     }
     
     if (passwords.new === passwords.current) {
-      showToast({
-        title: "Errore",
-        description: "La nuova password deve essere diversa da quella attuale",
-        variant: "destructive"
-      });
+      toast.error("La nuova password deve essere diversa da quella attuale");
       return;
     }
     
@@ -109,20 +96,13 @@ export const ChangePasswordForm: React.FC = () => {
         throw new Error(italianError);
       }
       
-      showToast({
-        title: "Successo",
-        description: "Password aggiornata con successo!"
-      });
+      toast.success("Password aggiornata con successo!");
       
       setPasswords({ current: '', new: '', confirm: '' });
       
     } catch (error: any) {
       console.error('Errore cambio password:', error);
-      showToast({
-        title: "Errore",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error(error.message);
     } finally {
       setUpdating(false);
     }

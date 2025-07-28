@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, User, MapPin, FileText } from 'lucide-react';
 import { GooglePlacesInput } from './GooglePlacesInput';
@@ -26,7 +26,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
     country: ''
   });
   const [saving, setSaving] = useState(false);
-  const { showToast } = useTranslatedToast();
+  const toast = useToastWithIcon();
   
   useEffect(() => {
     console.log('🔍 User metadata:', user.user_metadata);
@@ -99,19 +99,11 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
       
       onProfileUpdate();
       
-      showToast({
-        title: "Successo",
-        description: "Profilo aggiornato con successo!"
-      });
+      toast.success("Profilo aggiornato con successo!");
       
     } catch (error: any) {
       console.error('Errore salvataggio profilo:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile aggiornare il profilo: {error}",
-        variant: "destructive",
-        variables: { error: error.message }
-      });
+      toast.error(`Errore durante il salvataggio: ${error.message}`);
     } finally {
       setSaving(false);
     }
