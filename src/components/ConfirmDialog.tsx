@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -47,12 +48,12 @@ const LeaveGroupModal: React.FC<{
           >
             Annulla
           </button>
-          <button 
+          <Button
+            variant="destructive"
             onClick={onConfirm} 
-            className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
           >
-            Esci dal gruppo
-          </button>
+            Conferma
+          </Button>
         </div>
       </div>
     </div>
