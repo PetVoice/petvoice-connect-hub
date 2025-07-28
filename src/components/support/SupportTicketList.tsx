@@ -40,10 +40,10 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-blue-500';
+      case 'open': return 'bg-green-500';
       case 'in_progress': return 'bg-yellow-500';
-      case 'resolved': return 'bg-green-500';
-      case 'closed': return 'bg-gray-500';
+      case 'resolved': return 'bg-blue-500';
+      case 'closed': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
