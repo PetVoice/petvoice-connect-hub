@@ -106,7 +106,7 @@ const ProtocolDetails: React.FC<{ protocol: TrainingProtocol }> = ({ protocol })
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
       {/* Obiettivi del Protocollo */}
       {objectives.length > 0 && (
-        <Card className="p-4">
+        <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
           <h4 className="font-semibold mb-3 text-sm">
             🎯 Obiettivi
           </h4>
@@ -128,7 +128,7 @@ const ProtocolDetails: React.FC<{ protocol: TrainingProtocol }> = ({ protocol })
 
       {/* Criteri di Successo del Protocollo */}
       {successCriteria.length > 0 && (
-        <Card className="p-4">
+        <Card className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
           <h4 className="font-semibold mb-3 text-sm">
             ✅ Criteri di Successo
           </h4>
@@ -150,7 +150,7 @@ const ProtocolDetails: React.FC<{ protocol: TrainingProtocol }> = ({ protocol })
 
       {/* Consigli Pratici del Protocollo */}
       {tips.length > 0 && (
-        <Card className="p-4">
+        <Card className="p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
           <h4 className="font-semibold mb-3 text-sm">
             💡 Consigli Pratici
           </h4>
@@ -775,7 +775,7 @@ export const AITrainingHub: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-primary/20 hover:border-primary/40 transition-all duration-300">
+        <Card className="border-primary/20 hover:border-primary/40 transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
@@ -788,7 +788,7 @@ export const AITrainingHub: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-500/20 hover:border-green-500/40 transition-all duration-300">
+        <Card className="border-green-500/20 hover:border-green-500/40 transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Award className="h-4 w-4 text-green-500" />
@@ -801,7 +801,7 @@ export const AITrainingHub: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-500/20 hover:border-blue-500/40 transition-all duration-300">
+        <Card className="border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-blue-500" />
@@ -814,7 +814,7 @@ export const AITrainingHub: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-orange-500/20 hover:border-orange-500/40 transition-all duration-300">
+        <Card className="border-orange-500/20 hover:border-orange-500/40 transition-all duration-300 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4 text-orange-500" />
@@ -877,7 +877,7 @@ export const AITrainingHub: React.FC = () => {
           {/* Protocols List */}
           <div className="grid gap-4">
             {filteredProtocols.length === 0 ? (
-              <Card className="p-8 text-center">
+              <Card className="p-8 text-center bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-950/20 dark:to-slate-950/20 border-gray-200 dark:border-gray-800">
                 <div className="flex flex-col items-center gap-4">
                   <BookOpen className="h-12 w-12 text-muted-foreground" />
                   <div>
@@ -893,7 +893,7 @@ export const AITrainingHub: React.FC = () => {
               </Card>
             ) : (
               filteredProtocols.map((protocol) => (
-                <Card key={protocol.id} className="hover:shadow-lg transition-all duration-300">
+                <Card key={protocol.id} className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 border-indigo-200 dark:border-indigo-800">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -1040,7 +1040,7 @@ export const AITrainingHub: React.FC = () => {
 
           <div className="grid gap-4">
             {activeProtocols.length === 0 ? (
-              <Card className="p-8 text-center">
+              <Card className="p-8 text-center bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
                 <div className="flex flex-col items-center gap-4">
                   <Play className="h-12 w-12 text-muted-foreground" />
                   <div>
@@ -1053,7 +1053,7 @@ export const AITrainingHub: React.FC = () => {
               </Card>
             ) : (
               activeProtocols.map((protocol) => (
-                <Card key={protocol.id} className="border-blue-500/20 hover:border-blue-500/40 transition-all duration-300">
+                <Card key={protocol.id} className="border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -1171,7 +1171,7 @@ export const AITrainingHub: React.FC = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : completedProtocols.length === 0 ? (
-              <Card className="p-8 text-center">
+              <Card className="p-8 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-green-200 dark:border-green-800">
                 <div className="flex flex-col items-center gap-4">
                   <Trophy className="h-12 w-12 text-muted-foreground" />
                   <div>
@@ -1184,7 +1184,7 @@ export const AITrainingHub: React.FC = () => {
               </Card>
             ) : (
               completedProtocols.map((protocol) => (
-                <Card key={protocol.id} className="border-green-500/20 hover:border-green-500/40 transition-all duration-300">
+                <Card key={protocol.id} className="border-green-500/20 hover:border-green-500/40 transition-all duration-300 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -1264,13 +1264,13 @@ export const AITrainingHub: React.FC = () => {
             <div className="space-y-8">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="p-4">
+                <Card className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-primary">{selectedProtocol.exercise_count || 0}</div>
                     <div className="text-sm text-muted-foreground">Esercizi</div>
                   </div>
                 </Card>
-                <Card className="p-4">
+                <Card className="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 border-amber-200 dark:border-amber-800">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-yellow-600">{Math.round(selectedProtocol.success_rate || 0)}%</div>
                     <div className="text-sm text-muted-foreground">Successo</div>
@@ -1282,7 +1282,7 @@ export const AITrainingHub: React.FC = () => {
               <div className="space-y-8">
                 {/* Left Column - Description */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <Card className="lg:col-span-2 p-6">
+                  <Card className="lg:col-span-2 p-6 bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/20 dark:to-gray-950/20 border-slate-200 dark:border-slate-800">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <FileText className="h-5 w-5 text-primary" />
                       Descrizione
@@ -1291,7 +1291,7 @@ export const AITrainingHub: React.FC = () => {
                   </Card>
 
                   {/* Category & Difficulty - Compact */}
-                  <Card className="p-6">
+                  <Card className="p-6 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 border-teal-200 dark:border-teal-800">
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <Tag className="h-5 w-5 text-primary" />
                       Dettagli
@@ -1324,7 +1324,7 @@ export const AITrainingHub: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Materials */}
                   {selectedProtocol.required_materials && selectedProtocol.required_materials.length > 0 && (
-                    <Card className="p-4">
+                    <Card className="p-4 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 border-rose-200 dark:border-rose-800">
                       <h4 className="font-semibold mb-3 text-sm">
                         📦 Materiali richiesti
                       </h4>
@@ -1346,7 +1346,7 @@ export const AITrainingHub: React.FC = () => {
 
                   {/* Triggers */}
                   {selectedProtocol.triggers && selectedProtocol.triggers.length > 0 && (
-                    <Card className="p-4">
+                    <Card className="p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border-yellow-200 dark:border-yellow-800">
                       <h4 className="font-semibold mb-3 flex items-center gap-2 text-sm">
                         <AlertTriangle className="h-4 w-4 text-primary" />
                         Trigger comportamentali
@@ -1368,7 +1368,7 @@ export const AITrainingHub: React.FC = () => {
                   )}
 
                   {/* Status Indicators */}
-                  <Card className="p-4">
+                  <Card className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20 border-emerald-200 dark:border-emerald-800">
                     <h4 className="font-semibold mb-3 text-sm">
                       🏆 Qualità
                     </h4>
