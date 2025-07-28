@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Camera, Mic, MicOff, Save, Upload, X, Tag } from 'lucide-react';
+import { Camera, Mic, MicOff, Save, Upload, X, Tag, Brain } from 'lucide-react';
 import { DiaryEntry, PREDEFINED_TAGS, TAG_COLORS, MOOD_LABELS } from '@/types/diary';
 import { format } from 'date-fns';
 import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
@@ -130,7 +130,10 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
         <div className="max-h-[80vh] overflow-y-auto px-1">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center">
+                <Brain className="h-4 w-4 text-white" />
+              </div>
               {entry ? 'Modifica Voce' : 'Nuova Voce del Diario'}
             </DialogTitle>
           </DialogHeader>
@@ -319,11 +322,14 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
             </div>
             
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-3 pt-4 border-t">
               <Button variant="outline" onClick={onClose}>
                 Annulla
               </Button>
-              <Button onClick={handleSave} className="gradient-cosmic text-white">
+              <Button 
+                onClick={handleSave} 
+                className="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600"
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {entry ? 'Aggiorna Nota' : 'Crea Nota'}
               </Button>

@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, MapPin, Users, DollarSign } from 'lucide-react';
+import { Save, MapPin, Users, DollarSign, FileText } from 'lucide-react';
 import { CalendarEvent, EVENT_CATEGORIES, RECURRING_PATTERNS, EVENT_STATUS } from '@/types/calendar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -130,7 +130,10 @@ export const EventForm: React.FC<EventFormProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto shadow-elegant">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-white" />
+            </div>
             {event ? 'Modifica Evento' : 'Nuovo Evento'}
           </DialogTitle>
         </DialogHeader>
@@ -307,11 +310,14 @@ export const EventForm: React.FC<EventFormProps> = ({
           </div>
           
           {/* Actions */}
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onClose}>
               Annulla
             </Button>
-            <Button onClick={handleSave} className="gradient-cosmic text-white">
+            <Button 
+              onClick={handleSave} 
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+            >
               <Save className="h-4 w-4 mr-2" />
               {event ? 'Aggiorna Evento' : 'Crea Evento'}
             </Button>
