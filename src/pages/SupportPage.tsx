@@ -1168,12 +1168,12 @@ const SupportPage: React.FC = () => {
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                            <AlertDialogAction 
+                                            <Button
+                                              variant="destructive"
                                               onClick={() => closeTicket(ticket.id, ticket.subject)}
-                                              className={cn("bg-destructive text-destructive-foreground hover:bg-destructive/90 !important")}
                                             >
                                               Conferma
-                                            </AlertDialogAction>
+                                            </Button>
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>
@@ -2403,15 +2403,15 @@ const SupportPage: React.FC = () => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annulla</AlertDialogCancel>
-                          <AlertDialogAction 
+                          <Button
+                            variant="destructive"
                             onClick={() => {
                               closeTicket(selectedTicket.id, selectedTicket.subject);
                               setSelectedTicket(null);
                             }}
-                            className={cn("bg-destructive text-destructive-foreground hover:bg-destructive/90 !important")}
                           >
                             Conferma
-                          </AlertDialogAction>
+                          </Button>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
