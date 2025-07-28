@@ -51,11 +51,29 @@ export const useSubscription = () => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
+      // Leggi direttamente dalla tabella subscribers invece di usare l'edge function
+      const { data: subscriberData, error } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      // Converti i dati dalla tabella al formato SubscriptionData
+      const subscriptionData: SubscriptionData = {
+        subscribed: subscriberData?.subscription_status === 'active' && !subscriberData?.is_cancelled,
+        subscription_tier: 'premium',
+        subscription_end: subscriberData?.subscription_end_date || null,
+        is_cancelled: subscriberData?.is_cancelled || false,
+        cancellation_type: (subscriberData?.cancellation_type as 'immediate' | 'end_of_period') || null,
+        cancellation_date: subscriberData?.cancellation_date || null,
+        cancellation_effective_date: subscriberData?.cancellation_effective_date || null,
+      };
       
-      if (error) throw error;
-      
-      setSubscription(data);
+      setSubscription(subscriptionData);
     } catch (error) {
       console.error('Error checking subscription:', error);
       // Set default state on error
