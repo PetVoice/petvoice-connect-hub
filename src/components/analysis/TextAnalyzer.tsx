@@ -150,12 +150,22 @@ const TextAnalyzer: React.FC<TextAnalyzerProps> = ({
             <Button
               onClick={handleIconClick}
               disabled={isProcessing}
+              style={{
+                backgroundColor: isProcessing ? "#4338ca" : "#4338ca",
+                transition: "all 0.2s"
+              }}
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
-                isProcessing
-                  ? "bg-indigo-600 hover:bg-indigo-700 shadow-lg animate-pulse"
-                  : "bg-indigo-600 hover:bg-indigo-700 hover:scale-105 shadow-lg"
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 shadow-lg",
+                isProcessing 
+                  ? "animate-pulse" 
+                  : "hover:scale-105"
               )}
+              onMouseEnter={(e) => {
+                if (!isProcessing) e.currentTarget.style.backgroundColor = "#3730a3";
+              }}
+              onMouseLeave={(e) => {
+                if (!isProcessing) e.currentTarget.style.backgroundColor = "#4338ca";
+              }}
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
