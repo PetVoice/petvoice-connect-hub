@@ -505,39 +505,51 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                   }
 
                   // Gestione quote (messaggi che iniziano con >)
-                  const lines = reply.content.split('\n');
-                  const quoteLines = [];
-                  const contentLines = [];
-                  let foundNonQuote = false;
-
-                  for (const line of lines) {
-                    if (line.startsWith('>') && !foundNonQuote) {
-                      quoteLines.push(line.substring(1).trim());
-                    } else if (line.trim() === '' && !foundNonQuote) {
-                      // Linea vuota prima del contenuto principale
-                      continue;
-                    } else {
-                      foundNonQuote = true;
-                      contentLines.push(line);
+                  const messageText = reply.content;
+                  const lines = messageText.split('\n');
+                  
+                  // Trova dove finiscono le quote e inizia il contenuto normale
+                  let quoteEndIndex = -1;
+                  for (let i = 0; i < lines.length; i++) {
+                    if (!lines[i].startsWith('>') && lines[i].trim() !== '') {
+                      quoteEndIndex = i;
+                      break;
                     }
                   }
-
+                  
+                  // Se ci sono quote, separa quote da contenuto
+                  if (quoteEndIndex > 0) {
+                    const quoteLines = lines.slice(0, quoteEndIndex)
+                      .filter(line => line.startsWith('>'))
+                      .map(line => line.substring(1).trim())
+                      .filter(line => line.length > 0);
+                    
+                    const contentLines = lines.slice(quoteEndIndex);
+                    
+                    return (
+                      <div>
+                        {quoteLines.length > 0 && (
+                          <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
+                            <div className="text-xs font-medium text-muted-foreground mb-1">
+                              Risposta a:
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {truncateText(quoteLines.join(' '), 100)}
+                            </div>
+                          </div>
+                        )}
+                        <p className="text-sm text-foreground whitespace-pre-wrap">
+                          {contentLines.join('\n').trim()}
+                        </p>
+                      </div>
+                    );
+                  }
+                  
+                  // Se non ci sono quote, mostra il contenuto normale
                   return (
-                    <div>
-                      {quoteLines.length > 0 && (
-                        <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
-                          <div className="text-xs font-medium text-muted-foreground mb-1">
-                            Risposta a:
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {truncateText(quoteLines.join(' '), 100)}
-                          </div>
-                        </div>
-                      )}
-                      <p className="text-sm text-foreground whitespace-pre-wrap">
-                        {contentLines.length > 0 ? contentLines.join('\n') : reply.content}
-                      </p>
-                    </div>
+                    <p className="text-sm text-foreground whitespace-pre-wrap">
+                      {messageText}
+                    </p>
                   );
                 };
 
