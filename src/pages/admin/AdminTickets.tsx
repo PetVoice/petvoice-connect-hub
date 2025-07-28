@@ -492,7 +492,7 @@ export const AdminTickets: React.FC = () => {
                           </div>
                           <div className="flex-1">
                             <p className={`font-medium text-sm ${reply.is_staff_reply ? 'text-green-900' : 'text-blue-900'}`}>
-                              {reply.is_staff_reply ? 'Team di Supporto' : selectedTicket.profiles?.display_name}
+                              {reply.is_staff_reply ? 'La tua risposta' : 'Utente'}
                             </p>
                             <p className={`text-sm mt-1 whitespace-pre-wrap ${reply.is_staff_reply ? 'text-green-700' : 'text-blue-700'}`}>
                               {reply.content}
