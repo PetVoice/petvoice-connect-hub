@@ -706,8 +706,9 @@ const SupportPage: React.FC = () => {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="faq">FAQ</TabsTrigger>
+            <TabsTrigger value="tickets">Ticket</TabsTrigger>
             <TabsTrigger value="features">Richieste</TabsTrigger>
             <TabsTrigger value="guide">Guida</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
@@ -865,9 +866,167 @@ const SupportPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-          {/* Feature Requests Tab */}
-          <TabsContent value="features" className="space-y-6">
+           </TabsContent>
+           
+           {/* Tickets Tab */}
+           <TabsContent value="tickets" className="space-y-6">
+             <Card className="bg-gradient-to-br from-orange-50/80 to-amber-50/60 border-orange-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+               <CardHeader>
+                 <div className="flex items-center justify-between">
+                   <CardTitle className="flex items-center space-x-2">
+                     <Ticket className="h-5 w-5" />
+                     <span>I miei Ticket di Supporto</span>
+                   </CardTitle>
+                   <Dialog open={isNewTicketDialogOpen} onOpenChange={setIsNewTicketDialogOpen}>
+                     <DialogTrigger asChild>
+                       <Button className="bg-primary hover:bg-primary/90">
+                         <Plus className="h-4 w-4 mr-2" />
+                         Nuovo Ticket
+                       </Button>
+                     </DialogTrigger>
+                     <DialogContent className="max-w-2xl">
+                       <DialogHeader>
+                         <DialogTitle className="flex items-center space-x-2">
+                           <Ticket className="h-5 w-5" />
+                           <span>Crea un Nuovo Ticket di Supporto</span>
+                         </DialogTitle>
+                       </DialogHeader>
+                       <div className="space-y-4 pt-4">
+                         <div className="grid grid-cols-2 gap-4">
+                           <div>
+                             <label className="text-sm font-medium">Categoria</label>
+                             <Select value={newTicket.category} onValueChange={(value) => setNewTicket({...newTicket, category: value})}>
+                               <SelectTrigger>
+                                 <SelectValue placeholder="Seleziona categoria" />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="technical">Problemi Tecnici</SelectItem>
+                                 <SelectItem value="billing">Fatturazione</SelectItem>
+                                 <SelectItem value="medical">Medico/Veterinario</SelectItem>
+                                 <SelectItem value="general">Generale</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           </div>
+                           <div>
+                             <label className="text-sm font-medium">Priorità</label>
+                             <Select value={newTicket.priority} onValueChange={(value) => setNewTicket({...newTicket, priority: value})}>
+                               <SelectTrigger>
+                                 <SelectValue />
+                               </SelectTrigger>
+                               <SelectContent>
+                                 <SelectItem value="low">Bassa</SelectItem>
+                                 <SelectItem value="medium">Media</SelectItem>
+                                 <SelectItem value="high">Alta</SelectItem>
+                                 <SelectItem value="urgent">Urgente</SelectItem>
+                               </SelectContent>
+                             </Select>
+                           </div>
+                         </div>
+                         <div>
+                           <label className="text-sm font-medium">Oggetto</label>
+                           <Input
+                             value={newTicket.subject}
+                             onChange={(e) => setNewTicket({...newTicket, subject: e.target.value})}
+                             placeholder="Descrivi brevemente il problema"
+                           />
+                         </div>
+                         <div>
+                           <label className="text-sm font-medium">Descrizione dettagliata</label>
+                           <Textarea
+                             value={newTicket.description}
+                             onChange={(e) => setNewTicket({...newTicket, description: e.target.value})}
+                             placeholder="Fornisci tutti i dettagli necessari per aiutarci a risolvere il problema"
+                             rows={4}
+                           />
+                         </div>
+                         <div className="flex space-x-2">
+                           <Button 
+                             onClick={createTicket} 
+                             disabled={isSubmitting}
+                             className="flex-1"
+                           >
+                             {isSubmitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
+                             Crea Ticket
+                           </Button>
+                           <Button variant="outline" onClick={() => setIsNewTicketDialogOpen(false)}>
+                             Annulla
+                           </Button>
+                         </div>
+                       </div>
+                     </DialogContent>
+                   </Dialog>
+                 </div>
+               </CardHeader>
+               <CardContent>
+                 <div className="space-y-4">
+                   {tickets.length === 0 ? (
+                     <div className="text-center py-8">
+                       <Ticket className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                       <h3 className="text-lg font-medium mb-2">Nessun ticket aperto</h3>
+                       <p className="text-muted-foreground mb-4">
+                         Non hai ancora creato nessun ticket di supporto.
+                       </p>
+                       <Button 
+                         onClick={() => setIsNewTicketDialogOpen(true)}
+                         className="bg-primary hover:bg-primary/90"
+                       >
+                         <Plus className="h-4 w-4 mr-2" />
+                         Crea il tuo primo ticket
+                       </Button>
+                     </div>
+                   ) : (
+                     <div className="space-y-3">
+                       {tickets.map((ticket) => (
+                         <Card key={ticket.id} className="border border-gray-200/50 hover:border-primary/20 transition-all duration-200">
+                           <CardContent className="p-4">
+                             <div className="flex items-start justify-between">
+                               <div className="flex-1">
+                                 <div className="flex items-center space-x-2 mb-2">
+                                   {getCategoryIcon(ticket.category)}
+                                   <h4 className="font-medium">{ticket.subject}</h4>
+                                   <Badge 
+                                     variant="outline" 
+                                     className={`${getStatusColor(ticket.status)} text-white border-0`}
+                                   >
+                                     {ticket.status === 'open' ? 'Aperto' : 
+                                      ticket.status === 'in_progress' ? 'In lavorazione' :
+                                      ticket.status === 'resolved' ? 'Risolto' : 'Chiuso'}
+                                   </Badge>
+                                   <Badge variant="outline" className={`
+                                     ${ticket.priority === 'urgent' ? 'bg-red-500 text-white border-0' :
+                                       ticket.priority === 'high' ? 'bg-orange-500 text-white border-0' :
+                                       ticket.priority === 'medium' ? 'bg-yellow-500 text-white border-0' :
+                                       'bg-gray-500 text-white border-0'}
+                                   `}>
+                                     {ticket.priority === 'urgent' ? 'Urgente' :
+                                      ticket.priority === 'high' ? 'Alta' :
+                                      ticket.priority === 'medium' ? 'Media' : 'Bassa'}
+                                   </Badge>
+                                 </div>
+                                 <p className="text-sm text-muted-foreground mb-2">{ticket.description}</p>
+                                 <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                   <span className="flex items-center space-x-1">
+                                     <Clock className="h-3 w-3" />
+                                     <span>Creato {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true, locale: it })}</span>
+                                   </span>
+                                   <span className="flex items-center space-x-1">
+                                     <span>#{ticket.ticket_number}</span>
+                                   </span>
+                                 </div>
+                               </div>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+               </CardContent>
+             </Card>
+           </TabsContent>
+           
+           {/* Feature Requests Tab */}
+           <TabsContent value="features" className="space-y-6">
         <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
               <CardHeader>
                 <div className="flex items-center justify-between">
