@@ -34,6 +34,7 @@ import {
   Mail
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useToast } from '@/hooks/use-toast';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
@@ -72,6 +73,7 @@ const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { showSuccessToast, showErrorToast, showDeleteToast } = useUnifiedToast();
   const [petStats, setPetStats] = useState<PetStats>({
     totalAnalyses: 0,
@@ -632,10 +634,9 @@ const DashboardPage: React.FC = () => {
       setEmergencyContactToDelete(null);
     } catch (error) {
       console.error('Error deleting emergency contact:', error);
-      toast({
-        title: "❌ Errore",
-        description: "Errore nell'eliminazione del contatto.",
-        className: "border-red-200 bg-red-50 text-red-800",
+      showErrorToast({
+        title: "Errore di eliminazione",
+        description: "Si è verificato un errore durante l'eliminazione del contatto"
       });
     } finally {
       setLoading(false);
@@ -663,10 +664,9 @@ const DashboardPage: React.FC = () => {
       setVeterinaryToDelete(null);
     } catch (error) {
       console.error('Error deleting veterinary contact:', error);
-      toast({
-        title: "❌ Errore",
-        description: "Errore nell'eliminazione del veterinario.",
-        className: "border-red-200 bg-red-50 text-red-800",
+      showErrorToast({
+        title: "Errore di eliminazione",
+        description: "Si è verificato un errore durante l'eliminazione del veterinario"
       });
     } finally {
       setLoading(false);
