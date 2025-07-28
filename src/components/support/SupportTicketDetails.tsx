@@ -504,48 +504,41 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     );
                   }
 
-                  // Gestione quote (messaggi che iniziano con >)
+                  // Gestione quote - pattern preciso per messaggi creati dal sistema
                   const messageText = reply.content;
-                  const lines = messageText.split('\n');
                   
-                  // Trova dove finiscono le quote e inizia il contenuto normale
-                  let quoteEndIndex = -1;
-                  for (let i = 0; i < lines.length; i++) {
-                    if (!lines[i].startsWith('>') && lines[i].trim() !== '') {
-                      quoteEndIndex = i;
-                      break;
-                    }
-                  }
-                  
-                  // Se ci sono quote, separa quote da contenuto
-                  if (quoteEndIndex > 0) {
-                    const quoteLines = lines.slice(0, quoteEndIndex)
-                      .filter(line => line.startsWith('>'))
-                      .map(line => line.substring(1).trim())
-                      .filter(line => line.length > 0);
+                  // Pattern per messaggi con quote: inizia con >, contiene due \n\n consecutive
+                  if (messageText.startsWith('>') && messageText.includes('\n\n')) {
+                    const [quotePart, ...contentParts] = messageText.split('\n\n');
+                    const newContent = contentParts.join('\n\n').trim();
                     
-                    const contentLines = lines.slice(quoteEndIndex);
-                    
-                    return (
-                      <div>
-                        {quoteLines.length > 0 && (
+                    if (quotePart && newContent) {
+                      // Estrai il testo quotato rimuovendo i >
+                      const quoteText = quotePart
+                        .split('\n')
+                        .map(line => line.startsWith('>') ? line.substring(1).trim() : line.trim())
+                        .filter(line => line.length > 0)
+                        .join(' ');
+                      
+                      return (
+                        <div>
                           <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
                             <div className="text-xs font-medium text-muted-foreground mb-1">
                               Risposta a:
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {truncateText(quoteLines.join(' '), 100)}
+                              {truncateText(quoteText, 100)}
                             </div>
                           </div>
-                        )}
-                        <p className="text-sm text-foreground whitespace-pre-wrap">
-                          {contentLines.join('\n').trim()}
-                        </p>
-                      </div>
-                    );
+                          <p className="text-sm text-foreground whitespace-pre-wrap">
+                            {newContent}
+                          </p>
+                        </div>
+                      );
+                    }
                   }
                   
-                  // Se non ci sono quote, mostra il contenuto normale
+                  // Fallback: mostra il contenuto normale
                   return (
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {messageText}
