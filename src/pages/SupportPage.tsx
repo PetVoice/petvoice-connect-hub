@@ -180,6 +180,7 @@ const SupportPage: React.FC = () => {
   const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [ticketReply, setTicketReply] = useState('');
+  const [ticketReplies, setTicketReplies] = useState<{[key: string]: any[]}>({});
   const [newFeatureRequest, setNewFeatureRequest] = useState({
     title: '',
     description: '',
@@ -376,6 +377,66 @@ const SupportPage: React.FC = () => {
       showToast({
         title: "❌ Errore",
         description: "Impossibile chiudere il ticket. Riprova più tardi.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const loadTicketReplies = async (ticketId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('support_ticket_replies')
+        .select('*')
+        .eq('ticket_id', ticketId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      setTicketReplies(prev => ({
+        ...prev,
+        [ticketId]: data || []
+      }));
+    } catch (error) {
+      console.error('Error loading ticket replies:', error);
+    }
+  };
+
+  const addTicketReply = async (ticketId: string, content: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        showToast({
+          title: "❌ Errore",
+          description: "Devi essere autenticato per rispondere",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('support_ticket_replies')
+        .insert({
+          ticket_id: ticketId,
+          user_id: user.id,
+          content: content.trim(),
+          is_staff_reply: false
+        });
+
+      if (error) throw error;
+
+      showToast({
+        title: "✅ Risposta inviata",
+        description: "La tua risposta è stata aggiunta al ticket."
+      });
+
+      // Ricarica le risposte per questo ticket
+      loadTicketReplies(ticketId);
+      setTicketReply('');
+    } catch (error) {
+      console.error('Error adding ticket reply:', error);
+      showToast({
+        title: "❌ Errore",
+        description: "Impossibile inviare la risposta. Riprova più tardi.",
         variant: "destructive"
       });
     }
@@ -2096,7 +2157,14 @@ const SupportPage: React.FC = () => {
         </Dialog>
 
         {/* Ticket Details Modal */}
-        <Dialog open={!!selectedTicket} onOpenChange={() => setSelectedTicket(null)}>
+        <Dialog open={!!selectedTicket} onOpenChange={(open) => {
+          if (open && selectedTicket) {
+            loadTicketReplies(selectedTicket.id);
+          }
+          if (!open) {
+            setSelectedTicket(null);
+          }
+        }}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-2">
@@ -2166,7 +2234,30 @@ const SupportPage: React.FC = () => {
                     <p className="text-sm whitespace-pre-wrap">{selectedTicket.description}</p>
                   </div>
                 </div>
-
+                    {/* Risposte dal database */}
+                    {selectedTicket && ticketReplies[selectedTicket.id]?.map((reply) => (
+                      <Card key={reply.id} className={reply.is_staff_reply ? "p-3 bg-green-50" : "p-3 bg-blue-50"}>
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${
+                            reply.is_staff_reply ? 'bg-green-500' : 'bg-blue-500'
+                          }`}>
+                            {reply.is_staff_reply ? 'ST' : 'Tu'}
+                          </div>
+                          <div className="flex-1">
+                            <p className={`font-medium text-sm ${reply.is_staff_reply ? 'text-green-900' : 'text-blue-900'}`}>
+                              {reply.is_staff_reply ? 'Team di Supporto' : 'La tua risposta'}
+                            </p>
+                            <p className={`text-sm mt-1 whitespace-pre-wrap ${reply.is_staff_reply ? 'text-green-700' : 'text-blue-700'}`}>
+                              {reply.content}
+                            </p>
+                            <p className={`text-xs mt-2 ${reply.is_staff_reply ? 'text-green-600' : 'text-blue-600'}`}>
+                              {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true, locale: it })}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                    
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3 flex items-center space-x-2">
                     <MessageCircle className="h-4 w-4" />
@@ -2258,12 +2349,8 @@ const SupportPage: React.FC = () => {
                     />
                     <Button 
                       onClick={() => {
-                        if (ticketReply.trim()) {
-                          showToast({
-                            title: "✅ Risposta inviata",
-                            description: "La tua risposta è stata aggiunta al ticket."
-                          });
-                          setTicketReply('');
+                        if (ticketReply.trim() && selectedTicket) {
+                          addTicketReply(selectedTicket.id, ticketReply);
                         }
                       }}
                       disabled={!ticketReply.trim()}
