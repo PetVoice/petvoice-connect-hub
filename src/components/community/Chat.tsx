@@ -188,8 +188,17 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   useEffect(() => {
     loadMessages();
     loadUserNames();
-    setupRealtimeSubscription();
-  }, [channelId]);
+    
+    // Setup realtime subscription
+    const unsubscribe = setupRealtimeSubscription();
+    
+    // Cleanup on unmount or channel change
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, [channelId, user?.id]);
 
   // Scroll automatico quando entro nel canale
   useEffect(() => {
