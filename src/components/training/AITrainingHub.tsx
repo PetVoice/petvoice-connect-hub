@@ -985,7 +985,7 @@ export const AITrainingHub: React.FC = () => {
                                           e.stopPropagation();
                                           handleStatusChange(protocol.id, 'paused');
                                         }}
-                                        className="bg-red-600 hover:bg-red-700"
+                                        className="bg-red-500 hover:bg-red-600 text-white border-0 [&>*]:!text-white"
                                       >
                                         Sì, interrompi
                                       </AlertDialogAction>
@@ -1126,7 +1126,7 @@ export const AITrainingHub: React.FC = () => {
                                   <AlertDialogCancel>Annulla</AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => handleDeleteProtocol(protocol.id)}
-                                    className="bg-red-600 hover:bg-red-700"
+                                    className="bg-red-500 hover:bg-red-600 text-white border-0 [&>*]:!text-white"
                                   >
                                     Sì, interrompi
                                   </AlertDialogAction>
