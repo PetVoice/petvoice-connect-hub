@@ -65,11 +65,15 @@ const SubscriptionTab = () => {
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
     : '';
 
-  // Calcola giorni rimanenti al rinnovo
+  // Calcola giorni rimanenti al rinnovo - usa cancellation_effective_date se l'abbonamento è cancellato
   const calculateDaysToRenewal = () => {
-    if (!subscription.subscription_end) return null;
+    const effectiveEndDate = isEndOfPeriodCancellation 
+      ? subscription.cancellation_effective_date 
+      : subscription.subscription_end;
+      
+    if (!effectiveEndDate) return null;
     
-    const endDate = new Date(subscription.subscription_end);
+    const endDate = new Date(effectiveEndDate);
     const today = new Date();
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -167,12 +171,16 @@ const SubscriptionTab = () => {
                   </CardContent>
                 </Card>
                 
-                {subscription.subscription_end && (
+                {(subscription.subscription_end || subscription.cancellation_effective_date) && (
                   <Card className="border-emerald-200 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
                     <CardContent className="p-6 text-center">
                       <div className="text-sm font-medium text-muted-foreground mb-2">Valido fino al</div>
                       <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
+                        {new Date(
+                          isEndOfPeriodCancellation 
+                            ? subscription.cancellation_effective_date! 
+                            : subscription.subscription_end!
+                        ).toLocaleDateString('it-IT')}
                       </div>
                       {daysToRenewal !== null && (
                         <div className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
