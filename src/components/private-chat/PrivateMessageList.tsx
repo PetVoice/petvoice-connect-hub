@@ -214,6 +214,14 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                       locale: it 
                     })}
                   </span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-100/50"
+                    onClick={() => onDeleteMessage(message.id)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
                 
                 {/* Reply Quote */}
