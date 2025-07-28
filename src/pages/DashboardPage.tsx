@@ -1934,27 +1934,32 @@ const DashboardPage: React.FC = () => {
                       const icon = behaviorIcons[behavior as keyof typeof behaviorIcons] || '🐾';
                       
                       return (
-                        <div 
-                          key={behavior} 
-                          className="group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg bg-purple-50 border-purple-200 hover:bg-purple-100"
-                        >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                          
-                          {/* Main content */}
-                          <div className="relative p-3">
+                        <div key={behavior} className="group">
+                          <div className="bg-white/60 border border-purple-200/50 hover:border-purple-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
                             <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="text-2xl">{icon}</div>
-                                <div>
-                                  <div className="font-semibold text-gray-700 text-sm capitalize">
-                                    {behavior.replace('_', ' ')}
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <div className="text-2xl">{icon}</div>
+                                    <h4 className="font-semibold text-lg text-purple-800 capitalize">
+                                      {behavior.replace('_', ' ')}
+                                    </h4>
                                   </div>
-                                  <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
-                                    {data.count}
-                                    <span className="text-sm text-gray-500">osservazioni</span>
+                                  <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+                                    {data.count} osservazioni
+                                  </Badge>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4 mb-2">
+                                  <div>
+                                    <div className="text-sm text-muted-foreground">Conteggio</div>
+                                    <div className={`font-medium text-lg bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                                      {data.count}
+                                    </div>
                                   </div>
-                                  <div className="text-xs text-gray-500">
-                                    {data.lastSeen}
+                                  <div>
+                                    <div className="text-sm text-muted-foreground">Ultima osservazione</div>
+                                    <div className="font-medium text-purple-700">{data.lastSeen}</div>
                                   </div>
                                 </div>
                               </div>
