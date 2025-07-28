@@ -617,7 +617,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                       {renderMessageContent()}
                     </div>
 
-                    {/* Menu a 3 pallini */}
+                    {/* Azioni sui messaggi */}
                     <div className="flex-shrink-0">
                       {isOwn ? (
                         // Menu per i propri messaggi: modifica ed elimina
@@ -646,20 +646,16 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        // Menu per i messaggi del supporto: solo risposta
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => startReply(reply)}>
-                              <Reply className="h-4 w-4 mr-2" />
-                              Rispondi
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        // Freccina diretta per rispondere ai messaggi del supporto
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0" 
+                          onClick={() => startReply(reply)}
+                          title="Rispondi a questo messaggio"
+                        >
+                          <Reply className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
                   </div>
