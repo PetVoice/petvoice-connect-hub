@@ -3741,6 +3741,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_feature_votes: {
+        Args: { request_id: string; increment_value: number }
+        Returns: undefined
+      }
       is_referral_code_unique: {
         Args: { code: string }
         Returns: boolean
