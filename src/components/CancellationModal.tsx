@@ -33,7 +33,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
   const endDate = subscriptionEnd ? new Date(subscriptionEnd).toLocaleDateString('it-IT') : '';
 
   const immediateContent = {
-    title: "⚠️ CANCELLAZIONE IMMEDIATA",
+    title: "CANCELLAZIONE IMMEDIATA",
     icon: <AlertTriangle className="w-6 h-6 text-destructive" />,
     description: "Cosa succederà ORA:",
     consequences: [
