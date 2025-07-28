@@ -24,19 +24,19 @@ export interface DayEntriesModalState {
 
 // Predefined tags with categories
 export const PREDEFINED_TAGS = {
-  emotional: ['felice', 'triste', 'ansioso', 'calmo', 'energico', 'depresso', 'stressato', 'rilassato'],
-  behavioral: ['gioco', 'appetito', 'sonno', 'aggressivo', 'affettuoso', 'curioso', 'timido', 'sociale'],
-  health: ['malato', 'sano', 'dolorante', 'vivace', 'stanco', 'alert'],
-  environmental: ['temporale', 'caldo', 'freddo', 'rumoroso', 'silenzioso', 'casa', 'parco', 'visita-vet'],
-  training: ['training', 'obbedienza', 'trucchi', 'ricompensa', 'punizione', 'progresso']
+  emotivo: ['felice', 'triste', 'ansioso', 'calmo', 'energico', 'depresso', 'stressato', 'rilassato'],
+  comportamentale: ['gioco', 'appetito', 'sonno', 'aggressivo', 'affettuoso', 'curioso', 'timido', 'sociale'],
+  salute: ['malato', 'sano', 'dolorante', 'vivace', 'stanco', 'alert'],
+  ambientale: ['temporale', 'caldo', 'freddo', 'rumoroso', 'silenzioso', 'casa', 'parco', 'visita-vet'],
+  addestramento: ['training', 'obbedienza', 'trucchi', 'ricompensa', 'punizione', 'progresso']
 };
 
 export const TAG_COLORS = {
-  emotional: 'bg-pink-500',
-  behavioral: 'bg-blue-500', 
-  health: 'bg-green-500',
-  environmental: 'bg-yellow-500',
-  training: 'bg-purple-500'
+  emotivo: 'bg-pink-500',
+  comportamentale: 'bg-blue-500', 
+  salute: 'bg-green-500',
+  ambientale: 'bg-yellow-500',
+  addestramento: 'bg-purple-500'
 };
 
 export const MOOD_LABELS = {
