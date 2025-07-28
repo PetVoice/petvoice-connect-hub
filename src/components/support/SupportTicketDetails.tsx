@@ -54,6 +54,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [userProfiles, setUserProfiles] = useState<{ [key: string]: { display_name: string } }>({});
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasScrolledToUnread, setHasScrolledToUnread] = useState(false);
+  const [showAllMessages, setShowAllMessages] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
@@ -330,63 +331,85 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         {/* Messages */}
         <ScrollArea className="flex-1 mb-4" ref={scrollAreaRef}>
           <div className="space-y-4">
-            {replies.map((reply, index) => {
-              const isOwn = reply.user_id === user?.id;
-              const isStaff = reply.is_staff_reply;
-              const isFirstUnread = unreadCount > 0 && index === replies.length - unreadCount;
-              
-              // Logica per il nome: se è il proprio messaggio mostra "Tu", altrimenti mostra il nome dell'utente o "Supporto"
-              let displayName = 'Supporto';
-              if (isOwn) {
-                displayName = 'Tu';
-              } else if (isStaff) {
-                displayName = 'Supporto';
-              } else {
-                // Per i messaggi di altri utenti, mostra il nome dal profilo
-                displayName = userProfiles[reply.user_id]?.display_name || 'Supporto';
-              }
-
-              return (
-                <div 
-                  key={reply.id}
-                  data-message-index={index}
-                  className={`flex gap-3 p-3 rounded-lg transition-colors ${
-                    isOwn ? 'bg-primary/10 ml-12' : 'bg-green-50 mr-12'
-                  } ${isFirstUnread ? 'border-l-4 border-l-blue-500' : ''}`}
+            {/* Pulsante per mostrare tutti i messaggi se ce ne sono più di 5 */}
+            {replies.length > 5 && !showAllMessages && (
+              <div className="text-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowAllMessages(true)}
+                  className="text-xs"
                 >
-                  <div className="flex-shrink-0">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-xs">
-                        {displayName.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-foreground">
-                        {displayName}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(reply.created_at), { 
-                          addSuffix: true, 
-                          locale: it 
-                        })}
-                      </span>
-                      {isFirstUnread && (
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                          Primo non letto
-                        </Badge>
-                      )}
+                  Mostra tutti i {replies.length} messaggi
+                </Button>
+              </div>
+            )}
+            
+            {(() => {
+              // Logica per determinare quali messaggi mostrare
+              const messagesToShow = showAllMessages ? replies : replies.slice(-5);
+              const startIndex = showAllMessages ? 0 : Math.max(0, replies.length - 5);
+              
+              return messagesToShow.map((reply, relativeIndex) => {
+                const absoluteIndex = startIndex + relativeIndex;
+                const isOwn = reply.user_id === user?.id;
+                const isStaff = reply.is_staff_reply;
+                const isFirstUnread = unreadCount > 0 && absoluteIndex === replies.length - unreadCount;
+                
+                // Logica per il nome: se è il proprio messaggio mostra "Tu", altrimenti mostra il nome dell'utente o "Supporto"
+                let displayName = 'Supporto';
+                if (isOwn) {
+                  displayName = 'Tu';
+                } else if (isStaff) {
+                  displayName = 'Supporto';
+                } else {
+                  // Per i messaggi di altri utenti, mostra il nome dal profilo
+                  displayName = userProfiles[reply.user_id]?.display_name || 'Supporto';
+                }
+
+                return (
+                  <div 
+                    key={reply.id}
+                    data-message-index={absoluteIndex}
+                    className={`flex gap-3 p-3 rounded-lg transition-colors ${
+                      isOwn ? 'bg-primary/10 ml-12' : 'bg-green-50 mr-12'
+                    } ${isFirstUnread ? 'border-l-4 border-l-blue-500' : ''}`}
+                  >
+                    <div className="flex-shrink-0">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="text-xs">
+                          {displayName.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
                     
-                    <p className="text-sm text-foreground whitespace-pre-wrap">
-                      {reply.content}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-foreground">
+                          {displayName}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(reply.created_at), { 
+                            addSuffix: true, 
+                            locale: it 
+                          })}
+                        </span>
+                        {isFirstUnread && (
+                          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                            Primo non letto
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm text-foreground whitespace-pre-wrap">
+                        {reply.content}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
+            
             {/* Riferimento per lo scroll finale */}
             <div ref={messagesEndRef} />
           </div>
