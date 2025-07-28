@@ -47,6 +47,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MedicationModal } from '@/components/medication/MedicationModal';
+import { InsurancePolicyModal } from '@/components/insurance/InsuranceModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
@@ -159,6 +160,17 @@ const DashboardPage: React.FC = () => {
     mode: 'add',
     event: null,
     preselectedCategory: undefined
+  });
+
+  // Insurance modal state
+  const [insuranceModal, setInsuranceModal] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    policy: any | null;
+  }>({
+    open: false,
+    mode: 'add',
+    policy: null
   });
 
   // Medication evaluation modal state
@@ -584,6 +596,7 @@ const DashboardPage: React.FC = () => {
 
     loadPetStats();
     loadMeds();
+    loadInsurances();
   }, [selectedPet, user]);
 
   // Load medications function accessible by other functions
@@ -606,7 +619,27 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // Helper functions for CRUD operations
+  // Load insurance policies function
+  const loadInsurances = async () => {
+    if (!selectedPet || !user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('insurance_policies')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setInsurances(data || []);
+    } catch (error) {
+      console.error('Error loading insurance policies:', error);
+    }
+  };
+
+   // Helper functions for CRUD operations
   const handleAddItem = (type: string) => {
     switch(type) {
       case 'vitals':
@@ -651,7 +684,11 @@ const DashboardPage: React.FC = () => {
         });
         break;
       case 'insurance':
-        navigate('/settings');
+        setInsuranceModal({
+          open: true,
+          mode: 'add',
+          policy: null
+        });
         break;
       case 'veterinarian':
         navigate('/settings');
@@ -711,7 +748,16 @@ const DashboardPage: React.FC = () => {
         navigate('/calendar');
         break;
       case 'insurance':
-        navigate('/settings');
+        if (itemId) {
+          const policy = insurances.find(p => p.id === itemId);
+          if (policy) {
+            setInsuranceModal({
+              open: true,
+              mode: 'edit',
+              policy: policy
+            });
+          }
+        }
         break;
       case 'veterinarian':
         navigate('/settings');
@@ -837,6 +883,30 @@ const DashboardPage: React.FC = () => {
             showDeleteToast({
               title: "Farmaco eliminato",
               description: `${itemName} è stato eliminato con successo.`
+            });
+          } else if (type === 'insurance') {
+            // Elimina la polizza dal database
+            const { error } = await supabase
+              .from('insurance_policies')
+              .delete()
+              .eq('id', itemId);
+
+            if (error) {
+              console.error('Error deleting insurance policy:', error);
+              toast({
+                title: "Errore",
+                description: "Si è verificato un errore durante l'eliminazione della polizza.",
+                variant: "destructive"
+              });
+              return;
+            }
+
+            // Ricarica le polizze per aggiornare la UI
+            loadInsurances();
+            
+            showDeleteToast({
+              title: "Polizza eliminata",
+              description: `${itemName} è stata eliminata con successo.`
             });
           } else {
             const title = type === 'medications' ? "Farmaco eliminato" : "Elemento eliminato";
@@ -2194,19 +2264,78 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Gestione polizze e coperture assicurative</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-teal-500/20 to-cyan-500/10 flex items-center justify-center">
-                  <CreditCard className="h-10 w-10 text-teal-500/60" />
+              {insurances.length > 0 ? (
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3 pr-4">
+                    {insurances.map((policy) => (
+                      <div 
+                        key={policy.id} 
+                        className="group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg bg-teal-50 border-teal-200 hover:bg-teal-100"
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-500 opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
+                        
+                        <div className="relative p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="text-2xl">🛡️</div>
+                              <div>
+                                <div className="font-semibold text-gray-700 text-sm">
+                                  {policy.policy_number}
+                                </div>
+                                <div className={`text-lg font-bold bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent flex items-center gap-1`}>
+                                  {policy.provider_name}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {policy.policy_type} • {policy.is_active ? 'Attiva' : 'Inattiva'}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-1">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditItem('insurance', policy.id);
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-teal-500 hover:text-teal-600 hover:bg-teal-50"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteItem('insurance', policy.id, `${policy.provider_name} - ${policy.policy_number}`);
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-teal-500/20 to-cyan-500/10 flex items-center justify-center">
+                    <CreditCard className="h-10 w-10 text-teal-500/60" />
+                  </div>
+                  <p className="text-lg text-muted-foreground mb-6">Nessuna polizza registrata</p>
+                  <Button 
+                    onClick={() => handleAddItem('insurance')} 
+                    className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Aggiungi Polizza
+                  </Button>
                 </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessuna polizza registrata</p>
-                <Button 
-                  onClick={() => navigate('/diary')} 
-                  className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <CreditCard className="h-5 w-5 mr-2" />
-                  Aggiungi Polizza
-                </Button>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
