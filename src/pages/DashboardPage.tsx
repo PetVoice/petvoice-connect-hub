@@ -2845,6 +2845,7 @@ const DashboardPage: React.FC = () => {
           description={`Sei sicuro di voler eliminare il veterinario "${veterinaryToDelete.name}"?`}
           confirmText="Elimina"
           cancelText="Annulla"
+          variant="destructive"
         />
       )}
 
