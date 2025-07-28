@@ -78,15 +78,47 @@ serve(async (req) => {
 
     logStep("Found subscriber", { subscription_plan: subscriber.subscription_plan });
 
-    // Get Stripe subscription
-    const subscriptions = await stripe.subscriptions.list({
+    // Get Stripe subscription - try active first, then any status
+    let subscriptions = await stripe.subscriptions.list({
       customer: subscriber.stripe_customer_id,
       status: "active",
       limit: 1,
     });
 
+    // If no active subscription found, try looking for any subscription
     if (subscriptions.data.length === 0) {
-      throw new Error("No active Stripe subscription found");
+      logStep("No active subscription found, trying any status");
+      subscriptions = await stripe.subscriptions.list({
+        customer: subscriber.stripe_customer_id,
+        limit: 1,
+      });
+    }
+
+    if (subscriptions.data.length === 0) {
+      // Force immediate cancellation at database level if no Stripe subscription found
+      logStep("No Stripe subscription found - forcing database cancellation");
+      
+      const effectiveDate = cancellationType === 'immediate' ? new Date() : 
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
+        
+      await supabaseClient.from("subscribers").update({
+        is_cancelled: true,
+        cancellation_type: cancellationType,
+        cancellation_date: new Date().toISOString(),
+        cancellation_effective_date: effectiveDate.toISOString(),
+        subscription_status: cancellationType === 'immediate' ? 'cancelled' : 'active',
+        updated_at: new Date().toISOString(),
+      }).eq("user_id", user.id);
+
+      return new Response(JSON.stringify({
+        success: true,
+        cancellation_type: cancellationType,
+        cancellation_effective_date: effectiveDate.toISOString(),
+        message: "Subscription cancelled at database level"
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     const stripeSubscription = subscriptions.data[0];
