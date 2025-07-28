@@ -276,7 +276,7 @@ export const PrivateChat: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
       {/* Chat List */}
       <div className="lg:col-span-1">
-        <Card className="h-full">
+        <Card className="h-full bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
@@ -349,7 +349,7 @@ export const PrivateChat: React.FC = () => {
 
       {/* Chat Messages */}
       <div className="lg:col-span-2">
-        <Card className="h-full">
+        <Card className="h-full bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           {selectedChat ? (
             <>
               <CardHeader className="pb-3">

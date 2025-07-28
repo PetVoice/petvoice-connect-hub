@@ -22,7 +22,7 @@ const PetMatchingPage: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card className="border-azure/20 hover:border-azure/40 transition-all duration-300">
+        <Card className="bg-gradient-to-br from-sky-50/80 to-azure-50/60 border-azure-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Heart className="h-4 w-4 text-azure" />
@@ -37,7 +37,7 @@ const PetMatchingPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300">
+        <Card className="bg-gradient-to-br from-emerald-50/80 to-green-50/60 border-emerald-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4 text-emerald-500" />
@@ -52,7 +52,7 @@ const PetMatchingPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-orange-500/20 hover:border-orange-500/40 transition-all duration-300">
+        <Card className="bg-gradient-to-br from-orange-50/80 to-amber-50/60 border-orange-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-orange-500" />
@@ -67,7 +67,7 @@ const PetMatchingPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+        <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Star className="h-4 w-4 text-purple-500" />
