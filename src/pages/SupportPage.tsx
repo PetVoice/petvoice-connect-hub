@@ -713,14 +713,14 @@ const SupportPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="faq" className="space-y-6">
-            <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+            <div className="rounded-xl border bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-soft text-card-foreground p-0">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center space-x-2">
                   <HelpCircle className="h-5 w-5" />
                   <span>Domande Frequenti</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 <div className="space-y-4">
                   {/* Search and Filter */}
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -750,11 +750,11 @@ const SupportPage: React.FC = () => {
                   {/* FAQ List */}
                   <div className="space-y-4">
                     {filteredFAQs.map((faq) => (
-                      <Card 
+                      <div 
                         key={faq.id} 
-                        className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300"
+                        className="rounded-xl border bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-soft text-card-foreground"
                       >
-                        <CardContent className="p-4">
+                        <div className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-medium text-lg">{faq.question}</h3>
                             <div className="flex items-center space-x-2">
@@ -800,8 +800,8 @@ const SupportPage: React.FC = () => {
                               </Button>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+              </div>
+            </div>
                     ))}
                   </div>
 
@@ -814,8 +814,8 @@ const SupportPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+                        </div>
+                      </div>
           </TabsContent>
 
 
