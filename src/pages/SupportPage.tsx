@@ -711,10 +711,160 @@ const SupportPage: React.FC = () => {
             <TabsTrigger value="guide">Guida</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
           </TabsList>
+          {/* FAQ Tab */}
+          <TabsContent value="faq" className="space-y-6">
+            <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <HelpCircle className="h-5 w-5" />
+                  <span>Domande Frequenti</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  
+                  {/* FAQ Generali */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Funzionalità Principali</h3>
+                    
+                    <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">Come funziona l'analisi comportamentale AI?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Il nostro sistema AI analizza video, audio e foto del tuo pet per identificare pattern comportamentali, 
+                          stati emotivi e possibili problemi di salute. L'algoritmo è addestrato su migliaia di casi e continua ad apprendere.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">AI</Badge>
+                          <Badge variant="outline" className="text-xs">analisi</Badge>
+                          <Badge variant="outline" className="text-xs">comportamento</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
 
+                    <Card className="bg-gradient-to-br from-emerald-50/80 to-green-50/60 border-emerald-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">Quali formati di file posso caricare?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Video: MP4, MOV, AVI (max 100MB, 5sec-5min) • Audio: MP3, WAV, M4A (max 50MB, 3sec-10min) • 
+                          Immagini: JPG, PNG, HEIC (max 10MB, min 800x600px)
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">video</Badge>
+                          <Badge variant="outline" className="text-xs">audio</Badge>
+                          <Badge variant="outline" className="text-xs">foto</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
 
+                    <Card className="bg-gradient-to-br from-amber-50/80 to-yellow-50/60 border-amber-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">Come interpreto i risultati dell'analisi?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Ogni analisi fornisce un punteggio di benessere (1-10), indicatori di stress, raccomandazioni 
+                          personalizzate e confronti con i dati storici. I grafici mostrano i trend nel tempo.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">risultati</Badge>
+                          <Badge variant="outline" className="text-xs">benessere</Badge>
+                          <Badge variant="outline" className="text-xs">trend</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
+                  {/* FAQ Account e Abbonamento */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Account e Abbonamento</h3>
+                    
+                    <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">Quanto costa PetVoice Premium?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Il piano Premium costa €0,97 al mese e include analisi illimitate, protocolli di addestramento AI, 
+                          supporto prioritario, calendari intelligenti e backup cloud. Puoi cancellare in qualsiasi momento.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">premium</Badge>
+                          <Badge variant="outline" className="text-xs">prezzo</Badge>
+                          <Badge variant="outline" className="text-xs">abbonamento</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
 
+                    <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">Posso usare PetVoice gratuitamente?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Sì! Il piano gratuito include 3 analisi al mese, diario base e accesso alla community. 
+                          Perfetto per iniziare a conoscere il tuo pet meglio.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">gratuito</Badge>
+                          <Badge variant="outline" className="text-xs">limiti</Badge>
+                          <Badge variant="outline" className="text-xs">prova</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* FAQ Tecnico */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Problemi Tecnici</h3>
+                    
+                    <Card className="bg-gradient-to-br from-orange-50/80 to-red-50/60 border-orange-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">L'upload del file non funziona, cosa faccio?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Verifica la connessione internet, controlla che il file rispetti i limiti di dimensione e formato. 
+                          Se il problema persiste, prova a riavviare l'app o contatta il supporto.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">upload</Badge>
+                          <Badge variant="outline" className="text-xs">errore</Badge>
+                          <Badge variant="outline" className="text-xs">risoluzione</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-cyan-50/80 to-blue-50/60 border-cyan-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-lg mb-2">I miei dati sono al sicuro?</h4>
+                        <p className="text-muted-foreground mb-3">
+                          Assolutamente sì. Utilizziamo crittografia end-to-end, server certificati GDPR e backup automatici. 
+                          I tuoi dati non vengono mai condivisi con terze parti senza consenso.
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline" className="text-xs">sicurezza</Badge>
+                          <Badge variant="outline" className="text-xs">privacy</Badge>
+                          <Badge variant="outline" className="text-xs">GDPR</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Info Contatto */}
+                  <div className="bg-muted/30 rounded-lg p-4 mt-6">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <h4 className="font-medium">Non trovi la risposta?</h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Il nostro team di supporto è sempre disponibile per aiutarti. Contattaci tramite chat o email.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setActiveTab('contact')}
+                    >
+                      Contatta il Supporto
+                    </Button>
+                  </div>
+
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
           {/* Feature Requests Tab */}
           <TabsContent value="features" className="space-y-6">
         <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
