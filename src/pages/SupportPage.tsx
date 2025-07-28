@@ -1696,19 +1696,6 @@ const SupportPage: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex flex-col items-center space-y-4 p-6 bg-muted/50 rounded-lg">
-                    <MessageCircle className="h-8 w-8 text-primary" />
-                    <div className="text-center">
-                      <p className="font-medium text-lg">Chat Live</p>
-                      <p className="text-sm text-muted-foreground">
-                        Disponibile 24/7 per assistenza immediata
-                      </p>
-                    </div>
-                    <Button size="lg" onClick={() => setShowChatbot(true)}>
-                      Avvia Chat
-                    </Button>
-                  </div>
-                  
-                  <div className="flex flex-col items-center space-y-4 p-6 bg-muted/50 rounded-lg">
                     <Mail className="h-8 w-8 text-primary" />
                     <div className="text-center">
                       <p className="font-medium text-lg">Email</p>
