@@ -96,7 +96,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
   }, [policy, isOpen]);
 
   const handleSave = async () => {
-    if (!formData.policy_number.trim() || !formData.provider_name.trim() || !formData.start_date) {
+    if (!formData.policy_number.trim() || !formData.provider_name.trim() || !formData.start_date || !formData.end_date) {
       showErrorToast({
         title: 'Errore',
         description: 'Compila tutti i campi obbligatori'
@@ -115,7 +115,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         coverage_limit: formData.coverage_limit || null,
         start_date: formData.start_date,
         end_date: formData.end_date || null,
-        is_active: formData.is_active,
+        is_active: true,
         notes: formData.notes?.trim() || null,
         pet_id: petId,
         user_id: userId
@@ -279,7 +279,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="end_date">Data Scadenza</Label>
+              <Label htmlFor="end_date">Data Scadenza *</Label>
               <Input
                 id="end_date"
                 type="date"
@@ -289,15 +289,6 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             </div>
           </div>
 
-          {/* Active Status */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="is_active"
-              checked={formData.is_active}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: !!checked }))}
-            />
-            <Label htmlFor="is_active">Polizza attiva</Label>
-          </div>
 
           {/* Notes */}
           <div>
