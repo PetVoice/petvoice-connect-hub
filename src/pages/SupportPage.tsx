@@ -714,7 +714,7 @@ const SupportPage: React.FC = () => {
 
           {/* FAQ Tab */}
           <TabsContent value="faq" className="space-y-6">
-        <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+        <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <HelpCircle className="h-5 w-5" />
@@ -751,7 +751,7 @@ const SupportPage: React.FC = () => {
                   {/* FAQ List */}
                   <div className="space-y-4">
                     {filteredFAQs.map((faq) => (
-                      <Card key={faq.id} className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300">
+                      <Card key={faq.id} className="!border-indigo-200/50 !bg-gradient-to-br !from-indigo-50/80 !to-blue-50/60 !shadow-elegant hover:!shadow-glow hover:!scale-[1.02] !transition-all !duration-300 hover:!border-primary/20 !transform-gpu">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-medium text-lg">{faq.question}</h3>
@@ -820,7 +820,7 @@ const SupportPage: React.FC = () => {
 
           {/* Feature Requests Tab */}
           <TabsContent value="features" className="space-y-6">
-        <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+        <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center space-x-2">
@@ -899,7 +899,7 @@ const SupportPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   {featureRequests.map((request) => (
-                    <Card key={request.id} className="bg-gradient-to-br from-teal-50/80 to-cyan-50/60 border-teal-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 hover-scale">
+                    <Card key={request.id} className="bg-gradient-to-br from-teal-50/80 to-cyan-50/60 border-teal-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
@@ -971,7 +971,7 @@ const SupportPage: React.FC = () => {
 
           {/* Guide Tab */}
           <TabsContent value="guide" className="space-y-6">
-        <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
+        <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Book className="h-5 w-5" />
@@ -1316,7 +1316,7 @@ const SupportPage: React.FC = () => {
           <TabsContent value="contact" className="space-y-6">
             <div className="flex justify-center">
               {/* Contact Methods */}
-              <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 w-full max-w-2xl">
+              <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu w-full max-w-2xl">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center space-x-2">
                     <Headphones className="h-5 w-5" />
