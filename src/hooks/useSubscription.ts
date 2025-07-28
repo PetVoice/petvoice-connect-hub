@@ -174,10 +174,11 @@ export const useSubscription = () => {
         console.log('📊 CURRENT SUBSCRIPTION STATE:', subscription);
       }, 1000);
       
-      // Se cancellazione immediata, forza refresh pagina
+      // Se cancellazione immediata, fai logout automatico
       if (type === 'immediate') {
-        setTimeout(() => {
-          window.location.reload();
+        setTimeout(async () => {
+          await supabase.auth.signOut();
+          window.location.href = '/auth';
         }, 1500);
       }
       
