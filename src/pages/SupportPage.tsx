@@ -1168,7 +1168,7 @@ const SupportPage: React.FC = () => {
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Annulla</AlertDialogCancel>
                                           <AlertDialogAction 
-                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            className="bg-red-500 text-white hover:bg-red-600"
                                             onClick={() => closeTicket(ticket.id, ticket.subject)}
                                           >
                                             Chiudi Ticket
@@ -2403,7 +2403,7 @@ const SupportPage: React.FC = () => {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annulla</AlertDialogCancel>
                           <AlertDialogAction 
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className="bg-red-500 text-white hover:bg-red-600"
                             onClick={() => {
                               closeTicket(selectedTicket.id, selectedTicket.subject);
                               setSelectedTicket(null);
