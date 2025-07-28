@@ -238,7 +238,7 @@ const SupportPage: React.FC = () => {
         .from('support_tickets')
         .select(`
           *,
-          profiles!support_tickets_user_id_fkey(display_name, email)
+          profiles!inner(display_name, email)
         `)
         .order('created_at', { ascending: false });
 
