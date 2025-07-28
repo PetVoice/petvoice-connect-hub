@@ -144,13 +144,21 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       
       // Filtra i messaggi eliminati lato client
       const filteredData = (data || []).filter(reply => {
-        // Se è il nostro messaggio, verifica che non sia stato eliminato da noi (sender)
+        console.log('🔍 Filtering message:', reply.id, 'from user:', reply.user_id, 'deleted_by_sender:', reply.deleted_by_sender, 'deleted_by_recipient:', reply.deleted_by_recipient);
+        
+        // Se è il nostro messaggio, mostralo solo se non l'abbiamo eliminato per noi stessi
         if (reply.user_id === user.id) {
-          return !reply.deleted_by_sender;
+          // Se abbiamo eliminato il nostro messaggio "solo per noi", nascondilo
+          const shouldShow = !reply.deleted_by_sender;
+          console.log('✅ Own message, shouldShow:', shouldShow);
+          return shouldShow;
         }
-        // Se è un messaggio di altri, verifica che non sia stato eliminato da noi (recipient)
+        // Se è un messaggio di altri, mostralo solo se non l'abbiamo eliminato come recipient
         else {
-          return !reply.deleted_by_recipient;
+          // Se abbiamo eliminato il messaggio degli altri "solo per noi", nascondilo
+          const shouldShow = !reply.deleted_by_recipient;
+          console.log('👤 Other message, shouldShow:', shouldShow);
+          return shouldShow;
         }
       });
       
