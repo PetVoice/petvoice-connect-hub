@@ -85,10 +85,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   // Block access to all other pages if not premium or cancelled immediately
   const isBlocked = !subscription.subscribed || 
     (subscription.is_cancelled && subscription.cancellation_type === 'immediate');
+  
+  // DEBUG: Log della logica di blocco
+  console.log('🔒 PROTECTED ROUTE DEBUG:', {
+    subscribed: subscription.subscribed,
+    is_cancelled: subscription.is_cancelled,
+    cancellation_type: subscription.cancellation_type,
+    // subscription_status non è nel tipo, rimosso dal log
+    isBlocked: isBlocked,
+    fullSubscription: subscription
+  });
     
   if (isBlocked) {
     // Determine if user is cancelled or new
     const isCancelledUser = subscription.is_cancelled || subscription.cancellation_date !== null;
+    
+    console.log('📛 SHOWING MODAL - User is blocked:', { isCancelledUser, isBlocked });
     
     // Show modal for ALL pages including subscription page
     return (
@@ -103,6 +115,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       </>
     );
   }
+
+  console.log('✅ ACCESS GRANTED - User has active subscription');
 
   return <>{children}</>;
 };
