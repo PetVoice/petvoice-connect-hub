@@ -42,16 +42,10 @@ const LeaveGroupModal: React.FC<{
           Non riceverai più messaggi da questo gruppo.
         </p>
         <div className="flex gap-3 justify-end">
-          <button 
-            onClick={onCancel} 
-            className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
-          >
+          <Button variant="outline" onClick={onCancel}>
             Annulla
-          </button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm} 
-          >
+          </Button>
+          <Button variant="destructive" onClick={onConfirm}>
             Conferma
           </Button>
         </div>
