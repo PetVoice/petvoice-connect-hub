@@ -568,7 +568,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     <div className="space-y-6">
       {/* Current Session Player */}
       {currentSession && (
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -668,7 +668,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
 
       {/* Category Filter */}
       {showCategories && (
-      <Card>
+      <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
         <CardHeader>
           <CardTitle className="text-lg">Categorie Terapeutiche</CardTitle>
           <div className="flex items-center gap-4">
@@ -699,7 +699,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
             {filteredSessions.map((session) => (
               <Card 
                 key={session.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${
+                className={`cursor-pointer transition-all hover:shadow-md bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-950/20 dark:to-slate-950/20 border-gray-200 dark:border-gray-800 ${
                   currentSession?.id === session.id ? 'ring-2 ring-primary' : ''
                 }`}
                  onClick={() => {
@@ -743,7 +743,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
 
       {/* AI Features */}
       <div className="grid md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200 dark:border-emerald-800">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Brain className="h-5 w-5" />
@@ -782,7 +782,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Settings className="h-5 w-5" />
