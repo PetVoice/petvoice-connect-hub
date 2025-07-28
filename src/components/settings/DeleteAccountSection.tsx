@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { supabase } from '@/integrations/supabase/client';
 import { Trash2, AlertTriangle } from 'lucide-react';
 
@@ -14,15 +14,11 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const { showToast } = useTranslatedToast();
+  const toast = useToastWithIcon();
   
   const handleDeleteAccount = async () => {
     if (confirmText !== 'ELIMINA') {
-      showToast({
-        title: "Errore",
-        description: 'Digita "ELIMINA" per confermare',
-        variant: "destructive"
-      });
+      toast.error('Digita "ELIMINA" per confermare');
       return;
     }
     
@@ -36,22 +32,17 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
       
       if (error) throw error;
       
-      showToast({
-        title: "Account eliminato con successo",
-        description: "Il tuo account è stato eliminato definitivamente."
-      });
+      toast.success("Il tuo account è stato eliminato definitivamente");
+      
+      // Logout esplicito prima del redirect
+      await supabase.auth.signOut();
       
       // Redirect alla home
       window.location.href = '/';
       
     } catch (error: any) {
       console.error('Errore eliminazione account:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile eliminare l'account: {error}",
-        variant: "destructive",
-        variables: { error: error.message }
-      });
+      toast.error(`Impossibile eliminare l'account: ${error.message}`);
     } finally {
       setDeleting(false);
     }
