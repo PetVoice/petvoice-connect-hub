@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 interface SupportTicket {
   id: string;
@@ -50,13 +50,13 @@ export const TicketCloseConfirmModal: React.FC<TicketCloseConfirmModalProps> = (
           <AlertDialogCancel disabled={loading}>
             Annulla
           </AlertDialogCancel>
-          <AlertDialogAction
+          <Button
+            variant="destructive"
             onClick={onConfirm}
             disabled={loading}
-            className="!bg-red-600 !text-white hover:!bg-red-700 focus:!ring-red-600"
           >
             {loading ? 'Chiusura...' : 'Conferma'}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
