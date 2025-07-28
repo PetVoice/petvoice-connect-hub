@@ -171,7 +171,7 @@ const SupportPage: React.FC = () => {
   }>>([]);
   const [chatInput, setChatInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [activeTab, setActiveTab] = useState('faq');
+  const [activeTab, setActiveTab] = useState('features');
   const [isNewTicketDialogOpen, setIsNewTicketDialogOpen] = useState(false);
   const [isNewFeatureDialogOpen, setIsNewFeatureDialogOpen] = useState(false);
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
@@ -705,118 +705,12 @@ const SupportPage: React.FC = () => {
 
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="faq">FAQ</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="features">Richieste</TabsTrigger>
             <TabsTrigger value="guide">Guida</TabsTrigger>
             <TabsTrigger value="contact">Contatti</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="faq" className="space-y-6">
-            <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <HelpCircle className="h-5 w-5" />
-                  <span>Domande Frequenti</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Search and Filter */}
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Cerca nelle FAQ..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
-                      />
-                    </div>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="w-full sm:w-48">
-                        <SelectValue placeholder="Categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tutte le categorie</SelectItem>
-                        <SelectItem value="technical">Tecnico</SelectItem>
-                        <SelectItem value="billing">Fatturazione</SelectItem>
-                        <SelectItem value="medical">Medico</SelectItem>
-                        <SelectItem value="general">Generale</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* FAQ List */}
-                  <div className="space-y-4">
-                    {filteredFAQs.map((faq) => (
-                      <Card 
-                        key={faq.id} 
-                        className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300"
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-medium text-lg">{faq.question}</h3>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="secondary">{faq.category}</Badge>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <Eye className="h-3 w-3 mr-1" />
-                                {faq.view_count}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-4">{faq.answer}</p>
-                          
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              {faq.tags.map((tag) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-muted-foreground">Utile?</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => markFAQHelpful(faq.id, true)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <ThumbsUp className="h-4 w-4" />
-                              </Button>
-                              <span className="text-sm text-muted-foreground">
-                                {faq.helpful_count}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => markFAQHelpful(faq.id, false)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <ThumbsDown className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  {filteredFAQs.length === 0 && (
-                    <div className="text-center py-8">
-                      <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Nessuna FAQ trovata per la tua ricerca
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
 
 
