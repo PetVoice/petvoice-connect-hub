@@ -122,7 +122,7 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
                     {ticket.subject}
                   </h4>
                   {/* Badge per messaggi non letti - mostra solo se > 0 */}
-                  {ticket.unread_count && ticket.unread_count > 0 && (
+                  {ticket.unread_count != null && ticket.unread_count > 0 && (
                     <div className="flex-shrink-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] h-5 flex items-center justify-center">
                       {ticket.unread_count > 99 ? '99+' : ticket.unread_count}
                     </div>
