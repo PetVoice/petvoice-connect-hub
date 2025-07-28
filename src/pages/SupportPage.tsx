@@ -132,16 +132,70 @@ const SupportPage: React.FC = () => {
   const { addNotification } = useNotifications();
   const { user } = useAuth();
 
-  // Carica i dati iniziali
+  // Carica i dati iniziali e setup realtime
   useEffect(() => {
     console.log('🚀 useEffect triggered, user:', user);
     if (user?.id) {
       console.log('✅ User found, loading support data for:', user.id);
       loadSupportData();
+      const cleanup = setupTicketsRealtimeSubscription();
+      
+      // Cleanup quando il componente viene smontato
+      return cleanup;
     } else {
       console.log('❌ No user found, cannot load support data');
     }
   }, [user?.id]);
+
+  const setupTicketsRealtimeSubscription = () => {
+    console.log('🔔 Setting up realtime subscription for tickets');
+    
+    const channel = supabase
+      .channel('tickets-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        (payload) => {
+          console.log('🔄 Ticket updated in realtime:', payload.new);
+          const updatedTicket = payload.new as SupportTicket;
+          
+          // Aggiorna la lista dei ticket
+          setTickets(prev => 
+            prev.map(ticket => 
+              ticket.id === updatedTicket.id ? updatedTicket : ticket
+            )
+          );
+          
+          // Se il ticket aggiornato è quello attualmente selezionato, aggiornalo anche
+          if (selectedTicket && selectedTicket.id === updatedTicket.id) {
+            setSelectedTicket(updatedTicket);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        (payload) => {
+          console.log('➕ New ticket created in realtime:', payload.new);
+          const newTicket = payload.new as SupportTicket;
+          setTickets(prev => [newTicket, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔌 Cleaning up tickets realtime subscription');
+      supabase.removeChannel(channel);
+    };
+  };
 
   const loadSupportData = async () => {
     try {
