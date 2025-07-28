@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Save, MapPin, Users, DollarSign, FileText } from 'lucide-react';
 import { CalendarEvent, EVENT_CATEGORIES, RECURRING_PATTERNS, EVENT_STATUS } from '@/types/calendar';
 import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
 import { GooglePlacesInput } from '@/components/settings/GooglePlacesInput';
 
@@ -34,7 +34,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   initialDate,
   preselectedCategory
 }) => {
-  const { toast } = useToast();
+  const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const [categoryError, setCategoryError] = useState('');
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
@@ -93,20 +93,18 @@ export const EventForm: React.FC<EventFormProps> = ({
     // Validazione categoria obbligatoria
     if (!formData.category || formData.category.trim() === '') {
       setCategoryError('La categoria è obbligatoria');
-      toast({
-        title: "❌ Campo obbligatorio",
-        description: "Seleziona una categoria per l'evento.",
-        variant: "destructive"
+      showErrorToast({
+        title: "Campo obbligatorio",
+        description: "Seleziona una categoria per l'evento"
       });
       return;
     }
 
     // Validazione data di inizio obbligatoria
     if (!startDate) {
-      toast({
-        title: "❌ Campo obbligatorio",
-        description: "Seleziona una data di inizio per l'evento.",
-        variant: "destructive"
+      showErrorToast({
+        title: "Campo obbligatorio",
+        description: "Seleziona una data di inizio per l'evento"
       });
       return;
     }

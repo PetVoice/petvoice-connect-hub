@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, MapPin, Phone, Mail, Clock, Save } from 'lucide-react';
@@ -40,7 +40,7 @@ export function VeterinaryModal({
   veterinary, 
   petId 
 }: VeterinaryModalProps) {
-  const { toast } = useToast();
+  const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -78,19 +78,17 @@ export function VeterinaryModal({
     e.preventDefault();
     
     if (!user) {
-      toast({
-        title: "Errore",
-        description: "Devi essere autenticato per salvare i dati del veterinario",
-        variant: "destructive"
+      showErrorToast({
+        title: "Errore di autenticazione",
+        description: "Devi essere autenticato per salvare i dati del veterinario"
       });
       return;
     }
 
     if (!formData.name.trim() || !formData.clinic_name.trim() || !formData.phone.trim()) {
-      toast({
-        title: "Errore",
-        description: "Nome veterinario, clinica e telefono sono obbligatori",
-        variant: "destructive"
+      showErrorToast({
+        title: "Campi obbligatori mancanti",
+        description: "Nome veterinario, clinica e telefono sono obbligatori"
       });
       return;
     }
@@ -115,9 +113,9 @@ export function VeterinaryModal({
 
         if (error) throw error;
 
-        toast({
-          title: "Successo",
-          description: "Veterinario aggiornato con successo"
+        showSuccessToast({
+          title: "Veterinario aggiornato",
+          description: "Le informazioni del veterinario sono state aggiornate con successo"
         });
       } else {
         // Create new
@@ -127,9 +125,9 @@ export function VeterinaryModal({
 
         if (error) throw error;
 
-        toast({
-          title: "Successo", 
-          description: "Veterinario aggiunto con successo"
+        showSuccessToast({
+          title: "Veterinario aggiunto",
+          description: "Il nuovo veterinario è stato aggiunto con successo"
         });
       }
 
@@ -137,10 +135,9 @@ export function VeterinaryModal({
       onClose();
     } catch (error) {
       console.error('Error saving veterinary contact:', error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio",
-        variant: "destructive"
+      showErrorToast({
+        title: "Errore di salvataggio",
+        description: "Si è verificato un errore durante il salvataggio del veterinario"
       });
     } finally {
       setIsLoading(false);

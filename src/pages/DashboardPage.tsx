@@ -34,7 +34,6 @@ import {
   Mail
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useToast } from '@/hooks/use-toast';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
@@ -73,8 +72,7 @@ const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { pets, selectedPet } = usePets();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { showDeleteToast } = useUnifiedToast();
+  const { showSuccessToast, showErrorToast, showDeleteToast } = useUnifiedToast();
   const [petStats, setPetStats] = useState<PetStats>({
     totalAnalyses: 0,
     recentAnalyses: 0,
