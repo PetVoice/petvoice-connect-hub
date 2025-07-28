@@ -474,7 +474,7 @@ const CommunityPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               <div className="lg:col-span-3">
-                <Card>
+                <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -522,7 +522,7 @@ const CommunityPage = () => {
               </div>
               
               <div className="lg:col-span-1 space-y-4">
-                <Card>
+                <Card className="bg-gradient-to-br from-emerald-50/80 to-green-50/60 border-emerald-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
                   <CardContent>
                     <div className="space-y-3">
                       {availableGroups
@@ -553,7 +553,7 @@ const CommunityPage = () => {
                   </CardContent>
                 </Card>
                 
-                <Card>
+                <Card className="bg-gradient-to-br from-amber-50/80 to-yellow-50/60 border-amber-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
                   <CardContent>
                     <div className="mb-4">
                       <h3 className="text-lg font-semibold">I Tuoi Gruppi ({myGroups.length})</h3>
@@ -631,7 +631,7 @@ const CommunityPage = () => {
               </div>
               
               <div className="lg:col-span-2">
-                <Card>
+                <Card className="bg-gradient-to-br from-sky-50/80 to-blue-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
                   <CardContent className="p-0">
                     <div className="h-[600px]">
                       {activeChat ? (
