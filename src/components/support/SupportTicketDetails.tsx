@@ -329,7 +329,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 mb-4" ref={scrollAreaRef}>
+        <ScrollArea className="h-96 mb-4" ref={scrollAreaRef}>
           <div className="space-y-4">
             {/* Pulsante per mostrare tutti i messaggi se ce ne sono più di 5 */}
             {replies.length > 5 && !showAllMessages && (
