@@ -59,7 +59,10 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   useEffect(() => {
     if (ticket.id) {
       loadTicketReplies();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      
+      // Cleanup function per quando il componente viene smontato o ticket cambia
+      return cleanup;
     }
   }, [ticket.id]);
 
@@ -96,6 +99,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   };
 
   const setupRealtimeSubscription = () => {
+    console.log('🔄 Setting up realtime subscription for ticket:', ticket.id);
+    
     const channel = supabase
       .channel(`ticket-replies-${ticket.id}`)
       .on(
@@ -107,11 +112,14 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           filter: `ticket_id=eq.${ticket.id}`
         },
         (payload) => {
-          console.log('📨 New reply received:', payload.new);
+          console.log('📨 New reply received via realtime:', payload.new);
           const newReply = payload.new as TicketReply;
           
           // Aggiungi immediatamente il messaggio
-          setReplies(prev => [...prev, newReply]);
+          setReplies(prev => {
+            console.log('📝 Adding new reply to state. Current replies:', prev.length);
+            return [...prev, newReply];
+          });
           
           // Carica il profilo dell'utente in background se non lo abbiamo già
           if (!userProfiles[newReply.user_id]) {
@@ -149,9 +157,12 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           onTicketUpdate(payload.new as SupportTicket);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Cleaning up realtime subscription for ticket:', ticket.id);
       supabase.removeChannel(channel);
     };
   };
