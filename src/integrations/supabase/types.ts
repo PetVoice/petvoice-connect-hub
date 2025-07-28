@@ -3568,7 +3568,7 @@ export type Database = {
         Returns: number
       }
       calculate_sla_deadline: {
-        Args: { category: string; priority: string }
+        Args: { p_category: string; p_priority: string }
         Returns: string
       }
       cancel_user_subscription: {
