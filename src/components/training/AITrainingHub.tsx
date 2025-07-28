@@ -985,9 +985,10 @@ export const AITrainingHub: React.FC = () => {
                                           e.stopPropagation();
                                           handleStatusChange(protocol.id, 'paused');
                                         }}
-                                        className="bg-red-500 hover:bg-red-600 text-white border-0 [&>*]:!text-white"
+                                        className="!bg-red-500 !hover:bg-red-600 !text-white !border-0 [&]:!bg-red-500 [&]:!text-white"
+                                        style={{ background: '#ef4444', color: 'white', border: 'none' }}
                                       >
-                                        Sì, interrompi
+                                        Conferma
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -1126,9 +1127,10 @@ export const AITrainingHub: React.FC = () => {
                                   <AlertDialogCancel>Annulla</AlertDialogCancel>
                                   <AlertDialogAction 
                                     onClick={() => handleDeleteProtocol(protocol.id)}
-                                    className="bg-red-500 hover:bg-red-600 text-white border-0 [&>*]:!text-white"
+                                    className="!bg-red-500 !hover:bg-red-600 !text-white !border-0 [&]:!bg-red-500 [&]:!text-white"
+                                    style={{ background: '#ef4444', color: 'white', border: 'none' }}
                                   >
-                                    Sì, interrompi
+                                    Conferma
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
