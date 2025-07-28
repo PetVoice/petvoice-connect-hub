@@ -651,10 +651,13 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                               <Edit2 className="h-4 w-4 mr-2" />
                               Modifica
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => {
-                              setReplyToDelete(reply.id);
-                              setShowDeleteDialog(true);
-                            }}>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                setReplyToDelete(reply.id);
+                                setShowDeleteDialog(true);
+                              }}
+                              className="text-destructive"
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Elimina
                             </DropdownMenuItem>
