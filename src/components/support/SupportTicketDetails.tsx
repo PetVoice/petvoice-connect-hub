@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Send, X, Clock, User, MoreVertical, Edit2, Trash2, Reply } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from "@/components/ui/input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,6 +61,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [editingReply, setEditingReply] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [replyingTo, setReplyingTo] = useState<TicketReply | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
@@ -389,6 +392,22 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     setReplyingTo(null);
   };
 
+  const deleteReplyForMe = () => {
+    if (replyToDelete) {
+      handleDeleteReply(replyToDelete, false);
+      setShowDeleteDialog(false);
+      setReplyToDelete(null);
+    }
+  };
+
+  const deleteReplyForAll = () => {
+    if (replyToDelete) {
+      handleDeleteReply(replyToDelete, true);
+      setShowDeleteDialog(false);
+      setReplyToDelete(null);
+    }
+  };
+
   const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
@@ -632,16 +651,12 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                               <Edit2 className="h-4 w-4 mr-2" />
                               Modifica
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteReply(reply.id, false)}>
+                            <DropdownMenuItem onClick={() => {
+                              setReplyToDelete(reply.id);
+                              setShowDeleteDialog(true);
+                            }}>
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Elimina per me
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDeleteReply(reply.id, true)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Elimina per tutti
+                              Elimina
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -709,6 +724,35 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           </div>
         )}
       </CardContent>
+
+      {/* Delete Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Come vuoi eliminare questo messaggio?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={() => deleteReplyForMe()}
+              className="w-full sm:w-auto"
+            >
+              Elimina solo per me
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteReplyForAll()}
+              className="w-full sm:w-auto"
+            >
+              Elimina per tutti
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
