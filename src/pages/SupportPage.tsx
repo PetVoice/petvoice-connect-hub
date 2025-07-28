@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -132,6 +133,10 @@ const SupportPage: React.FC = () => {
     category: 'feature',
     tags: []
   });
+  const [editingFeatureRequest, setEditingFeatureRequest] = useState<FeatureRequest | null>(null);
+  const [isEditFeatureDialogOpen, setIsEditFeatureDialogOpen] = useState(false);
+  const [featureToDelete, setFeatureToDelete] = useState<FeatureRequest | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
   const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
   const [ticketToClose, setTicketToClose] = useState<SupportTicket | null>(null);
@@ -505,16 +510,138 @@ const SupportPage: React.FC = () => {
     }
   };
 
-  const deleteFeatureRequest = async (requestId: string) => {
-    if (!confirm('Sei sicuro di voler eliminare questa richiesta di funzionalità?')) {
+  const editFeatureRequest = async () => {
+    if (!editingFeatureRequest?.title || !editingFeatureRequest?.description) {
+      showToast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
       return;
     }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('support_feature_requests')
+        .update({
+          title: editingFeatureRequest.title,
+          description: editingFeatureRequest.description,
+        })
+        .eq('id', editingFeatureRequest.id);
+
+      if (error) {
+        console.error('Error updating feature request:', error);
+        throw error;
+      }
+
+      showToast({
+        title: "Richiesta aggiornata",
+        description: "La richiesta di funzionalità è stata aggiornata con successo.",
+        variant: "success"
+      });
+
+      setEditingFeatureRequest(null);
+      setIsEditFeatureDialogOpen(false);
+      
+      // Ricarica le feature requests
+      loadSupportData();
+    } catch (error) {
+      console.error('Error updating feature request:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile aggiornare la richiesta. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleVote = async (requestId: string) => {
+    if (!user) {
+      showToast({
+        title: "Errore",
+        description: "Devi essere autenticato per votare",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const hasVoted = userVotes.includes(requestId);
+    
+    try {
+      if (hasVoted) {
+        // Rimuovi voto
+        const { error } = await supabase
+          .from('feature_request_votes')
+          .delete()
+          .eq('feature_request_id', requestId)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        // Decrementa il conteggio voti
+        await supabase.rpc('increment', {
+          table_name: 'support_feature_requests',
+          row_id: requestId,
+          column_name: 'votes',
+          x: -1
+        });
+
+        setUserVotes(prev => prev.filter(id => id !== requestId));
+      } else {
+        // Aggiungi voto
+        const { error } = await supabase
+          .from('feature_request_votes')
+          .insert({
+            feature_request_id: requestId,
+            user_id: user.id
+          });
+
+        if (error) throw error;
+
+        // Incrementa il conteggio voti
+        await supabase.rpc('increment', {
+          table_name: 'support_feature_requests',
+          row_id: requestId,
+          column_name: 'votes',
+          x: 1
+        });
+
+        setUserVotes(prev => [...prev, requestId]);
+      }
+
+      // Ricarica i dati per vedere il conteggio aggiornato
+      loadSupportData();
+    } catch (error) {
+      console.error('Error toggling vote:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile votare. Riprova più tardi.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditFeatureRequest = (request: FeatureRequest) => {
+    setEditingFeatureRequest(request);
+    setIsEditFeatureDialogOpen(true);
+  };
+
+  const handleDeleteFeatureRequest = (request: FeatureRequest) => {
+    setFeatureToDelete(request);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteFeatureRequest = async () => {
+    if (!featureToDelete) return;
 
     try {
       const { error } = await supabase
         .from('support_feature_requests')
         .delete()
-        .eq('id', requestId);
+        .eq('id', featureToDelete.id);
 
       if (error) {
         console.error('Error deleting feature request:', error);
@@ -527,6 +654,9 @@ const SupportPage: React.FC = () => {
         variant: "success"
       });
 
+      setIsDeleteConfirmOpen(false);
+      setFeatureToDelete(null);
+      
       // Ricarica le feature requests
       loadSupportData();
     } catch (error) {
