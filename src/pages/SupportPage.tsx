@@ -143,16 +143,20 @@ const SupportPage: React.FC = () => {
     try {
       setLoading(true);
       
+      console.log('🔍 Loading tickets for user:', user?.id);
+      
       // Carica tickets dell'utente
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
         .select('*')
-        .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
+
+      console.log('📊 Tickets query result:', { ticketsData, ticketsError });
 
       if (ticketsError) {
         console.error('Error loading tickets:', ticketsError);
       } else {
+        console.log('✅ Tickets loaded:', ticketsData?.length, 'tickets');
         setTickets(ticketsData || []);
       }
 
