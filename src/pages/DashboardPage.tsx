@@ -654,7 +654,7 @@ const DashboardPage: React.FC = () => {
         setTimeout(() => {
           toast({
             title: "💡 Suggerimento",
-            description: "Ricordati di selezionare 'Visita Medica' come categoria per vederla nella dashboard!",
+            description: "Ricordati di selezionare 'Visite Mediche' come categoria per vederla nella dashboard!",
           });
         }, 1000);
         break;
