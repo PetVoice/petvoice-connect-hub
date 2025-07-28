@@ -1215,9 +1215,9 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             </Button>
             {getSelectedMessagesType() !== 'received' && (
               <Button
+                variant="destructive"
                 onClick={deleteSelectedMessagesForBoth}
-                style={{ backgroundColor: 'hsl(0 70% 55%)', color: 'white' }}
-                className="hover:bg-red-600 w-full sm:w-auto"
+                className="w-full sm:w-auto"
               >
                 {getSelectedMessagesType() === 'sent' ? 'Elimina per entrambi' : 'Elimina (misto)'}
               </Button>
@@ -1260,9 +1260,9 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
               if (isOwnMessage) {
                 return (
                   <Button
+                    variant="destructive"
                     onClick={deleteSingleMessageForBoth}
-                    style={{ backgroundColor: 'hsl(0 70% 55%)', color: 'white' }}
-                    className="hover:bg-red-600 w-full sm:w-auto"
+                    className="w-full sm:w-auto"
                   >
                     Elimina per entrambi
                   </Button>
@@ -1293,9 +1293,9 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
               Elimina solo per me
             </Button>
             <Button
+              variant="destructive"
               onClick={deleteChatForBoth}
-              style={{ backgroundColor: 'hsl(0 70% 55%)', color: 'white' }}
-              className="hover:bg-red-600 w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               Elimina per entrambi
             </Button>
