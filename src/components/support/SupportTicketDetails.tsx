@@ -345,14 +345,10 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const handleDeleteReply = async (replyId: string, deleteForAll: boolean = false) => {
     try {
       if (deleteForAll) {
-        // Elimina per tutti (solo per i messaggi propri)
+        // Elimina fisicamente per tutti (solo per i messaggi propri)
         const { error } = await supabase
           .from('support_ticket_replies')
-          .update({ 
-            deleted_by_sender: true,
-            deleted_by_recipient: true,
-            deleted_at: new Date().toISOString()
-          })
+          .delete()
           .eq('id', replyId)
           .eq('user_id', user?.id);
 
@@ -361,7 +357,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         // Rimuovi dalla UI
         setReplies(prev => prev.filter(reply => reply.id !== replyId));
       } else {
-        // Elimina solo per l'utente corrente
+        // Elimina solo per l'utente corrente (soft delete)
         const reply = replies.find(r => r.id === replyId);
         if (!reply) return;
 
