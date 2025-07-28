@@ -1560,7 +1560,8 @@ const DashboardPage: React.FC = () => {
               <CardDescription className="text-lg">Cronologia dettagliata di tutte le emozioni del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
-              {Object.keys(emotionStats).length > 0 ? (
+              <ScrollArea className="h-[300px]">
+                {Object.keys(emotionStats).length > 0 ? (
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                   {Object.entries(emotionStats)
                     .sort(([,a], [,b]) => b - a)
@@ -1620,7 +1621,8 @@ const DashboardPage: React.FC = () => {
                     Inizia Analisi
                   </Button>
                 </div>
-              )}
+                )}
+              </ScrollArea>
             </CardContent>
           </Card>
 
