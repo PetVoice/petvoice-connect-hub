@@ -714,7 +714,7 @@ const SupportPage: React.FC = () => {
 
           {/* FAQ Tab */}
           <TabsContent value="faq" className="space-y-6">
-        <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
+        <Card className="bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-elegant hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu relative z-0 hover:z-0">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <HelpCircle className="h-5 w-5" />
