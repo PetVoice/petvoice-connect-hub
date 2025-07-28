@@ -1080,7 +1080,7 @@ const SupportPage: React.FC = () => {
                                           closeTicket(ticket.id, ticket.subject);
                                         }
                                       }}
-                                      className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                                      className="h-8 px-2 bg-red-500 text-white hover:bg-red-600 border-red-500"
                                     >
                                       <XCircle className="h-3 w-3 mr-1" />
                                       Chiudi
@@ -2173,6 +2173,21 @@ const SupportPage: React.FC = () => {
                     <span>Risposte del Supporto</span>
                   </h4>
                   <div className="space-y-3">
+                    {/* Messaggio iniziale dell'utente */}
+                    <Card className="p-3 bg-blue-50">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                          Tu
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm text-blue-900">La tua richiesta</p>
+                          <p className="text-sm text-blue-700 mt-1">{selectedTicket.description}</p>
+                          <p className="text-xs text-blue-600 mt-2">
+                            {formatDistanceToNow(new Date(selectedTicket.created_at), { addSuffix: true, locale: it })}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
                     {selectedTicket.status === 'open' ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -2266,14 +2281,13 @@ const SupportPage: React.FC = () => {
                   </Button>
                   {selectedTicket.status !== 'closed' && (
                     <Button 
-                      variant="outline" 
                       onClick={() => {
                         if (window.confirm(`Sei sicuro di voler chiudere il ticket "${selectedTicket.subject}"?`)) {
                           closeTicket(selectedTicket.id, selectedTicket.subject);
                           setSelectedTicket(null);
                         }
                       }}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                      className="bg-red-500 text-white hover:bg-red-600"
                     >
                       <XCircle className="h-4 w-4 mr-2" />
                       Chiudi Ticket
