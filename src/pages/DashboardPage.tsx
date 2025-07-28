@@ -28,7 +28,10 @@ import {
   Trash2,
   PieChart as PieChartIcon,
   Save,
-  X
+  X,
+  UserCheck,
+  Clock,
+  Mail
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
@@ -48,6 +51,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MedicationModal } from '@/components/medication/MedicationModal';
 import { InsurancePolicyModal } from '@/components/insurance/InsuranceModal';
+import { VeterinaryModal } from '@/components/veterinary/VeterinaryModal';
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
@@ -172,6 +176,12 @@ const DashboardPage: React.FC = () => {
     mode: 'add',
     policy: null
   });
+
+  // Veterinary modal state
+  const [showVeterinaryModal, setShowVeterinaryModal] = useState(false);
+  const [editingVeterinary, setEditingVeterinary] = useState<any>(null);
+  const [veterinaryContacts, setVeterinaryContacts] = useState<any[]>([]);
+  const [veterinaryToDelete, setVeterinaryToDelete] = useState<any>(null);
 
   // Medication evaluation modal state
   const [medicationEvaluationModal, setMedicationEvaluationModal] = useState<{
@@ -504,6 +514,7 @@ const DashboardPage: React.FC = () => {
     loadPetStats();
     loadMeds();
     loadInsurances();
+    fetchVeterinaryContacts();
   }, [selectedPet, user]);
 
   // Load medications function accessible by other functions
@@ -543,6 +554,56 @@ const DashboardPage: React.FC = () => {
       setInsurances(data || []);
     } catch (error) {
       console.error('Error loading insurance policies:', error);
+    }
+  };
+
+  // Load veterinary contacts function
+  const fetchVeterinaryContacts = async () => {
+    if (!selectedPet || !user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('veterinary_contacts')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setVeterinaryContacts(data || []);
+    } catch (error) {
+      console.error('Error loading veterinary contacts:', error);
+    }
+  };
+
+  // Handle veterinary contact delete
+  const handleDeleteVeterinary = async (veterinary: any) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('veterinary_contacts')
+        .delete()
+        .eq('id', veterinary.id);
+
+      if (error) throw error;
+
+      showDeleteToast({
+        title: "Veterinario eliminato",
+        description: "Il veterinario è stato rimosso con successo."
+      });
+      
+      fetchVeterinaryContacts();
+      setVeterinaryToDelete(null);
+    } catch (error) {
+      console.error('Error deleting veterinary contact:', error);
+      toast({
+        title: "❌ Errore",
+        description: "Errore nell'eliminazione del veterinario.",
+        className: "border-red-200 bg-red-50 text-red-800",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -598,7 +659,8 @@ const DashboardPage: React.FC = () => {
         });
         break;
       case 'veterinarian':
-        navigate('/settings');
+        setShowVeterinaryModal(true);
+        setEditingVeterinary(null);
         break;
       case 'emergency_contacts':
         navigate('/settings');
@@ -2713,8 +2775,8 @@ const DashboardPage: React.FC = () => {
       {/* Veterinary Delete Confirmation */}
       {veterinaryToDelete && (
         <ConfirmDialog
-          isOpen={!!veterinaryToDelete}
-          onClose={() => setVeterinaryToDelete(null)}
+          open={!!veterinaryToDelete}
+          onOpenChange={(open) => !open && setVeterinaryToDelete(null)}
           onConfirm={() => handleDeleteVeterinary(veterinaryToDelete)}
           title="Elimina Veterinario"
           description={`Sei sicuro di voler eliminare il veterinario "${veterinaryToDelete.name}"?`}
