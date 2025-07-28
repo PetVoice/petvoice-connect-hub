@@ -233,13 +233,10 @@ const SupportPage: React.FC = () => {
       
       console.log('🔍 Loading tickets for user:', user?.id);
       
-      // Carica tickets con informazioni utente e unread counts
+      // Carica tickets senza join - faremo query separate per i profili
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
-        .select(`
-          *,
-          profiles!inner(display_name, email)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       // Carica separatamente gli unread counts per l'utente corrente
@@ -266,8 +263,23 @@ const SupportPage: React.FC = () => {
           return acc;
         }, {} as { [key: string]: number });
         
-        // Trasforma i dati per includere unread_count solo se > 0
-        const ticketsWithUnreadCount = (ticketsData || []).map(ticket => ({
+        // Ottieni i user IDs unici dai ticket per caricare i profili
+        const userIds = [...new Set((ticketsData || []).map(ticket => ticket.user_id))];
+        
+        // Carica i profili per tutti gli utenti che hanno ticket
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, email')
+          .in('user_id', userIds);
+        
+        // Crea una mappa dei profili per user_id
+        const profilesMap = (profilesData || []).reduce((acc, profile) => {
+          acc[profile.user_id] = profile;
+          return acc;
+        }, {} as { [key: string]: { user_id: string; display_name: string; email: string } });
+        
+        // Trasforma i dati per includere unread_count e profile info
+        const ticketsWithData = (ticketsData || []).map(ticket => ({
           id: ticket.id,
           ticket_number: ticket.ticket_number,
           category: ticket.category,
@@ -279,10 +291,13 @@ const SupportPage: React.FC = () => {
           created_at: ticket.created_at,
           updated_at: ticket.updated_at,
           unread_count: unreadMap[ticket.id], // undefined se non presente, che è falsy
-          profiles: ticket.profiles && typeof ticket.profiles === 'object' && !Array.isArray(ticket.profiles) && 'display_name' in ticket.profiles ? ticket.profiles : null
+          profiles: profilesMap[ticket.user_id] ? {
+            display_name: profilesMap[ticket.user_id].display_name,
+            email: profilesMap[ticket.user_id].email
+          } : null
         }));
         
-        setTickets(ticketsWithUnreadCount);
+        setTickets(ticketsWithData);
       }
 
       // Carica FAQ
