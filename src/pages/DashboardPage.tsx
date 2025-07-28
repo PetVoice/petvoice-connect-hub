@@ -2389,32 +2389,7 @@ const DashboardPage: React.FC = () => {
                            </p>
                          </div>
                        </div>
-                        <div className="flex items-center gap-2">
-                          {/* Pulsante Telefono */}
-                          {vet.phone && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => window.open(`tel:${vet.phone}`, '_self')}
-                              className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
-                              title="Chiama"
-                            >
-                              <Phone className="h-4 w-4" />
-                            </Button>
-                          )}
-                          
-                          {/* Pulsante Email */}
-                          {vet.email && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => window.open(`mailto:${vet.email}`, '_self')}
-                              className="h-8 w-8 p-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-                              title="Invia Email"
-                            >
-                              <Mail className="h-4 w-4" />
-                            </Button>
-                          )}
+                       <div className="flex items-center gap-2">
                          <Button
                            size="sm"
                            variant="ghost"
