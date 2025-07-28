@@ -1586,18 +1586,18 @@ const DashboardPage: React.FC = () => {
 
       {/* Selected Pet Info */}
       {selectedPet && (
-        <Card className="bg-gradient-subtle border-0 shadow-elegant">
+        <Card className="bg-gradient-to-br from-sky-50/80 to-indigo-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg">
                 <span className="text-2xl">
                   {selectedPet.type?.toLowerCase().includes('cane') ? '🐕' : 
                    selectedPet.type?.toLowerCase().includes('gatto') ? '🐱' : '🐾'}
                 </span>
               </div>
               <div>
-                <h2 className="text-2xl">{selectedPet.name}</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-2xl text-sky-800">{selectedPet.name}</h2>
+                <p className="text-sky-600">
                   {selectedPet.type?.toLowerCase() === 'cane' ? 'Cane' : selectedPet.type} {selectedPet.breed} • {selectedPet.birth_date ? new Date().getFullYear() - new Date(selectedPet.birth_date).getFullYear() : '?'} anni
                 </p>
               </div>
@@ -1608,12 +1608,12 @@ const DashboardPage: React.FC = () => {
 
       {/* Health Score Progress Bar */}
       {selectedPet && (
-        <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
+        <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Heart className="h-6 w-6 text-red-500" />
-                <h3 className="text-xl font-semibold">Punteggio Salute</h3>
+                <Heart className="h-6 w-6 text-rose-500" />
+                <h3 className="text-xl font-semibold text-rose-800">Punteggio Salute</h3>
               </div>
               <div className="text-right">
                 <div className={`text-2xl font-bold ${
@@ -1658,14 +1658,34 @@ const DashboardPage: React.FC = () => {
           {quickActions.map((action, index) => (
             <Card
               key={index}
-              className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20"
+              className={`border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20 ${
+                action.title === 'Analisi' ? 'bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50' :
+                action.title === 'Diario' ? 'bg-gradient-to-br from-emerald-50/80 to-green-50/60 border-emerald-200/50' :
+                action.title === 'Calendario' ? 'bg-gradient-to-br from-amber-50/80 to-yellow-50/60 border-amber-200/50' :
+                'bg-gradient-to-br from-red-50/80 to-orange-50/60 border-red-200/50'
+              }`}
               onClick={action.onClick}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <action.icon className={`h-12 w-12 ${action.title === 'Primo Soccorso' ? 'text-red-500' : 'text-primary'}`} />
+                <action.icon className={`h-12 w-12 ${
+                  action.title === 'Analisi' ? 'text-violet-500' :
+                  action.title === 'Diario' ? 'text-emerald-500' :
+                  action.title === 'Calendario' ? 'text-amber-500' :
+                  'text-red-500'
+                }`} />
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">{action.title}</h3>
-                  <p className="text-sm text-muted-foreground">{action.description}</p>
+                  <h3 className={`font-semibold text-lg mb-1 ${
+                    action.title === 'Analisi' ? 'text-violet-800' :
+                    action.title === 'Diario' ? 'text-emerald-800' :
+                    action.title === 'Calendario' ? 'text-amber-800' :
+                    'text-red-800'
+                  }`}>{action.title}</h3>
+                  <p className={`text-sm ${
+                    action.title === 'Analisi' ? 'text-violet-600' :
+                    action.title === 'Diario' ? 'text-emerald-600' :
+                    action.title === 'Calendario' ? 'text-amber-600' :
+                    'text-red-600'
+                  }`}>{action.description}</p>
                 </div>
               </CardContent>
             </Card>
@@ -1684,15 +1704,15 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Emozioni Rilevate Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-pink-50/80 to-fuchsia-50/60 border-pink-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-fuchsia-500 flex items-center justify-center shadow-lg">
                   <PieChartIcon className="h-6 w-6 text-white" />
                 </div>
-                Emozioni Rilevate
+                <span className="text-pink-800">Emozioni Rilevate</span>
               </CardTitle>
-              <CardDescription className="text-lg">Cronologia dettagliata di tutte le emozioni del tuo pet</CardDescription>
+              <CardDescription className="text-lg text-pink-600">Cronologia dettagliata di tutte le emozioni del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[300px]">
@@ -1763,25 +1783,25 @@ const DashboardPage: React.FC = () => {
           </Card>
 
            {/* Parametri Vitali Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-cyan-50/80 to-blue-50/60 border-cyan-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
                     <Activity className="h-6 w-6 text-white" />
                   </div>
-                  Parametri Vitali
+                  <span className="text-cyan-800">Parametri Vitali</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('vitals')}
                   size="sm"
                   variant="ghost"
-                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                  className="text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Monitoraggio della salute del tuo pet</CardDescription>
+              <CardDescription className="text-lg text-cyan-600">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
              <CardContent>
                {Object.keys(vitalStats).length > 0 ? (
@@ -1945,14 +1965,14 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
            {/* Comportamenti Osservati Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-violet-500 flex items-center justify-center shadow-lg">
                     <Brain className="h-6 w-6 text-white" />
                   </div>
-                  Comportamenti Osservati
+                  <span className="text-purple-800">Comportamenti Osservati</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('behaviors')}
@@ -1963,7 +1983,7 @@ const DashboardPage: React.FC = () => {
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Cronologia degli atteggiamenti e comportamenti del tuo pet</CardDescription>
+              <CardDescription className="text-lg text-purple-600">Cronologia degli atteggiamenti e comportamenti del tuo pet</CardDescription>
             </CardHeader>
             <CardContent>
               {Object.keys(behaviorStats).length > 0 ? (
@@ -2081,14 +2101,14 @@ const DashboardPage: React.FC = () => {
           </Card>
 
            {/* Farmaci Attivi Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-green-50/80 to-emerald-50/60 border-green-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
                     <Pill className="h-6 w-6 text-white" />
                   </div>
-                  Farmaci
+                  <span className="text-green-800">Farmaci</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('medications')}
@@ -2099,7 +2119,7 @@ const DashboardPage: React.FC = () => {
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Gestione farmaci e terapie in corso</CardDescription>
+              <CardDescription className="text-lg text-green-600">Gestione farmaci e terapie in corso</CardDescription>
             </CardHeader>
             <CardContent>
               {medications.length > 0 ? (
@@ -2200,25 +2220,25 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
            {/* Visite Recenti Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-indigo-50/80 to-slate-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-slate-500 flex items-center justify-center shadow-lg">
                     <FileText className="h-6 w-6 text-white" />
                   </div>
-                  Visite Recenti
+                  <span className="text-indigo-800">Visite Recenti</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('visits')}
                   size="sm"
                   variant="ghost"
-                  className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                  className="text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Storico delle visite veterinarie e controlli</CardDescription>
+              <CardDescription className="text-lg text-indigo-600">Storico delle visite veterinarie e controlli</CardDescription>
             </CardHeader>
             <CardContent>
               {medicalEvents.length > 0 ? (
@@ -2286,14 +2306,14 @@ const DashboardPage: React.FC = () => {
           </Card>
 
            {/* Assicurazione Card */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-teal-50/80 to-cyan-50/60 border-teal-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg">
                     <CreditCard className="h-6 w-6 text-white" />
                   </div>
-                   Assicurazioni
+                  <span className="text-teal-800">Assicurazioni</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('insurance')}
@@ -2304,7 +2324,7 @@ const DashboardPage: React.FC = () => {
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Gestione polizze e coperture assicurative</CardDescription>
+              <CardDescription className="text-lg text-teal-600">Gestione polizze e coperture assicurative</CardDescription>
             </CardHeader>
             <CardContent>
               {insurances.length > 0 ? (
@@ -2407,14 +2427,14 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
        {/* Veterinario Card */}
-        <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+        <Card className="bg-gradient-to-br from-blue-50/80 to-sky-50/60 border-blue-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-4">
              <div className="flex items-center justify-between">
                <CardTitle className="text-2xl flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-sky-500 flex items-center justify-center shadow-lg">
                    <UserCheck className="h-6 w-6 text-white" />
                  </div>
-                 Veterinario
+                 <span className="text-blue-800">Veterinario</span>
                </CardTitle>
                <div className="flex gap-2">
                  <Button
@@ -2438,7 +2458,7 @@ const DashboardPage: React.FC = () => {
                </div>
              </div>
           </CardHeader>
-          <CardDescription className="text-lg px-6 pb-6">Gestione contatti veterinari per il tuo pet</CardDescription>
+          <CardDescription className="text-lg px-6 pb-6 text-blue-600">Gestione contatti veterinari per il tuo pet</CardDescription>
           <CardContent>
             {veterinaryContacts && veterinaryContacts.length > 0 ? (
               <ScrollArea className="h-[300px]">
@@ -2580,14 +2600,14 @@ const DashboardPage: React.FC = () => {
         </Card>
 
            {/* Contatti Emergenza Card - Right */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <Card className="bg-gradient-to-br from-orange-50/80 to-red-50/60 border-orange-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
             <CardHeader className="pb-6">
               <CardTitle className="text-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
                     <Phone className="h-6 w-6 text-white" />
                   </div>
-                  Contatti Emergenza
+                  <span className="text-orange-800">Contatti Emergenza</span>
                 </div>
                 <Button
                   onClick={() => handleAddItem('emergency_contacts')}
@@ -2598,7 +2618,7 @@ const DashboardPage: React.FC = () => {
                   <Plus className="h-4 w-4" />
                 </Button>
               </CardTitle>
-              <CardDescription className="text-lg">Numeri di emergenza e pronto soccorso</CardDescription>
+              <CardDescription className="text-lg text-orange-600">Numeri di emergenza e pronto soccorso</CardDescription>
             </CardHeader>
             <CardContent>
               {emergencyContacts && emergencyContacts.length > 0 ? (
