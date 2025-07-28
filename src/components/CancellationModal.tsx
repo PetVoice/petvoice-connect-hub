@@ -49,7 +49,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
   };
 
   const endOfPeriodContent = {
-    title: "📅 CANCELLAZIONE A FINE PERIODO",
+    title: "CANCELLAZIONE A FINE PERIODO",
     icon: <Calendar className="w-6 h-6 text-primary" />,
     description: "Cosa succederà:",
     consequences: [
