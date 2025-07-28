@@ -3089,6 +3089,44 @@ export type Database = {
           },
         ]
       }
+      support_ticket_unread_counts: {
+        Row: {
+          created_at: string
+          id: string
+          last_read_at: string | null
+          ticket_id: string
+          unread_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          ticket_id: string
+          unread_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          ticket_id?: string
+          unread_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_unread_counts_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assigned_agent_id: string | null
@@ -3691,6 +3729,10 @@ export type Database = {
       is_referral_code_unique: {
         Args: { code: string }
         Returns: boolean
+      }
+      mark_ticket_as_read: {
+        Args: { p_ticket_id: string; p_user_id: string }
+        Returns: undefined
       }
       process_pending_notifications: {
         Args: Record<PropertyKey, never>
