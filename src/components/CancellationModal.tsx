@@ -44,7 +44,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
       "❌ Nessun rimborso"
     ],
     question: "Sei sicuro di voler cancellare immediatamente?",
-    confirmText: "CANCELLA ORA",
+    confirmText: "CONFERMA CANCELLAZIONE",
     variant: "destructive" as const,
     className: ""
   };
