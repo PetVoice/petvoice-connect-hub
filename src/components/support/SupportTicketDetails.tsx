@@ -132,6 +132,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   const loadTicketReplies = async () => {
     try {
+      if (!user?.id) return;
+      
       const { data, error } = await supabase
         .from('support_ticket_replies')
         .select('*')
@@ -139,11 +141,24 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setReplies(data || []);
+      
+      // Filtra i messaggi eliminati lato client
+      const filteredData = (data || []).filter(reply => {
+        // Se è il nostro messaggio, verifica che non sia stato eliminato da noi (sender)
+        if (reply.user_id === user.id) {
+          return !reply.deleted_by_sender;
+        }
+        // Se è un messaggio di altri, verifica che non sia stato eliminato da noi (recipient)
+        else {
+          return !reply.deleted_by_recipient;
+        }
+      });
+      
+      setReplies(filteredData);
 
       // Carica i profili degli utenti per i messaggi
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map(reply => reply.user_id))];
+      if (filteredData && filteredData.length > 0) {
+        const userIds = [...new Set(filteredData.map(reply => reply.user_id))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, display_name')
@@ -330,25 +345,44 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const handleDeleteReply = async (replyId: string, deleteForAll: boolean = false) => {
     try {
       if (deleteForAll) {
-        // Elimina completamente il messaggio
+        // Elimina per tutti (solo per i messaggi propri)
         const { error } = await supabase
           .from('support_ticket_replies')
-          .delete()
-          .eq('id', replyId);
+          .update({ 
+            deleted_by_sender: true,
+            deleted_by_recipient: true,
+            deleted_at: new Date().toISOString()
+          })
+          .eq('id', replyId)
+          .eq('user_id', user?.id);
 
         if (error) throw error;
 
+        // Rimuovi dalla UI
         setReplies(prev => prev.filter(reply => reply.id !== replyId));
       } else {
-        // Marca come eliminato solo per l'utente corrente
-        // Per ora eliminiamo completamente, in futuro si può implementare la soft deletion
+        // Elimina solo per l'utente corrente
+        const reply = replies.find(r => r.id === replyId);
+        if (!reply) return;
+
+        const isOwnMessage = reply.user_id === user?.id;
+        
+        const updateData = isOwnMessage ? {
+          deleted_by_sender: true,
+          deleted_at: new Date().toISOString()
+        } : {
+          deleted_by_recipient: true,
+          deleted_at: new Date().toISOString()
+        };
+
         const { error } = await supabase
           .from('support_ticket_replies')
-          .delete()
+          .update(updateData)
           .eq('id', replyId);
 
         if (error) throw error;
 
+        // Rimuovi dalla UI
         setReplies(prev => prev.filter(reply => reply.id !== replyId));
       }
 
