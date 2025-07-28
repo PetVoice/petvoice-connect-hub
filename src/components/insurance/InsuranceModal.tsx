@@ -10,12 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
 
@@ -53,10 +49,6 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
 }) => {
   const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const [loading, setLoading] = useState(false);
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
-  const [startDateOpen, setStartDateOpen] = useState(false);
-  const [endDateOpen, setEndDateOpen] = useState(false);
   
   const [formData, setFormData] = useState<InsurancePolicy>({
     policy_number: '',
@@ -67,6 +59,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
     coverage_limit: undefined,
     start_date: '',
     end_date: '',
+    is_active: true,
     notes: ''
   });
 
@@ -82,10 +75,9 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         coverage_limit: policy.coverage_limit,
         start_date: policy.start_date,
         end_date: policy.end_date || '',
+        is_active: policy.is_active ?? true,
         notes: policy.notes || ''
       });
-      setStartDate(new Date(policy.start_date));
-      setEndDate(policy.end_date ? new Date(policy.end_date) : undefined);
     } else {
       // Reset form for new policy
       setFormData({
@@ -97,18 +89,17 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         coverage_limit: undefined,
         start_date: '',
         end_date: '',
+        is_active: true,
         notes: ''
       });
-      setStartDate(undefined);
-      setEndDate(undefined);
     }
   }, [policy, isOpen]);
 
   const handleSave = async () => {
-    if (!formData.policy_number.trim() || !formData.provider_name.trim() || !startDate || !endDate) {
+    if (!formData.policy_number.trim() || !formData.provider_name.trim() || !formData.start_date) {
       showErrorToast({
         title: 'Errore',
-        description: 'Compila tutti i campi obbligatori inclusa la data di scadenza'
+        description: 'Compila tutti i campi obbligatori'
       });
       return;
     }
@@ -122,9 +113,9 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         premium_amount: formData.premium_amount || null,
         deductible_amount: formData.deductible_amount || null,
         coverage_limit: formData.coverage_limit || null,
-        start_date: format(startDate, 'yyyy-MM-dd'),
-        end_date: format(endDate, 'yyyy-MM-dd'),
-        is_active: true,
+        start_date: formData.start_date,
+        end_date: formData.end_date || null,
+        is_active: formData.is_active,
         notes: formData.notes?.trim() || null,
         pet_id: petId,
         user_id: userId
@@ -277,66 +268,35 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
 
           {/* Dates */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Data Inizio *</Label>
-              <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, 'dd/MM/yyyy') : "Seleziona data"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={(date) => {
-                      setStartDate(date);
-                      setStartDateOpen(false);
-                    }}
-                    initialFocus
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+            <div>
+              <Label htmlFor="start_date">Data Inizio *</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+              />
             </div>
             
-            <div className="space-y-2">
-              <Label>Data Scadenza *</Label>
-              <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, 'dd/MM/yyyy') : "Seleziona scadenza"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={(date) => {
-                      setEndDate(date);
-                      setEndDateOpen(false);
-                    }}
-                    initialFocus
-                    className="pointer-events-auto"
-                    disabled={(date) => startDate ? date < startDate : false}
-                  />
-                </PopoverContent>
-              </Popover>
+            <div>
+              <Label htmlFor="end_date">Data Scadenza</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={formData.end_date}
+                onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
+              />
             </div>
+          </div>
+
+          {/* Active Status */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="is_active"
+              checked={formData.is_active}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: !!checked }))}
+            />
+            <Label htmlFor="is_active">Polizza attiva</Label>
           </div>
 
           {/* Notes */}
