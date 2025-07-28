@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Clock, MessageCircle } from 'lucide-react';
+import { Clock, MessageCircle, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -23,6 +24,7 @@ interface SupportTicketListProps {
   tickets: SupportTicket[];
   selectedTicketId?: string;
   onTicketSelect: (ticket: SupportTicket) => void;
+  onTicketClose: (ticket: SupportTicket) => void;
   loading?: boolean;
 }
 
@@ -30,6 +32,7 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
   tickets,
   selectedTicketId,
   onTicketSelect,
+  onTicketClose,
   loading = false
 }) => {
   const getStatusColor = (status: string) => {
@@ -139,6 +142,21 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
                   locale: it 
                 })}
               </div>
+              
+              {ticket.status !== 'closed' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTicketClose(ticket);
+                  }}
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Chiudi
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -39,12 +39,14 @@ interface SupportTicketDetailsProps {
   ticket: SupportTicket;
   onClose: () => void;
   onTicketUpdate: (ticket: SupportTicket) => void;
+  onTicketClose: (ticket: SupportTicket) => void;
 }
 
 export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   ticket,
   onClose,
-  onTicketUpdate
+  onTicketUpdate,
+  onTicketClose
 }) => {
   const [replies, setReplies] = useState<TicketReply[]>([]);
   const [newReply, setNewReply] = useState('');
@@ -181,9 +183,20 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
               {ticket.priority}
             </Badge>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {ticket.status !== 'closed' && (
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => onTicketClose(ticket)}
+              >
+                Chiudi Ticket
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Ticket Info */}

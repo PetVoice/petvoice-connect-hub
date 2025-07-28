@@ -30,6 +30,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/hooks/useAuth';
 import { SupportTicketList } from '@/components/support/SupportTicketList';
 import { SupportTicketDetails } from '@/components/support/SupportTicketDetails';
+import { TicketCloseConfirmModal } from '@/components/support/TicketCloseConfirmModal';
 
 interface SupportTicket {
   id: string;
@@ -123,6 +124,10 @@ const SupportPage: React.FC = () => {
     category: 'feature',
     tags: []
   });
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
+  const [ticketToClose, setTicketToClose] = useState<SupportTicket | null>(null);
+  const [isClosingTicket, setIsClosingTicket] = useState(false);
   const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
@@ -286,6 +291,61 @@ const SupportPage: React.FC = () => {
 
   const handleTicketSelect = (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
+    setIsTicketModalOpen(true);
+  };
+
+  const handleTicketClose = (ticket: SupportTicket) => {
+    setTicketToClose(ticket);
+    setIsCloseConfirmOpen(true);
+  };
+
+  const confirmCloseTicket = async () => {
+    if (!ticketToClose) return;
+
+    setIsClosingTicket(true);
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({ 
+          status: 'closed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', ticketToClose.id);
+
+      if (error) throw error;
+
+      showToast({
+        title: "Ticket chiuso",
+        description: `Il ticket #${ticketToClose.ticket_number} è stato chiuso correttamente.`,
+        variant: "success"
+      });
+
+      // Aggiorna la lista tickets
+      setTickets(prev => 
+        prev.map(ticket => 
+          ticket.id === ticketToClose.id 
+            ? { ...ticket, status: 'closed' }
+            : ticket
+        )
+      );
+
+      // Aggiorna il ticket selezionato se è quello chiuso
+      if (selectedTicket && selectedTicket.id === ticketToClose.id) {
+        setSelectedTicket({ ...selectedTicket, status: 'closed' });
+      }
+
+      setIsCloseConfirmOpen(false);
+      setTicketToClose(null);
+    } catch (error) {
+      console.error('Error closing ticket:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile chiudere il ticket. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsClosingTicket(false);
+    }
   };
 
   const handleTicketUpdate = (updatedTicket: SupportTicket) => {
@@ -446,6 +506,7 @@ const SupportPage: React.FC = () => {
                 tickets={tickets}
                 selectedTicketId={selectedTicket?.id}
                 onTicketSelect={handleTicketSelect}
+                onTicketClose={handleTicketClose}
                 loading={loading}
               />
             </div>
@@ -456,6 +517,7 @@ const SupportPage: React.FC = () => {
                   ticket={selectedTicket}
                   onClose={() => setSelectedTicket(null)}
                   onTicketUpdate={handleTicketUpdate}
+                  onTicketClose={handleTicketClose}
                 />
               ) : (
                 <Card className="h-full flex items-center justify-center">
@@ -642,6 +704,18 @@ const SupportPage: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modal di conferma chiusura ticket */}
+      <TicketCloseConfirmModal
+        isOpen={isCloseConfirmOpen}
+        ticket={ticketToClose}
+        onClose={() => {
+          setIsCloseConfirmOpen(false);
+          setTicketToClose(null);
+        }}
+        onConfirm={confirmCloseTicket}
+        loading={isClosingTicket}
+      />
     </div>
   );
 };
