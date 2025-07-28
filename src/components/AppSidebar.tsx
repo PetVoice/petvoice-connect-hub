@@ -13,8 +13,8 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-// Navigation items
-const navigationItems = [
+// All navigation items in a single group for uniform spacing
+const allNavigationItems = [
   { title: 'Dashboard', url: '/', icon: Home },
   { title: 'I Miei Pet', url: '/pets', icon: PawPrint },
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
@@ -23,9 +23,6 @@ const navigationItems = [
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Community', url: '/community', icon: Users },
-];
-
-const supportItems = [
   { title: 'Supporto', url: '/support', icon: HeadphonesIcon },
   { title: 'Impostazioni', url: '/settings', icon: Settings },
 ];
@@ -50,7 +47,7 @@ const AppSidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const renderNavItems = (items: typeof navigationItems, label?: string) => (
+  const renderNavItems = (items: typeof allNavigationItems, label?: string) => (
     <SidebarGroup>
       {label && (
         <SidebarGroupLabel className={isCollapsed && !isMobile ? "hidden" : "block px-4 pb-2"}>
@@ -109,8 +106,7 @@ const AppSidebar: React.FC = () => {
 
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto py-4">
-          {renderNavItems(navigationItems)}
-          {renderNavItems(supportItems)}
+          {renderNavItems(allNavigationItems)}
         </div>
       </SidebarContent>
     </Sidebar>
