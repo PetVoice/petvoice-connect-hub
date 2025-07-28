@@ -47,9 +47,24 @@ const SubscriptionTab = () => {
 
   const confirmReactivation = async () => {
     setCancelLoading(true);
+    console.log('🚀 BEFORE REACTIVATION - subscription state:', {
+      subscribed: subscription.subscribed,
+      subscription_end: subscription.subscription_end,
+      cancellation_effective_date: subscription.cancellation_effective_date,
+      is_cancelled: subscription.is_cancelled,
+      cancellation_type: subscription.cancellation_type
+    });
+    
     const success = await reactivateSubscription();
     setCancelLoading(false);
     if (success) {
+      console.log('✅ AFTER REACTIVATION - subscription state:', {
+        subscribed: subscription.subscribed,
+        subscription_end: subscription.subscription_end,
+        cancellation_effective_date: subscription.cancellation_effective_date,
+        is_cancelled: subscription.is_cancelled,
+        cancellation_type: subscription.cancellation_type
+      });
       setShowReactivationModal(false);
     }
   };

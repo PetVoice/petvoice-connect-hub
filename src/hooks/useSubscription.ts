@@ -206,8 +206,10 @@ export const useSubscription = () => {
       console.log('🔄 Refreshing subscription after reactivation...');
       const { data: checkData, error: checkError } = await supabase.functions.invoke('check-subscription');
       
+      console.log('📋 CHECK-SUBSCRIPTION RESPONSE:', { checkData, checkError });
+      
       if (!checkError && checkData) {
-        setSubscription({
+        const newSubscriptionData: SubscriptionData = {
           subscribed: checkData.subscribed || false,
           subscription_tier: 'premium',
           subscription_end: checkData.subscription_end || null,
@@ -217,8 +219,13 @@ export const useSubscription = () => {
           cancellation_effective_date: checkData.cancellation_effective_date || null,
           can_reactivate: checkData.can_reactivate !== false,
           usage: checkData.usage
-        });
-        console.log('✅ Subscription updated after reactivation:', checkData);
+        };
+        
+        console.log('🔄 UPDATING SUBSCRIPTION STATE TO:', newSubscriptionData);
+        setSubscription(newSubscriptionData);
+        console.log('✅ Subscription updated after reactivation:', newSubscriptionData);
+      } else {
+        console.error('❌ Error calling check-subscription:', checkError);
       }
       
       toast({
