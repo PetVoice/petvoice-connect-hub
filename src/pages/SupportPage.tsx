@@ -1167,12 +1167,11 @@ const SupportPage: React.FC = () => {
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                          <AlertDialogAction 
-                                            className="bg-red-500 text-white hover:bg-red-600"
-                                            onClick={() => closeTicket(ticket.id, ticket.subject)}
-                                          >
-                                            Chiudi Ticket
-                                          </AlertDialogAction>
+                                           <AlertDialogAction 
+                                             onClick={() => closeTicket(ticket.id, ticket.subject)}
+                                           >
+                                             Chiudi Ticket
+                                           </AlertDialogAction>
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>
@@ -2387,7 +2386,7 @@ const SupportPage: React.FC = () => {
                   {selectedTicket.status !== 'closed' && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button className="bg-red-500 text-white hover:bg-red-600">
+                        <Button variant="destructive">
                           <XCircle className="h-4 w-4 mr-2" />
                           Chiudi Ticket
                         </Button>
@@ -2403,7 +2402,6 @@ const SupportPage: React.FC = () => {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annulla</AlertDialogCancel>
                           <AlertDialogAction 
-                            className="bg-red-500 text-white hover:bg-red-600"
                             onClick={() => {
                               closeTicket(selectedTicket.id, selectedTicket.subject);
                               setSelectedTicket(null);
