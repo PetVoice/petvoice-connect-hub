@@ -58,6 +58,9 @@ export const useSubscription = () => {
         .eq('user_id', user.id)
         .single();
 
+      console.log('📋 RAW SUBSCRIBER DATA FROM DB:', subscriberData);
+      console.log('🔍 ERROR FROM DB:', error);
+
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
@@ -73,6 +76,8 @@ export const useSubscription = () => {
         cancellation_effective_date: subscriberData?.cancellation_effective_date || null,
         can_reactivate: subscriberData?.can_reactivate !== false,
       };
+      
+      console.log('✅ MAPPED SUBSCRIPTION DATA:', subscriptionData);
       
       setSubscription(subscriptionData);
     } catch (error) {
