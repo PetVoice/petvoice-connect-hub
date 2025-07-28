@@ -235,9 +235,24 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     try {
       let content = newReply.trim();
       
-      // Se stiamo rispondendo a un messaggio, aggiungi il quote
+      // Se stiamo rispondendo a un messaggio, aggiungi il quote SOLO del contenuto pulito
       if (replyingTo) {
-        content = `> ${replyingTo.content.split('\n').join('\n> ')}\n\n${content}`;
+        // Estrai solo il contenuto principale del messaggio, non le quote
+        let cleanContent = replyingTo.content;
+        
+        // Se il messaggio originale contiene quote, prendi solo la parte dopo \n\n
+        if (cleanContent.includes('\n\n')) {
+          const parts = cleanContent.split('\n\n');
+          cleanContent = parts[parts.length - 1].trim(); // Prendi l'ultima parte (contenuto nuovo)
+        } else if (cleanContent.includes('>')) {
+          // Se contiene solo quote, pulisci i simboli >
+          cleanContent = cleanContent
+            .replace(/>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+        
+        content = `> ${cleanContent}\n\n${content}`;
       }
 
       const replyData = {
