@@ -106,27 +106,34 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           table: 'support_ticket_replies',
           filter: `ticket_id=eq.${ticket.id}`
         },
-        async (payload) => {
+        (payload) => {
           console.log('📨 New reply received:', payload.new);
           const newReply = payload.new as TicketReply;
           
-          // Carica il profilo dell'utente se non lo abbiamo già
-          if (!userProfiles[newReply.user_id]) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('user_id, display_name')
-              .eq('user_id', newReply.user_id)
-              .single();
-            
-            if (profile) {
-              setUserProfiles(prev => ({
-                ...prev,
-                [profile.user_id]: { display_name: profile.display_name || 'Utente' }
-              }));
-            }
-          }
-          
+          // Aggiungi immediatamente il messaggio
           setReplies(prev => [...prev, newReply]);
+          
+          // Carica il profilo dell'utente in background se non lo abbiamo già
+          if (!userProfiles[newReply.user_id]) {
+            (async () => {
+              try {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('user_id, display_name')
+                  .eq('user_id', newReply.user_id)
+                  .single();
+                
+                if (profile) {
+                  setUserProfiles(prev => ({
+                    ...prev,
+                    [profile.user_id]: { display_name: profile.display_name || 'Utente' }
+                  }));
+                }
+              } catch (error) {
+                console.error('Error loading user profile:', error);
+              }
+            })();
+          }
         }
       )
       .on(
