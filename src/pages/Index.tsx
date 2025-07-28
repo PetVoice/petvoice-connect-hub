@@ -1,14 +1,31 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+export const Index: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole();
+
+  // Mostra loading mentre verifica auth e ruoli
+  if (authLoading || (user && roleLoading)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    </div>
-  );
-};
+    );
+  }
 
-export default Index;
+  // Se utente autenticato, controlla se è admin
+  if (user) {
+    // Se è admin, redirect al pannello admin
+    if (isAdmin) {
+      return <Navigate to="/admin" replace />;
+    }
+    // Se è utente normale, redirect alla dashboard
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // Se non autenticato, redirect al login
+  return <Navigate to="/auth" replace />;
+};
