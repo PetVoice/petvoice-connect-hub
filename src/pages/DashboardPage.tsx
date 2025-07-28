@@ -2682,6 +2682,16 @@ const DashboardPage: React.FC = () => {
         userId={user?.id || ''}
         preselectedCategory={eventModal.preselectedCategory}
       />
+
+      {/* Insurance Modal */}
+      <InsurancePolicyModal
+        isOpen={insuranceModal.open}
+        onClose={() => setInsuranceModal({ open: false, mode: 'add', policy: null })}
+        policy={insuranceModal.policy}
+        petId={selectedPet?.id}
+        userId={user?.id}
+        onSave={loadInsurances}
+      />
     </div>
   );
 };
