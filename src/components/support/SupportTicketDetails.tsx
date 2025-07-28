@@ -118,16 +118,29 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const replyData = {
+        ticket_id: ticket.id,
+        user_id: user.id,
+        content: newReply.trim(),
+        is_staff_reply: false
+      };
+
+      const { data, error } = await supabase
         .from('support_ticket_replies')
-        .insert({
-          ticket_id: ticket.id,
-          user_id: user.id,
-          content: newReply.trim(),
-          is_staff_reply: false
-        });
+        .insert(replyData)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Aggiungi immediatamente il messaggio alla lista per feedback immediato
+      const newReplyWithTimestamp = {
+        ...data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      setReplies(prev => [...prev, newReplyWithTimestamp]);
 
       showToast({
         title: "Risposta inviata",

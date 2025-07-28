@@ -506,7 +506,6 @@ const SupportPage: React.FC = () => {
                 tickets={tickets}
                 selectedTicketId={selectedTicket?.id}
                 onTicketSelect={handleTicketSelect}
-                onTicketClose={handleTicketClose}
                 loading={loading}
               />
             </div>
