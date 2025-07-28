@@ -34,6 +34,7 @@ interface SupportTicket {
   created_at: string;
   updated_at: string;
   user_id: string;
+  user_email?: string;
   profiles?: {
     display_name: string;
     user_id: string;
@@ -70,7 +71,8 @@ export const AdminTickets: React.FC = () => {
   const loadTickets = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Prima otteniamo i ticket con i profili
+      const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
         .select(`
           *,
@@ -78,8 +80,33 @@ export const AdminTickets: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setTickets((data as any) || []);
+      if (ticketsError) throw ticketsError;
+
+      // Poi otteniamo le email degli utenti
+      const userIds = ticketsData?.map(ticket => ticket.user_id) || [];
+      const { data: usersData, error: usersError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .in('user_id', userIds);
+
+      // Otteniamo le email dalla tabella auth
+      const emailPromises = userIds.map(async (userId) => {
+        const { data: userData } = await supabase.auth.admin.getUserById(userId);
+        return { user_id: userId, email: userData?.user?.email };
+      });
+
+      const emailResults = await Promise.all(emailPromises);
+      const emailMap = Object.fromEntries(
+        emailResults.map(result => [result.user_id, result.email])
+      );
+
+      // Combiniamo i dati
+      const enrichedTickets = ticketsData?.map(ticket => ({
+        ...ticket,
+        user_email: emailMap[ticket.user_id]
+      })) || [];
+
+      setTickets(enrichedTickets);
     } catch (error) {
       console.error('Error loading tickets:', error);
       showToast({
@@ -397,6 +424,9 @@ export const AdminTickets: React.FC = () => {
                         <div className="flex items-center space-x-1">
                           <User className="h-3 w-3" />
                           <span>{ticket.profiles?.display_name || 'Utente sconosciuto'}</span>
+                          {ticket.user_email && (
+                            <span className="text-xs text-muted-foreground">({ticket.user_email})</span>
+                          )}
                         </div>
                         <span>{formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true, locale: it })}</span>
                       </div>
@@ -433,7 +463,12 @@ export const AdminTickets: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Utente</label>
-                  <p className="font-medium">{selectedTicket.profiles?.display_name || 'Utente sconosciuto'}</p>
+                  <div>
+                    <p className="font-medium">{selectedTicket.profiles?.display_name || 'Utente sconosciuto'}</p>
+                    {selectedTicket.user_email && (
+                      <p className="text-sm text-muted-foreground">{selectedTicket.user_email}</p>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Categoria</label>
