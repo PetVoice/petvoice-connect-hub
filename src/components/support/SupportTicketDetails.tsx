@@ -285,7 +285,9 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         ticket_id: ticket.id,
         user_id: user.id,
         content,
-        is_staff_reply: false
+        is_staff_reply: false,
+        deleted_by_sender: false,
+        deleted_by_recipient: false
       };
 
       const { data, error } = await supabase
