@@ -26,7 +26,6 @@ export interface Message {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  deleted_by_all: boolean;
   voice_duration: number | null;
   metadata: any;
   is_emergency: boolean | null;
@@ -188,17 +187,8 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   useEffect(() => {
     loadMessages();
     loadUserNames();
-    
-    // Setup realtime subscription
-    const unsubscribe = setupRealtimeSubscription();
-    
-    // Cleanup on unmount or channel change
-    return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
-    };
-  }, [channelId, user?.id]);
+    setupRealtimeSubscription();
+  }, [channelId]);
 
   // Scroll automatico quando entro nel canale
   useEffect(() => {
@@ -279,7 +269,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
     console.log('🔄 Setting up real-time subscription for channel:', channelId);
     
     const channel = supabase
-      .channel(`community-messages-${channelId}`)
+      .channel(`chat-${channelId}`)
       .on(
         'postgres_changes',
         {
@@ -292,21 +282,6 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
           console.log('📨 New message received via real-time:', payload.new);
           const newMessage = payload.new as Message;
           
-          // Verifica se l'utente ha già eliminato questo messaggio
-          if (user?.id) {
-            const { data: deletedByUser } = await supabase
-              .from('community_message_deletions')
-              .select('message_id')
-              .eq('user_id', user.id)
-              .eq('message_id', newMessage.id)
-              .maybeSingle();
-            
-            if (deletedByUser) {
-              console.log('⚠️ Message was deleted by user, skipping:', newMessage.id);
-              return;
-            }
-          }
-          
           setMessages(prev => {
             const exists = prev.some(msg => msg.id === newMessage.id);
             if (exists) {
@@ -314,12 +289,7 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
               return prev;
             }
             console.log('✅ Adding new message to state:', newMessage.id);
-            const newMessages = [...prev, newMessage];
-            
-            // Auto-scroll per i nuovi messaggi
-            setTimeout(() => scrollToBottom(), 100);
-            
-            return newMessages;
+            return [...prev, newMessage];
           });
         }
       )
@@ -334,35 +304,11 @@ export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
         (payload) => {
           console.log('📝 Message updated via real-time:', payload.new);
           const updatedMessage = payload.new as Message;
-          
-          setMessages(prev => {
-            if (updatedMessage.deleted_by_all) {
-              // Rimuovi il messaggio se è stato eliminato per tutti
-              return prev.filter(msg => msg.id !== updatedMessage.id);
-            } else {
-              // Aggiorna il messaggio
-              return prev.map(msg => 
-                msg.id === updatedMessage.id ? updatedMessage : msg
-              );
-            }
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public', 
-          table: 'community_message_deletions'
-        },
-        (payload) => {
-          console.log('🗑️ Message deletion event via real-time:', payload.new);
-          const deletion = payload.new as any;
-          
-          // Se l'eliminazione è dell'utente corrente, rimuovi il messaggio
-          if (deletion.user_id === user?.id) {
-            setMessages(prev => prev.filter(msg => msg.id !== deletion.message_id));
-          }
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === updatedMessage.id ? updatedMessage : msg
+            )
+          );
         }
       )
       .subscribe((status) => {

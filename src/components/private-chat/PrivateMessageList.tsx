@@ -189,7 +189,7 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
           >
             <div 
               className={`flex gap-3 p-3 rounded-lg transition-colors ${
-                isOwn ? 'bg-primary/10 ml-8' : 'bg-muted/20 mr-8'
+                isOwn ? 'bg-primary/10 ml-12' : 'bg-muted/20 mr-12'
               } ${isSelectionMode ? 'cursor-pointer hover:bg-muted/30' : ''} ${
                 isSelected ? 'ring-2 ring-primary' : ''
               }`}
@@ -214,14 +214,6 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                       locale: it 
                     })}
                   </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-100/50"
-                    onClick={() => onDeleteMessage(message.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
                 </div>
                 
                 {/* Reply Quote */}

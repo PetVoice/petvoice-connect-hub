@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { MessageCircle, Send, ArrowLeft, User, Clock, Trash2 } from 'lucide-react';
+import { MessageCircle, Send, ArrowLeft, User, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
@@ -261,53 +261,6 @@ export const PrivateChat: React.FC = () => {
     }
   };
 
-  const deleteChat = async () => {
-    if (!selectedChat) return;
-
-    try {
-      // First, delete all messages in the chat
-      const { error: messagesError } = await supabase
-        .from('private_messages')
-        .delete()
-        .eq('chat_id', selectedChat.id);
-
-      if (messagesError) {
-        console.error('Error deleting messages:', messagesError);
-        throw messagesError;
-      }
-
-      // Then delete the chat itself
-      const { error: chatError } = await supabase
-        .from('private_chats')
-        .delete()
-        .eq('id', selectedChat.id);
-
-      if (chatError) {
-        console.error('Error deleting chat:', chatError);
-        throw chatError;
-      }
-
-      showToast({
-        title: "Chat eliminata",
-        description: "La conversazione è stata eliminata definitivamente",
-        variant: "default"
-      });
-
-      // Reset selection and reload chats
-      setSelectedChat(null);
-      setMessages([]);
-      await loadChats();
-
-    } catch (error) {
-      console.error('Error deleting chat:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile eliminare la chat",
-        variant: "destructive"
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -400,36 +353,25 @@ export const PrivateChat: React.FC = () => {
           {selectedChat ? (
             <>
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="lg:hidden"
-                      onClick={() => setSelectedChat(null)}
-                    >
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={selectedChat.other_user.avatar_url} />
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
-                      <p className="text-xs text-muted-foreground">Chat privata</p>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-3">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-100/50"
-                    onClick={deleteChat}
-                    title="Elimina chat"
+                    className="lg:hidden"
+                    onClick={() => setSelectedChat(null)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4" />
                   </Button>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={selectedChat.other_user.avatar_url} />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">{selectedChat.other_user.display_name}</h3>
+                    <p className="text-xs text-muted-foreground">Chat privata</p>
+                  </div>
                 </div>
               </CardHeader>
               <Separator />
