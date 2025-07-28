@@ -198,19 +198,22 @@ const SupportPage: React.FC = () => {
           schema: 'public',
           table: 'support_ticket_unread_counts'
         },
-        (payload) => {
-          console.log('🔔 Unread count updated in realtime:', payload);
-          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-            const unreadData = payload.new;
-            setTickets(prev => 
-              prev.map(ticket => 
-                ticket.id === unreadData.ticket_id 
-                  ? { ...ticket, unread_count: unreadData.unread_count }
-                  : ticket
-              )
-            );
-          }
-        }
+         (payload) => {
+           console.log('🔔 Unread count updated in realtime:', payload);
+           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+             const unreadData = payload.new;
+             // Solo aggiorna se l'unread count è per l'utente corrente
+             if (unreadData.user_id === user?.id) {
+               setTickets(prev => 
+                 prev.map(ticket => 
+                   ticket.id === unreadData.ticket_id 
+                     ? { ...ticket, unread_count: unreadData.unread_count }
+                     : ticket
+                 )
+               );
+             }
+           }
+         }
       )
       .subscribe();
 
@@ -226,27 +229,39 @@ const SupportPage: React.FC = () => {
       
       console.log('🔍 Loading tickets for user:', user?.id);
       
-      // Carica tickets dell'utente con unread counts
+      // Carica tickets con unread counts per l'utente corrente
       const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
-        .select(`
-          *,
-          support_ticket_unread_counts(unread_count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
+      // Carica separatamente gli unread counts per l'utente corrente
+      const { data: unreadCounts, error: unreadError } = await supabase
+        .from('support_ticket_unread_counts')
+        .select('ticket_id, unread_count')
+        .eq('user_id', user?.id);
+
       console.log('📊 Tickets query result:', { ticketsData, ticketsError });
+      console.log('🔔 Unread counts query result:', { unreadCounts, unreadError });
 
       if (ticketsError) {
         console.error('Error loading tickets:', ticketsError);
+      } else if (unreadError) {
+        console.error('Error loading unread counts:', unreadError);
       } else {
         console.log('✅ Tickets loaded:', ticketsData?.length, 'tickets');
         
-        // Trasforma i dati per includere unread_count direttamente
-        const ticketsWithUnreadCount = ticketsData?.map(ticket => ({
+        // Crea una mappa degli unread counts per ticket_id
+        const unreadMap = (unreadCounts || []).reduce((acc, count) => {
+          acc[count.ticket_id] = count.unread_count;
+          return acc;
+        }, {} as { [key: string]: number });
+        
+        // Trasforma i dati per includere unread_count
+        const ticketsWithUnreadCount = (ticketsData || []).map(ticket => ({
           ...ticket,
-          unread_count: ticket.support_ticket_unread_counts?.[0]?.unread_count || 0
-        })) || [];
+          unread_count: unreadMap[ticket.id] || 0
+        }));
         
         setTickets(ticketsWithUnreadCount);
       }
