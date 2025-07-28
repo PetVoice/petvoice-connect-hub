@@ -11,6 +11,7 @@ import { CalendarEvent, EVENT_CATEGORIES, RECURRING_PATTERNS, EVENT_STATUS } fro
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
+import { GooglePlacesInput } from '@/components/settings/GooglePlacesInput';
 
 interface EventFormProps {
   isOpen: boolean;
@@ -230,11 +231,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                 <MapPin className="h-4 w-4 inline mr-1" />
                 Luogo
               </Label>
-              <Input
-                id="location"
-                placeholder="Dove si svolge..."
+              <GooglePlacesInput
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                onChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
+                placeholder="Inizia a digitare l'indirizzo della clinica..."
+                onAddressSelect={(details) => {
+                  // Salva l'indirizzo completo nel campo location
+                  setFormData(prev => ({ ...prev, location: details.full_address }));
+                }}
               />
             </div>
 
