@@ -2426,7 +2426,6 @@ export type Database = {
           created_at: string
           data_management_settings: Json | null
           display_name: string | null
-          email: string | null
           id: string
           location: string | null
           marketing_communications: boolean | null
@@ -2452,7 +2451,6 @@ export type Database = {
           created_at?: string
           data_management_settings?: Json | null
           display_name?: string | null
-          email?: string | null
           id?: string
           location?: string | null
           marketing_communications?: boolean | null
@@ -2478,7 +2476,6 @@ export type Database = {
           created_at?: string
           data_management_settings?: Json | null
           display_name?: string | null
-          email?: string | null
           id?: string
           location?: string | null
           marketing_communications?: boolean | null

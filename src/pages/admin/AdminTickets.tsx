@@ -37,7 +37,6 @@ interface SupportTicket {
   profiles?: {
     display_name: string;
     user_id: string;
-    email?: string;
   } | null;
 }
 
@@ -75,7 +74,7 @@ export const AdminTickets: React.FC = () => {
         .from('support_tickets')
         .select(`
           *,
-          profiles:user_id (display_name, user_id, email)
+          profiles:user_id (display_name, user_id)
         `)
         .order('created_at', { ascending: false });
 
@@ -398,9 +397,6 @@ export const AdminTickets: React.FC = () => {
                         <div className="flex items-center space-x-1">
                           <User className="h-3 w-3" />
                           <span>{ticket.profiles?.display_name || 'Utente sconosciuto'}</span>
-                          {ticket.profiles?.email && (
-                            <span className="text-xs text-muted-foreground">({ticket.profiles.email})</span>
-                          )}
                         </div>
                         <span>{formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true, locale: it })}</span>
                       </div>
@@ -437,12 +433,7 @@ export const AdminTickets: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Utente</label>
-                  <div>
-                    <p className="font-medium">{selectedTicket.profiles?.display_name || 'Utente sconosciuto'}</p>
-                    {selectedTicket.profiles?.email && (
-                      <p className="text-sm text-muted-foreground">{selectedTicket.profiles.email}</p>
-                    )}
-                  </div>
+                  <p className="font-medium">{selectedTicket.profiles?.display_name || 'Utente sconosciuto'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Categoria</label>
