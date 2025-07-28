@@ -3055,7 +3055,11 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
+          deleted_at: string | null
+          deleted_by_recipient: boolean | null
+          deleted_by_sender: boolean | null
           id: string
+          is_edited: boolean | null
           is_staff_reply: boolean | null
           ticket_id: string
           updated_at: string | null
@@ -3064,7 +3068,11 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_by_recipient?: boolean | null
+          deleted_by_sender?: boolean | null
           id?: string
+          is_edited?: boolean | null
           is_staff_reply?: boolean | null
           ticket_id: string
           updated_at?: string | null
@@ -3073,7 +3081,11 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_by_recipient?: boolean | null
+          deleted_by_sender?: boolean | null
           id?: string
+          is_edited?: boolean | null
           is_staff_reply?: boolean | null
           ticket_id?: string
           updated_at?: string | null
