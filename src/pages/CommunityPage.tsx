@@ -120,15 +120,19 @@ const CommunityPage = () => {
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
   const [unreadCounts, setUnreadCounts] = useState({}); // Traccia i messaggi non letti per gruppo
-  const [totalUsers, setTotalUsers] = useState(4); // FORCE 4 utenti
+  const [totalUsers, setTotalUsers] = useState(0);
   const [groupUserCounts, setGroupUserCounts] = useState({});
   
-  // Load community stats - FORZA 4 UTENTI SEMPRE
+  // Load community stats
   const loadCommunityStats = async () => {
-    console.log('🔥 FORCING 4 USERS - BASTA CAZZATE!');
-    setTotalUsers(4); // HARD CODED 4 USERS
-    
     try {
+      // Get total count of users who have subscriptions to any channel
+      const { count: totalUsersCount } = await supabase
+        .from('user_channel_subscriptions')
+        .select('user_id', { count: 'exact', head: true });
+      
+      setTotalUsers(totalUsersCount || 0);
+      
       // Load user counts for each group in myGroups
       const counts = {};
       for (const group of myGroups) {
@@ -141,7 +145,7 @@ const CommunityPage = () => {
       }
       setGroupUserCounts(counts);
     } catch (error) {
-      console.error('❌ Error loading group stats:', error);
+      console.error('❌ Error loading community stats:', error);
     }
   };
 
