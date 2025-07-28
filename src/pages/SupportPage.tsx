@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -179,6 +180,7 @@ const SupportPage: React.FC = () => {
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [ticketToClose, setTicketToClose] = useState<SupportTicket | null>(null);
   const [ticketReply, setTicketReply] = useState('');
   const [ticketReplies, setTicketReplies] = useState<{[key: string]: any[]}>({});
   const [newFeatureRequest, setNewFeatureRequest] = useState({
@@ -1141,20 +1143,39 @@ const SupportPage: React.FC = () => {
                                 </div>
                                 {ticket.status !== 'closed' && (
                                   <div className="flex items-center space-x-2 ml-4" onClick={(e) => e.stopPropagation()}>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (window.confirm(`Sei sicuro di voler chiudere il ticket "${ticket.subject}"?`)) {
-                                          closeTicket(ticket.id, ticket.subject);
-                                        }
-                                      }}
-                                      className="h-8 px-2 bg-red-500 text-white hover:bg-red-600 border-red-500"
-                                    >
-                                      <XCircle className="h-3 w-3 mr-1" />
-                                      Chiudi
-                                    </Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                          }}
+                                          className="h-8 px-2 bg-red-500 text-white hover:bg-red-600 border-red-500"
+                                        >
+                                          <XCircle className="h-3 w-3 mr-1" />
+                                          Chiudi
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Conferma chiusura ticket</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Sei sicuro di voler chiudere il ticket "{ticket.subject}"?
+                                            Questa azione non può essere annullata.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                                          <AlertDialogAction 
+                                            className="bg-red-500 text-white hover:bg-red-600"
+                                            onClick={() => closeTicket(ticket.id, ticket.subject)}
+                                          >
+                                            Chiudi Ticket
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
                                   </div>
                                 )}
                               </div>
@@ -2377,18 +2398,35 @@ const SupportPage: React.FC = () => {
                     Chiudi
                   </Button>
                   {selectedTicket.status !== 'closed' && (
-                    <Button 
-                      onClick={() => {
-                        if (window.confirm(`Sei sicuro di voler chiudere il ticket "${selectedTicket.subject}"?`)) {
-                          closeTicket(selectedTicket.id, selectedTicket.subject);
-                          setSelectedTicket(null);
-                        }
-                      }}
-                      className="bg-red-500 text-white hover:bg-red-600"
-                    >
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Chiudi Ticket
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button className="bg-red-500 text-white hover:bg-red-600">
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Chiudi Ticket
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Conferma chiusura ticket</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Sei sicuro di voler chiudere il ticket "{selectedTicket.subject}"?
+                            Questa azione non può essere annullata.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                          <AlertDialogAction 
+                            className="bg-red-500 text-white hover:bg-red-600"
+                            onClick={() => {
+                              closeTicket(selectedTicket.id, selectedTicket.subject);
+                              setSelectedTicket(null);
+                            }}
+                          >
+                            Chiudi Ticket
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                 </div>
               </div>
