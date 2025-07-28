@@ -2427,6 +2427,38 @@ const DashboardPage: React.FC = () => {
                           
                           {/* Action buttons */}
                           <div className="flex gap-1">
+                            {/* Call button */}
+                            {vet.phone && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`tel:${vet.phone}`, '_self');
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
+                                title="Chiama"
+                              >
+                                <Phone className="h-4 w-4" />
+                              </Button>
+                            )}
+                            
+                            {/* Email button */}
+                            {vet.email && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`mailto:${vet.email}`, '_self');
+                                }}
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                                title="Invia Email"
+                              >
+                                <Mail className="h-4 w-4" />
+                              </Button>
+                            )}
+                            
                             <Button
                               onClick={(e) => {
                                 e.stopPropagation();
