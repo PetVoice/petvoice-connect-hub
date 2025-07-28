@@ -2370,18 +2370,20 @@ const SupportPage: React.FC = () => {
                   </h4>
                   <div className="space-y-3">
                     {/* Risposte dal database - più recenti in alto */}
-                    {selectedTicket && ticketReplies[selectedTicket.id]?.map((reply) => (
-                      <Card key={reply.id} className={reply.is_staff_reply ? "p-3 bg-green-50" : "p-3 bg-blue-50"}>
-                        <div className="flex items-start space-x-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${
-                            reply.is_staff_reply ? 'bg-green-500' : 'bg-blue-500'
-                          }`}>
-                            {reply.is_staff_reply ? 'ST' : 'Tu'}
-                          </div>
-                          <div className="flex-1">
-                            <p className={`font-medium text-sm ${reply.is_staff_reply ? 'text-green-900' : 'text-blue-900'}`}>
-                              {reply.is_staff_reply ? 'Supporto' : 'Tu'}
-                            </p>
+                    {selectedTicket && ticketReplies[selectedTicket.id]?.map((reply) => {
+                      console.log('🔍 Reply debug:', reply.id, 'is_staff_reply:', reply.is_staff_reply, 'content:', reply.content.substring(0, 20));
+                      return (
+                        <Card key={reply.id} className={reply.is_staff_reply ? "p-3 bg-green-50" : "p-3 bg-blue-50"}>
+                          <div className="flex items-start space-x-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${
+                              reply.is_staff_reply ? 'bg-green-500' : 'bg-blue-500'
+                            }`}>
+                              {reply.is_staff_reply ? 'ST' : 'Tu'}
+                            </div>
+                            <div className="flex-1">
+                              <p className={`font-medium text-sm ${reply.is_staff_reply ? 'text-green-900' : 'text-blue-900'}`}>
+                                {reply.is_staff_reply ? 'Supporto' : 'Tu'}
+                              </p>
                             <p className={`text-sm mt-1 whitespace-pre-wrap ${reply.is_staff_reply ? 'text-green-700' : 'text-blue-700'}`}>
                               {reply.content}
                             </p>
@@ -2390,8 +2392,9 @@ const SupportPage: React.FC = () => {
                             </p>
                           </div>
                         </div>
-                      </Card>
-                    ))}
+                        </Card>
+                      );
+                    })}
                     
                     {/* Messaggio iniziale dell'utente - sempre in fondo */}
                     <Card className="p-3 bg-blue-50">
