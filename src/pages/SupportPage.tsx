@@ -696,7 +696,7 @@ const SupportPage: React.FC = () => {
         <div className="flex items-center gap-4 mb-8">
           <Headphones className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Supporto</h1>
+            <h1 className="text-3xl font-bold">Supporto</h1>
             <p className="text-muted-foreground mt-1">
               Ottieni aiuto, trova risposte e resta aggiornato sulle novità
             </p>
