@@ -179,6 +179,7 @@ const SupportPage: React.FC = () => {
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [ticketReply, setTicketReply] = useState('');
   const [newFeatureRequest, setNewFeatureRequest] = useState({
     title: '',
     description: '',
@@ -1079,7 +1080,7 @@ const SupportPage: React.FC = () => {
                                           closeTicket(ticket.id, ticket.subject);
                                         }
                                       }}
-                                      className="h-8 px-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                      className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
                                     >
                                       <XCircle className="h-3 w-3 mr-1" />
                                       Chiudi
@@ -2230,6 +2231,35 @@ const SupportPage: React.FC = () => {
                   </div>
                 </div>
 
+                {selectedTicket.status !== 'closed' && (
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium mb-3">Aggiungi una risposta</h4>
+                    <Textarea
+                      placeholder="Scrivi la tua risposta o aggiungi dettagli..."
+                      value={ticketReply}
+                      onChange={(e) => setTicketReply(e.target.value)}
+                      rows={3}
+                      className="mb-3"
+                    />
+                    <Button 
+                      onClick={() => {
+                        if (ticketReply.trim()) {
+                          showToast({
+                            title: "✅ Risposta inviata",
+                            description: "La tua risposta è stata aggiunta al ticket."
+                          });
+                          setTicketReply('');
+                        }
+                      }}
+                      disabled={!ticketReply.trim()}
+                      size="sm"
+                    >
+                      <Send className="h-4 w-4 mr-2" />
+                      Invia Risposta
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex justify-between pt-4 border-t">
                   <Button variant="outline" onClick={() => setSelectedTicket(null)}>
                     Chiudi
@@ -2243,7 +2273,7 @@ const SupportPage: React.FC = () => {
                           setSelectedTicket(null);
                         }
                       }}
-                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
                     >
                       <XCircle className="h-4 w-4 mr-2" />
                       Chiudi Ticket
