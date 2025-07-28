@@ -42,6 +42,8 @@ const SubscriptionTab = () => {
     setCancelLoading(false);
     if (success) {
       setShowCancellationModal(false);
+      // Force immediate UI refresh to update the state
+      window.location.reload();
     }
   };
 
