@@ -433,6 +433,74 @@ const SupportPage: React.FC = () => {
     }
   };
 
+  const createFeatureRequest = async () => {
+    if (!newFeatureRequest.title || !newFeatureRequest.description) {
+      showToast({
+        title: "Errore",
+        description: "Compila tutti i campi obbligatori",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (!user) {
+        showToast({
+          title: "Errore", 
+          description: "Devi essere autenticato per creare una richiesta",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('support_feature_requests')
+        .insert({
+          title: newFeatureRequest.title,
+          description: newFeatureRequest.description,
+          category: newFeatureRequest.category,
+          user_id: user.id,
+          status: 'open',
+          votes: 0
+        });
+
+      if (error) {
+        console.error('Detailed error:', error);
+        throw error;
+      }
+
+      showToast({
+        title: "Richiesta inviata",
+        description: "La tua richiesta di funzionalità è stata inviata con successo.",
+        variant: "success"
+      });
+
+      // Reset form
+      setNewFeatureRequest({
+        title: '',
+        description: '',
+        category: 'feature',
+        tags: []
+      });
+
+      setIsNewFeatureDialogOpen(false);
+      
+      // Ricarica le feature requests
+      loadSupportData();
+    } catch (error) {
+      console.error('Error creating feature request:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile inviare la richiesta. Riprova più tardi.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleTicketSelect = async (ticket: SupportTicket) => {
     setSelectedTicket(ticket);
     
@@ -842,8 +910,12 @@ const SupportPage: React.FC = () => {
                       rows={4}
                     />
                   </div>
-                  <Button className="w-full">
-                    Invia Richiesta
+                  <Button 
+                    onClick={createFeatureRequest} 
+                    disabled={isSubmitting}
+                    className="w-full"
+                  >
+                    {isSubmitting ? 'Invio...' : 'Invia Richiesta'}
                   </Button>
                 </div>
               </DialogContent>
