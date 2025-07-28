@@ -284,7 +284,16 @@ const SupportPage: React.FC = () => {
         return;
       }
 
-      const { error } = await supabase
+      console.log('Creating ticket with data:', {
+        category: newTicket.category,
+        priority: newTicket.priority,
+        subject: newTicket.subject,
+        description: newTicket.description,
+        user_id: user.id,
+        status: 'open'
+      });
+
+      const { data, error } = await supabase
         .from('support_tickets')
         .insert({
           ticket_number: '', // Verrà generato automaticamente dal trigger
@@ -296,7 +305,12 @@ const SupportPage: React.FC = () => {
           status: 'open'
         });
 
-      if (error) throw error;
+      console.log('Insert result:', { data, error });
+
+      if (error) {
+        console.error('Detailed error:', error);
+        throw error;
+      }
 
       showToast({
         title: "Ticket creato",
