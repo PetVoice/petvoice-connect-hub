@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -52,19 +52,74 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [newReply, setNewReply] = useState('');
   const [loading, setLoading] = useState(false);
   const [userProfiles, setUserProfiles] = useState<{ [key: string]: { display_name: string } }>({});
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasScrolledToUnread, setHasScrolledToUnread] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const firstUnreadRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { showToast } = useTranslatedToast();
 
-  // Carica le risposte del ticket
+  // Carica le risposte del ticket e l'unread count
   useEffect(() => {
     if (ticket.id) {
       loadTicketReplies();
+      loadUnreadCount();
       const cleanup = setupRealtimeSubscription();
       
       // Cleanup function per quando il componente viene smontato o ticket cambia
       return cleanup;
     }
   }, [ticket.id]);
+
+  // Effect per gestire lo scroll quando i messaggi cambiano
+  useEffect(() => {
+    if (replies.length > 0 && !hasScrolledToUnread) {
+      scrollToUnreadMessages();
+    } else if (replies.length > 0) {
+      scrollToBottom();
+    }
+  }, [replies]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('support_ticket_unread_counts')
+        .select('unread_count')
+        .eq('ticket_id', ticket.id)
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      setUnreadCount(data?.unread_count || 0);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
+    }
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToUnreadMessages = () => {
+    if (unreadCount > 0 && replies.length >= unreadCount) {
+      const firstUnreadIndex = replies.length - unreadCount;
+      const element = document.querySelector(`[data-message-index="${firstUnreadIndex}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setHasScrolledToUnread(true);
+        
+        // Evidenzia il primo messaggio non letto per un breve momento
+        element.classList.add('animate-pulse');
+        setTimeout(() => {
+          element.classList.remove('animate-pulse');
+        }, 2000);
+      }
+    } else {
+      scrollToBottom();
+      setHasScrolledToUnread(true);
+    }
+  };
 
   const loadTicketReplies = async () => {
     try {
@@ -195,6 +250,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         variant: "success"
       });
 
+      // Reset unread count quando l'utente scrive
+      setUnreadCount(0);
       setNewReply('');
     } catch (error) {
       console.error('Error adding reply:', error);
@@ -271,11 +328,12 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 mb-4">
+        <ScrollArea className="flex-1 mb-4" ref={scrollAreaRef}>
           <div className="space-y-4">
-            {replies.map((reply) => {
+            {replies.map((reply, index) => {
               const isOwn = reply.user_id === user?.id;
               const isStaff = reply.is_staff_reply;
+              const isFirstUnread = unreadCount > 0 && index === replies.length - unreadCount;
               
               // Logica per il nome: se è il proprio messaggio mostra "Tu", altrimenti mostra il nome dell'utente o "Supporto"
               let displayName = 'Supporto';
@@ -291,9 +349,10 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
               return (
                 <div 
                   key={reply.id}
+                  data-message-index={index}
                   className={`flex gap-3 p-3 rounded-lg transition-colors ${
                     isOwn ? 'bg-primary/10 ml-12' : 'bg-green-50 mr-12'
-                  }`}
+                  } ${isFirstUnread ? 'border-l-4 border-l-blue-500' : ''}`}
                 >
                   <div className="flex-shrink-0">
                     <Avatar className="h-8 w-8">
@@ -314,6 +373,11 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                           locale: it 
                         })}
                       </span>
+                      {isFirstUnread && (
+                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                          Primo non letto
+                        </Badge>
+                      )}
                     </div>
                     
                     <p className="text-sm text-foreground whitespace-pre-wrap">
@@ -323,6 +387,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                 </div>
               );
             })}
+            {/* Riferimento per lo scroll finale */}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
