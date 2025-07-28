@@ -1501,6 +1501,8 @@ export type Database = {
       }
       insurance_policies: {
         Row: {
+          contract_file_name: string | null
+          contract_file_url: string | null
           coverage_details: Json | null
           coverage_limit: number | null
           created_at: string
@@ -1519,6 +1521,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          contract_file_name?: string | null
+          contract_file_url?: string | null
           coverage_details?: Json | null
           coverage_limit?: number | null
           created_at?: string
@@ -1537,6 +1541,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          contract_file_name?: string | null
+          contract_file_url?: string | null
           coverage_details?: Json | null
           coverage_limit?: number | null
           created_at?: string

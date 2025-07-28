@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileUpload } from '@/components/ui/file-upload';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -32,6 +33,8 @@ interface InsurancePolicy {
   is_active?: boolean;
   coverage_details?: any;
   notes?: string;
+  contract_file_url?: string;
+  contract_file_name?: string;
 }
 
 interface InsurancePolicyModalProps {
@@ -67,7 +70,9 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
     coverage_limit: undefined,
     start_date: '',
     end_date: '',
-    notes: ''
+    notes: '',
+    contract_file_url: undefined,
+    contract_file_name: undefined
   });
 
   useEffect(() => {
@@ -82,7 +87,9 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         coverage_limit: policy.coverage_limit,
         start_date: policy.start_date,
         end_date: policy.end_date,
-        notes: policy.notes || ''
+        notes: policy.notes || '',
+        contract_file_url: policy.contract_file_url,
+        contract_file_name: policy.contract_file_name
       });
       setStartDate(new Date(policy.start_date));
       setEndDate(new Date(policy.end_date));
@@ -97,7 +104,9 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         coverage_limit: undefined,
         start_date: '',
         end_date: '',
-        notes: ''
+        notes: '',
+        contract_file_url: undefined,
+        contract_file_name: undefined
       });
       setStartDate(undefined);
       setEndDate(undefined);
@@ -126,6 +135,8 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
         end_date: format(endDate, 'yyyy-MM-dd'),
         is_active: true,
         notes: formData.notes?.trim() || null,
+        contract_file_url: formData.contract_file_url || null,
+        contract_file_name: formData.contract_file_name || null,
         pet_id: petId,
         user_id: userId
       };
@@ -339,6 +350,33 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             </div>
           </div>
 
+          {/* Contract Upload */}
+          <div>
+            <FileUpload
+              onFileUploaded={(url, fileName) => {
+                setFormData(prev => ({ 
+                  ...prev, 
+                  contract_file_url: url,
+                  contract_file_name: fileName
+                }));
+              }}
+              onFileRemoved={() => {
+                setFormData(prev => ({ 
+                  ...prev, 
+                  contract_file_url: undefined,
+                  contract_file_name: undefined
+                }));
+              }}
+              existingFileUrl={formData.contract_file_url}
+              existingFileName={formData.contract_file_name}
+              bucketName="insurance-contracts"
+              folderName="contracts"
+              acceptedTypes=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              maxSizeInMB={10}
+              label="Contratto Assicurativo"
+              placeholder="Carica il contratto di assicurazione..."
+            />
+          </div>
 
           {/* Notes */}
           <div>
