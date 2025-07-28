@@ -504,20 +504,26 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     );
                   }
 
-                  // Gestione quote - pattern preciso per messaggi creati dal sistema
+                  // Gestione quote - approccio diretto
                   const messageText = reply.content;
                   
-                  // Pattern per messaggi con quote: inizia con >, contiene due \n\n consecutive
-                  if (messageText.startsWith('>') && messageText.includes('\n\n')) {
-                    const [quotePart, ...contentParts] = messageText.split('\n\n');
-                    const newContent = contentParts.join('\n\n').trim();
+                  // Debug: aggiungi un console.log per vedere la struttura del messaggio
+                  console.log('Message content:', JSON.stringify(messageText));
+                  
+                  // Se il messaggio contiene > all'inizio, tentare di separare quote e contenuto
+                  if (messageText.startsWith('>')) {
+                    // Cerca due newline consecutive che separano quote da contenuto
+                    const doubleLB = messageText.indexOf('\n\n');
                     
-                    if (quotePart && newContent) {
-                      // Estrai il testo quotato rimuovendo i >
-                      const quoteText = quotePart
+                    if (doubleLB > 0) {
+                      const quotePart = messageText.substring(0, doubleLB);
+                      const contentPart = messageText.substring(doubleLB + 2);
+                      
+                      // Pulisci il testo quotato dai simboli >
+                      const cleanQuote = quotePart
                         .split('\n')
-                        .map(line => line.startsWith('>') ? line.substring(1).trim() : line.trim())
-                        .filter(line => line.length > 0)
+                        .map(line => line.replace(/^>\s?/, ''))
+                        .filter(line => line.trim().length > 0)
                         .join(' ');
                       
                       return (
@@ -527,11 +533,11 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                               Risposta a:
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {truncateText(quoteText, 100)}
+                              {truncateText(cleanQuote, 100)}
                             </div>
                           </div>
                           <p className="text-sm text-foreground whitespace-pre-wrap">
-                            {newContent}
+                            {contentPart.trim()}
                           </p>
                         </div>
                       );
