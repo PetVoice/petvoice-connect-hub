@@ -158,6 +158,8 @@ export const AdminTickets: React.FC = () => {
   };
 
   const setupRealtimeSubscription = () => {
+    console.log('🔌 Setting up admin realtime subscriptions...');
+    
     // Subscription per nuovi ticket
     const ticketsChannel = supabase
       .channel('admin-tickets-realtime')
@@ -173,7 +175,9 @@ export const AdminTickets: React.FC = () => {
           loadTickets(); // Ricarica la lista dei ticket
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Admin tickets subscription status:', status);
+      });
 
     // Subscription per nuove risposte
     const repliesChannel = supabase
@@ -203,7 +207,9 @@ export const AdminTickets: React.FC = () => {
           loadTickets();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Admin replies subscription status:', status);
+      });
 
     // Subscription per aggiornamenti status
     const statusChannel = supabase
@@ -216,7 +222,8 @@ export const AdminTickets: React.FC = () => {
           table: 'support_tickets'
         },
         (payload) => {
-          console.log('🔄 Ticket status updated:', payload.new);
+          console.log('🔄 Ticket status updated in admin:', payload.new);
+          console.log('🔄 Status changed from', payload.old?.status, 'to', payload.new?.status);
           loadTickets();
           
           // Aggiorna il ticket selezionato se necessario
@@ -225,9 +232,12 @@ export const AdminTickets: React.FC = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Admin status subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Cleaning up admin realtime subscriptions...');
       supabase.removeChannel(ticketsChannel);
       supabase.removeChannel(repliesChannel);
       supabase.removeChannel(statusChannel);

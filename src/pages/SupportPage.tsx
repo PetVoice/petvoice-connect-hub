@@ -286,6 +286,8 @@ const SupportPage: React.FC = () => {
   };
 
   const setupRealtimeSubscription = () => {
+    console.log('🔌 Setting up user realtime subscriptions...');
+    
     // Subscription per nuove risposte ai ticket dell'utente
     const repliesChannel = supabase
       .channel('support-replies-realtime')
@@ -298,7 +300,7 @@ const SupportPage: React.FC = () => {
         },
         async (payload) => {
           const newReply = payload.new;
-          console.log('📨 New reply received:', newReply);
+          console.log('📨 New reply received by user:', newReply);
           
           // Verifica se è una risposta a un ticket dell'utente corrente
           const { data: ticket } = await supabase
@@ -308,6 +310,7 @@ const SupportPage: React.FC = () => {
             .single();
 
           if (ticket && ticket.user_id === user?.id) {
+            console.log('✅ Reply is for current user, updating UI');
             // Aggiorna le risposte per questo ticket
             setTicketReplies(prev => ({
               ...prev,
@@ -329,7 +332,9 @@ const SupportPage: React.FC = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 User replies subscription status:', status);
+      });
 
     // Subscription per aggiornamenti status dei ticket
     const statusChannel = supabase
@@ -343,10 +348,12 @@ const SupportPage: React.FC = () => {
         },
         (payload) => {
           const updatedTicket = payload.new;
-          console.log('🔄 Ticket status updated:', updatedTicket);
+          console.log('🔄 Ticket status updated for user:', updatedTicket);
+          console.log('🔄 User status changed from', payload.old?.status, 'to', payload.new?.status);
           
           // Se è un ticket dell'utente corrente
           if (updatedTicket.user_id === user?.id) {
+            console.log('✅ Status update is for current user, updating UI');
             setTickets(prev => 
               prev.map(ticket => 
                 ticket.id === updatedTicket.id 
@@ -364,9 +371,12 @@ const SupportPage: React.FC = () => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 User status subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 Cleaning up user realtime subscriptions...');
       supabase.removeChannel(repliesChannel);
       supabase.removeChannel(statusChannel);
     };
