@@ -75,14 +75,15 @@ serve(async (req) => {
     logStep("Found Stripe subscription", { subscriptionId: stripeSubscription.id });
 
     // Reactivate on Stripe by removing cancel_at_period_end
-    await stripe.subscriptions.update(stripeSubscription.id, {
+    const updatedSubscription = await stripe.subscriptions.update(stripeSubscription.id, {
       cancel_at_period_end: false
     });
     logStep("Reactivated subscription on Stripe");
 
     const now = new Date().toISOString();
+    const subscriptionEndDate = new Date(updatedSubscription.current_period_end * 1000).toISOString();
 
-    // Update database - remove cancellation
+    // Update database - remove cancellation and restore normal end date
     await supabaseClient
       .from("subscribers")
       .update({
@@ -90,6 +91,7 @@ serve(async (req) => {
         cancellation_type: null,
         cancellation_date: null,
         cancellation_effective_date: null,
+        subscription_end_date: subscriptionEndDate,
         updated_at: now,
       })
       .eq("user_id", user.id);
