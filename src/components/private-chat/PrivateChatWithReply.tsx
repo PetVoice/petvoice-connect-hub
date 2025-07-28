@@ -1292,7 +1292,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             </Button>
             <AlertDialogAction
               onClick={deleteChatForBoth}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto [&]:!bg-destructive [&]:!text-destructive-foreground hover:[&]:!bg-destructive/90"
+              className="!bg-red-500 !text-white hover:!bg-red-600 w-full sm:w-auto [&.bg-gradient-to-r]:!bg-red-500 [&.from-primary]:!bg-red-500 [&.to-primary]:!bg-red-500 !bg-none"
             >
               Elimina per entrambi
             </AlertDialogAction>
