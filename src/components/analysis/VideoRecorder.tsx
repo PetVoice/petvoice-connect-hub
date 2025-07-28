@@ -340,8 +340,8 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               className={cn(
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
-                  ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "bg-purple-500 hover:bg-purple-600 hover:scale-105 shadow-lg"
+                  ? "bg-red-600 hover:bg-red-700 shadow-lg animate-pulse"
+                  : "bg-purple-600 hover:bg-purple-700 hover:scale-105 shadow-lg"
               )}
             >
               {recordingState.isRecording ? (
@@ -444,7 +444,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
 
               <Button
                 onClick={handleAnalyze}
-                className="bg-purple-500 hover:bg-purple-600 text-white flex items-center gap-2"
+                className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
               >
                 <Video className="h-4 w-4" />
                 Analizza
