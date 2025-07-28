@@ -189,18 +189,19 @@ const SubscriptionTab = () => {
                   </CardContent>
                 </Card>
                 
-                {(subscription.subscription_end || subscription.cancellation_effective_date) && (
+                {subscription.subscribed && (
                   <Card className="border-emerald-200 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
                     <CardContent className="p-6 text-center">
                       <div className="text-sm font-medium text-muted-foreground mb-2">Valido fino al</div>
                       <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                        {new Date(
-                          isEndOfPeriodCancellation 
-                            ? subscription.cancellation_effective_date! 
-                            : subscription.subscription_end!
-                        ).toLocaleDateString('it-IT')}
+                        {subscription.subscription_end 
+                          ? new Date(subscription.subscription_end).toLocaleDateString('it-IT')
+                          : subscription.cancellation_effective_date
+                            ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
+                            : 'Data non disponibile'
+                        }
                       </div>
-                      {daysToRenewal !== null && (
+                      {daysToRenewal !== null && daysToRenewal > 0 && (
                         <div className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
                           {daysToRenewal} giorni rimanenti
                         </div>
