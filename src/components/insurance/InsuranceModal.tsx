@@ -14,7 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileUpload } from '@/components/ui/file-upload';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -183,7 +183,10 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 flex items-center justify-center">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
             {policy ? 'Modifica Polizza Assicurativa' : 'Aggiungi Polizza Assicurativa'}
           </DialogTitle>
           <DialogDescription>

@@ -1650,19 +1650,26 @@ const DashboardPage: React.FC = () => {
                       const icon = emotionIcons[emotion as keyof typeof emotionIcons] || '🐾';
                       
                       return (
-                        <div 
-                          key={emotion} 
-                          className="group relative overflow-hidden rounded-xl border border-white/20 bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer"
-                        >
-                          <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                          <div className="relative p-3 text-center">
-                            <div className="text-xl mb-1">{icon}</div>
-                            <div className="font-semibold text-gray-700 capitalize mb-1 text-sm">{emotion}</div>
-                            <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
-                              {count}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {count === 1 ? 'rilevamento' : 'rilevamenti'}
+                        <div key={emotion} className="group">
+                          <div className="bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <div className="text-2xl">{icon}</div>
+                                    <h4 className="font-semibold text-lg text-pink-800 capitalize">{emotion}</h4>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs bg-pink-50 border-pink-200 text-pink-700">
+                                    {count === 1 ? 'rilevamento' : 'rilevamenti'}
+                                  </Badge>
+                                </div>
+                                
+                                <div className="text-center">
+                                  <div className={`text-3xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                                    {count}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1774,35 +1781,45 @@ const DashboardPage: React.FC = () => {
                        const label = vitalLabels[vital as keyof typeof vitalLabels] || vital.replace('_', ' ');
                        
                        return (
-                         <div 
-                           key={vital} 
-                           className={`group relative overflow-hidden rounded-xl border backdrop-blur-sm transition-all duration-300 hover:shadow-lg ${cardBackgroundClass}`}
-                         >
-                           <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-10 group-hover:opacity-20 transition-opacity duration-300`}></div>
-                           
-                           {/* Main content */}
-                           <div className="relative p-3">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center gap-3">
-                                 <div className="text-2xl">{icon}</div>
-                                 <div>
-                                   <div className="font-semibold text-gray-700 text-sm">
-                                     {label}
-                                   </div>
-                                   <div className={`text-lg font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent flex items-center gap-1`}>
-                                     {vital === 'colore_gengive' 
-                                       ? translateGumColor(data.value.toString())
-                                       : data.value
-                                     }
-                                     {data.unit && <span className="text-sm text-gray-500">{data.unit}</span>}
-                                   </div>
-                                   <div className="text-xs text-gray-500">
-                                     {data.date}
-                                   </div>
-                                 </div>
-                               </div>
-                               
-                               {/* Action buttons */}
+                          <div key={vital} className="group">
+                            <div className="bg-white/60 border border-blue-200/50 hover:border-blue-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="text-2xl">{icon}</div>
+                                      <h4 className="font-semibold text-lg text-blue-800">{label}</h4>
+                                    </div>
+                                    <Badge variant="outline" className={`text-xs ${!rangeCheck.isNormal ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                                      {!rangeCheck.isNormal ? 'Anomalo' : 'Normale'}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                      <div className="text-sm text-muted-foreground">Valore</div>
+                                      <div className={`font-medium text-lg ${!rangeCheck.isNormal ? 'text-red-700' : 'text-green-700'}`}>
+                                        {vital === 'colore_gengive' 
+                                          ? translateGumColor(data.value.toString())
+                                          : data.value
+                                        }
+                                        {data.unit && <span className="text-sm ml-1">{data.unit}</span>}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-sm text-muted-foreground">Data</div>
+                                      <div className="font-medium text-blue-700">{data.date}</div>
+                                    </div>
+                                  </div>
+                                  
+                                  {!rangeCheck.isNormal && rangeCheck.message && (
+                                    <div className="text-sm text-red-600 italic mt-2">
+                                      {rangeCheck.message}
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {/* Action buttons */}
                                <div className="flex gap-1">
                                  <Button
                                    onClick={(e) => {
@@ -1830,24 +1847,9 @@ const DashboardPage: React.FC = () => {
                                    <Trash2 className="h-4 w-4" />
                                  </Button>
                                </div>
-                             </div>
-                             
-                             {/* Range indicator */}
-                             <div className="mt-2 px-2 py-1 rounded-md">
-                               {rangeCheck.isNormal ? (
-                                 <div className="flex items-center gap-1 bg-green-100 border border-green-200 px-2 py-1 rounded-md">
-                                   <div className="h-3 w-3 rounded-full bg-green-600"></div>
-                                   <span className="text-xs text-green-700">Valori nella norma - Il pet sta bene</span>
-                                 </div>
-                               ) : (
-                                 <div className="flex items-center gap-1 bg-red-100 border border-red-200 px-2 py-1 rounded-md">
-                                   <AlertTriangle className="h-3 w-3 text-red-600" />
-                                   <span className="text-xs text-red-700">{rangeCheck.message}</span>
-                                 </div>
-                               )}
-                             </div>
-                           </div>
-                         </div>
+                              </div>
+                            </div>
+                          </div>
                        );
                      })}
                    </div>
