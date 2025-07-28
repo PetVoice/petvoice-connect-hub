@@ -601,8 +601,12 @@ const SupportPage: React.FC = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Categoria</label>
-                    <Select value={newTicket.category} onValueChange={(value) => setNewTicket({...newTicket, category: value})}>
+                    <label className="text-sm font-medium">Categoria *</label>
+                    <Select 
+                      value={newTicket.category} 
+                      onValueChange={(value) => setNewTicket({...newTicket, category: value})}
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleziona categoria" />
                       </SelectTrigger>
@@ -616,8 +620,12 @@ const SupportPage: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Priorità</label>
-                    <Select value={newTicket.priority} onValueChange={(value) => setNewTicket({...newTicket, priority: value})}>
+                    <label className="text-sm font-medium">Priorità *</label>
+                    <Select 
+                      value={newTicket.priority} 
+                      onValueChange={(value) => setNewTicket({...newTicket, priority: value})}
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -632,21 +640,23 @@ const SupportPage: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Oggetto</label>
+                    <label className="text-sm font-medium">Oggetto *</label>
                     <Input
                       placeholder="Descrivi brevemente il problema"
                       value={newTicket.subject}
                       onChange={(e) => setNewTicket({...newTicket, subject: e.target.value})}
+                      required
                     />
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">Descrizione</label>
+                    <label className="text-sm font-medium">Descrizione *</label>
                     <Textarea
                       placeholder="Fornisci tutti i dettagli possibili sul problema"
                       value={newTicket.description}
                       onChange={(e) => setNewTicket({...newTicket, description: e.target.value})}
                       rows={4}
+                      required
                     />
                   </div>
                   
