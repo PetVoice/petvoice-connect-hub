@@ -62,7 +62,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
     ],
     question: "Confermi la cancellazione a fine periodo?",
     confirmText: "CONFERMA CANCELLAZIONE",
-    variant: "default" as const
+    variant: "destructive" as const
   };
 
   const content = cancellationType === 'immediate' ? immediateContent : endOfPeriodContent;
