@@ -608,12 +608,12 @@ const CommunityPage = () => {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Annulla</AlertDialogCancel>
-                                  <AlertDialogAction 
+                                  <Button
+                                    variant="destructive"
                                     onClick={() => leaveGroup(group.id)}
-                                    className="bg-destructive hover:bg-destructive/90"
                                   >
-                                    Esci dal gruppo
-                                  </AlertDialogAction>
+                                    Conferma
+                                  </Button>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
