@@ -259,9 +259,10 @@ const SubscriptionTab = () => {
                 {isEndOfPeriodCancellation && canReactivate && (
                   <Button 
                     onClick={() => setShowReactivationModal(true)}
+                    variant="success"
                     size="lg"
                     disabled={cancelLoading}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg"
+                    className="w-full shadow-lg"
                   >
                     <Shield className="w-4 h-4 mr-2" />
                     Riattiva Abbonamento

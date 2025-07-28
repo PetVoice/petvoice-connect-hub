@@ -63,9 +63,9 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
             Annulla
           </Button>
           <Button
+            variant="success"
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {isLoading ? 'Elaborazione...' : 'RIATTIVA'}
           </Button>
