@@ -1195,13 +1195,16 @@ const SupportPage: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction 
+            <Button
+              variant="destructive"
               onClick={confirmDeleteFeatureRequest}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              asChild
             >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Conferma
-            </AlertDialogAction>
+              <AlertDialogAction>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Conferma
+              </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
