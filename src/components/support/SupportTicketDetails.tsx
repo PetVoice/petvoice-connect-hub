@@ -508,16 +508,17 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                   const lines = reply.content.split('\n');
                   const quoteLines = [];
                   const contentLines = [];
-                  let inQuote = true;
+                  let foundNonQuote = false;
 
                   for (const line of lines) {
-                    if (line.startsWith('>') && inQuote) {
+                    if (line.startsWith('>') && !foundNonQuote) {
                       quoteLines.push(line.substring(1).trim());
+                    } else if (line.trim() === '' && !foundNonQuote) {
+                      // Linea vuota prima del contenuto principale
+                      continue;
                     } else {
-                      inQuote = false;
-                      if (line.trim() !== '') {
-                        contentLines.push(line);
-                      }
+                      foundNonQuote = true;
+                      contentLines.push(line);
                     }
                   }
 
@@ -534,7 +535,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                         </div>
                       )}
                       <p className="text-sm text-foreground whitespace-pre-wrap">
-                        {contentLines.join('\n') || reply.content}
+                        {contentLines.length > 0 ? contentLines.join('\n') : reply.content}
                       </p>
                     </div>
                   );
