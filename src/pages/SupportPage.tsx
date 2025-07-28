@@ -397,7 +397,7 @@ const SupportPage: React.FC = () => {
         .from('support_ticket_replies')
         .select('*')
         .eq('ticket_id', ticketId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -2308,7 +2308,14 @@ const SupportPage: React.FC = () => {
                     <p className="text-sm whitespace-pre-wrap">{selectedTicket.description}</p>
                   </div>
                 </div>
-                    {/* Risposte dal database */}
+                    
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-3 flex items-center space-x-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Risposte del Supporto</span>
+                  </h4>
+                  <div className="space-y-3">
+                    {/* Risposte dal database - più recenti in alto */}
                     {selectedTicket && ticketReplies[selectedTicket.id]?.map((reply) => (
                       <Card key={reply.id} className={reply.is_staff_reply ? "p-3 bg-green-50" : "p-3 bg-blue-50"}>
                         <div className="flex items-start space-x-3">
@@ -2332,13 +2339,7 @@ const SupportPage: React.FC = () => {
                       </Card>
                     ))}
                     
-                <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3 flex items-center space-x-2">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>Risposte del Supporto</span>
-                  </h4>
-                  <div className="space-y-3">
-                    {/* Messaggio iniziale dell'utente */}
+                    {/* Messaggio iniziale dell'utente - sempre in fondo */}
                     <Card className="p-3 bg-blue-50">
                       <div className="flex items-start space-x-3">
                         <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
