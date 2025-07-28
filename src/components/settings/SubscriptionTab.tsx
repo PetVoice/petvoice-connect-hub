@@ -59,7 +59,7 @@ const SubscriptionTab = () => {
   
   // Check if subscription is cancelled but still active
   const isCancelled = subscription.is_cancelled;
-  const isEndOfPeriodCancellation = isCancelled && subscription.cancellation_type === 'end_of_period';
+  const isEndOfPeriodCancellation = subscription.cancellation_type === 'end_of_period' && subscription.cancellation_effective_date;
   const canReactivate = subscription.can_reactivate !== false; // Default true se non specificato
   const cancellationEffectiveDate = subscription.cancellation_effective_date 
     ? new Date(subscription.cancellation_effective_date).toLocaleDateString('it-IT')
