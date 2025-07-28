@@ -231,17 +231,8 @@ const SupportPage: React.FC = () => {
           console.log('📨 New reply received:', payload.new);
           const newReply = payload.new;
           
-          console.log('🔍 Checking reply details:', {
-            replyUserId: newReply.user_id,
-            currentUserId: user?.id,
-            ticketId: newReply.ticket_id,
-            isStaffReply: newReply.is_staff_reply
-          });
-          
           // Se la risposta non è dell'utente corrente, aggiorna il conteggio unread
           if (newReply.user_id !== user?.id) {
-            console.log('✅ Reply is not from current user, checking ticket ownership...');
-            
             // Ottieni il ticket per verificare chi è il proprietario
             const { data: ticketData } = await supabase
               .from('support_tickets')
@@ -249,25 +240,17 @@ const SupportPage: React.FC = () => {
               .eq('id', newReply.ticket_id)
               .single();
               
-            console.log('🎫 Ticket data:', ticketData);
-              
             // Se l'utente corrente è il proprietario del ticket, incrementa unread count
             if (ticketData?.user_id === user?.id) {
-              console.log('🔔 Current user is ticket owner, incrementing unread count for ticket:', newReply.ticket_id);
-              setTickets(prev => {
-                const updated = prev.map(ticket => 
+              console.log('🔔 Incrementing unread count for ticket:', newReply.ticket_id);
+              setTickets(prev => 
+                prev.map(ticket => 
                   ticket.id === newReply.ticket_id 
                     ? { ...ticket, unread_count: (ticket.unread_count || 0) + 1 }
                     : ticket
-                );
-                console.log('📋 Updated tickets with unread count:', updated);
-                return updated;
-              });
-            } else {
-              console.log('❌ Current user is not ticket owner, no unread count update needed');
+                )
+              );
             }
-          } else {
-            console.log('❌ Reply is from current user, no unread count update needed');
           }
         }
       )
