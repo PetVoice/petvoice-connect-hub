@@ -751,7 +751,7 @@ const SupportPage: React.FC = () => {
                   {/* FAQ List */}
                   <div className="space-y-4">
                     {filteredFAQs.map((faq) => (
-                      <Card key={faq.id} className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 hover-scale">
+                      <Card key={faq.id} className="bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-medium text-lg">{faq.question}</h3>
