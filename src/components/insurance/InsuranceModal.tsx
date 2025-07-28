@@ -14,7 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileUpload } from '@/components/ui/file-upload';
-import { CalendarIcon, CreditCard } from 'lucide-react';
+import { CalendarIcon, CreditCard, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -407,6 +407,7 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
             disabled={loading}
             className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
           >
+            <Save className="h-4 w-4 mr-2" />
             {loading ? 'Salvataggio...' : (policy ? 'Aggiorna' : 'Aggiungi')}
           </Button>
         </div>

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { Plus, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
@@ -345,7 +345,7 @@ export const AddPetDialog: React.FC<AddPetDialogProps> = ({ open, onOpenChange }
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
                 ) : (
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4 mr-2" />
                 )}
                 {loading ? 'Caricamento...' : 'Aggiungi animale'}
               </Button>

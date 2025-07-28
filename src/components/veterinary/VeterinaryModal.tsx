@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Loader2, MapPin, Phone, Mail, Clock, Save } from 'lucide-react';
 
 interface VeterinaryContact {
   id?: string;
@@ -331,7 +331,7 @@ export function VeterinaryModal({
                 disabled={isLoading}
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
               >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 {veterinary ? 'Aggiorna' : 'Aggiungi'}
               </Button>
             </div>

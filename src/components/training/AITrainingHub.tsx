@@ -46,6 +46,7 @@ import {
   Loader2,
   X,
   Check,
+  Save,
   Trophy,
   Wifi,
   WifiOff,
@@ -1524,7 +1525,7 @@ export const AITrainingHub: React.FC = () => {
                 onClick={handleSaveEdit}
                 className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
               >
-                <Check className="h-4 w-4 mr-2" />
+                <Save className="h-4 w-4 mr-2" />
                 Salva Modifiche
               </Button>
             </div>
