@@ -5,7 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, Send, X, Clock, User } from 'lucide-react';
+import { MessageCircle, Send, X, Clock, User, MoreVertical, Edit2, Trash2, Reply } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
@@ -55,6 +57,9 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasScrolledToUnread, setHasScrolledToUnread] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
+  const [editingReply, setEditingReply] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [replyingTo, setReplyingTo] = useState<TicketReply | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
@@ -228,10 +233,17 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
     setLoading(true);
     try {
+      let content = newReply.trim();
+      
+      // Se stiamo rispondendo a un messaggio, aggiungi il quote
+      if (replyingTo) {
+        content = `> ${replyingTo.content.split('\n').join('\n> ')}\n\n${content}`;
+      }
+
       const replyData = {
         ticket_id: ticket.id,
         user_id: user.id,
-        content: newReply.trim(),
+        content,
         is_staff_reply: false
       };
 
@@ -243,17 +255,15 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
       if (error) throw error;
 
-      // Non aggiungere manualmente - il realtime si occuperà di aggiornare la lista
-
       showToast({
         title: "Risposta inviata",
         description: "La tua risposta è stata aggiunta al ticket.",
         variant: "success"
       });
 
-      // Reset unread count quando l'utente scrive
       setUnreadCount(0);
       setNewReply('');
+      setReplyingTo(null);
     } catch (error) {
       console.error('Error adding reply:', error);
       showToast({
@@ -264,6 +274,108 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditReply = async (replyId: string) => {
+    if (!editContent.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from('support_ticket_replies')
+        .update({ content: editContent.trim() })
+        .eq('id', replyId);
+
+      if (error) throw error;
+
+      setReplies(prev => prev.map(reply => 
+        reply.id === replyId ? { ...reply, content: editContent.trim() } : reply
+      ));
+
+      setEditingReply(null);
+      setEditContent('');
+
+      showToast({
+        title: "Messaggio modificato",
+        description: "Il tuo messaggio è stato aggiornato.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error('Error editing reply:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile modificare il messaggio.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string, deleteForAll: boolean = false) => {
+    try {
+      if (deleteForAll) {
+        // Elimina completamente il messaggio
+        const { error } = await supabase
+          .from('support_ticket_replies')
+          .delete()
+          .eq('id', replyId);
+
+        if (error) throw error;
+
+        setReplies(prev => prev.filter(reply => reply.id !== replyId));
+      } else {
+        // Marca come eliminato solo per l'utente corrente
+        // Per ora eliminiamo completamente, in futuro si può implementare la soft deletion
+        const { error } = await supabase
+          .from('support_ticket_replies')
+          .delete()
+          .eq('id', replyId);
+
+        if (error) throw error;
+
+        setReplies(prev => prev.filter(reply => reply.id !== replyId));
+      }
+
+      showToast({
+        title: "Messaggio eliminato",
+        description: deleteForAll ? "Il messaggio è stato eliminato per tutti." : "Il messaggio è stato eliminato per te.",
+        variant: "success"
+      });
+    } catch (error) {
+      console.error('Error deleting reply:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile eliminare il messaggio.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const startEdit = (reply: TicketReply) => {
+    setEditingReply(reply.id);
+    setEditContent(reply.content);
+  };
+
+  const cancelEdit = () => {
+    setEditingReply(null);
+    setEditContent('');
+  };
+
+  const startReply = (reply: TicketReply) => {
+    setReplyingTo(reply);
+    // Focus sulla textarea
+    setTimeout(() => {
+      const textarea = document.querySelector('textarea[placeholder="Scrivi la tua risposta..."]') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 100);
+  };
+
+  const cancelReply = () => {
+    setReplyingTo(null);
+  };
+
+  const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   const getStatusColor = (status: string) => {
@@ -367,6 +479,67 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                   displayName = userProfiles[reply.user_id]?.display_name || 'Supporto';
                 }
 
+                const isEditing = editingReply === reply.id;
+
+                // Renderizza il contenuto del messaggio in base ai quote
+                const renderMessageContent = () => {
+                  if (isEditing) {
+                    return (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          rows={3}
+                          className="text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => handleEditReply(reply.id)}>
+                            Salva
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={cancelEdit}>
+                            Annulla
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Gestione quote (messaggi che iniziano con >)
+                  const lines = reply.content.split('\n');
+                  const quoteLines = [];
+                  const contentLines = [];
+                  let inQuote = true;
+
+                  for (const line of lines) {
+                    if (line.startsWith('>') && inQuote) {
+                      quoteLines.push(line.substring(1).trim());
+                    } else {
+                      inQuote = false;
+                      if (line.trim() !== '') {
+                        contentLines.push(line);
+                      }
+                    }
+                  }
+
+                  return (
+                    <div>
+                      {quoteLines.length > 0 && (
+                        <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
+                          <div className="text-xs font-medium text-muted-foreground mb-1">
+                            Risposta a:
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {truncateText(quoteLines.join(' '), 100)}
+                          </div>
+                        </div>
+                      )}
+                      <p className="text-sm text-foreground whitespace-pre-wrap">
+                        {contentLines.join('\n') || reply.content}
+                      </p>
+                    </div>
+                  );
+                };
+
                 return (
                   <div 
                     key={reply.id}
@@ -401,9 +574,53 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                         )}
                       </div>
                       
-                      <p className="text-sm text-foreground whitespace-pre-wrap">
-                        {reply.content}
-                      </p>
+                      {renderMessageContent()}
+                    </div>
+
+                    {/* Menu a 3 pallini */}
+                    <div className="flex-shrink-0">
+                      {isOwn ? (
+                        // Menu per i propri messaggi: modifica ed elimina
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => startEdit(reply)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Modifica
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeleteReply(reply.id, false)}>
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Elimina per me
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteReply(reply.id, true)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Elimina per tutti
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        // Menu per i messaggi del supporto: solo risposta
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => startReply(reply)}>
+                              <Reply className="h-4 w-4 mr-2" />
+                              Rispondi
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
                 );
@@ -418,6 +635,26 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         {/* Reply Input */}
         {ticket.status !== 'closed' && (
           <div className="space-y-3">
+            {/* Indicatore di risposta */}
+            {replyingTo && (
+              <div className="p-3 bg-muted/30 rounded border-l-2 border-primary">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Reply className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">
+                      Rispondendo a {replyingTo.user_id === user?.id ? 'te stesso' : (replyingTo.is_staff_reply ? 'Supporto' : userProfiles[replyingTo.user_id]?.display_name || 'Supporto')}
+                    </span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={cancelReply}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {truncateText(replyingTo.content, 100)}
+                </div>
+              </div>
+            )}
+            
             <Textarea
               placeholder="Scrivi la tua risposta..."
               value={newReply}
@@ -431,7 +668,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
               className="w-full"
             >
               <Send className="h-4 w-4 mr-2" />
-              Invia Risposta
+              {replyingTo ? 'Invia Risposta' : 'Invia Risposta'}
             </Button>
           </div>
         )}
