@@ -21,13 +21,16 @@ import {
   Headphones,
   Bot,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { AILiveChatButton } from '@/components/AILiveChat';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { SupportTicketList } from '@/components/support/SupportTicketList';
 import { SupportTicketDetails } from '@/components/support/SupportTicketDetails';
 import { TicketCloseConfirmModal } from '@/components/support/TicketCloseConfirmModal';
@@ -136,6 +139,7 @@ const SupportPage: React.FC = () => {
   const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
 
   // Carica i dati iniziali e setup realtime
   useEffect(() => {
@@ -498,6 +502,40 @@ const SupportPage: React.FC = () => {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const deleteFeatureRequest = async (requestId: string) => {
+    if (!confirm('Sei sicuro di voler eliminare questa richiesta di funzionalità?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('support_feature_requests')
+        .delete()
+        .eq('id', requestId);
+
+      if (error) {
+        console.error('Error deleting feature request:', error);
+        throw error;
+      }
+
+      showToast({
+        title: "Richiesta eliminata",
+        description: "La richiesta di funzionalità è stata eliminata con successo.",
+        variant: "success"
+      });
+
+      // Ricarica le feature requests
+      loadSupportData();
+    } catch (error) {
+      console.error('Error deleting feature request:', error);
+      showToast({
+        title: "Errore",
+        description: "Impossibile eliminare la richiesta. Riprova più tardi.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -878,20 +916,22 @@ const SupportPage: React.FC = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Titolo</label>
+                    <label className="text-sm font-medium">Titolo *</label>
                     <Input
                       placeholder="Nome della funzionalità"
                       value={newFeatureRequest.title}
                       onChange={(e) => setNewFeatureRequest({...newFeatureRequest, title: e.target.value})}
+                      required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Descrizione</label>
+                    <label className="text-sm font-medium">Descrizione *</label>
                     <Textarea
                       placeholder="Descrivi la funzionalità che vorresti vedere..."
                       value={newFeatureRequest.description}
                       onChange={(e) => setNewFeatureRequest({...newFeatureRequest, description: e.target.value})}
                       rows={4}
+                      required
                     />
                   </div>
                   <Button 
@@ -917,6 +957,24 @@ const SupportPage: React.FC = () => {
                         <Star className="h-4 w-4 mr-1" />
                         {request.votes}
                       </Button>
+                      {/* Pulsanti modifica/elimina per il proprietario o admin */}
+                      {(user?.id === request.user_id || isAdmin) && (
+                        <div className="flex gap-1 ml-2">
+                          {user?.id === request.user_id && (
+                            <Button variant="ghost" size="sm" className="p-2">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="p-2 text-destructive hover:text-destructive"
+                            onClick={() => deleteFeatureRequest(request.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <p className="text-muted-foreground mb-4">{request.description}</p>
