@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 
 export interface SubscriptionData {
   subscribed: boolean;
@@ -22,6 +22,7 @@ export interface SubscriptionData {
 
 export const useSubscription = () => {
   const { user } = useAuth();
+  const { showToast } = useToastWithIcon();
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
     subscription_tier: 'premium',
@@ -95,10 +96,10 @@ export const useSubscription = () => {
       });
       // Only show toast for manual checks, not automatic ones
       if (showErrorToast) {
-        toast({
-          title: "Errore",
+        showToast({
+          title: "Errore verifica abbonamento",
           description: "Impossibile verificare lo stato dell'abbonamento",
-          variant: "destructive",
+          type: "error"
         });
       }
     } finally {
@@ -119,10 +120,10 @@ export const useSubscription = () => {
       return data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      toast({
-        title: "Errore",
+      showToast({
+        title: "Errore pagamento",
         description: "Impossibile avviare il processo di pagamento",
-        variant: "destructive",
+        type: "error"
       });
       return null;
     }
@@ -139,10 +140,10 @@ export const useSubscription = () => {
       window.open(data.url, '_blank');
     } catch (error) {
       console.error('Error opening customer portal:', error);
-      toast({
-        title: "Errore",
+      showToast({
+        title: "Errore portale",
         description: "Impossibile aprire il portale di gestione",
-        variant: "destructive",
+        type: "error"
       });
     }
   };
@@ -182,21 +183,21 @@ export const useSubscription = () => {
         }, 1500);
       }
       
-      toast({
+      showToast({
         title: type === 'immediate' ? "Abbonamento cancellato" : "Cancellazione programmata",
         description: type === 'immediate' 
           ? "Abbonamento cancellato immediatamente. Accesso bloccato." 
           : `Abbonamento attivo fino al ${new Date(data.cancellation_effective_date).toLocaleDateString()}`,
-        variant: "destructive",
+        type: "error"
       });
       
       return true;
     } catch (error) {
       console.error('❌ CANCELLATION ERROR:', error);
-      toast({
-        title: "Errore",
+      showToast({
+        title: "Errore cancellazione",
         description: "Impossibile cancellare l'abbonamento",
-        variant: "destructive",
+        type: "error"
       });
       return false;
     }
@@ -230,19 +231,19 @@ export const useSubscription = () => {
         });
       }
       
-      toast({
+      showToast({
         title: "Abbonamento riattivato",
         description: "Il rinnovo automatico è stato ripristinato",
-        variant: "default",
+        type: "success"
       });
       
       return true;
     } catch (error) {
       console.error('Error reactivating subscription:', error);
-      toast({
-        title: "Errore",
+      showToast({
+        title: "Errore riattivazione",
         description: "Impossibile riattivare l'abbonamento",
-        variant: "destructive",
+        type: "error"
       });
       return false;
     }
@@ -296,9 +297,10 @@ export const useSubscription = () => {
           }
         }, 1000);
         
-        toast({
+        showToast({
           title: "Abbonamento attivato!",
           description: "Il tuo abbonamento è ora attivo. Benvenuto in PetVoice Premium!",
+          type: "success"
         });
       }
     };
