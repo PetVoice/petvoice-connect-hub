@@ -22,10 +22,6 @@ const navigationItems = [
   { title: 'Training AI', url: '/training', icon: Brain },
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
-  
-];
-
-const communityItems = [
   { title: 'Community', url: '/community', icon: Users },
 ];
 
@@ -114,7 +110,6 @@ const AppSidebar: React.FC = () => {
         {/* Navigation Sections */}
         <div className="flex-1 overflow-y-auto py-4">
           {renderNavItems(navigationItems)}
-          {renderNavItems(communityItems)}
           {renderNavItems(supportItems)}
         </div>
       </SidebarContent>
