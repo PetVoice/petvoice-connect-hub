@@ -834,22 +834,6 @@ const SupportPage: React.FC = () => {
         {/* CONTACT */}
         <TabsContent value="contact" className="space-y-6">
           <div className="grid gap-6 max-w-4xl mx-auto">
-            {/* AI Live Chat */}
-            <Card className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 border-blue-200/50">
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center space-x-2">
-                  <Bot className="h-5 w-5" />
-                  <span>Assistente AI</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-center space-y-4">
-                <p className="text-muted-foreground">
-                  Parla con il nostro assistente AI per ottenere risposte immediate alle tue domande
-                </p>
-                <AILiveChatButton />
-              </CardContent>
-            </Card>
-
             {/* Contact Methods */}
             <Card className="bg-gradient-to-br from-purple-50/80 to-violet-50/60 border-purple-200/50">
               <CardHeader className="text-center">
