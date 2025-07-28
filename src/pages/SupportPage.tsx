@@ -287,12 +287,13 @@ const SupportPage: React.FC = () => {
       const { error } = await supabase
         .from('support_tickets')
         .insert({
+          ticket_number: '', // Verrà generato automaticamente dal trigger
           category: newTicket.category,
           priority: newTicket.priority,
           subject: newTicket.subject,
           description: newTicket.description,
-          ticket_number: '', // Verrà generato automaticamente dal trigger
-          user_id: user.id
+          user_id: user.id,
+          status: 'open'
         });
 
       if (error) throw error;
