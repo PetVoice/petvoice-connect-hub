@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2, MapPin, Phone, Mail, Clock, Save } from 'lucide-react';
+import { GooglePlacesInput } from '@/components/settings/GooglePlacesInput';
 
 interface VeterinaryContact {
   id?: string;
@@ -257,16 +258,15 @@ export function VeterinaryModal({
             {/* Indirizzo */}
             <div className="space-y-2">
               <Label htmlFor="address">Indirizzo</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  placeholder="Via Roma 123, Milano (MI)"
-                  className="pl-10"
-                />
-              </div>
+              <GooglePlacesInput
+                value={formData.address}
+                onChange={(value) => setFormData({...formData, address: value})}
+                placeholder="Inizia a digitare l'indirizzo della clinica..."
+                onAddressSelect={(details) => {
+                  // Opzionale: potresti anche salvare altri dettagli dell'indirizzo se necessario
+                  setFormData({...formData, address: details.full_address});
+                }}
+              />
             </div>
 
             {/* Emergenze */}
