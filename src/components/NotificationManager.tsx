@@ -4,6 +4,7 @@ import { useCommunityNotifications } from '@/hooks/useCommunityNotifications';
 import { useMedicationNotifications } from '@/hooks/useMedicationNotifications';
 
 import { usePrivateMessageNotifications } from '@/hooks/usePrivateMessageNotifications';
+import { useSupportTicketNotifications } from '@/hooks/useSupportTicketNotifications';
 
 // Componente che gestisce tutte le notifiche automatiche dell'app
 export function NotificationManager() {
@@ -12,6 +13,7 @@ export function NotificationManager() {
   useMedicationNotifications();
   
   usePrivateMessageNotifications();
+  useSupportTicketNotifications();
   
   return null; // Questo componente non renderizza nulla
 }

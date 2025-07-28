@@ -83,6 +83,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface SupportTicket {
@@ -192,11 +193,15 @@ const SupportPage: React.FC = () => {
   });
   const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
+  const { user } = useAuth();
 
   // Carica i dati iniziali
   useEffect(() => {
-    loadSupportData();
-  }, []);
+    if (user?.id) {
+      loadSupportData();
+      setupRealtimeSubscription();
+    }
+  }, [user?.id]);
 
   // Funzione per ottenere l'ultimo messaggio
   const getLastMessage = (ticket: SupportTicket) => {
@@ -277,6 +282,93 @@ const SupportPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const setupRealtimeSubscription = () => {
+    // Subscription per nuove risposte ai ticket dell'utente
+    const repliesChannel = supabase
+      .channel('support-replies-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_ticket_replies'
+        },
+        async (payload) => {
+          const newReply = payload.new;
+          console.log('📨 New reply received:', newReply);
+          
+          // Verifica se è una risposta a un ticket dell'utente corrente
+          const { data: ticket } = await supabase
+            .from('support_tickets')
+            .select('user_id')
+            .eq('id', newReply.ticket_id)
+            .single();
+
+          if (ticket && ticket.user_id === user?.id) {
+            // Aggiorna le risposte per questo ticket
+            setTicketReplies(prev => ({
+              ...prev,
+              [newReply.ticket_id]: [
+                ...(prev[newReply.ticket_id] || []),
+                newReply
+              ]
+            }));
+            
+            // Ricarica i ticket per aggiornare l'ultimo messaggio
+            const { data: updatedTickets } = await supabase
+              .from('support_tickets')
+              .select('*')
+              .order('created_at', { ascending: false });
+
+            if (updatedTickets) {
+              setTickets(updatedTickets);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // Subscription per aggiornamenti status dei ticket
+    const statusChannel = supabase
+      .channel('support-status-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        (payload) => {
+          const updatedTicket = payload.new;
+          console.log('🔄 Ticket status updated:', updatedTicket);
+          
+          // Se è un ticket dell'utente corrente
+          if (updatedTicket.user_id === user?.id) {
+            setTickets(prev => 
+              prev.map(ticket => 
+                ticket.id === updatedTicket.id 
+                  ? { ...ticket, ...updatedTicket }
+                  : ticket
+              )
+            );
+            
+            // Aggiorna il ticket selezionato se necessario
+            setSelectedTicket(prev => 
+              prev && prev.id === updatedTicket.id 
+                ? { ...prev, ...updatedTicket }
+                : prev
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(repliesChannel);
+      supabase.removeChannel(statusChannel);
+    };
   };
 
   const createTicket = async () => {

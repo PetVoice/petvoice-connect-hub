@@ -54,11 +54,18 @@ export const AdminTickets: React.FC = () => {
 
   useEffect(() => {
     loadTickets();
+    setupRealtimeSubscription();
   }, []);
 
   useEffect(() => {
     filterTickets();
   }, [tickets, searchQuery, statusFilter, priorityFilter]);
+
+  useEffect(() => {
+    if (selectedTicket) {
+      loadTicketReplies(selectedTicket.id);
+    }
+  }, [selectedTicket]);
 
   const loadTickets = async () => {
     try {
@@ -150,6 +157,83 @@ export const AdminTickets: React.FC = () => {
     }
   };
 
+  const setupRealtimeSubscription = () => {
+    // Subscription per nuovi ticket
+    const ticketsChannel = supabase
+      .channel('admin-tickets-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        (payload) => {
+          console.log('📨 New ticket received in admin:', payload.new);
+          loadTickets(); // Ricarica la lista dei ticket
+        }
+      )
+      .subscribe();
+
+    // Subscription per nuove risposte
+    const repliesChannel = supabase
+      .channel('admin-replies-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_ticket_replies'
+        },
+        (payload) => {
+          const newReply = payload.new;
+          console.log('📨 New reply received in admin:', newReply);
+          
+          // Se è per il ticket correntemente selezionato
+          if (selectedTicket && newReply.ticket_id === selectedTicket.id) {
+            setTicketReplies(prev => {
+              if (prev.some(reply => reply.id === newReply.id)) {
+                return prev; // Evita duplicati
+              }
+              return [newReply, ...prev]; // Aggiunge in cima (ordine desc)
+            });
+          }
+          
+          // Aggiorna sempre la lista dei ticket per last_message
+          loadTickets();
+        }
+      )
+      .subscribe();
+
+    // Subscription per aggiornamenti status
+    const statusChannel = supabase
+      .channel('admin-status-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        (payload) => {
+          console.log('🔄 Ticket status updated:', payload.new);
+          loadTickets();
+          
+          // Aggiorna il ticket selezionato se necessario
+          if (selectedTicket && payload.new.id === selectedTicket.id) {
+            setSelectedTicket(prev => prev ? { ...prev, ...payload.new } : null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ticketsChannel);
+      supabase.removeChannel(repliesChannel);
+      supabase.removeChannel(statusChannel);
+    };
+  };
+
   const addStaffReply = async () => {
     if (!selectedTicket || !replyContent.trim()) return;
 
@@ -174,7 +258,7 @@ export const AdminTickets: React.FC = () => {
       });
 
       setReplyContent('');
-      loadTicketReplies(selectedTicket.id);
+      // Non ricaricare manualmente, il realtime si occuperà di aggiornare
     } catch (error) {
       console.error('Error adding reply:', error);
       showToast({
