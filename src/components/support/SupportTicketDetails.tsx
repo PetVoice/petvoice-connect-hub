@@ -504,58 +504,62 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     );
                   }
 
-                  // RISOLUZIONE IMMEDIATA delle quote
+                  // RISOLUZIONE DEFINITIVA delle quote basata sul formato reale
                   const messageText = reply.content;
                   
-                  // Se il messaggio inizia con >, rimuovi tutti i > e formatta come quote
-                  if (messageText.trim().startsWith('>')) {
-                    // Separa per doppio newline, se presente
-                    if (messageText.includes('\n\n')) {
-                      const parts = messageText.split('\n\n');
+                  // Controlla se ci sono quote (linee che iniziano con >)
+                  if (messageText.includes('>')) {
+                    // Separa per doppio newline se presente
+                    const parts = messageText.split('\n\n');
+                    
+                    if (parts.length > 1) {
+                      // C'è separazione tra quote e contenuto nuovo
                       const quotePart = parts[0];
-                      const contentPart = parts.slice(1).join('\n\n');
+                      const contentPart = parts.slice(1).join('\n\n').trim();
                       
+                      // Pulisci la parte quote da tutti i simboli >
                       const cleanQuote = quotePart
                         .split('\n')
-                        .map(line => line.replace(/^>\s*/g, ''))
-                        .join(' ')
-                        .trim();
+                        .map(line => line.replace(/^>\s*/g, '').trim())
+                        .filter(line => line.length > 0)
+                        .join(' ');
                       
                       return (
                         <div>
-                          <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
-                            <div className="text-xs font-medium text-muted-foreground mb-1">
-                              Risposta a:
+                          {cleanQuote && (
+                            <div className="mb-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
+                              <div className="text-xs font-medium text-muted-foreground mb-1">
+                                Risposta a:
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {cleanQuote}
+                              </div>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              {cleanQuote}
-                            </div>
-                          </div>
-                          <p className="text-sm text-foreground whitespace-pre-wrap">
-                            {contentPart}
-                          </p>
+                          )}
+                          {contentPart && (
+                            <p className="text-sm text-foreground whitespace-pre-wrap">
+                              {contentPart}
+                            </p>
+                          )}
                         </div>
                       );
                     } else {
-                      // Messaggio tutto quote - rimuovi tutti i >
+                      // Tutto il messaggio contiene quote - rimuovi tutti i >
                       const cleanText = messageText
-                        .replace(/^>\s*/gm, '')
-                        .trim();
+                        .split('\n')
+                        .map(line => line.replace(/^>\s*/g, '').trim())
+                        .filter(line => line.length > 0)
+                        .join(' ');
                       
                       return (
-                        <div className="p-2 bg-muted/30 rounded border-l-2 border-primary">
-                          <div className="text-xs font-medium text-muted-foreground mb-1">
-                            Messaggio quotato:
-                          </div>
-                          <p className="text-sm text-foreground">
-                            {cleanText}
-                          </p>
-                        </div>
+                        <p className="text-sm text-foreground whitespace-pre-wrap">
+                          {cleanText}
+                        </p>
                       );
                     }
                   }
                   
-                  // Messaggio normale
+                  // Messaggio normale senza quote
                   return (
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {messageText}
