@@ -2156,47 +2156,51 @@ const DashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {medicalEvents.length > 0 ? (
-                <div className="space-y-4">
-                   {medicalEvents.map((visit) => (
-                     <div key={visit.id} className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                       <div className="flex items-center gap-3 flex-1">
-                         <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                           <FileText className="h-4 w-4 text-blue-500" />
-                         </div>
-                         <div className="flex-1">
-                           <h4 className="font-medium text-sm">{visit.title}</h4>
-                           <p className="text-xs text-muted-foreground">
-                             {format(new Date(visit.start_time), 'dd/MM/yyyy')}
-                             {visit.location && ` • ${visit.location}`}
-                           </p>
+                <ScrollArea className="h-[300px]">
+                  <div className="space-y-3 pr-4">
+                     {medicalEvents.map((visit) => (
+                       <div key={visit.id} className="bg-white/60 border border-blue-200/50 hover:border-blue-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-3 flex-1">
+                             <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                               <FileText className="h-4 w-4 text-blue-500" />
+                             </div>
+                             <div className="flex-1">
+                               <h4 className="font-medium text-lg text-blue-800">{visit.title}</h4>
+                               <p className="text-sm text-muted-foreground">
+                                 {format(new Date(visit.start_time), 'dd/MM/yyyy')}
+                                 {visit.location && ` • ${visit.location}`}
+                               </p>
+                               <div className="text-sm text-muted-foreground mt-1">
+                                 {visit.status === 'completed' && '✓ Completata'}
+                                 {visit.status === 'scheduled' && '📅 Programmata'}
+                                 {visit.status === 'cancelled' && '❌ Annullata'}
+                               </div>
+                             </div>
+                           </div>
+                           <div className="flex gap-1">
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               onClick={() => handleEditMedicalEvent(visit)}
+                               className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                             >
+                               <Edit className="h-4 w-4" />
+                             </Button>
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               onClick={() => handleDeleteMedicalEvent(visit.id)}
+                               className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </Button>
+                           </div>
                          </div>
                        </div>
-                       <div className="flex items-center gap-2">
-                         <div className="text-xs text-muted-foreground mr-2">
-                           {visit.status === 'completed' && '✓ Completata'}
-                           {visit.status === 'scheduled' && '📅 Programmata'}
-                           {visit.status === 'cancelled' && '❌ Annullata'}
-                         </div>
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           onClick={() => handleEditMedicalEvent(visit)}
-                           className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                         >
-                           <Edit className="h-4 w-4" />
-                         </Button>
-                         <Button
-                           size="sm"
-                           variant="ghost"
-                           onClick={() => handleDeleteMedicalEvent(visit.id)}
-                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                         >
-                           <Trash2 className="h-4 w-4" />
-                         </Button>
-                       </div>
-                     </div>
-                   ))}
-                </div>
+                     ))}
+                  </div>
+                </ScrollArea>
               ) : (
                 <div className="text-center py-12">
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 flex items-center justify-center">
