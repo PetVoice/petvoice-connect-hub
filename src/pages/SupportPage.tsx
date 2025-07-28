@@ -178,6 +178,7 @@ const SupportPage: React.FC = () => {
   const [isNewFeatureDialogOpen, setIsNewFeatureDialogOpen] = useState(false);
   const [isUserGuideDialogOpen, setIsUserGuideDialogOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<SupportTicket | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [newFeatureRequest, setNewFeatureRequest] = useState({
     title: '',
     description: '',
@@ -267,7 +268,7 @@ const SupportPage: React.FC = () => {
   const createTicket = async () => {
     if (!newTicket.subject || !newTicket.description || !newTicket.category) {
       showToast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
       });
@@ -279,7 +280,7 @@ const SupportPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
-          title: "Errore",
+          title: "❌ Errore",
           description: "Devi essere autenticato per creare un ticket",
           variant: "destructive"
         });
@@ -316,7 +317,7 @@ const SupportPage: React.FC = () => {
       }
 
       showToast({
-        title: "Ticket creato",
+        title: "✅ Ticket creato",
         description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
       });
 
@@ -344,7 +345,7 @@ const SupportPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating ticket:', error);
       showToast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Impossibile creare il ticket. Riprova più tardi.",
         variant: "destructive"
       });
@@ -353,100 +354,36 @@ const SupportPage: React.FC = () => {
     }
   };
 
-  const updateTicket = async () => {
-    if (!editingTicket || !newTicket.subject || !newTicket.description || !newTicket.category) {
-      showToast({
-        title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
+  const closeTicket = async (ticketId: string, ticketSubject: string) => {
     try {
       const { error } = await supabase
         .from('support_tickets')
-        .update({
-          category: newTicket.category,
-          priority: newTicket.priority,
-          subject: newTicket.subject,
-          description: newTicket.description
-        })
-        .eq('id', editingTicket.id);
-
-      if (error) throw error;
-
-      showToast({
-        title: "Ticket aggiornato",
-        description: "Il ticket è stato aggiornato con successo."
-      });
-
-      // Reset form e stato
-      setNewTicket({
-        category: '',
-        priority: 'medium',
-        subject: '',
-        description: ''
-      });
-      setEditingTicket(null);
-      setIsNewTicketDialogOpen(false);
-      
-      // Ricarica i tickets
-      loadSupportData();
-    } catch (error) {
-      console.error('Error updating ticket:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile aggiornare il ticket. Riprova più tardi.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const deleteTicket = async (ticketId: string, ticketSubject: string) => {
-    try {
-      const { error } = await supabase
-        .from('support_tickets')
-        .delete()
+        .update({ status: 'closed' })
         .eq('id', ticketId);
 
       if (error) throw error;
 
       showToast({
-        title: "Ticket eliminato",
-        description: `Il ticket "${ticketSubject}" è stato eliminato.`
+        title: "✅ Ticket chiuso",
+        description: `Il ticket "${ticketSubject}" è stato chiuso.`
       });
       
       // Ricarica i tickets
       loadSupportData();
     } catch (error) {
-      console.error('Error deleting ticket:', error);
+      console.error('Error closing ticket:', error);
       showToast({
-        title: "Errore",
-        description: "Impossibile eliminare il ticket. Riprova più tardi.",
+        title: "❌ Errore",
+        description: "Impossibile chiudere il ticket. Riprova più tardi.",
         variant: "destructive"
       });
     }
   };
 
-  const handleEditTicket = (ticket: SupportTicket) => {
-    setEditingTicket(ticket);
-    setNewTicket({
-      category: ticket.category,
-      priority: ticket.priority,
-      subject: ticket.subject,
-      description: ticket.description
-    });
-    setIsNewTicketDialogOpen(true);
-  };
-
   const createFeatureRequest = async () => {
     if (!newFeatureRequest.title || !newFeatureRequest.description) {
       showToast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
       });
@@ -458,7 +395,7 @@ const SupportPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
-          title: "Errore",
+          title: "❌ Errore",
           description: "Devi essere autenticato per creare una richiesta",
           variant: "destructive"
         });
@@ -477,7 +414,7 @@ const SupportPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: "Richiesta inviata",
+        title: "✅ Richiesta inviata",
         description: "La tua richiesta di funzionalità è stata inviata con successo."
       });
 
@@ -496,7 +433,7 @@ const SupportPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating feature request:', error);
       showToast({
-        title: "Errore",
+        title: "❌ Errore",
         description: "Impossibile inviare la richiesta. Riprova più tardi.",
         variant: "destructive"
       });
@@ -535,7 +472,7 @@ const SupportPage: React.FC = () => {
       ));
 
       showToast({
-        title: isHelpful ? "Grazie per il feedback!" : "Grazie per il feedback",
+        title: "✅ Grazie per il feedback!",
         description: "Il tuo feedback ci aiuta a migliorare il supporto."
       });
     } catch (error) {
@@ -594,7 +531,7 @@ const SupportPage: React.FC = () => {
       setUserVotes([...userVotes, requestId]);
 
       showToast({
-        title: "Voto aggiunto",
+        title: "✅ Voto aggiunto",
         description: "Grazie per aver votato questa richiesta di funzionalità!"
       });
     } catch (error) {
@@ -1049,12 +986,12 @@ const SupportPage: React.FC = () => {
                          </div>
                           <div className="flex space-x-2">
                             <Button 
-                              onClick={editingTicket ? updateTicket : createTicket} 
+                              onClick={createTicket} 
                               disabled={isSubmitting}
                               className="flex-1"
                             >
                               {isSubmitting && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
-                              {editingTicket ? 'Aggiorna Ticket' : 'Crea Ticket'}
+                              Crea Ticket
                             </Button>
                             <Button variant="outline" onClick={() => {
                               setIsNewTicketDialogOpen(false);
@@ -1093,34 +1030,34 @@ const SupportPage: React.FC = () => {
                      </div>
                    ) : (
                      <div className="space-y-3">
-                       {tickets.map((ticket) => (
-                         <Card key={ticket.id} className="border border-gray-200/50 hover:border-primary/20 transition-all duration-200">
-                           <CardContent className="p-4">
-                             <div className="flex items-start justify-between">
-                               <div className="flex-1">
-                                 <div className="flex items-center space-x-2 mb-2">
-                                   {getCategoryIcon(ticket.category)}
-                                   <h4 className="font-medium">{ticket.subject}</h4>
-                                   <Badge 
-                                     variant="outline" 
-                                     className={`${getStatusColor(ticket.status)} text-white border-0`}
-                                   >
-                                     {ticket.status === 'open' ? 'Aperto' : 
-                                      ticket.status === 'in_progress' ? 'In lavorazione' :
-                                      ticket.status === 'resolved' ? 'Risolto' : 'Chiuso'}
-                                   </Badge>
-                                   <Badge variant="outline" className={`
-                                     ${ticket.priority === 'urgent' ? 'bg-red-500 text-white border-0' :
-                                       ticket.priority === 'high' ? 'bg-orange-500 text-white border-0' :
-                                       ticket.priority === 'medium' ? 'bg-yellow-500 text-white border-0' :
-                                       'bg-gray-500 text-white border-0'}
-                                   `}>
-                                     {ticket.priority === 'urgent' ? 'Urgente' :
-                                      ticket.priority === 'high' ? 'Alta' :
-                                      ticket.priority === 'medium' ? 'Media' : 'Bassa'}
-                                   </Badge>
-                                 </div>
-                                 <p className="text-sm text-muted-foreground mb-2">{ticket.description}</p>
+                        {tickets.map((ticket) => (
+                          <Card key={ticket.id} className="border border-gray-200/50 hover:border-primary/20 transition-all duration-200 cursor-pointer" onClick={() => setSelectedTicket(ticket)}>
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    {getCategoryIcon(ticket.category)}
+                                    <h4 className="font-medium">{ticket.subject}</h4>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`${getStatusColor(ticket.status)} text-white border-0`}
+                                    >
+                                      {ticket.status === 'open' ? 'Aperto' : 
+                                       ticket.status === 'in_progress' ? 'In lavorazione' :
+                                       ticket.status === 'resolved' ? 'Risolto' : 'Chiuso'}
+                                    </Badge>
+                                    <Badge variant="outline" className={`
+                                      ${ticket.priority === 'urgent' ? 'bg-red-500 text-white border-0' :
+                                        ticket.priority === 'high' ? 'bg-orange-500 text-white border-0' :
+                                        ticket.priority === 'medium' ? 'bg-yellow-500 text-white border-0' :
+                                        'bg-gray-500 text-white border-0'}
+                                    `}>
+                                      {ticket.priority === 'urgent' ? 'Urgente' :
+                                       ticket.priority === 'high' ? 'Alta' :
+                                       ticket.priority === 'medium' ? 'Media' : 'Bassa'}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mb-2">{ticket.description}</p>
                                   <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                     <span className="flex items-center space-x-1">
                                       <Clock className="h-3 w-3" />
@@ -1131,33 +1068,27 @@ const SupportPage: React.FC = () => {
                                     </span>
                                   </div>
                                 </div>
-                                <div className="flex items-center space-x-2 ml-4">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleEditTicket(ticket)}
-                                    className="h-8 px-2"
-                                  >
-                                    <Edit className="h-3 w-3 mr-1" />
-                                    Modifica
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      if (window.confirm(`Sei sicuro di voler eliminare il ticket "${ticket.subject}"?`)) {
-                                        deleteTicket(ticket.id, ticket.subject);
-                                      }
-                                    }}
-                                    className="h-8 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <Trash2 className="h-3 w-3 mr-1" />
-                                    Elimina
-                                  </Button>
-                                </div>
+                                {ticket.status !== 'closed' && (
+                                  <div className="flex items-center space-x-2 ml-4" onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm(`Sei sicuro di voler chiudere il ticket "${ticket.subject}"?`)) {
+                                          closeTicket(ticket.id, ticket.subject);
+                                        }
+                                      }}
+                                      className="h-8 px-2 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    >
+                                      <XCircle className="h-3 w-3 mr-1" />
+                                      Chiudi
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
-                           </CardContent>
-                         </Card>
+                            </CardContent>
+                          </Card>
                        ))}
                      </div>
                    )}
@@ -2160,6 +2091,167 @@ const SupportPage: React.FC = () => {
               </Card>
               
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Ticket Details Modal */}
+        <Dialog open={!!selectedTicket} onOpenChange={() => setSelectedTicket(null)}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <Ticket className="h-5 w-5" />
+                <span>Dettagli Ticket #{selectedTicket?.ticket_number}</span>
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedTicket && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Stato</label>
+                    <div className="mt-1">
+                      <Badge 
+                        variant="outline" 
+                        className={`${getStatusColor(selectedTicket.status)} text-white border-0`}
+                      >
+                        {selectedTicket.status === 'open' ? 'Aperto' : 
+                         selectedTicket.status === 'in_progress' ? 'In lavorazione' :
+                         selectedTicket.status === 'resolved' ? 'Risolto' : 'Chiuso'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Priorità</label>
+                    <div className="mt-1">
+                      <Badge variant="outline" className={`
+                        ${selectedTicket.priority === 'urgent' ? 'bg-red-500 text-white border-0' :
+                          selectedTicket.priority === 'high' ? 'bg-orange-500 text-white border-0' :
+                          selectedTicket.priority === 'medium' ? 'bg-yellow-500 text-white border-0' :
+                          'bg-gray-500 text-white border-0'}
+                      `}>
+                        {selectedTicket.priority === 'urgent' ? 'Urgente' :
+                         selectedTicket.priority === 'high' ? 'Alta' :
+                         selectedTicket.priority === 'medium' ? 'Media' : 'Bassa'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Categoria</label>
+                    <div className="mt-1 flex items-center space-x-2">
+                      {getCategoryIcon(selectedTicket.category)}
+                      <span className="text-sm">
+                        {selectedTicket.category === 'technical' ? 'Problemi Tecnici' :
+                         selectedTicket.category === 'billing' ? 'Fatturazione' :
+                         selectedTicket.category === 'medical' ? 'Medico/Veterinario' : 'Generale'}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Creato</label>
+                    <p className="text-sm mt-1">
+                      {formatDistanceToNow(new Date(selectedTicket.created_at), { addSuffix: true, locale: it })}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Oggetto</label>
+                  <h3 className="text-lg font-medium mt-1">{selectedTicket.subject}</h3>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Descrizione</label>
+                  <div className="mt-1 p-4 bg-muted rounded-lg">
+                    <p className="text-sm whitespace-pre-wrap">{selectedTicket.description}</p>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <h4 className="font-medium mb-3 flex items-center space-x-2">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>Risposte del Supporto</span>
+                  </h4>
+                  <div className="space-y-3">
+                    {selectedTicket.status === 'open' ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>In attesa di risposta dal supporto...</p>
+                        <p className="text-xs mt-2">Riceverai una notifica appena il team risponderà</p>
+                      </div>
+                    ) : selectedTicket.status === 'in_progress' ? (
+                      <Card className="p-3 bg-blue-50">
+                        <div className="flex items-start space-x-3">
+                          <UserCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-sm text-blue-900">Team di Supporto</p>
+                            <p className="text-sm text-blue-700 mt-1">
+                              Abbiamo preso in carico il tuo ticket e stiamo lavorando per risolvere il problema. 
+                              Ti contatteremo presto con un aggiornamento.
+                            </p>
+                            <p className="text-xs text-blue-600 mt-2">
+                              {formatDistanceToNow(new Date(selectedTicket.updated_at), { addSuffix: true, locale: it })}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : selectedTicket.status === 'resolved' ? (
+                      <Card className="p-3 bg-green-50">
+                        <div className="flex items-start space-x-3">
+                          <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-sm text-green-900">Team di Supporto</p>
+                            <p className="text-sm text-green-700 mt-1">
+                              Il problema è stato risolto! Se hai bisogno di ulteriore assistenza, 
+                              non esitare a creare un nuovo ticket.
+                            </p>
+                            <p className="text-xs text-green-600 mt-2">
+                              Risolto {formatDistanceToNow(new Date(selectedTicket.updated_at), { addSuffix: true, locale: it })}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : (
+                      <Card className="p-3 bg-gray-50">
+                        <div className="flex items-start space-x-3">
+                          <XCircle className="h-5 w-5 text-gray-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-sm text-gray-900">Ticket Chiuso</p>
+                            <p className="text-sm text-gray-700 mt-1">
+                              Questo ticket è stato chiuso. Se hai bisogno di ulteriore assistenza, 
+                              crea un nuovo ticket di supporto.
+                            </p>
+                            <p className="text-xs text-gray-600 mt-2">
+                              Chiuso {formatDistanceToNow(new Date(selectedTicket.updated_at), { addSuffix: true, locale: it })}
+                            </p>
+                          </div>
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-4 border-t">
+                  <Button variant="outline" onClick={() => setSelectedTicket(null)}>
+                    Chiudi
+                  </Button>
+                  {selectedTicket.status !== 'closed' && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        if (window.confirm(`Sei sicuro di voler chiudere il ticket "${selectedTicket.subject}"?`)) {
+                          closeTicket(selectedTicket.id, selectedTicket.subject);
+                          setSelectedTicket(null);
+                        }
+                      }}
+                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Chiudi Ticket
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
         
