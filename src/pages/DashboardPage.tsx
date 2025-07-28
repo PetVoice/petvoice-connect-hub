@@ -650,6 +650,13 @@ const DashboardPage: React.FC = () => {
           event: null,
           preselectedCategory: 'medical'
         });
+        // Aggiungo un piccolo suggerimento per l'utente
+        setTimeout(() => {
+          toast({
+            title: "💡 Suggerimento",
+            description: "Ricordati di selezionare 'Visita Medica' come categoria per vederla nella dashboard!",
+          });
+        }, 1000);
         break;
       case 'insurance':
         setInsuranceModal({
