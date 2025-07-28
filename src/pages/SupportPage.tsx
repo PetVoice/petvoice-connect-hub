@@ -83,6 +83,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { useNotifications } from '@/hooks/useNotifications';
+import { cn } from '@/lib/utils';
 
 interface SupportTicket {
   id: string;
@@ -1169,7 +1170,7 @@ const SupportPage: React.FC = () => {
                                           <AlertDialogCancel>Annulla</AlertDialogCancel>
                                             <AlertDialogAction 
                                               onClick={() => closeTicket(ticket.id, ticket.subject)}
-                                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                              className={cn("bg-destructive text-destructive-foreground hover:bg-destructive/90 !important")}
                                             >
                                               Conferma
                                             </AlertDialogAction>
@@ -2407,7 +2408,7 @@ const SupportPage: React.FC = () => {
                               closeTicket(selectedTicket.id, selectedTicket.subject);
                               setSelectedTicket(null);
                             }}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            className={cn("bg-destructive text-destructive-foreground hover:bg-destructive/90 !important")}
                           >
                             Conferma
                           </AlertDialogAction>
