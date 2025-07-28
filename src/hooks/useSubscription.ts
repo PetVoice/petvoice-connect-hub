@@ -256,9 +256,44 @@ export const useSubscription = () => {
     // Listen for payment success messages from child windows
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'PAYMENT_SUCCESS') {
-        // Refresh subscription status when payment is successful
-        setTimeout(() => {
-          checkSubscription();
+        console.log('🎉 PAYMENT SUCCESS - Forcing Stripe sync!');
+        
+        // FORCE IMMEDIATE STRIPE SYNC usando check-subscription edge function
+        setTimeout(async () => {
+          try {
+            const { data, error } = await supabase.functions.invoke('check-subscription');
+            console.log('📋 STRIPE SYNC RESULT:', { data, error });
+            
+            if (!error && data) {
+              // Aggiorna immediatamente lo stato locale con i dati di Stripe
+              const freshSubscription: SubscriptionData = {
+                subscribed: data.subscribed || false,
+                subscription_tier: 'premium',
+                subscription_end: data.subscription_end || null,
+                is_cancelled: data.is_cancelled || false,
+                cancellation_type: data.cancellation_type || null,
+                cancellation_date: data.cancellation_date || null,
+                cancellation_effective_date: data.cancellation_effective_date || null,
+                can_reactivate: data.can_reactivate !== false,
+              };
+              
+              console.log('✅ UPDATING LOCAL STATE WITH STRIPE DATA:', freshSubscription);
+              setSubscription(freshSubscription);
+            }
+            
+            // Anche se l'edge function fallisce, ricarica comunque la pagina
+            setTimeout(() => {
+              console.log('🔄 FORCING PAGE RELOAD...');
+              window.location.reload();
+            }, 1000);
+            
+          } catch (error) {
+            console.error('❌ Stripe sync failed:', error);
+            // Fallback: ricarica la pagina comunque
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
         }, 1000);
         
         toast({
