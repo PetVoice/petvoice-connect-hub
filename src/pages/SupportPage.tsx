@@ -713,7 +713,7 @@ const SupportPage: React.FC = () => {
           </TabsList>
 
           <TabsContent value="faq" className="space-y-6">
-            <div className="rounded-xl border bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-soft text-card-foreground p-0">
+            <div className="rounded-xl border bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50 shadow-soft text-card-foreground p-0 hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu">
               <div className="flex flex-col space-y-1.5 p-6">
                 <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center space-x-2">
                   <HelpCircle className="h-5 w-5" />
@@ -752,7 +752,7 @@ const SupportPage: React.FC = () => {
                     {filteredFAQs.map((faq) => (
                       <div 
                         key={faq.id} 
-                        className="rounded-xl border bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-soft text-card-foreground"
+                        className="rounded-xl border bg-gradient-to-br from-indigo-50/80 to-blue-50/60 border-indigo-200/50 shadow-soft text-card-foreground hover:shadow-glow hover:scale-[1.02] transition-all duration-300 transform-gpu"
                       >
                         <div className="p-4">
                           <div className="flex items-start justify-between mb-2">
