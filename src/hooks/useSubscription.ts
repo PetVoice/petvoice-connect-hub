@@ -202,8 +202,24 @@ export const useSubscription = () => {
       
       if (error) throw error;
       
-      // Refresh subscription status
-      await checkSubscription();
+      // Forza un refresh completo chiamando check-subscription per aggiornare i dati
+      console.log('🔄 Refreshing subscription after reactivation...');
+      const { data: checkData, error: checkError } = await supabase.functions.invoke('check-subscription');
+      
+      if (!checkError && checkData) {
+        setSubscription({
+          subscribed: checkData.subscribed || false,
+          subscription_tier: 'premium',
+          subscription_end: checkData.subscription_end || null,
+          is_cancelled: checkData.is_cancelled || false,
+          cancellation_type: checkData.cancellation_type || null,
+          cancellation_date: checkData.cancellation_date || null,
+          cancellation_effective_date: checkData.cancellation_effective_date || null,
+          can_reactivate: checkData.can_reactivate !== false,
+          usage: checkData.usage
+        });
+        console.log('✅ Subscription updated after reactivation:', checkData);
+      }
       
       toast({
         title: "Abbonamento riattivato",
