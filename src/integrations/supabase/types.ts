@@ -3503,6 +3503,57 @@ export type Database = {
         }
         Relationships: []
       }
+      veterinary_contacts: {
+        Row: {
+          address: string | null
+          clinic_name: string
+          created_at: string
+          email: string | null
+          emergency_available: boolean | null
+          id: string
+          name: string
+          notes: string | null
+          pet_id: string
+          phone: string
+          rating: number | null
+          specialization: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          clinic_name: string
+          created_at?: string
+          email?: string | null
+          emergency_available?: boolean | null
+          id?: string
+          name: string
+          notes?: string | null
+          pet_id: string
+          phone: string
+          rating?: number | null
+          specialization?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          clinic_name?: string
+          created_at?: string
+          email?: string | null
+          emergency_available?: boolean | null
+          id?: string
+          name?: string
+          notes?: string | null
+          pet_id?: string
+          phone?: string
+          rating?: number | null
+          specialization?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

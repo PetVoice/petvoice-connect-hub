@@ -2274,43 +2274,123 @@ const DashboardPage: React.FC = () => {
       {/* Veterinario e Contatti Emergenza - Side by side */}
       {selectedPet && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-           {/* Veterinario Card - Left */}
-          <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                    <Stethoscope className="h-6 w-6 text-white" />
-                  </div>
-                  Veterinario
+       {/* Veterinario Card */}
+        <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <UserCheck className="h-6 w-6 text-white" />
                 </div>
+                Veterinario
+              </CardTitle>
+              <div className="flex gap-2">
                 <Button
-                  onClick={() => handleAddItem('veterinarian')}
                   size="sm"
-                  variant="ghost"
-                  className="text-purple-500 hover:text-purple-600 hover:bg-purple-50"
+                  onClick={() => setShowVeterinaryModal(true)}
+                  className="h-8 w-8 p-0 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
-              </CardTitle>
-              <CardDescription className="text-lg">Informazioni del veterinario di fiducia</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/10 flex items-center justify-center">
-                  <Stethoscope className="h-10 w-10 text-purple-500/60" />
-                </div>
-                <p className="text-lg text-muted-foreground mb-6">Nessun veterinario registrato</p>
-                <Button 
-                  onClick={() => navigate('/diary')} 
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowVeterinaryModal(true)}
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
                 >
-                  <Stethoscope className="h-5 w-5 mr-2" />
+                  <Plus className="h-4 w-4 mr-1" />
                   Aggiungi Veterinario
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-3">
+                {veterinaryContacts && veterinaryContacts.length > 0 ? (
+                  veterinaryContacts.map((vet) => (
+                    <div key={vet.id} className="p-4 border rounded-lg hover:shadow-lg transition-all duration-300 bg-white/50">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-lg">{vet.name}</h4>
+                            {vet.emergency_available && (
+                              <Badge variant="destructive" className="text-xs">
+                                <Clock className="h-3 w-3 mr-1" />
+                                24/7
+                              </Badge>
+                            )}
+                            {vet.rating && (
+                              <div className="flex items-center text-sm text-yellow-600">
+                                {'⭐'.repeat(vet.rating)}
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-muted-foreground font-medium">{vet.clinic_name}</p>
+                          {vet.specialization && (
+                            <Badge variant="secondary" className="text-xs">
+                              {vet.specialization}
+                            </Badge>
+                          )}
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Phone className="h-4 w-4" />
+                              <span>{vet.phone}</span>
+                            </div>
+                            {vet.email && (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Mail className="h-4 w-4" />
+                                <span>{vet.email}</span>
+                              </div>
+                            )}
+                            {vet.address && (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <MapPin className="h-4 w-4" />
+                                <span>{vet.address}</span>
+                              </div>
+                            )}
+                          </div>
+                          {vet.notes && (
+                            <p className="text-sm text-muted-foreground italic mt-2">
+                              "{vet.notes}"
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingVeterinary(vet);
+                              setShowVeterinaryModal(true);
+                            }}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setVeterinaryToDelete(vet)}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <UserCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Nessun veterinario aggiunto</p>
+                    <p className="text-sm">Aggiungi un veterinario di fiducia per il tuo pet</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
            {/* Contatti Emergenza Card - Right */}
           <Card className="bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
@@ -2612,6 +2692,36 @@ const DashboardPage: React.FC = () => {
         userId={user?.id || ''}
         preselectedCategory={eventModal.preselectedCategory}
       />
+
+      {/* Veterinary Modal */}
+      {showVeterinaryModal && (
+        <VeterinaryModal
+          isOpen={showVeterinaryModal}
+          onClose={() => {
+            setShowVeterinaryModal(false);
+            setEditingVeterinary(null);
+          }}
+          onSave={() => {
+            fetchVeterinaryContacts();
+            setEditingVeterinary(null);
+          }}
+          veterinary={editingVeterinary}
+          petId={selectedPet.id}
+        />
+      )}
+
+      {/* Veterinary Delete Confirmation */}
+      {veterinaryToDelete && (
+        <ConfirmDialog
+          isOpen={!!veterinaryToDelete}
+          onClose={() => setVeterinaryToDelete(null)}
+          onConfirm={() => handleDeleteVeterinary(veterinaryToDelete)}
+          title="Elimina Veterinario"
+          description={`Sei sicuro di voler eliminare il veterinario "${veterinaryToDelete.name}"?`}
+          confirmText="Elimina"
+          cancelText="Annulla"
+        />
+      )}
 
       {/* Insurance Modal */}
       <InsurancePolicyModal
