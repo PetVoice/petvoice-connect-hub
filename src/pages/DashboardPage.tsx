@@ -2196,14 +2196,6 @@ const DashboardPage: React.FC = () => {
                        </div>
                      </div>
                    ))}
-                  <Button 
-                    onClick={() => handleAddItem('visits')}
-                    variant="outline"
-                    className="w-full mt-4"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Aggiungi Visita
-                  </Button>
                 </div>
               ) : (
                 <div className="text-center py-12">
