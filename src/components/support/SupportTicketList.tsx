@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Clock, MessageCircle, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
@@ -103,8 +104,9 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
   }
 
   return (
-    <div className="space-y-3">
-      {tickets.map((ticket) => (
+    <ScrollArea className="h-[600px]">
+      <div className="space-y-3 pr-4">
+        {tickets.map((ticket) => (
         <Card 
           key={ticket.id}
           className={`cursor-pointer transition-all hover:shadow-md ${
@@ -161,7 +163,8 @@ export const SupportTicketList: React.FC<SupportTicketListProps> = ({
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+    </ScrollArea>
   );
 };
