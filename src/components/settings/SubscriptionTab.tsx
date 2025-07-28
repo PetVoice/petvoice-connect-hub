@@ -170,7 +170,7 @@ const SubscriptionTab = () => {
                 {subscription.subscription_end && (
                   <Card className="border-emerald-200 bg-white/50 dark:bg-black/20 backdrop-blur-sm">
                     <CardContent className="p-6 text-center">
-                      <div className="text-sm font-medium text-muted-foreground mb-2">Prossimo Rinnovo</div>
+                      <div className="text-sm font-medium text-muted-foreground mb-2">Valido fino al</div>
                       <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
                         {new Date(subscription.subscription_end).toLocaleDateString('it-IT')}
                       </div>
