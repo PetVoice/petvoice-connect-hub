@@ -2402,14 +2402,36 @@ const DashboardPage: React.FC = () => {
                             </div>
                             
                             <div className="space-y-1 text-sm">
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <Phone className="h-4 w-4" />
-                                <span>{vet.phone}</span>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`tel:${vet.phone}`, '_self');
+                                  }}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-auto p-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                  title="Chiama"
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                                <span className="text-muted-foreground">{vet.phone}</span>
                               </div>
                               {vet.email && (
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <Mail className="h-4 w-4" />
-                                  <span>{vet.email}</span>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(`mailto:${vet.email}`, '_self');
+                                    }}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-auto p-1 text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    title="Invia Email"
+                                  >
+                                    <Mail className="h-4 w-4" />
+                                  </Button>
+                                  <span className="text-muted-foreground">{vet.email}</span>
                                 </div>
                               )}
                               {vet.address && (
