@@ -2756,7 +2756,7 @@ const DashboardPage: React.FC = () => {
       />
 
       {/* Veterinary Modal */}
-      {showVeterinaryModal && (
+      {showVeterinaryModal && selectedPet && (
         <VeterinaryModal
           isOpen={showVeterinaryModal}
           onClose={() => {
