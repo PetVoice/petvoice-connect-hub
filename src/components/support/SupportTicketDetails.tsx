@@ -504,27 +504,22 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                     );
                   }
 
-                  // Gestione quote - approccio diretto
+                  // RISOLUZIONE IMMEDIATA delle quote
                   const messageText = reply.content;
                   
-                  // Debug: aggiungi un console.log per vedere la struttura del messaggio
-                  console.log('Message content:', JSON.stringify(messageText));
-                  
-                  // Se il messaggio contiene > all'inizio, tentare di separare quote e contenuto
-                  if (messageText.startsWith('>')) {
-                    // Cerca due newline consecutive che separano quote da contenuto
-                    const doubleLB = messageText.indexOf('\n\n');
-                    
-                    if (doubleLB > 0) {
-                      const quotePart = messageText.substring(0, doubleLB);
-                      const contentPart = messageText.substring(doubleLB + 2);
+                  // Se il messaggio inizia con >, rimuovi tutti i > e formatta come quote
+                  if (messageText.trim().startsWith('>')) {
+                    // Separa per doppio newline, se presente
+                    if (messageText.includes('\n\n')) {
+                      const parts = messageText.split('\n\n');
+                      const quotePart = parts[0];
+                      const contentPart = parts.slice(1).join('\n\n');
                       
-                      // Pulisci il testo quotato dai simboli >
                       const cleanQuote = quotePart
                         .split('\n')
-                        .map(line => line.replace(/^>\s?/, ''))
-                        .filter(line => line.trim().length > 0)
-                        .join(' ');
+                        .map(line => line.replace(/^>\s*/g, ''))
+                        .join(' ')
+                        .trim();
                       
                       return (
                         <div>
@@ -533,18 +528,34 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                               Risposta a:
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {truncateText(cleanQuote, 100)}
+                              {cleanQuote}
                             </div>
                           </div>
                           <p className="text-sm text-foreground whitespace-pre-wrap">
-                            {contentPart.trim()}
+                            {contentPart}
+                          </p>
+                        </div>
+                      );
+                    } else {
+                      // Messaggio tutto quote - rimuovi tutti i >
+                      const cleanText = messageText
+                        .replace(/^>\s*/gm, '')
+                        .trim();
+                      
+                      return (
+                        <div className="p-2 bg-muted/30 rounded border-l-2 border-primary">
+                          <div className="text-xs font-medium text-muted-foreground mb-1">
+                            Messaggio quotato:
+                          </div>
+                          <p className="text-sm text-foreground">
+                            {cleanText}
                           </p>
                         </div>
                       );
                     }
                   }
                   
-                  // Fallback: mostra il contenuto normale
+                  // Messaggio normale
                   return (
                     <p className="text-sm text-foreground whitespace-pre-wrap">
                       {messageText}
