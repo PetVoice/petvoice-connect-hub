@@ -2312,7 +2312,7 @@ const SupportPage: React.FC = () => {
                 <div className="border-t pt-4">
                   <h4 className="font-medium mb-3 flex items-center space-x-2">
                     <MessageCircle className="h-4 w-4" />
-                    <span>Risposte del Supporto</span>
+                    <span>Cronologia Conversazione</span>
                   </h4>
                   <div className="space-y-3">
                     {/* Risposte dal database - più recenti in alto */}
