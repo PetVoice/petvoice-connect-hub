@@ -8,6 +8,19 @@ export interface HealthData {
   analyses: Analysis[];
   diaryEntries: DiaryEntry[];
   wellnessScores: WellnessScore[];
+  veterinaryVisits: VeterinaryVisit[];
+}
+
+export interface VeterinaryVisit {
+  id: string;
+  category: string;
+  status: string;
+  start_time: string;
+  end_time?: string;
+  location?: string;
+  notes?: string;
+  cost?: number;
+  created_at: string;
 }
 
 export interface HealthMetric {
@@ -136,10 +149,11 @@ export const calculateUnifiedHealthScore = async (
     dataCompleteness: number;
     recentDataAvailability: number;
     trendAnalysis: string;
+    visitFrequency: string;
   };
   recommendations: string[];
 }> => {
-  const { healthMetrics, medicalRecords, medications, analyses, diaryEntries, wellnessScores } = healthData;
+  const { healthMetrics, medicalRecords, medications, analyses, diaryEntries, wellnessScores, veterinaryVisits } = healthData;
   
   let totalScore = 0;
   const maxScore = 100;
@@ -242,18 +256,39 @@ export const calculateUnifiedHealthScore = async (
   const sixMonthsAgo = new Date(now.getTime() - 6 * 30 * 24 * 60 * 60 * 1000);
   const oneYearAgo = new Date(now.getTime() - 12 * 30 * 24 * 60 * 60 * 1000);
   
-  // Controlli veterinari recenti
+  // Controlli veterinari recenti da medical_records
   const recentCheckups = medicalRecords.filter(r => 
     r.record_type === 'checkup' && new Date(r.record_date) >= sixMonthsAgo
   );
   
-  if (recentCheckups.length > 0) {
+  // Visite veterinarie recenti dal calendario
+  const recentVetVisits = healthData.veterinaryVisits.filter(v => 
+    (v.category === 'veterinary' || v.category === 'checkup') && 
+    v.status === 'completed' &&
+    new Date(v.start_time) >= sixMonthsAgo
+  );
+  
+  // Combina visite da entrambe le fonti
+  const totalRecentVisits = recentCheckups.length + recentVetVisits.length;
+  
+  if (totalRecentVisits > 0) {
     medicalScore += 8;
+    // Bonus per visite multiple (cura costante)
+    if (totalRecentVisits >= 2) {
+      medicalScore += 2;
+    }
   } else {
     const oldCheckups = medicalRecords.filter(r => 
       r.record_type === 'checkup' && new Date(r.record_date) >= oneYearAgo
     );
-    if (oldCheckups.length > 0) {
+    const oldVetVisits = healthData.veterinaryVisits.filter(v => 
+      (v.category === 'veterinary' || v.category === 'checkup') && 
+      v.status === 'completed' &&
+      new Date(v.start_time) >= oneYearAgo && 
+      new Date(v.start_time) < sixMonthsAgo
+    );
+    
+    if (oldCheckups.length > 0 || oldVetVisits.length > 0) {
       medicalScore += 4;
       recommendations.push("Programma un controllo veterinario - ultimo controllo oltre 6 mesi fa");
     } else {
@@ -383,13 +418,38 @@ export const calculateUnifiedHealthScore = async (
     }
   }
   
+  // Analisi frequenza visite veterinarie
+  let visitFrequency = "Mai registrate";
+  const completedVisits = healthData.veterinaryVisits.filter(v => v.status === 'completed');
+  const threeMonthsAgo = new Date(now.getTime() - 3 * 30 * 24 * 60 * 60 * 1000);
+  
+  if (completedVisits.length > 0) {
+    const recentVisitsCount = completedVisits.filter(v => 
+      new Date(v.start_time) >= threeMonthsAgo
+    ).length;
+    const sixMonthVisitsCount = completedVisits.filter(v => 
+      new Date(v.start_time) >= sixMonthsAgo
+    ).length;
+    
+    if (recentVisitsCount >= 2) {
+      visitFrequency = "Molto regolare";
+    } else if (recentVisitsCount >= 1) {
+      visitFrequency = "Regolare";
+    } else if (sixMonthVisitsCount >= 1) {
+      visitFrequency = "Poco frequente";
+    } else {
+      visitFrequency = "Assente";
+    }
+  }
+  
   return {
     overallScore: Math.round(totalScore),
     components,
     factors: {
       dataCompleteness,
       recentDataAvailability,
-      trendAnalysis
+      trendAnalysis,
+      visitFrequency
     },
     recommendations
   };
@@ -407,7 +467,8 @@ export const fetchHealthData = async (petId: string, userId: string): Promise<He
       { data: medications },
       { data: analyses },
       { data: diaryEntries },
-      { data: wellnessScores }
+      { data: wellnessScores },
+      { data: veterinaryVisits }
     ] = await Promise.all([
       supabase
         .from('health_metrics')
@@ -454,7 +515,16 @@ export const fetchHealthData = async (petId: string, userId: string): Promise<He
         .eq('pet_id', petId)
         .eq('user_id', userId)
         .order('score_date', { ascending: false })
-        .limit(20)
+        .limit(20),
+        
+      supabase
+        .from('calendar_events')
+        .select('*')
+        .eq('pet_id', petId)
+        .eq('user_id', userId)
+        .in('category', ['veterinary', 'checkup', 'vaccination', 'treatment'])
+        .order('start_time', { ascending: false })
+        .limit(50)
     ]);
     
     return {
@@ -463,7 +533,8 @@ export const fetchHealthData = async (petId: string, userId: string): Promise<He
       medications: medications || [],
       analyses: analyses || [],
       diaryEntries: diaryEntries || [],
-      wellnessScores: wellnessScores || []
+      wellnessScores: wellnessScores || [],
+      veterinaryVisits: veterinaryVisits || []
     };
   } catch (error) {
     console.error('Error fetching health data:', error);
@@ -473,7 +544,8 @@ export const fetchHealthData = async (petId: string, userId: string): Promise<He
       medications: [],
       analyses: [],
       diaryEntries: [],
-      wellnessScores: []
+      wellnessScores: [],
+      veterinaryVisits: []
     };
   }
 };

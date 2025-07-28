@@ -391,14 +391,25 @@ const DashboardPage: React.FC = () => {
             behaviorScore = behaviorScores.reduce((sum, score) => sum + score, 0) / behaviorScores.length;
           }
 
-          // 5. Medical Care Bonus (5% weight)
+          // 5. Medical Care Bonus (5% weight) - Includes calendar visits
           let medicalBonus = 0;
-          const recentVisits = medicalRecords.filter(record => {
+          const recentMedicalRecords = medicalRecords.filter(record => {
             const visitDate = new Date(record.created_at);
             const sixMonthsAgo = subDays(new Date(), 180);
             return visitDate >= sixMonthsAgo;
           });
-          if (recentVisits.length > 0) medicalBonus = 10; // Recent vet visit bonus
+          
+          const recentVetVisits = calendarEvents.filter(event => 
+            ['veterinary', 'checkup', 'vaccination', 'treatment'].includes(event.category) &&
+            event.status === 'completed' &&
+            new Date(event.start_time) >= subDays(new Date(), 180)
+          );
+          
+          const totalRecentVisits = recentMedicalRecords.length + recentVetVisits.length;
+          if (totalRecentVisits > 0) {
+            medicalBonus = 5;
+            if (totalRecentVisits >= 2) medicalBonus += 2;
+          }
 
           // Calculate weighted average
           wellnessScore = Math.round(

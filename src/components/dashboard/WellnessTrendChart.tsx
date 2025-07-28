@@ -22,6 +22,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
   const [petAnalyses, setPetAnalyses] = React.useState([]);
   const [diaryEntries, setDiaryEntries] = React.useState([]);
   const [healthMetrics, setHealthMetrics] = React.useState([]);
+  const [veterinaryVisits, setVeterinaryVisits] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -42,9 +43,16 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
           .select('id, metric_type, value, created_at')
           .eq('pet_id', petId);
 
+        const { data: visitsData } = await supabase
+          .from('calendar_events')
+          .select('id, category, status, start_time, location, cost, notes, created_at')
+          .eq('pet_id', petId)
+          .in('category', ['veterinary', 'checkup', 'vaccination', 'treatment']);
+
         setPetAnalyses(analysesData || []);
         setDiaryEntries(diaryData || []);
         setHealthMetrics(healthData || []);
+        setVeterinaryVisits(visitsData || []);
       } catch (error) {
         console.error('Error fetching trend data:', error);
       }
@@ -130,7 +138,12 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         return date >= period.start && date <= period.end;
       });
 
-      // 1. Emotion Analysis Score (50% weight)
+      const periodVeterinaryVisits = veterinaryVisits.filter(visit => {
+        const date = new Date(visit.start_time);
+        return date >= period.start && date <= period.end && visit.status === 'completed';
+      });
+
+      // 1. Emotion Analysis Score (45% weight)
       let emotionScore = 60; // default neutral
       if (periodAnalyses.length > 0) {
         const weightedSum = periodAnalyses.reduce((sum, analysis) => {
@@ -141,7 +154,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         emotionScore = totalConfidence > 0 ? weightedSum / totalConfidence : 60;
       }
 
-      // 2. Diary Mood Score (30% weight)
+      // 2. Diary Mood Score (25% weight)
       let diaryScore = 50; // default neutral
       if (periodDiaryEntries.length > 0) {
         const moodEntries = periodDiaryEntries.filter(entry => entry.mood_score !== null);
@@ -150,7 +163,7 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         }
       }
 
-      // 3. Health Metrics Score (20% weight)
+      // 3. Health Metrics Score (15% weight)
       let healthScore = 60; // default neutral
       if (periodHealthMetrics.length > 0) {
         const healthScores = periodHealthMetrics.map(metric => {
@@ -168,12 +181,42 @@ const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }
         healthScore = healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length;
       }
 
+      // 4. Veterinary Care Score (15% weight)
+      let veterinaryScore = 40; // default below average
+      if (periodVeterinaryVisits.length > 0) {
+        // Bonus for having veterinary visits in this period
+        veterinaryScore = 85;
+        
+        // Additional bonus for multiple visits or preventive care
+        if (periodVeterinaryVisits.length >= 2) {
+          veterinaryScore = 95;
+        }
+        
+        // Bonus for different types of care
+        const visitTypes = new Set(periodVeterinaryVisits.map(v => v.category));
+        if (visitTypes.has('vaccination')) veterinaryScore += 5;
+        if (visitTypes.has('checkup')) veterinaryScore += 5;
+        
+        veterinaryScore = Math.min(100, veterinaryScore);
+      } else {
+        // Check if there were visits in previous periods
+        const recentVisits = veterinaryVisits.filter(visit => {
+          const visitDate = new Date(visit.start_time);
+          const threeMonthsAgo = new Date(period.end.getTime() - 90 * 24 * 60 * 60 * 1000);
+          return visitDate >= threeMonthsAgo && visitDate <= period.end && visit.status === 'completed';
+        });
+        
+        if (recentVisits.length > 0) {
+          veterinaryScore = 60; // Recent care, but not in this period
+        }
+      }
+
       // Calculate comprehensive wellness score
-      const comprehensiveScore = (emotionScore * 0.5) + (diaryScore * 0.3) + (healthScore * 0.2);
+      const comprehensiveScore = (emotionScore * 0.45) + (diaryScore * 0.25) + (healthScore * 0.15) + (veterinaryScore * 0.15);
 
       return { date: period.label, wellness: Math.round(Math.max(0, Math.min(100, comprehensiveScore))) };
     });
-  }, [petAnalyses, diaryEntries, healthMetrics, selectedPeriod]);
+  }, [petAnalyses, diaryEntries, healthMetrics, veterinaryVisits, selectedPeriod]);
 
   return (
     <Card className="w-full bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">
