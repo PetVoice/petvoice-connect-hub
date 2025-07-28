@@ -35,7 +35,7 @@ export const ReactivationModal: React.FC<ReactivationModalProps> = ({
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <CheckCircle className="w-6 h-6 text-primary" />
-            <DialogTitle className="text-lg">✅ RIATTIVAZIONE ABBONAMENTO</DialogTitle>
+            <DialogTitle className="text-lg">RIATTIVAZIONE ABBONAMENTO</DialogTitle>
           </div>
           <DialogDescription className="text-left">
             <div className="space-y-4">
