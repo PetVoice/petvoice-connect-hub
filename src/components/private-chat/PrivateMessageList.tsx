@@ -255,33 +255,26 @@ export const PrivateMessageList: React.FC<PrivateMessageListProps> = ({
                     <Reply className="h-4 w-4" />
                   </Button>
                   
-                  {/* Show menu for both own and received messages */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {isOwn ? (
-                        <>
-                          <DropdownMenuItem onClick={() => startEdit(message)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Modifica
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-destructive">
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Elimina
-                          </DropdownMenuItem>
-                        </>
-                      ) : (
+                  {/* Show menu only for own messages */}
+                  {isOwn && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => startEdit(message)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Modifica
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onDeleteMessage(message.id)} className="text-destructive">
                           <Trash2 className="h-4 w-4 mr-2" />
                           Elimina
                         </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
               )}
             </div>
