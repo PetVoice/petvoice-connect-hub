@@ -3,220 +3,65 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
-import { supabase } from '@/integrations/supabase/client';
-import { format, subDays, startOfDay, endOfDay, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { it } from 'date-fns/locale';
 import { 
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart';
+import { fetchUnifiedHealthData, generateTrendData } from '@/utils/unifiedWellnessCalculator';
 
 interface WellnessTrendChartProps {
   petId: string;
   userId: string;
+  petType?: string;
 }
 
-const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId }) => {
+const WellnessTrendChart: React.FC<WellnessTrendChartProps> = ({ petId, userId, petType }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('mese');
-  const [petAnalyses, setPetAnalyses] = React.useState([]);
-  const [diaryEntries, setDiaryEntries] = React.useState([]);
-  const [healthMetrics, setHealthMetrics] = React.useState([]);
-  const [veterinaryVisits, setVeterinaryVisits] = React.useState([]);
+  const [unifiedData, setUnifiedData] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       if (!petId || !userId) return;
+      
+      setIsLoading(true);
       try {
-        const { data: analysesData } = await supabase
-          .from('pet_analyses')
-          .select('id, primary_emotion, primary_confidence, created_at')
-          .eq('pet_id', petId);
-        
-        const { data: diaryData } = await supabase
-          .from('diary_entries')
-          .select('id, mood_score, temperature, created_at')
-          .eq('pet_id', petId);
-
-        const { data: healthData } = await supabase
-          .from('health_metrics')
-          .select('id, metric_type, value, created_at')
-          .eq('pet_id', petId);
-
-        const { data: visitsData } = await supabase
-          .from('calendar_events')
-          .select('id, category, status, start_time, location, cost, notes, created_at')
-          .eq('pet_id', petId)
-          .in('category', ['veterinary', 'checkup', 'vaccination', 'treatment']);
-
-        setPetAnalyses(analysesData || []);
-        setDiaryEntries(diaryData || []);
-        setHealthMetrics(healthData || []);
-        setVeterinaryVisits(visitsData || []);
+        const data = await fetchUnifiedHealthData(petId, userId);
+        setUnifiedData(data);
       } catch (error) {
-        console.error('Error fetching trend data:', error);
+        console.error('Error loading unified health data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchData();
+    
+    loadData();
   }, [petId, userId]);
 
   const wellnessTrendData = useMemo(() => {
-    const now = new Date();
-    let periods = [];
+    if (!unifiedData) return [];
+    return generateTrendData(unifiedData, selectedPeriod, petType);
+  }, [unifiedData, selectedPeriod, petType]);
 
-    switch (selectedPeriod) {
-      case 'oggi':
-        periods = Array.from({ length: 24 }, (_, i) => {
-          const hour = i;
-          return {
-            start: new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour),
-            end: new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour + 1),
-            label: `${hour}:00`
-          };
-        });
-        break;
-      case 'settimana':
-        periods = Array.from({ length: 7 }, (_, i) => {
-          const dayDate = subDays(now, 6 - i);
-          return {
-            start: startOfDay(dayDate),
-            end: endOfDay(dayDate),
-            label: format(dayDate, 'E', { locale: it })
-          };
-        });
-        break;
-      case 'anno':
-        periods = Array.from({ length: 12 }, (_, i) => {
-          const monthDate = subMonths(now, 11 - i);
-          return {
-            start: startOfMonth(monthDate),
-            end: endOfMonth(monthDate),
-            label: format(monthDate, 'MMM', { locale: it })
-          };
-        });
-        break;
-      case 'tutto':
-        periods = Array.from({ length: 12 }, (_, i) => {
-          const monthDate = subMonths(now, 11 - i);
-          return {
-            start: startOfMonth(monthDate),
-            end: endOfMonth(monthDate),
-            label: format(monthDate, 'MMM yyyy', { locale: it })
-          };
-        });
-        break;
-      default: // 'mese'
-        periods = Array.from({ length: 6 }, (_, i) => {
-          const monthDate = subMonths(now, 5 - i);
-          return {
-            start: startOfMonth(monthDate),
-            end: endOfMonth(monthDate),
-            label: format(monthDate, 'MMM', { locale: it })
-          };
-        });
-    }
-
-    const emotionScores = {
-      'felice': 90, 'calmo': 85, 'giocoso': 88, 'eccitato': 75,
-      'ansioso': 40, 'triste': 30, 'aggressivo': 25
-    };
-
-    return periods.map(period => {
-      // Filter data for this period
-      const periodAnalyses = petAnalyses.filter(analysis => {
-        const date = new Date(analysis.created_at);
-        return date >= period.start && date <= period.end;
-      });
-
-      const periodDiaryEntries = diaryEntries.filter(entry => {
-        const date = new Date(entry.created_at);
-        return date >= period.start && date <= period.end;
-      });
-
-      const periodHealthMetrics = healthMetrics.filter(metric => {
-        const date = new Date(metric.created_at);
-        return date >= period.start && date <= period.end;
-      });
-
-      const periodVeterinaryVisits = veterinaryVisits.filter(visit => {
-        const date = new Date(visit.start_time);
-        return date >= period.start && date <= period.end && visit.status === 'completed';
-      });
-
-      // 1. Emotion Analysis Score (45% weight)
-      let emotionScore = 60; // default neutral
-      if (periodAnalyses.length > 0) {
-        const weightedSum = periodAnalyses.reduce((sum, analysis) => {
-          const emotionValue = emotionScores[analysis.primary_emotion?.toLowerCase()] || 60;
-          return sum + (emotionValue * analysis.primary_confidence);
-        }, 0);
-        const totalConfidence = periodAnalyses.reduce((sum, analysis) => sum + analysis.primary_confidence, 0);
-        emotionScore = totalConfidence > 0 ? weightedSum / totalConfidence : 60;
-      }
-
-      // 2. Diary Mood Score (25% weight)
-      let diaryScore = 50; // default neutral
-      if (periodDiaryEntries.length > 0) {
-        const moodEntries = periodDiaryEntries.filter(entry => entry.mood_score !== null);
-        if (moodEntries.length > 0) {
-          diaryScore = moodEntries.reduce((sum, entry) => sum + (entry.mood_score * 20), 0) / moodEntries.length;
-        }
-      }
-
-      // 3. Health Metrics Score (15% weight)
-      let healthScore = 60; // default neutral
-      if (periodHealthMetrics.length > 0) {
-        const healthScores = periodHealthMetrics.map(metric => {
-          switch(metric.metric_type) {
-            case 'temperature':
-              return (metric.value >= 37.5 && metric.value <= 39.5) ? 85 : 40;
-            case 'weight':
-              return 75; // Weight stability bonus
-            case 'heart_rate':
-              return (metric.value >= 60 && metric.value <= 120) ? 85 : 50;
-            default:
-              return 60;
-          }
-        });
-        healthScore = healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length;
-      }
-
-      // 4. Veterinary Care Score (15% weight)
-      let veterinaryScore = 40; // default below average
-      if (periodVeterinaryVisits.length > 0) {
-        // Bonus for having veterinary visits in this period
-        veterinaryScore = 85;
-        
-        // Additional bonus for multiple visits or preventive care
-        if (periodVeterinaryVisits.length >= 2) {
-          veterinaryScore = 95;
-        }
-        
-        // Bonus for different types of care
-        const visitTypes = new Set(periodVeterinaryVisits.map(v => v.category));
-        if (visitTypes.has('vaccination')) veterinaryScore += 5;
-        if (visitTypes.has('checkup')) veterinaryScore += 5;
-        
-        veterinaryScore = Math.min(100, veterinaryScore);
-      } else {
-        // Check if there were visits in previous periods
-        const recentVisits = veterinaryVisits.filter(visit => {
-          const visitDate = new Date(visit.start_time);
-          const threeMonthsAgo = new Date(period.end.getTime() - 90 * 24 * 60 * 60 * 1000);
-          return visitDate >= threeMonthsAgo && visitDate <= period.end && visit.status === 'completed';
-        });
-        
-        if (recentVisits.length > 0) {
-          veterinaryScore = 60; // Recent care, but not in this period
-        }
-      }
-
-      // Calculate comprehensive wellness score
-      const comprehensiveScore = (emotionScore * 0.45) + (diaryScore * 0.25) + (healthScore * 0.15) + (veterinaryScore * 0.15);
-
-      return { date: period.label, wellness: Math.round(Math.max(0, Math.min(100, comprehensiveScore))) };
-    });
-  }, [petAnalyses, diaryEntries, healthMetrics, veterinaryVisits, selectedPeriod]);
+  if (isLoading) {
+    return (
+      <Card className="w-full bg-gradient-subtle border-0 shadow-elegant">
+        <CardHeader>
+          <CardTitle>Trend Generale Benessere</CardTitle>
+          <CardDescription>Caricamento...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-muted-foreground">Caricamento dati...</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full bg-gradient-subtle border-0 shadow-elegant hover:shadow-glow transition-all duration-300">

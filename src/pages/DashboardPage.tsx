@@ -298,136 +298,32 @@ const DashboardPage: React.FC = () => {
         let healthStatus = 'N/A';
 
         if (analyses && analyses.length > 0) {
-          const emotionScores: Record<string, number> = {
-            'felice': 90,
-            'calmo': 85,
-            'giocoso': 88,
-            'eccitato': 75,
-            'ansioso': 40,
-            'triste': 30,
-            'aggressivo': 25
-          };
-
-          // 1. Emotion Analysis Score (40% weight)
-          const recentAnalysesForScore = analyses.slice(0, 10);
-          const emotionScore = recentAnalysesForScore.reduce((sum, analysis) => {
-            const emotionValue = emotionScores[analysis.primary_emotion] || 50;
-            const confidenceBonus = (analysis.primary_confidence - 50) / 100 * 20;
-            return sum + emotionValue + confidenceBonus;
-          }, 0) / recentAnalysesForScore.length;
-
-          // 2. Diary Mood Score (25% weight)
-          let diaryScore = 50; // default neutral
-          if (diaryEntries && diaryEntries.length > 0) {
-            const recentDiaryEntries = diaryEntries
-              .filter(entry => entry.mood_score !== null)
-              .slice(0, 10);
-            if (recentDiaryEntries.length > 0) {
-              diaryScore = recentDiaryEntries.reduce((sum, entry) => sum + (entry.mood_score * 20), 0) / recentDiaryEntries.length;
-            }
-          }
-
-           // 3. Vital Parameters Score (20% weight)
-           let vitalScore = 50; // default neutral
-           if (Object.keys(vitalStats).length > 0) {
-             const vitalScores = Object.entries(vitalStats).map(([vital, data]) => {
-               // Score based on vital type and value range using first aid guide ranges
-               const vitalValue = typeof data.value === 'string' ? data.value : Number(data.value);
-               const petType = selectedPet?.type;
-               
-               switch(vital) {
-                 case 'temperatura':
-                   const tempValue = Number(vitalValue);
-                   if (petType?.toLowerCase().includes('cane')) {
-                     return (tempValue >= 38.0 && tempValue <= 39.2) ? 90 : 30;
-                   } else if (petType?.toLowerCase().includes('gatto')) {
-                     return (tempValue >= 38.1 && tempValue <= 39.2) ? 90 : 30;
-                   }
-                   return (tempValue >= 38.0 && tempValue <= 39.2) ? 90 : 30;
-                   
-                 case 'frequenza_cardiaca':
-                   const heartValue = Number(vitalValue);
-                   if (petType?.toLowerCase().includes('cane')) {
-                     return (heartValue >= 60 && heartValue <= 140) ? 90 : 35;
-                   } else if (petType?.toLowerCase().includes('gatto')) {
-                     return (heartValue >= 140 && heartValue <= 220) ? 90 : 35;
-                   }
-                   return (heartValue >= 60 && heartValue <= 140) ? 90 : 35;
-                   
-                 case 'respirazione':
-                   const respValue = Number(vitalValue);
-                   if (petType?.toLowerCase().includes('cane')) {
-                     return (respValue >= 10 && respValue <= 30) ? 90 : 35;
-                   } else if (petType?.toLowerCase().includes('gatto')) {
-                     return (respValue >= 20 && respValue <= 30) ? 90 : 35;
-                   }
-                   return (respValue >= 10 && respValue <= 30) ? 90 : 35;
-                   
-                 case 'colore_gengive':
-                   const gumColor = String(vitalValue).toLowerCase();
-                   if (gumColor === 'rosa') return 95; // Excellent
-                   if (gumColor === 'pallide') return 25; // Poor - possible shock/anemia
-                   if (gumColor === 'blu/viola' || gumColor === 'blu' || gumColor === 'viola') return 10; // Critical - oxygen deficit
-                   if (gumColor === 'gialle') return 20; // Poor - liver issues
-                   return 50; // Unknown color
-                   
-                 default:
-                   return 60; // Default score for unknown vitals
-               }
-             });
-             vitalScore = vitalScores.length > 0 ? vitalScores.reduce((sum, score) => sum + score, 0) / vitalScores.length : 50;
-           }
-
-          // 4. Behavior Score (10% weight)
-          let behaviorScore = 65; // default good
-          if (Object.keys(behaviorStats).length > 0) {
-            const behaviorScores = Object.entries(behaviorStats).map(([behavior, data]) => {
-              const behaviorValues: Record<string, number> = {
-                'felice': 90, 'giocoso': 85, 'calmo': 80, 'energico': 75, 'socievole': 80,
-                'ansioso': 40, 'aggressivo': 25, 'timido': 50
-              };
-              return behaviorValues[behavior] || 60;
-            });
-            behaviorScore = behaviorScores.reduce((sum, score) => sum + score, 0) / behaviorScores.length;
-          }
-
-          // 5. Medical Care Bonus (5% weight) - Includes calendar visits
-          let medicalBonus = 0;
-          const recentMedicalRecords = medicalRecords.filter(record => {
-            const visitDate = new Date(record.created_at);
-            const sixMonthsAgo = subDays(new Date(), 180);
-            return visitDate >= sixMonthsAgo;
-          });
+          // Usa il calcolatore unificato per il punteggio attuale
+          const { fetchUnifiedHealthData, calculateUnifiedWellnessScore } = await import('@/utils/unifiedWellnessCalculator');
           
-          const recentVetVisits = calendarEvents.filter(event => 
-            ['veterinary', 'checkup', 'vaccination', 'treatment'].includes(event.category) &&
-            event.status === 'completed' &&
-            new Date(event.start_time) >= subDays(new Date(), 180)
-          );
-          
-          const totalRecentVisits = recentMedicalRecords.length + recentVetVisits.length;
-          if (totalRecentVisits > 0) {
-            medicalBonus = 5;
-            if (totalRecentVisits >= 2) medicalBonus += 2;
+          try {
+            const unifiedData = await fetchUnifiedHealthData(selectedPet.id, user.id);
+            const now = new Date();
+            const currentScore = calculateUnifiedWellnessScore(
+              unifiedData, 
+              new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // ultimi 7 giorni
+              now, 
+              selectedPet.type
+            );
+            
+            wellnessScore = currentScore.score;
+          } catch (error) {
+            console.error('Error calculating unified wellness score:', error);
+            // Fallback al vecchio calcolo se necessario
+            wellnessScore = 50;
           }
-
-          // Calculate weighted average
-          wellnessScore = Math.round(
-            (emotionScore * 0.4) + 
-            (diaryScore * 0.25) + 
-            (vitalScore * 0.2) + 
-            (behaviorScore * 0.1) + 
-            (50 * 0.05) + // base score for medical factor
-            medicalBonus
-          );
-
-          wellnessScore = Math.max(0, Math.min(100, wellnessScore));
-          
-          if (wellnessScore >= 80) healthStatus = 'Eccellente';
-          else if (wellnessScore >= 60) healthStatus = 'Buono';
-          else if (wellnessScore >= 40) healthStatus = 'Discreto';
-          else healthStatus = 'Preoccupante';
         }
+
+        // Determine health status based on wellness score
+        if (wellnessScore >= 80) healthStatus = 'Eccellente';
+        else if (wellnessScore >= 60) healthStatus = 'Buono';
+        else if (wellnessScore >= 40) healthStatus = 'Discreto';
+        else healthStatus = 'Preoccupante';
 
         // Calculate mood trend (compare last 5 vs previous 5 analyses)
         let moodTrend = 0;
@@ -1645,7 +1541,7 @@ const DashboardPage: React.FC = () => {
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <div className="mb-16 w-full">
-          <WellnessTrendChart petId={selectedPet.id} userId={user.id} />
+          <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
         </div>
       )}
 
