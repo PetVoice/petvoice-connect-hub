@@ -24,25 +24,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'PAYMENT_SUCCESS') {
         console.log('🎉 Payment success detected in ProtectedRoute');
-        // Force refresh subscription status using check-subscription edge function
-        setTimeout(async () => {
-          try {
-            const { data, error } = await supabase.functions.invoke('check-subscription');
-            if (!error && data) {
-              console.log('📋 Forced Stripe sync after payment:', data);
-              // Force another local check
-              await checkSubscription();
-            }
-          } catch (error) {
-            console.error('Error syncing with Stripe:', error);
-          }
-        }, 2000);
+        // FORCE IMMEDIATE PAGE RELOAD to ensure fresh state
+        console.log('🔄 Forcing page reload after payment...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [checkSubscription]);
+  }, []);
 
   if (authLoading || subLoading) {
     return (
