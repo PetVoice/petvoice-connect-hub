@@ -1350,9 +1350,12 @@ Continuare?
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Impostazioni</h1>
-          <p className="text-muted-foreground">Gestisci il tuo account e personalizza la tua esperienza</p>
+        <div className="flex items-center gap-4">
+          <SettingsIcon className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Impostazioni</h1>
+            <p className="text-muted-foreground">Gestisci il tuo account e personalizza la tua esperienza</p>
+          </div>
         </div>
         <Badge variant="outline" className="flex items-center gap-2">
           <CheckCircle className="h-3 w-3" />
