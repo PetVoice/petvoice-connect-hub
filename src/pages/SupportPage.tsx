@@ -282,7 +282,7 @@ const SupportPage: React.FC = () => {
   const createTicket = async () => {
     if (!newTicket.subject || !newTicket.description || !newTicket.category) {
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
       });
@@ -294,7 +294,7 @@ const SupportPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
-          title: "❌ Errore",
+          title: "Errore",
           description: "Devi essere autenticato per creare un ticket",
           variant: "destructive"
         });
@@ -331,8 +331,9 @@ const SupportPage: React.FC = () => {
       }
 
       showToast({
-        title: "✅ Ticket creato",
-        description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
+        title: "Ticket creato",
+        description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore.",
+        variant: "success"
       });
 
       // Notifica per nuovo ticket
@@ -359,7 +360,7 @@ const SupportPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating ticket:', error);
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Impossibile creare il ticket. Riprova più tardi.",
         variant: "destructive"
       });
@@ -378,8 +379,9 @@ const SupportPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: "✅ Ticket chiuso",
-        description: `Il ticket "${ticketSubject}" è stato chiuso.`
+        title: "Ticket chiuso",
+        description: `Il ticket "${ticketSubject}" è stato chiuso.`,
+        variant: "success"
       });
       
       // Ricarica i tickets
@@ -387,7 +389,7 @@ const SupportPage: React.FC = () => {
     } catch (error) {
       console.error('Error closing ticket:', error);
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Impossibile chiudere il ticket. Riprova più tardi.",
         variant: "destructive"
       });
@@ -418,7 +420,7 @@ const SupportPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
-          title: "❌ Errore",
+          title: "Errore",
           description: "Devi essere autenticato per rispondere",
           variant: "destructive"
         });
@@ -437,8 +439,9 @@ const SupportPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: "✅ Risposta inviata",
-        description: "La tua risposta è stata aggiunta al ticket."
+        title: "Risposta inviata",
+        description: "La tua risposta è stata aggiunta al ticket.",
+        variant: "success"
       });
 
       // Ricarica le risposte per questo ticket
@@ -446,8 +449,9 @@ const SupportPage: React.FC = () => {
       setTicketReply('');
     } catch (error) {
       console.error('Error adding ticket reply:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Impossibile inviare la risposta. Riprova più tardi.",
         variant: "destructive"
       });
@@ -457,7 +461,7 @@ const SupportPage: React.FC = () => {
   const createFeatureRequest = async () => {
     if (!newFeatureRequest.title || !newFeatureRequest.description) {
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Compila tutti i campi obbligatori",
         variant: "destructive"
       });
@@ -469,7 +473,7 @@ const SupportPage: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         showToast({
-          title: "❌ Errore",
+          title: "Errore",
           description: "Devi essere autenticato per creare una richiesta",
           variant: "destructive"
         });
@@ -488,8 +492,9 @@ const SupportPage: React.FC = () => {
       if (error) throw error;
 
       showToast({
-        title: "✅ Richiesta inviata",
-        description: "La tua richiesta di funzionalità è stata inviata con successo."
+        title: "Richiesta inviata",
+        description: "La tua richiesta di funzionalità è stata inviata con successo.",
+        variant: "success"
       });
 
       // Reset form
@@ -507,7 +512,7 @@ const SupportPage: React.FC = () => {
     } catch (error) {
       console.error('Error creating feature request:', error);
       showToast({
-        title: "❌ Errore",
+        title: "Errore",
         description: "Impossibile inviare la richiesta. Riprova più tardi.",
         variant: "destructive"
       });
@@ -546,8 +551,9 @@ const SupportPage: React.FC = () => {
       ));
 
       showToast({
-        title: "✅ Grazie per il feedback!",
-        description: "Il tuo feedback ci aiuta a migliorare il supporto."
+        title: "Grazie per il feedback!",
+        description: "Il tuo feedback ci aiuta a migliorare il supporto.",
+        variant: "success"
       });
     } catch (error) {
       console.error('Error updating FAQ feedback:', error);
@@ -605,8 +611,9 @@ const SupportPage: React.FC = () => {
       setUserVotes([...userVotes, requestId]);
 
       showToast({
-        title: "✅ Voto aggiunto",
-        description: "Grazie per aver votato questa richiesta di funzionalità!"
+        title: "Voto aggiunto",
+        description: "Grazie per aver votato questa richiesta di funzionalità!",
+        variant: "success"
       });
     } catch (error) {
       console.error('Error voting feature request:', error);
