@@ -51,6 +51,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [replies, setReplies] = useState<TicketReply[]>([]);
   const [newReply, setNewReply] = useState('');
   const [loading, setLoading] = useState(false);
+  const [userProfiles, setUserProfiles] = useState<{ [key: string]: { display_name: string } }>({});
   const { user } = useAuth();
   const { showToast } = useTranslatedToast();
 
@@ -72,6 +73,23 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
       if (error) throw error;
       setReplies(data || []);
+
+      // Carica i profili degli utenti per i messaggi
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map(reply => reply.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', userIds);
+        
+        if (profiles) {
+          const profilesMap = profiles.reduce((acc, profile) => {
+            acc[profile.user_id] = { display_name: profile.display_name || 'Utente' };
+            return acc;
+          }, {} as { [key: string]: { display_name: string } });
+          setUserProfiles(profilesMap);
+        }
+      }
     } catch (error) {
       console.error('Error loading ticket replies:', error);
     }
@@ -88,9 +106,27 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           table: 'support_ticket_replies',
           filter: `ticket_id=eq.${ticket.id}`
         },
-        (payload) => {
+        async (payload) => {
           console.log('📨 New reply received:', payload.new);
-          setReplies(prev => [...prev, payload.new as TicketReply]);
+          const newReply = payload.new as TicketReply;
+          
+          // Carica il profilo dell'utente se non lo abbiamo già
+          if (!userProfiles[newReply.user_id]) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('user_id, display_name')
+              .eq('user_id', newReply.user_id)
+              .single();
+            
+            if (profile) {
+              setUserProfiles(prev => ({
+                ...prev,
+                [profile.user_id]: { display_name: profile.display_name || 'Utente' }
+              }));
+            }
+          }
+          
+          setReplies(prev => [...prev, newReply]);
         }
       )
       .on(
@@ -133,14 +169,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
       if (error) throw error;
 
-      // Aggiungi immediatamente il messaggio alla lista per feedback immediato
-      const newReplyWithTimestamp = {
-        ...data,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      setReplies(prev => [...prev, newReplyWithTimestamp]);
+      // Non aggiungere manualmente - il realtime si occuperà di aggiornare la lista
 
       showToast({
         title: "Risposta inviata",
@@ -230,8 +259,16 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
               const isOwn = reply.user_id === user?.id;
               const isStaff = reply.is_staff_reply;
               
-              // Per l'utente: mostra "Tu" per i suoi messaggi, "Supporto" per lo staff
-              const displayName = isOwn ? 'Tu' : 'Supporto';
+              // Logica per il nome: se è il proprio messaggio mostra "Tu", altrimenti mostra il nome dell'utente o "Supporto"
+              let displayName = 'Utente';
+              if (isOwn) {
+                displayName = 'Tu';
+              } else if (isStaff) {
+                displayName = 'Supporto';
+              } else {
+                // Per i messaggi di altri utenti, mostra il nome dal profilo
+                displayName = userProfiles[reply.user_id]?.display_name || 'Utente';
+              }
 
               return (
                 <div 
