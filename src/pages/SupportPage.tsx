@@ -134,8 +134,12 @@ const SupportPage: React.FC = () => {
 
   // Carica i dati iniziali
   useEffect(() => {
+    console.log('🚀 useEffect triggered, user:', user);
     if (user?.id) {
+      console.log('✅ User found, loading support data for:', user.id);
       loadSupportData();
+    } else {
+      console.log('❌ No user found, cannot load support data');
     }
   }, [user?.id]);
 
