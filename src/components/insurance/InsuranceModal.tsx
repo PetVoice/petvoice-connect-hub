@@ -391,12 +391,20 @@ export const InsurancePolicyModal: React.FC<InsurancePolicyModalProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-2 pt-4">
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button 
+            variant="outline" 
+            onClick={onClose} 
+            disabled={loading}
+          >
             Annulla
           </Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? 'Salvataggio...' : (policy ? 'Aggiorna' : 'Salva')}
+          <Button 
+            onClick={handleSave} 
+            disabled={loading}
+            className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
+          >
+            {loading ? 'Salvataggio...' : (policy ? 'Aggiorna' : 'Aggiungi')}
           </Button>
         </div>
       </DialogContent>

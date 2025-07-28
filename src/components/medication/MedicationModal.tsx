@@ -357,7 +357,7 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
@@ -366,7 +366,11 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
             >
               Annulla
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+            >
               {loading ? 'Salvando...' : medication ? 'Aggiorna' : 'Aggiungi'}
             </Button>
           </div>
