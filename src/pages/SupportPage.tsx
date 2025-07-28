@@ -216,6 +216,41 @@ const SupportPage: React.FC = () => {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_ticket_replies'
+        },
+        async (payload) => {
+          console.log('📨 New reply received:', payload.new);
+          const newReply = payload.new;
+          
+          // Ottieni informazioni sul ticket
+          const { data: ticket } = await supabase
+            .from('support_tickets')
+            .select('user_id')
+            .eq('id', newReply.ticket_id)
+            .single();
+
+          if (!ticket) return;
+          
+          // Se la risposta non è dell'utente corrente E l'utente corrente è il proprietario del ticket
+          if (newReply.user_id !== user?.id && ticket.user_id === user?.id) {
+            console.log('🔔 Reply from other user for current user ticket, incrementing unread count');
+            
+            // Incrementa l'unread count nel UI locale
+            setTickets(prev => 
+              prev.map(t => 
+                t.id === newReply.ticket_id 
+                  ? { ...t, unread_count: (t.unread_count || 0) + 1 }
+                  : t
+              )
+            );
+          }
+        }
+      )
       .subscribe();
 
     return () => {
