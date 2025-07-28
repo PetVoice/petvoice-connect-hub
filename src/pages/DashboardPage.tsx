@@ -1657,27 +1657,21 @@ const DashboardPage: React.FC = () => {
                       const icon = emotionIcons[emotion as keyof typeof emotionIcons] || '🐾';
                       
                       return (
-                        <div key={emotion} className="group">
-                          <div className="bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <div className="flex items-center gap-2">
-                                    <div className="text-2xl">{icon}</div>
-                                    <h4 className="font-semibold text-lg text-pink-800 capitalize">{emotion}</h4>
-                                  </div>
-                                  <Badge variant="outline" className="text-xs bg-pink-50 border-pink-200 text-pink-700">
-                                    {count === 1 ? 'rilevamento' : 'rilevamenti'}
-                                  </Badge>
-                                </div>
-                                
-                                <div className="text-center">
-                                  <div className={`text-3xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
-                                    {count}
-                                  </div>
-                                </div>
-                              </div>
+                        <div 
+                          key={emotion} 
+                          className="group bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4 text-center"
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="text-3xl">{icon}</div>
+                            <div className="font-semibold text-sm text-pink-800 capitalize">
+                              {emotion}
                             </div>
+                            <div className={`text-2xl font-bold bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
+                              {count}
+                            </div>
+                            <Badge variant="outline" className="text-xs bg-pink-50 border-pink-200 text-pink-700">
+                              {count === 1 ? 'rilevamento' : 'rilevamenti'}
+                            </Badge>
                           </div>
                         </div>
                       );
