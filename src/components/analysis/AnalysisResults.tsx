@@ -1117,15 +1117,20 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             const { data: protocols, error } = await supabase
                               .from('ai_training_protocols')
                               .select('id, title, community_usage')
-                              .eq('status', 'active');
+                              .in('status', ['active', 'available']);
 
                             if (error) throw error;
+                            
+                            console.log('🔍 Fetched protocols for usage count:', protocols);
                             
                             const usageCounts: Record<string, number> = {};
                             protocols?.forEach(protocol => {
                               const key = protocol.title.toLowerCase();
-                              usageCounts[key] = Number(protocol.community_usage) || 0;
+                              const usage = Number(protocol.community_usage) || 0;
+                              usageCounts[key] = usage;
+                              console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi`);
                             });
+                            console.log('📈 Final usage counts object:', usageCounts);
                             setProtocolUsageCounts(usageCounts);
                           } catch (error) {
                             console.error('Error fetching protocol usage counts:', error);
