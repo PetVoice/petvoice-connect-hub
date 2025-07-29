@@ -78,7 +78,7 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
                   </li>
                   <li className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-primary" />
-                    Raccomandazioni playlist musicali
+                    Gestione dati medici completa
                   </li>
                 </ul>
               </CardContent>
@@ -335,12 +335,12 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-medium">Funzioni avanzate:</h4>
+                <h4 className="font-medium">Funzioni disponibili:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• Sincronizzazione con Google Calendar</li>
                   <li>• Notifiche push personalizzabili</li>
                   <li>• Promemoria automatici</li>
-                  <li>• Condivisione con veterinari</li>
+                  <li>• Esportazione PDF calendario</li>
+                  <li>• Filtri per categoria evento</li>
                 </ul>
               </div>
             </CardContent>
@@ -350,18 +350,18 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Map className="w-4 h-4" />
-                Integrazione Servizi Locali
+                Strumenti Disponibili
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Il calendario si integra automaticamente con i servizi nella tua zona:
+                Funzionalità aggiuntive del calendario:
               </p>
               <ul className="space-y-1 text-sm">
-                <li>• Trova veterinari disponibili</li>
-                <li>• Prenota servizi di toelettatura</li>
-                <li>• Localizza pet sitter</li>
-                <li>• Eventi e corsi di addestramento</li>
+                <li>• Trova veterinari nelle vicinanze</li>
+                <li>• Schedulatore intelligente basato su pattern</li>
+                <li>• Viste multiple: mensile, settimanale, giornaliera</li>
+                <li>• Statistiche utilizzo calendario</li>
               </ul>
             </CardContent>
           </Card>
