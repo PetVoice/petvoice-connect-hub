@@ -163,10 +163,11 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         const isNegativeEmotion = negativeEmotions.includes(currentEmotion);
         
         if (!isNegativeEmotion) {
-          toast({
-            title: "✅ Emozione positiva rilevata",
-            description: `${selectedPet.name} sembra già sereno! Puoi comunque scegliere una categoria per il benessere.`,
-          });
+        toast({
+          title: "😊 Emozione positiva rilevata",
+          description: `${selectedPet.name} sembra già sereno! Puoi comunque scegliere una categoria per il benessere.`,
+          className: "bg-green-50 border-green-200 text-green-800",
+        });
           setShowCategories(true);
           return;
         }
@@ -188,16 +189,17 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
         setShowCategories(false);
         
         toast({
-          title: '✅ Playlist generata dall\'analisi',
+          title: '🎵 Playlist generata dall\'analisi',
           description: `"${recommendedSession.title}" è pronta per ${selectedPet.name}`,
+          className: "bg-green-50 border-green-200 text-green-800",
         });
         
       } catch (error) {
         console.error('Errore nel parsing della playlist:', error);
         toast({
-          title: "❌ Errore nel caricamento playlist",
+          title: "🚫 Errore nel caricamento playlist",
           description: "Impossibile caricare la playlist dall'analisi",
-          variant: "destructive"
+          className: "bg-red-50 border-red-200 text-red-800",
         });
         setShowCategories(true);
       }
@@ -284,8 +286,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       setCurrentSession(personalizedSession);
       
       toast({
-        title: "✅ Playlist generata",
+        title: "🎼 Playlist generata",
         description: `"${categorySession.title}" è pronta per ${selectedPet.name}`,
+        className: "bg-green-50 border-green-200 text-green-800",
       });
     }
     
@@ -321,8 +324,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setSessionProgress(0);
     
     toast({
-      title: "✅ Riproduzione interrotta",
+      title: "⏹️ Riproduzione interrotta",
       description: "Sessione terminata",
+      className: "bg-green-50 border-green-200 text-green-800",
     });
   };
 
@@ -338,17 +342,18 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     setSessionProgress(percentage * 100);
     
     toast({
-      title: "✅ Posizione aggiornata",
+      title: "⏯️ Posizione aggiornata",
       description: `Spostato a ${formatTime(newTime)}`,
+      className: "bg-green-50 border-green-200 text-green-800",
     });
   };
 
   const handlePlayPause = () => {
     if (!currentSession) {
       toast({
-        title: "❌ Nessuna sessione selezionata",
+        title: "⚠️ Nessuna sessione selezionata",
         description: "Scegli prima una categoria",
-        variant: "destructive"
+        className: "bg-red-50 border-red-200 text-red-800",
       });
       return;
     }
@@ -361,8 +366,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       }
       setIsPlaying(false);
       toast({
-        title: "✅ In pausa",
+        title: "⏸️ In pausa",
         description: "Riproduzione messa in pausa",
+        className: "bg-green-50 border-green-200 text-green-800",
       });
     } else {
       const startAudio = async () => {
@@ -441,8 +447,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           setIsPlaying(true);
           
           toast({
-            title: "✅ Riproduzione avviata",
+            title: "▶️ Riproduzione avviata",
             description: `"${currentSession.title}" - ${mainFreq}Hz + ${beatFreq}Hz`,
+            className: "bg-green-50 border-green-200 text-green-800",
           });
           
           intervalRef.current = setInterval(() => {
@@ -461,8 +468,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
                 setCurrentTime(0);
                 setSessionProgress(0);
                 toast({
-                  title: "✅ Sessione completata",
+                  title: "🎯 Sessione completata",
                   description: "La terapia musicale è terminata",
+                  className: "bg-green-50 border-green-200 text-green-800",
                 });
                 return 0;
               }
@@ -474,9 +482,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           console.error('Errore durante avvio audio:', error);
           setIsPlaying(false);
           toast({
-            title: "❌ Errore audio",
+            title: "🚫 Errore audio",
             description: "Impossibile avviare l'audio",
-            variant: "destructive"
+            className: "bg-red-50 border-red-200 text-red-800",
           });
         }
       };
@@ -523,8 +531,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
     
     toast({
-      title: "✅ Adattamento in tempo reale",
+      title: "🔄 Adattamento in tempo reale",
       description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
+      className: "bg-green-50 border-green-200 text-green-800",
     });
   };
 
