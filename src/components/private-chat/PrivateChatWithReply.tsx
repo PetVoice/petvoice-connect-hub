@@ -160,13 +160,13 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
           const newMessage = payload.new as PrivateMessage;
           console.log('📨 Realtime message received:', newMessage.id, 'sender:', newMessage.sender_id);
           
-          // Se il messaggio è per la chat corrente selezionata
-          if (selectedChat && newMessage.chat_id === selectedChat.id) {
-            console.log('✅ Message is for current chat, processing...');
+          // Solo processa messaggi RICEVUTI da altri utenti (non i propri)
+          if (selectedChat && newMessage.chat_id === selectedChat.id && newMessage.sender_id !== user?.id) {
+            console.log('✅ Message from other user for current chat, processing...');
             
             const messageWithName = {
               ...newMessage,
-              sender_name: newMessage.sender_id === user?.id ? 'Tu' : selectedChat.other_user.display_name
+              sender_name: selectedChat.other_user.display_name
             };
             
             setMessages(prev => {
@@ -175,14 +175,17 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
                 return prev;
               }
               console.log('➕ Adding realtime message to UI');
-              return [...prev, messageWithName];
+              const newMessages = [...prev, messageWithName];
+              
+              // Scroll automaticamente quando arriva un messaggio da altri
+              setTimeout(() => {
+                console.log('📬 Received message from other user, scrolling to bottom');
+                scrollToBottom();
+              }, 100);
+              
+              return newMessages;
             });
-            
-            if (newMessage.sender_id !== user?.id) {
-              console.log('📬 Received message from other user, scrolling to bottom');
-              setTimeout(() => scrollToBottom(), 50);
-            }
-          } 
+          }
           // Se non c'è chat selezionata ma il messaggio è per l'utente corrente (potrebbero aver eliminato la chat)
           else if (!selectedChat && newMessage.recipient_id === user?.id) {
             console.log('📱 Message received for user with no chat selected - checking if chat was reactivated');
@@ -591,18 +594,17 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             return prev;
           }
           console.log('➕ Adding new message to UI');
-          return [...prev, messageWithName];
-        });
-        
-        // Scroll sempre al messaggio appena inviato
-        setTimeout(() => {
-          console.log('⬇️ Scrolling to bottom after sending message');
-          scrollToBottom();
-        }, 300); // Timeout più lungo per assicurarsi che il DOM sia aggiornato
-        
-        // Backup scroll immediato
-        requestAnimationFrame(() => {
-          scrollToBottom();
+          const newMessages = [...prev, messageWithName];
+          
+          // Scroll immediatamente al nuovo messaggio
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              console.log('⬇️ Scrolling to bottom after adding message');
+              scrollToBottom();
+            }, 50);
+          });
+          
+          return newMessages;
         });
       }
       
