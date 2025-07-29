@@ -76,7 +76,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     console.log('🔍 Ticket ID:', ticket.id);
     console.log('🔍 User:', user);
     
-    if (ticket.id) {
+    if (ticket.id && user?.id) {
       console.log('🔍 Loading ticket replies for ticket:', ticket.id);
       loadTicketReplies();
       loadUnreadCount();
@@ -85,9 +85,9 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       // Cleanup function per quando il componente viene smontato o ticket cambia
       return cleanup;
     } else {
-      console.log('❌ No ticket ID found');
+      console.log('❌ No ticket ID or user ID found');
     }
-  }, [ticket.id]);
+  }, [ticket.id, user?.id]);
 
   // Effect per gestire lo scroll quando i messaggi cambiano
   useEffect(() => {
