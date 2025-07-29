@@ -41,7 +41,7 @@ export function useCommunityNotifications() {
               type: 'info',
               read: false,
               action_url: '/community'
-            });
+            }, 'message');
           }
         }
       )

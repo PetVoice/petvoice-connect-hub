@@ -49,12 +49,12 @@ export function useNotificationEvents() {
       const lastDiaryCheck = localStorage.getItem(`last-diary-${user.id}`);
       if (!lastDiaryCheck || (now.getTime() - new Date(lastDiaryCheck).getTime()) > (24 * 60 * 60 * 1000)) {
         addNotification({
-          title: 'Promemoria Diario',
+          title: '📖 Promemoria Diario',
           message: `Non dimenticare di aggiornare il diario di ${pets[0].name}`,
           type: 'warning',
           read: false,
           action_url: '/diary'
-        });
+        }, 'warning');
       }
 
       localStorage.setItem(lastReminderKey, now.toISOString());
@@ -68,12 +68,12 @@ export function useNotificationEvents() {
   // Simula notifiche per eventi dell'app
   const triggerAnalysisCompleted = (petName: string) => {
     addNotification({
-      title: 'Analisi Completata',
+      title: '📊 Analisi Completata',
       message: `L'analisi comportamentale di ${petName} è stata completata`,
       type: 'success',
       read: false,
       action_url: '/analysis'
-    });
+    }, 'success');
   };
 
   const triggerDiaryAdded = (petName: string) => {

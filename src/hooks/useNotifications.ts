@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { notificationSound } from '@/lib/notificationSound';
 
 export interface Notification {
   id: string;
@@ -67,7 +68,7 @@ export function useNotifications() {
     setUnreadCount(0);
   };
 
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp'>) => {
+  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp'>, soundType?: 'info' | 'success' | 'warning' | 'error' | 'message' | 'calendar' | 'medication') => {
     if (!user) return;
     
     const newNotification: Notification = {
@@ -84,6 +85,14 @@ export function useNotifications() {
     
     if (!newNotification.read) {
       setUnreadCount(prev => prev + 1);
+      
+      // Riproduci suono notifica
+      if (soundType) {
+        notificationSound.playNotificationSound(soundType);
+      } else {
+        // Determina il tipo di suono dal tipo di notifica
+        notificationSound.playNotificationSound(newNotification.type);
+      }
     }
   };
 

@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { 
   User, 
   Shield, 
@@ -1840,6 +1841,9 @@ Continuare?
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
+          {/* Importa il nuovo componente delle impostazioni notifiche */}
+          <NotificationSettings />
+          
           {notifications && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

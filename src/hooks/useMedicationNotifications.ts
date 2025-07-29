@@ -47,7 +47,7 @@ export function useMedicationNotifications() {
                     type: 'warning',
                     read: false,
                     action_url: '/wellness'
-                  });
+                  }, 'medication');
                   localStorage.setItem(reminderKey, now.getTime().toString());
                 }
               }

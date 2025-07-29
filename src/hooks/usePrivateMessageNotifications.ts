@@ -51,7 +51,7 @@ export function usePrivateMessageNotifications() {
               type: 'info',
               read: false,
               action_url: '/community' // Porta alla tab chat private
-            });
+            }, 'message');
           }
         }
       )

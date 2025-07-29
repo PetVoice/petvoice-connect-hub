@@ -45,7 +45,7 @@ export function useCalendarNotifications() {
                 type: 'warning',
                 read: false,
                 action_url: '/calendar'
-              });
+              }, 'calendar');
             }
 
             // Notifica 2 ore prima
