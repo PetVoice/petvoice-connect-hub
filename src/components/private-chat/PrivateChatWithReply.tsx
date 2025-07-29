@@ -262,16 +262,18 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
           const updatedChat = payload.new as any;
           // Verifica se l'utente corrente partecipa a questa chat
           if (updatedChat.participant_1_id === user?.id || updatedChat.participant_2_id === user?.id) {
-            console.log('🔄 Chat updated via realtime, reloading chats...');
+            console.log('🔄 Chat updated via realtime - checking if reload needed...');
             
             // Se la chat è stata riattivata (entrambi i deleted_by sono false) e l'utente non ha una chat selezionata,
             // seleziona automaticamente questa chat riattivata
             const wasReactivated = !updatedChat.deleted_by_participant_1 && !updatedChat.deleted_by_participant_2;
             const currentChatId = selectedChat?.id;
             
-            loadChats().then(() => {
-              // Se la chat è stata riattivata e non c'è una chat selezionata, selezionala automaticamente
-              if (wasReactivated && !currentChatId) {
+            // RICARICA SOLO se la chat è stata riattivata e non c'è chat selezionata
+            if (wasReactivated && !currentChatId) {
+              console.log('🔄 Chat was reactivated and no chat selected, reloading chats...');
+              loadChats().then(() => {
+                // Se la chat è stata riattivata e non c'è una chat selezionata, selezionala automaticamente
                 console.log('🎯 Auto-selecting reactivated chat:', updatedChat.id);
                 // Aspetta che loadChats finisca completamente, poi cerca la chat nella lista aggiornata
                 setTimeout(() => {
@@ -286,8 +288,10 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
                     return prevChats;
                   });
                 }, 500); // Aspetta mezzo secondo per essere sicuri che loadChats sia finito
-              }
-            });
+              });
+            } else {
+              console.log('ℹ️ Chat update does not require reload');
+            }
           }
         }
       )
