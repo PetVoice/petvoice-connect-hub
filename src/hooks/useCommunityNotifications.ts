@@ -12,6 +12,9 @@ export function useCommunityNotifications() {
   useEffect(() => {
     if (!user) return;
 
+    // Cache per i profili nelle notifiche community
+    const profileCache = new Map();
+
     // Subscription per nuovi messaggi nei gruppi dell'utente
     const messagesSubscription = supabase
       .channel('community-messages')

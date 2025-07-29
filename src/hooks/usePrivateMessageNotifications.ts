@@ -25,14 +25,23 @@ export function usePrivateMessageNotifications() {
         async (payload) => {
           // Solo se il messaggio è per l'utente corrente e non è stato inviato da lui
           if (payload.new.recipient_id === user.id && payload.new.sender_id !== user.id) {
-            // Ottieni il nome del mittente
-            const { data: senderProfile } = await supabase
-              .from('profiles')
-              .select('display_name')
-              .eq('user_id', payload.new.sender_id)
-              .maybeSingle();
-
-            const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente sconosciuto';
+            // Ottimizzazione: usa la cache per evitare chiamate duplicate
+            const profileCache = new Map();
+            let senderName = 'Utente sconosciuto';
+            
+            if (profileCache.has(payload.new.sender_id)) {
+              senderName = profileCache.get(payload.new.sender_id);
+            } else {
+              const { data: senderProfile } = await supabase
+                .from('profiles')
+                .select('display_name')
+                .eq('user_id', payload.new.sender_id)
+                .maybeSingle();
+              
+              senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente sconosciuto';
+              profileCache.set(payload.new.sender_id, senderName);
+            }
+            
             const messagePreview = payload.new.content?.substring(0, 50) || 'Messaggio multimediale';
             const finalPreview = payload.new.content?.length > 50 ? `${messagePreview}...` : messagePreview;
             

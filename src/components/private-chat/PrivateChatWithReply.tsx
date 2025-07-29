@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileCache } from '@/hooks/useProfileCache';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,6 +48,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
   console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
   const { showToast } = useUnifiedToast();
+  const { getMultipleProfiles, getProfileName } = useProfileCache();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);
@@ -350,6 +352,13 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
         return;
       }
 
+      // Ottimizzazione: carica tutti i profili in una singola chiamata
+      const otherUserIds = filteredChats.map(chat => 
+        chat.participant_1_id === user.id ? chat.participant_2_id : chat.participant_1_id
+      );
+      
+      const profilesMap = await getMultipleProfiles(otherUserIds);
+
       const chatsWithDetails = await Promise.all(
         filteredChats.map(async (chat) => {
           const otherUserId = chat.participant_1_id === user.id 
@@ -380,7 +389,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             .eq('is_read', false)
             .not('deleted_by_recipient', 'eq', true);
 
-          const displayName = userProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
+          const displayName = profilesMap[otherUserId] || 'Utente';
 
           return {
             ...chat,
@@ -433,22 +442,14 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
         }
       });
 
-      const messagesWithNames = await Promise.all(
-        filteredMessages.map(async (message) => {
-          const { data: senderProfile } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('user_id', message.sender_id)
-            .maybeSingle();
+      // Ottimizzazione: carica tutti i profili in una singola chiamata
+      const uniqueUserIds = [...new Set(filteredMessages.map(msg => msg.sender_id))];
+      const profilesMap = await getMultipleProfiles(uniqueUserIds);
 
-          const senderName = senderProfile?.display_name?.split(' ')[0] || 'Utente Sconosciuto';
-
-          return {
-            ...message,
-            sender_name: senderName
-          };
-        })
-      );
+      const messagesWithNames = filteredMessages.map(message => ({
+        ...message,
+        sender_name: profilesMap[message.sender_id] || 'Utente'
+      }));
 
       setMessages(messagesWithNames);
       
