@@ -845,37 +845,64 @@ export const allProtocols = {
 export const getRecommendedProtocol = (analysisResults: string[]): string | null => {
   const negativeKeywords = analysisResults.map(result => result.toLowerCase());
   
-  if (negativeKeywords.some(keyword => ['ansia', 'stress', 'nervoso', 'tensione'].includes(keyword))) {
+  // ANSIA e STRESS
+  if (negativeKeywords.some(keyword => ['ansia', 'stress', 'nervoso', 'tensione', 'agitato', 'inquieto', 'preoccupato'].includes(keyword))) {
     return 'anxiety-management';
   }
   
-  if (negativeKeywords.some(keyword => ['aggressivo', 'aggressività', 'ringhio', 'morso'].includes(keyword))) {
+  // AGGRESSIVITÀ
+  if (negativeKeywords.some(keyword => ['aggressivo', 'aggressività', 'ringhio', 'morso', 'attacco', 'minaccioso', 'territoriale'].includes(keyword))) {
     return 'aggression-control';
   }
   
-  if (negativeKeywords.some(keyword => ['iperattivo', 'eccitato', 'irrequieto', 'salta'].includes(keyword))) {
+  // IPERATTIVITÀ e IMPULSI
+  if (negativeKeywords.some(keyword => ['iperattivo', 'eccitato', 'irrequieto', 'salta', 'impulsivo', 'incontrollabile', 'frenetico'].includes(keyword))) {
     return 'impulse-control';
   }
   
-  if (negativeKeywords.some(keyword => ['paura', 'pauroso', 'fobia', 'spavento'].includes(keyword))) {
+  // PAURA e FOBIE
+  if (negativeKeywords.some(keyword => ['paura', 'pauroso', 'fobia', 'spavento', 'timido', 'terrorizzato', 'ansioso'].includes(keyword))) {
     return 'fear-management';
   }
   
-  if (negativeKeywords.some(keyword => ['tristezza', 'triste', 'depresso', 'depressione', 'apatia', 'svogliato', 'melanconico'].includes(keyword))) {
+  // TRISTEZZA e DEPRESSIONE
+  if (negativeKeywords.some(keyword => ['tristezza', 'triste', 'depresso', 'depressione', 'apatia', 'svogliato', 'melanconico', 'demoralizzato', 'abbattuto', 'scoraggiato'].includes(keyword))) {
     return 'mood-enhancement';
   }
   
-  if (negativeKeywords.some(keyword => ['disobbediente', 'non ascolta', 'ignorante'].includes(keyword))) {
+  // DISOBBEDIENZA
+  if (negativeKeywords.some(keyword => ['disobbediente', 'non ascolta', 'ignorante', 'ribelle', 'testardo', 'indisciplinato'].includes(keyword))) {
     return 'basic-obedience';
   }
   
-  if (negativeKeywords.some(keyword => ['distruttivo', 'mastica', 'rompe', 'graffia'].includes(keyword))) {
+  // COMPORTAMENTI DISTRUTTIVI
+  if (negativeKeywords.some(keyword => ['distruttivo', 'mastica', 'rompe', 'graffia', 'distrugge', 'vandalo', 'danneggia'].includes(keyword))) {
     return 'destructive-behaviors';
   }
   
+  // ANSIA DA SEPARAZIONE
+  if (negativeKeywords.some(keyword => ['separazione', 'abbandono', 'solo', 'piange quando parti', 'distruttivo quando solo'].includes(keyword))) {
+    return 'separation-anxiety';
+  }
+  
+  // PROBLEMI DI SOCIALIZZAZIONE
+  if (negativeKeywords.some(keyword => ['antisociale', 'isolato', 'evita altri animali', 'non socializza', 'ritirato'].includes(keyword))) {
+    return 'socialization';
+  }
+  
+  // AGITAZIONE GENERALE
+  if (negativeKeywords.some(keyword => ['agitazione', 'irrequietezza', 'nervosismo', 'tensione', 'irritabilità'].includes(keyword))) {
+    return 'calming-agitation';
+  }
+  
   // Se l'analisi mostra risultati positivi, non raccomandare protocolli
-  if (negativeKeywords.some(keyword => ['felice', 'calmo', 'equilibrato', 'sereno'].includes(keyword))) {
+  if (negativeKeywords.some(keyword => ['felice', 'calmo', 'equilibrato', 'sereno', 'tranquillo', 'rilassato'].includes(keyword))) {
     return null;
+  }
+  
+  // Default: se ci sono parole negative generiche, raccomanda gestione ansia
+  if (negativeKeywords.some(keyword => ['negativo', 'problematico', 'difficile', 'preoccupante'].includes(keyword))) {
+    return 'anxiety-management';
   }
   
   return null;

@@ -1097,7 +1097,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           });
 
                            // Redirect directly to training dashboard with protocol
-                          navigate(`/training-dashboard/${protocol.id}`);
+                          navigate(`/training/dashboard/${protocol.id}`);
                         } catch (error) {
                           console.error('Error starting protocol:', error);
                           showToast({

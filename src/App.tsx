@@ -131,6 +131,14 @@ function AppContent() {
             </AppLayout>
           </ProtectedRoute>
         } />
+        {/* Legacy route for backward compatibility */}
+        <Route path="/training-dashboard/:protocolId" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <TrainingDashboard />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
         <Route path="/community" element={
           <ProtectedRoute>
             <AppLayout>
