@@ -1108,37 +1108,48 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         }
                       };
 
-                      const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
+  const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
+  const [protocolSuccessRates, setProtocolSuccessRates] = useState<Record<string, number>>({});
                       
                       // Fetch protocol usage counts on mount
                       useEffect(() => {
-                        const fetchUsageCounts = async () => {
+                        const fetchProtocolData = async () => {
                           try {
                             const { data: protocols, error } = await supabase
                               .from('ai_training_protocols')
-                              .select('id, title, community_usage')
+                              .select('id, title, community_usage, success_rate')
                               .in('status', ['active', 'available']);
 
                             if (error) throw error;
                             
-                            console.log('🔍 Fetched protocols for usage count:', protocols);
+                            console.log('🔍 Fetched protocols for usage count and success rate:', protocols);
                             
                             const usageCounts: Record<string, number> = {};
+                            const successRates: Record<string, number> = {};
+                            
                             protocols?.forEach(protocol => {
                               const key = protocol.title.toLowerCase();
                               const usage = Number(protocol.community_usage) || 0;
+                              const successRate = Number(protocol.success_rate) || 0;
+                              
                               usageCounts[key] = usage;
-                              console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi`);
+                              successRates[key] = successRate;
+                              
+                              console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
                               console.log(`🔑 Key stored: "${key}"`);
                             });
+                            
                             console.log('📈 Final usage counts object:', usageCounts);
+                            console.log('📈 Final success rates object:', successRates);
+                            
                             setProtocolUsageCounts(usageCounts);
+                            setProtocolSuccessRates(successRates);
                           } catch (error) {
-                            console.error('Error fetching protocol usage counts:', error);
+                            console.error('Error fetching protocol data:', error);
                           }
                         };
                         
-                        fetchUsageCounts();
+                        fetchProtocolData();
                       }, []);
                       
                       const getUsageCount = (protocolTitle: string): number => {
@@ -1175,7 +1186,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <BarChart3 className="h-3 w-3" />
-                                    {protocol.successRate}% successo
+                                    {(() => {
+                                      const protocolTitle = protocol.title || protocol.name || '';
+                                      const key = protocolTitle.toLowerCase();
+                                      const successRate = protocolSuccessRates[key] || 0;
+                                      console.log(`🔍 Looking for success rate for "${protocolTitle}" with key "${key}": ${successRate}%`);
+                                      return successRate;
+                                    })()}% successo
                                   </span>
                                   <span className="flex items-center gap-1">
                                     👥 {(() => {
