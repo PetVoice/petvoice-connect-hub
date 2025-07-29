@@ -170,7 +170,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         
         // Se il messaggio è stato eliminato per tutti, non mostrarlo mai
         if (reply.deleted_by_all) {
-          console.log(`❌ Message ${reply.id} deleted for all`);
+          console.log(`❌ Message ${reply.id} deleted for all - HIDING`);
           return false;
         }
         
