@@ -92,11 +92,16 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   const loadUnreadCount = async () => {
     try {
+      if (!user?.id) {
+        console.log('⚠️ User ID not available for unread count');
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('support_ticket_unread_counts')
         .select('unread_count')
         .eq('ticket_id', ticket.id)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
