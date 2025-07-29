@@ -382,6 +382,7 @@ const CommunityPage = () => {
         .insert({ user_id: user.id, channel_name: groupId });
       
       await loadMyGroups();
+      await loadCommunityStats(); // Aggiorna anche i conteggi
       
       showToast({
         title: "Ingresso completato",
@@ -410,6 +411,7 @@ const CommunityPage = () => {
         .eq('channel_name', groupId);
       
       await loadMyGroups();
+      await loadCommunityStats(); // Aggiorna anche i conteggi
       
       if (activeChat === groupId) {
         setActiveChat(null);
