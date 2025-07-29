@@ -12,17 +12,24 @@ export function usePrivateMessageNotifications() {
   useEffect(() => {
     if (!user) return;
 
-    // Subscription per nuovi messaggi privati
+    // Subscription per nuovi messaggi privati con configurazione ottimizzata
     const privateMessagesSubscription = supabase
-      .channel('private-messages-notifications')
+      .channel('private-messages-notifications', {
+        config: {
+          broadcast: { self: false },
+          presence: { key: user.id }
+        }
+      })
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'private_messages'
+          table: 'private_messages',
+          filter: `recipient_id=eq.${user.id}`
         },
         async (payload) => {
+          console.log('🔔 Private message notification received:', payload);
           // Solo se il messaggio è per l'utente corrente e non è stato inviato da lui
           if (payload.new.recipient_id === user.id && payload.new.sender_id !== user.id) {
             // Ottimizzazione: usa la cache per evitare chiamate duplicate
