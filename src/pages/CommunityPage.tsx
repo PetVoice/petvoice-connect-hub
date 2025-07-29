@@ -15,7 +15,6 @@ import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { Chat } from '@/components/community/Chat';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 import { PrivateChatWithReply } from '@/components/private-chat/PrivateChatWithReply';
-import { useUnreadCounts } from '@/hooks/useUnreadCounts';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -109,25 +108,20 @@ const CAT_BREEDS = [
 // Tutte le razze (cani + gatti)
 const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 
-const CommunityPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+const CommunityPage = () => {
   const { user } = useAuth();
-  const showToast = useToastWithIcon();
-  const { unreadCounts: globalUnreadCounts, markPrivateMessagesAsRead } = useUnreadCounts();
+  const { showToast } = useToastWithIcon();
+  const [searchParams] = useSearchParams();
   
-  const [allGroups, setAllGroups] = useState([]);
+  const [activeTab, setActiveTab] = useState('groups');
   const [myGroups, setMyGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
-  const [searchCountry, setSearchCountry] = useState('');
-  const [searchBreed, setSearchBreed] = useState('');
-  const [petType, setPetType] = useState('');
-  const [activeTab, setActiveTab] = useState('groups');
-  const [unreadCounts, setUnreadCounts] = useState({});
-  const [groupUserCounts, setGroupUserCounts] = useState({});
-  const [totalUsers, setTotalUsers] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
+  const [unreadCounts, setUnreadCounts] = useState({}); // Traccia i messaggi non letti per gruppo
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [groupUserCounts, setGroupUserCounts] = useState({});
   
   const loadCommunityStats = async () => {
     try {
@@ -400,12 +394,20 @@ const CommunityPage: React.FC = () => {
       await loadMyGroups();
       await loadCommunityStats(); // Aggiorna anche i conteggi
       
-      showToast.success("Ingresso completato", "Ti sei unito al gruppo con successo");
+      showToast({
+        title: "Ingresso completato",
+        description: "Ti sei unito al gruppo con successo",
+        type: 'success'
+      });
       
     } catch (error) {
       if (!error.message.includes('duplicate')) {
         console.error('Errore join:', error);
-        showToast.error("Errore", "Impossibile entrare nel gruppo");
+        showToast({
+          title: "Errore",
+          description: "Impossibile entrare nel gruppo",
+          type: 'error'
+        });
       }
     }
   };
@@ -425,11 +427,19 @@ const CommunityPage: React.FC = () => {
         setActiveChat(null);
       }
       
-      showToast.info("Uscita completata", "Hai lasciato il gruppo");
+      showToast({
+        title: "Uscita completata",
+        description: "Hai lasciato il gruppo",
+        type: 'info'
+      });
       
     } catch (error) {
       console.error('Errore leave:', error);
-      showToast.error("Errore", "Impossibile uscire dal gruppo");
+      showToast({
+        title: "Errore",
+        description: "Impossibile uscire dal gruppo",
+        type: 'error'
+      });
     }
   };
   
@@ -468,10 +478,6 @@ const CommunityPage: React.FC = () => {
         // Reset active chat when switching tabs
         if (value !== 'groups') {
           setActiveChat(null);
-        }
-        // Mark private messages as read when opening private tab
-        if (value === 'private') {
-          markPrivateMessagesAsRead();
         }
       }} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
