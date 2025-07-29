@@ -160,6 +160,50 @@ export default {
 					'0%, 100%': { transform: 'rotate(0deg)' },
 					'25%': { transform: 'rotate(1deg)' },
 					'75%': { transform: 'rotate(-1deg)' }
+				},
+				
+				// Premium micro-interactions keyframes
+				'button-click': {
+					'0%': { transform: 'scale(1)' },
+					'50%': { transform: 'scale(0.98)' },
+					'100%': { transform: 'scale(1)' }
+				},
+				'micro-bounce': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-2px)' }
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						boxShadow: '0 0 5px hsl(var(--primary) / 0.3), 0 0 10px hsl(var(--primary) / 0.2)' 
+					},
+					'50%': { 
+						boxShadow: '0 0 15px hsl(var(--primary) / 0.5), 0 0 25px hsl(var(--primary) / 0.3)' 
+					}
+				},
+				'success-check': {
+					'0%': { transform: 'scale(0) rotate(0deg)', opacity: '0' },
+					'50%': { transform: 'scale(1.2) rotate(180deg)', opacity: '1' },
+					'100%': { transform: 'scale(1) rotate(360deg)', opacity: '1' }
+				},
+				'error-vibrate': {
+					'0%, 100%': { transform: 'translateX(0)' },
+					'10%': { transform: 'translateX(-2px)' },
+					'20%': { transform: 'translateX(2px)' },
+					'30%': { transform: 'translateX(-2px)' },
+					'40%': { transform: 'translateX(2px)' },
+					'50%': { transform: 'translateX(-1px)' },
+					'60%': { transform: 'translateX(1px)' },
+					'70%': { transform: 'translateX(-1px)' },
+					'80%': { transform: 'translateX(1px)' },
+					'90%': { transform: 'translateX(0)' }
+				},
+				'card-lift': {
+					'0%': { transform: 'translateY(0) scale(1)', boxShadow: 'var(--shadow-soft)' },
+					'100%': { transform: 'translateY(-4px) scale(1.02)', boxShadow: 'var(--shadow-floating)' }
+				},
+				'nav-highlight': {
+					'0%': { transform: 'scaleX(0)', transformOrigin: 'left' },
+					'100%': { transform: 'scaleX(1)', transformOrigin: 'left' }
 				}
 			},
 			animation: {
@@ -177,7 +221,17 @@ export default {
 				'shimmer': 'shimmer 2s infinite',
 				'ripple': 'ripple 0.6s linear',
 				'bounce-gentle': 'bounce-gentle 2s ease-in-out infinite',
-				'wiggle': 'wiggle 1s ease-in-out infinite'
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				
+				// Premium micro-interactions
+				'button-press': 'scale-in 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+				'hover-lift': 'gentle-float 2s ease-in-out infinite',
+				'focus-pulse': 'glow 1.5s ease-in-out infinite',
+				'success-bounce': 'bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+				'error-shake': 'wiggle 0.5s ease-in-out 3',
+				'loading-shimmer': 'shimmer 1.5s ease-in-out infinite',
+				'card-hover': 'gentle-float 3s ease-in-out infinite',
+				'nav-slide': 'slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
 			}
 		}
 	},
