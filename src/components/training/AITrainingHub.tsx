@@ -176,8 +176,7 @@ export const AITrainingHub: React.FC = () => {
   // Translation system removed - Italian only
   const language = 'it';
   const { translateProtocolTitle, translateProtocolDescription } = useProtocolTranslations();
-  const { showToast } = useToastWithIcon();
-  const { showToast: showTranslatedToast } = useTranslatedToast();
+  const { showToast, showTranslatedToast } = useUnifiedToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();

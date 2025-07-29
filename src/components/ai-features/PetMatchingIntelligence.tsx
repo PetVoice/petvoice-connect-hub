@@ -42,7 +42,7 @@ import {
   Target,
   Zap
 } from 'lucide-react';
-import { useTranslatedToast } from "@/hooks/use-translated-toast";
+import { useUnifiedToast } from "@/hooks/use-unified-toast";
 import { usePetTwins } from '@/hooks/usePetMatching';
 import { useCreateProtocol } from '@/hooks/useTrainingProtocols';
 import { supabase } from "@/integrations/supabase/client";
@@ -312,7 +312,7 @@ const mockSuccessPatterns: SuccessPattern[] = [
 ];
 
 export const PetMatchingIntelligence: React.FC = () => {
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const navigate = useNavigate();
   
   // Real data hooks with proper loading states

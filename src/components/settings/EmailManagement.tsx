@@ -14,7 +14,7 @@ export const EmailManagement: React.FC<EmailManagementProps> = ({ user }) => {
   const [newEmail, setNewEmail] = useState('');
   const [updating, setUpdating] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const toast = useToastWithIcon();
+  const { toast } = useUnifiedToast();
   
   // Controlla se c'è un cambio email in corso
   useEffect(() => {

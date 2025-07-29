@@ -7,7 +7,7 @@ export interface AccessibilitySettings {
 }
 
 export function useAccessibility() {
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
     // Carica le impostazioni dal localStorage al primo render

@@ -170,7 +170,7 @@ const PetsPage: React.FC = () => {
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const { addNotification } = useNotifications();
   const language = 'it';
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const [showForm, setShowForm] = useState(false);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
   const [deletingPet, setDeletingPet] = useState<Pet | null>(null);
@@ -262,7 +262,7 @@ const PetsPage: React.FC = () => {
         showToast({
           title: 'pets.petUpdated.title',
           description: 'pets.petUpdated.description',
-          variant: 'success',
+          type: 'success',
           variables: { petName: formData.name }
         });
         
@@ -282,7 +282,7 @@ const PetsPage: React.FC = () => {
         showToast({
           title: 'pets.petAdded.title',
           description: 'pets.petAdded.description',
-          variant: 'success',
+          type: 'success',
           variables: { petName: formData.name }
         });
       }

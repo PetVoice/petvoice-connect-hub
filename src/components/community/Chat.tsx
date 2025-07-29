@@ -33,7 +33,7 @@ export interface Message {
 
 export const Chat: React.FC<ChatProps> = ({ channelId, channelName }) => {
   const { user } = useAuth();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});

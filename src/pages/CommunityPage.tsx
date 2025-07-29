@@ -110,7 +110,7 @@ const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 
 const CommunityPage = () => {
   const { user } = useAuth();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   const [searchParams] = useSearchParams();
   
   const [activeTab, setActiveTab] = useState('groups');

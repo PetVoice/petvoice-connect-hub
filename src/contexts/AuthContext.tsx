@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRoles, setUserRoles] = useState<string[]>([]);
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
 
   const fetchUserRoles = async (userId: string) => {
     try {

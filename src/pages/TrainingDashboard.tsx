@@ -31,7 +31,7 @@ const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   
   // Hook per completare esercizi e salvare progressi
   const completeExercise = useCompleteExercise();

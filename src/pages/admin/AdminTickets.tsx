@@ -50,7 +50,7 @@ export const AdminTickets: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
 
   useEffect(() => {
     loadTickets();

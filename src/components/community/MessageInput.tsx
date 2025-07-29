@@ -31,7 +31,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTime = useRef<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
 
   // Focus automatico quando replyToMessage cambia
   React.useEffect(() => {

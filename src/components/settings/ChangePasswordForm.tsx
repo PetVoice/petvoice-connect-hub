@@ -18,7 +18,7 @@ export const ChangePasswordForm: React.FC = () => {
     confirm: false
   });
   const [updating, setUpdating] = useState(false);
-  const toast = useToastWithIcon();
+  const { toast } = useUnifiedToast();
   
   // Traduzioni errori Supabase
   const translateError = (error: any) => {

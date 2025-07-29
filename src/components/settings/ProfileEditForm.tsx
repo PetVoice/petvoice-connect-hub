@@ -26,7 +26,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ user, onProfil
     country: ''
   });
   const [saving, setSaving] = useState(false);
-  const toast = useToastWithIcon();
+  const { toast } = useUnifiedToast();
   
   useEffect(() => {
     console.log('🔍 User metadata:', user.user_metadata);

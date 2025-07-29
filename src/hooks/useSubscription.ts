@@ -22,7 +22,7 @@ export interface SubscriptionData {
 
 export const useSubscription = () => {
   const { user } = useAuth();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   const [subscription, setSubscription] = useState<SubscriptionData>({
     subscribed: false,
     subscription_tier: 'premium',

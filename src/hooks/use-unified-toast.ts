@@ -155,6 +155,47 @@ export const useUnifiedToast = () => {
     });
   };
 
+  // Legacy fallback methods for backward compatibility
+  const showToast = ({ title, description, variables, variant, type }: UnifiedToastOptions & { variant?: 'default' | 'destructive'; type?: string }) => {
+    // Handle legacy type parameter
+    if (type) {
+      switch (type) {
+        case 'success':
+        case 'complete':
+        case 'message':
+        case 'upload':
+          showSuccessToast({ title, description, variables });
+          break;
+        case 'error':
+          showErrorToast({ title, description, variables });
+          break;
+        case 'delete':
+          showDeleteToast({ title, description, variables });
+          break;
+        case 'info':
+          showInfoToast({ title, description, variables });
+          break;
+        case 'warning':
+          showWarningToast({ title, description, variables });
+          break;
+        default:
+          showSuccessToast({ title, description, variables });
+      }
+    } else if (variant === 'destructive') {
+      showErrorToast({ title, description, variables });
+    } else {
+      showSuccessToast({ title, description, variables });
+    }
+  };
+
+  const showTranslatedToast = showToast; // Alias for legacy support
+  
+  // Legacy toast object for settings components
+  const toastObject = {
+    success: (message: string) => showSuccessToast({ title: message }),
+    error: (message: string) => showErrorToast({ title: message }),
+  };
+
   return {
     showSuccessToast,
     showErrorToast,
@@ -168,5 +209,9 @@ export const useUnifiedToast = () => {
     showMusicToast,
     showChatToast,
     showUploadToast,
+    // Legacy methods
+    showToast,
+    showTranslatedToast,
+    toast: toastObject,
   };
 };

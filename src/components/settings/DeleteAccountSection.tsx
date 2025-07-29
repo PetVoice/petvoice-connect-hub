@@ -14,7 +14,7 @@ export const DeleteAccountSection: React.FC<DeleteAccountSectionProps> = ({ user
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
-  const toast = useToastWithIcon();
+  const { toast } = useUnifiedToast();
   
   const handleDeleteAccount = async () => {
     if (confirmText !== 'ELIMINA') {

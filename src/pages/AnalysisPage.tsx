@@ -44,7 +44,7 @@ import { format, subDays, subMonths, subYears, startOfDay, endOfDay, differenceI
 import { it, enUS, es } from 'date-fns/locale';
 import { usePets } from '@/contexts/PetContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { usePlanLimits } from '@/hooks/usePlanLimits';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useNotificationEventsContext } from '@/contexts/NotificationEventsContext';
@@ -263,7 +263,7 @@ const AnalysisPage: React.FC = () => {
   const language = 'it';
   const [searchParams] = useSearchParams();
   const { selectedPet } = usePets();
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const { subscription } = useSubscription();
   const { showUpgradeModal, setShowUpgradeModal } = usePlanLimits();
   const notificationEvents = (() => {

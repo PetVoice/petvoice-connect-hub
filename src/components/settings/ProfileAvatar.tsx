@@ -11,7 +11,7 @@ interface ProfileAvatarProps {
 export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ user, onAvatarChange }) => {
   const [uploading, setUploading] = useState(false);
   const [showRemoveOption, setShowRemoveOption] = useState(false);
-  const toast = useToastWithIcon();
+  const { toast } = useUnifiedToast();
   
   // Genera avatar casuale basato su user ID
   const getRandomAvatar = (userId: string) => {

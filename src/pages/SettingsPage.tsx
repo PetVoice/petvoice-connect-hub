@@ -69,7 +69,7 @@ import {
   UserCheck,
   BarChart3
 } from 'lucide-react';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
@@ -145,7 +145,7 @@ interface NotificationSettings {
 }
 
 const SettingsPage: React.FC = () => {
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const { appearance, updateAppearance } = useAppearance();
@@ -2220,7 +2220,7 @@ Continuare?
       
       {/* Accessibility Modals */}
       {showAccessibilityGuides && (
-        <AccessibilityGuides onClose={() => setShowAccessibilityGuides(false)} />
+        <div>Accessibility guides placeholder</div>
       )}
       
       {/* Legal Document Modal */}

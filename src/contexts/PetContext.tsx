@@ -64,7 +64,7 @@ interface PetProviderProps {
 
 export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
   const { user } = useAuth();
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const [pets, setPets] = useState<Pet[]>([]);
   const [selectedPetId, setSelectedPetIdState] = useState<string>(() => {
     return localStorage.getItem('petvoice-selected-pet') || '';
@@ -214,7 +214,7 @@ export const PetProvider: React.FC<PetProviderProps> = ({ children }) => {
       showToast({
         title: 'pets.petUpdated.title',
         description: 'pets.petUpdated.description',
-        variant: 'success',
+        type: 'success',
         variables: { petName }
       });
 

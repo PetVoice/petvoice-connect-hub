@@ -46,8 +46,7 @@ interface PrivateChatWithReplyProps {
 export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chatId }) => {
   console.log('🏗️ PrivateChatWithReply component loading...');
   const { user } = useAuth();
-  const { showToast } = useTranslatedToast();
-  const { showToast: showIconToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);

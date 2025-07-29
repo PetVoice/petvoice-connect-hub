@@ -28,7 +28,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ storagePath, fileName, classN
   const [error, setError] = useState<string | null>(null);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
 
   // Load audio URL when component mounts
   useEffect(() => {

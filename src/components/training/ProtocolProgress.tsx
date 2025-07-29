@@ -65,8 +65,7 @@ export const ProtocolProgress: React.FC<ProtocolProgressProps> = ({
   totalDays,
   overallProgress
 }) => {
-  const { showToast: showTranslatedToast } = useTranslatedToast();
-  const { showToast } = useToastWithIcon();
+  const { showToast } = useUnifiedToast();
   const [selectedExercise, setSelectedExercise] = useState<DailyExercise | null>(null);
   const [feedback, setFeedback] = useState('');
   const [effectiveness, setEffectiveness] = useState(5);

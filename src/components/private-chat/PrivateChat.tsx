@@ -52,7 +52,7 @@ interface PrivateMessage {
 export const PrivateChat: React.FC = () => {
   console.log('🏗️ PrivateChat component loading...');
   const { user } = useAuth();
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const [chats, setChats] = useState<PrivateChat[]>([]);
   const [selectedChat, setSelectedChat] = useState<PrivateChat | null>(null);
   const [messages, setMessages] = useState<PrivateMessage[]>([]);

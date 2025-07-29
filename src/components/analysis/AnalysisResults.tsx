@@ -297,7 +297,7 @@ const cleanFileName = (fileName: string, fileType: string) => {
 
 const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) => {
   const language = 'it';
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const { selectedPet } = usePets();
   const navigate = useNavigate();
 
@@ -523,7 +523,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       showToast({
         title: '⚡ Protocollo Avviato!',
         description: `${protocol.name} è stato avviato con successo`,
-        variant: "success"
+        type: "success"
       });
 
       // Redirect to training page
@@ -565,7 +565,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
       showToast({
         title: '⚡ Protocollo Avviato!',
         description: `${protocol.title} è stato avviato per ${selectedPet.name}`,
-        variant: "success"
+        type: "success"
       });
 
       // Navigate to the specific protocol dashboard
@@ -1093,7 +1093,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                           showToast({
                             title: '⚡ Protocollo Avviato!',
                             description: `${protocol.title} è stato avviato con successo`,
-                            variant: "success"
+                            type: "success"
                           });
 
                            // Redirect directly to training dashboard with protocol

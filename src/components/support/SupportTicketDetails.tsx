@@ -60,7 +60,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
 
   // Carica le risposte del ticket e l'unread count
   useEffect(() => {
@@ -264,7 +264,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       showToast({
         title: "Risposta inviata",
         description: "La tua risposta è stata aggiunta al ticket.",
-        variant: "success"
+        type: "success"
       });
 
       setUnreadCount(0);

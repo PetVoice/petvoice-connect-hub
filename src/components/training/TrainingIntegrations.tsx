@@ -40,7 +40,7 @@ interface IntegrationData {
 
 
 export const TrainingIntegrations: React.FC = () => {
-  const { showToast } = useTranslatedToast();
+  const { showToast } = useUnifiedToast();
   const { suggestions, integrationData, isLoading, refreshSuggestions } = useAITrainingSuggestions();
 
   const getSourceIcon = (source: string) => {
