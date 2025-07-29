@@ -186,8 +186,8 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
               return newMessages;
             });
           }
-          // Se non c'è chat selezionata ma il messaggio è per l'utente corrente (potrebbero aver eliminato la chat)
-          else if (!selectedChat && newMessage.recipient_id === user?.id) {
+          // Se non c'è chat selezionata ma il messaggio è per l'utente corrente E non è un messaggio inviato da lui
+          else if (!selectedChat && newMessage.recipient_id === user?.id && newMessage.sender_id !== user?.id) {
             console.log('📱 Message received for user with no chat selected - checking if chat was reactivated');
             
             // Controlla se questo messaggio ha riattivato una chat
@@ -239,8 +239,11 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
             console.log('ℹ️ Message not for current chat or user');
           }
           
-          console.log('🔄 Updating chat list from realtime...');
-          updateLastMessageInChatList(newMessage);
+          // Aggiorna la lista chat solo se il messaggio non è dell'utente corrente (per evitare reload)
+          if (newMessage.sender_id !== user?.id) {
+            console.log('🔄 Updating chat list from realtime...');
+            updateLastMessageInChatList(newMessage);
+          }
         }
       )
       .subscribe();
