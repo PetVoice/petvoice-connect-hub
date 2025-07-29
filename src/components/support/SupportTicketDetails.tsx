@@ -157,6 +157,11 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       
       // Filtra i messaggi eliminati lato client
       const filteredData = (data || []).filter(reply => {
+        // Se il messaggio è stato eliminato per tutti, non mostrarlo mai
+        if (reply.deleted_by_all) {
+          return false;
+        }
+        
         // Se è il nostro messaggio, mostralo se non è stato eliminato da noi
         if (reply.user_id === user.id) {
           return !reply.deleted_by_sender; // null o false = mostra, true = nascondi
@@ -365,10 +370,13 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const handleDeleteReply = async (replyId: string, deleteForAll: boolean = false) => {
     try {
       if (deleteForAll) {
-        // Elimina fisicamente per tutti (solo per i messaggi propri)
+        // Marca come eliminato per tutti (solo per i messaggi propri)
         const { error } = await supabase
           .from('support_ticket_replies')
-          .delete()
+          .update({ 
+            deleted_by_all: true,
+            deleted_at: new Date().toISOString()
+          })
           .eq('id', replyId)
           .eq('user_id', user?.id);
 

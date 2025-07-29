@@ -3059,6 +3059,7 @@ export type Database = {
           content: string
           created_at: string | null
           deleted_at: string | null
+          deleted_by_all: boolean | null
           deleted_by_recipient: boolean | null
           deleted_by_sender: boolean | null
           id: string
@@ -3072,6 +3073,7 @@ export type Database = {
           content: string
           created_at?: string | null
           deleted_at?: string | null
+          deleted_by_all?: boolean | null
           deleted_by_recipient?: boolean | null
           deleted_by_sender?: boolean | null
           id?: string
@@ -3085,6 +3087,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           deleted_at?: string | null
+          deleted_by_all?: boolean | null
           deleted_by_recipient?: boolean | null
           deleted_by_sender?: boolean | null
           id?: string
