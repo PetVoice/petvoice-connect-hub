@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { DataIntegrityService } from '@/lib/dataIntegrity';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import logger from '@/lib/logger';
 
 interface DataConsistencyReport {
@@ -26,7 +26,7 @@ interface DataConsistencyReport {
 
 const DataIntegrityDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { showToast } = useTranslatedToast();
+  const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const [report, setReport] = useState<DataConsistencyReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [cleaning, setCleaning] = useState(false);
@@ -41,24 +41,22 @@ const DataIntegrityDashboard: React.FC = () => {
       setReport(integrityReport);
       
       if (integrityReport.isConsistent) {
-        showToast({
+        showSuccessToast({
           title: "Successo",
           description: "Tutti i dati sono coerenti e aggiornati"
         });
       } else {
-        showToast({
+        showErrorToast({
           title: "Errore",
           description: "Problemi di integrità rilevati: {count}",
-          variant: "destructive",
           variables: { count: integrityReport.issues.length.toString() }
         });
       }
     } catch (error) {
       logger.error('Errore generazione report integrità', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile generare il report di integrità",
-        variant: "destructive"
+        description: "Impossibile generare il report di integrità"
       });
     } finally {
       setLoading(false);
@@ -71,7 +69,7 @@ const DataIntegrityDashboard: React.FC = () => {
     setCleaning(true);
     try {
       await DataIntegrityService.cleanupObsoleteData(user.id);
-      showToast({
+      showSuccessToast({
         title: "Successo",
         description: "Operazione completata"
       });
@@ -79,10 +77,9 @@ const DataIntegrityDashboard: React.FC = () => {
       await generateReport();
     } catch (error) {
       logger.error('Errore pulizia dati', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Operazione fallita",
-        variant: "destructive"
+        description: "Operazione fallita"
       });
     } finally {
       setCleaning(false);
@@ -95,7 +92,7 @@ const DataIntegrityDashboard: React.FC = () => {
     setSyncing(true);
     try {
       await DataIntegrityService.syncInconsistentData(user.id);
-      showToast({
+      showSuccessToast({
         title: "Successo",
         description: "Operazione completata"
       });
@@ -103,10 +100,9 @@ const DataIntegrityDashboard: React.FC = () => {
       await generateReport();
     } catch (error) {
       logger.error('Errore sincronizzazione dati', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Operazione fallita",
-        variant: "destructive"
+        description: "Operazione fallita"
       });
     } finally {
       setSyncing(false);

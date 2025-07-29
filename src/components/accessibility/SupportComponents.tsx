@@ -9,14 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { X, HeadphonesIcon, Users, MessageSquare, Mail, Phone, Clock, CheckCircle, AlertCircle, Send } from 'lucide-react';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 
 interface SupportModalProps {
   onClose: () => void;
 }
 
 export const ContactSupport: React.FC<SupportModalProps> = ({ onClose }) => {
-  const { showToast } = useTranslatedToast();
+  const { showSuccessToast } = useUnifiedToast();
   const [formData, setFormData] = React.useState({
     name: '',
     email: '',
@@ -28,7 +28,7 @@ export const ContactSupport: React.FC<SupportModalProps> = ({ onClose }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulazione invio
-    showToast({
+    showSuccessToast({
       title: "Richiesta inviata",
       description: "Il nostro team ti contatterà entro 24 ore"
     });
@@ -280,7 +280,7 @@ export const CommunityAccessibility: React.FC<SupportModalProps> = ({ onClose })
 };
 
 export const FeedbackAccessibility: React.FC<SupportModalProps> = ({ onClose }) => {
-  const { showToast } = useTranslatedToast();
+  const { showSuccessToast } = useUnifiedToast();
   const [feedback, setFeedback] = React.useState({
     category: '',
     rating: 5,
@@ -290,7 +290,7 @@ export const FeedbackAccessibility: React.FC<SupportModalProps> = ({ onClose }) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    showToast({
+    showSuccessToast({
       title: "Feedback inviato",
       description: "Grazie per il tuo contributo! Ci aiuterà a migliorare l'accessibilità."
     });

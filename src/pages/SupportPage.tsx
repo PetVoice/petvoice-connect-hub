@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { AILiveChatButton } from '@/components/AILiveChat';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -143,7 +143,7 @@ const SupportPage: React.FC = () => {
   const [ticketToClose, setTicketToClose] = useState<SupportTicket | null>(null);
   const [isClosingTicket, setIsClosingTicket] = useState(false);
   const [isPlatformGuideOpen, setIsPlatformGuideOpen] = useState(false);
-  const { showToast } = useTranslatedToast();
+  const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -349,15 +349,7 @@ const SupportPage: React.FC = () => {
         setFeatureRequests(frData || []);
       }
 
-      // Carica i voti dell'utente corrente
-      if (user) {
-        const { data: votesData } = await supabase
-          .from('feature_request_votes')
-          .select('feature_request_id')
-          .eq('user_id', user.id);
-        
-        setUserVotes(votesData?.map(v => v.feature_request_id) || []);
-      }
+      // Feature requests e voti non più disponibili dopo pulizia database
 
     } catch (error) {
       console.error('Error loading support data:', error);
@@ -368,10 +360,9 @@ const SupportPage: React.FC = () => {
 
   const createTicket = async () => {
     if (!newTicket.subject || !newTicket.description || !newTicket.category) {
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
+        description: "Compila tutti i campi obbligatori"
       });
       return;
     }
@@ -379,10 +370,9 @@ const SupportPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (!user) {
-        showToast({
+        showErrorToast({
           title: "Errore",
-          description: "Devi essere autenticato per creare un ticket",
-          variant: "destructive"
+          description: "Devi essere autenticato per creare un ticket"
         });
         setIsSubmitting(false);
         return;
@@ -405,10 +395,9 @@ const SupportPage: React.FC = () => {
         throw error;
       }
 
-      showToast({
+      showSuccessToast({
         title: "Ticket creato",
-        description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore.",
-        variant: "success"
+        description: "Il tuo ticket è stato creato con successo. Riceverai una risposta entro 24 ore."
       });
 
       // Notifica per nuovo ticket
@@ -434,10 +423,9 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error creating ticket:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile creare il ticket. Riprova più tardi.",
-        variant: "destructive"
+        description: "Impossibile creare il ticket. Riprova più tardi."
       });
     } finally {
       setIsSubmitting(false);
@@ -446,10 +434,9 @@ const SupportPage: React.FC = () => {
 
   const createFeatureRequest = async () => {
     if (!newFeatureRequest.title || !newFeatureRequest.description) {
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
+        description: "Compila tutti i campi obbligatori"
       });
       return;
     }
@@ -457,10 +444,9 @@ const SupportPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (!user) {
-        showToast({
+        showErrorToast({
           title: "Errore", 
-          description: "Devi essere autenticato per creare una richiesta",
-          variant: "destructive"
+          description: "Devi essere autenticato per creare una richiesta"
         });
         setIsSubmitting(false);
         return;
@@ -482,10 +468,9 @@ const SupportPage: React.FC = () => {
         throw error;
       }
 
-      showToast({
+      showSuccessToast({
         title: "Richiesta inviata",
-        description: "La tua richiesta di funzionalità è stata inviata con successo.",
-        variant: "success"
+        description: "La tua richiesta di funzionalità è stata inviata con successo."
       });
 
       // Reset form
@@ -502,10 +487,9 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error creating feature request:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile inviare la richiesta. Riprova più tardi.",
-        variant: "destructive"
+        description: "Impossibile inviare la richiesta. Riprova più tardi."
       });
     } finally {
       setIsSubmitting(false);
@@ -514,10 +498,9 @@ const SupportPage: React.FC = () => {
 
   const editFeatureRequest = async () => {
     if (!editingFeatureRequest?.title || !editingFeatureRequest?.description) {
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Compila tutti i campi obbligatori",
-        variant: "destructive"
+        description: "Compila tutti i campi obbligatori"
       });
       return;
     }
@@ -537,10 +520,9 @@ const SupportPage: React.FC = () => {
         throw error;
       }
 
-      showToast({
+      showSuccessToast({
         title: "Richiesta aggiornata",
-        description: "La richiesta di funzionalità è stata aggiornata con successo.",
-        variant: "success"
+        description: "La richiesta di funzionalità è stata aggiornata con successo."
       });
 
       setEditingFeatureRequest(null);
@@ -550,10 +532,9 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error updating feature request:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile aggiornare la richiesta. Riprova più tardi.",
-        variant: "destructive"
+        description: "Impossibile aggiornare la richiesta. Riprova più tardi."
       });
     } finally {
       setIsSubmitting(false);
@@ -562,79 +543,18 @@ const SupportPage: React.FC = () => {
 
   const toggleVote = async (requestId: string) => {
     if (!user) {
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Devi essere autenticato per votare",
-        variant: "destructive"
+        description: "Devi essere autenticato per votare"
       });
       return;
     }
 
-    const hasVoted = userVotes.includes(requestId);
-    
-    try {
-      if (hasVoted) {
-        // Rimuovi voto
-        const { error } = await supabase
-          .from('feature_request_votes')
-          .delete()
-          .eq('feature_request_id', requestId)
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-
-        // Decrementa il conteggio voti
-        const { error: rpcError } = await supabase.rpc('increment_feature_votes', {
-          request_id: requestId,
-          increment_value: -1
-        });
-
-        if (rpcError) throw rpcError;
-
-        // Aggiorna immediatamente lo stato locale
-        setUserVotes(prev => prev.filter(id => id !== requestId));
-        setFeatureRequests(prev => prev.map(req => 
-          req.id === requestId 
-            ? { ...req, votes: Math.max(0, req.votes - 1) }
-            : req
-        ));
-      } else {
-        // Aggiungi voto
-        const { error } = await supabase
-          .from('feature_request_votes')
-          .insert({
-            feature_request_id: requestId,
-            user_id: user.id
-          });
-
-        if (error) throw error;
-
-        // Incrementa il conteggio voti
-        const { error: rpcError } = await supabase.rpc('increment_feature_votes', {
-          request_id: requestId,
-          increment_value: 1
-        });
-
-        if (rpcError) throw rpcError;
-
-        // Aggiorna immediatamente lo stato locale
-        setUserVotes(prev => [...prev, requestId]);
-        setFeatureRequests(prev => prev.map(req => 
-          req.id === requestId 
-            ? { ...req, votes: req.votes + 1 }
-            : req
-        ));
-      }
-
-      // Non serve più ricaricare tutti i dati
-    } catch (error) {
-      console.error('Error toggling vote:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile votare. Riprova più tardi.",
-        variant: "destructive"
-      });
-    }
+    // Funzionalità di voto temporaneamente disabilitata dopo pulizia database
+    showErrorToast({
+      title: "Funzionalità non disponibile",
+      description: "Il sistema di voti è temporaneamente disabilitato"
+    });
   };
 
   const handleEditFeatureRequest = (request: FeatureRequest) => {
@@ -661,10 +581,9 @@ const SupportPage: React.FC = () => {
         throw error;
       }
 
-      showToast({
+      showSuccessToast({
         title: "Richiesta eliminata",
-        description: "La richiesta di funzionalità è stata eliminata con successo.",
-        variant: "success"
+        description: "La richiesta di funzionalità è stata eliminata con successo."
       });
 
       setIsDeleteConfirmOpen(false);
@@ -674,10 +593,9 @@ const SupportPage: React.FC = () => {
       loadSupportData();
     } catch (error) {
       console.error('Error deleting feature request:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile eliminare la richiesta. Riprova più tardi.",
-        variant: "destructive"
+        description: "Impossibile eliminare la richiesta. Riprova più tardi."
       });
     }
   };
@@ -725,10 +643,9 @@ const SupportPage: React.FC = () => {
 
       if (error) throw error;
 
-      showToast({
+      showSuccessToast({
         title: "Ticket chiuso",
-        description: `Il ticket #${ticketToClose.ticket_number} è stato chiuso correttamente.`,
-        variant: "success"
+        description: `Il ticket #${ticketToClose.ticket_number} è stato chiuso correttamente.`
       });
 
       // Aggiorna la lista tickets
@@ -749,10 +666,9 @@ const SupportPage: React.FC = () => {
       setTicketToClose(null);
     } catch (error) {
       console.error('Error closing ticket:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile chiudere il ticket. Riprova più tardi.",
-        variant: "destructive"
+        description: "Impossibile chiudere il ticket. Riprova più tardi."
       });
     } finally {
       setIsClosingTicket(false);
