@@ -35,6 +35,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { SupportTicketList } from '@/components/support/SupportTicketList';
 import { SupportTicketDetails } from '@/components/support/SupportTicketDetails';
 import { TicketCloseConfirmModal } from '@/components/support/TicketCloseConfirmModal';
+import PlatformGuideModal from '@/components/support/PlatformGuideModal';
 
 interface SupportTicket {
   id: string;
@@ -141,6 +142,7 @@ const SupportPage: React.FC = () => {
   const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
   const [ticketToClose, setTicketToClose] = useState<SupportTicket | null>(null);
   const [isClosingTicket, setIsClosingTicket] = useState(false);
+  const [isPlatformGuideOpen, setIsPlatformGuideOpen] = useState(false);
   const { showToast } = useTranslatedToast();
   const { addNotification } = useNotifications();
   const { user } = useAuth();
@@ -805,10 +807,23 @@ const SupportPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Centro di Supporto</h1>
-        <p className="text-muted-foreground">
-          Trova risposte alle tue domande o contatta il nostro team di supporto
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Centro di Supporto</h1>
+            <p className="text-muted-foreground">
+              Trova risposte alle tue domande o contatta il nostro team di supporto
+            </p>
+          </div>
+          <Button 
+            onClick={() => setIsPlatformGuideOpen(true)}
+            variant="outline"
+            size="lg"
+            className="flex items-center gap-2"
+          >
+            <Book className="h-5 w-5" />
+            Guida della Piattaforma
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -1266,6 +1281,12 @@ const SupportPage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Platform Guide Modal */}
+      <PlatformGuideModal
+        isOpen={isPlatformGuideOpen}
+        onClose={() => setIsPlatformGuideOpen(false)}
+      />
     </div>
   );
 };
