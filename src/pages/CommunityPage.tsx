@@ -123,11 +123,8 @@ const CommunityPage = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [groupUserCounts, setGroupUserCounts] = useState({});
   
-  // Load community stats
   const loadCommunityStats = async () => {
     try {
-      console.log('🔢 Loading community stats for groups:', myGroups.map(g => g.id));
-      
       // Get total count of all registered users on the platform
       const { count: totalUsersCount } = await supabase
         .from('profiles')
@@ -139,22 +136,18 @@ const CommunityPage = () => {
       const counts = {};
       
       if (myGroups.length === 0) {
-        console.log('⚠️ No groups found in myGroups');
         setGroupUserCounts({});
         return;
       }
       
       for (const group of myGroups) {
-        console.log(`🔍 Counting users for group: ${group.id}`);
-        const { count, error, data } = await supabase
+        const { count } = await supabase
           .from('user_channel_subscriptions')
-          .select('*', { count: 'exact' })
+          .select('*', { count: 'exact', head: true })
           .eq('channel_name', group.id);
         
-        console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '', 'Data:', data);
         counts[group.id] = count || 0;
       }
-      console.log('🔢 Final counts:', counts);
       setGroupUserCounts(counts);
     } catch (error) {
       console.error('❌ Error loading community stats:', error);
@@ -164,11 +157,8 @@ const CommunityPage = () => {
   useEffect(() => {
     if (user?.id) {
       loadMyGroups();
-      setupRealtimeSubscription(); // Aggiungi subscription per aggiornamenti in tempo reale
-      loadCommunityStats();
+      setupRealtimeSubscription();
     }
-    // Force reload on component mount
-    loadCommunityStats();
   }, [user?.id]);
 
   // Handle URL parameters for direct navigation to chat
@@ -188,7 +178,7 @@ const CommunityPage = () => {
     generateAvailableGroups();
   }, [selectedCountry, selectedBreed]);
 
-  // Reload stats when groups change
+  // Load stats when groups are loaded
   useEffect(() => {
     if (myGroups.length > 0) {
       loadCommunityStats();
