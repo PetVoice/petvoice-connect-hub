@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useUnreadCounts } from '@/hooks/useUnreadCounts';
 
 // Complete navigation items array with uniform spacing
 const menuItems = [
@@ -30,6 +31,7 @@ const menuItems = [
 const AppSidebar: React.FC = () => {
   const { state, openMobile, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
+  const { unreadCounts } = useUnreadCounts();
   
   const isCollapsed = state === 'collapsed';
 
@@ -69,32 +71,48 @@ const AppSidebar: React.FC = () => {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink 
-                        to={item.url} 
-                        className={`flex items-center px-3 py-2 rounded-lg group relative ${
-                          isActive(item.url)
-                            ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] transition-all duration-200'
-                        }`}
-                        style={isActive(item.url) ? {
-                          backgroundColor: 'hsl(var(--primary) / 0.1)',
-                          color: 'hsl(var(--primary))',
-                          boxShadow: 'var(--shadow-glow)',
-                          transform: 'scale(1.02)',
-                          borderLeft: '2px solid hsl(var(--primary))'
-                        } : {}}
-                      >
-                        <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
-                        {(!isCollapsed || isMobile) && (
-                          <span className="font-medium transition-colors">{item.title}</span>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {menuItems.map((item) => {
+                  const hasUnreadBadge = 
+                    (item.url === '/community' && unreadCounts.privateMessages > 0) ||
+                    (item.url === '/support' && unreadCounts.supportTickets > 0);
+                  
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <NavLink 
+                          to={item.url} 
+                          className={`flex items-center px-3 py-2 rounded-lg group relative ${
+                            isActive(item.url)
+                              ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-primary/5 hover:shadow-glow hover:scale-[1.02] transition-all duration-200'
+                          }`}
+                          style={isActive(item.url) ? {
+                            backgroundColor: 'hsl(var(--primary) / 0.1)',
+                            color: 'hsl(var(--primary))',
+                            boxShadow: 'var(--shadow-glow)',
+                            transform: 'scale(1.02)',
+                            borderLeft: '2px solid hsl(var(--primary))'
+                          } : {}}
+                        >
+                          <div className="flex items-center relative">
+                            <item.icon className={`h-5 w-5 ${isCollapsed && !isMobile ? "mx-auto" : "mr-3"} transition-colors`} />
+                            {hasUnreadBadge && (
+                              <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                            )}
+                          </div>
+                          {(!isCollapsed || isMobile) && (
+                            <span className="font-medium transition-colors">{item.title}</span>
+                          )}
+                          {hasUnreadBadge && (!isCollapsed || isMobile) && (
+                            <div className="ml-auto">
+                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            </div>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

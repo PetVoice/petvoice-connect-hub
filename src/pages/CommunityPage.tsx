@@ -15,6 +15,7 @@ import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
 import { Chat } from '@/components/community/Chat';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 import { PrivateChatWithReply } from '@/components/private-chat/PrivateChatWithReply';
+import { useUnreadCounts } from '@/hooks/useUnreadCounts';
 
 // Lista completa dei paesi (semplificata per la ricerca)
 const COUNTRIES = [
@@ -108,20 +109,25 @@ const CAT_BREEDS = [
 // Tutte le razze (cani + gatti)
 const ALL_BREEDS = [...DOG_BREEDS, ...CAT_BREEDS].sort();
 
-const CommunityPage = () => {
-  const { user } = useAuth();
-  const { showToast } = useToastWithIcon();
+const CommunityPage: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const showToast = useToastWithIcon();
+  const { unreadCounts: globalUnreadCounts, markPrivateMessagesAsRead } = useUnreadCounts();
   
-  const [activeTab, setActiveTab] = useState('groups');
+  const [allGroups, setAllGroups] = useState([]);
   const [myGroups, setMyGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
+  const [searchCountry, setSearchCountry] = useState('');
+  const [searchBreed, setSearchBreed] = useState('');
+  const [petType, setPetType] = useState('');
+  const [activeTab, setActiveTab] = useState('groups');
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const [groupUserCounts, setGroupUserCounts] = useState({});
+  const [totalUsers, setTotalUsers] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState('all');
   const [selectedBreed, setSelectedBreed] = useState('all');
-  const [unreadCounts, setUnreadCounts] = useState({}); // Traccia i messaggi non letti per gruppo
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [groupUserCounts, setGroupUserCounts] = useState({});
   
   const loadCommunityStats = async () => {
     try {
@@ -394,20 +400,12 @@ const CommunityPage = () => {
       await loadMyGroups();
       await loadCommunityStats(); // Aggiorna anche i conteggi
       
-      showToast({
-        title: "Ingresso completato",
-        description: "Ti sei unito al gruppo con successo",
-        type: 'success'
-      });
+      showToast.success("Ingresso completato", "Ti sei unito al gruppo con successo");
       
     } catch (error) {
       if (!error.message.includes('duplicate')) {
         console.error('Errore join:', error);
-        showToast({
-          title: "Errore",
-          description: "Impossibile entrare nel gruppo",
-          type: 'error'
-        });
+        showToast.error("Errore", "Impossibile entrare nel gruppo");
       }
     }
   };
@@ -427,19 +425,11 @@ const CommunityPage = () => {
         setActiveChat(null);
       }
       
-      showToast({
-        title: "Uscita completata",
-        description: "Hai lasciato il gruppo",
-        type: 'info'
-      });
+      showToast.info("Uscita completata", "Hai lasciato il gruppo");
       
     } catch (error) {
       console.error('Errore leave:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile uscire dal gruppo",
-        type: 'error'
-      });
+      showToast.error("Errore", "Impossibile uscire dal gruppo");
     }
   };
   
@@ -479,10 +469,19 @@ const CommunityPage = () => {
         if (value !== 'groups') {
           setActiveChat(null);
         }
+        // Mark private messages as read when opening private tab
+        if (value === 'private') {
+          markPrivateMessagesAsRead();
+        }
       }} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="groups">Gruppi</TabsTrigger>
-            <TabsTrigger value="private">Chat Private</TabsTrigger>
+            <TabsTrigger value="private" className="relative">
+              Chat Private
+              {globalUnreadCounts.privateMessages > 0 && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="matching">Pet Matching</TabsTrigger>
           </TabsList>
           

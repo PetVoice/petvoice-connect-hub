@@ -32,6 +32,7 @@ import { useTranslatedToast } from '@/hooks/use-translated-toast';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useUnreadCounts } from '@/hooks/useUnreadCounts';
 import { SupportTicketList } from '@/components/support/SupportTicketList';
 import { SupportTicketDetails } from '@/components/support/SupportTicketDetails';
 import { TicketCloseConfirmModal } from '@/components/support/TicketCloseConfirmModal';
@@ -145,6 +146,7 @@ const SupportPage: React.FC = () => {
   const { addNotification } = useNotifications();
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
+  const { markTicketRepliesAsRead } = useUnreadCounts();
 
   // Carica i dati iniziali e setup realtime
   useEffect(() => {
@@ -153,6 +155,9 @@ const SupportPage: React.FC = () => {
       console.log('✅ User found, loading support data for:', user.id);
       loadSupportData();
       const cleanup = setupTicketsRealtimeSubscription();
+      
+      // Mark ticket replies as read when opening support page
+      markTicketRepliesAsRead();
       
       // Cleanup quando il componente viene smontato
       return cleanup;
