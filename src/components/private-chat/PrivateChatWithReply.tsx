@@ -600,7 +600,12 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
         setTimeout(() => {
           console.log('⬇️ Scrolling to bottom after sending message');
           scrollToBottom();
-        }, 100); // Timeout più lungo per assicurarsi che il DOM sia aggiornato
+        }, 300); // Timeout più lungo per assicurarsi che il DOM sia aggiornato
+        
+        // Backup scroll immediato
+        requestAnimationFrame(() => {
+          scrollToBottom();
+        });
       }
       
       console.log('🔄 NOT reloading chats to avoid component re-render');
