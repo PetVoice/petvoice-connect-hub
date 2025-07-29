@@ -71,13 +71,21 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   // Carica le risposte del ticket e l'unread count
   useEffect(() => {
+    console.log('🔍 SupportTicketDetails: useEffect triggered');
+    console.log('🔍 Ticket object:', ticket);
+    console.log('🔍 Ticket ID:', ticket.id);
+    console.log('🔍 User:', user);
+    
     if (ticket.id) {
+      console.log('🔍 Loading ticket replies for ticket:', ticket.id);
       loadTicketReplies();
       loadUnreadCount();
       const cleanup = setupRealtimeSubscription();
       
       // Cleanup function per quando il componente viene smontato o ticket cambia
       return cleanup;
+    } else {
+      console.log('❌ No ticket ID found');
     }
   }, [ticket.id]);
 
