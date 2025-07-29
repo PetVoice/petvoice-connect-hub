@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 
 interface Protocol {
   id: string;
@@ -51,10 +51,8 @@ interface Protocol {
   success_rate: number;
   ai_generated: boolean;
   is_public: boolean;
-  veterinary_approved: boolean;
   community_rating: number;
   community_usage: number;
-  mentor_recommended: boolean;
   created_at: string;
   updated_at: string;
   user_id?: string;
@@ -72,7 +70,7 @@ interface AITrainingProtocolsProps {
 
 export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ selectedPet }) => {
   const { toast } = useToast();
-  const { showToast } = useToastWithIcon();
+  const { showSuccessToast, showErrorToast } = useUnifiedToast();
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [filteredProtocols, setFilteredProtocols] = useState<Protocol[]>([]);
   const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(null);
@@ -121,8 +119,6 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
         community_rating: protocol.community_rating || 0,
         ai_generated: protocol.ai_generated || false,
         is_public: protocol.is_public || false,
-        veterinary_approved: protocol.veterinary_approved || false,
-        mentor_recommended: protocol.mentor_recommended || false
       })));
     } catch (error) {
       console.error('Errore nel caricamento protocolli:', error);
@@ -183,19 +179,17 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
 
       if (error) throw error;
 
-      showToast({
+      showSuccessToast({
         title: "Protocollo avviato",
-        description: "Il protocollo è stato avviato con successo",
-        type: 'success'
+        description: "Il protocollo è stato avviato con successo"
       });
 
       fetchProtocols();
     } catch (error) {
       console.error('Errore nell\'avvio del protocollo:', error);
-      showToast({
+      showErrorToast({
         title: "Errore",
-        description: "Impossibile avviare il protocollo",
-        type: 'error'
+        description: "Impossibile avviare il protocollo"
       });
     }
   };
@@ -453,9 +447,6 @@ export const AITrainingProtocols: React.FC<AITrainingProtocolsProps> = ({ select
                               <Badge variant="outline" className={getStatusColor(protocol.status)}>
                                 {getStatusText(protocol.status)}
                               </Badge>
-                              {protocol.veterinary_approved && (
-                                <Badge variant="outline" className="text-green-600">Vet Approved</Badge>
-                              )}
                             </div>
                             <p className="text-muted-foreground mb-3">{protocol.description}</p>
                             <div className="flex items-center gap-4 mb-3">

@@ -51,7 +51,6 @@ import { useNotificationEventsContext } from '@/contexts/NotificationEventsConte
 import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import { WeatherMoodPredictor } from '@/components/ai-features/WeatherMoodPredictor';
-import { NaturalLanguageProcessing } from '@/components/ai-features/NaturalLanguageProcessing';
 import { useAuth } from '@/contexts/AuthContext';
 // Translation system removed - Italian only
 

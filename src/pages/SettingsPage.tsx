@@ -94,7 +94,7 @@ import {
   CancellationPolicy, 
   LicenseAgreement 
 } from '@/components/legal/LegalDocuments';
-import { AccessibilityGuides } from '@/components/accessibility/AccessibilityGuides';
+
 import DataIntegrityDashboard from '@/components/admin/DataIntegrityDashboard';
 import SubscriptionTab from '@/components/settings/SubscriptionTab';
 
