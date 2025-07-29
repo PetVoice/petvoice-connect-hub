@@ -125,6 +125,8 @@ const CommunityPage = () => {
   
   const loadCommunityStats = async () => {
     try {
+      console.log('🔢 Loading community stats for groups:', myGroups.map(g => g.id));
+      
       // Get total count of all registered users on the platform
       const { count: totalUsersCount } = await supabase
         .from('profiles')
@@ -136,18 +138,25 @@ const CommunityPage = () => {
       const counts = {};
       
       if (myGroups.length === 0) {
+        console.log('⚠️ No groups found in myGroups');
         setGroupUserCounts({});
         return;
       }
       
       for (const group of myGroups) {
-        const { count } = await supabase
+        console.log(`🔍 Counting users for group: ${group.id}`);
+        
+        // Query corretta: channel_name è TEXT, non UUID
+        const { count, error } = await supabase
           .from('user_channel_subscriptions')
           .select('*', { count: 'exact', head: true })
-          .eq('channel_name', group.id);
+          .eq('channel_name', group.id); // group.id è già una stringa
         
+        console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '');
         counts[group.id] = count || 0;
       }
+      
+      console.log('🔢 Final counts:', counts);
       setGroupUserCounts(counts);
     } catch (error) {
       console.error('❌ Error loading community stats:', error);
