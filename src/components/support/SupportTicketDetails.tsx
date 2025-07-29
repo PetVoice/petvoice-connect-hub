@@ -5,10 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, Send, X, Clock, User, MoreVertical, Edit2, Trash2, Reply } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Input } from "@/components/ui/input";
+import { MessageCircle, Send, X, Clock, User, Reply } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslatedToast } from '@/hooks/use-translated-toast';
@@ -58,11 +55,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasScrolledToUnread, setHasScrolledToUnread] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
-  const [editingReply, setEditingReply] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState('');
   const [replyingTo, setReplyingTo] = useState<TicketReply | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [replyToDelete, setReplyToDelete] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const firstUnreadRef = useRef<HTMLDivElement>(null);
@@ -71,21 +64,13 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   // Carica le risposte del ticket e l'unread count
   useEffect(() => {
-    console.log('🔍 SupportTicketDetails: useEffect triggered');
-    console.log('🔍 Ticket object:', ticket);
-    console.log('🔍 Ticket ID:', ticket.id);
-    console.log('🔍 User:', user);
-    
     if (ticket.id && user?.id) {
-      console.log('🔍 Loading ticket replies for ticket:', ticket.id);
       loadTicketReplies();
       loadUnreadCount();
       const cleanup = setupRealtimeSubscription();
       
       // Cleanup function per quando il componente viene smontato o ticket cambia
       return cleanup;
-    } else {
-      console.log('❌ No ticket ID or user ID found');
     }
   }, [ticket.id, user?.id]);
 
@@ -100,10 +85,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   const loadUnreadCount = async () => {
     try {
-      if (!user?.id) {
-        console.log('⚠️ User ID not available for unread count');
-        return;
-      }
+      if (!user?.id) return;
       
       const { data, error } = await supabase
         .from('support_ticket_unread_counts')
@@ -149,54 +131,17 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       
       const { data, error } = await supabase
         .from('support_ticket_replies')
-        .select('*, deleted_by_all, deleted_by_sender, deleted_by_recipient')
+        .select('*')
         .eq('ticket_id', ticket.id)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
       
-      console.log('🔍 Raw data from database:', data?.length, 'messages');
-      console.log('🔍 Sample raw message:', data?.[0]);
-      
-      // Filtra i messaggi eliminati lato client
-      const filteredData = (data || []).filter(reply => {
-        console.log(`🔍 Filtering message ${reply.id}:`, {
-          deleted_by_all: reply.deleted_by_all,
-          deleted_by_sender: reply.deleted_by_sender,
-          deleted_by_recipient: reply.deleted_by_recipient,
-          user_id: reply.user_id,
-          current_user: user.id
-        });
-        
-        // Se il messaggio è stato eliminato per tutti, non mostrarlo mai
-        if (reply.deleted_by_all) {
-          console.log(`❌ Message ${reply.id} deleted for all - HIDING`);
-          return false;
-        }
-        
-        // Se è il nostro messaggio, mostralo se non è stato eliminato da noi
-        if (reply.user_id === user.id) {
-          const show = !reply.deleted_by_sender;
-          console.log(`👤 Own message ${reply.id} show:`, show);
-          return show;
-        }
-        // Se è un messaggio di altri, mostralo se non l'abbiamo eliminato come recipient  
-        else {
-          const show = !reply.deleted_by_recipient;
-          console.log(`👥 Other message ${reply.id} show:`, show);
-          return show;
-        }
-      });
-      
-      console.log('🔍 User ID:', user.id);
-      console.log('🔍 Filtered data:', filteredData.length, 'messages');
-      console.log('🔍 Sample filtered message:', filteredData[0]);
-      
-      setReplies(filteredData);
+      setReplies(data || []);
 
       // Carica i profili degli utenti per i messaggi
-      if (filteredData && filteredData.length > 0) {
-        const userIds = [...new Set(filteredData.map(reply => reply.user_id))];
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map(reply => reply.user_id))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, display_name')
@@ -216,8 +161,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
   };
 
   const setupRealtimeSubscription = () => {
-    console.log('🔄 Setting up realtime subscription for ticket:', ticket.id);
-    
     const channel = supabase
       .channel(`ticket-replies-${ticket.id}`)
       .on(
@@ -229,14 +172,10 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           filter: `ticket_id=eq.${ticket.id}`
         },
         (payload) => {
-          console.log('📨 New reply received via realtime:', payload.new);
           const newReply = payload.new as TicketReply;
           
           // Aggiungi immediatamente il messaggio
-          setReplies(prev => {
-            console.log('📝 Adding new reply to state. Current replies:', prev.length);
-            return [...prev, newReply];
-          });
+          setReplies(prev => [...prev, newReply]);
           
           // Carica il profilo dell'utente in background se non lo abbiamo già
           if (!userProfiles[newReply.user_id]) {
@@ -270,16 +209,12 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           filter: `id=eq.${ticket.id}`
         },
         (payload) => {
-          console.log('🔄 Ticket updated:', payload.new);
           onTicketUpdate(payload.new as SupportTicket);
         }
       )
-      .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('🔌 Cleaning up realtime subscription for ticket:', ticket.id);
       supabase.removeChannel(channel);
     };
   };
@@ -315,9 +250,7 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
         ticket_id: ticket.id,
         user_id: user.id,
         content,
-        is_staff_reply: false,
-        deleted_by_sender: false,
-        deleted_by_recipient: false
+        is_staff_reply: false
       };
 
       const { data, error } = await supabase
@@ -349,104 +282,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
     }
   };
 
-  const handleEditReply = async (replyId: string) => {
-    if (!editContent.trim()) return;
-
-    try {
-      const { error } = await supabase
-        .from('support_ticket_replies')
-        .update({ content: editContent.trim() })
-        .eq('id', replyId);
-
-      if (error) throw error;
-
-      setReplies(prev => prev.map(reply => 
-        reply.id === replyId ? { ...reply, content: editContent.trim() } : reply
-      ));
-
-      setEditingReply(null);
-      setEditContent('');
-
-      showToast({
-        title: "Messaggio modificato",
-        description: "Il tuo messaggio è stato aggiornato.",
-        variant: "success"
-      });
-    } catch (error) {
-      console.error('Error editing reply:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile modificare il messaggio.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleDeleteReply = async (replyId: string, deleteForAll: boolean = false) => {
-    try {
-      if (deleteForAll) {
-        // Marca come eliminato per tutti (solo per i messaggi propri)
-        const { error } = await supabase
-          .from('support_ticket_replies')
-          .update({ 
-            deleted_by_all: true,
-            deleted_at: new Date().toISOString()
-          })
-          .eq('id', replyId)
-          .eq('user_id', user?.id);
-
-        if (error) throw error;
-      } else {
-        // Elimina solo per l'utente corrente (soft delete)
-        const reply = replies.find(r => r.id === replyId);
-        if (!reply) return;
-
-        const isOwnMessage = reply.user_id === user?.id;
-        
-        const updateData = isOwnMessage ? {
-          deleted_by_sender: true,
-          deleted_at: new Date().toISOString()
-        } : {
-          deleted_by_recipient: true,
-          deleted_at: new Date().toISOString()
-        };
-
-        const { error } = await supabase
-          .from('support_ticket_replies')
-          .update(updateData)
-          .eq('id', replyId);
-
-        if (error) throw error;
-      }
-
-      // Ricarica i messaggi invece di manipolare lo stato locale
-      await loadTicketReplies();
-
-      showToast({
-        title: "Messaggio eliminato",
-        description: deleteForAll ? "Il messaggio è stato eliminato per tutti." : "Il messaggio è stato eliminato per te.",
-        variant: "success"
-      });
-    } catch (error) {
-      console.error('Error deleting reply:', error);
-      showToast({
-        title: "Errore",
-        description: "Impossibile eliminare il messaggio.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const startEdit = (reply: TicketReply) => {
-    setEditingReply(reply.id);
-    setEditContent(reply.content);
-  };
-
-  const cancelEdit = () => {
-    setEditingReply(null);
-    setEditContent('');
-  };
-
   const startReply = (reply: TicketReply) => {
     setReplyingTo(reply);
     // Focus sulla textarea
@@ -460,22 +295,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
 
   const cancelReply = () => {
     setReplyingTo(null);
-  };
-
-  const deleteReplyForMe = () => {
-    if (replyToDelete) {
-      handleDeleteReply(replyToDelete, false);
-      setShowDeleteDialog(false);
-      setReplyToDelete(null);
-    }
-  };
-
-  const deleteReplyForAll = () => {
-    if (replyToDelete) {
-      handleDeleteReply(replyToDelete, true);
-      setShowDeleteDialog(false);
-      setReplyToDelete(null);
-    }
   };
 
   const truncateText = (text: string, maxLength: number) => {
@@ -583,32 +402,8 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                   displayName = userProfiles[reply.user_id]?.display_name || 'Supporto';
                 }
 
-                const isEditing = editingReply === reply.id;
-
                 // Renderizza il contenuto del messaggio in base ai quote
                 const renderMessageContent = () => {
-                  if (isEditing) {
-                    return (
-                      <div className="space-y-2">
-                        <Textarea
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                          rows={3}
-                          className="text-sm"
-                        />
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleEditReply(reply.id)}>
-                            Salva
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={cancelEdit}>
-                            Annulla
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  // RISOLUZIONE FINALE - gestisce MULTIPLE > per linea
                   const messageText = reply.content;
                   
                   // Se contiene quote (simboli >)
@@ -706,45 +501,17 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
                       {renderMessageContent()}
                     </div>
 
-                    {/* Azioni sui messaggi */}
+                    {/* Azioni sui messaggi - SOLO bottone di risposta */}
                     <div className="flex-shrink-0">
-                      {isOwn ? (
-                        // Menu per i propri messaggi: modifica ed elimina
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => startEdit(reply)}>
-                              <Edit2 className="h-4 w-4 mr-2" />
-                              Modifica
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setReplyToDelete(reply.id);
-                                setShowDeleteDialog(true);
-                              }}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Elimina
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        // Freccina diretta per rispondere ai messaggi del supporto
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0" 
-                          onClick={() => startReply(reply)}
-                          title="Rispondi a questo messaggio"
-                        >
-                          <Reply className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0" 
+                        onClick={() => startReply(reply)}
+                        title="Rispondi a questo messaggio"
+                      >
+                        <Reply className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 );
@@ -797,35 +564,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           </div>
         )}
       </CardContent>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
-            <AlertDialogDescription>
-              Come vuoi eliminare questo messaggio?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <Button
-              variant="outline"
-              onClick={() => deleteReplyForMe()}
-              className="w-full sm:w-auto"
-            >
-              Elimina solo per me
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => deleteReplyForAll()}
-              className="w-full sm:w-auto"
-            >
-              Elimina per tutti
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </Card>
   );
 };
