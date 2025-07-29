@@ -231,7 +231,8 @@ export default {
 				'error-shake': 'wiggle 0.5s ease-in-out 3',
 				'loading-shimmer': 'shimmer 1.5s ease-in-out infinite',
 				'card-hover': 'gentle-float 3s ease-in-out infinite',
-				'nav-slide': 'slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+				'nav-slide': 'slide-in-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+				'nav-highlight': 'nav-highlight 0.3s ease-out'
 			}
 		}
 	},
