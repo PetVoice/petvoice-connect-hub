@@ -772,11 +772,11 @@ button:not(.no-hover):hover,
   
   
   .petvoice-card {
-    @apply bg-card text-card-foreground shadow-elegant rounded-xl p-6 border border-primary/10 transition-all duration-300 hover:shadow-glow hover:scale-[1.01] hover:border-primary/20;
+    @apply bg-card text-card-foreground shadow-elegant rounded-xl p-6 border border-primary/10 transition-all duration-300 hover:shadow-xl hover:scale-[1.01] hover:border-primary/20;
   }
   
   .petvoice-button {
-    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-glow transition-all duration-200 rounded-lg font-semibold;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-xl transition-all duration-200 rounded-lg font-semibold;
   }
   
   .petvoice-button-primary {
