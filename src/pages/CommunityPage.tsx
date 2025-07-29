@@ -476,12 +476,7 @@ const CommunityPage: React.FC = () => {
       }} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="groups">Gruppi</TabsTrigger>
-            <TabsTrigger value="private" className="relative">
-              Chat Private
-              {globalUnreadCounts.privateMessages > 0 && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
-              )}
-            </TabsTrigger>
+            <TabsTrigger value="private">Chat Private</TabsTrigger>
             <TabsTrigger value="matching">Pet Matching</TabsTrigger>
           </TabsList>
           

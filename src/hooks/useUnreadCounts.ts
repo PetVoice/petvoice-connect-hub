@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -159,6 +159,24 @@ export function useUnreadCounts() {
     const count = await fetchUnreadTicketReplies();
     setUnreadCounts(prev => ({ ...prev, supportTickets: count }));
   };
+
+  // Expose refresh function globally for other components
+  React.useEffect(() => {
+    const refreshFunction = async () => {
+      if (!user) return;
+      const [privateMessages, supportTickets] = await Promise.all([
+        fetchUnreadPrivateMessages(),
+        fetchUnreadTicketReplies()
+      ]);
+      setUnreadCounts({ privateMessages, supportTickets });
+    };
+    
+    (window as any).refreshUnreadCounts = refreshFunction;
+    
+    return () => {
+      delete (window as any).refreshUnreadCounts;
+    };
+  }, [user]);
 
   return {
     unreadCounts,

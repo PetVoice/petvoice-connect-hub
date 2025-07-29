@@ -467,6 +467,29 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
     }
   };
 
+  const handleChatSelect = async (chat: PrivateChat) => {
+    console.log('📱 Loading messages for chat:', chat.id);
+    setSelectedChat(chat);
+    setReplyToMessage(null);
+    
+    // Marca i messaggi come letti non appena selezioni la chat
+    await markChatAsRead(chat.id);
+    
+    // Aggiorna lo stato locale del conteggio non letti per questa chat
+    setChats(prevChats => 
+      prevChats.map(c => 
+        c.id === chat.id 
+          ? { ...c, unread_count: 0 }
+          : c
+      )
+    );
+    
+    // Forza il refresh dei conteggi globali
+    if ((window as any).refreshUnreadCounts) {
+      (window as any).refreshUnreadCounts();
+    }
+  };
+
   // Chat deletion functions
   const deleteChatForMe = async () => {
     if (!selectedChat) return;
@@ -961,7 +984,7 @@ export const PrivateChatWithReply: React.FC<PrivateChatWithReplyProps> = ({ chat
                            ? 'bg-primary/10 border-r-2 border-primary shadow-sm' 
                            : 'hover:bg-muted/50'
                        }`}
-                       onClick={() => setSelectedChat(chat)}
+                       onClick={() => handleChatSelect(chat)}
                      >
                        <div className="flex items-start gap-3">
                          <Avatar className="h-10 w-10">
