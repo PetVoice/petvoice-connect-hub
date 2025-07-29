@@ -1179,9 +1179,10 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                   </span>
                                   <span className="flex items-center gap-1">
                                     👥 {(() => {
-                                      const key = protocol.name.toLowerCase();
+                                      const protocolTitle = protocol.title || protocol.name || '';
+                                      const key = protocolTitle.toLowerCase();
                                       const usage = protocolUsageCounts[key] || 0;
-                                      console.log(`🔍 Looking for usage count for "${protocol.name}" with key "${key}": ${usage}`);
+                                      console.log(`🔍 Looking for usage count for "${protocolTitle}" with key "${key}": ${usage}`);
                                       console.log('🗂️ Available keys:', Object.keys(protocolUsageCounts));
                                       return usage;
                                     })()} utilizzi
