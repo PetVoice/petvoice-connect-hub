@@ -1108,6 +1108,39 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         }
                       };
 
+                      const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
+                      
+                      // Fetch protocol usage counts on mount
+                      useEffect(() => {
+                        const fetchUsageCounts = async () => {
+                          try {
+                            const { data: protocols, error } = await supabase
+                              .from('ai_training_protocols')
+                              .select('id, title, community_usage')
+                              .eq('status', 'active');
+
+                            if (error) throw error;
+                            
+                            const usageCounts: Record<string, number> = {};
+                            protocols?.forEach(protocol => {
+                              const key = protocol.title.toLowerCase();
+                              usageCounts[key] = Number(protocol.community_usage) || 0;
+                            });
+                            setProtocolUsageCounts(usageCounts);
+                          } catch (error) {
+                            console.error('Error fetching protocol usage counts:', error);
+                          }
+                        };
+                        
+                        fetchUsageCounts();
+                      }, []);
+                      
+                      const getUsageCount = (protocolTitle: string): number => {
+                        const key = protocolTitle.toLowerCase();
+                        const count = protocolUsageCounts[key];
+                        return typeof count === 'number' ? count : 0;
+                      };
+
                       const protocol = getRecommendedTrainingProtocol(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
                       
                       return (
