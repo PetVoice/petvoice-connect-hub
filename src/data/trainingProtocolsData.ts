@@ -753,6 +753,78 @@ export const advancedCalmTrainingProtocol: CompleteProtocol = {
   ]
 };
 
+// PROTOCOLLO 12: MIGLIORAMENTO DELL'UMORE (21 giorni, Intermedio)
+export const moodEnhancementProtocol: CompleteProtocol = {
+  id: "mood-enhancement",
+  name: "Superare la Tristezza",
+  description: "Protocollo per stimolare l'umore e aumentare l'energia del pet attraverso attività coinvolgenti e socializzazione",
+  category: "Benessere",
+  difficulty: "facile",
+  durationDays: 15,
+  targetBehaviors: ["tristezza", "apatia", "depressione", "svogliatezza", "melanconico"],
+  phases: [
+    { name: "Attivazione Energetica", days: "1-5" },
+    { name: "Stimolazione Sociale", days: "6-10" },
+    { name: "Consolidamento Positivo", days: "11-15" }
+  ],
+  days: [
+    {
+      day: 1,
+      phase: "Attivazione Energetica",
+      exercises: [
+        {
+          name: "Stimolazione Sensoriale Positiva",
+          duration: "15-20 minuti",
+          level: "Facile",
+          description: "Crea esperienze sensoriali piacevoli per riattivare l'interesse dell'animale. Usa profumi naturali (erba gatta per gatti, odori di cibo preferito), texture diverse (tessuti morbidi, superfici fredde), suoni rilassanti (musica classica a basso volume). Osserva quali stimoli catturano la sua attenzione e costruisci su quelli.",
+          materials: ["Erba gatta o odori preferiti", "Tessuti di texture diverse", "Musica rilassante", "Snack odorosi"],
+          objectives: ["Risvegliare interesse sensoriale", "Stimolare curiosità naturale", "Creare associazioni positive"],
+          successCriteria: ["Mostra interesse per almeno 2 stimoli", "Interagisce volontariamente", "Postura più attenta e vigile"],
+          tips: [
+            "Non sovraccaricare con troppi stimoli insieme, introduce uno alla volta",
+            "Presta attenzione ai segnali di gradimento: avvicinamento, annusare, toccare",
+            "Ripeti gli stimoli che hanno ottenuto risposta positiva nei giorni seguenti"
+          ]
+        },
+        {
+          name: "Gioco Dolce e Incoraggiante",
+          duration: "10-15 minuti",
+          level: "Facile",
+          description: "Proponi giochi molto semplici che l'animale può 'vincere' facilmente per aumentare la sua autostima. Nascondi snack in luoghi facili da trovare, lancia giocattoli morbidi a distanza ravvicinata, o semplicemente trascina una corda lentamente. L'obiettivo è il successo garantito e il divertimento senza frustrazione.",
+          materials: ["Snack piccoli e appetitosi", "Giocattoli morbidi", "Corda o nastro", "Spazi di gioco sicuri"],
+          objectives: ["Aumentare autostima attraverso successi", "Riattivare istinto di gioco", "Creare momenti di gioia"],
+          successCriteria: ["Partecipa attivamente al gioco", "Mostra segni di divertimento", "Cerca di continuare l'attività"],
+          tips: [
+            "Celebra ogni piccolo successo con entusiasmo genuino",
+            "Se sembra stanco o disinteressato, accorcia la sessione ma mantieni la frequenza",
+            "Termina sempre mentre l'animale è ancora interessato, non aspettare che si annoi"
+          ]
+        }
+      ]
+    },
+    {
+      day: 2,
+      phase: "Attivazione Energetica",
+      exercises: [
+        {
+          name: "Routine di Attivazione Mattutina",
+          duration: "10-12 minuti",
+          level: "Facile",
+          description: "Crea una routine energizzante da fare ogni mattina: aprire tende per far entrare luce naturale, mettere musica allegra a volume basso, preparare una colazione speciale, fare stretching dolce insieme. La routine deve essere prevedibile e sempre positiva.",
+          materials: ["Finestre con buona esposizione", "Playlist musicale allegra", "Cibo speciale mattutino"],
+          objectives: ["Stabilire inizio giornata positivo", "Aumentare esposizione alla luce", "Creare aspettative positive"],
+          successCriteria: ["Anticipa la routine con interesse", "Energia aumenta durante le attività", "Umore migliora nel corso della mattinata"],
+          tips: [
+            "Mantieni la routine anche nei fine settimana per consistency",
+            "Adatta gli orari ai ritmi naturali dell'animale",
+            "La luce naturale è fondamentale per regolare i ritmi circadiani"
+          ]
+        }
+      ]
+    }
+  ]
+};
+
 // Template per generare tutti i protocolli
 export const allProtocols = {
   ansietyManagement: ansietyManagementProtocol,
@@ -765,7 +837,8 @@ export const allProtocols = {
   separationAnxiety: separationAnxietyProtocol,
   advancedTraining: advancedTrainingProtocol,
   calmingAgitation: calmingProtocol,
-  advancedCalmTraining: advancedCalmTrainingProtocol
+  advancedCalmTraining: advancedCalmTrainingProtocol,
+  moodEnhancement: moodEnhancementProtocol
 };
 
 // Funzione per raccomandare protocolli basati sull'analisi dell'umore
@@ -786,6 +859,10 @@ export const getRecommendedProtocol = (analysisResults: string[]): string | null
   
   if (negativeKeywords.some(keyword => ['paura', 'pauroso', 'fobia', 'spavento'].includes(keyword))) {
     return 'fear-management';
+  }
+  
+  if (negativeKeywords.some(keyword => ['tristezza', 'triste', 'depresso', 'depressione', 'apatia', 'svogliato', 'melanconico'].includes(keyword))) {
+    return 'mood-enhancement';
   }
   
   if (negativeKeywords.some(keyword => ['disobbediente', 'non ascolta', 'ignorante'].includes(keyword))) {
