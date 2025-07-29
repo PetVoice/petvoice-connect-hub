@@ -815,7 +815,7 @@ const SupportPage: React.FC = () => {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="tickets" className="flex items-center space-x-2">
             <Ticket className="h-4 w-4" />
-            <span>I Miei Ticket</span>
+            <span>Ticket</span>
           </TabsTrigger>
           <TabsTrigger value="faq" className="flex items-center space-x-2">
             <HelpCircle className="h-4 w-4" />
@@ -834,7 +834,7 @@ const SupportPage: React.FC = () => {
         {/* TICKETS */}
         <TabsContent value="tickets" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">I Miei Ticket di Supporto</h2>
+            <h2 className="text-xl font-semibold">Ticket di Supporto</h2>
             <Dialog open={isNewTicketDialogOpen} onOpenChange={setIsNewTicketDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -919,37 +919,80 @@ const SupportPage: React.FC = () => {
             </Dialog>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
-              <SupportTicketList
-                tickets={tickets}
-                selectedTicketId={selectedTicket?.id}
-                onTicketSelect={handleTicketSelect}
-                loading={loading}
-              />
-            </div>
-            
-            <div className="lg:col-span-2">
-              {selectedTicket ? (
-                <SupportTicketDetails
-                  ticket={selectedTicket}
-                  onClose={() => setSelectedTicket(null)}
-                  onTicketUpdate={handleTicketUpdate}
-                  onTicketClose={handleTicketClose}
-                />
-              ) : (
-                <Card className="h-full flex items-center justify-center">
-                  <CardContent className="text-center">
-                    <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="font-medium mb-2">Seleziona un ticket</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Scegli un ticket dalla lista per visualizzare i dettagli e la cronologia
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
+          <Tabs defaultValue="open" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="open">Ticket Aperti</TabsTrigger>
+              <TabsTrigger value="closed">Ticket Chiusi</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="open" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <SupportTicketList
+                    tickets={tickets.filter(ticket => ticket.status !== 'closed')}
+                    selectedTicketId={selectedTicket?.id}
+                    onTicketSelect={handleTicketSelect}
+                    loading={loading}
+                  />
+                </div>
+                
+                <div className="lg:col-span-2">
+                  {selectedTicket ? (
+                    <SupportTicketDetails
+                      ticket={selectedTicket}
+                      onClose={() => setSelectedTicket(null)}
+                      onTicketUpdate={handleTicketUpdate}
+                      onTicketClose={handleTicketClose}
+                    />
+                  ) : (
+                    <Card className="h-full flex items-center justify-center">
+                      <CardContent className="text-center">
+                        <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                        <h3 className="font-medium mb-2">Seleziona un ticket aperto</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Scegli un ticket dalla lista per visualizzare i dettagli e la cronologia
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="closed" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <SupportTicketList
+                    tickets={tickets.filter(ticket => ticket.status === 'closed')}
+                    selectedTicketId={selectedTicket?.id}
+                    onTicketSelect={handleTicketSelect}
+                    loading={loading}
+                  />
+                </div>
+                
+                <div className="lg:col-span-2">
+                  {selectedTicket ? (
+                    <SupportTicketDetails
+                      ticket={selectedTicket}
+                      onClose={() => setSelectedTicket(null)}
+                      onTicketUpdate={handleTicketUpdate}
+                      onTicketClose={handleTicketClose}
+                    />
+                  ) : (
+                    <Card className="h-full flex items-center justify-center">
+                      <CardContent className="text-center">
+                        <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                        <h3 className="font-medium mb-2">Seleziona un ticket chiuso</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Scegli un ticket dalla lista per visualizzare i dettagli e la cronologia
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* FAQ */}
