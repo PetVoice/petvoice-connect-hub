@@ -137,14 +137,21 @@ const CommunityPage = () => {
       
       // Load user counts for each group in myGroups
       const counts = {};
+      
+      if (myGroups.length === 0) {
+        console.log('⚠️ No groups found in myGroups');
+        setGroupUserCounts({});
+        return;
+      }
+      
       for (const group of myGroups) {
         console.log(`🔍 Counting users for group: ${group.id}`);
-        const { count, error } = await supabase
+        const { count, error, data } = await supabase
           .from('user_channel_subscriptions')
-          .select('*', { count: 'exact', head: true })
+          .select('*', { count: 'exact' })
           .eq('channel_name', group.id);
         
-        console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '');
+        console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '', 'Data:', data);
         counts[group.id] = count || 0;
       }
       console.log('🔢 Final counts:', counts);
