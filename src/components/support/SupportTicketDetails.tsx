@@ -381,9 +381,6 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           .eq('user_id', user?.id);
 
         if (error) throw error;
-
-        // Rimuovi dalla UI
-        setReplies(prev => prev.filter(reply => reply.id !== replyId));
       } else {
         // Elimina solo per l'utente corrente (soft delete)
         const reply = replies.find(r => r.id === replyId);
@@ -405,10 +402,10 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
           .eq('id', replyId);
 
         if (error) throw error;
-
-        // Rimuovi dalla UI
-        setReplies(prev => prev.filter(reply => reply.id !== replyId));
       }
+
+      // Ricarica i messaggi invece di manipolare lo stato locale
+      await loadTicketReplies();
 
       showToast({
         title: "Messaggio eliminato",
