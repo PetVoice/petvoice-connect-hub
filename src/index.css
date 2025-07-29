@@ -498,248 +498,8 @@ button:not(.no-hover):hover,
   }
 
   /* Azzurrino Card System */
-  .card-azure {
-    @apply bg-gradient-card border-primary/20 shadow-elegant;
-  }
-  
-  .card-hover-lift {
-    @apply hover:shadow-floating hover:-translate-y-1 transition-all duration-300;
-  }
-  
-  .card-interactive {
-    @apply hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer;
-  }
-
-  /* Premium Interactive Elements */
-  .premium-button {
-    @apply relative overflow-hidden transition-all duration-300;
-  }
-  
-  .premium-button::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-  
-  .premium-button:hover::before {
-    transform: translateX(100%);
-  }
-
-  /* Form Micro-interactions */
-  .form-success {
-    @apply border-success/50 focus:border-success focus:ring-success bg-success/5 animate-success-bounce;
-  }
-  
-  .form-error {
-    @apply border-destructive/50 focus:border-destructive focus:ring-destructive bg-destructive/5 animate-error-vibrate;
-  }
-  
-  .form-focused {
-    @apply scale-[1.02] shadow-floating ring-2 ring-primary/20;
-  }
-
-  /* Navigation Micro-interactions */
-  .nav-item {
-    @apply relative transition-all duration-200 hover:scale-105 hover:shadow-soft;
-  }
-  
-  .nav-item-active {
-    @apply text-primary bg-primary/10 shadow-soft;
-  }
-  
-  .nav-item-active::before {
-    content: '';
-    @apply absolute left-0 top-0 h-full w-1 bg-primary rounded-r;
-  }
-  
-  .nav-item-active::after {
-    content: '';
-    @apply absolute bottom-0 left-0 h-0.5 bg-primary animate-nav-highlight;
-  }
-
-  /* Card Interactive States */
-  .card-clickable {
-    @apply cursor-pointer transition-all duration-300;
-  }
-  
-  .card-clickable:hover {
-    @apply shadow-floating -translate-y-1 scale-[1.02];
-  }
-  
-  .card-clickable:active {
-    @apply scale-95 translate-y-0;
-  }
-
-  /* Micro-animation Utilities */
-  .micro-bounce {
-    @apply hover:animate-micro-bounce;
-  }
-  
-  .subtle-glow {
-    @apply hover:animate-pulse-glow;
-  }
-  
-  .gentle-lift {
-    @apply hover:animate-card-lift;
-  }
-  
-  .smooth-scale {
-    @apply hover:scale-105 transition-transform duration-200;
-  }
-
-  /* Loading States */
-  .loading-shimmer {
-    @apply relative overflow-hidden;
-  }
-  
-  .loading-shimmer::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer;
-  }
-
-  /* Success/Error States */
-  .state-success {
-    @apply border-success/50 bg-success/5 animate-success-bounce;
-  }
-  
-  .state-error {
-    @apply border-destructive/50 bg-destructive/5 animate-error-vibrate;
-  }
-  
-  .state-warning {
-    @apply border-warning/50 bg-warning/5 animate-micro-bounce;
-  }
-
-  /* Interactive Feedback */
-  .interactive-feedback {
-    @apply transition-all duration-200 active:scale-95;
-  }
-  
-  .interactive-feedback:hover {
-    @apply shadow-glow transform scale-105;
-  }
-  
-  .ripple-effect {
-    @apply relative overflow-hidden;
-  }
-  
-  .ripple-effect::after {
-    content: '';
-    @apply absolute inset-0 bg-primary/10 scale-0 rounded-full;
-    animation: ripple 0.6s linear;
-  }
-  
-  .ripple-effect:active::after {
-    @apply scale-100;
-  }
-
-  /* Premium Touch Interactions */
-  .touch-feedback {
-    @apply active:scale-95 transition-transform duration-150;
-  }
-  
-  .premium-hover {
-    @apply hover:shadow-floating hover:scale-105 transition-all duration-300;
-  }
-  
-  .premium-focus {
-    @apply focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:outline-none;
-  }
-
-  /* Button States with Micro-interactions */
-  .btn-premium {
-    @apply relative overflow-hidden transition-all duration-300;
-    @apply hover:shadow-xl hover:scale-105 active:scale-95;
-    @apply focus:ring-2 focus:ring-primary/50 focus:ring-offset-2;
-  }
-  
-  .btn-premium::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent;
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-  
-  .btn-premium:hover::before {
-    transform: translateX(100%);
-  }
-  
-  .btn-loading {
-    @apply cursor-not-allowed opacity-80 animate-loading-shimmer;
-  }
-
-  /* Enhanced Form Controls */
-  .input-premium {
-    @apply transition-all duration-200 hover:border-primary/50;
-    @apply focus:scale-[1.02] focus:shadow-floating focus:ring-primary/20;
-  }
-  
-  .input-success {
-    @apply border-success/50 focus:border-success focus:ring-success bg-success/5;
-  }
-  
-  .input-error {
-    @apply border-destructive/50 focus:border-destructive focus:ring-destructive bg-destructive/5;
-    animation: error-vibrate 0.5s ease-in-out;
-  }
-
-  /* Card Enhanced Interactions */
-  .card-premium {
-    @apply transition-all duration-300 hover:shadow-floating hover:-translate-y-1;
-    @apply hover:scale-[1.02] cursor-pointer;
-  }
-  
-  .card-premium:active {
-    @apply scale-[0.98] translate-y-0;
-  }
-  
-  .card-loading {
-    @apply animate-loading-shimmer cursor-wait;
-  }
-  
-  .card-success {
-    @apply border-success/50 bg-success/5 animate-success-bounce;
-  }
-  
-  .card-error {
-    @apply border-destructive/50 bg-destructive/5 animate-error-vibrate;
-  }
-
-  /* Navigation Enhanced */
-  .nav-premium {
-    @apply transition-all duration-200 hover:scale-105 hover:shadow-soft;
-  }
-  
-  .nav-premium:hover {
-    @apply bg-accent/50 text-foreground;
-  }
-  
-  .nav-premium.active {
-    @apply text-primary bg-primary/10 shadow-soft;
-    @apply relative before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-primary before:rounded-r;
-  }
-  
-  .nav-premium.active::after {
-    content: '';
-    @apply absolute bottom-0 left-0 h-0.5 bg-primary animate-nav-highlight;
-    width: 100%;
-  }
-
-  /* Utility Classes for Micro-interactions */
-  .hover-lift { @apply hover:animate-card-lift; }
-  .hover-glow { @apply hover:animate-glow; }
-  .hover-scale { @apply hover:scale-105 transition-transform duration-200; }
-  .hover-float { @apply hover:animate-hover-lift; }
-  .click-bounce { @apply active:animate-button-press; }
-  .focus-pulse { @apply focus:animate-focus-pulse; }
-  .success-check { @apply animate-success-check; }
-  .error-shake { @apply animate-error-vibrate; }
-  .loading-shine { @apply animate-loading-shimmer; }
-}
-
   .petvoice-insight-card {
-    @apply bg-card text-card-foreground border border-primary/20 rounded-lg p-4 shadow-soft hover:shadow-xl transition-smooth hover:border-primary/40;
+    @apply bg-card text-card-foreground border border-primary/20 rounded-lg p-4 shadow-soft hover:shadow-glow transition-smooth hover:border-primary/40;
   }
   
   .shadow-soft {
@@ -772,15 +532,15 @@ button:not(.no-hover):hover,
   
   
   .petvoice-card {
-    @apply bg-card text-card-foreground shadow-elegant rounded-xl p-6 border border-primary/10 transition-all duration-300 hover:shadow-xl hover:scale-[1.01] hover:border-primary/20;
+    @apply bg-card text-card-foreground shadow-elegant rounded-xl p-6 border border-primary/10 transition-all duration-300 hover:shadow-glow hover:scale-[1.01] hover:border-primary/20;
   }
   
   .petvoice-button {
-    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-xl transition-all duration-200 rounded-lg font-semibold;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-glow transition-all duration-200 rounded-lg font-semibold;
   }
   
   .petvoice-button-primary {
-    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-xl transition-all duration-200 rounded-lg font-semibold;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-0 hover:scale-[1.02] active:scale-95 shadow-soft hover:shadow-glow transition-all duration-200 rounded-lg font-semibold;
   }
   
   .petvoice-input {
@@ -797,7 +557,7 @@ button:not(.no-hover):hover,
 
   /* Enhanced Interactive Elements */
   .interactive-card {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-xl cursor-pointer;
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-glow cursor-pointer;
   }
 
   .gradient-hover {
@@ -903,7 +663,7 @@ button:not(.no-hover):hover,
     width: 200%;
     height: 200%;
   }
-
+}
 
 /* ========================================
    ACCESSIBILITY - FOCUS STYLES FOR ICONS & TRIGGERS

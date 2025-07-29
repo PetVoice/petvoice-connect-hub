@@ -146,16 +146,6 @@ const FormMessage = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   const body = error ? String(error?.message) : children
-  const [isVisible, setIsVisible] = React.useState(false)
-
-  React.useEffect(() => {
-    if (body) {
-      setIsVisible(true)
-    } else {
-      const timer = setTimeout(() => setIsVisible(false), 200)
-      return () => clearTimeout(timer)
-    }
-  }, [body])
 
   if (!body) {
     return null
@@ -165,14 +155,7 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn(
-        "text-sm font-medium transition-all duration-300",
-        error 
-          ? "text-destructive animate-error-vibrate" 
-          : "text-success animate-success-bounce",
-        isVisible ? "animate-slide-in-left opacity-100" : "opacity-0",
-        className
-      )}
+      className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
       {body}

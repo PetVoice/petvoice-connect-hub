@@ -1,4 +1,3 @@
-import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,47 +10,38 @@ import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import { AdminLayout } from "@/components/AdminLayout";
+import DashboardPage from "@/pages/DashboardPage";
+import PetsPage from "@/pages/PetsPage";
+import AnalysisPage from "@/pages/AnalysisPage";
+import DiaryPage from "@/pages/DiaryPage";
+import CalendarPage from "@/pages/CalendarPage";
 
-// Critical pages (loaded immediately)
+import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
+
+import CommunityPage from "@/pages/CommunityPage";
+import SubscriptionPage from "@/pages/SubscriptionPage";
+import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Index } from "./pages/Index";
-import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
+
+import SupportPage from "@/pages/SupportPage";
+import PetMatchingPage from "@/pages/PetMatchingPage";
+import TrainingPage from "@/pages/TrainingPage";
+import TrainingDashboard from "@/pages/TrainingDashboard";
+
+// Admin Pages
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminTickets } from "./pages/admin/AdminTickets";
+
+import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
 
-// Lazy-loaded components with fallbacks
-import {
-  LazyDashboardPage,
-  LazyAnalysisPage,
-  LazyCalendarPage,
-  LazyCommunityPage,
-  LazyDiaryPage,
-  LazyPetsPage,
-  LazySettingsPage,
-  LazyTrainingDashboard,
-  LazyTutorialPage,
-  LazySubscriptionPage,
-  LazySupportPage,
-  LazyPetMatchingPage,
-  LazyAIMusicTherapyPage,
-  LazyTrainingPage,
-  LazyAdminDashboard,
-  LazyAdminTickets,
-  preloadCriticalComponents,
-} from '@/components/ui/lazy-component';
-
-import { DashboardSkeleton, PageSkeleton, ListSkeleton } from '@/components/ui/page-skeleton';
-
 const queryClient = new QueryClient();
 
 function AppContent() {
-  // Preload critical components on app start
-  React.useEffect(() => {
-    preloadCriticalComponents();
-  }, []);
-
   return (
     <BrowserRouter>
       <Routes>
@@ -65,22 +55,8 @@ function AppContent() {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route 
-            index 
-            element={
-              <React.Suspense fallback={<DashboardSkeleton />}>
-                <LazyAdminDashboard />
-              </React.Suspense>
-            } 
-          />
-          <Route 
-            path="tickets" 
-            element={
-              <React.Suspense fallback={<ListSkeleton />}>
-                <LazyAdminTickets />
-              </React.Suspense>
-            } 
-          />
+          <Route index element={<AdminDashboard />} />
+          <Route path="tickets" element={<AdminTickets />} />
           <Route path="users" element={<div className="p-6">Gestione Utenti - Coming Soon</div>} />
           <Route path="analytics" element={<div className="p-6">Analytics - Coming Soon</div>} />
           <Route path="database" element={<div className="p-6">Database - Coming Soon</div>} />
@@ -95,81 +71,63 @@ function AppContent() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<DashboardSkeleton />}>
-                <LazyDashboardPage />
-              </React.Suspense>
+              <DashboardPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/pets" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<ListSkeleton />}>
-                <LazyPetsPage />
-              </React.Suspense>
+              <PetsPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/analysis" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyAnalysisPage />
-              </React.Suspense>
+              <AnalysisPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/diary" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyDiaryPage />
-              </React.Suspense>
+              <DiaryPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/calendar" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyCalendarPage />
-              </React.Suspense>
+              <CalendarPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/ai-music-therapy" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyAIMusicTherapyPage />
-              </React.Suspense>
+              <AIMusicTherapyPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/pet-matching" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyPetMatchingPage />
-              </React.Suspense>
+              <PetMatchingPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/training" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazyTrainingPage />
-              </React.Suspense>
+              <TrainingPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/training/dashboard/:protocolId" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<DashboardSkeleton />}>
-                <LazyTrainingDashboard />
-              </React.Suspense>
+              <TrainingDashboard />
             </AppLayout>
           </ProtectedRoute>
         } />
@@ -177,27 +135,21 @@ function AppContent() {
         <Route path="/training-dashboard/:protocolId" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<DashboardSkeleton />}>
-                <LazyTrainingDashboard />
-              </React.Suspense>
+              <TrainingDashboard />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/community" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<ListSkeleton />}>
-                <LazyCommunityPage />
-              </React.Suspense>
+              <CommunityPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/subscription" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazySubscriptionPage />
-              </React.Suspense>
+              <SubscriptionPage />
             </AppLayout>
           </ProtectedRoute>
         } />
@@ -211,18 +163,14 @@ function AppContent() {
         <Route path="/support" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<ListSkeleton />}>
-                <LazySupportPage />
-              </React.Suspense>
+              <SupportPage />
             </AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/settings" element={
           <ProtectedRoute>
             <AppLayout>
-              <React.Suspense fallback={<PageSkeleton />}>
-                <LazySettingsPage />
-              </React.Suspense>
+              <SettingsPage />
             </AppLayout>
           </ProtectedRoute>
         } />

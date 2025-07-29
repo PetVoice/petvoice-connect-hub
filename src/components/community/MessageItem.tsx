@@ -216,114 +216,110 @@ export const MessageItem: React.FC<MessageItemProps> = ({
       )}
 
       <div 
-        className={`group relative rounded-lg transition-colors ${
+        className={`flex gap-3 p-3 rounded-lg transition-colors ${
           isOwn ? 'bg-primary/10 ml-12' : 'bg-muted/20 mr-12'
         } ${isSelectionMode ? 'cursor-pointer hover:bg-muted/30' : ''} ${
           isSelected ? 'ring-2 ring-primary' : ''
         }`}
         onClick={handleSelectionClick}
       >
-        <div className="flex gap-3 p-3">
-          <div className="flex-shrink-0">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">
-                {userName.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+        <div className="flex-shrink-0">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="text-xs">
+              {userName.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-medium text-foreground">
+              {userName}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {formatDistanceToNow(new Date(message.created_at), { 
+                addSuffix: true, 
+                locale: it 
+              })}
+            </span>
           </div>
           
-          <div className="flex-1 min-w-0 pr-2">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-medium text-foreground">
-                {userName}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {formatDistanceToNow(new Date(message.created_at), { 
-                  addSuffix: true, 
-                  locale: it 
-                })}
-              </span>
-            </div>
-            
-            {/* Reply Quote */}
-            {replyToMessage && (
-              <div 
-                className="mb-2 cursor-pointer hover:bg-muted/20 transition-colors"
-                onClick={handleQuoteClick}
-              >
-                <div className="flex items-center gap-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
-                  <Avatar className="h-4 w-4">
-                    <AvatarFallback className="text-xs">
-                      {(userNames[replyToMessage.user_id] || 'U').slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-muted-foreground">
-                      {userNames[replyToMessage.user_id] || 'Utente'}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {replyToMessage.message_type === 'image' ? (
-                        <span className="italic">📷 Immagine</span>
-                      ) : replyToMessage.message_type === 'voice' ? (
-                        <span className="italic">🎤 Messaggio vocale</span>
-                      ) : (
-                        truncateText(replyToMessage.content || '', 50)
-                      )}
-                    </div>
+          {/* Reply Quote */}
+          {replyToMessage && (
+            <div 
+              className="mb-2 cursor-pointer hover:bg-muted/20 transition-colors"
+              onClick={handleQuoteClick}
+            >
+              <div className="flex items-center gap-2 p-2 bg-muted/30 rounded border-l-2 border-primary">
+                <Avatar className="h-4 w-4">
+                  <AvatarFallback className="text-xs">
+                    {(userNames[replyToMessage.user_id] || 'U').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-muted-foreground">
+                    {userNames[replyToMessage.user_id] || 'Utente'}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {replyToMessage.message_type === 'image' ? (
+                      <span className="italic">📷 Immagine</span>
+                    ) : replyToMessage.message_type === 'voice' ? (
+                      <span className="italic">🎤 Messaggio vocale</span>
+                    ) : (
+                      truncateText(replyToMessage.content || '', 50)
+                    )}
                   </div>
                 </div>
               </div>
-            )}
-            
-            {renderMessageContent()}
-          </div>
+            </div>
+          )}
+          
+          {renderMessageContent()}
         </div>
         
         {!isSelectionMode && (
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="flex items-center gap-1 bg-background/80 backdrop-blur-sm rounded-lg p-1 shadow-sm border">
-              {/* Always show Reply button */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-7 w-7 p-0 hover:bg-muted"
-                onClick={handleReply}
-              >
-                <Reply className="h-3.5 w-3.5" />
-              </Button>
-              
-              {/* Show menu with appropriate options */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-muted">
-                    <MoreVertical className="h-3.5 w-3.5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="z-50 bg-background">
-                  {/* Show private chat option for other users' messages */}
-                  {!isOwn && (
-                    <DropdownMenuItem onClick={() => onStartPrivateChat(message.user_id, userName)}>
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Contatta in privato
+          <div className="flex-shrink-0 flex items-center gap-1">
+            {/* Always show Reply button */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={handleReply}
+            >
+              <Reply className="h-4 w-4" />
+            </Button>
+            
+            {/* Show menu with appropriate options */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {/* Show private chat option for other users' messages */}
+                {!isOwn && (
+                  <DropdownMenuItem onClick={() => onStartPrivateChat(message.user_id, userName)}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Contatta in privato
+                  </DropdownMenuItem>
+                )}
+                
+                {/* Show Edit/Delete only for own messages */}
+                {isOwn && (
+                  <>
+                    <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Modifica
                     </DropdownMenuItem>
-                  )}
-                  
-                  {/* Show Edit/Delete only for own messages */}
-                  {isOwn && (
-                    <>
-                      <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Modifica
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Elimina
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                    <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Elimina
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
