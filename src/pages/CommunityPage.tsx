@@ -146,11 +146,11 @@ const CommunityPage = () => {
       for (const group of myGroups) {
         console.log(`🔍 Counting users for group: ${group.id}`);
         
-        // Query corretta: channel_name è TEXT, non UUID
+        // Query per contare TUTTI gli utenti nel gruppo, non solo quelli visibili all'utente corrente
         const { count, error } = await supabase
           .from('user_channel_subscriptions')
-          .select('*', { count: 'exact', head: true })
-          .eq('channel_name', group.id); // group.id è già una stringa
+          .select('user_id', { count: 'exact' })
+          .eq('channel_name', group.id);
         
         console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '');
         counts[group.id] = count || 0;
