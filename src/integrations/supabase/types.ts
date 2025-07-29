@@ -308,15 +308,12 @@ export type Database = {
           duration_days: number | null
           estimated_cost: string | null
           id: string
-          integration_source: string | null
           is_public: boolean | null
           last_activity_at: string | null
-          mentor_recommended: boolean | null
           notifications_enabled: boolean | null
           pet_id: string | null
           progress_percentage: string | null
           required_materials: Json | null
-          share_code: string | null
           status: string | null
           success_rate: number | null
           target_behavior: string | null
@@ -324,7 +321,6 @@ export type Database = {
           triggers: Json | null
           updated_at: string | null
           user_id: string | null
-          veterinary_approved: boolean | null
         }
         Insert: {
           ai_generated?: boolean | null
@@ -338,15 +334,12 @@ export type Database = {
           duration_days?: number | null
           estimated_cost?: string | null
           id?: string
-          integration_source?: string | null
           is_public?: boolean | null
           last_activity_at?: string | null
-          mentor_recommended?: boolean | null
           notifications_enabled?: boolean | null
           pet_id?: string | null
           progress_percentage?: string | null
           required_materials?: Json | null
-          share_code?: string | null
           status?: string | null
           success_rate?: number | null
           target_behavior?: string | null
@@ -354,7 +347,6 @@ export type Database = {
           triggers?: Json | null
           updated_at?: string | null
           user_id?: string | null
-          veterinary_approved?: boolean | null
         }
         Update: {
           ai_generated?: boolean | null
@@ -368,15 +360,12 @@ export type Database = {
           duration_days?: number | null
           estimated_cost?: string | null
           id?: string
-          integration_source?: string | null
           is_public?: boolean | null
           last_activity_at?: string | null
-          mentor_recommended?: boolean | null
           notifications_enabled?: boolean | null
           pet_id?: string | null
           progress_percentage?: string | null
           required_materials?: Json | null
-          share_code?: string | null
           status?: string | null
           success_rate?: number | null
           target_behavior?: string | null
@@ -384,7 +373,6 @@ export type Database = {
           triggers?: Json | null
           updated_at?: string | null
           user_id?: string | null
-          veterinary_approved?: boolean | null
         }
         Relationships: []
       }
@@ -469,51 +457,6 @@ export type Database = {
           success_rate?: number | null
           template_data?: Json
           updated_at?: string | null
-        }
-        Relationships: []
-      }
-      anonymous_benchmarks: {
-        Row: {
-          age_range: string | null
-          benchmark_type: string
-          created_at: string
-          data_period: string
-          id: string
-          last_updated: string
-          metadata: Json | null
-          metric_name: string
-          percentile_data: Json
-          region_code: string | null
-          sample_size: number
-          species: string
-        }
-        Insert: {
-          age_range?: string | null
-          benchmark_type: string
-          created_at?: string
-          data_period: string
-          id?: string
-          last_updated?: string
-          metadata?: Json | null
-          metric_name: string
-          percentile_data: Json
-          region_code?: string | null
-          sample_size: number
-          species: string
-        }
-        Update: {
-          age_range?: string | null
-          benchmark_type?: string
-          created_at?: string
-          data_period?: string
-          id?: string
-          last_updated?: string
-          metadata?: Json | null
-          metric_name?: string
-          percentile_data?: Json
-          region_code?: string | null
-          sample_size?: number
-          species?: string
         }
         Relationships: []
       }
@@ -667,63 +610,6 @@ export type Database = {
           time_horizon_days?: number
           updated_at?: string | null
           user_id?: string
-        }
-        Relationships: []
-      }
-      community_anomalies: {
-        Row: {
-          affected_species: string[]
-          anomaly_data: Json
-          anomaly_type: string
-          community_reports: number
-          confidence_score: number
-          created_at: string
-          detection_method: string
-          expert_validation: string | null
-          geographic_distribution: Json | null
-          id: string
-          potential_causes: string[] | null
-          recommended_actions: Json | null
-          resolution_status: string | null
-          severity: string
-          temporal_pattern: Json | null
-          updated_at: string
-        }
-        Insert: {
-          affected_species?: string[]
-          anomaly_data: Json
-          anomaly_type: string
-          community_reports?: number
-          confidence_score: number
-          created_at?: string
-          detection_method: string
-          expert_validation?: string | null
-          geographic_distribution?: Json | null
-          id?: string
-          potential_causes?: string[] | null
-          recommended_actions?: Json | null
-          resolution_status?: string | null
-          severity: string
-          temporal_pattern?: Json | null
-          updated_at?: string
-        }
-        Update: {
-          affected_species?: string[]
-          anomaly_data?: Json
-          anomaly_type?: string
-          community_reports?: number
-          confidence_score?: number
-          created_at?: string
-          detection_method?: string
-          expert_validation?: string | null
-          geographic_distribution?: Json | null
-          id?: string
-          potential_causes?: string[] | null
-          recommended_actions?: Json | null
-          resolution_status?: string | null
-          severity?: string
-          temporal_pattern?: Json | null
-          updated_at?: string
         }
         Relationships: []
       }
@@ -904,156 +790,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      community_patterns: {
-        Row: {
-          confidence_score: number
-          created_at: string
-          description: string | null
-          discovery_date: string
-          id: string
-          impact_level: string
-          metadata: Json | null
-          pattern_data: Json
-          pattern_type: string
-          sample_size: number
-          species_affected: string[]
-          updated_at: string
-          validation_count: number
-          validation_status: string
-        }
-        Insert: {
-          confidence_score: number
-          created_at?: string
-          description?: string | null
-          discovery_date?: string
-          id?: string
-          impact_level?: string
-          metadata?: Json | null
-          pattern_data: Json
-          pattern_type: string
-          sample_size?: number
-          species_affected?: string[]
-          updated_at?: string
-          validation_count?: number
-          validation_status?: string
-        }
-        Update: {
-          confidence_score?: number
-          created_at?: string
-          description?: string | null
-          discovery_date?: string
-          id?: string
-          impact_level?: string
-          metadata?: Json | null
-          pattern_data?: Json
-          pattern_type?: string
-          sample_size?: number
-          species_affected?: string[]
-          updated_at?: string
-          validation_count?: number
-          validation_status?: string
-        }
-        Relationships: []
-      }
-      community_trends: {
-        Row: {
-          age_groups_affected: string[] | null
-          category: string
-          created_at: string
-          duration_days: number
-          geographic_scope: string[] | null
-          id: string
-          peak_period: string | null
-          predictions: Json | null
-          related_events: Json | null
-          species_affected: string[]
-          statistical_significance: number | null
-          trend_data: Json
-          trend_strength: number
-          trend_type: string
-          updated_at: string
-        }
-        Insert: {
-          age_groups_affected?: string[] | null
-          category: string
-          created_at?: string
-          duration_days: number
-          geographic_scope?: string[] | null
-          id?: string
-          peak_period?: string | null
-          predictions?: Json | null
-          related_events?: Json | null
-          species_affected?: string[]
-          statistical_significance?: number | null
-          trend_data: Json
-          trend_strength: number
-          trend_type: string
-          updated_at?: string
-        }
-        Update: {
-          age_groups_affected?: string[] | null
-          category?: string
-          created_at?: string
-          duration_days?: number
-          geographic_scope?: string[] | null
-          id?: string
-          peak_period?: string | null
-          predictions?: Json | null
-          related_events?: Json | null
-          species_affected?: string[]
-          statistical_significance?: number | null
-          trend_data?: Json
-          trend_strength?: number
-          trend_type?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      cross_species_insights: {
-        Row: {
-          applicability_score: number
-          community_votes: number
-          created_at: string
-          evidence_strength: string
-          expert_validated: boolean | null
-          id: string
-          insight_data: Json
-          insight_type: string
-          related_patterns: string[] | null
-          source_species: string
-          target_species: string
-          updated_at: string
-        }
-        Insert: {
-          applicability_score: number
-          community_votes?: number
-          created_at?: string
-          evidence_strength: string
-          expert_validated?: boolean | null
-          id?: string
-          insight_data: Json
-          insight_type: string
-          related_patterns?: string[] | null
-          source_species: string
-          target_species: string
-          updated_at?: string
-        }
-        Update: {
-          applicability_score?: number
-          community_votes?: number
-          created_at?: string
-          evidence_strength?: string
-          expert_validated?: boolean | null
-          id?: string
-          insight_data?: Json
-          insight_type?: string
-          related_patterns?: string[] | null
-          source_species?: string
-          target_species?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       diary_entries: {
         Row: {
@@ -1261,70 +997,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      feature_request_comments: {
-        Row: {
-          content: string
-          created_at: string | null
-          feature_request_id: string
-          id: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          feature_request_id: string
-          id?: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          feature_request_id?: string
-          id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feature_request_comments_feature_request_id_fkey"
-            columns: ["feature_request_id"]
-            isOneToOne: false
-            referencedRelation: "support_feature_requests"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      feature_request_votes: {
-        Row: {
-          created_at: string | null
-          feature_request_id: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          feature_request_id: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          feature_request_id?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feature_request_votes_feature_request_id_fkey"
-            columns: ["feature_request_id"]
-            isOneToOne: false
-            referencedRelation: "support_feature_requests"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       health_alerts: {
         Row: {
@@ -2807,7 +2479,6 @@ export type Database = {
           created_at: string
           description: string
           id: string
-          metadata: Json | null
           priority: string
           status: string
           title: string
@@ -2820,7 +2491,6 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
-          metadata?: Json | null
           priority?: string
           status?: string
           title: string
@@ -2833,7 +2503,6 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
-          metadata?: Json | null
           priority?: string
           status?: string
           title?: string
