@@ -149,30 +149,45 @@ export const SupportTicketDetails: React.FC<SupportTicketDetailsProps> = ({
       
       const { data, error } = await supabase
         .from('support_ticket_replies')
-        .select('*')
+        .select('*, deleted_by_all, deleted_by_sender, deleted_by_recipient')
         .eq('ticket_id', ticket.id)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
       
+      console.log('🔍 Raw data from database:', data?.length, 'messages');
+      console.log('🔍 Sample raw message:', data?.[0]);
+      
       // Filtra i messaggi eliminati lato client
       const filteredData = (data || []).filter(reply => {
+        console.log(`🔍 Filtering message ${reply.id}:`, {
+          deleted_by_all: reply.deleted_by_all,
+          deleted_by_sender: reply.deleted_by_sender,
+          deleted_by_recipient: reply.deleted_by_recipient,
+          user_id: reply.user_id,
+          current_user: user.id
+        });
+        
         // Se il messaggio è stato eliminato per tutti, non mostrarlo mai
         if (reply.deleted_by_all) {
+          console.log(`❌ Message ${reply.id} deleted for all`);
           return false;
         }
         
         // Se è il nostro messaggio, mostralo se non è stato eliminato da noi
         if (reply.user_id === user.id) {
-          return !reply.deleted_by_sender; // null o false = mostra, true = nascondi
+          const show = !reply.deleted_by_sender;
+          console.log(`👤 Own message ${reply.id} show:`, show);
+          return show;
         }
         // Se è un messaggio di altri, mostralo se non l'abbiamo eliminato come recipient  
         else {
-          return !reply.deleted_by_recipient; // null o false = mostra, true = nascondi
+          const show = !reply.deleted_by_recipient;
+          console.log(`👥 Other message ${reply.id} show:`, show);
+          return show;
         }
       });
       
-      console.log('🔍 Raw data from database:', data?.length, 'messages');
       console.log('🔍 User ID:', user.id);
       console.log('🔍 Filtered data:', filteredData.length, 'messages');
       console.log('🔍 Sample filtered message:', filteredData[0]);
