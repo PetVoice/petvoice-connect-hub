@@ -61,24 +61,24 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  La dashboard è il tuo punto di partenza. Qui trovi:
+                  La dashboard è il centro di controllo della tua piattaforma. Qui trovi:
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-primary" />
-                    Riassunto attività dei tuoi animali
+                    Statistiche dei tuoi animali
                   </li>
                   <li className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-primary" />
-                    Prossimi appuntamenti veterinari
+                    Punteggio di benessere calcolato
                   </li>
                   <li className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-primary" />
-                    Trend di benessere
+                    Grafici di tendenza wellness
                   </li>
                   <li className="flex items-center gap-2">
                     <ChevronRight className="w-3 h-3 text-primary" />
-                    Raccomandazioni AI personalizzate
+                    Raccomandazioni playlist musicali
                   </li>
                 </ul>
               </CardContent>
@@ -93,24 +93,24 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  Accesso diretto alle funzioni più usate:
+                  Accesso diretto alle funzioni principali:
                 </p>
                 <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <PlusCircle className="w-3 h-3 text-accent" />
-                    Aggiungi nuovo animale
-                  </li>
                   <li className="flex items-center gap-2">
                     <Camera className="w-3 h-3 text-accent" />
                     Analizza comportamento
                   </li>
                   <li className="flex items-center gap-2">
                     <Calendar className="w-3 h-3 text-accent" />
-                    Crea evento calendario
+                    Gestisci calendario
                   </li>
                   <li className="flex items-center gap-2">
-                    <MessageCircle className="w-3 h-3 text-accent" />
-                    Chat con la community
+                    <FileText className="w-3 h-3 text-accent" />
+                    Aggiungi voce diario
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Shield className="w-3 h-3 text-accent" />
+                    Pronto soccorso
                   </li>
                 </ul>
               </CardContent>
@@ -121,18 +121,18 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
-                Widget Personalizzabili
+                Monitoraggio Salute
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Personalizza la tua dashboard spostando e ridimensionando i widget secondo le tue preferenze.
+                Visualizza metriche di salute e comportamento dei tuoi animali:
               </p>
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <Badge variant="outline">Stato di salute</Badge>
-                <Badge variant="outline">Attività recente</Badge>
-                <Badge variant="outline">Meteo e umore</Badge>
-                <Badge variant="outline">Playlist musicali</Badge>
+                <Badge variant="outline">Parametri vitali</Badge>
+                <Badge variant="outline">Statistiche emozioni</Badge>
+                <Badge variant="outline">Comportamenti tracciati</Badge>
+                <Badge variant="outline">Farmaci attivi</Badge>
               </div>
             </CardContent>
           </Card>
@@ -222,7 +222,7 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="w-4 h-4 text-primary" />
-                Tipi di Analisi
+                Tipi di Analisi Disponibili
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -230,18 +230,24 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
                 <div className="text-center p-3 border rounded-lg">
                   <Camera className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <h4 className="font-medium">Foto</h4>
-                  <p className="text-xs text-muted-foreground">Analizza postura, espressioni e stato emotivo</p>
+                  <p className="text-xs text-muted-foreground">Analisi AI di espressioni e postura del tuo pet</p>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <Video className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <h4 className="font-medium">Video</h4>
-                  <p className="text-xs text-muted-foreground">Movimento, comportamenti e interazioni</p>
+                  <p className="text-xs text-muted-foreground">Registra video per analizzare movimento e comportamenti</p>
                 </div>
                 <div className="text-center p-3 border rounded-lg">
                   <Mic className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <h4 className="font-medium">Audio</h4>
-                  <p className="text-xs text-muted-foreground">Vocalizzazioni, stress e comunicazione</p>
+                  <p className="text-xs text-muted-foreground">Analizza vocalizzazioni e suoni del tuo pet</p>
                 </div>
+              </div>
+              
+              <div className="text-center p-3 border rounded-lg bg-accent/10">
+                <FileText className="w-8 h-8 mx-auto mb-2 text-accent" />
+                <h4 className="font-medium">Analisi Testuale</h4>
+                <p className="text-xs text-muted-foreground">Inserisci descrizioni comportamentali per analisi NLP</p>
               </div>
             </CardContent>
           </Card>
@@ -249,26 +255,44 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                Come Interpretare i Risultati
+                <BarChart3 className="w-4 h-4" />
+                Risultati e Cronologia
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                <h4 className="font-medium">Metriche di Benessere:</h4>
+                <h4 className="font-medium">Informazioni rilevate:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• <strong>Felicità:</strong> Postura rilassata, coda alzata, giocosità</li>
-                  <li>• <strong>Stress:</strong> Respirazione accelerata, tremori, isolamento</li>
-                  <li>• <strong>Energia:</strong> Livello di attività e movimento</li>
-                  <li>• <strong>Salute:</strong> Indicatori fisici e comportamentali</li>
+                  <li>• <strong>Emozione primaria:</strong> con percentuale di confidenza</li>
+                  <li>• <strong>Emozioni secondarie:</strong> stati emotivi aggiuntivi</li>
+                  <li>• <strong>Raccomandazioni:</strong> suggerimenti personalizzati</li>
+                  <li>• <strong>Trigger identificati:</strong> possibili cause del comportamento</li>
                 </ul>
               </div>
               
-              <div className="p-3 bg-accent/10 rounded-lg">
+              <div className="p-3 bg-primary/10 rounded-lg">
                 <p className="text-sm">
-                  <strong>💡 Suggerimento:</strong> Effettua analisi regolari per tracciare i cambiamenti nel tempo e identificare pattern comportamentali.
+                  <strong>📊 Cronologia:</strong> Tutte le analisi vengono salvate e puoi esportarle in PDF per consultazioni veterinarie.
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                Funzioni Avanzate
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <ul className="space-y-1 text-sm">
+                <li>• Previsore meteo-umore basato su condizioni atmosferiche</li>
+                <li>• Elaborazione del linguaggio naturale per descrizioni</li>
+                <li>• Computer vision per analisi automatica delle immagini</li>
+                <li>• Filtri e ricerca nella cronologia delle analisi</li>
+                <li>• Esportazione PDF per condivisione con veterinari</li>
+              </ul>
             </CardContent>
           </Card>
         </div>
@@ -433,7 +457,7 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
                       <span className="font-medium text-sm">Chat Generale</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Discussioni aperte su qualsiasi argomento pet-related
+                      Discussioni aperte con tutta la community
                     </p>
                   </div>
                   
@@ -443,20 +467,60 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
                       <span className="font-medium text-sm">Chat Private</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Conversazioni dirette con altri utenti
+                      Conversazioni private con altri utenti (via Pet Matching)
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-medium">Funzioni social:</h4>
+                <h4 className="font-medium">Funzioni disponibili:</h4>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• Condividi foto e video dei tuoi animali</li>
-                  <li>• Chiedi consigli alla community</li>
-                  <li>• Partecipa a eventi locali</li>
-                  <li>• Trova compagni di gioco per i tuoi pet</li>
+                  <li>• Condividi messaggi nella chat generale</li>
+                  <li>• Ricevi notifiche per nuovi messaggi</li>
+                  <li>• Connetti con altri proprietari tramite Pet Matching</li>
+                  <li>• Sistema di notifiche in tempo reale</li>
                 </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    },
+
+    petmatching: {
+      title: "Pet Matching",
+      icon: <Heart className="w-5 h-5" />,
+      content: (
+        <div className="space-y-6">
+          <Card className="border-accent/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-accent" />
+                Intelligenza di Matching
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <h4 className="font-medium">Come funziona:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+                  <li>L'IA analizza il profilo del tuo pet</li>
+                  <li>Cerca compatibility con altri animali</li>
+                  <li>Considera comportamenti e personalità</li>
+                  <li>Propone match ottimali per socializzazione</li>
+                </ol>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-medium">Criteri di matching:</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <Badge variant="outline">Taglia compatibile</Badge>
+                  <Badge variant="outline">Livello energia</Badge>
+                  <Badge variant="outline">Temperamento</Badge>
+                  <Badge variant="outline">Età simile</Badge>
+                  <Badge variant="outline">Vicinanza geografica</Badge>
+                  <Badge variant="outline">Esperienza analisi</Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -464,27 +528,25 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                AI Community Learning
+                <MessageCircle className="w-4 h-4" />
+                Connessioni e Chat
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground mb-3">
-                L'IA impara dalle discussioni della community per fornire consigli sempre più personalizzati e accurati.
+                Una volta trovato un match interessante:
               </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-3 h-3 text-yellow-500" />
-                  <span>Suggerimenti basati su esperienze simili</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-3 h-3 text-blue-500" />
-                  <span>Trend comportamentali della community</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Heart className="w-3 h-3 text-red-500" />
-                  <span>Consigli di benessere validati dalla community</span>
-                </div>
+              <ul className="space-y-1 text-sm">
+                <li>• Clicca "Connetti" per iniziare una chat privata</li>
+                <li>• Presenta il tuo pet e le sue caratteristiche</li>
+                <li>• Organizza incontri di socializzazione</li>
+                <li>• Condividi esperienze e consigli</li>
+              </ul>
+              
+              <div className="p-3 bg-accent/10 rounded-lg">
+                <p className="text-sm">
+                  <strong>🎯 Obiettivo:</strong> Creare una rete sociale per i tuoi animali, migliorando il loro benessere attraverso interazioni positive.
+                </p>
               </div>
             </CardContent>
           </Card>
