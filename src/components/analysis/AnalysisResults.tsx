@@ -1129,6 +1129,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               const usage = Number(protocol.community_usage) || 0;
                               usageCounts[key] = usage;
                               console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi`);
+                              console.log(`🔑 Key stored: "${key}"`);
                             });
                             console.log('📈 Final usage counts object:', usageCounts);
                             setProtocolUsageCounts(usageCounts);
@@ -1177,7 +1178,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                     {protocol.successRate}% successo
                                   </span>
                                   <span className="flex items-center gap-1">
-                                    👥 {protocol.usageCount} utilizzi
+                                    👥 {(() => {
+                                      const key = protocol.name.toLowerCase();
+                                      const usage = protocolUsageCounts[key] || 0;
+                                      console.log(`🔍 Looking for usage count for "${protocol.name}" with key "${key}": ${usage}`);
+                                      console.log('🗂️ Available keys:', Object.keys(protocolUsageCounts));
+                                      return usage;
+                                    })()} utilizzi
                                   </span>
                                 </div>
                                 <p className="text-xs text-amber-600 dark:text-amber-400 italic">
