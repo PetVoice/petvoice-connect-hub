@@ -146,14 +146,13 @@ const CommunityPage = () => {
       for (const group of myGroups) {
         console.log(`🔍 Counting users for group: ${group.id}`);
         
-        // Query per contare TUTTI gli utenti nel gruppo, non solo quelli visibili all'utente corrente
-        const { count, error } = await supabase
-          .from('user_channel_subscriptions')
-          .select('user_id', { count: 'exact' })
-          .eq('channel_name', group.id);
+        // Usa la funzione security definer per bypassare RLS e contare tutti gli utenti
+        const { data, error } = await supabase
+          .rpc('get_channel_user_count', { channel_name_param: group.id });
         
+        const count = data || 0;
         console.log(`📊 Group ${group.id}: ${count} users`, error ? `Error: ${error.message}` : '');
-        counts[group.id] = count || 0;
+        counts[group.id] = count;
       }
       
       console.log('🔢 Final counts:', counts);

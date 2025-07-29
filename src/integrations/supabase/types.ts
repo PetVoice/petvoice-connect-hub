@@ -3697,6 +3697,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_channel_user_count: {
+        Args: { channel_name_param: string }
+        Returns: number
+      }
       get_protocol_ratings_count: {
         Args: { p_protocol_id: string }
         Returns: number
