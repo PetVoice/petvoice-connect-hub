@@ -903,7 +903,7 @@ button:not(.no-hover):hover,
     width: 200%;
     height: 200%;
   }
-}
+} /* End of @layer components */
 
 /* ========================================
    ACCESSIBILITY - FOCUS STYLES FOR ICONS & TRIGGERS
