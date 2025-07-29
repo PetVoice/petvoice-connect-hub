@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { NotificationTester } from '@/components/NotificationTester';
 import { 
   User, 
   Shield, 
@@ -1841,6 +1842,9 @@ Continuare?
 
         {/* Notifications Tab */}
         <TabsContent value="notifications" className="space-y-6">
+          {/* Tester per debug notifiche */}
+          <NotificationTester />
+          
           {/* Importa il nuovo componente delle impostazioni notifiche */}
           <NotificationSettings />
           
