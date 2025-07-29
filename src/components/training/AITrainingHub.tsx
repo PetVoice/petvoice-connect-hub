@@ -70,8 +70,7 @@ import {
   TrainingProtocol,
   TrainingTemplate
 } from '@/hooks/useTrainingProtocols';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 // Translation system removed - Italian only
 import { supabase } from '@/integrations/supabase/client';
 import { Edit, Trash2 } from 'lucide-react';

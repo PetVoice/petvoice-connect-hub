@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { Chat } from '@/components/community/Chat';
 import { PetMatchingIntelligence } from '@/components/ai-features/PetMatchingIntelligence';
 import { PrivateChatWithReply } from '@/components/private-chat/PrivateChatWithReply';

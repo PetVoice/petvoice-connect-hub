@@ -6,8 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { allProtocols } from '@/data/trainingProtocolsData';
 import { 
   CheckCircle, 

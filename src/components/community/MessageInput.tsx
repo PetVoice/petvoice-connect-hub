@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Image, Mic, MicOff, Camera, Smile, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useTranslatedToast } from '@/hooks/use-translated-toast';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Message } from './Chat';
 

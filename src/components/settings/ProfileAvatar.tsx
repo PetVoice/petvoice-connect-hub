@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, Trash2 } from 'lucide-react';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProfileAvatarProps {

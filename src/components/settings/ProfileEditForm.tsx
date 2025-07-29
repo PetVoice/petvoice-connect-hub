@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, User, MapPin, FileText } from 'lucide-react';
 import { GooglePlacesInput } from './GooglePlacesInput';

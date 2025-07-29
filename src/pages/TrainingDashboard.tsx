@@ -25,7 +25,7 @@ import {
   Square
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useToastWithIcon } from '@/hooks/use-toast-with-icons';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 
 const TrainingDashboard: React.FC = () => {
   const { protocolId } = useParams<{ protocolId: string }>();
