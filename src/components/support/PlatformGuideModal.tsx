@@ -421,13 +421,13 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Il diario genera automaticamente insights sui pattern comportamentali:
+                Il diario permette di visualizzare e analizzare:
               </p>
               <ul className="space-y-1 text-sm">
-                <li>• Correlazioni tra meteo e umore</li>
-                <li>• Trend di attività nel tempo</li>
-                <li>• Identificazione di anomalie</li>
-                <li>• Previsioni di benessere</li>
+                <li>• Cronologia voci del diario nel tempo</li>
+                <li>• Visualizzazione calendario per navigazione rapida</li>
+                <li>• Filtri per categoria e tag comportamentali</li>
+                <li>• Esportazione PDF dei dati del diario</li>
               </ul>
             </CardContent>
           </Card>
@@ -600,20 +600,20 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Video className="w-4 h-4" />
-                Tutorial Interattivi
+                <BarChart3 className="w-4 h-4" />
+                Sistema di Protocolli
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Ogni protocollo include video tutorial step-by-step:
+                I protocolli di addestramento includono:
               </p>
               <ul className="space-y-1 text-sm">
-                <li>• Video dimostrativi HD</li>
-                <li>• Istruzioni vocali passo-passo</li>
-                <li>• Quiz di comprensione</li>
-                <li>• Tracking dei progressi</li>
-                <li>• Certificazioni di completamento</li>
+                <li>• Istruzioni dettagliate per ogni esercizio</li>
+                <li>• Cronometraggio sessioni di allenamento</li>
+                <li>• Valutazione del successo degli esercizi</li>
+                <li>• Progressi tracciati nel tempo</li>
+                <li>• Creazione protocolli personalizzati</li>
               </ul>
             </CardContent>
           </Card>
@@ -659,10 +659,10 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
               <div className="space-y-3">
                 <h4 className="font-medium">Come funziona:</h4>
                 <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>L'IA analizza lo stato emotivo del tuo pet</li>
-                  <li>Genera playlist adatte al momento</li>
-                  <li>Monitora le reazioni durante l'ascolto</li>
-                  <li>Ottimizza le raccomandazioni future</li>
+                  <li>Seleziona il tipo di terapia adatto al momento</li>
+                  <li>Regola volume e durata della sessione</li>
+                  <li>Avvia la riproduzione di frequenze terapeutiche</li>
+                  <li>Monitora i progressi della sessione</li>
                 </ol>
               </div>
             </CardContent>
@@ -677,13 +677,13 @@ const PlatformGuideModal: React.FC<PlatformGuideModalProps> = ({ isOpen, onClose
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                La musicoterapia AI traccia l'efficacia attraverso:
+                La musicoterapia AI offre:
               </p>
               <ul className="space-y-1 text-sm">
-                <li>• Riduzione dei livelli di stress</li>
-                <li>• Miglioramento della qualità del sonno</li>
-                <li>• Aumento dell'energia positiva</li>
-                <li>• Diminuzione di comportamenti ansiosi</li>
+                <li>• Sessioni di diversa durata e intensità</li>
+                <li>• Controllo volume e tempo della sessione</li>
+                <li>• Diverse categorie terapeutiche disponibili</li>
+                <li>• Interfaccia di controllo intuitiva</li>
               </ul>
             </CardContent>
           </Card>
