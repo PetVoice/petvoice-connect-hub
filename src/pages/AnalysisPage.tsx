@@ -1599,7 +1599,7 @@ const AnalysisPage: React.FC = () => {
         <TabsContent value="results" className="space-y-6" data-guide="results-section">
           {analyses.length > 0 ? (
             <AnalysisResults 
-              analyses={analyses.slice(0, 3)} 
+              analyses={analyses} 
               petName={selectedPet.name}
             />
           ) : (
