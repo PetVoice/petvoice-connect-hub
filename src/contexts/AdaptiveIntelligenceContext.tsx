@@ -179,6 +179,12 @@ export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode 
   const generateInsights = async (category?: string) => {
     if (!selectedPet || !state.emotionalDNA) return;
 
+    // Non generare insights se la confidenza è troppo bassa (no dati reali)
+    if (state.emotionalDNA.confidence < 0.5) {
+      console.log('Confidenza troppo bassa per generare insights:', state.emotionalDNA.confidence);
+      return;
+    }
+
     const context = generateAdaptationContext();
     const newInsights: AdaptiveInsight[] = [];
 
