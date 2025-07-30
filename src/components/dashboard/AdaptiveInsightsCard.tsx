@@ -83,8 +83,8 @@ const AdaptiveInsightsCard: React.FC = () => {
           <RefreshCw className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="max-h-96 overflow-y-auto space-y-4 pr-2">
-        {insights.slice(0, 5).map((insight) => (
+      <CardContent className="h-64 overflow-y-scroll space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        {insights.map((insight) => (
           <div 
             key={insight.id}
             className="flex items-start gap-3 p-3 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-white/20"
