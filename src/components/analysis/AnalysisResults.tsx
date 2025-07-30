@@ -361,9 +361,14 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   useEffect(() => {
     const analysisId = searchParams.get('analysis');
     if (analysisId && analyses.length > 0) {
-      const targetAnalysis = analyses.find(a => a.id === analysisId);
-      if (targetAnalysis) {
+      const analysisIndex = analyses.findIndex(a => a.id === analysisId);
+      if (analysisIndex !== -1) {
+        const targetAnalysis = analyses[analysisIndex];
         setSelectedAnalysis(targetAnalysis);
+        
+        // Calcola e imposta la pagina corretta
+        const correctPage = Math.floor(analysisIndex / itemsPerPage);
+        setCurrentPage(correctPage);
       }
     } else if (!selectedAnalysis && analyses.length > 0) {
       setSelectedAnalysis(analyses[0]);
