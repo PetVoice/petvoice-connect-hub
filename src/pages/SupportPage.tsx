@@ -957,7 +957,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '1',
                 question: 'Cos\'è PetVoice e come funziona?',
-                answer: 'PetVoice è una piattaforma avanzata che utilizza l\'intelligenza artificiale per analizzare il comportamento dei tuoi animali domestici. La piattaforma offre diverse sezioni: **Dashboard** con panoramica generale e metriche wellness, **Pet** per gestire profili completi, **Analisi** AI per comportamenti, **Diario** per tracciare attività quotidiane, **Calendario** per appuntamenti, e funzioni avanzate come Music Therapy AI e Machine Learning.',
+                answer: 'PetVoice è una piattaforma avanzata che utilizza l\'intelligenza artificiale per analizzare il comportamento dei tuoi animali domestici. La piattaforma offre diverse sezioni: <strong>Dashboard</strong> con panoramica generale e metriche wellness, <strong>Pet</strong> per gestire profili completi, <strong>Analisi</strong> AI per comportamenti, <strong>Diario</strong> per tracciare attività quotidiane, <strong>Calendario</strong> per appuntamenti, e funzioni avanzate come Music Therapy AI e Machine Learning.',
                 category: 'general',
                 tags: ['introduzione', 'funzionalità'],
                 helpful_count: 45,
@@ -967,7 +967,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '2',
                 question: 'Che tipi di file posso caricare per le analisi?',
-                answer: 'PetVoice supporta diversi tipi di file per le analisi comportamentali:\n\n**Audio:** MP3, WAV, M4A, AAC, OGG (massimo 100MB)\n**Video:** MP4, MOV, AVI, WebM (massimo 100MB)\n**Immagini:** JPEG, PNG, WebP, GIF (massimo 100MB)\n**Testo:** Descrizioni fino a 2000 caratteri\n\nPuoi anche usare le funzioni integrate per registrare audio, scattare foto o registrare video direttamente dall\'app.',
+                answer: 'PetVoice supporta diversi tipi di file per le analisi comportamentali:\n\n<strong>Audio:</strong> MP3, WAV, M4A, AAC, OGG (massimo 100MB)\n<strong>Video:</strong> MP4, MOV, AVI, WebM (massimo 100MB)\n<strong>Immagini:</strong> JPEG, PNG, WebP, GIF (massimo 100MB)\n<strong>Testo:</strong> Descrizioni fino a 2000 caratteri\n\nPuoi anche usare le funzioni integrate per registrare audio, scattare foto o registrare video direttamente dall\'app.',
                 category: 'technical',
                 tags: ['file', 'formati', 'upload'],
                 helpful_count: 38,
@@ -977,7 +977,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '3',
                 question: 'Come interpreto i risultati delle analisi?',
-                answer: 'I risultati delle analisi mostrano:\n\n**Emozione primaria** con percentuale di confidenza (>70% = alta affidabilità)\n**Emozioni secondarie** rilevate nel comportamento\n**Insight comportamentali** dettagliati e specifici\n**Raccomandazioni** personalizzate per il tuo pet\n**Trigger** identificati che potrebbero aver causato il comportamento\n\nTutte le analisi vengono salvate nella cronologia per confronti futuri.',
+                answer: 'I risultati delle analisi mostrano:\n\n<strong>Emozione primaria</strong> con percentuale di confidenza (>70% = alta affidabilità)\n<strong>Emozioni secondarie</strong> rilevate nel comportamento\n<strong>Insight comportamentali</strong> dettagliati e specifici\n<strong>Raccomandazioni</strong> personalizzate per il tuo pet\n<strong>Trigger</strong> identificati che potrebbero aver causato il comportamento\n\nTutte le analisi vengono salvate nella cronologia per confronti futuri.',
                 category: 'features',
                 tags: ['risultati', 'interpretazione', 'confidenza'],
                 helpful_count: 42,
@@ -987,7 +987,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '4',
                 question: 'Come aggiungo e gestisco i miei pet?',
-                answer: 'Per aggiungere un pet:\n\n1. Vai nella sezione **Pet**\n2. Clicca **Aggiungi Pet**\n3. Compila informazioni: nome, tipo (cane/gatto/altro), razza, data nascita\n4. Aggiungi dettagli opzionali: peso, allergie, paure, attività preferite\n5. Carica una foto profilo\n\nPuoi gestire più pet contemporaneamente usando il selettore in alto. Ogni pet ha il suo profilo separato con dati indipendenti.',
+                answer: 'Per aggiungere un pet:\n\n1. Vai nella sezione <strong>Pet</strong>\n2. Clicca <strong>Aggiungi Pet</strong>\n3. Compila informazioni: nome, tipo (cane/gatto/altro), razza, data nascita\n4. Aggiungi dettagli opzionali: peso, allergie, paure, attività preferite\n5. Carica una foto profilo\n\nPuoi gestire più pet contemporaneamente usando il selettore in alto. Ogni pet ha il suo profilo separato con dati indipendenti.',
                 category: 'features',
                 tags: ['pet', 'gestione', 'profilo'],
                 helpful_count: 52,
@@ -997,7 +997,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '5',
                 question: 'Come funziona il Diario del pet?',
-                answer: 'Il Diario ti permette di tracciare le attività quotidiane del tuo pet:\n\n**Voci giornaliere** con titolo, contenuto e mood score (1-10)\n**Tag comportamentali** per categorizzare eventi\n**Vista calendario** per visualizzare i dati nel tempo\n**Filtri** per cercare per data, tag o categoria\n**Export PDF** per report veterinari\n\nI dati del diario vengono integrati con le analisi AI per insights più completi.',
+                answer: 'Il Diario ti permette di tracciare le attività quotidiane del tuo pet:\n\n<strong>Voci giornaliere</strong> con titolo, contenuto e mood score (1-10)\n<strong>Tag comportamentali</strong> per categorizzare eventi\n<strong>Vista calendario</strong> per visualizzare i dati nel tempo\n<strong>Filtri</strong> per cercare per data, tag o categoria\n<strong>Export PDF</strong> per report veterinari\n\nI dati del diario vengono integrati con le analisi AI per insights più completi.',
                 category: 'features',
                 tags: ['diario', 'tracking', 'quotidiano'],
                 helpful_count: 29,
@@ -1007,7 +1007,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '6',
                 question: 'Come pianificare appuntamenti nel Calendario?',
-                answer: 'Il Calendario ti aiuta a organizzare appuntamenti e promemoria:\n\n**Tipi di eventi:** Veterinario, toelettatura, vaccinazioni, promemoria farmaci\n**Notifiche** automatiche prima degli appuntamenti\n**Vista mensile/settimanale** per panoramica completa\n**Export PDF** per stampare il calendario\n**Integrazione** con calendari esterni (Google Calendar, Outlook)\n\nPuoi creare eventi ricorrenti e gestire promemoria personalizzati.',
+                answer: 'Il Calendario ti aiuta a organizzare appuntamenti e promemoria:\n\n<strong>Tipi di eventi:</strong> Veterinario, toelettatura, vaccinazioni, promemoria farmaci\n<strong>Notifiche</strong> automatiche prima degli appuntamenti\n<strong>Vista mensile/settimanale</strong> per panoramica completa\n<strong>Export PDF</strong> per stampare il calendario\n<strong>Integrazione</strong> con calendari esterni (Google Calendar, Outlook)\n\nPuoi creare eventi ricorrenti e gestire promemoria personalizzati.',
                 category: 'features',
                 tags: ['calendario', 'appuntamenti', 'promemoria'],
                 helpful_count: 33,
@@ -1017,7 +1017,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '7',
                 question: 'Che emozioni può rilevare il sistema AI?',
-                answer: 'Il sistema AI riconosce diverse emozioni principali:\n\n**Positive:** Felice, Calmo, Giocoso, Rilassato, Eccitato\n**Negative:** Ansioso, Triste, Aggressivo\n\nOgni emozione viene associata a:\n- Insight comportamentali specifici\n- Raccomandazioni personalizzate\n- Possibili trigger identificati\n- Livello di confidenza dell\'analisi\n\nL\'accuratezza varia dal 85-95% in base alla qualità del contenuto.',
+                answer: 'Il sistema AI riconosce diverse emozioni principali:\n\n<strong>Positive:</strong> Felice, Calmo, Giocoso, Rilassato, Eccitato\n<strong>Negative:</strong> Ansioso, Triste, Aggressivo\n\nOgni emozione viene associata a:\n- Insight comportamentali specifici\n- Raccomandazioni personalizzate\n- Possibili trigger identificati\n- Livello di confidenza dell\'analisi\n\nL\'accuratezza varia dal 85-95% in base alla qualità del contenuto.',
                 category: 'features',
                 tags: ['emozioni', 'AI', 'riconoscimento'],
                 helpful_count: 41,
@@ -1027,7 +1027,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '8',
                 question: 'Come funzionano le previsioni comportamentali?',
-                answer: 'La sezione **Previsioni** nella pagina Analisi utilizza machine learning per:\n\n**Analizzare** dati storici di analisi, diario e wellness\n**Identificare** pattern e tendenze comportamentali\n**Predire** possibili problemi futuri\n**Suggerire** interventi preventivi\n**Monitorare** l\'evoluzione del benessere nel tempo\n\nLe previsioni diventano più accurate con più dati raccolti.',
+                answer: 'La sezione <strong>Previsioni</strong> nella pagina Analisi utilizza machine learning per:\n\n<strong>Analizzare</strong> dati storici di analisi, diario e wellness\n<strong>Identificare</strong> pattern e tendenze comportamentali\n<strong>Predire</strong> possibili problemi futuri\n<strong>Suggerire</strong> interventi preventivi\n<strong>Monitorare</strong> l\'evoluzione del benessere nel tempo\n\nLe previsioni diventano più accurate con più dati raccolti.',
                 category: 'features',
                 tags: ['previsioni', 'machine learning', 'tendenze'],
                 helpful_count: 35,
@@ -1037,7 +1037,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '9',
                 question: 'Posso esportare i dati del mio pet?',
-                answer: 'Sì, puoi esportare i dati in diversi formati:\n\n**PDF:** Report completi dalla Dashboard, Calendario e Diario\n**Include:** Analisi, eventi, metriche wellness, grafici trend\n**Utilità:** Report veterinari, backup personali, condivisione\n\nI report PDF sono formattati professionalmente e includono tutte le informazioni rilevanti per il tuo pet.',
+                answer: 'Sì, puoi esportare i dati in diversi formati:\n\n<strong>PDF:</strong> Report completi dalla Dashboard, Calendario e Diario\n<strong>Include:</strong> Analisi, eventi, metriche wellness, grafici trend\n<strong>Utilità:</strong> Report veterinari, backup personali, condivisione\n\nI report PDF sono formattati professionalmente e includono tutte le informazioni rilevanti per il tuo pet.',
                 category: 'technical',
                 tags: ['export', 'PDF', 'backup'],
                 helpful_count: 28,
@@ -1047,7 +1047,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '10',
                 question: 'Quali browser e dispositivi sono supportati?',
-                answer: 'PetVoice funziona su:\n\n**Browser:** Chrome (consigliato), Firefox, Safari, Edge (versioni aggiornate)\n**Dispositivi:** Desktop, tablet, smartphone\n**Funzioni mobile:** Registrazione audio/video, cattura foto, tutte le funzionalità\n**Requisiti:** Connessione internet stabile, microfono/fotocamera per funzioni multimediali\n\nL\'interfaccia è completamente responsive e ottimizzata per tutti i dispositivi.',
+                answer: 'PetVoice funziona su:\n\n<strong>Browser:</strong> Chrome (consigliato), Firefox, Safari, Edge (versioni aggiornate)\n<strong>Dispositivi:</strong> Desktop, tablet, smartphone\n<strong>Funzioni mobile:</strong> Registrazione audio/video, cattura foto, tutte le funzionalità\n<strong>Requisiti:</strong> Connessione internet stabile, microfono/fotocamera per funzioni multimediali\n\nL\'interfaccia è completamente responsive e ottimizzata per tutti i dispositivi.',
                 category: 'technical',
                 tags: ['compatibilità', 'browser', 'mobile'],
                 helpful_count: 25,
@@ -1057,7 +1057,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '11',
                 question: 'I miei dati sono sicuri?',
-                answer: 'La sicurezza è la nostra priorità:\n\n**Crittografia** end-to-end per tutti i dati\n**Server sicuri** Supabase con conformità GDPR\n**Backup automatici** giornalieri\n**File multimediali** eliminati dopo analisi\n**Controllo dati** completo dall\'utente\n**Eliminazione account** disponibile dalle impostazioni\n\nPuoi richiedere l\'eliminazione completa dei dati in qualsiasi momento.',
+                answer: 'La sicurezza è la nostra priorità:\n\n<strong>Crittografia</strong> end-to-end per tutti i dati\n<strong>Server sicuri</strong> Supabase con conformità GDPR\n<strong>Backup automatici</strong> giornalieri\n<strong>File multimediali</strong> eliminati dopo analisi\n<strong>Controllo dati</strong> completo dall\'utente\n<strong>Eliminazione account</strong> disponibile dalle impostazioni\n\nPuoi richiedere l\'eliminazione completa dei dati in qualsiasi momento.',
                 category: 'technical',
                 tags: ['sicurezza', 'privacy', 'GDPR'],
                 helpful_count: 47,
@@ -1067,7 +1067,7 @@ const SupportPage: React.FC = () => {
               {
                 id: '12',
                 question: 'Come funziona l\'abbonamento Premium?',
-                answer: 'Il piano Premium offre:\n\n**Analisi illimitate** (vs 10/mese gratuito)\n**Pet illimitati** (vs 1 gratuito)\n**Funzioni AI avanzate** e sperimentali\n**Priorità nel supporto** tecnico\n**Access Beta** a nuove funzionalità\n**Export avanzati** e reportistica\n\nPuoi sottoscrivere o modificare il piano dalla sezione **Abbonamento**. Cancellazione disponibile in qualsiasi momento.',
+                answer: 'Il piano Premium offre:\n\n<strong>Analisi illimitate</strong> (vs 10/mese gratuito)\n<strong>Pet illimitati</strong> (vs 1 gratuito)\n<strong>Funzioni AI avanzate</strong> e sperimentali\n<strong>Priorità nel supporto</strong> tecnico\n<strong>Access Beta</strong> a nuove funzionalità\n<strong>Export avanzati</strong> e reportistica\n\nPuoi sottoscrivere o modificare il piano dalla sezione <strong>Abbonamento</strong>. Cancellazione disponibile in qualsiasi momento.',
                 category: 'billing'
               }
             ].filter(faq => 
@@ -1081,9 +1081,10 @@ const SupportPage: React.FC = () => {
                   <CardTitle className="text-lg text-primary">{faq.question}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed mb-4">
-                    {faq.answer}
-                  </div>
+                  <div 
+                    className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed mb-4"
+                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                  />
                 </CardContent>
               </Card>
             ))}
