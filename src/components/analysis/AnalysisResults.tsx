@@ -969,7 +969,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                       const getRecommendedTrainingProtocol = (emotion: string, confidence: number) => {
                         const emotionLower = emotion.toLowerCase();
                         
-                        // Protocol mapping based on emotion to existing public protocols with REAL usage data
+                        // Protocol mapping based on emotion to existing public protocols
                         const protocolMapping: Record<string, any> = {
                           'ansioso': {
                             id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
@@ -977,8 +977,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo specializzato per ridurre i livelli di ansia nel pet attraverso tecniche di rilassamento e desensibilizzazione graduale',
                             exercises: 21,
                             difficulty: 'Facile',
-                            successRate: 100,
-                            usageCount: 0,
                             reasoning: 'Progettato specificamente per ridurre i livelli di ansia attraverso esercizi di rilassamento progressivo'
                           },
                           'aggressivo': {
@@ -987,8 +985,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per ridurre comportamenti aggressivi attraverso tecniche di autocontrollo e redirezione positiva',
                             exercises: 30,
                             difficulty: 'Intermedio',
-                            successRate: 85,
-                            usageCount: 0,
                             reasoning: 'Focalizzato sulla riduzione dei comportamenti aggressivi attraverso tecniche di rinforzo positivo'
                           },
                           'triste': {
@@ -997,8 +993,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per stimolare l\'umore e aumentare l\'energia del pet attraverso attività coinvolgenti e socializzazione',
                             exercises: 15,
                             difficulty: 'Facile',
-                            successRate: 100,
-                            usageCount: 0,
                             reasoning: 'Pensato per aumentare i livelli di serotonina attraverso attività stimolanti e socializzazione'
                           },
                           'iperattivo': {
@@ -1007,8 +1001,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per canalizzare l\'energia eccessiva attraverso esercizi mirati e tecniche di autocontrollo',
                             exercises: 24,
                             difficulty: 'Intermedio',
-                            successRate: 92,
-                            usageCount: 0,
                             reasoning: 'Aiuta a incanalare l\'energia eccessiva in attività strutturate e produttive'
                           },
                           'stressato': {
@@ -1017,8 +1009,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per creare un ambiente calmo e routines rilassanti che riducano i fattori di stress',
                             exercises: 21,
                             difficulty: 'Facile',
-                            successRate: 88,
-                            usageCount: 0,
                             reasoning: 'Progettato per ridurre lo stress attraverso la creazione di un ambiente calmo e rilassante'
                           },
                           'agitato': {
@@ -1027,8 +1017,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per gestire comportamenti agitati e nervosi attraverso tecniche di rilassamento',
                             exercises: 21,
                             difficulty: 'Intermedio',
-                            successRate: 90,
-                            usageCount: 0,
                             reasoning: 'Specifico per calmare stati di agitazione attraverso tecniche di rilassamento'
                           },
                           'pauroso': {
@@ -1037,31 +1025,44 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             description: 'Protocollo per aiutare il pet a superare le paure attraverso esposizione graduale e rinforzo positivo',
                             exercises: 18,
                             difficulty: 'Intermedio',
-                            successRate: 100,
-                            usageCount: 0,
                             reasoning: 'Aiuta a superare le paure attraverso un approccio graduale e positivo'
                           }
                         };
 
                         // Find matching protocol or default
-                        for (const [key, protocol] of Object.entries(protocolMapping)) {
+                        for (const [key, baseProtocol] of Object.entries(protocolMapping)) {
                           if (emotionLower.includes(key)) {
-                            return protocol;
+                            // Get real data from database for this protocol
+                            const protocolTitle = baseProtocol.title;
+                            const titleKey = protocolTitle.toLowerCase();
+                            const usageCount = protocolUsageCounts[titleKey] || 0;
+                            const successRate = protocolSuccessRates[titleKey] || 0;
+                            
+                            console.log(`🔍 Found protocol "${protocolTitle}" for emotion "${emotion}"`);
+                            console.log(`📊 Real data - Usage: ${usageCount}, Success Rate: ${successRate}%`);
+                            
+                            return {
+                              ...baseProtocol,
+                              usageCount,
+                              successRate
+                            };
                           }
                         }
 
-                        // Default protocol for other negative emotions
+                        // Default protocol for other negative emotions - get real data
+                        const defaultTitle = 'gestione dell\'ansia';
                         const defaultProtocol = {
                           id: '3ea69bbf-cc1b-4f47-84ea-edd25879ecad',
                           title: 'Gestione dell\'Ansia',
                           description: 'Protocollo specializzato per ridurre i livelli di ansia e migliorare il benessere emotivo generale',
                           exercises: 21,
                           difficulty: 'Facile',
-                          successRate: 100,
-                          usageCount: 0,
+                          usageCount: protocolUsageCounts[defaultTitle] || 0,
+                          successRate: protocolSuccessRates[defaultTitle] || 0,
                           reasoning: 'Un approccio olistico per migliorare il benessere emotivo generale del tuo pet'
                         };
                         
+                        console.log(`🔄 Using default protocol with real data - Usage: ${defaultProtocol.usageCount}, Success Rate: ${defaultProtocol.successRate}%`);
                         return defaultProtocol;
                       };
 
@@ -1132,11 +1133,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                               const usage = Number(protocol.community_usage) || 0;
                               const successRate = Number(protocol.success_rate) || 0;
                               
+                              // Store multiple variations of the key for better matching
                               usageCounts[key] = usage;
                               successRates[key] = successRate;
                               
+                              // Store without apostrophes for better matching
+                              const keyNoApostrophe = key.replace(/'/g, '');
+                              usageCounts[keyNoApostrophe] = usage;
+                              successRates[keyNoApostrophe] = successRate;
+                              
                               console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
-                              console.log(`🔑 Key stored: "${key}"`);
+                              console.log(`🔑 Keys stored: "${key}" and "${keyNoApostrophe}"`);
                             });
                             
                             console.log('📈 Final usage counts object:', usageCounts);
@@ -1184,26 +1191,13 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                                     <Clock className="h-3 w-3" />
                                     {protocol.difficulty}
                                   </span>
-                                  <span className="flex items-center gap-1">
-                                    <BarChart3 className="h-3 w-3" />
-                                    {(() => {
-                                      const protocolTitle = protocol.title || protocol.name || '';
-                                      const key = protocolTitle.toLowerCase();
-                                      const successRate = protocolSuccessRates[key] || 0;
-                                      console.log(`🔍 Looking for success rate for "${protocolTitle}" with key "${key}": ${successRate}%`);
-                                      return successRate;
-                                    })()}% successo
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    👥 {(() => {
-                                      const protocolTitle = protocol.title || protocol.name || '';
-                                      const key = protocolTitle.toLowerCase();
-                                      const usage = protocolUsageCounts[key] || 0;
-                                      console.log(`🔍 Looking for usage count for "${protocolTitle}" with key "${key}": ${usage}`);
-                                      console.log('🗂️ Available keys:', Object.keys(protocolUsageCounts));
-                                      return usage;
-                                    })()} utilizzi
-                                  </span>
+                                   <span className="flex items-center gap-1">
+                                     <BarChart3 className="h-3 w-3" />
+                                     {protocol.successRate}% successo
+                                   </span>
+                                   <span className="flex items-center gap-1">
+                                     👥 {protocol.usageCount} utilizzi
+                                   </span>
                                 </div>
                                 <p className="text-xs text-amber-600 dark:text-amber-400 italic">
                                   {protocol.reasoning}
