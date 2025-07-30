@@ -2928,7 +2928,6 @@ const DashboardPage: React.FC = () => {
                 variant="outline" 
                 onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}
               >
-                <X className="h-4 w-4 mr-2" />
                 Annulla
               </Button>
             </div>
