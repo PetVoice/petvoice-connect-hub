@@ -1813,18 +1813,31 @@ const DashboardPage: React.FC = () => {
                           key={emotion} 
                           className="group bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4 text-center cursor-pointer"
                           onClick={() => {
+                            console.log('🔍 DEBUG: Clicked emotion:', emotion);
+                            console.log('🔍 DEBUG: Available analyses:', petAnalyses.map(a => ({
+                              id: a.id, 
+                              primary_emotion: a.primary_emotion,
+                              created_at: a.created_at
+                            })));
+                            
                             // Trova l'analisi più recente con questa emozione
-                            const analysesWithEmotion = petAnalyses.filter(analysis => 
-                              analysis.primary_emotion.toLowerCase() === emotion.toLowerCase()
-                            );
+                            const analysesWithEmotion = petAnalyses.filter(analysis => {
+                              const match = analysis.primary_emotion.toLowerCase() === emotion.toLowerCase();
+                              console.log(`🔍 DEBUG: Comparing "${analysis.primary_emotion.toLowerCase()}" with "${emotion.toLowerCase()}": ${match}`);
+                              return match;
+                            });
+                            
+                            console.log('🔍 DEBUG: Analyses with emotion:', analysesWithEmotion);
                             
                             if (analysesWithEmotion.length > 0) {
                               // Ordina per data e prendi la più recente
                               const recentAnalysisWithEmotion = analysesWithEmotion.sort((a, b) => 
                                 new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                               )[0];
+                              console.log('🔍 DEBUG: Selected analysis:', recentAnalysisWithEmotion);
                               navigate(`/analysis?tab=results&analysis=${recentAnalysisWithEmotion.id}`);
                             } else {
+                              console.log('🔍 DEBUG: No analysis found for emotion:', emotion);
                               navigate('/analysis?tab=results');
                             }
                           }}
