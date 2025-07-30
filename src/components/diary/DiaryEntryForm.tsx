@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Camera, Mic, MicOff, Save, Upload, X, Tag, Brain } from 'lucide-react';
+import { Camera, Mic, MicOff, Save, Upload, X, Tag, Brain, Play, Pause } from 'lucide-react';
 import { DiaryEntry, PREDEFINED_TAGS, TAG_COLORS, MOOD_LABELS } from '@/types/diary';
 import { format } from 'date-fns';
 import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
@@ -224,6 +224,20 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
     }
   };
 
+  const removePhoto = (urlToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      photo_urls: prev.photo_urls.filter(url => url !== urlToRemove)
+    }));
+  };
+
+  const removeVoiceNote = () => {
+    setFormData(prev => ({
+      ...prev,
+      voice_note_url: null
+    }));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] shadow-elegant">
@@ -419,6 +433,56 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
                 onChange={handleFileUpload}
               />
             </div>
+
+            {/* Media Preview Section */}
+            {(formData.photo_urls.length > 0 || formData.voice_note_url) && (
+              <div className="space-y-4">
+                <Label>Media Allegati</Label>
+                
+                {/* Photo Previews */}
+                {formData.photo_urls.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Foto ({formData.photo_urls.length})</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {formData.photo_urls.map((url, index) => (
+                        <div key={index} className="relative group">
+                          <img 
+                            src={url} 
+                            alt={`Foto ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            onClick={() => removePhoto(url)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice Note Preview */}
+                {formData.voice_note_url && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Nota Vocale</h4>
+                    <div className="flex items-center gap-2 p-3 border rounded-lg">
+                      <audio controls className="flex-1">
+                        <source src={formData.voice_note_url} type="audio/webm" />
+                        Il tuo browser non supporta l'elemento audio.
+                      </audio>
+                      <button
+                        onClick={removeVoiceNote}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-4 border-t">
