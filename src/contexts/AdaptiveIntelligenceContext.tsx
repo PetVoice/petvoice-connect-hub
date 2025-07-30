@@ -337,8 +337,28 @@ export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode 
 
   // Auto-refresh ogni 5 minuti se c'è un pet selezionato
   useEffect(() => {
-    if (!selectedPet) return;
+    if (!selectedPet) {
+      // Pulisce i dati quando non c'è pet selezionato
+      setState(prev => ({
+        ...prev,
+        emotionalDNA: null,
+        insights: [],
+        recommendations: [],
+        context: null,
+        patterns: [],
+        lastUpdate: null,
+      }));
+      return;
+    }
 
+    // Reset degli insights quando cambia pet per evitare dati misti
+    setState(prev => ({
+      ...prev,
+      insights: [],
+      isLoading: true
+    }));
+
+    console.log('Pet cambiato, aggiornamento insights per:', selectedPet.name);
     refreshIntelligence();
     
     const interval = setInterval(() => {
