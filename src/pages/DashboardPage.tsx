@@ -696,9 +696,9 @@ const DashboardPage: React.FC = () => {
         });
         // Aggiungo un piccolo suggerimento per l'utente
         setTimeout(() => {
-          toast({
-            title: "💡 Suggerimento",
-            description: "Ricordati di selezionare dei tag comportamentali per vederli nella dashboard!",
+          showSuccessToast({
+            title: "Suggerimento",
+            description: "Ricordati di selezionare dei tag comportamentali per vederli nella dashboard!"
           });
         }, 1000);
         break;
@@ -718,9 +718,9 @@ const DashboardPage: React.FC = () => {
         });
         // Aggiungo un piccolo suggerimento per l'utente
         setTimeout(() => {
-          toast({
-            title: "💡 Suggerimento",
-            description: "Ricordati di selezionare 'Visite Mediche' come categoria per vederla nella dashboard!",
+          showSuccessToast({
+            title: "Suggerimento",
+            description: "Ricordati di selezionare 'Visite Mediche' come categoria per vederla nella dashboard!"
           });
         }, 1000);
         break;
@@ -767,10 +767,9 @@ const DashboardPage: React.FC = () => {
             entry: behaviorEntryMap[itemId]
           });
         } else {
-          toast({
-            title: "❌ Errore",
-            description: "Impossibile trovare la voce del diario corrispondente.",
-            className: "border-red-200 bg-red-50 text-red-800",
+          showErrorToast({
+            title: "Errore",
+            description: "Impossibile trovare la voce del diario corrispondente."
           });
         }
         break;
@@ -849,9 +848,9 @@ const DashboardPage: React.FC = () => {
             delete newVitalStats[itemId];
             setVitalStats(newVitalStats);
             
-            toast({
+            showDeleteToast({
               title: "Parametro vitale eliminato",
-              description: `${itemName} è stato eliminato con successo.`,
+              description: `${itemName} è stato eliminato con successo.`
             });
           } else if (type === 'behaviors') {
             // Elimina la voce del diario corrispondente
@@ -1116,16 +1115,15 @@ const DashboardPage: React.FC = () => {
       await loadPetStats();
       setVitalModal({ open: false, mode: 'add', vitalType: '', currentValue: null });
       
-      toast({
+      showSuccessToast({
         title: vitalModal.mode === 'add' ? "Parametro vitale aggiunto" : "Parametro vitale modificato",
-        description: `${vitalModal.vitalType.replace('_', ' ')} è stato ${vitalModal.mode === 'add' ? 'aggiunto' : 'modificato'} con successo.`,
+        description: `${vitalModal.vitalType.replace('_', ' ')} è stato ${vitalModal.mode === 'add' ? 'aggiunto' : 'modificato'} con successo.`
       });
     } catch (error) {
       console.error('Error saving vital:', error);
-      toast({
+      showErrorToast({
         title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio.",
-        variant: "destructive"
+        description: "Si è verificato un errore durante il salvataggio."
       });
     }
   };
@@ -1408,16 +1406,14 @@ const DashboardPage: React.FC = () => {
       const newMoodTrend = Math.max(-50, Math.min(50, petStats.moodTrend + trendImpact));
 
       if (wasEffective) {
-        toast({
-          title: "✅ Valutazione registrata",
-          description: `Ottimo! Il farmaco ${medicationType} ha funzionato. Il benessere del tuo pet è migliorato.`,
-          className: "border-green-200 bg-green-50 text-green-800",
+        showSuccessToast({
+          title: "Valutazione registrata",
+          description: `Ottimo! Il farmaco ${medicationType} ha funzionato. Il benessere del tuo pet è migliorato.`
         });
       } else {
-        toast({
-          title: "❌ Valutazione registrata", 
-          description: `Il farmaco ${medicationType} non ha funzionato come sperato. Considera di consultare il veterinario.`,
-          className: "border-red-200 bg-red-50 text-red-800",
+        showErrorToast({
+          title: "Valutazione registrata", 
+          description: `Il farmaco ${medicationType} non ha funzionato come sperato. Considera di consultare il veterinario.`
         });
       }
 
@@ -1460,9 +1456,9 @@ const DashboardPage: React.FC = () => {
 
         if (error) throw error;
 
-        toast({
-          title: "✅ Evento aggiornato",
-          description: "L'evento è stato aggiornato con successo.",
+        showSuccessToast({
+          title: "Evento aggiornato",
+          description: "L'evento è stato aggiornato con successo."
         });
       } else {
         // Create new event
@@ -1473,9 +1469,9 @@ const DashboardPage: React.FC = () => {
 
         if (error) throw error;
 
-        toast({
-          title: "✅ Evento creato",
-          description: "L'evento è stato aggiunto al calendario con successo.",
+        showSuccessToast({
+          title: "Evento creato",
+          description: "L'evento è stato aggiunto al calendario con successo."
         });
       }
 
