@@ -110,11 +110,6 @@ const AdaptiveInsightsCard: React.FC = () => {
                   <span className="text-xs text-muted-foreground">
                     Confidenza: {Math.round(insight.confidence * 100)}%
                   </span>
-                  {insight.actionable && (
-                    <span className="text-xs text-blue-600 flex items-center gap-1">
-                      Azione possibile <ChevronRight className="h-3 w-3" />
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
