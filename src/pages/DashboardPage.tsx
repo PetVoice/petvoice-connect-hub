@@ -1164,24 +1164,86 @@ const DashboardPage: React.FC = () => {
         const { data, error } = await supabase
           .from('health_metrics')
           .delete()
-          .eq('pet_id', selectedPet.id)
-          .eq('user_id', user.id)
+          .eq('pet_id', selectedPet?.id)
+          .eq('user_id', user?.id)
           .eq('metric_type', dbType);
         
         console.log('Delete health_metrics result:', { data, error });
         if (error) throw error;
       }
       
-      // Remove from local state
+      // Remove from local state immediately
       setVitalStats(prev => {
         const newStats = { ...prev };
         delete newStats[type];
         return newStats;
       });
       
-      toast({
+      // Reload vital stats from database to ensure consistency
+      const reloadVitalStats = async () => {
+        if (!selectedPet || !user) return;
+        
+        try {
+          const { data: healthMetrics } = await supabase
+            .from('health_metrics')
+            .select('*')
+            .eq('pet_id', selectedPet.id)
+            .eq('user_id', user.id)
+            .order('recorded_at', { ascending: false });
+
+          const vitals: {[key: string]: {value: number | string, unit: string, date: string}} = {};
+          
+          if (healthMetrics && healthMetrics.length > 0) {
+            const latestMetrics: {[key: string]: any} = {};
+            healthMetrics.forEach(metric => {
+              if (!latestMetrics[metric.metric_type] || 
+                  new Date(metric.recorded_at) > new Date(latestMetrics[metric.metric_type].recorded_at)) {
+                latestMetrics[metric.metric_type] = metric;
+              }
+            });
+
+            Object.entries(latestMetrics).forEach(([metricType, metric]) => {
+              const italianKeyMapping = {
+                'temperature': 'temperatura',
+                'heart_rate': 'frequenza_cardiaca',
+                'respiration': 'respirazione',
+                'gum_color': 'colore_gengive'
+              };
+
+              const italianKey = italianKeyMapping[metricType as keyof typeof italianKeyMapping];
+              if (italianKey) {
+                let displayValue: number | string = metric.value;
+                
+                if (metricType === 'gum_color') {
+                  const colorValueMapping = {
+                    1: 'rosa',
+                    2: 'pallide',
+                    3: 'blu/viola', 
+                    4: 'gialle'
+                  };
+                  displayValue = colorValueMapping[metric.value as keyof typeof colorValueMapping] || 'rosa';
+                }
+
+                vitals[italianKey] = {
+                  value: displayValue,
+                  unit: metric.unit || '',
+                  date: format(new Date(metric.recorded_at), 'dd/MM')
+                };
+              }
+            });
+          }
+          
+          setVitalStats(vitals);
+        } catch (error) {
+          console.error('Error reloading vital stats:', error);
+        }
+      };
+      
+      await reloadVitalStats();
+      
+      showDeleteToast({
         title: "Parametro eliminato",
-        description: "Valore eliminato con successo",
+        description: "Valore eliminato con successo"
       });
       
     } catch (error) {
