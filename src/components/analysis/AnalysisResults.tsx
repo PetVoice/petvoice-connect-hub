@@ -374,8 +374,32 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 3;
   
-  // Protocol data hooks - MOVED HERE to avoid hook order issues
+  // Calcola le analisi da mostrare in base alla pagina corrente
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAnalyses = analyses.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(analyses.length / itemsPerPage);
+
+  // Reset page when analyses change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [analyses]);
+
+  // Funzioni di navigazione
+  const goToNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
   const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
   const [protocolSuccessRates, setProtocolSuccessRates] = useState<Record<string, number>>({});
 
@@ -870,19 +894,47 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   return (
     <>
       <div className="space-y-6">
-        {/* Analysis Selector */}
+        {/* Analysis Selector with Navigation */}
         {analyses.length > 1 && (
           <Card>
-            <CardHeader>
-              <CardTitle>{getText('selectAnalysis')}</CardTitle>
-              <CardDescription>
-                {getText('showResults')} {analyses.length} analisi totali
-              </CardDescription>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>{getText('selectAnalysis')}</CardTitle>
+                  <CardDescription>
+                    Mostra {startIndex + 1}-{Math.min(endIndex, analyses.length)} di {analyses.length} analisi totali
+                  </CardDescription>
+                </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToPrevPage}
+                      disabled={currentPage === 0}
+                      className="h-8 w-8 p-0"
+                    >
+                      ↑
+                    </Button>
+                    <span className="text-sm text-muted-foreground px-2">
+                      {currentPage + 1}/{totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goToNextPage}
+                      disabled={currentPage === totalPages - 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      ↓
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="max-h-[400px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {analyses.map((analysis) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {currentAnalyses.map((analysis) => (
                     <Button
                       key={analysis.id}
                       variant={selectedAnalysis?.id === analysis.id ? "default" : "outline"}
@@ -901,7 +953,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                     </Button>
                   ))}
                 </div>
-              </div>
             </CardContent>
           </Card>
         )}
