@@ -78,6 +78,11 @@
     --transition-bounce: all 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
+    /* Button Interaction Variables */
+    --button-press-scale: 0.98;
+    --button-press-rotate: -1deg;
+    --ripple-duration: 600ms;
+    
     --radius: 0.75rem;
 
     /* Sidebar Light */

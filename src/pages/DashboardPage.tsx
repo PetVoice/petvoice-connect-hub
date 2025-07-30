@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -48,6 +49,7 @@ import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
+import { ButtonDemo } from '@/components/ui/button-demo';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -1591,6 +1593,10 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      
+      {/* Button Interactions Demo - TEMPORARY FOR TESTING */}
+      <ButtonDemo />
+      
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -1838,13 +1844,15 @@ const DashboardPage: React.FC = () => {
                     <PieChartIcon className="h-10 w-10 text-pink-500/60" />
                   </div>
                   <p className="text-lg text-muted-foreground mb-6">Nessuna analisi disponibile</p>
-                  <Button 
+                  <EnhancedButton 
                     onClick={() => navigate('/analysis')}
                     className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    successText="Avviato!"
+                    onSuccess={() => console.log('Analisi avviata con successo!')}
                   >
                     <Microscope className="h-5 w-5 mr-2" />
                     Inizia Analisi
-                  </Button>
+                  </EnhancedButton>
                 </div>
                 )}
               </ScrollArea>
@@ -1861,14 +1869,15 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <span className="text-cyan-800">Parametri Vitali</span>
                 </div>
-                <Button
+                <EnhancedButton
                   onClick={() => handleAddItem('vitals')}
                   size="sm"
                   variant="ghost"
                   className="text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50"
+                  successText="Aggiunto!"
                 >
                   <Plus className="h-4 w-4" />
-                </Button>
+                </EnhancedButton>
               </CardTitle>
               <CardDescription className="text-lg text-cyan-600">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
@@ -2923,10 +2932,16 @@ const DashboardPage: React.FC = () => {
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <Button onClick={handleVitalSubmit} className="flex-1">
+              <EnhancedButton 
+                onClick={handleVitalSubmit} 
+                className="flex-1"
+                loadingText="Salvando..."
+                successText={vitalModal.mode === 'add' ? 'Aggiunto!' : 'Salvato!'}
+                errorText="Errore"
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {vitalModal.mode === 'add' ? 'Aggiungi' : 'Salva'}
-              </Button>
+              </EnhancedButton>
               <Button 
                 variant="outline" 
                 onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}
