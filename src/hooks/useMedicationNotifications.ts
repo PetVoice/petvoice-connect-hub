@@ -46,7 +46,7 @@ export function useMedicationNotifications() {
                     message: `Il farmaco ${medication.name} scadrà presto`,
                     type: 'warning',
                     read: false,
-                    action_url: '/wellness'
+                    action_url: '/diary'
                   }, 'medication');
                   localStorage.setItem(reminderKey, now.getTime().toString());
                 }

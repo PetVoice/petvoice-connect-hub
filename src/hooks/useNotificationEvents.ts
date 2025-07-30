@@ -92,7 +92,7 @@ export function useNotificationEvents() {
       message: `È ora di controllare il benessere di ${petName}`,
       type: 'warning',
       read: false,
-      action_url: '/wellness'
+      action_url: '/diary'
     });
   };
 
