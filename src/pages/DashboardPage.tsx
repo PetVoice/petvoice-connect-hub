@@ -1594,9 +1594,6 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="container mx-auto py-6 space-y-6">
       
-      {/* Button Interactions Demo - TEMPORARY FOR TESTING */}
-      <ButtonDemo />
-      
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
