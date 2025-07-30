@@ -38,6 +38,7 @@ import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
 import { NotificationManager } from '@/components/NotificationManager';
+import { AdaptiveIntelligenceProvider } from '@/contexts/AdaptiveIntelligenceContext';
 
 const queryClient = new QueryClient();
 

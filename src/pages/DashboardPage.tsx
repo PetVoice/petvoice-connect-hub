@@ -57,6 +57,7 @@ import { EmergencyContactModal } from '@/components/emergency/EmergencyContactMo
 import { DiaryEntryForm } from '@/components/diary/DiaryEntryForm';
 import { EventForm } from '@/components/calendar/EventForm';
 import { DiaryEntry } from '@/types/diary';
+import AdaptiveInsightsCard from '@/components/dashboard/AdaptiveInsightsCard';
 // Translation system removed - Italian only
 
 interface PetStats {
@@ -1753,8 +1754,15 @@ const DashboardPage: React.FC = () => {
 
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
-        <div className="mb-16 w-full">
+        <div className="mb-6 w-full">
           <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
+        </div>
+      )}
+
+      {/* Adaptive Insights Card */}
+      {selectedPet && (
+        <div className="mb-6">
+          <AdaptiveInsightsCard />
         </div>
       )}
 

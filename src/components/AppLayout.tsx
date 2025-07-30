@@ -1,5 +1,6 @@
 import React from 'react';
 import { PetProvider } from '@/contexts/PetContext';
+import { AdaptiveIntelligenceProvider } from '@/contexts/AdaptiveIntelligenceContext';
 import Layout from '@/components/Layout';
 
 interface AppLayoutProps {
@@ -9,9 +10,11 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <PetProvider>
-      <Layout>
-        {children}
-      </Layout>
+      <AdaptiveIntelligenceProvider>
+        <Layout>
+          {children}
+        </Layout>
+      </AdaptiveIntelligenceProvider>
     </PetProvider>
   );
 };
