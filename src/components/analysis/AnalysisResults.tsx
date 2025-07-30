@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -300,6 +300,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const { showToast } = useUnifiedToast();
   const { selectedPet } = usePets();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Helper function to translate hardcoded analysis data
   const translateAnalysisData = (text: string, type: 'insights' | 'recommendations' | 'triggers') => {
@@ -355,6 +356,19 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisData | null>(
     analyses.length > 0 ? analyses[0] : null
   );
+
+  // Effetto per navigazione diretta a un'analisi specifica
+  useEffect(() => {
+    const analysisId = searchParams.get('analysis');
+    if (analysisId && analyses.length > 0) {
+      const targetAnalysis = analyses.find(a => a.id === analysisId);
+      if (targetAnalysis) {
+        setSelectedAnalysis(targetAnalysis);
+      }
+    } else if (!selectedAnalysis && analyses.length > 0) {
+      setSelectedAnalysis(analyses[0]);
+    }
+  }, [analyses, searchParams]);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [comparedAnalyses, setComparedAnalyses] = useState<AnalysisData[]>([]);
   const [showComparisonModal, setShowComparisonModal] = useState(false);
@@ -862,29 +876,31 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
             <CardHeader>
               <CardTitle>{getText('selectAnalysis')}</CardTitle>
               <CardDescription>
-                {getText('showResults')} {analyses.length} {getText('recentAnalyses')}
+                {getText('showResults')} {analyses.length} analisi totali
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {analyses.map((analysis) => (
-                  <Button
-                    key={analysis.id}
-                    variant={selectedAnalysis?.id === analysis.id ? "default" : "outline"}
-                    className="h-auto p-4 justify-start"
-                    onClick={() => setSelectedAnalysis(analysis)}
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <div className="text-2xl">{getEmotionIcon(analysis.primary_emotion)}</div>
-                      <div className="text-left">
-                        <div className="font-medium">{getReadableAnalysisName(analysis, language)}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {analysis.primary_emotion} - {(analysis.primary_confidence * 100).toFixed(0)}%
+              <div className="max-h-[400px] overflow-y-auto pr-2" style={{ scrollbarWidth: 'thin' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {analyses.map((analysis) => (
+                    <Button
+                      key={analysis.id}
+                      variant={selectedAnalysis?.id === analysis.id ? "default" : "outline"}
+                      className="h-auto p-4 justify-start"
+                      onClick={() => setSelectedAnalysis(analysis)}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="text-2xl">{getEmotionIcon(analysis.primary_emotion)}</div>
+                        <div className="text-left">
+                          <div className="font-medium">{getReadableAnalysisName(analysis, language)}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {analysis.primary_emotion} - {(analysis.primary_confidence * 100).toFixed(0)}%
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Button>
-                ))}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>

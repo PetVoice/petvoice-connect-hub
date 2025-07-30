@@ -1809,9 +1809,20 @@ const DashboardPage: React.FC = () => {
                       const icon = emotionIcons[emotion as keyof typeof emotionIcons] || '🐾';
                       
                       return (
-                        <div 
+                        <button 
                           key={emotion} 
-                          className="group bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4 text-center"
+                          className="group bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4 text-center cursor-pointer"
+                          onClick={() => {
+                            // Trova l'analisi più recente con questa emozione
+                            const recentAnalysisWithEmotion = petAnalyses.find(analysis => 
+                              analysis.primary_emotion.toLowerCase() === emotion.toLowerCase()
+                            );
+                            if (recentAnalysisWithEmotion) {
+                              navigate(`/analysis?tab=results&analysis=${recentAnalysisWithEmotion.id}`);
+                            } else {
+                              navigate('/analysis?tab=results');
+                            }
+                          }}
                         >
                           <div className="flex flex-col items-center gap-2">
                             <div className="text-3xl">{icon}</div>
@@ -1825,7 +1836,7 @@ const DashboardPage: React.FC = () => {
                               {count === 1 ? 'rilevamento' : 'rilevamenti'}
                             </Badge>
                           </div>
-                        </div>
+                        </button>
                       );
                     })}
                 </div>
