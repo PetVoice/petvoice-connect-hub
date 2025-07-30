@@ -72,7 +72,7 @@ export function useNotificationEvents() {
       message: `L'analisi comportamentale di ${petName} è stata completata`,
       type: 'success',
       read: false,
-      action_url: '/analysis'
+      action_url: '/analysis?tab=results'
     }, 'success');
   };
 
