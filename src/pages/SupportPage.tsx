@@ -1068,18 +1068,13 @@ const SupportPage: React.FC = () => {
                 id: '12',
                 question: 'Come funziona l\'abbonamento Premium?',
                 answer: 'Il piano Premium offre:\n\n**Analisi illimitate** (vs 10/mese gratuito)\n**Pet illimitati** (vs 1 gratuito)\n**Funzioni AI avanzate** e sperimentali\n**Priorità nel supporto** tecnico\n**Access Beta** a nuove funzionalità\n**Export avanzati** e reportistica\n\nPuoi sottoscrivere o modificare il piano dalla sezione **Abbonamento**. Cancellazione disponibile in qualsiasi momento.',
-                category: 'billing',
-                tags: ['premium', 'abbonamento', 'piani'],
-                helpful_count: 31,
-                not_helpful_count: 2,
-                view_count: 523
+                category: 'billing'
               }
             ].filter(faq => 
               (selectedCategory === 'all' || faq.category === selectedCategory) &&
               (searchQuery === '' || 
                faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               faq.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+               faq.answer.toLowerCase().includes(searchQuery.toLowerCase()))
             ).map((faq) => (
               <Card key={faq.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
@@ -1088,33 +1083,6 @@ const SupportPage: React.FC = () => {
                 <CardContent>
                   <div className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed mb-4">
                     {faq.answer}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2 flex-wrap">
-                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                        {faq.category === 'technical' ? 'Tecnico' : 
-                         faq.category === 'features' ? 'Funzionalità' : 
-                         faq.category === 'billing' ? 'Fatturazione' : 'Generale'}
-                      </span>
-                      {faq.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-muted rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-700">
-                        <ThumbsUp className="h-4 w-4 mr-1" />
-                        {faq.helpful_count}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                        <ThumbsDown className="h-4 w-4 mr-1" />
-                        {faq.not_helpful_count}
-                      </Button>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        {faq.view_count} views
-                      </span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
