@@ -40,6 +40,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { SkeletonLoader } from '@/components/ui/skeleton-loader';
+import { useSkeletonState } from '@/hooks/useSkeletonState';
 import { format, isToday, subDays } from 'date-fns';
 import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -85,6 +87,11 @@ const DashboardPage: React.FC = () => {
     calendarEvents: 0
   });
   const [loading, setLoading] = useState(false);
+  
+  // Skeleton states for different sections
+  const statsLoader = useSkeletonState(false, { delay: 150, minDuration: 800 });
+  const actionsLoader = useSkeletonState(false, { delay: 100, minDuration: 600 });
+  const chartsLoader = useSkeletonState(false, { delay: 200, minDuration: 1000 });
   
   // Stati per le card wellness
   const [healthMetrics, setHealthMetrics] = useState<any[]>([]);
@@ -262,6 +269,11 @@ const DashboardPage: React.FC = () => {
       }
 
       setLoading(true);
+      // Show skeleton loaders
+      statsLoader.showSkeleton();
+      actionsLoader.showSkeleton();
+      chartsLoader.showSkeleton();
+      
       try {
         const today = new Date();
         const lastWeek = subDays(today, 7);
@@ -488,6 +500,10 @@ const DashboardPage: React.FC = () => {
         console.error('Error loading pet stats:', error);
       } finally {
         setLoading(false);
+        // Hide skeleton loaders with minimum duration
+        statsLoader.hideSkeleton();
+        actionsLoader.hideSkeleton();
+        chartsLoader.hideSkeleton();
       }
     };
 
@@ -1610,6 +1626,14 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
           <CardContent className="space-y-4 p-6">
+            {statsLoader.isLoading ? (
+              <>
+                <SkeletonLoader variant="header" className="mb-4" />
+                <SkeletonLoader variant="text" lines={2} spacing="md" />
+                <SkeletonLoader className="h-3 w-full mt-4" />
+              </>
+            ) : (
+              <>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Heart className="h-6 w-6 text-rose-500" />
@@ -1648,6 +1672,8 @@ const DashboardPage: React.FC = () => {
                 <span>100%</span>
               </div>
             </div>
+            </>
+            )}
           </CardContent>
         </Card>
       )}
@@ -1655,7 +1681,16 @@ const DashboardPage: React.FC = () => {
       {/* Quick Action Cards - Individual cards between health score and chart */}
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {quickActions.map((action, index) => (
+          {actionsLoader.isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <Card key={index} className="border-0 shadow-elegant">
+                <CardContent className="p-6">
+                  <SkeletonLoader variant="card" />
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            quickActions.map((action, index) => (
             <Card
               key={index}
               className={`border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20 ${
@@ -1689,14 +1724,23 @@ const DashboardPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )))}
         </div>
       )}
 
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <div className="mb-16 w-full">
-          <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
+          {chartsLoader.isLoading ? (
+            <Card>
+              <CardContent className="p-6">
+                <SkeletonLoader variant="header" className="mb-6" />
+                <SkeletonLoader className="h-80 w-full" />
+              </CardContent>
+            </Card>
+          ) : (
+            <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
+          )}
         </div>
       )}
 

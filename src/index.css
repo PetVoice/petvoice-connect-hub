@@ -497,6 +497,42 @@ button:not(.no-hover):hover,
     @apply border-primary/30;
   }
 
+  /* Skeleton Loading System */
+  .skeleton-shimmer {
+    @apply relative overflow-hidden;
+  }
+  
+  .skeleton-shimmer::before {
+    @apply absolute inset-0 animate-shimmer;
+    content: '';
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.1) 50%,
+      transparent 100%
+    );
+  }
+  
+  .skeleton-pulse {
+    @apply animate-pulse;
+  }
+  
+  .skeleton-card {
+    @apply bg-muted rounded-lg;
+  }
+  
+  .skeleton-text {
+    @apply bg-muted rounded h-4;
+  }
+  
+  .skeleton-avatar {
+    @apply bg-muted rounded-full;
+  }
+  
+  .skeleton-button {
+    @apply bg-muted rounded-md h-10;
+  }
+
   /* Azzurrino Card System */
   .petvoice-insight-card {
     @apply bg-card text-card-foreground border border-primary/20 rounded-lg p-4 shadow-soft hover:shadow-glow transition-smooth hover:border-primary/40;
