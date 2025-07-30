@@ -1147,48 +1147,7 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                         return defaultProtocol;
                       };
 
-                      // Function to start training protocol
-                      const startTrainingProtocol = async (protocol: any) => {
-                        try {
-                          if (!selectedPet?.id) {
-                            showToast({
-                              title: getText('error'),
-                              description: getText('selectPet'),
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-
-                          // Use activity log to track protocol start
-                          const { error } = await supabase
-                            .from('activity_log')
-                            .insert({
-                              pet_id: selectedPet.id,
-                              user_id: selectedPet.user_id,
-                              activity_type: 'training_protocol_started',
-                              activity_description: `Started protocol: ${protocol.title}`,
-                              metadata: { protocol_id: protocol.id, emotion: selectedAnalysis.primary_emotion }
-                            });
-
-                          if (error) throw error;
-
-                          showToast({
-                            title: '⚡ Protocollo Avviato!',
-                            description: `${protocol.title} è stato avviato con successo`,
-                            type: "success"
-                          });
-
-                           // Redirect directly to training dashboard with protocol
-                          navigate(`/training/dashboard/${protocol.id}`);
-                        } catch (error) {
-                          console.error('Error starting protocol:', error);
-                          showToast({
-                            title: getText('error'),
-                            description: 'Errore nell\'avvio del protocollo',
-                            variant: "destructive"
-                          });
-                        }
-                      };
+                      // Use the main startTrainingProtocol function defined earlier
 
                       const protocol = getRecommendedTrainingProtocol(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
                       
