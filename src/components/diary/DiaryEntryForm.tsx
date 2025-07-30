@@ -11,6 +11,8 @@ import { Camera, Mic, MicOff, Save, Upload, X, Tag, Brain } from 'lucide-react';
 import { DiaryEntry, PREDEFINED_TAGS, TAG_COLORS, MOOD_LABELS } from '@/types/diary';
 import { format } from 'date-fns';
 import { UnifiedDatePicker } from '@/components/ui/unified-date-picker';
+import { supabase } from '@/integrations/supabase/client';
+import { useUnifiedToast } from '@/hooks/use-unified-toast';
 
 interface DiaryEntryFormProps {
   isOpen: boolean;
@@ -33,6 +35,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
 }) => {
   console.log('DiaryEntryForm component rendered', { isOpen, petId, userId });
   
+  const { toast } = useUnifiedToast();
   const [entryDate, setEntryDate] = useState<Date>();
   console.log('DiaryEntryForm: entryDate state defined', entryDate);
   const [formData, setFormData] = useState({
@@ -75,6 +78,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
 
   const [customTag, setCustomTag] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
@@ -123,6 +127,101 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
       }
     }
     return 'bg-gray-500';
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `diary-photos/${userId}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('diary-photos')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('diary-photos')
+          .getPublicUrl(filePath);
+
+        return publicUrl;
+      });
+
+      const urls = await Promise.all(uploadPromises);
+      setFormData(prev => ({
+        ...prev,
+        photo_urls: [...prev.photo_urls, ...urls]
+      }));
+
+      toast.success(`${files.length} foto caricate con successo`);
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      toast.error("Errore durante il caricamento delle foto");
+    }
+  };
+
+  const handleVoiceRecording = async () => {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks: BlobPart[] = [];
+
+        recorder.ondataavailable = (event) => {
+          chunks.push(event.data);
+        };
+
+        recorder.onstop = async () => {
+          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          const fileName = `voice-note-${Math.random()}.webm`;
+          const filePath = `diary-voice-notes/${userId}/${fileName}`;
+
+          try {
+            const { error: uploadError } = await supabase.storage
+              .from('diary-voice-notes')
+              .upload(filePath, audioBlob);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+              .from('diary-voice-notes')
+              .getPublicUrl(filePath);
+
+            setFormData(prev => ({
+              ...prev,
+              voice_note_url: publicUrl
+            }));
+
+            toast.success("Nota vocale salvata con successo");
+          } catch (error) {
+            console.error('Error uploading voice note:', error);
+            toast.error("Errore durante il salvataggio della nota vocale");
+          }
+
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        recorder.start();
+        setMediaRecorder(recorder);
+        setIsRecording(true);
+
+        toast.success("Registrazione in corso - parla nel microfono");
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        toast.error("Impossibile accedere al microfono");
+      }
+    } else {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        setIsRecording(false);
+        setMediaRecorder(null);
+      }
+    }
   };
 
   return (
@@ -301,7 +400,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
               
               <Button
                 variant="outline"
-                onClick={() => setIsRecording(!isRecording)}
+                onClick={handleVoiceRecording}
               >
                 {isRecording ? (
                   <MicOff className="h-4 w-4 mr-2" />
@@ -317,7 +416,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={() => {}}
+                onChange={handleFileUpload}
               />
             </div>
             
