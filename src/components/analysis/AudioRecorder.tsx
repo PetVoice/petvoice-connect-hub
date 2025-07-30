@@ -363,11 +363,10 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
             <Button
               onClick={recordingState.isRecording ? stopRecording : startRecording}
               disabled={permission === 'denied'}
+              variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
-                recordingState.isRecording
-                  ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "bg-orange-700 hover:bg-orange-800 hover:scale-105 shadow-lg"
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                recordingState.isRecording && "!bg-red-500 hover:!bg-red-600 animate-pulse"
               )}
             >
               {recordingState.isRecording ? (
