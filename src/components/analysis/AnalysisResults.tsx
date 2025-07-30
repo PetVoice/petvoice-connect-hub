@@ -360,6 +360,87 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [templates, setTemplates] = useState<SharingTemplate[]>([]);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  
+  // Protocol data hooks - MOVED HERE to avoid hook order issues
+  const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
+  const [protocolSuccessRates, setProtocolSuccessRates] = useState<Record<string, number>>({});
+
+  // Fetch protocol usage counts on mount - MOVED HERE to avoid hook order issues
+  useEffect(() => {
+    const fetchProtocolData = async () => {
+      try {
+        const { data: protocols, error } = await supabase
+          .from('ai_training_protocols')
+          .select('id, title, community_usage, success_rate')
+          .in('status', ['active', 'available'])
+          .not('community_usage', 'is', null)  // Prioritizza protocolli con dati di utilizzo
+          .not('success_rate', 'is', null)      // Prioritizza protocolli con dati di successo
+          .order('community_usage', { ascending: false }); // Ordina per utilizzo più alto
+
+        if (error) throw error;
+        
+        console.log('🔍 Fetched protocols for usage count and success rate:', protocols);
+        
+        const usageCounts: Record<string, number> = {};
+        const successRates: Record<string, number> = {};
+        
+        // Prima passiamo per i protocolli con dati reali (priorità)
+        protocols?.forEach(protocol => {
+          const key = protocol.title.toLowerCase();
+          const usage = Number(protocol.community_usage) || 0;
+          const successRate = Number(protocol.success_rate) || 0;
+          
+          // Store multiple variations of the key for better matching
+          usageCounts[key] = usage;
+          successRates[key] = successRate;
+          
+          // Store without apostrophes for better matching
+          const keyNoApostrophe = key.replace(/'/g, '');
+          usageCounts[keyNoApostrophe] = usage;
+          successRates[keyNoApostrophe] = successRate;
+          
+          console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
+          console.log(`🔑 Keys stored: "${key}" and "${keyNoApostrophe}"`);
+        });
+        
+        // Se non abbiamo abbastanza dati, facciamo una query fallback per tutti i protocolli
+        if ((protocols?.length || 0) < 7) {
+          const { data: allProtocols } = await supabase
+            .from('ai_training_protocols')
+            .select('id, title, community_usage, success_rate')
+            .in('status', ['active', 'available']);
+          
+          allProtocols?.forEach(protocol => {
+            const key = protocol.title.toLowerCase();
+            const keyNoApostrophe = key.replace(/'/g, '');
+            
+            // Solo se non abbiamo già dati per questo protocollo
+            if (!usageCounts[key] && !usageCounts[keyNoApostrophe]) {
+              const usage = Number(protocol.community_usage) || 0;
+              const successRate = Number(protocol.success_rate) || 0;
+              
+              usageCounts[key] = usage;
+              successRates[key] = successRate;
+              usageCounts[keyNoApostrophe] = usage;
+              successRates[keyNoApostrophe] = successRate;
+              
+              console.log(`📊 Fallback Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
+            }
+          });
+        }
+        
+        console.log('📈 Final usage counts object:', usageCounts);
+        console.log('📈 Final success rates object:', successRates);
+        
+        setProtocolUsageCounts(usageCounts);
+        setProtocolSuccessRates(successRates);
+      } catch (error) {
+        console.error('Error fetching protocol data:', error);
+      }
+    };
+    
+    fetchProtocolData();
+  }, []);
 
   // Traduzioni dirette per il componente
   const getText = (key: string) => {
@@ -1107,92 +1188,6 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
                             variant: "destructive"
                           });
                         }
-                      };
-
-  const [protocolUsageCounts, setProtocolUsageCounts] = useState<Record<string, number>>({});
-  const [protocolSuccessRates, setProtocolSuccessRates] = useState<Record<string, number>>({});
-                      
-                      // Fetch protocol usage counts on mount
-                      useEffect(() => {
-                        const fetchProtocolData = async () => {
-                          try {
-                            const { data: protocols, error } = await supabase
-                              .from('ai_training_protocols')
-                              .select('id, title, community_usage, success_rate')
-                              .in('status', ['active', 'available'])
-                              .not('community_usage', 'is', null)  // Prioritizza protocolli con dati di utilizzo
-                              .not('success_rate', 'is', null)      // Prioritizza protocolli con dati di successo
-                              .order('community_usage', { ascending: false }); // Ordina per utilizzo più alto
-
-                            if (error) throw error;
-                            
-                            console.log('🔍 Fetched protocols for usage count and success rate:', protocols);
-                            
-                            const usageCounts: Record<string, number> = {};
-                            const successRates: Record<string, number> = {};
-                            
-                            // Prima passiamo per i protocolli con dati reali (priorità)
-                            protocols?.forEach(protocol => {
-                              const key = protocol.title.toLowerCase();
-                              const usage = Number(protocol.community_usage) || 0;
-                              const successRate = Number(protocol.success_rate) || 0;
-                              
-                              // Store multiple variations of the key for better matching
-                              usageCounts[key] = usage;
-                              successRates[key] = successRate;
-                              
-                              // Store without apostrophes for better matching
-                              const keyNoApostrophe = key.replace(/'/g, '');
-                              usageCounts[keyNoApostrophe] = usage;
-                              successRates[keyNoApostrophe] = successRate;
-                              
-                              console.log(`📊 Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
-                              console.log(`🔑 Keys stored: "${key}" and "${keyNoApostrophe}"`);
-                            });
-                            
-                            // Se non abbiamo abbastanza dati, facciamo una query fallback per tutti i protocolli
-                            if ((protocols?.length || 0) < 7) {
-                              const { data: allProtocols } = await supabase
-                                .from('ai_training_protocols')
-                                .select('id, title, community_usage, success_rate')
-                                .in('status', ['active', 'available']);
-                              
-                              allProtocols?.forEach(protocol => {
-                                const key = protocol.title.toLowerCase();
-                                const keyNoApostrophe = key.replace(/'/g, '');
-                                
-                                // Solo se non abbiamo già dati per questo protocollo
-                                if (!usageCounts[key] && !usageCounts[keyNoApostrophe]) {
-                                  const usage = Number(protocol.community_usage) || 0;
-                                  const successRate = Number(protocol.success_rate) || 0;
-                                  
-                                  usageCounts[key] = usage;
-                                  successRates[key] = successRate;
-                                  usageCounts[keyNoApostrophe] = usage;
-                                  successRates[keyNoApostrophe] = successRate;
-                                  
-                                  console.log(`📊 Fallback Protocol "${protocol.title}": ${usage} utilizzi, ${successRate}% successo`);
-                                }
-                              });
-                            }
-                            
-                            console.log('📈 Final usage counts object:', usageCounts);
-                            console.log('📈 Final success rates object:', successRates);
-                            
-                            setProtocolUsageCounts(usageCounts);
-                            setProtocolSuccessRates(successRates);
-                          } catch (error) {
-                            console.error('Error fetching protocol data:', error);
-                          }
-                        };
-                        
-                        fetchProtocolData();
-                      }, []);
-                      
-                      const getUsageCount = (protocolTitle: string): number => {
-                        const key = protocolTitle.toLowerCase();
-                        const count = protocolUsageCounts[key];
-                        return typeof count === 'number' ? count : 0;
                       };
 
                       const protocol = getRecommendedTrainingProtocol(selectedAnalysis.primary_emotion, selectedAnalysis.primary_confidence);
