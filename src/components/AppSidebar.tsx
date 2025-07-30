@@ -20,6 +20,7 @@ const menuItems = [
   { title: 'Analisi Emotiva', url: '/analysis', icon: Microscope },
   { title: 'Musicoterapia AI', url: '/ai-music-therapy', icon: Music },
   { title: 'Training AI', url: '/training', icon: Brain },
+  { title: 'Machine Learning', url: '/machine-learning', icon: BarChart3 },
   { title: 'Diario', url: '/diary', icon: BookOpen },
   { title: 'Calendario', url: '/calendar', icon: Calendar },
   { title: 'Community', url: '/community', icon: Users },

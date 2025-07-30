@@ -1327,6 +1327,48 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_patterns: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_validated_at: string | null
+          pattern_data: Json
+          pattern_type: string
+          pet_id: string
+          updated_at: string
+          user_id: string
+          validation_count: number | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          pattern_data?: Json
+          pattern_type: string
+          pet_id: string
+          updated_at?: string
+          user_id: string
+          validation_count?: number | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          pattern_data?: Json
+          pattern_type?: string
+          pet_id?: string
+          updated_at?: string
+          user_id?: string
+          validation_count?: number | null
+        }
+        Relationships: []
+      }
       lesson_completions: {
         Row: {
           completed_at: string
@@ -1648,6 +1690,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ml_model_metrics: {
+        Row: {
+          created_at: string
+          data_points_count: number
+          evaluation_date: string
+          id: string
+          metric_name: string
+          metric_value: number
+          model_type: string
+          model_version: string
+        }
+        Insert: {
+          created_at?: string
+          data_points_count?: number
+          evaluation_date?: string
+          id?: string
+          metric_name: string
+          metric_value: number
+          model_type: string
+          model_version?: string
+        }
+        Update: {
+          created_at?: string
+          data_points_count?: number
+          evaluation_date?: string
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          model_type?: string
+          model_version?: string
+        }
+        Relationships: []
+      }
       model_improvements: {
         Row: {
           affected_users_count: number | null
@@ -1696,6 +1771,45 @@ export type Database = {
           technical_details?: Json | null
           updated_at?: string
           user_feedback_summary?: Json | null
+        }
+        Relationships: []
+      }
+      model_training_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          improvements: Json | null
+          model_type: string
+          performance_after: Json | null
+          performance_before: Json | null
+          started_at: string
+          status: string
+          training_data_count: number
+          training_duration_seconds: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          improvements?: Json | null
+          model_type: string
+          performance_after?: Json | null
+          performance_before?: Json | null
+          started_at?: string
+          status?: string
+          training_data_count: number
+          training_duration_seconds?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          improvements?: Json | null
+          model_type?: string
+          performance_after?: Json | null
+          performance_before?: Json | null
+          started_at?: string
+          status?: string
+          training_data_count?: number
+          training_duration_seconds?: number | null
         }
         Relationships: []
       }
@@ -1969,6 +2083,51 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      prediction_feedback: {
+        Row: {
+          accuracy_score: number | null
+          actual_value: string | null
+          analysis_id: string | null
+          context_data: Json | null
+          created_at: string
+          feedback_type: string
+          id: string
+          pet_id: string
+          predicted_value: string
+          prediction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_score?: number | null
+          actual_value?: string | null
+          analysis_id?: string | null
+          context_data?: Json | null
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          pet_id: string
+          predicted_value: string
+          prediction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy_score?: number | null
+          actual_value?: string | null
+          analysis_id?: string | null
+          context_data?: Json | null
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          pet_id?: string
+          predicted_value?: string
+          prediction_type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3326,6 +3485,10 @@ export type Database = {
         Args: { p_pet_id: string; p_user_id: string }
         Returns: number
       }
+      calculate_prediction_accuracy: {
+        Args: { p_model_type: string; p_days_back?: number }
+        Returns: number
+      }
       calculate_protocol_success_rate: {
         Args: { p_protocol_id: string }
         Returns: number
@@ -3348,6 +3511,10 @@ export type Database = {
       }
       delete_user_account: {
         Args: Record<PropertyKey, never> | { user_id_to_delete: string }
+        Returns: undefined
+      }
+      detect_behavior_patterns: {
+        Args: { p_user_id: string; p_pet_id: string }
         Returns: undefined
       }
       execute_affiliation_reset: {

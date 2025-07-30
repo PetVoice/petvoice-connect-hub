@@ -40,6 +40,7 @@ import { getRecommendedProtocol, allProtocols } from '@/data/trainingProtocolsDa
 import jsPDF from 'jspdf';
 import AudioPlayer from './AudioPlayer';
 import WeatherContextInfo from './WeatherContextInfo';
+import { PredictionFeedback } from '@/components/ml/PredictionFeedback';
 
 interface SharingTemplate {
   id: string;
@@ -1471,6 +1472,17 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({ analyses, petName }) 
             </div>
           </CardContent>
         </Card>
+
+        {/* Machine Learning Feedback */}
+        <div className="mt-6">
+          <PredictionFeedback
+            analysisId={selectedAnalysis.id}
+            petId={selectedAnalysis.pet_id}
+            predictionType="emotion"
+            predictedValue={selectedAnalysis.primary_emotion}
+            confidence={selectedAnalysis.primary_confidence}
+          />
+        </div>
 
         {/* Pattern Recognition */}
         {analyses.length > 1 && (

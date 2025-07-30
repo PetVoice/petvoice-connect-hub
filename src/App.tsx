@@ -17,6 +17,7 @@ import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
 
 import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
+import MachineLearningPage from "@/pages/MachineLearningPage";
 import AuthPage from "@/pages/AuthPage";
 
 import CommunityPage from "@/pages/CommunityPage";
@@ -115,6 +116,13 @@ function AppContent() {
           <ProtectedRoute>
             <AppLayout>
               <PetMatchingPage />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/machine-learning" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <MachineLearningPage />
             </AppLayout>
           </ProtectedRoute>
         } />
