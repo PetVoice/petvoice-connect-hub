@@ -97,7 +97,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 page-enter">
+    <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex h-full items-center justify-between px-4">
         {/* Left side - Sidebar trigger */}
         <div className="flex items-center gap-3">
@@ -156,9 +156,9 @@ const Header: React.FC = () => {
             className="h-9 w-9"
           >
             {theme === 'dark' ? (
-              <Sun className="h-4 w-4 icon-rotate" />
+              <Sun className="h-4 w-4" />
             ) : (
-              <Moon className="h-4 w-4 icon-rotate" />
+              <Moon className="h-4 w-4" />
             )}
           </Button>
 
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
                 size="sm"
                 className="h-9 w-9 relative"
               >
-                <Bell className="h-4 w-4 icon-bounce" />
+                <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
                   <Badge 
                     variant="destructive" 
@@ -251,7 +251,7 @@ const Header: React.FC = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-9 w-9">
-                <User className="h-4 w-4 icon-bounce" />
+                <User className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

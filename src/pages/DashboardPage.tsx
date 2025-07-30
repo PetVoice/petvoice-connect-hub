@@ -1631,7 +1631,7 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6 page-enter">
+    <div className="container mx-auto py-6 space-y-6">
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -1644,7 +1644,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Selected Pet Info */}
       {selectedPet && (
-        <Card className="bg-gradient-to-br from-sky-50/80 to-indigo-50/60 border-sky-200/50 shadow-elegant card-animated stagger-item">
+        <Card className="bg-gradient-to-br from-sky-50/80 to-indigo-50/60 border-sky-200/50 shadow-elegant hover:shadow-glow transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center shadow-lg">
@@ -1666,7 +1666,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Health Score Progress Bar */}
       {selectedPet && (
-        <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant card-animated stagger-item mb-6">
+        <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
           <CardContent className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -1716,7 +1716,7 @@ const DashboardPage: React.FC = () => {
           {quickActions.map((action, index) => (
             <Card
               key={index}
-              className={`border-0 shadow-elegant card-animated stagger-item cursor-pointer hover:border-primary/20 ${
+              className={`border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20 ${
                 action.title === 'Analisi' ? 'bg-gradient-to-br from-violet-50/80 to-purple-50/60 border-violet-200/50' :
                 action.title === 'Diario' ? 'bg-gradient-to-br from-emerald-50/80 to-green-50/60 border-emerald-200/50' :
                 action.title === 'Calendario' ? 'bg-gradient-to-br from-amber-50/80 to-yellow-50/60 border-amber-200/50' :
@@ -1725,7 +1725,7 @@ const DashboardPage: React.FC = () => {
               onClick={action.onClick}
             >
               <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <action.icon className={`h-12 w-12 icon-bounce ${
+                <action.icon className={`h-12 w-12 ${
                   action.title === 'Analisi' ? 'text-violet-500' :
                   action.title === 'Diario' ? 'text-emerald-500' :
                   action.title === 'Calendario' ? 'text-amber-500' :
