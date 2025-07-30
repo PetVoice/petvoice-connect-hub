@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { usePets } from './PetContext';
+import { supabase } from '@/integrations/supabase/client';
 import { AdaptiveIntelligenceState, EmotionalDNA, AdaptiveInsight, AdaptationContext, AdaptiveRecommendation, BehaviorPattern } from '@/types/adaptiveIntelligence';
 
 export interface AdaptiveIntelligenceContextType extends AdaptiveIntelligenceState {
@@ -40,19 +41,109 @@ export const AdaptiveIntelligenceProvider: React.FC<{ children: React.ReactNode 
     setState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // Simula calcolo DNA emotivo basato sui dati reali
       const now = new Date();
-      const mockDNA: EmotionalDNA = {
-        calma: Math.floor(Math.random() * 40) + 30, // 30-70
-        energia: Math.floor(Math.random() * 40) + 40, // 40-80  
-        focus: Math.floor(Math.random() * 30) + 50, // 50-80
+      
+      // Recupera analisi comportamentali recenti (ultimi 7 giorni)
+      const { data: recentAnalyses } = await supabase
+        .from('pet_analyses')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .eq('user_id', selectedPet.user_id)
+        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('created_at', { ascending: false });
+
+      // Recupera voci del diario recenti (ultimi 7 giorni)
+      const { data: recentDiary } = await supabase
+        .from('diary_entries')
+        .select('*')
+        .eq('pet_id', selectedPet.id)
+        .eq('user_id', selectedPet.user_id)
+        .gte('entry_date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('entry_date', { ascending: false });
+
+      // Calcola DNA emotivo dai dati reali
+      let calma = 50, energia = 50, focus = 50;
+      let confidence = 0.3; // Base bassa se pochi dati
+
+      if (recentAnalyses && recentAnalyses.length > 0) {
+        // Analizza le emozioni dalle analisi comportamentali
+        const emotionCounts = {
+          calmo: 0, aggressivo: 0, ansioso: 0, felice: 0, 
+          triste: 0, eccitato: 0, spaventato: 0
+        };
+
+        recentAnalyses.forEach(analysis => {
+          if (analysis.primary_emotion && emotionCounts.hasOwnProperty(analysis.primary_emotion)) {
+            emotionCounts[analysis.primary_emotion as keyof typeof emotionCounts]++;
+          }
+          // Aggiungi emozioni secondarie
+          if (analysis.secondary_emotions) {
+            Object.keys(analysis.secondary_emotions).forEach(emotion => {
+              if (emotionCounts.hasOwnProperty(emotion)) {
+                emotionCounts[emotion as keyof typeof emotionCounts] += 0.3;
+              }
+            });
+          }
+        });
+
+        // Calcola calma (opposto di aggressivo/ansioso/spaventato)
+        const negativeEmotions = emotionCounts.aggressivo + emotionCounts.ansioso + emotionCounts.spaventato;
+        const positiveEmotions = emotionCounts.calmo + emotionCounts.felice;
+        calma = Math.max(10, Math.min(90, 50 + (positiveEmotions - negativeEmotions) * 10));
+
+        // Calcola energia (eccitato = alta energia, triste = bassa energia)
+        energia = Math.max(10, Math.min(90, 50 + (emotionCounts.eccitato - emotionCounts.triste) * 15));
+
+        confidence += recentAnalyses.length * 0.1; // Più analisi = più confidenza
+      }
+
+      if (recentDiary && recentDiary.length > 0) {
+        // Usa mood_score dal diario per raffinare i calcoli
+        const avgMoodScore = recentDiary.reduce((sum, entry) => 
+          sum + (entry.mood_score || 5), 0) / recentDiary.length;
+        
+        // Influenza calma e energia dal mood score
+        const moodInfluence = (avgMoodScore - 5) * 8; // mood 1-10 -> influenza -32 a +40
+        calma = Math.max(10, Math.min(90, calma + moodInfluence));
+        energia = Math.max(10, Math.min(90, energia + moodInfluence * 0.7));
+
+        // Analizza behavioral_tags per il focus
+        const allTags = recentDiary.flatMap(entry => entry.behavioral_tags || []);
+        const focusImpactingTags = {
+          'distratto': -15, 'agitato': -10, 'ansioso': -12,
+          'calmo': +10, 'concentrato': +15, 'attento': +12
+        };
+        
+        let focusAdjustment = 0;
+        allTags.forEach(tag => {
+          if (focusImpactingTags[tag as keyof typeof focusImpactingTags]) {
+            focusAdjustment += focusImpactingTags[tag as keyof typeof focusImpactingTags];
+          }
+        });
+        focus = Math.max(10, Math.min(90, focus + focusAdjustment / Math.max(1, allTags.length) * 20));
+
+        confidence += recentDiary.length * 0.05; // Contributo del diario
+      }
+
+      // Limita confidence tra 0.1 e 0.95
+      confidence = Math.max(0.1, Math.min(0.95, confidence));
+
+      const realDNA: EmotionalDNA = {
+        calma: Math.round(calma),
+        energia: Math.round(energia),
+        focus: Math.round(focus),
         lastUpdated: now,
-        confidence: 0.85
+        confidence: Math.round(confidence * 100) / 100
       };
+
+      console.log('DNA Emotivo calcolato dai dati reali:', realDNA, {
+        analysesCount: recentAnalyses?.length || 0,
+        diaryCount: recentDiary?.length || 0
+      });
 
       setState(prev => ({
         ...prev,
-        emotionalDNA: mockDNA,
+        emotionalDNA: realDNA,
         lastUpdate: now,
         isLoading: false
       }));
