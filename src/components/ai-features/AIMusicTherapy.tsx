@@ -133,7 +133,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const [volume, setVolume] = useState([70]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [moodAdaptation, setMoodAdaptation] = useState(true);
+  const [moodAdaptation] = useState(true); // Always enabled by default
   const [showCategories, setShowCategories] = useState(true);
   const [emotionalDNA, setEmotionalDNA] = useState({ calma: 50, energia: 50, focus: 50 });
   const [sessionProgress, setSessionProgress] = useState(0);
@@ -791,37 +791,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-orange-200 dark:border-orange-800">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Impostazioni Avanzate
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <span className="text-sm font-medium">Adattamento in tempo reale</span>
-                <p className="text-xs text-muted-foreground">
-                  Modifica automaticamente le frequenze basandosi sul comportamento
-                </p>
-              </div>
-              <Switch
-                checked={moodAdaptation}
-                onCheckedChange={setMoodAdaptation}
-              />
-            </div>
-            {moodAdaptation && (
-              <div className="text-xs text-primary bg-primary/10 p-2 rounded">
-                ✨ L'AI adatterà automaticamente frequenze e ritmo basandosi sul comportamento in tempo reale
-              </div>
-            )}
-            <div className="text-xs text-muted-foreground">
-              <Headphones className="h-3 w-3 inline mr-1" />
-              Per risultati ottimali, utilizza cuffie di qualità
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
