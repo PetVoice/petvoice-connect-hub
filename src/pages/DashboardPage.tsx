@@ -1618,7 +1618,7 @@ const DashboardPage: React.FC = () => {
             className="w-full h-32 rounded-lg object-cover"
           />
           <img
-            src="https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+            src="https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
             alt="Cat"
             className="w-full h-32 rounded-lg object-cover"
           />
