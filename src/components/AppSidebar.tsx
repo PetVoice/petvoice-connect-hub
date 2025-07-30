@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, PawPrint, Microscope, Music, Brain, BookOpen, Calendar, Heart, BarChart3, Users, HeadphonesIcon, Settings } from 'lucide-react';
 import { useLocation, NavLink } from 'react-router-dom';
+import { useRoutePreloader } from '@/hooks/useLazyComponent';
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +13,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+
+
+// Route preload mapping
+const routePreloadMap: Record<string, () => Promise<any>> = {
+  '/pets': () => import('@/pages/PetsPage'),
+  '/analysis': () => import('@/pages/AnalysisPage'),
+  '/ai-music-therapy': () => import('@/pages/AIMusicTherapyPage'),
+  '/training': () => import('@/pages/TrainingPage'),
+  '/diary': () => import('@/pages/DiaryPage'),
+  '/calendar': () => import('@/pages/CalendarPage'),
+  '/community': () => import('@/pages/CommunityPage'),
+  '/support': () => import('@/pages/SupportPage'),
+  '/settings': () => import('@/pages/SettingsPage'),
+};
 
 // Complete navigation items array with uniform spacing
 const menuItems = [
@@ -30,6 +45,7 @@ const menuItems = [
 const AppSidebar: React.FC = () => {
   const { state, openMobile, setOpenMobile, isMobile } = useSidebar();
   const location = useLocation();
+  const { preloadRoute } = useRoutePreloader();
   
   const isCollapsed = state === 'collapsed';
 
@@ -45,6 +61,14 @@ const AppSidebar: React.FC = () => {
       return location.pathname === '/';
     }
     return location.pathname.startsWith(path);
+  };
+
+  // Handle route preloading on hover/focus
+  const handlePreload = (url: string) => {
+    const preloadFn = routePreloadMap[url];
+    if (preloadFn) {
+      preloadRoute(url, preloadFn);
+    }
   };
 
   return (
@@ -74,6 +98,8 @@ const AppSidebar: React.FC = () => {
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <NavLink 
                         to={item.url} 
+                        onMouseEnter={() => handlePreload(item.url)}
+                        onFocus={() => handlePreload(item.url)}
                         className={`flex items-center px-3 py-2 rounded-lg group relative ${
                           isActive(item.url)
                             ? 'bg-primary/10 text-primary border-l-2 border-primary shadow-glow transform scale-[1.02] !important'

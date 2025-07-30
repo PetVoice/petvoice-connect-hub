@@ -5,39 +5,296 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
+import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
+import { NotificationManager } from '@/components/NotificationManager';
+
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import { AdminLayout } from "@/components/AdminLayout";
-import DashboardPage from "@/pages/DashboardPage";
-import PetsPage from "@/pages/PetsPage";
-import AnalysisPage from "@/pages/AnalysisPage";
-import DiaryPage from "@/pages/DiaryPage";
-import CalendarPage from "@/pages/CalendarPage";
+import { LazyWrapper } from "@/components/ui/lazy-wrapper";
+import { useLazyComponent } from "@/hooks/useLazyComponent";
 
-import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
+// Non-lazy imports (always needed)
 import AuthPage from "@/pages/AuthPage";
-
-import CommunityPage from "@/pages/CommunityPage";
-import SubscriptionPage from "@/pages/SubscriptionPage";
-import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Index } from "./pages/Index";
-
-import SupportPage from "@/pages/SupportPage";
-import PetMatchingPage from "@/pages/PetMatchingPage";
-import TrainingPage from "@/pages/TrainingPage";
-import TrainingDashboard from "@/pages/TrainingDashboard";
-
-// Admin Pages
-import { AdminDashboard } from "./pages/admin/AdminDashboard";
-import { AdminTickets } from "./pages/admin/AdminTickets";
-
-import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
-import { NotificationEventsProvider } from './contexts/NotificationEventsContext';
-import { NotificationManager } from '@/components/NotificationManager';
+
+// Lazy page imports
+const DashboardPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/DashboardPage"),
+    { delay: 0, preload: true }
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const PetsPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/PetsPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="list"
+    />
+  );
+};
+
+const AnalysisPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/AnalysisPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const DiaryPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/DiaryPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const CalendarPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/CalendarPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const CommunityPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/CommunityPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="list"
+    />
+  );
+};
+
+const SettingsPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/SettingsPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const TrainingPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/TrainingPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const TrainingDashboard = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/TrainingDashboard")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const SupportPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/SupportPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="list"
+    />
+  );
+};
+
+const PetMatchingPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/PetMatchingPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const AIMusicTherapyPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/AIMusicTherapyPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const SubscriptionPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/SubscriptionPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const SubscriptionSuccessPage = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("@/pages/SubscriptionSuccessPage")
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+// Admin pages
+const AdminDashboard = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("./pages/admin/AdminDashboard").then(module => ({ default: module.AdminDashboard }))
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="card"
+    />
+  );
+};
+
+const AdminTickets = () => {
+  const { Component, hasError, isLoading, retry, canRetry } = useLazyComponent(
+    () => import("./pages/admin/AdminTickets").then(module => ({ default: module.AdminTickets }))
+  );
+  return (
+    <LazyWrapper
+      Component={Component}
+      hasError={hasError}
+      isLoading={isLoading}
+      onRetry={retry}
+      canRetry={canRetry}
+      fallbackType="skeleton"
+      skeletonVariant="list"
+    />
+  );
+};
 
 const queryClient = new QueryClient();
 

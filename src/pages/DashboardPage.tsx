@@ -43,7 +43,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { SkeletonLoader } from '@/components/ui/skeleton-loader';
 import { useSkeletonState } from '@/hooks/useSkeletonState';
 import { LazyImage } from '@/components/ui/lazy-image';
-import ImageGalleryTest from '@/components/test/ImageGalleryTest';
 import { format, isToday, subDays } from 'date-fns';
 import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -1601,32 +1600,31 @@ const DashboardPage: React.FC = () => {
           Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
         </p>
         
-        {/* Test Lazy Loading Images */}
+        {/* Pet Gallery - Lazy Loading Demo */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
           <LazyImage
             src="https://images.unsplash.com/photo-1552053110-0b6e75d24dba?w=400&h=400&fit=crop"
             alt="Golden Retriever"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg"
-            placeholderSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMCAyNEMyMi4yMDkxIDI0IDI0IDE5LjUyMjggMjQgMTRDMjQgOC40NzcxNSAyMi4yMDkxIDQgMjAgNEMxNy43OTA5IDQgMTYgOC40NzcxNSAxNiAxNEMxNiAxOS41MjI4IDE3Ljc5MDkgMjQgMjAgMjRaIiBmaWxsPSIjOUM5Qzk3Ii8+CjxwYXRoIGQ9Ik0yMCAyOEMyNi42Mjc0IDI4IDMyIDI2LjIwOTEgMzIgMjBDMzIgMTMuNzkwOSAyNi42Mjc0IDEyIDIwIDEyQzEzLjM3MjYgMTIgOCAxMy43OTA5IDggMjBDOCAyNi4yMDkxIDEzLjM3MjYgMjggMjAgMjhaIiBmaWxsPSIjOUM5Qzk3Ii8+Cjwvc3ZnPgo="
+            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
           <LazyImage
             src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop"
             alt="Cat"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg"
+            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
           <LazyImage
             src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&h=400&fit=crop"
             alt="Labrador"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg"
+            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
           <LazyImage
             src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=400&fit=crop"
             alt="Pet birds"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg"
+            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
         </div>
       </div>
@@ -3118,10 +3116,6 @@ const DashboardPage: React.FC = () => {
           variant="destructive"
         />
       )}
-
-      {/* Image Lazy Loading Test Section */}
-      <ImageGalleryTest />
-
     </div>
   );
 };
