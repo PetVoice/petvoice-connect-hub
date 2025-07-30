@@ -339,7 +339,7 @@ const VideoRecorder: React.FC<VideoRecorderProps> = ({
               disabled={permission === 'denied'}
               variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-purple-700 hover:!bg-purple-800 hover:scale-105 shadow-lg",
                 recordingState.isRecording && "!bg-red-500 hover:!bg-red-600 animate-pulse"
               )}
             >
