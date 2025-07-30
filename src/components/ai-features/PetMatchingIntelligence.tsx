@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { LazyImage } from '@/components/ui/lazy-image';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -125,7 +126,7 @@ const mockPetTwins: PetTwin[] = [
     age: 3,
     location: 'Milano, IT',
     distance: 2.5,
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1552053110-0b6e75d24dba?w=400&h=400&fit=crop&crop=face',
     owner: 'Marco R.',
     matchScore: 94,
     behavioralDNA: ['Giocoso', 'Ansioso', 'Socievole', 'Energico'],
@@ -147,7 +148,7 @@ const mockPetTwins: PetTwin[] = [
     age: 2,
     location: 'Roma, IT',
     distance: 15.2,
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&crop=face',
     owner: 'Sofia M.',
     matchScore: 89,
     behavioralDNA: ['Indipendente', 'Curioso', 'Affettuoso', 'Notturno'],
@@ -169,7 +170,7 @@ const mockPetTwins: PetTwin[] = [
     age: 4,
     location: 'Torino, IT',
     distance: 8.7,
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&h=400&fit=crop&crop=face',
     owner: 'Andrea L.',
     matchScore: 87,
     behavioralDNA: ['Fedele', 'Protettivo', 'Goloso', 'Energico'],
@@ -189,7 +190,7 @@ const mockMentors: MentorMatch[] = [
   {
     id: '1',
     name: 'Dr. Elena Rossi',
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=face',
     experience: 8,
     specialties: ['Ansia da separazione', 'Addestramento cuccioli', 'Socializzazione'],
     location: 'Milano, IT',
@@ -209,7 +210,7 @@ const mockMentors: MentorMatch[] = [
   {
     id: '2',
     name: 'Luigi Bianchi',
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
     experience: 12,
     specialties: ['Aggressività', 'Cani di taglia grande', 'Riabilitazione'],
     location: 'Roma, IT',
@@ -229,7 +230,7 @@ const mockMentors: MentorMatch[] = [
   {
     id: '3',
     name: 'Maria Cattaneo',
-    avatar: '/placeholder.svg',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
     experience: 6,
     specialties: ['Gatti', 'Comportamento felino', 'Stress ambientale'],
     location: 'Napoli, IT',
@@ -770,11 +771,18 @@ export const PetMatchingIntelligence: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <Avatar className="h-12 w-12 border-2 border-primary/30">
                           {twin.avatar && twin.avatar.startsWith('http') ? (
-                            <AvatarImage src={twin.avatar} alt={twin.name} />
-                          ) : null}
-                          <AvatarFallback className="bg-primary/20 text-primary text-2xl">
-                            {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
-                          </AvatarFallback>
+                            <LazyImage 
+                              src={twin.avatar} 
+                              alt={twin.name}
+                              fallbackSrc="/default-avatar.png"
+                              className="w-full h-full object-cover rounded-full"
+                              containerClassName="w-full h-full rounded-full"
+                            />
+                          ) : (
+                            <AvatarFallback className="bg-primary/20 text-primary text-2xl">
+                              {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
+                            </AvatarFallback>
+                          )}
                         </Avatar>
                         <div>
                           <h3 className="font-semibold text-lg">{twin.name}</h3>
@@ -879,11 +887,18 @@ export const PetMatchingIntelligence: React.FC = () => {
                               <DialogTitle className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10">
                                   {twin.avatar && twin.avatar.startsWith('http') ? (
-                                    <AvatarImage src={twin.avatar} alt={twin.name} />
-                                  ) : null}
-                                  <AvatarFallback className="text-xl">
-                                    {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
-                                  </AvatarFallback>
+                                    <LazyImage 
+                                      src={twin.avatar} 
+                                      alt={twin.name}
+                                      fallbackSrc="/default-avatar.png"
+                                      className="w-full h-full object-cover rounded-full"
+                                      containerClassName="w-full h-full rounded-full"
+                                    />
+                                  ) : (
+                                    <AvatarFallback className="text-xl">
+                                      {twin.avatar && !twin.avatar.startsWith('http') ? twin.avatar : twin.name.substring(0, 2)}
+                                    </AvatarFallback>
+                                  )}
                                 </Avatar>
                                 <div>
                                   <h2 className="text-xl font-bold">{twin.name}</h2>

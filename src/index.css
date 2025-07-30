@@ -533,6 +533,46 @@ button:not(.no-hover):hover,
     @apply bg-muted rounded-md h-10;
   }
 
+  /* Lazy Image Loading System */
+  .lazy-image-container {
+    @apply relative overflow-hidden bg-muted rounded;
+  }
+  
+  .lazy-image {
+    @apply w-full h-full object-cover transition-all duration-500;
+  }
+  
+  .lazy-image-loaded {
+    @apply opacity-100 scale-100;
+  }
+  
+  .lazy-image-placeholder {
+    @apply absolute inset-0 bg-muted;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 0.5s ease-out;
+  }
+  
+  .lazy-image-error {
+    @apply opacity-75 grayscale;
+  }
+  
+  .lazy-image-spinner {
+    @apply animate-spin text-primary/60;
+  }
+  
+  /* Blur effect utilities */
+  .blur-placeholder {
+    filter: blur(20px);
+    transform: scale(1.1);
+    transition: all 0.5s ease-out;
+  }
+  
+  .blur-loaded {
+    filter: blur(0);
+    transform: scale(1);
+  }
+
   /* Azzurrino Card System */
   .petvoice-insight-card {
     @apply bg-card text-card-foreground border border-primary/20 rounded-lg p-4 shadow-soft hover:shadow-glow transition-smooth hover:border-primary/40;
