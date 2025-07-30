@@ -278,7 +278,7 @@ const PhotoCapture: React.FC<PhotoCaptureProps> = ({
               disabled={permission === 'denied'}
               variant="ghost"
               className={cn(
-                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-orange-700 hover:!bg-orange-800 hover:scale-105 shadow-lg",
+                "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200 !bg-pink-700 hover:!bg-pink-800 hover:scale-105 shadow-lg",
                 isCapturing && "!bg-red-500 hover:!bg-red-600"
               )}
             >
