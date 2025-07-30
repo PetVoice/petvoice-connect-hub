@@ -1948,11 +1948,11 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <p className="text-lg text-muted-foreground mb-6">Nessun parametro vitale registrato</p>
                   <Button 
-                    onClick={() => navigate('/diary')}
+                    onClick={() => handleAddItem('vitals')}
                     className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     <Activity className="h-5 w-5 mr-2" />
-                    Registra Parametri
+                    Aggiungi Parametri
                   </Button>
                 </div>
               )}
