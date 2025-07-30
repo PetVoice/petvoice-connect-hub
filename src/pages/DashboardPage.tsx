@@ -2918,17 +2918,17 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="flex gap-2 pt-4">
               <Button 
+                variant="outline" 
+                onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}
+              >
+                Annulla
+              </Button>
+              <Button 
                 onClick={handleVitalSubmit} 
                 className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {vitalModal.mode === 'add' ? 'Aggiungi Parametro' : 'Salva Parametro'}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}
-              >
-                Annulla
               </Button>
             </div>
           </div>
