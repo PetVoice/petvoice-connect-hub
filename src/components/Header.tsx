@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, Moon, Sun, LogOut, Settings, User, Plus, X, ExternalLink } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ import { it } from 'date-fns/locale';
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const isMobile = useIsMobile();
   
   const { pets, selectedPetId, setSelectedPetId, loading: loadingPets } = usePets();
   const navigate = useNavigate();
@@ -97,30 +99,38 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="flex h-full items-center justify-between px-4">
+    <header className={`border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 ${
+      isMobile ? 'h-12' : 'h-16'
+    }`}>
+      <div className={`flex h-full items-center justify-between ${
+        isMobile ? 'px-3' : 'px-4'
+      }`}>
         {/* Left side - Sidebar trigger */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <SidebarTrigger />
         </div>
 
         {/* Right side - Controls */}
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2'}`}>
           {/* Pet Selector */}
           <Select value={selectedPetId} onValueChange={handlePetChange}>
-            <SelectTrigger className="w-32 h-9">
-              <div className="flex items-center gap-2">
+            <SelectTrigger className={`h-8 ${
+              isMobile ? 'w-24' : 'w-32'
+            } md:h-9`}>
+              <div className="flex items-center gap-1 md:gap-2">
                 {loadingPets ? (
-                  <div className="w-4 h-4 border-2 border-azure/30 border-t-azure rounded-full animate-spin" />
+                  <div className={`border-2 border-azure/30 border-t-azure rounded-full animate-spin ${
+                    isMobile ? 'w-3 h-3' : 'w-4 h-4'
+                  }`} />
                 ) : currentPet ? (
                   <>
-                    <span className="text-lg">{getPetEmoji(currentPet.type)}</span>
-                    <span className="text-sm font-medium truncate">{currentPet.name}</span>
+                    <span className={isMobile ? 'text-sm' : 'text-lg'}>{getPetEmoji(currentPet.type)}</span>
+                    {!isMobile && <span className="text-sm font-medium truncate">{currentPet.name}</span>}
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4 text-coral" />
-                    <span className="text-sm font-medium text-coral">Aggiungi</span>
+                    <Plus className={`text-coral ${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                    {!isMobile && <span className="text-sm font-medium text-coral">Aggiungi</span>}
                   </>
                 )}
               </div>
@@ -153,12 +163,12 @@ const Header: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={toggleTheme}
-            className="h-9 w-9"
+            className={isMobile ? 'h-8 w-8' : 'h-9 w-9'}
           >
             {theme === 'dark' ? (
-              <Sun className="h-4 w-4" />
+              <Sun className={isMobile ? 'h-3 w-3' : 'h-4 w-4'} />
             ) : (
-              <Moon className="h-4 w-4" />
+              <Moon className={isMobile ? 'h-3 w-3' : 'h-4 w-4'} />
             )}
           </Button>
 
@@ -168,20 +178,26 @@ const Header: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-9 w-9 relative"
+                className={`relative ${isMobile ? 'h-8 w-8' : 'h-9 w-9'}`}
               >
-                <Bell className="h-4 w-4" />
+                <Bell className={isMobile ? 'h-3 w-3' : 'h-4 w-4'} />
                 {unreadCount > 0 && (
                   <Badge 
                     variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+                    className={`absolute rounded-full p-0 flex items-center justify-center text-xs ${
+                      isMobile 
+                        ? '-top-0.5 -right-0.5 h-4 w-4' 
+                        : '-top-1 -right-1 h-5 w-5'
+                    }`}
                   >
                     {unreadCount}
                   </Badge>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0 shadow-elegant" align="end">
+            <PopoverContent className={`p-0 shadow-elegant ${
+              isMobile ? 'w-72' : 'w-80'
+            }`} align="end">
               <div className="p-4 border-b flex items-center justify-between">
                 <h4 className="font-semibold">Notifiche</h4>
                 <div className="flex items-center gap-2">
@@ -250,8 +266,8 @@ const Header: React.FC = () => {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-9 w-9">
-                <User className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className={isMobile ? 'h-8 w-8' : 'h-9 w-9'}>
+                <User className={isMobile ? 'h-3 w-3' : 'h-4 w-4'} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
