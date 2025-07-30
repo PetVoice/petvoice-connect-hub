@@ -1603,27 +1603,28 @@ const DashboardPage: React.FC = () => {
         {/* Pet Gallery - Lazy Loading Demo */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
           <img
-            src="https://images.unsplash.com/photo-1552053110-0b6e75d24dba?w=400&h=400&fit=crop"
+            src="https://images.unsplash.com/photo-1552053110-0b6e75d24dba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
             alt="Golden Retriever"
             className="w-full h-32 rounded-lg object-cover"
+            onError={(e) => {
+              console.log('Image failed to load, using fallback');
+              e.currentTarget.src = '/default-avatar.png';
+            }}
           />
-          <LazyImage
-            src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop"
+          <img
+            src="https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
             alt="Cat"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
-          <LazyImage
-            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=400&h=400&fit=crop"
+          <img
+            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
             alt="Labrador"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
-          <LazyImage
-            src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400&h=400&fit=crop"
+          <img
+            src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
             alt="Pet birds"
             className="w-full h-32 rounded-lg object-cover"
-            containerClassName="bg-muted rounded-lg overflow-hidden"
           />
         </div>
       </div>
