@@ -952,67 +952,127 @@ const SupportPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4">
-            {/* FAQ aggiornate con informazioni sulle nuove funzionalità */}
+            {/* FAQ reali basate sulle funzionalità del codice */}
             {[
               {
                 id: '1',
-                question: 'Come funziona la nuova interfaccia colorata delle analisi?',
-                answer: 'Abbiamo introdotto un sistema di colori intuitivo nella pagina di analisi per migliorare l\'usabilità:\n\n🎨 **Codifica Colori:**\n• 🟦 **INDIGO** → Analisi Testuale con "🧠 Analisi Avanzata con IA"\n• 🌸 **ROSA** → Analisi Foto con "📸 Analisi Foto Avanzata con IA"\n• 🟣 **VIOLA** → Analisi Video con "🎬 Analisi Video Avanzata con IA"\n• 🟠 **ARANCIONE** → Analisi Audio con "🎙️ Analisi Audio Avanzata con IA"\n• 🪸 **CORAL** → Upload Multimediale con "📊 Analisi Multimediale Avanzata con IA"\n\n✨ **Vantaggi:**\n• Navigazione più intuitiva\n• Identificazione rapida delle funzioni\n• Esperienza utente migliorata\n• Accessibilità aumentata per tutte le età',
-                category: 'features',
-                tags: ['interfaccia', 'colori', 'analisi', 'usabilità'],
-                helpful_count: 15,
-                not_helpful_count: 1,
-                view_count: 143
+                question: 'Cos\'è PetVoice e come funziona?',
+                answer: 'PetVoice è una piattaforma avanzata che utilizza l\'intelligenza artificiale per analizzare il comportamento dei tuoi animali domestici. La piattaforma offre diverse sezioni: **Dashboard** con panoramica generale e metriche wellness, **Pet** per gestire profili completi, **Analisi** AI per comportamenti, **Diario** per tracciare attività quotidiane, **Calendario** per appuntamenti, e funzioni avanzate come Music Therapy AI e Machine Learning.',
+                category: 'general',
+                tags: ['introduzione', 'funzionalità'],
+                helpful_count: 45,
+                not_helpful_count: 2,
+                view_count: 1200
               },
               {
                 id: '2',
-                question: 'Che tipi di analisi comportamentale posso fare?',
-                answer: 'PetVoice offre 5 modalità di analisi avanzate:\n\n🧠 **ANALISI TESTUALE** (Indigo):\n• Max 2.000 caratteri\n• Elaborazione NLP istantanea\n• Accuratezza: 92-97%\n• Ideale per: Descrizioni comportamentali dettagliate\n\n📸 **ANALISI FOTO** (Rosa):\n• Max 10MB per immagine\n• Computer Vision avanzata\n• Tempo: 10-20 secondi\n• Rileva: Espressioni, postura, micro-segnali\n\n🎬 **ANALISI VIDEO** (Viola):\n• Max 5 minuti di durata\n• Analisi movimento + audio\n• Tempo: 20-45 secondi\n• Combina: Visual + audio analysis\n\n🎙️ **ANALISI AUDIO** (Arancione):\n• Max 5 minuti di registrazione\n• Riconoscimento tono e pitch\n• Tempo: 15-30 secondi\n• Rileva: Vocalizzazioni, stress, emozioni\n\n📊 **ANALISI MULTIMEDIALE** (Coral):\n• Caricamento file multipli\n• Analisi correlata e incrociata\n• Accuratezza superiore (fino al 98%)\n• Risultati unificati e completi',
-                category: 'features',
-                tags: ['analisi', 'AI', 'comportamento', 'modalità'],
-                helpful_count: 28,
-                not_helpful_count: 2,
-                view_count: 267
+                question: 'Che tipi di file posso caricare per le analisi?',
+                answer: 'PetVoice supporta diversi tipi di file per le analisi comportamentali:\n\n**Audio:** MP3, WAV, M4A, AAC, OGG (massimo 100MB)\n**Video:** MP4, MOV, AVI, WebM (massimo 100MB)\n**Immagini:** JPEG, PNG, WebP, GIF (massimo 100MB)\n**Testo:** Descrizioni fino a 2000 caratteri\n\nPuoi anche usare le funzioni integrate per registrare audio, scattare foto o registrare video direttamente dall\'app.',
+                category: 'technical',
+                tags: ['file', 'formati', 'upload'],
+                helpful_count: 38,
+                not_helpful_count: 1,
+                view_count: 856
               },
               {
                 id: '3',
-                question: 'Come funziona l\'auto-analisi intelligente?',
-                answer: 'L\'auto-analisi rende il workflow più veloce e automatizzato:\n\n⚡ **Analisi Automatica per:**\n• File immagine caricati\n• File video caricati\n• File audio (se abilitato nelle impostazioni)\n\n🔄 **Come Funziona:**\n1. Carichi/registri il contenuto\n2. Il sistema rileva automaticamente il tipo\n3. Avvia l\'analisi senza click aggiuntivi\n4. Ricevi notifica quando pronta\n\n⚙️ **Controllo Utente:**\n• Puoi disabilitare l\'auto-analisi nelle impostazioni\n• Mantieni sempre il controllo manuale\n• Possibilità di rivedere prima dell\'invio\n\n💡 **Beneficio:** Workflow più veloce e automatizzato, riducendo i passaggi necessari per ottenere risultati!',
+                question: 'Come interpreto i risultati delle analisi?',
+                answer: 'I risultati delle analisi mostrano:\n\n**Emozione primaria** con percentuale di confidenza (>70% = alta affidabilità)\n**Emozioni secondarie** rilevate nel comportamento\n**Insight comportamentali** dettagliati e specifici\n**Raccomandazioni** personalizzate per il tuo pet\n**Trigger** identificati che potrebbero aver causato il comportamento\n\nTutte le analisi vengono salvate nella cronologia per confronti futuri.',
                 category: 'features',
-                tags: ['auto-analisi', 'automatico', 'workflow', 'velocità'],
-                helpful_count: 22,
-                not_helpful_count: 0,
-                view_count: 189
+                tags: ['risultati', 'interpretazione', 'confidenza'],
+                helpful_count: 42,
+                not_helpful_count: 3,
+                view_count: 734
               },
               {
                 id: '4',
-                question: 'Posso analizzare più file contemporaneamente?',
-                answer: 'Sì! L\'analisi multimediale combinata è la nostra funzione più avanzata:\n\n📊 **Caricamento Multiplo:**\n• Trascina più file contemporaneamente\n• Diversi tipi di media insieme\n• Analisi correlata e incrociata\n• Risultati unificati e completi\n\n🔗 **Correlazioni Intelligenti:**\n• Audio + Video = Analisi comportamentale completa\n• Foto + Descrizione = Context enhancement\n• File multipli stesso evento = Maggiore precisione\n\n📈 **Vantaggi:**\n• Accuratezza superiore (fino al 98%)\n• Insights più profondi e dettagliati\n• Raccomandazioni più specifiche\n• Report veterinario più completo\n\n💫 **Tip:** Combina più modalità per i migliori risultati! Ad esempio: registra un video del comportamento + aggiungi descrizione testuale per massima precisione.',
+                question: 'Come aggiungo e gestisco i miei pet?',
+                answer: 'Per aggiungere un pet:\n\n1. Vai nella sezione **Pet**\n2. Clicca **Aggiungi Pet**\n3. Compila informazioni: nome, tipo (cane/gatto/altro), razza, data nascita\n4. Aggiungi dettagli opzionali: peso, allergie, paure, attività preferite\n5. Carica una foto profilo\n\nPuoi gestire più pet contemporaneamente usando il selettore in alto. Ogni pet ha il suo profilo separato con dati indipendenti.',
                 category: 'features',
-                tags: ['file multipli', 'combinata', 'correlazione', 'accuratezza'],
-                helpful_count: 31,
+                tags: ['pet', 'gestione', 'profilo'],
+                helpful_count: 52,
                 not_helpful_count: 1,
-                view_count: 298
+                view_count: 890
               },
               {
                 id: '5',
-                question: 'I pulsanti dell\'analisi hanno colori diversi, perché?',
-                answer: 'Abbiamo implementato un sistema di colori coordinato per migliorare l\'usabilità:\n\n🔘 **Design Coordinato:**\n• Ogni pulsante ha lo stesso colore del titolo corrispondente\n• Pulsanti più grandi e visibili (32x32px)\n• Effetti hover migliorati (scale 1.02)\n• Ombre e gradienti per maggiore profondità\n\n🎯 **Coordinazione Colori:**\n• Pulsante e titolo sempre dello stesso colore\n• Contrasto ottimizzato per leggibilità WCAG 2.1\n• Stati attivi/disattivi chiaramente distinti\n• Feedback visivo immediato su hover e click\n\n💡 **Benefici:**\n• Più facile trovare e usare le funzioni\n• Esperienza più fluida e intuitiva\n• Accessibilità migliorata per tutte le età\n• Riduzione dei tempi di apprendimento',
-                category: 'technical',
-                tags: ['pulsanti', 'colori', 'design', 'accessibilità'],
-                helpful_count: 19,
-                not_helpful_count: 0,
-                view_count: 156
+                question: 'Come funziona il Diario del pet?',
+                answer: 'Il Diario ti permette di tracciare le attività quotidiane del tuo pet:\n\n**Voci giornaliere** con titolo, contenuto e mood score (1-10)\n**Tag comportamentali** per categorizzare eventi\n**Vista calendario** per visualizzare i dati nel tempo\n**Filtri** per cercare per data, tag o categoria\n**Export PDF** per report veterinari\n\nI dati del diario vengono integrati con le analisi AI per insights più completi.',
+                category: 'features',
+                tags: ['diario', 'tracking', 'quotidiano'],
+                helpful_count: 29,
+                not_helpful_count: 2,
+                view_count: 567
               },
               {
                 id: '6',
-                question: 'Come posso ottenere i migliori risultati dall\'analisi AI?',
-                answer: 'Segui questi consigli per massimizzare l\'accuratezza dell\'analisi:\n\n📸 **Per Foto e Video:**\n• Usa buona illuminazione naturale\n• Mantieni il pet al centro dell\'inquadratura\n• Evita sfondi troppo caotici\n• Risoluzione minima: 800x600px\n\n🎙️ **Per Audio:**\n• Registra in ambiente silenzioso\n• Mantieni il microfono vicino al pet\n• Durata ideale: 30 secondi - 2 minuti\n• Evita rumori di fondo\n\n📝 **Per Descrizioni Testuali:**\n• Sii specifico e dettagliato\n• Includi contesto (ora, luogo, situazione)\n• Descrivi comportamenti osservabili\n• Usa almeno 50-100 parole\n\n🔄 **Per Analisi Multiple:**\n• Combina diversi tipi di media\n• Carica file dello stesso evento\n• Aggiungi sempre una descrizione testuale\n• Più dati = maggiore precisione',
-                category: 'general',
-                tags: ['consigli', 'accuratezza', 'qualità', 'best practices'],
-                helpful_count: 35,
+                question: 'Come pianificare appuntamenti nel Calendario?',
+                answer: 'Il Calendario ti aiuta a organizzare appuntamenti e promemoria:\n\n**Tipi di eventi:** Veterinario, toelettatura, vaccinazioni, promemoria farmaci\n**Notifiche** automatiche prima degli appuntamenti\n**Vista mensile/settimanale** per panoramica completa\n**Export PDF** per stampare il calendario\n**Integrazione** con calendari esterni (Google Calendar, Outlook)\n\nPuoi creare eventi ricorrenti e gestire promemoria personalizzati.',
+                category: 'features',
+                tags: ['calendario', 'appuntamenti', 'promemoria'],
+                helpful_count: 33,
                 not_helpful_count: 0,
-                view_count: 421
+                view_count: 445
+              },
+              {
+                id: '7',
+                question: 'Che emozioni può rilevare il sistema AI?',
+                answer: 'Il sistema AI riconosce diverse emozioni principali:\n\n**Positive:** Felice, Calmo, Giocoso, Rilassato, Eccitato\n**Negative:** Ansioso, Triste, Aggressivo\n\nOgni emozione viene associata a:\n- Insight comportamentali specifici\n- Raccomandazioni personalizzate\n- Possibili trigger identificati\n- Livello di confidenza dell\'analisi\n\nL\'accuratezza varia dal 85-95% in base alla qualità del contenuto.',
+                category: 'features',
+                tags: ['emozioni', 'AI', 'riconoscimento'],
+                helpful_count: 41,
+                not_helpful_count: 2,
+                view_count: 623
+              },
+              {
+                id: '8',
+                question: 'Come funzionano le previsioni comportamentali?',
+                answer: 'La sezione **Previsioni** nella pagina Analisi utilizza machine learning per:\n\n**Analizzare** dati storici di analisi, diario e wellness\n**Identificare** pattern e tendenze comportamentali\n**Predire** possibili problemi futuri\n**Suggerire** interventi preventivi\n**Monitorare** l\'evoluzione del benessere nel tempo\n\nLe previsioni diventano più accurate con più dati raccolti.',
+                category: 'features',
+                tags: ['previsioni', 'machine learning', 'tendenze'],
+                helpful_count: 35,
+                not_helpful_count: 1,
+                view_count: 498
+              },
+              {
+                id: '9',
+                question: 'Posso esportare i dati del mio pet?',
+                answer: 'Sì, puoi esportare i dati in diversi formati:\n\n**PDF:** Report completi dalla Dashboard, Calendario e Diario\n**Include:** Analisi, eventi, metriche wellness, grafici trend\n**Utilità:** Report veterinari, backup personali, condivisione\n\nI report PDF sono formattati professionalmente e includono tutte le informazioni rilevanti per il tuo pet.',
+                category: 'technical',
+                tags: ['export', 'PDF', 'backup'],
+                helpful_count: 28,
+                not_helpful_count: 1,
+                view_count: 367
+              },
+              {
+                id: '10',
+                question: 'Quali browser e dispositivi sono supportati?',
+                answer: 'PetVoice funziona su:\n\n**Browser:** Chrome (consigliato), Firefox, Safari, Edge (versioni aggiornate)\n**Dispositivi:** Desktop, tablet, smartphone\n**Funzioni mobile:** Registrazione audio/video, cattura foto, tutte le funzionalità\n**Requisiti:** Connessione internet stabile, microfono/fotocamera per funzioni multimediali\n\nL\'interfaccia è completamente responsive e ottimizzata per tutti i dispositivi.',
+                category: 'technical',
+                tags: ['compatibilità', 'browser', 'mobile'],
+                helpful_count: 25,
+                not_helpful_count: 1,
+                view_count: 412
+              },
+              {
+                id: '11',
+                question: 'I miei dati sono sicuri?',
+                answer: 'La sicurezza è la nostra priorità:\n\n**Crittografia** end-to-end per tutti i dati\n**Server sicuri** Supabase con conformità GDPR\n**Backup automatici** giornalieri\n**File multimediali** eliminati dopo analisi\n**Controllo dati** completo dall\'utente\n**Eliminazione account** disponibile dalle impostazioni\n\nPuoi richiedere l\'eliminazione completa dei dati in qualsiasi momento.',
+                category: 'technical',
+                tags: ['sicurezza', 'privacy', 'GDPR'],
+                helpful_count: 47,
+                not_helpful_count: 0,
+                view_count: 678
+              },
+              {
+                id: '12',
+                question: 'Come funziona l\'abbonamento Premium?',
+                answer: 'Il piano Premium offre:\n\n**Analisi illimitate** (vs 10/mese gratuito)\n**Pet illimitati** (vs 1 gratuito)\n**Funzioni AI avanzate** e sperimentali\n**Priorità nel supporto** tecnico\n**Access Beta** a nuove funzionalità\n**Export avanzati** e reportistica\n\nPuoi sottoscrivere o modificare il piano dalla sezione **Abbonamento**. Cancellazione disponibile in qualsiasi momento.',
+                category: 'billing',
+                tags: ['premium', 'abbonamento', 'piani'],
+                helpful_count: 31,
+                not_helpful_count: 2,
+                view_count: 523
               }
             ].filter(faq => 
               (selectedCategory === 'all' || faq.category === selectedCategory) &&
