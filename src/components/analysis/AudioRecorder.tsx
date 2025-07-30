@@ -367,8 +367,12 @@ const AudioRecorder: React.FC<AudioRecorderProps> = ({
                 "relative z-10 w-32 h-32 rounded-full text-white transition-all duration-200",
                 recordingState.isRecording
                   ? "bg-red-500 hover:bg-red-600 shadow-lg animate-pulse"
-                  : "bg-orange-700 hover:bg-orange-800 hover:scale-105 shadow-lg"
+                  : "hover:scale-105 shadow-lg"
               )}
+              style={{
+                backgroundColor: recordingState.isRecording ? undefined : 'hsl(var(--primary))',
+                color: 'white'
+              }}
             >
               {recordingState.isRecording ? (
                 <Square className="h-8 w-8" />
