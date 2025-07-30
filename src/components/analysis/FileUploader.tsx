@@ -336,7 +336,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 onClick={handleStartAnalysis}
                 disabled={isProcessing || hasErrors}
                 variant="ghost"
-                className="w-full !bg-orange-700 hover:!bg-orange-800 text-white"
+                className="w-full !bg-coral hover:!bg-coral/90 text-white"
               >
                 {isProcessing ? (
                   <>
