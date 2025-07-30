@@ -1606,10 +1606,6 @@ const DashboardPage: React.FC = () => {
             src="https://images.unsplash.com/photo-1552053110-0b6e75d24dba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80"
             alt="Golden Retriever"
             className="w-full h-32 rounded-lg object-cover"
-            onError={(e) => {
-              console.log('Image failed to load, using fallback');
-              e.currentTarget.src = '/default-avatar.png';
-            }}
           />
           <img
             src="https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
