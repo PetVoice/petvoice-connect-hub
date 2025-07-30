@@ -83,8 +83,8 @@ const AdaptiveInsightsCard: React.FC = () => {
           <RefreshCw className="h-4 w-4" />
         </Button>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {insights.slice(0, 3).map((insight) => (
+      <CardContent className="max-h-96 overflow-y-auto space-y-4 pr-2">
+        {insights.slice(0, 5).map((insight) => (
           <div 
             key={insight.id}
             className="flex items-start gap-3 p-3 rounded-lg bg-white/50 dark:bg-gray-800/50 border border-white/20"
@@ -129,10 +129,10 @@ const AdaptiveInsightsCard: React.FC = () => {
           </div>
         ))}
         
-        {insights.length > 3 && (
+        {insights.length > 5 && (
           <div className="text-center pt-2">
             <Button variant="ghost" size="sm" className="text-xs">
-              Vedi altri {insights.length - 3} insights
+              Vedi altri {insights.length - 5} insights
             </Button>
           </div>
         )}
