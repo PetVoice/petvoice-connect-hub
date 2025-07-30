@@ -1814,10 +1814,15 @@ const DashboardPage: React.FC = () => {
                           className="group bg-white/60 border border-pink-200/50 hover:border-pink-300 hover:bg-white/80 transition-all duration-200 rounded-xl p-4 text-center cursor-pointer"
                           onClick={() => {
                             // Trova l'analisi più recente con questa emozione
-                            const recentAnalysisWithEmotion = petAnalyses.find(analysis => 
+                            const analysesWithEmotion = petAnalyses.filter(analysis => 
                               analysis.primary_emotion.toLowerCase() === emotion.toLowerCase()
                             );
-                            if (recentAnalysisWithEmotion) {
+                            
+                            if (analysesWithEmotion.length > 0) {
+                              // Ordina per data e prendi la più recente
+                              const recentAnalysisWithEmotion = analysesWithEmotion.sort((a, b) => 
+                                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                              )[0];
                               navigate(`/analysis?tab=results&analysis=${recentAnalysisWithEmotion.id}`);
                             } else {
                               navigate('/analysis?tab=results');
