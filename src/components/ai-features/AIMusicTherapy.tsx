@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAdaptiveIntelligence } from '@/contexts/AdaptiveIntelligenceContext';
 
 interface Pet {
   id: string;
@@ -56,6 +57,7 @@ interface TherapySession {
 export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { emotionalDNA, updateEmotionalDNA, refreshIntelligence } = useAdaptiveIntelligence();
   
   // Create therapy categories in Italian
   const THERAPY_CATEGORIES: TherapySession[] = [
@@ -135,7 +137,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   const [isGenerating, setIsGenerating] = useState(false);
   const [moodAdaptation] = useState(true); // Always enabled by default
   const [showCategories, setShowCategories] = useState(true);
-  const [emotionalDNA, setEmotionalDNA] = useState({ calma: 50, energia: 50, focus: 50 });
   const [sessionProgress, setSessionProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -208,58 +209,6 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
   }, [searchParams, selectedPet.name]);
 
-  // Fetch real emotional DNA from pet analyses
-  const fetchEmotionalDNA = async () => {
-    try {
-      const { data: analyses } = await supabase
-        .from('pet_analyses')
-        .select('primary_emotion, primary_confidence, secondary_emotions, created_at')
-        .eq('pet_id', selectedPet.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (analyses && analyses.length > 0) {
-        let calmaTotal = 0, energiaTotal = 0, focusTotal = 0;
-        let calmaCount = 0, energiaCount = 0, focusCount = 0;
-
-        analyses.forEach(analysis => {
-          const emotion = analysis.primary_emotion?.toLowerCase();
-          const confidence = analysis.primary_confidence || 0;
-
-          switch (emotion) {
-            case 'felice':
-            case 'calmo':
-            case 'rilassato':
-            case 'triste':
-              calmaTotal += confidence;
-              calmaCount++;
-              break;
-            case 'energico':
-            case 'giocoso':
-            case 'eccitato':
-              energiaTotal += confidence;
-              energiaCount++;
-              break;
-            case 'concentrato':
-            case 'attento':
-            case 'vigile':
-              focusTotal += confidence;
-              focusCount++;
-              break;
-          }
-        });
-
-        setEmotionalDNA({
-          calma: calmaCount > 0 ? Math.round((calmaTotal / calmaCount) * 100) : 50,
-          energia: energiaCount > 0 ? Math.round((energiaTotal / energiaCount) * 100) : 50,
-          focus: focusCount > 0 ? Math.round((focusTotal / focusCount) * 100) : 50
-        });
-      }
-    } catch (error) {
-      console.error('Errore nel fetch del DNA emotivo:', error);
-    }
-  };
-
   const generatePersonalizedPlaylist = async (category: string) => {
     setIsGenerating(true);
     setCurrentTime(0);
@@ -270,12 +219,12 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     }
     setIsPlaying(false);
     
-    await fetchEmotionalDNA();
+    await updateEmotionalDNA();
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     const categorySession = THERAPY_CATEGORIES.find(c => c.id === category);
     
-    if (categorySession) {
+    if (categorySession && emotionalDNA) {
       const personalizedSession = {
         ...categorySession,
         title: `${categorySession.title} per ${selectedPet.name}`,
@@ -494,9 +443,9 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
   };
 
   const adaptMoodRealTime = async () => {
-    if (!moodAdaptation) return;
+    if (!moodAdaptation || !emotionalDNA) return;
     
-    await fetchEmotionalDNA();
+    await updateEmotionalDNA();
     
     if (audioContextRef.current && oscillatorsRef.current.length > 0 && currentSession) {
       stopAudio();
@@ -530,11 +479,13 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
       oscillatorsRef.current = [oscillator1, oscillator2];
     }
     
-    toast({
-      title: "🔄 Adattamento in tempo reale",
-      description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
-      className: "bg-green-50 border-green-200 text-green-800",
-    });
+    if (emotionalDNA) {
+      toast({
+        title: "🔄 Adattamento in tempo reale",
+        description: `Frequenze adattate: Calma ${emotionalDNA.calma}%, Energia ${emotionalDNA.energia}%, Focus ${emotionalDNA.focus}%`,
+        className: "bg-green-50 border-green-200 text-green-800",
+      });
+    }
   };
 
   const handleSkip = (direction: 'forward' | 'back') => {
@@ -556,9 +507,7 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  useEffect(() => {
-    fetchEmotionalDNA();
-  }, [selectedPet.id]);
+  // Il DNA emotivo viene gestito automaticamente dal servizio centralizzato AdaptiveIntelligence
 
   useEffect(() => {
     return () => {
@@ -761,27 +710,27 @@ export const AIMusicTherapy: React.FC<AIMusicTherapyProps> = ({ selectedPet }) =
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Calma</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={emotionalDNA.calma} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">{emotionalDNA.calma}%</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Energia</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={emotionalDNA.energia} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">{emotionalDNA.energia}%</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Focus</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={emotionalDNA.focus} className="w-20 h-2" />
-                  <span className="text-xs text-muted-foreground">{emotionalDNA.focus}%</span>
-                </div>
-              </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-sm">Calma</span>
+                 <div className="flex items-center gap-2">
+                   <Progress value={emotionalDNA?.calma || 50} className="w-20 h-2" />
+                   <span className="text-xs text-muted-foreground">{emotionalDNA?.calma || 50}%</span>
+                 </div>
+               </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-sm">Energia</span>
+                 <div className="flex items-center gap-2">
+                   <Progress value={emotionalDNA?.energia || 50} className="w-20 h-2" />
+                   <span className="text-xs text-muted-foreground">{emotionalDNA?.energia || 50}%</span>
+                 </div>
+               </div>
+               <div className="flex justify-between items-center">
+                 <span className="text-sm">Focus</span>
+                 <div className="flex items-center gap-2">
+                   <Progress value={emotionalDNA?.focus || 50} className="w-20 h-2" />
+                   <span className="text-xs text-muted-foreground">{emotionalDNA?.focus || 50}%</span>
+                 </div>
+               </div>
               {moodAdaptation && isPlaying && (
                 <div className="pt-2 text-xs text-primary text-center animate-pulse">
                   Adattamento attivo
