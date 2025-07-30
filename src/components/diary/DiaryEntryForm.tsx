@@ -568,22 +568,13 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
-            <AlertDialogAction
+            <Button
               onClick={handleConfirmDelete}
-              style={{ 
-                backgroundColor: '#dc2626', 
-                borderColor: '#dc2626',
-                color: 'white'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#b91c1c';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#dc2626';
-              }}
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700 text-white border-red-600"
             >
               Conferma
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
