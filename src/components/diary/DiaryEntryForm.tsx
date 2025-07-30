@@ -570,7 +570,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
             <AlertDialogCancel>Annulla</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="!bg-red-600 hover:!bg-red-700 !text-white !border-red-600"
             >
               Conferma
             </AlertDialogAction>
