@@ -5,30 +5,35 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+
 import { AppearanceProvider } from "@/contexts/AppearanceContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import { AdminLayout } from "@/components/AdminLayout";
-
-// Direct imports - RESTORED STABILITY
 import DashboardPage from "@/pages/DashboardPage";
 import PetsPage from "@/pages/PetsPage";
 import AnalysisPage from "@/pages/AnalysisPage";
 import DiaryPage from "@/pages/DiaryPage";
 import CalendarPage from "@/pages/CalendarPage";
+
 import AIMusicTherapyPage from "@/pages/AIMusicTherapyPage";
 import AuthPage from "@/pages/AuthPage";
+
 import CommunityPage from "@/pages/CommunityPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import SubscriptionSuccessPage from "@/pages/SubscriptionSuccessPage";
 import ResetPassword from "@/pages/ResetPassword";
 import { Index } from "./pages/Index";
+
 import SupportPage from "@/pages/SupportPage";
 import PetMatchingPage from "@/pages/PetMatchingPage";
 import TrainingPage from "@/pages/TrainingPage";
 import TrainingDashboard from "@/pages/TrainingDashboard";
+
+// Admin Pages
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
 import { AdminTickets } from "./pages/admin/AdminTickets";
+
 import SettingsPage from './pages/SettingsPage';
 import NotFound from "./pages/NotFound";
 import { NotificationEventsProvider } from './contexts/NotificationEventsContext';

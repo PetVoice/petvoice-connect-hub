@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
@@ -41,15 +40,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePets } from '@/contexts/PetContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { SkeletonLoader } from '@/components/ui/skeleton-loader';
-import { useSkeletonState } from '@/hooks/useSkeletonState';
-import { LazyImage } from '@/components/ui/lazy-image';
 import { format, isToday, subDays } from 'date-fns';
 import WellnessTrendChart from '@/components/dashboard/WellnessTrendChart';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { FirstAidGuide } from '@/components/FirstAidGuide';
-import { ButtonDemo } from '@/components/ui/button-demo';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -90,11 +85,6 @@ const DashboardPage: React.FC = () => {
     calendarEvents: 0
   });
   const [loading, setLoading] = useState(false);
-  
-  // Skeleton states for different sections
-  const statsLoader = useSkeletonState(false, { delay: 150, minDuration: 800 });
-  const actionsLoader = useSkeletonState(false, { delay: 100, minDuration: 600 });
-  const chartsLoader = useSkeletonState(false, { delay: 200, minDuration: 1000 });
   
   // Stati per le card wellness
   const [healthMetrics, setHealthMetrics] = useState<any[]>([]);
@@ -272,11 +262,6 @@ const DashboardPage: React.FC = () => {
       }
 
       setLoading(true);
-      // Show skeleton loaders
-      statsLoader.showSkeleton();
-      actionsLoader.showSkeleton();
-      chartsLoader.showSkeleton();
-      
       try {
         const today = new Date();
         const lastWeek = subDays(today, 7);
@@ -503,10 +488,6 @@ const DashboardPage: React.FC = () => {
         console.error('Error loading pet stats:', error);
       } finally {
         setLoading(false);
-        // Hide skeleton loaders with minimum duration
-        statsLoader.hideSkeleton();
-        actionsLoader.hideSkeleton();
-        chartsLoader.hideSkeleton();
       }
     };
 
@@ -1593,7 +1574,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      
       {/* Welcome Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -1602,30 +1582,6 @@ const DashboardPage: React.FC = () => {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Gestisci la salute e il benessere dei tuoi compagni animali con l'intelligenza artificiale
         </p>
-        
-        {/* Pet Gallery - Lazy Loading Demo */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-4xl mx-auto">
-          <img
-            src="https://images.unsplash.com/photo-1517849845537-4d257902454a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            alt="Golden Retriever"
-            className="w-full h-32 rounded-lg object-cover"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1574158622682-e40e69881006?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            alt="Cat"
-            className="w-full h-32 rounded-lg object-cover"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            alt="Labrador"
-            className="w-full h-32 rounded-lg object-cover"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-            alt="Cat"
-            className="w-full h-32 rounded-lg object-cover"
-          />
-        </div>
       </div>
 
       {/* Selected Pet Info */}
@@ -1654,14 +1610,6 @@ const DashboardPage: React.FC = () => {
       {selectedPet && (
         <Card className="bg-gradient-to-br from-rose-50/80 to-pink-50/60 border-rose-200/50 shadow-elegant hover:shadow-glow transition-all duration-300 mb-6">
           <CardContent className="space-y-4 p-6">
-            {statsLoader.isLoading ? (
-              <>
-                <SkeletonLoader variant="header" className="mb-4" />
-                <SkeletonLoader variant="text" lines={2} spacing="md" />
-                <SkeletonLoader className="h-3 w-full mt-4" />
-              </>
-            ) : (
-              <>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Heart className="h-6 w-6 text-rose-500" />
@@ -1700,8 +1648,6 @@ const DashboardPage: React.FC = () => {
                 <span>100%</span>
               </div>
             </div>
-            </>
-            )}
           </CardContent>
         </Card>
       )}
@@ -1709,16 +1655,7 @@ const DashboardPage: React.FC = () => {
       {/* Quick Action Cards - Individual cards between health score and chart */}
       {selectedPet && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {actionsLoader.isLoading ? (
-            Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} className="border-0 shadow-elegant">
-                <CardContent className="p-6">
-                  <SkeletonLoader variant="card" />
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            quickActions.map((action, index) => (
+          {quickActions.map((action, index) => (
             <Card
               key={index}
               className={`border-0 shadow-elegant hover:shadow-glow transition-all duration-300 cursor-pointer hover:scale-[1.01] hover:border-primary/20 ${
@@ -1752,23 +1689,14 @@ const DashboardPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          )))}
+          ))}
         </div>
       )}
 
       {/* Wellness Trend Chart */}
       {selectedPet && user && (
         <div className="mb-16 w-full">
-          {chartsLoader.isLoading ? (
-            <Card>
-              <CardContent className="p-6">
-                <SkeletonLoader variant="header" className="mb-6" />
-                <SkeletonLoader className="h-80 w-full" />
-              </CardContent>
-            </Card>
-          ) : (
-            <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
-          )}
+          <WellnessTrendChart petId={selectedPet.id} userId={user.id} petType={selectedPet.type} />
         </div>
       )}
 
@@ -1841,15 +1769,13 @@ const DashboardPage: React.FC = () => {
                     <PieChartIcon className="h-10 w-10 text-pink-500/60" />
                   </div>
                   <p className="text-lg text-muted-foreground mb-6">Nessuna analisi disponibile</p>
-                  <EnhancedButton 
+                  <Button 
                     onClick={() => navigate('/analysis')}
                     className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                    successText="Avviato!"
-                    onSuccess={() => console.log('Analisi avviata con successo!')}
                   >
                     <Microscope className="h-5 w-5 mr-2" />
                     Inizia Analisi
-                  </EnhancedButton>
+                  </Button>
                 </div>
                 )}
               </ScrollArea>
@@ -1866,15 +1792,14 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <span className="text-cyan-800">Parametri Vitali</span>
                 </div>
-                <EnhancedButton
+                <Button
                   onClick={() => handleAddItem('vitals')}
                   size="sm"
                   variant="ghost"
                   className="text-cyan-500 hover:text-cyan-600 hover:bg-cyan-50"
-                  successText="Aggiunto!"
                 >
                   <Plus className="h-4 w-4" />
-                </EnhancedButton>
+                </Button>
               </CardTitle>
               <CardDescription className="text-lg text-cyan-600">Monitoraggio della salute del tuo pet</CardDescription>
             </CardHeader>
@@ -2929,16 +2854,10 @@ const DashboardPage: React.FC = () => {
               />
             </div>
             <div className="flex gap-2 pt-4">
-              <EnhancedButton 
-                onClick={handleVitalSubmit} 
-                className="flex-1"
-                loadingText="Salvando..."
-                successText={vitalModal.mode === 'add' ? 'Aggiunto!' : 'Salvato!'}
-                errorText="Errore"
-              >
+              <Button onClick={handleVitalSubmit} className="flex-1">
                 <Save className="h-4 w-4 mr-2" />
                 {vitalModal.mode === 'add' ? 'Aggiungi' : 'Salva'}
-              </EnhancedButton>
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={() => setVitalModal(prev => ({ ...prev, open: false }))}

@@ -160,24 +160,6 @@ export default {
 					'0%, 100%': { transform: 'rotate(0deg)' },
 					'25%': { transform: 'rotate(1deg)' },
 					'75%': { transform: 'rotate(-1deg)' }
-				},
-				'button-press': {
-					'0%': { transform: 'scale(1) rotate(0deg)' },
-					'100%': { transform: 'scale(0.98) rotate(-1deg)' }
-				},
-				'button-success': {
-					'0%': { transform: 'scale(1)', backgroundColor: 'hsl(var(--success))' },
-					'50%': { transform: 'scale(1.05)', backgroundColor: 'hsl(var(--success) / 0.9)' },
-					'100%': { transform: 'scale(1)', backgroundColor: 'hsl(var(--success))' }
-				},
-				'button-error': {
-					'0%': { transform: 'scale(1)', backgroundColor: 'hsl(var(--destructive))' },
-					'50%': { transform: 'scale(1.05)', backgroundColor: 'hsl(var(--destructive) / 0.9)' },
-					'100%': { transform: 'scale(1)', backgroundColor: 'hsl(var(--destructive))' }
-				},
-				'spinner': {
-					'0%': { transform: 'rotate(0deg)' },
-					'100%': { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
@@ -195,11 +177,7 @@ export default {
 				'shimmer': 'shimmer 2s infinite',
 				'ripple': 'ripple 0.6s linear',
 				'bounce-gentle': 'bounce-gentle 2s ease-in-out infinite',
-				'wiggle': 'wiggle 1s ease-in-out infinite',
-				'button-press': 'button-press 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
-				'button-success': 'button-success 0.8s ease-out',
-				'button-error': 'button-error 0.8s ease-out',
-				'spinner': 'spinner 1s linear infinite'
+				'wiggle': 'wiggle 1s ease-in-out infinite'
 			}
 		}
 	},
