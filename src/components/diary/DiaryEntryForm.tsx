@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -79,6 +80,11 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
   const [customTag, setCustomTag] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: 'photo' | 'voice' | null;
+    url?: string;
+  }>({ type: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
@@ -222,6 +228,31 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
         setMediaRecorder(null);
       }
     }
+  };
+
+  const openPhoto = (url: string) => {
+    setSelectedPhoto(url);
+  };
+
+  const closePhotoViewer = () => {
+    setSelectedPhoto(null);
+  };
+
+  const confirmDeletePhoto = (url: string) => {
+    setDeleteConfirm({ type: 'photo', url });
+  };
+
+  const confirmDeleteVoice = () => {
+    setDeleteConfirm({ type: 'voice' });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteConfirm.type === 'photo' && deleteConfirm.url) {
+      removePhoto(deleteConfirm.url);
+    } else if (deleteConfirm.type === 'voice') {
+      removeVoiceNote();
+    }
+    setDeleteConfirm({ type: null });
   };
 
   const removePhoto = (urlToRemove: string) => {
@@ -449,10 +480,11 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
                           <img 
                             src={url} 
                             alt={`Foto ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border"
+                            className="w-full h-24 object-cover rounded-lg border cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => openPhoto(url)}
                           />
                           <button
-                            onClick={() => removePhoto(url)}
+                            onClick={() => confirmDeletePhoto(url)}
                             className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             <X className="h-3 w-3" />
@@ -473,7 +505,7 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
                         Il tuo browser non supporta l'elemento audio.
                       </audio>
                       <button
-                        onClick={removeVoiceNote}
+                        onClick={confirmDeleteVoice}
                         className="text-red-500 hover:text-red-700"
                       >
                         <X className="h-4 w-4" />
@@ -500,6 +532,51 @@ export const DiaryEntryForm: React.FC<DiaryEntryFormProps> = ({
           </div>
         </div>
       </DialogContent>
+
+      {/* Photo Viewer Modal */}
+      <Dialog open={!!selectedPhoto} onOpenChange={closePhotoViewer}>
+        <DialogContent className="max-w-4xl p-0 bg-black/90">
+          <div className="relative">
+            <button
+              onClick={closePhotoViewer}
+              className="absolute top-4 right-4 z-10 text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            {selectedPhoto && (
+              <img
+                src={selectedPhoto}
+                alt="Foto ingrandita"
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm.type !== null} onOpenChange={() => setDeleteConfirm({ type: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteConfirm.type === 'photo' 
+                ? 'Sei sicuro di voler eliminare questa foto? L\'azione non può essere annullata.'
+                : 'Sei sicuro di voler eliminare la nota vocale? L\'azione non può essere annullata.'
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Conferma
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
